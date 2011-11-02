@@ -1,16 +1,27 @@
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
 
 
 public class Animal extends Box
 {
+	
+	static float HEIGHT=0.2f;
+	
 	Geometry myGeo;
 	Material myMat;
 	ColorRGBA myCol;
+	
+	Vector3f forward;
+	Vector3f backward;
+	Vector3f current;
+	
+	Quaternion rotation;
 	
 	public Animal(AssetManager assetManager)
 	{
@@ -22,10 +33,17 @@ public class Animal extends Box
 		super(x, y, z);
 	}
 
-	public Animal(AssetManager assetManager,Vector3f center, float x, float y, float z)
+	public Animal(AssetManager assetManager,float x, float z)
 	{
-		super(center, x, y, z);
+		super(new Vector3f(0, 0, 0), x, HEIGHT, z);
 		init(assetManager);
+		
+		forward = new Vector3f(0,0,0.1f);
+		
+		backward = new Vector3f(0,0,-0.1f);
+		
+		current = new Vector3f(0,0,0);
+		
 	}
 
 	public Animal(Vector3f min, Vector3f max)
@@ -65,6 +83,33 @@ public class Animal extends Box
 		
 	}
 	
+	
+	public void moveUp()
+	{		
+	
+		rotation = myGeo.getWorldRotation();
+			
+		current = rotation.mult(forward);
+
+		myGeo.move(current);
+		
+	}
+	public void moveDown()
+	{
+		rotation = myGeo.getWorldRotation();
+		
+		current = rotation.mult(backward);
+
+		myGeo.move(current);
+	}
+	public void turnLeft()
+	{
+		myGeo.rotate(0, 0.1f, 0);
+	}
+	public void turnRight()
+	{
+		myGeo.rotate(0, -0.1f, 0);
+	}
 	
 	public void move(Vector3f vector)
 	{
