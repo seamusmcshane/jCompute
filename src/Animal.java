@@ -5,7 +5,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
 
 
 public class Animal extends Box
@@ -83,17 +82,22 @@ public class Animal extends Box
 		
 	}
 	
-	
+	/* Move in the world relative rotation based forward direction*/
 	public void moveUp()
 	{		
 	
+		/* World based Rotation Quaternion of object */
 		rotation = myGeo.getWorldRotation();
 			
+		/* Rotation Matrix * forward matrix ie Add forward step to current Direction */
 		current = rotation.mult(forward);
 
+		/* Move to the new location */
 		myGeo.move(current);
 		
 	}
+	
+	/* As moveUp only using Backward Step */
 	public void moveDown()
 	{
 		rotation = myGeo.getWorldRotation();
@@ -121,14 +125,6 @@ public class Animal extends Box
 	{
 		return myGeo;
 	}
-	
-	private void display()
-	{
 		
-	}
-	
-	
-
-	
 }
 

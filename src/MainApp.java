@@ -1,27 +1,17 @@
 import com.jme3.app.SimpleApplication;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
-import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture;
 import com.jme3.material.Material;
 
 public class MainApp extends SimpleApplication
@@ -47,7 +37,9 @@ public class MainApp extends SimpleApplication
 		
 		
 		mainapp.start();
-		size = 100;
+		
+		size = 64;
+		
 	}
 
 	@Override
@@ -126,33 +118,35 @@ public class MainApp extends SimpleApplication
 	{
 		ColorRGBA boundaryColor = ColorRGBA.White;
 
+		float height = 0.2f;
+		
 		/* X,Y,Z, SizeX,SizeY,SizeZ */
 
 		/*
 		 * Corners
 		 */
-		Box brightCorner = new Box(new Vector3f(0, 0, 0), 0.5f, 1, 0.5f);
+		Box brightCorner = new Box(new Vector3f(0, 0, 0), 0.5f, height, 0.5f);
 		Geometry brightCornerGeom = new Geometry("brightCorner", brightCorner);
 		Material brightCornermat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		brightCornermat.setColor("Color", ColorRGBA.Red);
 		brightCornerGeom.setMaterial(brightCornermat);
 		rootNode.attachChild(brightCornerGeom);
 
-		Box bleftCorner = new Box(new Vector3f(size, 0, 0), 0.5f, 1, 0.5f);
+		Box bleftCorner = new Box(new Vector3f(size, 0, 0), 0.5f, height, 0.5f);
 		Geometry bleftCornerGeom = new Geometry("bleftCorner", bleftCorner);
 		Material bleftCornermat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		bleftCornermat.setColor("Color", ColorRGBA.Orange);
 		bleftCornerGeom.setMaterial(bleftCornermat);
 		rootNode.attachChild(bleftCornerGeom);
 
-		Box tleftCorner = new Box(new Vector3f(size, 0, size), 0.5f, 1, 0.5f);
+		Box tleftCorner = new Box(new Vector3f(size, 0, size), 0.5f, height, 0.5f);
 		Geometry tleftCornerGeom = new Geometry("tleftCorner", tleftCorner);
 		Material tleftCornermat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		tleftCornermat.setColor("Color", ColorRGBA.Green);
 		tleftCornerGeom.setMaterial(tleftCornermat);
 		rootNode.attachChild(tleftCornerGeom);
 
-		Box trightCorner = new Box(new Vector3f(0, 0, size), 0.5f, 1, 0.5f);
+		Box trightCorner = new Box(new Vector3f(0, 0, size), 0.5f, height, 0.5f);
 		Geometry trightCornerGeom = new Geometry("trightCorner", trightCorner);
 		Material trightCornermat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		trightCornermat.setColor("Color", ColorRGBA.Yellow);
@@ -163,7 +157,7 @@ public class MainApp extends SimpleApplication
 		 * Side
 		 */
 
-		Box bottom = new Box(new Vector3f(size / 2, 0, 0), (size / 2) - 0.5f, 1, 0.5f);
+		Box bottom = new Box(new Vector3f(size / 2, 0, 0), (size / 2) - 0.5f, height, 0.5f);
 		Geometry bottomGeom = new Geometry("bottom", bottom);
 		Material bottomMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		bottomMat.setColor("Color", boundaryColor);
@@ -171,7 +165,7 @@ public class MainApp extends SimpleApplication
 		bottomGeom.setMaterial(bottomMat);
 		rootNode.attachChild(bottomGeom);
 
-		Box top = new Box(new Vector3f(size / 2, 0, size), (size / 2) - 0.5f, 1, 0.5f);
+		Box top = new Box(new Vector3f(size / 2, 0, size), (size / 2) - 0.5f, height, 0.5f);
 		Geometry topGeom = new Geometry("top", top);
 		Material topMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		topMat.setColor("Color", boundaryColor);
@@ -179,7 +173,7 @@ public class MainApp extends SimpleApplication
 		topGeom.setMaterial(topMat);
 		rootNode.attachChild(topGeom);
 
-		Box left = new Box(new Vector3f(size, 0, size / 2), 0.5f, 1, (size / 2) - 0.5f);
+		Box left = new Box(new Vector3f(size, 0, size / 2), 0.5f, height, (size / 2) - 0.5f);
 		Geometry leftGeom = new Geometry("left", left);
 		Material leftMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		leftMat.setColor("Color", boundaryColor);
@@ -187,7 +181,7 @@ public class MainApp extends SimpleApplication
 		leftGeom.setMaterial(leftMat);
 		rootNode.attachChild(leftGeom);
 
-		Box right = new Box(new Vector3f(0, 0, size / 2), 0.5f, 1, (size / 2) - 0.5f);
+		Box right = new Box(new Vector3f(0, 0, size / 2), 0.5f, height, (size / 2) - 0.5f);
 		Geometry rightGeom = new Geometry("right", right);
 		Material rightMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		rightMat.setColor("Color", boundaryColor);
