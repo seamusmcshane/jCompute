@@ -1,27 +1,42 @@
 import java.util.Random;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Vector2f;
 
-public class mainApp extends BasicGame
+public class mainApp extends BasicGame implements MouseListener
 {
-	static int screen_width=1280;
-	static int screen_height=720;
-		
+	static int screen_width=700;
+	static int screen_height=700;
+	static int frame_rate=15;
+	static boolean frame_cap=false;
+	static int frame_num=0;
+	static int step_num=0;
+	
 	int num_agents=1000;
 	//SimpleAgent agent[];
 	
 	AgentManager agentManager;
 	
 	World world;
-	int world_size=screen_height-20;
-	int agent_size=3;
+	static int world_size=screen_height-20;
+	int agent_size=4;
 	
 	int draw=0;
+	
+	public static Vector2f mouse_pos = new Vector2f(world_size,world_size);
+	private static int mouse_range=25;
+	public static Rectangle m = new Rectangle(mouse_pos.getX()-mouse_range,mouse_pos.getY()-mouse_range,mouse_range*2,mouse_range*2);
+
+	
+	public static Vector2f global_translate = new Vector2f(10,10);
 	
 	public mainApp()
 	{
@@ -45,16 +60,19 @@ public class mainApp extends BasicGame
 		int i;
 
 		int x,y,t,s;
-		for(i=0;i<=num_agents;i++)
+		for(i=0;i<num_agents;i++)
 		{
 			xr.setSeed(System.nanoTime());
+			
 			x=xr.nextInt(world_size)+1;
+			
 		    yr.setSeed(System.nanoTime());
+		    
 		    y=yr.nextInt(world_size)+1;
 		    
-		    t=tr.nextInt(2)+1;
+		    t=tr.nextInt(4)+1;
 		    
-		    s=sr.nextInt(5)+1;
+		    s=sr.nextInt(agent_size)+2;
 
 		    
 			//agent[i] = new SimpleAgent(x,y,agent_size,world_size);
@@ -81,6 +99,7 @@ public class mainApp extends BasicGame
 				
 		agentManager.doAi();
 		
+		step_num++;
 		
 	}
 
@@ -88,30 +107,41 @@ public class mainApp extends BasicGame
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
 		
-		g.setClip(0,0,screen_width,screen_height);
-
+		
 		/* Center Origin on Screen */
-		g.translate(screen_width/4,10);
+		g.translate(global_translate.getX(),global_translate.getY());
+		g.setClip(0,0,screen_width,screen_height);
+		
 		g.setAntiAlias(true);
-		
-		
+						
 		/*Grid */
 		world.drawWorld(g);
 		
 		/* Agents */
 		drawAgents(g);
-		
+
+		g.setColor(Color.blue);
+		g.draw(m);
+
 		/* Gui */
 		g.setColor(Color.white);
-		g.drawString("Alife Sim Test", screen_height/2, 0);		
-	
+		g.drawString("Alife Sim Test\nNumber Active Agents : " + num_agents + "\nMouse Pos :"+ mouse_pos.toString() + "\n Frame Number : " + frame_num + "\n Step Num : " + step_num, screen_width/4, 0);		
+
+		frame_num++;
+
 	}
 
 	private void drawAgents(Graphics g)
 	{		
-		
 		agentManager.drawAI(g);
+	}
 	
+	@Override
+	public void mouseMoved(int oldx, int oldy, int newx, int newy) 
+	{
+		mouse_pos.set(newx-global_translate.getX(), newy-global_translate.getY());
+		m.setLocation(mouse_pos.getX()-mouse_range,mouse_pos.getY()-mouse_range);
+
 	}
 	
 	public static void main(String[] args)
@@ -119,9 +149,17 @@ public class mainApp extends BasicGame
 		try
 		{
 			AppGameContainer app = new AppGameContainer(new mainApp());
-	        app.setDisplayMode(screen_width, screen_height, false);
+			app.setTitle("Alife Sim");
+			app.setUpdateOnlyWhenVisible(false);
+			app.setDisplayMode(screen_width, screen_height, false);
+			
+			app.setClearEachFrame(true);
 			app.setVSync(false);
-			//app.setTargetFrameRate(15);
+			
+			if(frame_cap)
+			{
+				app.setTargetFrameRate(frame_rate);
+			}
 			
 	        app.start();
 		}

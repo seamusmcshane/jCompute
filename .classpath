@@ -12,9 +12,6 @@
 			<attribute name="javadoc_location" value="file:/C:/Users/Seamie/Desktop/Project/Repo/AlifeSim/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="jsi-rtree/jsi-1.0-20120105.212653-1.jar"/>
-	<classpathentry kind="lib" path="jsi-rtree/slf4j-api-1.6.4.jar"/>
-	<classpathentry kind="lib" path="jsi-rtree/slf4j-nop-1.6.4.jar"/>
-	<classpathentry kind="lib" path="trove/trove-2.1.0.jar"/>
+	<classpathentry kind="lib" path="prtree/prtree.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

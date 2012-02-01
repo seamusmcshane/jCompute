@@ -1,29 +1,46 @@
-import gnu.trove.TIntIntProcedure;
-import gnu.trove.TIntProcedure;
-
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import org.khelekore.prtree.DistanceResult;
+import org.khelekore.prtree.MBRConverter;
+import org.khelekore.prtree.PRTree;
+import org.khelekore.prtree.SimpleMBR;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Vector2f;
 
-import com.infomatiq.jsi.Point;
-import com.infomatiq.jsi.rtree.RTree;
 
 public class AgentManager
 {
 
 	/* Field of View */
-	RTree worldView;
+	PRTree<SimpleAgent> worldView;
+    Bounds converter = new Bounds();
+    DistanceCalc distancecalc = new DistanceCalc();
 	
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
 	LinkedList<SimpleAgent> doneList;
+	
+	/* Temp */
+	Iterable<SimpleAgent> tempList;
+	/*Iterator tempItr;*/
 
+	
+	/* DrawAI */
+	ListIterator<SimpleAgent> itrDrawAI;
+	SimpleAgent tAgentDrawAI;
+	
+	/* DoAI */
+	
+	
 	int agentCount;
 	int agentsDone;
 	int agentsTodo;
 			
+	SimpleAgent testAgent;
+	
 	public AgentManager()
 	{
 		setUpLists();
@@ -36,18 +53,31 @@ public class AgentManager
 	/* Being born counts as an Action */
 	public void addNewAgent(SimpleAgent agent)
 	{
+		if(agentCount==0)
+		{
+			testAgent=agent;
+			testAgent.setVisible(true);
+			testAgent.setHighlighted(true);
+		}
+		
+		agent.setHighlighted(false);
+		agent.setVisible(true);
+		
 		doneList.add(agent);
+		agentCount++;
 	}
 	
 	public void drawAI(Graphics g) 
 	{
 		
-		ListIterator<SimpleAgent> itr = doneList.listIterator(); 
+		itrDrawAI = doneList.listIterator(); 
 		
-		while(itr.hasNext()) 
+		while(itrDrawAI.hasNext()) 
 		{
 
-			itr.next().drawAgent(g);
+			tAgentDrawAI = itrDrawAI.next();
+			tAgentDrawAI.drawAgent(g);
+			tAgentDrawAI.drawViewRange(g);
 			
 		}		
 		
@@ -61,7 +91,11 @@ public class AgentManager
 		setUpRTree();
 		
 		randomizeListOrder();
-
+		
+		/* TODO Threaded */
+		//setUpAgentViews();
+		
+		/* Non Threaded */
 		doAgents();
 		
 	}
@@ -69,31 +103,25 @@ public class AgentManager
 		  
 	private void setUpRTree()
 	{
-		worldView = new RTree();
-	
-		ListIterator<SimpleAgent> itr = doneList.listIterator(); 
-		
-		int i=0;
-		
-		while(itr.hasNext()) 
-		{
-			worldView.add(itr.next().getBodyBounds(),i);
-		
-			System.out.println("Slow");
-			
-			i++;
-						
-		}	
-		
-		
-		
+		worldView = new PRTree<SimpleAgent>(converter, 100);
+		worldView.load(doList);		
 	}
 
 	private void setUpLists()
 	{
-		doList = doneList;
-		
+		doList = doneList;		
 		doneList = new LinkedList<SimpleAgent>();			
+	}
+	
+	private void setUpAgentViews()
+	{
+		ListIterator<SimpleAgent> itr = doList.listIterator(); 
+		while(itr.hasNext()) 
+		{
+			
+			
+		}
+		
 	}
 	
 	/* Performs AI Action and moves it to Done list */
@@ -107,8 +135,58 @@ public class AgentManager
 			/* Remove this Agent from the List */
 			SimpleAgent temp = itr.next();
 			
+			/*temp.setHighlighted(false);
+			
+			temp.setVisible(false);*/
+			
 			/* remove from the doList */
 			itr.remove();
+			
+			/* Views */
+			//temp.upDateView();
+			//tempList = worldView.nearestNeighbour(distancecalc, mainApp.mouse_pos.getX(),mainApp.mouse_pos.getY());
+			
+			// = worldView.find(mainApp.m.getMinX(),mainApp.m.getMinY(),mainApp.m.getMaxX(),mainApp.m.getMaxY());	
+			
+			tempList = worldView.find(temp.getFieldofView().getMinX(),temp.getFieldofView().getMinY(),temp.getFieldofView().getMaxX(),temp.getFieldofView().getMaxY());
+					
+			temp.updateAgentView(tempList);
+			
+			//testAgent.setHighlighted(true);
+			
+//			tempList = worldView.find(mainApp.mouse_pos.getX()-(temp.getRange()/4),mainApp.mouse_pos.getY()-(temp.getRange()/4),mainApp.mouse_pos.getX()+(temp.getRange()/4),mainApp.mouse_pos.getY()+(temp.getRange()/4));
+
+			//body.getBodyPos().getX()-(range_limit/2),body.getBodyPos().getY()-(range_limit/2)
+
+			
+			/*if(tempList!=null)
+			{
+
+				tempItr =  tempList.iterator();
+
+				while(tempItr.hasNext())
+				{
+					((SimpleAgent) tempItr.next()).setHighlighted(true);
+				}*/
+			
+				/*if(temp.equals(tempList.get()))
+				{
+					if(tempList.getDistance()<temp.getRange())
+					{
+						temp.setHighlighted(true);
+					}
+					else
+					{
+						temp.setHighlighted(false);
+					}
+
+				}
+				else
+				{
+					temp.setHighlighted(false);
+
+				}*/
+			/*}*/
 			
 			/* Move, Eat ,Sleep etc */
 			temp.think();

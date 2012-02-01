@@ -1,30 +1,37 @@
+import org.khelekore.prtree.MBR;
+import org.khelekore.prtree.SimpleMBR;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Vector2f;
 
 public class SimpleAgentBody
 {
 
+	/* Agent Body */
 	Rectangle body;
 	Rectangle body_center;
-	
-	/* Tree */
-	com.infomatiq.jsi.Rectangle bodybounds;
-	
+		
 	Color color;
 
+	Vector2f body_pos;
 	
-	float x;
-	float y;
+
 	float size;
 	int type;
 	
-	public SimpleAgentBody(float x,float y,float size,int type)
+	float speed=1;
+	float dir=0;
+	
+	public SimpleAgentBody(Vector2f pos,float size,int type)
 	{
-		this.type=type;
+		this.type = type;
+		
 		this.size = size;		
+		
+		body_pos = pos;
+		
 		initBody();
-		updateBodyPosition(x,y);		
 	}
 	
 	/*
@@ -34,14 +41,10 @@ public class SimpleAgentBody
 	
 	private void initBody()
 	{
-		
-		
-		body = new Rectangle(this.x-(size/2),this.y-(size/2),this.size,this.size);
-		
-		/* FOR TREE */
-		bodybounds = new com.infomatiq.jsi.Rectangle(this.x-(size/2),this.y-(size/2),this.size,this.size);	
-		
-		body_center = new Rectangle(this.x-(size/2),this.y-(size/2),this.size/2,this.size/2);
+			
+		body = new Rectangle(0,0,this.size,this.size);
+			
+		body_center = new Rectangle(0,0,0,0);
 		
 		color();
 	}
@@ -69,16 +72,14 @@ public class SimpleAgentBody
 		}
 	}
 	
-	/* Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
-	public boolean move(float request_X,float request_Y)
+	/* TODO Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
+	public boolean move(Vector2f req_pos)
 	{
 		/* If physics says yes then move the agent */
-		if(!World.isBondaryWall(request_X, request_Y))
+		if(!World.isBondaryWall(this.getBodyPos().getX()+req_pos.getX(), this.getBodyPos().getY()+req_pos.getY()))
 		{
-			this.x = request_X;
-			this.y = request_Y;
 			
-			updateBodyPosition(this.x, this.y);
+			updateBodyPosition(req_pos);
 			
 			return true;
 		}
@@ -86,28 +87,39 @@ public class SimpleAgentBody
 		/* Agent is trying to move into a wall - move denied */
 		return false;		
 	}
-	
-	private void updateBodyPosition(float x,float y)
+
+	private void setIntialPos(Vector2f pos)
 	{
+		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+body_pos.getY());
+			
+		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
+		
+		body_center.setLocation((body_pos.getX()-(size/2))+(size/4), (body_pos.getY()-(size/2))+(size/4));		
+	}
 	
-		this.x = x-(size/2);
+	private void updateBodyPosition(Vector2f pos)
+	{
+		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+pos.getY());
+				
+		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
 		
-		this.y = y-(size/2);
-		
-		body.setLocation(this.x, this.y);
-		
-		body_center.setLocation(this.x+(size/4), this.y+(size/4));
+		body_center.setLocation((body_pos.getX()-(size/2))+(size/4), (body_pos.getY()-(size/2))+(size/4));
 	}
 
+	public Vector2f getBodyPos()
+	{
+		return body_pos;
+	}
+	
 	/*
 	 * 
 	 * Graphics
 	 * 
 	 */
 	
-	public com.infomatiq.jsi.Rectangle getBodyBounds()
+	public Rectangle getBodyBounds()
 	{
-		return bodybounds;
+		return body;
 	}
 	
 	public void drawBody(Graphics g)
