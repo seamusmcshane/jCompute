@@ -148,9 +148,10 @@ public class mainApp extends BasicGame implements MouseListener
 	{
 		try
 		{
-			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"),LWJGLUtil.getPlatformName()).getAbsolutePath());
+			/* - For standalone build
+			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"),LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
 			System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
-			
+			*/
 			AppGameContainer app = new AppGameContainer(new mainApp());
 			app.setTitle("Alife Sim");
 			app.setUpdateOnlyWhenVisible(false);
