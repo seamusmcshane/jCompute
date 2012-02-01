@@ -1,276 +1,133 @@
-import com.jme3.app.SimpleApplication;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.font.BitmapFont;
-import com.jme3.font.BitmapText;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.AmbientLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
-import com.jme3.renderer.RenderManager;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.debug.Grid;
-import com.jme3.scene.shape.Box;
-import com.jme3.system.AppSettings;
-import com.jme3.material.Material;
+import java.util.Random;
 
-public class MainApp extends SimpleApplication
+import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.AppGameContainer;
+
+public class mainApp extends BasicGame
 {
-
+	static int screen_width=1280;
+	static int screen_height=720;
+		
+	int num_agents=1000;
+	//SimpleAgent agent[];
+	
+	AgentManager agentManager;
+	
 	World world;
-	BulletAppState bulletAppState; /* Physics */
+	int world_size=screen_height-20;
+	int agent_size=3;
 	
-	static int size;
-	static MainApp mainapp;
-	Agent a1,a2,a3;
+	int draw=0;
+	
+	public mainApp()
+	{
+		super("MainApp");
+	}
 
-	Boolean follow=false;
-	Boolean track=false;
+	@Override
+	public void init(GameContainer container) throws SlickException
+	{
+		world = new World(world_size);
+
+	    Random xr = new Random();
+	    Random yr = new Random();
+	    
+	    Random tr = new Random();
+
+	    Random sr = new Random();
+	    
+	    agentManager = new AgentManager();
+	    
+		int i;
+
+		int x,y,t,s;
+		for(i=0;i<=num_agents;i++)
+		{
+			xr.setSeed(System.nanoTime());
+			x=xr.nextInt(world_size)+1;
+		    yr.setSeed(System.nanoTime());
+		    y=yr.nextInt(world_size)+1;
+		    
+		    t=tr.nextInt(2)+1;
+		    
+		    s=sr.nextInt(5)+1;
+
+		    
+			//agent[i] = new SimpleAgent(x,y,agent_size,world_size);
+		    
+		    agentManager.addNewAgent(new SimpleAgent(x,y,s,world_size,t));
+		    
+		    
+		}  
+	    
+	    
+		
+	}
+
+	@Override
+	public void update(GameContainer container, int delta) throws SlickException
+	{
+		
+		/* Populate the Agent Set */
+		
+		/* Randomize Set Order */
+		
+		/* While Set not Empty - Pick Agent - Do Agent Action */
+		
+				
+		agentManager.doAi();
+		
+		
+	}
+
+	@Override
+	public void render(GameContainer container, Graphics g) throws SlickException
+	{
+		
+		g.setClip(0,0,screen_width,screen_height);
+
+		/* Center Origin on Screen */
+		g.translate(screen_width/4,10);
+		g.setAntiAlias(true);
+		
+		
+		/*Grid */
+		world.drawWorld(g);
+		
+		/* Agents */
+		drawAgents(g);
+		
+		/* Gui */
+		g.setColor(Color.white);
+		g.drawString("Alife Sim Test", screen_height/2, 0);		
 	
+	}
+
+	private void drawAgents(Graphics g)
+	{		
+		
+		agentManager.drawAI(g);
 	
-	BitmapText text;
-	BitmapFont font;
+	}
 	
 	public static void main(String[] args)
 	{
-		AppSettings settings= new AppSettings(true);
-		
-		settings.setTitle("AlifeSim");
-		settings.setVSync(false);
-		settings.setResolution(1280, 720);
-		settings.setFrameRate(60);
-
-		mainapp = new MainApp();
-		
-		mainapp.setShowSettings(false); 
-		mainapp.setSettings(settings);
-		
-		
-		mainapp.start();
-		
-		size = 64;
-		
-	}
-
-	@Override
-	public void simpleInitApp()
-	{
-		bulletAppState = new BulletAppState();
-		
-	    stateManager.attach(bulletAppState);
-		
-	    bulletAppState.getPhysicsSpace().setGravity(new Vector3f(0f,0f,0f));
-	    
-	    bulletAppState.getPhysicsSpace().enableDebug(assetManager);
-	    
-		setupCam();
-
-		setUpWorld(size);
-
-		setupLight();
-		
-		addAnimals(1);
-		
-		setUpKeys();
-		
-		font = assetManager.loadFont("Interface/Fonts/Default.fnt");
-		text = new BitmapText(font,false);
-		text.setSize(40f);
-		text.setText("Init");
-		text.setLocalTranslation(50f, 100f, 0f);
-		
-		guiNode.attachChild(text);
-
-		//text.rotate(-180f, 0f, 0f);
-		
-	}
-
-	public void setUpWorld(int size)
-	{
-		
-		world = new World(size,1, rootNode, assetManager, bulletAppState);
-		
-	}
-	
-	@Override
-	public void simpleUpdate(float tpf)
-	{
-		/* Interact with game events in the main loop */
-		// boxgeom.rotate(0, 0.1f, 0);
-				
-		if(follow==true)
+		try
 		{
-			cam.setLocation(a1.getGeo().getLocalTranslation());
-			cam.setRotation(a1.getGeo().getLocalRotation());
+			AppGameContainer app = new AppGameContainer(new mainApp());
+	        app.setDisplayMode(screen_width, screen_height, false);
+			app.setVSync(false);
+			//app.setTargetFrameRate(15);
+			
+	        app.start();
 		}
-		else
+		catch (SlickException e)
 		{
-			cam.lookAt(new Vector3f(size / 2, 1, size / 2), Vector3f.UNIT_Y);			
+			e.printStackTrace();
 		}
-		
-		text.setText("World " + world.getlabel() + "\n" + "Agent :" + a1.getlabel());
-		//cam.setLocation(a1.getGeo().getLocalTranslation());
-
 	}
-
-	@Override
-	public void simpleRender(RenderManager rm)
-	{
-		/*
-		 * (optional) Make advanced modifications to frameBuffer and scene
-		 * graph.
-		 */
-	}
-
-	private void addAnimals(int num)
-	{
-
-		a1 = new Agent(assetManager, 0.5f, 0.5f,bulletAppState, world);
-		a1.setLoc(new Vector3f(size / 2, 1, size / 2));
-		rootNode.attachChild(a1.getGeo());
-	}
-
-	/* The view */
-	private void setupCam()
-	{
-		cam.setFrustumFar(size * 3);
-
-		flyCam.setEnabled(false);
-		flyCam.setMoveSpeed(10);
-		
-		
-		// cam.setLocation(new Vector3f(size/2, size,0));
-		cam.setLocation(new Vector3f(size/2, size*1.5f, size/2));
-		
-		cam.lookAt(new Vector3f(size / 2, 0, size / 2), Vector3f.UNIT_Y);
-
-		/* Bloom Filter */
-		/*FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-		BloomFilter bf = new BloomFilter(BloomFilter.GlowMode.Objects);
-		bf.setBlurScale(1.5f);
-		bf.setBloomIntensity(2f);
-		bf.setExposureCutOff(2f);
-		fpp.addFilter(bf);
-		viewPort.addProcessor(fpp);*/
-
-	}
-
-	/* Lighting */
-	private void setupLight()
-	{
-		// We add light so we see the scene
-		AmbientLight al = new AmbientLight();
-		al.setColor(ColorRGBA.White.mult(1.3f));
-		rootNode.addLight(al);
-		
-		
-	}
-
-	private void setUpKeys()
-	{
-		// You can map one or several inputs to one named action
-		
-		/* Manual Movement */
-		inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_UP));
-		inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_DOWN));
-		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_LEFT));
-		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_RIGHT));
-
-		/* Follow On/Off */
-		inputManager.addMapping("F", new KeyTrigger(KeyInput.KEY_F));
-		inputManager.addMapping("T", new KeyTrigger(KeyInput.KEY_T));
-		
-		/* Camera Selection */
-		inputManager.addMapping("KP_0", new KeyTrigger(KeyInput.KEY_0));
-		inputManager.addMapping("KP_1", new KeyTrigger(KeyInput.KEY_1));
-		inputManager.addMapping("KP_2", new KeyTrigger(KeyInput.KEY_2));
-		inputManager.addMapping("KP_3", new KeyTrigger(KeyInput.KEY_3));
-		
-		// Add the names to the action listener.
-		/*inputManager.addListener(actionListener, new String[]
-		{"Pause"});*/
-		
-		inputManager.addListener(analogListener, new String[]
-		{"Up", "Down", "Left", "Right" , "KP_0" , "KP_1" , "KP_2" , "KP_3" , "F" ,"T"});
-
-	}
-
-	private void camMode(String mode)
-	{
-				
-		if(mode.equals("Follow"))
-		{
-			follow=true;
-			track=false;
-		}
-		
-		if(mode.equals("Track"))
-		{
-			cam.setLocation(new Vector3f(size/2, 25, -40));
-
-			follow=false;
-			track=true;
-		}
-		
-	}
-	private AnalogListener analogListener = new AnalogListener()
-	{
-		public void onAnalog(String name, float value, float tpf)
-		{
-
-			if(name.equals("Up"))
-			{
-				a1.moveUp();
-			}
-			if(name.equals("Down"))
-			{
-				a1.moveDown();
-			}
-			if(name.equals("Left"))
-			{
-				a1.turnLeft();
-			}
-			if(name.equals("Right"))
-			{
-				a1.turnRight();
-			}
-			
-			if(name.equals("F"))
-			{
-			
-				camMode("Follow");
-				
-			}			
-
-			if(name.equals("T"))
-			{
-				camMode("Track");
-			}	
-			
-			if(name.equals("KP_0"))
-			{
-				cam.setLocation(new Vector3f(size/2, size*1.5f, size/2));
-			}
-			
-			if(name.equals("KP_1"))
-			{
-				cam.setLocation(new Vector3f(size/2, 25, -40));
-			}
-			
-			if(name.equals("KP_2"))
-			{
-				cam.setLocation(new Vector3f(size/2, 50, -40));
-			}
-			
-			if(name.equals("KP_3"))
-			{
-				cam.setLocation(new Vector3f(size/2, 75, -40));
-			}
-			
-		}
-	};
-
 }
