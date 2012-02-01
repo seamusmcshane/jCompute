@@ -1,5 +1,7 @@
+import java.io.File;
 import java.util.Random;
 
+import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Mouse;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -13,6 +15,7 @@ import org.newdawn.slick.geom.Vector2f;
 
 public class mainApp extends BasicGame implements MouseListener
 {
+		
 	static int screen_width=700;
 	static int screen_height=700;
 	static int frame_rate=15;
@@ -20,9 +23,8 @@ public class mainApp extends BasicGame implements MouseListener
 	static int frame_num=0;
 	static int step_num=0;
 	
-	int num_agents=1000;
-	//SimpleAgent agent[];
-	
+	int num_agents=1500;
+
 	AgentManager agentManager;
 	
 	World world;
@@ -62,22 +64,22 @@ public class mainApp extends BasicGame implements MouseListener
 		int x,y,t,s;
 		for(i=0;i<num_agents;i++)
 		{
-			xr.setSeed(System.nanoTime());
+			//xr.setSeed(System.currentTimeMillis());
 			
 			x=xr.nextInt(world_size)+1;
 			
-		    yr.setSeed(System.nanoTime());
+		    //yr.setSeed(System.currentTimeMillis());
 		    
 		    y=yr.nextInt(world_size)+1;
 		    
-		    t=tr.nextInt(4)+1;
+		    t=tr.nextInt(2)+1;
 		    
-		    s=sr.nextInt(agent_size)+2;
+		    s=sr.nextInt(agent_size)+4;
 
 		    
 			//agent[i] = new SimpleAgent(x,y,agent_size,world_size);
 		    
-		    agentManager.addNewAgent(new SimpleAgent(x,y,s,world_size,t));
+		    agentManager.addNewAgent(new SimpleAgent(i,x,y,s,world_size,t));
 		    
 		    
 		}  
@@ -96,17 +98,15 @@ public class mainApp extends BasicGame implements MouseListener
 		
 		/* While Set not Empty - Pick Agent - Do Agent Action */
 		
-				
 		agentManager.doAi();
 		
-		step_num++;
-		
+		step_num++;		
+
 	}
 
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		
 		
 		/* Center Origin on Screen */
 		g.translate(global_translate.getX(),global_translate.getY());
@@ -128,7 +128,7 @@ public class mainApp extends BasicGame implements MouseListener
 		g.drawString("Alife Sim Test\nNumber Active Agents : " + num_agents + "\nMouse Pos :"+ mouse_pos.toString() + "\n Frame Number : " + frame_num + "\n Step Num : " + step_num, screen_width/4, 0);		
 
 		frame_num++;
-
+		
 	}
 
 	private void drawAgents(Graphics g)
@@ -148,6 +148,9 @@ public class mainApp extends BasicGame implements MouseListener
 	{
 		try
 		{
+			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"),LWJGLUtil.getPlatformName()).getAbsolutePath());
+			System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
+			
 			AppGameContainer app = new AppGameContainer(new mainApp());
 			app.setTitle("Alife Sim");
 			app.setUpdateOnlyWhenVisible(false);

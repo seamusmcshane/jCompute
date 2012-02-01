@@ -33,7 +33,7 @@ public class AgentManager
 	SimpleAgent tAgentDrawAI;
 	
 	/* DoAI */
-	int num_threads=10;
+	int num_threads=3;
 	ViewGeneratorThread viewThreads[] = new ViewGeneratorThread[num_threads];
 	LinkedList<SimpleAgent>[] threadedLists = new LinkedList[num_threads];
 	
@@ -55,15 +55,17 @@ public class AgentManager
 	/* Being born counts as an Action */
 	public void addNewAgent(SimpleAgent agent)
 	{
+
+		
+		agent.setHighlighted(false);
+		agent.setVisible(true);
+		
 		if(agentCount==0)
 		{
 			testAgent=agent;
 			testAgent.setVisible(true);
 			testAgent.setHighlighted(true);
-		}
-		
-		agent.setHighlighted(false);
-		agent.setVisible(true);
+		}	
 		
 		doneList.add(agent);
 		agentCount++;

@@ -22,6 +22,7 @@ public class SimpleAgentBody
 	
 	float speed=1;
 	float dir=0;
+	public float direction;
 	
 	public SimpleAgentBody(Vector2f pos,float size,int type)
 	{
@@ -111,6 +112,11 @@ public class SimpleAgentBody
 		return body_pos;
 	}
 	
+	
+	public float getDirection()
+	{
+		return this.direction;
+	}
 	/*
 	 * 
 	 * Graphics

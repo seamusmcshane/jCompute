@@ -2,6 +2,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
+import org.khelekore.prtree.DistanceResult;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Rectangle;
@@ -15,8 +16,13 @@ public class SimpleAgent
 	
 	/* Agent View Range */
 	
+	private int id;
+	
 	private Iterable<SimpleAgent> viewList; /* List of Agents in view */
 	private Iterator iterator;
+	
+	DistanceResult<SimpleAgent> nearestAgent;
+
 	
 	private int range=5;
 	private float range_limit=0; /* Limit = size + range */
@@ -31,6 +37,7 @@ public class SimpleAgent
 	private float x_dir=1,y_dir=1;
 	
 	private float body_size;
+	private float speed;
 	
 	private float next_x,next_y;
 	
@@ -42,11 +49,15 @@ public class SimpleAgent
 	Random d;
 	Vector2f xy;
 	private int moves=0;
-	private int max_dir=50;
+	private int max_dir=0;
 	
-	public SimpleAgent(float x,float y,float body_size,float world_size,int type)
+	public SimpleAgent(int id,float x,float y,float body_size,float world_size,int type)
 	{
+		this.id = id;
+		
 		this.body_size=body_size;
+		
+		this.speed = (1/body_size)+1+type;
 		
 		this.range = (int) (this.range * this.body_size);
 		
@@ -56,7 +67,10 @@ public class SimpleAgent
 		
 		d = new Random();
 		
-		xy = polarToCar(1,d.nextInt(360));
+		max_dir = d.nextInt(100)+1;
+
+		
+		xy = polarToCar(speed,d.nextInt(360));
 		
 		createBody(new Vector2f(x,y));	
 		
@@ -73,33 +87,97 @@ public class SimpleAgent
 	public void think()
 	{
 		
-		if(moves>max_dir)
+		/* TODO if nothing in range and traveled for a while */
+		
+		if(moves>max_dir && nearestAgent == null)
 		{
 			moves=0;
-			xy = polarToCar(1,d.nextInt(360));
+			xy = polarToCar(1,d.nextInt(360)+1);
 			
 			//xy = carToPolar(mainApp.mouse_pos.x,mainApp.mouse_pos.y);
 			
 			//xy = polarToCar(1,xy.y);
 			
 			//xy = 
-			
-			max_dir = d.nextInt(50);
 		}
-		
-		moves++;
-		
 
 		
-		body.move(xy);
+			if(nearestAgent!=null)
+			{
+
+				//System.out.println("Distance " + nearestAgent.getDistance());
+
 				
+					if(nearestAgent.get().getType() != this.getType() && this.type == 2)
+					{				
+						xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
+					
+						xy = polarToCar(speed,-xy.x );
+						moves--;
+						
+						/*if(this.high_lighted == true)
+						System.out.println("Fire 1");*/
+
+					}
+					
+					if(nearestAgent.get().getType() != this.getType() && this.type == 1)
+					{				
+						xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
+					
+						xy = polarToCar(speed,-xy.x );
+						
+						moves--;
+
+						/*if(this.high_lighted == true)
+						System.out.println("Fire 2");*/
+					}		
+					
+					
+					/*if(temp.getType() == this.getType() && this.type == 1 && !temp.equals(this))
+					{				
+						xy = carToPolar(temp.getPos().getX(),temp.getPos().getY());
+					
+						xy = polarToCar(1,xy.x );
+						
+						moves--;
+						
+						if(this.high_lighted == true)
+						System.out.println("Fire 3");
+
+					}*/
+					
+					/*if(this.high_lighted == true)
+					{
+						System.out.println("Id " + id + " ViewCount " + viewCount + " Type " + type + " Moves " + moves);
+					}*/
+					
+					moves++;
+
+			}
+		//max_dir = d.nextInt(250);
+	
+		
+
+		/* Reverse if stuck against wall */
+		if(!body.move(xy))
+		{
+			xy = carToPolar(xy.x, xy.y);
+								
+			xy = polarToCar(-xy.x,xy.y);
+
+			body.move(xy);
+		}
+	
 		upDateViewLocation();
 	}
 
+
+	
 	/* View Range */
 	private void setUpView()
 	{
 		range_limit = body_size + range;
+		
 		field = new Rectangle(body.getBodyPos().getX()-(range_limit/2),body.getBodyPos().getY()-(range_limit/2),this.range_limit,this.range_limit);
 	}
 	
@@ -123,7 +201,8 @@ public class SimpleAgent
 								
 				viewCount++;
 			}
-		
+			iterator =  tempList.iterator();
+
 			//System.out.println(viewCount);
 			/*if(temp.equals(tempList.get()))
 			{
@@ -250,10 +329,126 @@ public class SimpleAgent
 		}
 	}
 
+	public int getType()
+	{
+		return type;
+	}
 
 	public double getRange()
 	{
 		// TODO Auto-generated method stub
 		return range_limit;
 	}
+
+	/* Alternative Single Agent Result */
+	public void updateNearestAgent(DistanceResult<SimpleAgent> nearestAgent)
+	{
+		this.nearestAgent = nearestAgent;		
+	}
+
+	
+	public void think2()
+	{
+		
+		/* TODO if nothing in range and traveled for a while */
+		
+		/*if(moves>max_dir)
+		{
+			moves=0;
+			xy = polarToCar(1,d.nextInt(360)+1);
+			
+			//xy = carToPolar(mainApp.mouse_pos.x,mainApp.mouse_pos.y);
+			
+			//xy = polarToCar(1,xy.y);
+			
+			//xy = 
+		}*/	
+
+		
+			if(viewList!=null)
+			{
+			
+				System.out.println("ID " + id);
+
+				
+				if(viewList.iterator().hasNext())
+				{
+					SimpleAgent temp = 	viewList.iterator().next();
+							
+					/*if(this.high_lighted == true)
+					{
+						temp.setVisible(true);
+					}
+					else
+					{
+						this.setVisible(false);
+					}*/
+					
+					//temp.setHighlighted(false);
+					//this.setHighlighted(true);
+					if(temp.getType() != this.getType() && this.type == 2)
+					{				
+						xy = carToPolar(temp.getPos().getX(),temp.getPos().getY());
+					
+						xy = polarToCar(speed,-xy.x );
+						moves--;
+						
+						/*if(this.high_lighted == true)
+						System.out.println("Fire 1");*/
+
+					}
+					
+					if(temp.getType() != this.getType() && this.type == 1)
+					{				
+						xy = carToPolar(temp.getPos().getX(),temp.getPos().getY());
+					
+						xy = polarToCar(speed,-xy.x );
+						
+						moves--;
+
+						/*if(this.high_lighted == true)
+						System.out.println("Fire 2");*/
+					}		
+					
+					
+					/*if(temp.getType() == this.getType() && this.type == 1 && !temp.equals(this))
+					{				
+						xy = carToPolar(temp.getPos().getX(),temp.getPos().getY());
+					
+						xy = polarToCar(1,xy.x );
+						
+						moves--;
+						
+						if(this.high_lighted == true)
+						System.out.println("Fire 3");
+
+					}*/
+					
+					/*if(this.high_lighted == true)
+					{
+						System.out.println("Id " + id + " ViewCount " + viewCount + " Type " + type + " Moves " + moves);
+					}*/
+					
+				}
+			}
+		//max_dir = d.nextInt(250);
+	
+		
+
+		
+		if(!body.move(xy))
+		{
+			xy = carToPolar(xy.x, xy.y);
+					
+			
+			xy = polarToCar(-xy.x,xy.y);
+
+			
+			body.move(xy);
+		}
+		moves++;
+	
+		upDateViewLocation();
+	}
+	
 }
