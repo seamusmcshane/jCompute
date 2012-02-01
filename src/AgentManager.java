@@ -33,7 +33,9 @@ public class AgentManager
 	SimpleAgent tAgentDrawAI;
 	
 	/* DoAI */
-	
+	int num_threads=10;
+	ViewGeneratorThread viewThreads[] = new ViewGeneratorThread[num_threads];
+	LinkedList<SimpleAgent>[] threadedLists = new LinkedList[num_threads];
 	
 	int agentCount;
 	int agentsDone;
@@ -78,7 +80,6 @@ public class AgentManager
 			tAgentDrawAI = itrDrawAI.next();
 			tAgentDrawAI.drawAgent(g);
 			tAgentDrawAI.drawViewRange(g);
-			
 		}		
 		
 	}
@@ -93,7 +94,7 @@ public class AgentManager
 		randomizeListOrder();
 		
 		/* TODO Threaded */
-		//setUpAgentViews();
+		setUpAgentViews();
 		
 		/* Non Threaded */
 		doAgents();
@@ -115,12 +116,69 @@ public class AgentManager
 	
 	private void setUpAgentViews()
 	{
-		ListIterator<SimpleAgent> itr = doList.listIterator(); 
+		int i=0;
+		
+		/* Create a list for each thread and the thread */
+		for(i=0;i<num_threads;i++)
+		{
+			threadedLists[i] = new LinkedList<SimpleAgent>();
+		}
+				
+		ListIterator<SimpleAgent> itr = doList.listIterator();
+		
+		/* Calculate the Splits */
+		int div = agentCount / num_threads;
+		int thread_num=0;
+		int tAgentCount=0;
+		
+		//System.out.println(tAgentCount);
+		//System.out.println(div);
+
+		/* Split the lists */
 		while(itr.hasNext()) 
 		{
+			SimpleAgent temp = itr.next();
+
+			if(tAgentCount>div)
+			{
+				div=div+div;
+				thread_num++;
+				//System.out.println(div);
+
+			}
 			
+			threadedLists[thread_num].add(temp);
 			
+			tAgentCount++;
 		}
+		
+		//System.out.println(tAgentCount);
+		
+		/* Start the threads */
+		for(i=0;i<num_threads;i++)
+		{
+			viewThreads[i] = new ViewGeneratorThread(threadedLists[i],worldView);
+
+			viewThreads[i].start();			
+
+		}
+
+		/* Join the threads */
+		for(i=0;i<num_threads;i++)
+		{
+			try
+			{
+				viewThreads[i].join();
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+
+		}
+		
+
 		
 	}
 	
@@ -148,9 +206,9 @@ public class AgentManager
 			
 			// = worldView.find(mainApp.m.getMinX(),mainApp.m.getMinY(),mainApp.m.getMaxX(),mainApp.m.getMaxY());	
 			
-			tempList = worldView.find(temp.getFieldofView().getMinX(),temp.getFieldofView().getMinY(),temp.getFieldofView().getMaxX(),temp.getFieldofView().getMaxY());
+	// tempList = worldView.find(temp.getFieldofView().getMinX(),temp.getFieldofView().getMinY(),temp.getFieldofView().getMaxX(),temp.getFieldofView().getMaxY());
 					
-			temp.updateAgentView(tempList);
+	// temp.updateAgentView(tempList);
 			
 			//testAgent.setHighlighted(true);
 			

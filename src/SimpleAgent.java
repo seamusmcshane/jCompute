@@ -18,7 +18,7 @@ public class SimpleAgent
 	private Iterable<SimpleAgent> viewList; /* List of Agents in view */
 	private Iterator iterator;
 	
-	private int range=50;
+	private int range=5;
 	private float range_limit=0; /* Limit = size + range */
 	private Rectangle field;	
 	
@@ -47,6 +47,8 @@ public class SimpleAgent
 	public SimpleAgent(float x,float y,float body_size,float world_size,int type)
 	{
 		this.body_size=body_size;
+		
+		this.range = (int) (this.range * this.body_size);
 		
 		this.world_size=world_size;	
 		
@@ -82,7 +84,7 @@ public class SimpleAgent
 			
 			//xy = 
 			
-			//max_dir = d.nextInt(5);
+			max_dir = d.nextInt(50);
 		}
 		
 		moves++;
@@ -112,13 +114,13 @@ public class SimpleAgent
 		
 		if(tempList!=null)
 		{
-
 			iterator =  tempList.iterator();
 			viewCount=0;
 			
 			while(iterator.hasNext())
 			{
 				((SimpleAgent) iterator.next()).setVisible(true);
+								
 				viewCount++;
 			}
 		
