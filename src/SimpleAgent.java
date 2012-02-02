@@ -21,7 +21,7 @@ public class SimpleAgent
 	private Iterable<SimpleAgent> viewList; /* List of Agents in view */
 	private Iterator iterator;
 	
-	DistanceResult<SimpleAgent> nearestAgent;
+	//DistanceResult<SimpleAgent> nearestAgent;
 
 	
 	private int range=5;
@@ -50,6 +50,8 @@ public class SimpleAgent
 	Vector2f xy;
 	private int moves=0;
 	private int max_dir=100;
+
+	private SimpleAgent nearestAgent;
 	
 	public SimpleAgent(int id,float x,float y,float body_size,float world_size,int type)
 	{
@@ -59,7 +61,7 @@ public class SimpleAgent
 		
 		this.speed = (1/body_size)+type;
 		
-		this.range = (int) (this.range * this.body_size);
+		this.range = (int) (this.range * this.body_size)/2;
 		
 		this.world_size=world_size;	
 		
@@ -107,9 +109,9 @@ public class SimpleAgent
 			//System.out.println("Distance " + nearestAgent.getDistance());
 
 			
-				if(nearestAgent.get().getType() != this.getType() && this.type == 1)
+				if(nearestAgent.getType() != this.getType() && this.type == 1)
 				{				
-					xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
+					xy = carToPolar(nearestAgent.getPos().getX(),nearestAgent.getPos().getY());
 				
 					xy = polarToCar(speed,-xy.x );
 					
@@ -119,9 +121,9 @@ public class SimpleAgent
 				}
 				
 				/* TODO not correct */
-				if(nearestAgent.get().getType() != this.getType() && this.type == 2)
+				if(nearestAgent.getType() != this.getType() && this.type == 2)
 				{				
-					xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
+					xy = carToPolar(nearestAgent.getPos().getX(),nearestAgent.getPos().getY());
 				
 					xy = polarToCar(speed,xy.x );
 					
@@ -337,10 +339,10 @@ public class SimpleAgent
 	}
 
 	/* Alternative Single Agent Result */
-	public void updateNearestAgent(DistanceResult<SimpleAgent> nearestAgent)
+	/*public void updateNearestAgent(DistanceResult<SimpleAgent> nearestAgent)
 	{	
 		this.nearestAgent = nearestAgent;		
-	}
+	}*/
 
 	
 	public void think2()
@@ -445,6 +447,12 @@ public class SimpleAgent
 		moves++;
 	
 		upDateViewLocation();
+	}
+
+
+	public void updateNearestAgentKD(SimpleAgent nearestAgent)
+	{
+		this.nearestAgent = nearestAgent;
 	}
 	
 }

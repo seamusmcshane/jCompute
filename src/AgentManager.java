@@ -10,12 +10,16 @@ import org.khelekore.prtree.SimpleMBR;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
+import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 
 public class AgentManager
 {
 
 	/* Field of View */
-	PRTree<SimpleAgent> worldView;
+	//PRTree<SimpleAgent> worldView;
+	
+	KdTree<SimpleAgent> worldSpace;
+	
     Bounds converter = new Bounds();
     EuclideanDistanceCalc distancecalc = new EuclideanDistanceCalc();
 	
@@ -37,14 +41,20 @@ public class AgentManager
 	ViewGeneratorThread viewThreads[] = new ViewGeneratorThread[num_threads];
 	LinkedList<SimpleAgent>[] threadedLists = new LinkedList[num_threads];
 	
+	int intial_num_agents;
+	int max_tree_size;
+
 	int agentCount;
 	int agentsDone;
 	int agentsTodo;
 			
 	SimpleAgent testAgent;
 	
-	public AgentManager()
+	public AgentManager(int num_agents)
 	{
+		
+		this.intial_num_agents = num_agents;
+		this.max_tree_size = intial_num_agents*4;
 		setUpLists();
 				
 		agentsTodo=0;
@@ -68,6 +78,7 @@ public class AgentManager
 		}	*/
 		
 		doneList.add(agent);
+				
 		agentCount++;
 	}
 	
@@ -97,18 +108,43 @@ public class AgentManager
 		
 		/* TODO Threaded */
 		setUpAgentViews();
-		
+				
 		/* Non Threaded */
 		doAgents();
 		
 	}
-	
 		  
 	private void setUpRTree()
 	{
-		worldView = new PRTree<SimpleAgent>(converter, 100);
+			
+		worldSpace = new KdTree<SimpleAgent>(2);		
+
+		ListIterator<SimpleAgent> itrTree = doList.listIterator(); 
 				
-		worldView.load(doList);	
+		while(itrTree.hasNext()) 
+		{
+			SimpleAgent temp = itrTree.next();
+			
+			double[] pos = new double[2];
+			
+			pos[0]=temp.getPos().getX();
+			pos[1]=temp.getPos().getY();
+							
+			worldSpace.addPoint(pos, temp);
+			
+		}		
+		
+		/*System.out.println("Do Size " + doList.size());
+		System.out.println("Tree Size " + worldSpace.size());
+		
+		if(worldSpace.size() == 0)
+		{
+			System.exit(1);
+		}*/
+		
+		//worldView = new PRTree<SimpleAgent>(converter, 100);
+				
+		//worldView.load(doList);	
 	}
 
 	private void setUpLists()
@@ -161,7 +197,7 @@ public class AgentManager
 		/* Start the threads */
 		for(i=0;i<num_threads;i++)
 		{
-			viewThreads[i] = new ViewGeneratorThread(threadedLists[i],worldView);
+	 		viewThreads[i] = new ViewGeneratorThread(threadedLists[i],worldSpace);
 
 			viewThreads[i].start();			
 

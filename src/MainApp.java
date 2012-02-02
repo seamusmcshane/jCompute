@@ -19,17 +19,17 @@ public class mainApp extends BasicGame implements MouseListener
 	static int screen_width=700;
 	static int screen_height=700;
 	static int frame_rate=30;
-	static boolean frame_cap=false;
+	static boolean frame_cap=true;
 	static int frame_num=0;
 	static int step_num=0;
 	
-	int num_agents=1800;
+	int num_agents=1000;
 
 	AgentManager agentManager;
 	
 	World world;
 	static int world_size=screen_height-20;
-	int agent_size=4;
+	int agent_size=5;
 	
 	int draw=0;
 	
@@ -57,7 +57,7 @@ public class mainApp extends BasicGame implements MouseListener
 
 	    Random sr = new Random();
 	    
-	    agentManager = new AgentManager();
+	    agentManager = new AgentManager(num_agents);
 	    
 		int i;
 
@@ -148,10 +148,10 @@ public class mainApp extends BasicGame implements MouseListener
 	{
 		try
 		{
-			/* - For standalone build
-			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"),LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
-			System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
-			*/
+			/* - For standalone build */
+			//System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"),LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
+			//System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
+			
 			AppGameContainer app = new AppGameContainer(new mainApp());
 			app.setTitle("Alife Sim");
 			app.setUpdateOnlyWhenVisible(false);
