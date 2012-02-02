@@ -1,14 +1,8 @@
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import org.khelekore.prtree.DistanceResult;
-import org.khelekore.prtree.MBRConverter;
-import org.khelekore.prtree.PRTree;
-import org.khelekore.prtree.SimpleMBR;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Vector2f;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 
@@ -20,17 +14,12 @@ public class AgentManager
 	
 	KdTree<SimpleAgent> worldSpace;
 	
-    Bounds converter = new Bounds();
-    EuclideanDistanceCalc distancecalc = new EuclideanDistanceCalc();
-	
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
 	LinkedList<SimpleAgent> doneList;
 	
 	/* Temp */
 	Iterable<SimpleAgent> tempList;
-	/*Iterator tempItr;*/
-
 	
 	/* DrawAI */
 	ListIterator<SimpleAgent> itrDrawAI;
@@ -133,18 +122,7 @@ public class AgentManager
 			worldSpace.addPoint(pos, temp);
 			
 		}		
-		
-		/*System.out.println("Do Size " + doList.size());
-		System.out.println("Tree Size " + worldSpace.size());
-		
-		if(worldSpace.size() == 0)
-		{
-			System.exit(1);
-		}*/
-		
-		//worldView = new PRTree<SimpleAgent>(converter, 100);
-				
-		//worldView.load(doList);	
+
 	}
 
 	private void setUpLists()
@@ -170,9 +148,6 @@ public class AgentManager
 		int div = agentCount / num_threads;
 		int thread_num=0;
 		int tAgentCount=0;
-		
-		//System.out.println(tAgentCount);
-		//System.out.println(div);
 
 		/* Split the lists */
 		while(itr.hasNext()) 
@@ -217,9 +192,7 @@ public class AgentManager
 			}		
 
 		}
-		
-
-		
+	
 	}
 	
 	/* Performs AI Action and moves it to Done list */
@@ -233,58 +206,8 @@ public class AgentManager
 			/* Remove this Agent from the List */
 			SimpleAgent temp = itr.next();
 			
-			/*temp.setHighlighted(false);
-			
-			temp.setVisible(false);*/
-			
 			/* remove from the doList */
 			itr.remove();
-			
-			/* Views */
-			//temp.upDateView();
-			//tempList = worldView.nearestNeighbour(distancecalc, mainApp.mouse_pos.getX(),mainApp.mouse_pos.getY());
-			
-			// = worldView.find(mainApp.m.getMinX(),mainApp.m.getMinY(),mainApp.m.getMaxX(),mainApp.m.getMaxY());	
-			
-	// tempList = worldView.find(temp.getFieldofView().getMinX(),temp.getFieldofView().getMinY(),temp.getFieldofView().getMaxX(),temp.getFieldofView().getMaxY());
-					
-	// temp.updateAgentView(tempList);
-			
-			//testAgent.setHighlighted(true);
-			
-//			tempList = worldView.find(mainApp.mouse_pos.getX()-(temp.getRange()/4),mainApp.mouse_pos.getY()-(temp.getRange()/4),mainApp.mouse_pos.getX()+(temp.getRange()/4),mainApp.mouse_pos.getY()+(temp.getRange()/4));
-
-			//body.getBodyPos().getX()-(range_limit/2),body.getBodyPos().getY()-(range_limit/2)
-
-			
-			/*if(tempList!=null)
-			{
-
-				tempItr =  tempList.iterator();
-
-				while(tempItr.hasNext())
-				{
-					((SimpleAgent) tempItr.next()).setHighlighted(true);
-				}*/
-			
-				/*if(temp.equals(tempList.get()))
-				{
-					if(tempList.getDistance()<temp.getRange())
-					{
-						temp.setHighlighted(true);
-					}
-					else
-					{
-						temp.setHighlighted(false);
-					}
-
-				}
-				else
-				{
-					temp.setHighlighted(false);
-
-				}*/
-			/*}*/
 			
 			/* Move, Eat ,Sleep etc */
 			temp.think();
@@ -298,7 +221,6 @@ public class AgentManager
 	{
 		return doList.remove(agent);
 	}
-
 	
 	private void randomizeListOrder()
 	{

@@ -8,6 +8,7 @@ public class World
 		
 	private static int world_size;
 	
+	@SuppressWarnings("static-access")
 	public World(int size)
 	{
 		this.world_size = size;

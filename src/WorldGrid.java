@@ -2,7 +2,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Line;
 
-
 public class WorldGrid
 {
 
@@ -29,7 +28,7 @@ public class WorldGrid
 		vlines = new Line[num];
 		
 		int i=0;
-		int x=0,y=0;
+		int x=0;
 		
 		for(i=0;i<num;i++)
 		{			

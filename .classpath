@@ -15,10 +15,5 @@
 			<attribute name="javadoc_location" value="file:/C:/Users/Seamie/Desktop/Alife/alifesim/jar/slick2d/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Seamie/Desktop/Alife/alifesim/jar/prtree/prtree.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://khelekore.org/prtree/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

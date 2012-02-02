@@ -79,7 +79,7 @@ public class mainApp extends BasicGame implements MouseListener
 		    
 			//agent[i] = new SimpleAgent(x,y,agent_size,world_size);
 		    
-		    agentManager.addNewAgent(new SimpleAgent(i,x,y,s,world_size,t));
+		    agentManager.addNewAgent(new SimpleAgent(i,x,y,s,t));
 		    
 		    
 		}  

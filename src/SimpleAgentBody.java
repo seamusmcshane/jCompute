@@ -1,5 +1,3 @@
-import org.khelekore.prtree.MBR;
-import org.khelekore.prtree.SimpleMBR;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Rectangle;
