@@ -1,3 +1,4 @@
+package alife;
 import org.newdawn.slick.Graphics;
 
 
