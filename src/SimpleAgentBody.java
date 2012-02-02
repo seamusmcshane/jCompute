@@ -55,10 +55,10 @@ public class SimpleAgentBody
 		switch(type)
 		{
 			case 1: 
-				color = Color.red;
+				color = Color.blue;
 				break;
 			case 2: 
-				color = Color.blue;
+				color = Color.red;
 				break;
 			case 3: 
 				color = Color.green;
