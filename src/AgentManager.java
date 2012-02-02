@@ -17,7 +17,7 @@ public class AgentManager
 	/* Field of View */
 	PRTree<SimpleAgent> worldView;
     Bounds converter = new Bounds();
-    DistanceCalc distancecalc = new DistanceCalc();
+    EuclideanDistanceCalc distancecalc = new EuclideanDistanceCalc();
 	
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
@@ -60,12 +60,12 @@ public class AgentManager
 		agent.setHighlighted(false);
 		agent.setVisible(true);
 		
-		if(agentCount==0)
+		/*if(agentCount==0)
 		{
 			testAgent=agent;
 			testAgent.setVisible(true);
 			testAgent.setHighlighted(true);
-		}	
+		}	*/
 		
 		doneList.add(agent);
 		agentCount++;
@@ -107,13 +107,15 @@ public class AgentManager
 	private void setUpRTree()
 	{
 		worldView = new PRTree<SimpleAgent>(converter, 100);
-		worldView.load(doList);		
+				
+		worldView.load(doList);	
 	}
 
 	private void setUpLists()
 	{
 		doList = doneList;		
-		doneList = new LinkedList<SimpleAgent>();			
+		doneList = new LinkedList<SimpleAgent>();	
+		
 	}
 	
 	private void setUpAgentViews()

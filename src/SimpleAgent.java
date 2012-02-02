@@ -49,7 +49,7 @@ public class SimpleAgent
 	Random d;
 	Vector2f xy;
 	private int moves=0;
-	private int max_dir=0;
+	private int max_dir=100;
 	
 	public SimpleAgent(int id,float x,float y,float body_size,float world_size,int type)
 	{
@@ -57,7 +57,7 @@ public class SimpleAgent
 		
 		this.body_size=body_size;
 		
-		this.speed = (1/body_size)+1+type;
+		this.speed = (1/body_size)+type;
 		
 		this.range = (int) (this.range * this.body_size);
 		
@@ -67,7 +67,7 @@ public class SimpleAgent
 		
 		d = new Random();
 		
-		max_dir = d.nextInt(100)+1;
+		max_dir = d.nextInt(50)+1;
 
 		
 		xy = polarToCar(speed,d.nextInt(360));
@@ -87,13 +87,12 @@ public class SimpleAgent
 	public void think()
 	{
 		
-		/* TODO if nothing in range and traveled for a while */
-		
-		if(moves>max_dir && nearestAgent == null)
+		/* TODO if nothing in range and traveled for a while */		
+		if(moves > max_dir && (nearestAgent == null) )
 		{
 			moves=0;
 			xy = polarToCar(1,d.nextInt(360)+1);
-			
+						
 			//xy = carToPolar(mainApp.mouse_pos.x,mainApp.mouse_pos.y);
 			
 			//xy = polarToCar(1,xy.y);
@@ -102,62 +101,56 @@ public class SimpleAgent
 		}
 
 		
-			if(nearestAgent!=null)
-			{
+		if(nearestAgent!=null)
+		{
 
-				//System.out.println("Distance " + nearestAgent.getDistance());
+			//System.out.println("Distance " + nearestAgent.getDistance());
 
+			
+				if(nearestAgent.get().getType() != this.getType() && this.type == 1)
+				{				
+					xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
 				
-					if(nearestAgent.get().getType() != this.getType() && this.type == 2)
-					{				
-						xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
-					
-						xy = polarToCar(speed,-xy.x );
-						moves--;
-						
-						/*if(this.high_lighted == true)
-						System.out.println("Fire 1");*/
-
-					}
-					
-					if(nearestAgent.get().getType() != this.getType() && this.type == 1)
-					{				
-						xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
-					
-						xy = polarToCar(speed,-xy.x );
-						
-						moves--;
-
-						/*if(this.high_lighted == true)
-						System.out.println("Fire 2");*/
-					}		
-					
-					
-					/*if(temp.getType() == this.getType() && this.type == 1 && !temp.equals(this))
-					{				
-						xy = carToPolar(temp.getPos().getX(),temp.getPos().getY());
-					
-						xy = polarToCar(1,xy.x );
-						
-						moves--;
-						
-						if(this.high_lighted == true)
-						System.out.println("Fire 3");
-
-					}*/
+					xy = polarToCar(speed,-xy.x );
 					
 					/*if(this.high_lighted == true)
-					{
-						System.out.println("Id " + id + " ViewCount " + viewCount + " Type " + type + " Moves " + moves);
-					}*/
-					
-					moves++;
+					System.out.println("Fire 1");*/
 
-			}
+				}
+				
+				/* TODO not correct */
+				if(nearestAgent.get().getType() != this.getType() && this.type == 2)
+				{				
+					xy = carToPolar(nearestAgent.get().getPos().getX(),nearestAgent.get().getPos().getY());
+				
+					xy = polarToCar(speed,xy.x );
+					
+					/*if(this.high_lighted == true)
+					System.out.println("Fire 2");*/
+				}		
+				
+				
+				/*if(temp.getType() == this.getType() && this.type == 1 && !temp.equals(this))
+				{				
+					xy = carToPolar(temp.getPos().getX(),temp.getPos().getY());
+				
+					xy = polarToCar(1,xy.x );
+					
+					moves--;
+					
+					if(this.high_lighted == true)
+					System.out.println("Fire 3");
+
+				}*/
+				
+				/*if(this.high_lighted == true)
+				{
+					System.out.println("Id " + id + " ViewCount " + viewCount + " Type " + type + " Moves " + moves);
+				}*/
+				
+		}
 		//max_dir = d.nextInt(250);
 	
-		
-
 		/* Reverse if stuck against wall */
 		if(!body.move(xy))
 		{
@@ -166,8 +159,11 @@ public class SimpleAgent
 			xy = polarToCar(-xy.x,xy.y);
 
 			body.move(xy);
+
 		}
 	
+		//moves++;
+
 		upDateViewLocation();
 	}
 
@@ -342,7 +338,7 @@ public class SimpleAgent
 
 	/* Alternative Single Agent Result */
 	public void updateNearestAgent(DistanceResult<SimpleAgent> nearestAgent)
-	{
+	{	
 		this.nearestAgent = nearestAgent;		
 	}
 

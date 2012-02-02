@@ -18,12 +18,12 @@ public class mainApp extends BasicGame implements MouseListener
 		
 	static int screen_width=700;
 	static int screen_height=700;
-	static int frame_rate=15;
+	static int frame_rate=30;
 	static boolean frame_cap=false;
 	static int frame_num=0;
 	static int step_num=0;
 	
-	int num_agents=1500;
+	int num_agents=1800;
 
 	AgentManager agentManager;
 	
@@ -68,7 +68,7 @@ public class mainApp extends BasicGame implements MouseListener
 			
 			x=xr.nextInt(world_size)+1;
 			
-		    //yr.setSeed(System.currentTimeMillis());
+		   // yr.setSeed(System.currentTimeMillis());
 		    
 		    y=yr.nextInt(world_size)+1;
 		    
@@ -116,7 +116,7 @@ public class mainApp extends BasicGame implements MouseListener
 						
 		/*Grid */
 		world.drawWorld(g);
-		
+				
 		/* Agents */
 		drawAgents(g);
 
