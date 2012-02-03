@@ -17,7 +17,6 @@ public class WorldGrid
 	{
 		this.size=size;
 		this.step = step;
-		
 		generateGrid();
 	}
 	
@@ -42,19 +41,17 @@ public class WorldGrid
 	public void drawGrid(Graphics g)
 	{
 		/* Center Grid */
-		//g.translate(-size/2, -size/2);
-		
+		g.translate(-size/2, -size/2);
+		int col=0;
 		int i=0;
 		for(i=0;i<num;i++)
-		{
-			g.setColor(Color.gray);
+		{		
+			g.setColor(new Color(col+(int)(mainApp.glocal_scale*100),col+(int)(mainApp.glocal_scale*100),col+(int)(mainApp.glocal_scale*100)));
 			g.draw(hlines[i]);
 			g.draw(vlines[i]);
 		}		
 		
 		//g.resetTransform();
 	}
-	
-	
 	
 }

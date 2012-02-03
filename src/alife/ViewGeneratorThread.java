@@ -44,7 +44,7 @@ public class ViewGeneratorThread extends Thread
 			/* Max is the next closest - Self is 0 */
 			nearestAgent = temp1.getMax();
 
-			distanceCalcCompareKD(temp);
+			distanceCalcCompareKDSQ(temp);
 		}		
 		
 	}

@@ -51,7 +51,7 @@ public class SimpleAgent
 		
 		this.body_size=body_size;
 		
-		this.speed = (1/body_size)+type;
+		this.speed = (1/body_size)+1;
 		
 		this.range = (int) (this.range * this.body_size)/2;
 				
@@ -120,7 +120,28 @@ public class SimpleAgent
 					/*if(this.high_lighted == true)
 					System.out.println("Fire 2");*/
 				}		
+	
+				/* TODO not correct */
+				if(nearestAgent.getType() != this.getType() && this.type == 3)
+				{				
+					xy = carToPolar(nearestAgent.getPos().getX(),nearestAgent.getPos().getY());
 				
+					xy = polarToCar(speed,xy.x/2 );
+					
+					/*if(this.high_lighted == true)
+					System.out.println("Fire 2");*/
+				}					
+
+				/* TODO not correct */
+				if(nearestAgent.getType() != this.getType() && this.type == 4)
+				{				
+					xy = carToPolar(nearestAgent.getPos().getX(),nearestAgent.getPos().getY());
+				
+					xy = polarToCar(speed,-xy.x/2 );
+					
+					/*if(this.high_lighted == true)
+					System.out.println("Fire 2");*/
+				}	
 				
 				/*if(temp.getType() == this.getType() && this.type == 1 && !temp.equals(this))
 				{				

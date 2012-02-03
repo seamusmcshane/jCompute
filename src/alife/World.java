@@ -92,6 +92,5 @@ public class World
 	{
 		grid.drawGrid(g);
 	}
-	
-	
+
 }
