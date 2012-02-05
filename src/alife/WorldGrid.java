@@ -1,17 +1,24 @@
 package alife;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Line;
 
+/*
+ * World Grid
+ * This class contains the methods needed to create 
+ * and draw the background grid for the world.
+ * - No external interactions other than draw
+ */ 
 public class WorldGrid
 {
-
 	private Line[] hlines;
 	private Line[] vlines;
 	
-	int num;
-	int size;
-	int step;
+	private int num;
+	private int size;
+	private int step;
+	private final int major_div=50; /* TODO make Adjustable */
 	
 	public WorldGrid(int size,int step)
 	{
@@ -20,17 +27,16 @@ public class WorldGrid
 		generateGrid();
 	}
 	
+	/* Generation Method */
 	private void generateGrid()
 	{
-		num=1+(size/step); /* size = 100 then lines every 10 */
+		num=1+(size/step); /* ie if size = 1000 then lines every 10 and Major divs every 50 */
 		
 		hlines = new Line[num];
 		vlines = new Line[num];
 		
-		int i=0;
-		int x=0;
-		
-		for(i=0;i<num;i++)
+		int x=0;		
+		for(int i=0;i<num;i++)
 		{			
 			hlines[i] = new Line(x,0,x, size);			
 			vlines[i] = new Line(0,x,size,x);
@@ -38,20 +44,25 @@ public class WorldGrid
 		}		
 	}
 	
+	/* Draw method for the grid */
 	public void drawGrid(Graphics g)
-	{
-		/* Center Grid */
-		g.translate(-size/2, -size/2);
-		int col=0;
-		int i=0;
-		for(i=0;i<num;i++)
-		{		
-			g.setColor(new Color(col+(int)(mainApp.glocal_scale*100),col+(int)(mainApp.glocal_scale*100),col+(int)(mainApp.glocal_scale*100)));
-			g.draw(hlines[i]);
-			g.draw(vlines[i]);
-		}		
-		
-		//g.resetTransform();
+	{					
+			g.setColor(new Color(25,25,25));
+			for(int i=0;i<num;i++)
+			{					
+				if(i%major_div == 0)
+				{
+					g.setColor(new Color(50,50,50));	/* Major Div */
+				}
+				else
+				{
+					g.setColor(new Color(25,25,25));	/* Normal Line */
+				}
+				g.draw(hlines[i]);
+				g.draw(vlines[i]);
+			}		
 	}
-	
+
 }
+	
+
