@@ -1,27 +1,29 @@
 package alife;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
+/*
+ * Agent Body Class
+ * - This Class performs the world movement checks and contains the draw code of this visual representation of the body.
+ * - This is the only agent class that other agents "should"interact with.
+ */
+
 public class SimpleAgentBody
 {
-
 	/* Agent Body */
-	Rectangle body;
-	Rectangle body_center;
+	private Rectangle body;
 		
-	Color color;
-
-	Vector2f body_pos;
+	private Color color;
+	private Vector2f body_pos;
 	
-
-	float size;
-	int type;
+	private float size;
+	private int type;
 	
-	float speed=1;
-	float dir=0;
-	public float direction;
+	private float speed=1;
+	private float direction;
 	
 	public SimpleAgentBody(Vector2f pos,float size,int type)
 	{
@@ -34,22 +36,17 @@ public class SimpleAgentBody
 		initBody();
 	}
 	
-	/*
-	 * 
-	 * Init 
-	 */
-	
+	/* Init */
 	private void initBody()
 	{
-			
 		body = new Rectangle(0,0,this.size,this.size);
-			
-		body_center = new Rectangle(0,0,0,0);
-		
-		color();
+					
+		setColor();
 	}
 	
-	private void color()
+	/* Body Color */
+	@SuppressWarnings("static-access")
+	private void setColor()
 	{
 		switch(type)
 		{
@@ -66,8 +63,7 @@ public class SimpleAgentBody
 				color = Color.yellow;
 				break;
 			default :
-				color = color.black
-				;
+				color = color.black;
 			break;
 		}
 	}
@@ -88,54 +84,45 @@ public class SimpleAgentBody
 		return false;		
 	}
 
+	/* TODO - Initial Position X/Y */
 	private void setIntialPos(Vector2f pos)
 	{
 		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+body_pos.getY());
 			
 		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
-		
-		body_center.setLocation((body_pos.getX()-(size/2))+(size/4), (body_pos.getY()-(size/2))+(size/4));		
 	}
 	
+	/* Internal Movement */
 	private void updateBodyPosition(Vector2f pos)
 	{
 		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+pos.getY());
 				
 		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
-		
-		body_center.setLocation((body_pos.getX()-(size/2))+(size/4), (body_pos.getY()-(size/2))+(size/4));
 	}
 
+	/* External Getter */
 	public Vector2f getBodyPos()
 	{
 		return body_pos;
 	}
 	
-	
+	/* TODO polor directions */
 	public float getDirection()
 	{
 		return this.direction;
 	}
-	/*
-	 * 
-	 * Graphics
-	 * 
-	 */
-	
+
+	/* Area of this Agent */
 	public Rectangle getBodyBounds()
 	{
 		return body;
 	}
 	
+	/* Body Draw Method */
 	public void drawBody(Graphics g)
 	{
 		g.setColor(color);
-		g.fill(body);
-		
-		//g.setColor(Color.white);
-		//g.fill(body_center);
-	
+		g.fill(body);			
 	}
 	
-
 }
