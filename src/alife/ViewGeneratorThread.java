@@ -29,6 +29,11 @@ public class ViewGeneratorThread extends Thread
 	public void run()
 	{
 		
+		Thread thisThread = Thread.currentThread();
+
+		/* Top Priority to the view threads */
+		thisThread.setPriority(Thread.MAX_PRIORITY);
+		
 		// Split the lists
 		while(itr.hasNext()) 
 		{
@@ -38,7 +43,7 @@ public class ViewGeneratorThread extends Thread
 			pos[0]=temp.getPos().getX();
 			pos[1]=temp.getPos().getY();	
 			
-			/* Get two - due to closest agent be its self */
+			/* Get two - due to closest agent being its self */
 			temp1 = worldView.findNearestNeighbors(pos, 2, distanceKD);
 			
 			/* Max is the next closest - Self is 0 */
@@ -47,8 +52,7 @@ public class ViewGeneratorThread extends Thread
 			distanceCalcCompareKDSQ(temp);
 		}		
 		
-	}
-	
+	}	
 	
 	private void distanceCalcCompareKD(SimpleAgent temp)
 	{
