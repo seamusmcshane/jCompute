@@ -104,8 +104,6 @@ public class World
 	/* Draw method */
 	public void drawWorld(Graphics g)
 	{
-		g.translate(-world_size/2, -world_size/2);
-
 		grid.drawGrid(g);
 		
 		g.setColor(Color.blue);

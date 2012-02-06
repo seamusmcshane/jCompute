@@ -33,6 +33,7 @@ public class AgentManager
 
 	/* DoAI */
 	int num_threads = 5;
+	
 	ViewGeneratorThread viewThreads[] = new ViewGeneratorThread[num_threads];
 	
 	@SuppressWarnings("unchecked")
@@ -63,6 +64,7 @@ public class AgentManager
 	{
 
 		agent.setHighlighted(false);
+		
 		agent.setVisible(true);
 
 		/*

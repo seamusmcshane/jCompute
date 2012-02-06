@@ -9,6 +9,7 @@ import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.AppGameContainer;
@@ -24,23 +25,21 @@ public class mainApp extends BasicGame implements MouseListener
 
 	static AppGameContainer app;
 
-	/* The translation vector for the camera view */
-	public static Vector2f global_translate = new Vector2f(0, 0);
+
 
 	/* Window or Screen Size */
 	static int screen_width = 1024;
 	static int screen_height = 768;
 
 	/* Graphic frame rate control */
-	static int frame_rate = 60;
+	static int frame_rate = 15;
 	
 	/* This locks the frame rate to the above rate giving what time would have been used to threads */ 
 	static boolean frame_cap = true; 
 	
-	/* Frame rate should be greater than or equal to refresh rate if used or set sync_sim_with_frame_rate to true;*/
+	/* Frame rate should be greater than or equal to refresh rate if used */
 	static boolean vsync_toggle = false;
-	boolean sync_sim_with_frame_rate=false;
-
+	
 	/* Counters */
 	static int frame_num = 0;
 	static int step_num = 0;
@@ -53,29 +52,33 @@ public class mainApp extends BasicGame implements MouseListener
 
 	/* Size of the world - Pixels - recommended to be base 10 divisible for grid visuals */
 	static int world_size = 1000;
-
-	/* Size of the Agents - Pixes */
+	
+	/* The translation vector for the camera view */
+	public static Vector2f global_translate = new Vector2f(0,0);
+	
+	/* Size of the Agents - Pixels */
 	int agent_size = 4;
 
-	/* Draw toggle */
-	int draw = 1;
-
-	/* For this many simulation updates draw one frame update */
+	/* For this many simulation updates for buffer update */
 	int draw_div = 1;
+	int steps_todo = 0;
+	
+	/* Off screen buffer */
+	Graphics bufferGraphics;
+	Image buffer;
+	int buffer_num=0;
 
 	/* Stores the mouse vector across updates */
 	public static Vector2f mouse_pos = new Vector2f(world_size, world_size);
 
 	/* Stores the camera postion */
-	static int camera_margin = 0;
+	static int camera_margin = 5;
+	
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));
-
-	/* The Simulation update thread and sync update toggle */
-	Thread asyncUpdateThread;
 	
 	public mainApp()
 	{
-		super("MainApp");
+		super("Simulator");
 	}
 
 	@Override
@@ -112,75 +115,75 @@ public class mainApp extends BasicGame implements MouseListener
 			agentManager.addNewAgent(new SimpleAgent(i, x, y, s, t));
 
 		}
-
-		/* Is this Simulation locked to the frame rate */
-		if(sync_sim_with_frame_rate==false)
-		{				
-			asyncUpdateThread = new Thread(new Runnable()
-			{
-				public void run()
-				{
-					Thread thisThread = Thread.currentThread();
-	
-					/* Top Priority to the simulation thread */
-					thisThread.setPriority(Thread.MAX_PRIORITY);
-	
-					while (asyncUpdateThread == thisThread)
-					{
-						agentManager.doAi();
-	
-						if (step_num % draw_div == 0)
-						{
-							setDraw(1);
-						}
-						else
-						{
-							setDraw(0);
-						}
-	
-						step_num++;
-	
-						try
-						{
-							asyncUpdateThread.sleep(1); /* The thread must give time to the Garbage collector or there will be major stalls when it eventually needs to flush old objects */
-						}
-						catch (InterruptedException e)
-						{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-	
-			);
-	
-			asyncUpdateThread.start();
 		
-		}
+		setUpImageBuffer();
+
 	}
 
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException
 	{
+		/* Not Used */
+		steps_todo=0;
 
-		/* Not used - Simulation is now decoupled from frame rate */
-
+		while(steps_todo < draw_div)
+		{
+			agentManager.doAi();
+			steps_todo++;
+			step_num++;
+		}
 	}
 
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		/* Frame Synchronized Updates */
-		if(sync_sim_with_frame_rate==true)
-		{
-			agentManager.doAi();
-			step_num++;
-		}
 
-		doDraw(g);
+		g.setWorldClip(camera_bound);
+		
+		doDraw(bufferGraphics);
+			
+		g.drawImage(buffer, 0, 0);		
+
+		g.resetTransform();
+
+		frame_num++;
+		
+		/* Gui Overlay */
+		g.setColor(Color.white);
+		
+		g.drawString("Alife Sim Test - Number Active Agents : " + num_agents, camera_bound.getMinX(), camera_bound.getMinY());
+		
+		g.drawString("Step Num : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
+
+		g.drawString("Frame Updates : " + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);
+		
+		g.drawString("Buffer Updates : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
+		
+		g.drawString("Frame Rate : " + app.getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
+
+		g.drawString("Draw Div : " + draw_div, camera_bound.getMinX(), camera_bound.getMinY() + 250);
+	
+		g.draw(camera_bound);		
+
 	}
 
+	private void doDraw(Graphics g)
+	{
+		/* Blank the Image buffer */
+		g.clear();
+
+		g.translate(global_translate.getX(), global_translate.getY());
+		
+		/* World */
+		world.drawWorld(g);
+
+		/* Agents */
+		drawAgents(g);
+		
+		buffer_num++;
+
+	}
+	
 	/* Agent draw method */
 	private void drawAgents(Graphics g)
 	{
@@ -198,9 +201,13 @@ public class mainApp extends BasicGame implements MouseListener
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		if (button == 1)
+		if (button == 0)
 		{
-
+			mainApp.app.setTargetFrameRate(-1);
+		}
+		else
+		{
+			mainApp.app.setTargetFrameRate(15);
 		}
 	}
 
@@ -208,14 +215,27 @@ public class mainApp extends BasicGame implements MouseListener
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
-
 		float x = (newx) - mouse_pos.getX();
 		float y = (newy) - mouse_pos.getY();
-
+		
 		moveCamera(x, y);
 
 	}
 
+	@Override
+	public void mouseWheelMoved(int change)
+	{
+		if(change>0)
+		{
+			draw_div++;
+		}
+		else
+		{
+			draw_div--;
+		}
+		
+	}
+	
 	/* Camera is moved by translating all the drawing */
 	private void moveCamera(float x, float y)
 	{
@@ -252,9 +272,9 @@ public class mainApp extends BasicGame implements MouseListener
 			app.setShowFPS(false);
 
 			/* Needed as we now do asynchronous drawing */
-			app.setClearEachFrame(false);
+			app.setClearEachFrame(true);
 
-			/* Hardware vsync - on due as we dont want the graphics drives do crazy amounts of frame updates  */
+			/* Hardware vsync */
 			app.setVSync(vsync_toggle);
 			
 			/* Hardware Anti-Aliasing */
@@ -275,56 +295,28 @@ public class mainApp extends BasicGame implements MouseListener
 		}
 	}
 	
-	private synchronized void doDraw(Graphics g)
+	private void setUpImageBuffer()
 	{
-		// Can Flicker if updates take long time
-		if (getDraw() == 1)
+		try
 		{
-			g.clear();
-
-			/* Hardware pixel clipping */
-			g.setWorldClip(camera_bound);
-
-			/* Center Origin on Screen */
-			g.translate(global_translate.getX() + (world_size / 2), global_translate.getY() + (world_size / 2));
-
-			// g.setAntiAlias(false);
-
-			/* World */
-			world.drawWorld(g);
-
-			/* Agents */
-			drawAgents(g);
-
-			/* Return to 0,0 (Top Left) */
-			g.resetTransform();
-
-			/* Gui Overlay */
-			g.setColor(Color.white);
-			g.drawString("Alife Sim Test - Number Active Agents : " + num_agents + "\n Frame Number : " + frame_num + " Step Num : " + step_num, camera_bound.getMinX(), camera_bound.getMinY());
-
-			g.drawString("FPS : " + app.getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 50);
-
-			g.draw(camera_bound);
-
-			frame_num++;
-
+			buffer = new Image(screen_width+1,screen_height+1);
 		}
-		/*
-		 * System.out.println("\n global_translate X " + global_translate.getX()
-		 * + " global_translate Y " + global_translate.getY());
-		 * System.out.println("\n mouse_pos X " + mouse_pos.getX() +
-		 * " mouse_pos Y " + mouse_pos.getY());
-		 */		
+		catch (SlickException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try
+		{
+			bufferGraphics = buffer.getGraphics();
+		}
+		catch (SlickException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
-	private synchronized void setDraw(int draw)
-	{
-		this.draw=draw;
-	}
-
-	private synchronized int getDraw()
-	{
-		return draw;		
-	}
 }
