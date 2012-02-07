@@ -3,6 +3,7 @@ package alife;
 /* The following two imports are for creating executable jar */
 import java.io.File;
 import org.lwjgl.LWJGLUtil;
+import org.lwjgl.input.Mouse;
 
 import java.util.Random;
 import org.newdawn.slick.BasicGame;
@@ -13,6 +14,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -44,14 +46,14 @@ public class mainApp extends BasicGame implements MouseListener
 	static int frame_num = 0;
 	static int step_num = 0;
 
-	int num_agents = 1000;
+	int num_agents = 1;
 
 	/* Simulation objects */
 	AgentManager agentManager;
 	static World world;
 
 	/* Size of the world - Pixels - recommended to be base 10 divisible for grid visuals */
-	static int world_size = 1000;
+	static int world_size = 500;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);
@@ -75,7 +77,7 @@ public class mainApp extends BasicGame implements MouseListener
 	static int camera_margin = 5;
 	
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));
-	
+			
 	public mainApp()
 	{
 		super("Simulator");
@@ -112,7 +114,7 @@ public class mainApp extends BasicGame implements MouseListener
 
 			s = sr.nextInt(agent_size) + 4;
 
-			agentManager.addNewAgent(new SimpleAgent(i, x, y, s, t));
+			agentManager.addNewAgent(new SimpleAgent(i, 250, 250, 25, 1));
 
 		}
 		
@@ -162,8 +164,8 @@ public class mainApp extends BasicGame implements MouseListener
 		g.drawString("Frame Rate : " + app.getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
 
 		g.drawString("Draw Div : " + draw_div, camera_bound.getMinX(), camera_bound.getMinY() + 250);
-	
-		g.draw(camera_bound);		
+		
+		g.draw(camera_bound);	
 
 	}
 

@@ -4,7 +4,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Vector2f;
+
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 
 /*
@@ -47,6 +50,8 @@ public class AgentManager
 
 	SimpleAgent testAgent;
 
+	private Boolean true_drawing=true;
+
 	public AgentManager(int num_agents)
 	{
 
@@ -63,7 +68,7 @@ public class AgentManager
 	public void addNewAgent(SimpleAgent agent)
 	{
 
-		agent.setHighlighted(false);
+		agent.setHighlighted(true);
 		
 		agent.setVisible(true);
 
@@ -89,9 +94,16 @@ public class AgentManager
 			tAgentDrawAI = itrDrawAI.next();
 
 			// Only draw visible agents that are inside the camera_boundarie
-			if (tAgentDrawAI.getPos().getX() > (mainApp.camera_bound.getX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (mainApp.camera_bound.getMaxX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (mainApp.camera_bound.getY() - mainApp.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (mainApp.camera_bound.getMaxY() - mainApp.global_translate.getY()))
+			//if (tAgentDrawAI.getPos().getX() > (mainApp.camera_bound.getX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (mainApp.camera_bound.getMaxX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (mainApp.camera_bound.getY() - mainApp.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (mainApp.camera_bound.getMaxY() - mainApp.global_translate.getY()))
 			{
-				tAgentDrawAI.drawAgent(g);
+				if(true_drawing==true)
+				{
+					tAgentDrawAI.body.drawTrueBody(g);	
+				}
+				else
+				{
+					tAgentDrawAI.body.drawRectBody(g);						
+				}
 
 				tAgentDrawAI.drawViewRange(g);
 			}
@@ -100,10 +112,39 @@ public class AgentManager
 
 	}
 
+	public void setDrawType(Boolean true_draw)
+	{
+		this.true_drawing = true_draw;
+	}
+	
+	private void doTestAgent()
+	{
+		if(testAgent==null)
+		{
+			testAgent = new SimpleAgent(-1,0,0,25,2);
+			
+			testAgent.setVisible(true);
+			
+			testAgent.setHighlighted(true);
+			
+			doneList.add(testAgent);
+			
+		}
+		
+		setTestAgentLocation();
+	}
+	
+	private void setTestAgentLocation()
+	{
+		testAgent.setDebugPos(mainApp.mouse_pos);
+	}	
+	
 	/* Main Method - Called by update thread - Note synchronized with draw */
 	public synchronized void doAi()
 	{
 
+		doTestAgent();
+		
 		setUpLists();
 
 		setUpRTree();

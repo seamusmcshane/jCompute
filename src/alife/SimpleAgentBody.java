@@ -2,6 +2,7 @@ package alife;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -15,11 +16,14 @@ public class SimpleAgentBody
 {
 	/* Agent Body */
 	private Rectangle body;
+	private float size;
+
+	private Circle true_body;
+	private float true_size;
 		
 	private Color color;
 	private Vector2f body_pos;
 	
-	private float size;
 	private int type;
 	
 	private float speed=1;
@@ -40,6 +44,10 @@ public class SimpleAgentBody
 	private void initBody()
 	{
 		body = new Rectangle(0,0,this.size,this.size);
+
+		true_size = body.getBoundingCircleRadius();
+		
+		true_body = new Circle(0,0,true_size);
 					
 		setColor();
 	}
@@ -95,9 +103,7 @@ public class SimpleAgentBody
 	/* Internal Movement */
 	private void updateBodyPosition(Vector2f pos)
 	{
-		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+pos.getY());
-				
-		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
+		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+pos.getY());				
 	}
 
 	/* External Getter */
@@ -112,17 +118,36 @@ public class SimpleAgentBody
 		return this.direction;
 	}
 
-	/* Area of this Agent */
-	public Rectangle getBodyBounds()
+	/* Fast Body Draw Method */
+	public void drawRectBody(Graphics g)
 	{
-		return body;
+		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
+
+		g.setColor(color);
+		//g.setColor(Color.white);
+
+		g.fill(body);			
 	}
 	
-	/* Body Draw Method */
-	public void drawBody(Graphics g)
+	public void drawTrueBody(Graphics g)
 	{
+		true_body.setLocation(body_pos.getX()-(true_size), body_pos.getY()-(true_size));
+
 		g.setColor(color);
-		g.fill(body);			
+		
+		g.fill(true_body);	
+		
+		drawRectBody(g);
+	}
+	
+	public void setDebugPos(Vector2f pos)
+	{
+		body_pos.set(pos.getX(), pos.getY());		
+	}
+	
+	public float getSize()
+	{
+		return size;
 	}
 	
 }

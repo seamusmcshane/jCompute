@@ -15,7 +15,10 @@ public class ViewGeneratorThread extends Thread
     
     SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
 
-	private MaxHeap<SimpleAgent> temp1;
+	private MaxHeap<SimpleAgent> neighbourlist;
+	
+	private SimpleAgent currentAgent;
+	
 	private SimpleAgent nearestAgent;
 	private double[] pos;
 	
@@ -23,7 +26,7 @@ public class ViewGeneratorThread extends Thread
 	{
 		this.agentList = linkedList;	
 		itr = agentList.listIterator();
-		this.worldView = prTree;
+		this.worldView = prTree;	
 	}
 	
 	public void run()
@@ -37,50 +40,50 @@ public class ViewGeneratorThread extends Thread
 		// Split the lists
 		while(itr.hasNext()) 
 		{
-			SimpleAgent temp = itr.next();	
+			currentAgent = itr.next();	
 			
 			pos = new double[2];			
-			pos[0]=temp.getPos().getX();
-			pos[1]=temp.getPos().getY();	
+			pos[0]=currentAgent.getPos().getX();
+			pos[1]=currentAgent.getPos().getY();	
 			
 			/* Get two - due to closest agent being its self */
-			temp1 = worldView.findNearestNeighbors(pos, 2, distanceKD);
+			neighbourlist = worldView.findNearestNeighbors(pos, 2, distanceKD);
 			
 			/* Max is the next closest - Self is 0 */
-			nearestAgent = temp1.getMax();
+			nearestAgent = neighbourlist.getMax();
 
-			distanceCalcCompareKDSQ(temp);
+			distanceCalcCompareKDSQ();
 		}		
 		
 	}	
 	
-	private void distanceCalcCompareKD(SimpleAgent temp)
+	/* Part 1 : Get Squared Distance between two agents positions
+	 * This distance is from the center of the agents,  
+	 * 
+	 * Part 2: Square the size of the bodies -
+	 * We also need to subtract the square of the body sizes, so distance is on the body edges of each agent
+	 *
+	 * Part 3: Square the view distance (range) of the current agent
+	 * 
+	 * Pseudo Code : 
+	 * If the distance between the closest agents surface is less than the view range of the current agent then it is in view 
+	 * True - add it to the Agent to the current agents view.
+	 * False- clear the view.
+	 */
+	private void distanceCalcCompareKDSQ()
 	{
-		if(temp.getPos().distance(nearestAgent.getPos()) <  (temp.getRange()/2)  )
-		{
-			temp.updateNearestAgentKD(nearestAgent);
-			//System.out.println("inrange");		
+		
+//		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos())) <  ((currentAgent.getRange()*currentAgent.getRange())) )  																	// Part 3
 
+		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos()) - 															// Part 1
+				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
+				<  ((currentAgent.getRange()*currentAgent.getRange())) )																	// Part 3			
+		{
+			currentAgent.updateNearestAgentKD(nearestAgent);
 		}
-		else
+		else // Clear the view 
 		{
-			temp.updateNearestAgentKD(null);
-
-		}
-	}
-	
-	private void distanceCalcCompareKDSQ(SimpleAgent temp)
-	{
-		if(temp.getPos().distanceSquared(nearestAgent.getPos()) <  ( (temp.getRange()* temp.getRange() )/2)  )
-		{
-			temp.updateNearestAgentKD(nearestAgent);
-			//System.out.println("inrange");		
-
-		}
-		else
-		{
-			temp.updateNearestAgentKD(null);
-
+			currentAgent.updateNearestAgentKD(null);
 		}
 	}	
 		

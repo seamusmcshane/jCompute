@@ -4,6 +4,7 @@ import java.util.Random;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -11,29 +12,27 @@ import org.newdawn.slick.geom.Vector2f;
 public class SimpleAgent
 {
 	// Agent Body
-	private SimpleAgentBody body;
+	public SimpleAgentBody body;
 	
-	/* Agent View Range */
 	
 	private int id;
 	
 	private Iterable<SimpleAgent> viewList; /* List of Agents in view */
 	private Iterator iterator;
 	
-	//DistanceResult<SimpleAgent> nearestAgent;
 
-	
+	/* Agent View Range */
 	private int range=5;
 	private float range_limit=0; /* Limit = size + range */
-	private Rectangle field;	
+	private Circle field;	
 	
 	/* Agent Type */
 	private int type;
 		
-	private float body_size;
 	private float speed;
 		
 	private boolean high_lighted = false;
+	private boolean collision=false;
 	private boolean visible = false;
 	private int viewCount=0;
 	
@@ -45,15 +44,13 @@ public class SimpleAgent
 
 	private SimpleAgent nearestAgent;
 	
-	public SimpleAgent(int id,float x,float y,float body_size,int type)
+	public SimpleAgent(int id,float x,float y,float size,int type)
 	{
 		this.id = id;
+			
+		this.speed = (1/size)+1;
 		
-		this.body_size=body_size;
-		
-		this.speed = (1/body_size)+1;
-		
-		this.range = (int) (this.range * this.body_size)/2;
+		this.range = (int) (this.range * size)/2;
 				
 		this.type = type;
 		
@@ -64,7 +61,7 @@ public class SimpleAgent
 		
 		xy = polarToCar(speed,d.nextInt(360));
 		
-		createBody(new Vector2f(x,y));	
+		createBody(new Vector2f(x,y),size);	
 		
 		setUpView();
 			
@@ -79,11 +76,16 @@ public class SimpleAgent
 	public void think()
 	{
 		
+		if(this.id==-1)
+		{
+			return;
+		}
+		
 		/* TODO if nothing in range and traveled for a while */		
 		if(moves > max_dir && (nearestAgent == null) )
 		{
 			moves=0;
-			xy = polarToCar(1,d.nextInt(360)+1);
+			//xy = polarToCar(1,d.nextInt(360)+1);
 						
 			//xy = carToPolar(mainApp.mouse_pos.x,mainApp.mouse_pos.y);
 			
@@ -92,10 +94,14 @@ public class SimpleAgent
 			//xy = 
 		}
 
+		this.collision=false;
+
 		
 		if(nearestAgent!=null)
 		{
 
+			this.collision=true;
+			
 			//System.out.println("Distance " + nearestAgent.getDistance());
 
 			
@@ -164,6 +170,8 @@ public class SimpleAgent
 		}
 		//max_dir = d.nextInt(250);
 	
+		
+		//xy = new Vector2f(150,150);
 		/* Reverse if stuck against wall */
 		if(!body.move(xy))
 		{
@@ -175,7 +183,7 @@ public class SimpleAgent
 
 		}
 	
-		//moves++;
+		moves++;
 
 		upDateViewLocation();
 	}
@@ -185,14 +193,15 @@ public class SimpleAgent
 	/* View Range */
 	private void setUpView()
 	{
-		range_limit = body_size + range;
-		
-		field = new Rectangle(body.getBodyPos().getX()-(range_limit/2),body.getBodyPos().getY()-(range_limit/2),this.range_limit,this.range_limit);
+		range_limit =  range;
+				
+		field = new Circle(body.getBodyPos().getX(),body.getBodyPos().getY(),range_limit);
 	}
-	
+
+	/* Representation of View position */
 	private void upDateViewLocation()
 	{
-		field.setLocation(body.getBodyPos().getX()-(range_limit/2),body.getBodyPos().getY()-(range_limit/2));
+		field.setLocation(body.getBodyPos().getX()-(range_limit),body.getBodyPos().getY()-(range_limit));
 	}
 	
 	public void updateAgentView(Iterable<SimpleAgent> tempList)
@@ -239,9 +248,9 @@ public class SimpleAgent
 	 * Init 
 	 * 
 	 */
-	private void createBody(Vector2f pos)
+	private void createBody(Vector2f pos,float size)
 	{
-		body = new SimpleAgentBody(pos,body_size,type);
+		body = new SimpleAgentBody(pos,size,type);
 	}
 	
 	/*
@@ -253,22 +262,8 @@ public class SimpleAgent
 	{
 		visible = status;
 	}
-	
-	public void drawAgent(Graphics g)
-	{
-		if(visible)
-		{
-			body.drawBody(g);			
-		}
-	}
 
-	/* KNN */
-	public Rectangle getBodyBounds()
-	{
-		return body.getBodyBounds();
-	}
-	
-	public Rectangle getFieldofView()
+	public Circle getFieldofView()
 	{
 		return field;
 	}
@@ -325,10 +320,24 @@ public class SimpleAgent
 	
 	public void drawViewRange(Graphics g)
 	{
-		if(high_lighted)
+		if(high_lighted && !collision)
 		{ 
 			g.setColor(Color.white);
 			g.draw(field);
 		}
+		else if(collision)
+		{
+			g.setColor(Color.yellow);
+			g.draw(field);
+
+		}
+		
 	}
+	
+	public void setDebugPos(Vector2f pos)
+	{
+		body.setDebugPos(pos);
+		upDateViewLocation();
+	}
+
 }
