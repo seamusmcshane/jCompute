@@ -48,9 +48,14 @@ public class AgentManager
 	int agentsDone;
 	int agentsTodo;
 
+	/* For Debug */
 	SimpleAgent testAgent;
 
-	private Boolean true_drawing=true;
+	/* Draw the Pixel perfect real bodies or a faster less intensive rectangular version */
+	private Boolean true_drawing;
+	
+	/* Draw the field of views for the agents */
+	private Boolean view_drawing;
 
 	public AgentManager(int num_agents)
 	{
@@ -66,10 +71,7 @@ public class AgentManager
 
 	/* Being born counts as an Action thus all new agents start in the done list */
 	public void addNewAgent(SimpleAgent agent)
-	{
-
-		agent.setHighlighted(true);
-		
+	{		
 		agent.setVisible(true);
 
 		/*
@@ -85,7 +87,7 @@ public class AgentManager
 	/* Draws all the agents Note synchronized with doAi */
 	public synchronized void drawAI(Graphics g)
 	{
-
+		
 		itrDrawAI = doneList.listIterator();
 
 		while (itrDrawAI.hasNext())
@@ -93,9 +95,13 @@ public class AgentManager
 
 			tAgentDrawAI = itrDrawAI.next();
 
-			// Only draw visible agents that are inside the camera_boundarie
-			//if (tAgentDrawAI.getPos().getX() > (mainApp.camera_bound.getX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (mainApp.camera_bound.getMaxX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (mainApp.camera_bound.getY() - mainApp.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (mainApp.camera_bound.getMaxY() - mainApp.global_translate.getY()))
+			/* Set the current status of the view drawing */
+			tAgentDrawAI.setViewDrawing(view_drawing);
+			
+			// Optimization - Only draw visible agents that are inside the camera_boundarie
+			if (tAgentDrawAI.getPos().getX() > (mainApp.camera_bound.getX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (mainApp.camera_bound.getMaxX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (mainApp.camera_bound.getY() - mainApp.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (mainApp.camera_bound.getMaxY() - mainApp.global_translate.getY()))
 			{
+				/* Optimization - draw correct circular bodies or faster rectangular bodies */
 				if(true_drawing==true)
 				{
 					tAgentDrawAI.body.drawTrueBody(g);	
@@ -105,6 +111,7 @@ public class AgentManager
 					tAgentDrawAI.body.drawRectBody(g);						
 				}
 
+				/* Optimization - Only draw the views of agents we can see */
 				tAgentDrawAI.drawViewRange(g);
 			}
 
@@ -117,33 +124,12 @@ public class AgentManager
 		this.true_drawing = true_draw;
 	}
 	
-	private void doTestAgent()
-	{
-		if(testAgent==null)
-		{
-			testAgent = new SimpleAgent(-1,0,0,25,2);
-			
-			testAgent.setVisible(true);
-			
-			testAgent.setHighlighted(true);
-			
-			doneList.add(testAgent);
-			
-		}
-		
-		setTestAgentLocation();
-	}
-	
-	private void setTestAgentLocation()
-	{
-		testAgent.setDebugPos(mainApp.mouse_pos);
-	}	
-	
 	/* Main Method - Called by update thread - Note synchronized with draw */
 	public synchronized void doAi()
 	{
 
-		doTestAgent();
+		/* Debug */
+		//doTestAgent();
 		
 		setUpLists();
 
@@ -162,7 +148,6 @@ public class AgentManager
 	/* Creates the KD tree of Agents for letting the agents see the world */
 	private void setUpRTree()
 	{
-
 		worldSpace = new KdTree<SimpleAgent>(2);
 
 		ListIterator<SimpleAgent> itrTree = doList.listIterator();
@@ -284,4 +269,37 @@ public class AgentManager
 		Collections.shuffle(doList);
 	}
 
+	/* Debug */
+	private void doTestAgent()
+	{
+		if(testAgent==null)
+		{
+			testAgent = new SimpleAgent(-1,0,0,25,2);
+			
+			testAgent.setVisible(true);
+			
+			testAgent.setViewDrawing(view_drawing);
+			
+			doneList.add(testAgent);
+			
+		}
+		
+		setTestAgentLocation();
+	}
+	
+	/* Draw true circular bodies or faster rectangular ones */
+	public void setTrueDrawing(Boolean setting)
+	{
+		true_drawing = setting;
+	}
+	
+	private void setTestAgentLocation()
+	{
+		testAgent.setDebugPos(mainApp.mouse_pos);
+	}
+
+	public void setFieldOfViewDrawing(Boolean setting)
+	{
+		view_drawing = setting;
+	}	
 }

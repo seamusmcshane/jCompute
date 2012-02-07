@@ -3,7 +3,6 @@ package alife;
 /* The following two imports are for creating executable jar */
 import java.io.File;
 import org.lwjgl.LWJGLUtil;
-import org.lwjgl.input.Mouse;
 
 import java.util.Random;
 import org.newdawn.slick.BasicGame;
@@ -45,15 +44,23 @@ public class mainApp extends BasicGame implements MouseListener
 	/* Counters */
 	static int frame_num = 0;
 	static int step_num = 0;
+	static boolean real_time;
 
-	int num_agents = 1;
+	/* Number of Agents */
+	int num_agents = 10000;
+	
+	/* Draw slow but accurate circular bodies or faster rectangular ones */
+	Boolean true_body_drawing=false;
 
+	/* Draw agent field of views */
+	Boolean draw_field_of_views=false;
+	
 	/* Simulation objects */
 	AgentManager agentManager;
 	static World world;
 
 	/* Size of the world - Pixels - recommended to be base 10 divisible for grid visuals */
-	static int world_size = 500;
+	static int world_size = 700;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);
@@ -74,7 +81,7 @@ public class mainApp extends BasicGame implements MouseListener
 	public static Vector2f mouse_pos = new Vector2f(world_size, world_size);
 
 	/* Stores the camera postion */
-	static int camera_margin = 5;
+	static int camera_margin = 50;
 	
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));
 			
@@ -100,6 +107,10 @@ public class mainApp extends BasicGame implements MouseListener
 
 		agentManager = new AgentManager(num_agents);
 
+		agentManager.setTrueDrawing(true_body_drawing);
+		
+		agentManager.setFieldOfViewDrawing(draw_field_of_views);
+		
 		int i;
 
 		int x, y, t, s;
@@ -114,7 +125,7 @@ public class mainApp extends BasicGame implements MouseListener
 
 			s = sr.nextInt(agent_size) + 4;
 
-			agentManager.addNewAgent(new SimpleAgent(i, 250, 250, 25, 1));
+			agentManager.addNewAgent(new SimpleAgent(i, x, y, s, t));
 
 		}
 		
@@ -139,14 +150,11 @@ public class mainApp extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-
 		g.setWorldClip(camera_bound);
 		
 		doDraw(bufferGraphics);
 			
-		g.drawImage(buffer, 0, 0);		
-
-		g.resetTransform();
+		g.drawImage(buffer, 0,0);		
 
 		frame_num++;
 		
@@ -157,8 +165,17 @@ public class mainApp extends BasicGame implements MouseListener
 		
 		g.drawString("Step Num : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
 
-		g.drawString("Frame Updates : " + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);
+		if(app.getFPS() >= 15 )
+		{
+			real_time=true;
+		}
+		else
+		{
+			real_time=false;
+		}
 		
+		g.drawString("Frame Updates + ( Real-time : " + Boolean.toString(real_time) +") : " + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);	
+				
 		g.drawString("Buffer Updates : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
 		
 		g.drawString("Frame Rate : " + app.getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
@@ -175,12 +192,15 @@ public class mainApp extends BasicGame implements MouseListener
 		g.clear();
 
 		g.translate(global_translate.getX(), global_translate.getY());
-		
+
+		/* TODO Centers the world in view correctly - Clipping problem with agents - Math is here or somewhere else */
+		//g.translate(global_translate.getX()+(screen_width/2-(world_size/2)), global_translate.getY()+(screen_height/2-(world_size/2)));
+
 		/* World */
 		world.drawWorld(g);
 
 		/* Agents */
-		drawAgents(g);
+		drawAgents(g);		
 		
 		buffer_num++;
 
@@ -192,7 +212,7 @@ public class mainApp extends BasicGame implements MouseListener
 		agentManager.drawAI(g);
 	}
 
-	/* Keeps the simulation aware of the mouse position minus any translation */
+	/* Keeps the simulation aware of the mouse position minus any translation of the view */
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy)
 	{
@@ -260,9 +280,6 @@ public class mainApp extends BasicGame implements MouseListener
 			// System.getProperty("org.lwjgl.librarypath"));
 
 			app = new AppGameContainer(new mainApp());
-
-			/* TODO FIX */
-			app.setTitle("Alife Sim");
 
 			/* Always update */
 			app.setUpdateOnlyWhenVisible(false);

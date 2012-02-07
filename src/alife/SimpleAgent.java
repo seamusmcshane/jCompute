@@ -31,7 +31,7 @@ public class SimpleAgent
 		
 	private float speed;
 		
-	private boolean high_lighted = false;
+	private boolean draw_view = false;
 	private boolean collision=false;
 	private boolean visible = false;
 	private int viewCount=0;
@@ -94,17 +94,14 @@ public class SimpleAgent
 			//xy = 
 		}
 
-		this.collision=false;
-
+		/* Debug */
+		// this.collision=false;
 		
 		if(nearestAgent!=null)
 		{
-
-			this.collision=true;
-			
-			//System.out.println("Distance " + nearestAgent.getDistance());
-
-			
+			/* Debug Highlight collisions */
+			//this.collision=true;
+						
 				if(nearestAgent.getType() != this.getType() && this.type == 1)
 				{				
 					xy = carToPolar(nearestAgent.getPos().getX(),nearestAgent.getPos().getY());
@@ -313,14 +310,14 @@ public class SimpleAgent
 	}
 	
 	/* Debug */	
-	public void setHighlighted(boolean highlight)
+	public void setViewDrawing(boolean setting)
 	{
-		high_lighted = highlight;
+		draw_view = setting;
 	}
 	
 	public void drawViewRange(Graphics g)
 	{
-		if(high_lighted && !collision)
+		if(draw_view && !collision)
 		{ 
 			g.setColor(Color.white);
 			g.draw(field);
