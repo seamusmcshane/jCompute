@@ -2,6 +2,8 @@ package alife;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Line;
 
 /*
@@ -12,25 +14,39 @@ import org.newdawn.slick.geom.Line;
  */ 
 public class WorldGrid
 {
+	
+	Graphics gridGraphics;
+	Image gridImage;
+	
+	/* Grid Lines */
 	private Line[] hlines;
 	private Line[] vlines;
 	
 	private int num;
 	private int size;
 	private int step;
-	private final int major_div=50; /* TODO make Adjustable */
+	private int major_div; /* TODO make Adjustable */
 	
 	public WorldGrid(int size,int step)
 	{
 		this.size=size;
 		this.step = step;
-		generateGrid();
+		
+		generateGrid();	
+		
+		setupGridImage();
+
+		setupGridGraphics();
+		
+		drawGrid();	
 	}
 	
 	/* Generation Method */
 	private void generateGrid()
 	{
-		num=1+(size/step); /* ie if size = 1000 then lines every 10 and Major divs every 50 */
+		num=1+(size/step); /* ie if size = 1024 then lines every 8 */
+		
+		major_div = step*8; /* If step = 8 then this will be every 64 lines */
 		
 		hlines = new Line[num];
 		vlines = new Line[num];
@@ -41,28 +57,67 @@ public class WorldGrid
 			hlines[i] = new Line(x,0,x, size);			
 			vlines[i] = new Line(0,x,size,x);
 			x=x+step;
-		}		
+		}
+				
 	}
 	
 	/* Draw method for the grid */
-	public void drawGrid(Graphics g)
+	private void drawGrid()
 	{					
-			g.setColor(new Color(25,25,25));
+			gridGraphics.setBackground(Color.black);
+		
+			gridGraphics.setColor(new Color(25,25,25));
+			
+			gridGraphics.setLineWidth(2f);
+			
+			gridGraphics.setAntiAlias(true);
+			
 			for(int i=0;i<num;i++)
 			{					
 				if(i%major_div == 0)
 				{
-					g.setColor(new Color(50,50,50));	/* Major Div */
+					gridGraphics.setColor(new Color(50,50,50));	/* Major Div */
 				}
 				else
 				{
-					g.setColor(new Color(25,25,25));	/* Normal Line */
+					gridGraphics.setColor(new Color(25,25,25));	/* Normal Line */
 				}
-				g.draw(hlines[i]);
-				g.draw(vlines[i]);
+				gridGraphics.draw(hlines[i]);
+				gridGraphics.draw(vlines[i]);
 			}		
 	}
+	
+	private void setupGridImage()
+	{
+		try
+		{
+			gridImage = new Image(size,size);
+		}
+		catch (SlickException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
+	private void setupGridGraphics()
+	{
+		try
+		{
+			gridGraphics = gridImage.getGraphics();
+		}
+		catch (SlickException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void drawGridImage(Graphics g)
+	{
+		g.drawImage(gridImage, 0, 0);		
+	}
+	
 }
 	
 

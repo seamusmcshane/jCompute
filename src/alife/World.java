@@ -97,14 +97,14 @@ public class World
 	/* Generate the world grid object - TODO add select step size */
 	private void createGrid()
 	{
-		int grid_steps=10;
+		int grid_steps=8;
 		grid = new WorldGrid(world_size,grid_steps);
 	}
 	
 	/* Draw method */
 	public void drawWorld(Graphics g)
 	{
-		grid.drawGrid(g);
+		grid.drawGridImage(g);
 		
 		g.setColor(Color.blue);
 		

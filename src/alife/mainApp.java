@@ -13,7 +13,6 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.AppGameContainer;
-import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -25,8 +24,6 @@ public class mainApp extends BasicGame implements MouseListener
 {
 
 	static AppGameContainer app;
-
-
 
 	/* Window or Screen Size */
 	static int screen_width = 1024;
@@ -47,7 +44,7 @@ public class mainApp extends BasicGame implements MouseListener
 	static boolean real_time;
 
 	/* Number of Agents */
-	int num_agents = 10000;
+	int num_agents = 100;
 	
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing=false;
@@ -59,8 +56,8 @@ public class mainApp extends BasicGame implements MouseListener
 	AgentManager agentManager;
 	static World world;
 
-	/* Size of the world - Pixels - recommended to be base 10 divisible for grid visuals */
-	static int world_size = 700;
+	/* Size of the world - Pixels - recommended to be power of 2 due to OpenGL texture limits */
+	static int world_size = 512;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);
