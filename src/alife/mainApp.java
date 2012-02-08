@@ -44,7 +44,7 @@ public class mainApp extends BasicGame implements MouseListener
 	static boolean real_time;
 
 	/* Number of Agents */
-	int num_agents = 2;
+	int num_agents = 100;
 	
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing=false;
@@ -63,7 +63,7 @@ public class mainApp extends BasicGame implements MouseListener
 	public static Vector2f global_translate = new Vector2f(0,0);
 	
 	/* Size of the Agents - Pixels */
-	int agent_size = 40;
+	int agent_size = 4;
 
 	/* For this many simulation updates for buffer update */
 	int draw_div = 1;

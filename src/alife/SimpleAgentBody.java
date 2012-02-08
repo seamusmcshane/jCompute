@@ -103,6 +103,20 @@ public class SimpleAgentBody
 		return false;		
 	}
 
+	
+	/* Like above but does't move */
+	public boolean move_possible(float req_direction)
+	{
+		Vector2f new_pos = newPosition(req_direction);
+
+		if( !World.isBondaryWall(new_pos.getX(),new_pos.getY()) ) 
+		{					
+			return true;
+		}
+	
+		return false;		
+	}
+	
 	private Vector2f newPosition(float req_direction)
 	{
 		//System.out.println("req_direction : " + req_direction);
