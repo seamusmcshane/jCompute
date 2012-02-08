@@ -17,7 +17,6 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
  * It handles movement , creation and destruction of Agents as well as 
  * multi threaded field of view updates
  * and drawing of the agents.
- * This class is synchronized to prevent changing the draw list while drawing.
  */
 
 public class AgentManager
@@ -59,7 +58,6 @@ public class AgentManager
 
 	public AgentManager(int num_agents)
 	{
-
 		this.intial_num_agents = num_agents;
 		
 		setUpLists();
@@ -74,18 +72,13 @@ public class AgentManager
 	{		
 		agent.setVisible(true);
 
-		/*
-		 * if(agentCount==0) { testAgent=agent; testAgent.setVisible(true);
-		 * testAgent.setHighlighted(true); }
-		 */
-
 		doneList.add(agent);
 
 		agentCount++;
 	}
 
-	/* Draws all the agents Note synchronized with doAi */
-	public synchronized void drawAI(Graphics g)
+	/* Draws all the agents */
+	public void drawAI(Graphics g)
 	{
 		
 		itrDrawAI = doneList.listIterator();
@@ -124,20 +117,20 @@ public class AgentManager
 		this.true_drawing = true_draw;
 	}
 	
-	/* Main Method - Called by update thread - Note synchronized with draw */
-	public synchronized void doAi()
+	/* Main Method */
+	public void doAi()
 	{
 
 		/* Debug */
 		//doTestAgent();
 		
+		/* Safe starting position */
 		setUpLists();
 
-		setUpRTree();
-
+		/* Remove bias from agents order in list */
 		randomizeListOrder();
 
-		/* TODO Threaded */
+		/* Threaded */
 		setUpAgentViews();
 
 		/* Non Threaded */
@@ -145,29 +138,12 @@ public class AgentManager
 
 	}
 
-	/* Creates the KD tree of Agents for letting the agents see the world */
-	private void setUpRTree()
-	{
-		worldSpace = new KdTree<SimpleAgent>(2);
-
-		ListIterator<SimpleAgent> itrTree = doList.listIterator();
-
-		while (itrTree.hasNext())
-		{
-			SimpleAgent temp = itrTree.next();
-
-			double[] pos = new double[2];
-
-			pos[0] = temp.getPos().getX();
-			pos[1] = temp.getPos().getY();
-
-			worldSpace.addPoint(pos, temp);
-		}
-	}
-
-	/* Creates the Agent Views */
+	/* Creates the KD tree of Agents for letting the agents see the world && Then Creates the Agent Views */
 	private void setUpAgentViews()
 	{
+		/* 2d - KD-Tree */
+		worldSpace = new KdTree<SimpleAgent>(2);
+		
 		int i = 0;
 
 		/* Create a list for each thread and the thread */
@@ -186,16 +162,25 @@ public class AgentManager
 		/* Split the lists */
 		while (itr.hasNext())
 		{
+			/* Get an agent */
 			SimpleAgent temp = itr.next();
 
+			/* This Section add each agent and its coordinates to the kd tree */  
+			{
+				double[] pos = new double[2];
+				pos[0] = temp.getPos().getX();
+				pos[1] = temp.getPos().getY();
+				worldSpace.addPoint(pos, temp);			
+			}
+			
+			/* This section does the decision boundaries for splitting the list */
 			if (tAgentCount > div)
 			{
 				div = div + div;
 				thread_num++;
-				// System.out.println(div);
-
 			}
 
+			/* Add the agent to the smaller list */
 			threadedLists[thread_num].add(temp);
 
 			tAgentCount++;
@@ -204,13 +189,13 @@ public class AgentManager
 		/* Start the threads */
 		for (i = 0; i < num_threads; i++)
 		{
-			viewThreads[i] = new ViewGeneratorThread(threadedLists[i], worldSpace);
+			viewThreads[i] = new ViewGeneratorThread(threadedLists[i], worldSpace); /* Threads list and the kd-tree */ 
 
 			viewThreads[i].start();
 
 		}
 
-		/* Join the threads */
+		/* Join the threads so we keep the simulation in sync */
 		for (i = 0; i < num_threads; i++)
 		{
 			try
@@ -260,7 +245,6 @@ public class AgentManager
 	{
 		doList = doneList;
 		doneList = new LinkedList<SimpleAgent>();
-
 	}
 	
 	/* Randomize the doList */

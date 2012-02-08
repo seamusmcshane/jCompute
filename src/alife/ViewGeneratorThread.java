@@ -73,8 +73,6 @@ public class ViewGeneratorThread extends Thread
 	private void distanceCalcCompareKDSQ()
 	{
 		
-//		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos())) <  ((currentAgent.getRange()*currentAgent.getRange())) )  																	// Part 3
-
 		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos()) - 																// Part 1
 				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
 				<  ((currentAgent.getRange()*currentAgent.getRange())) )																	// Part 3			
