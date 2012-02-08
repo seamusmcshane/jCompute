@@ -44,13 +44,13 @@ public class mainApp extends BasicGame implements MouseListener
 	static boolean real_time;
 
 	/* Number of Agents */
-	int num_agents = 100;
+	int num_agents = 2;
 	
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing=false;
 
 	/* Draw agent field of views */
-	Boolean draw_field_of_views=false;
+	Boolean draw_field_of_views=true;
 	
 	/* Simulation objects */
 	AgentManager agentManager;
@@ -63,7 +63,7 @@ public class mainApp extends BasicGame implements MouseListener
 	public static Vector2f global_translate = new Vector2f(0,0);
 	
 	/* Size of the Agents - Pixels */
-	int agent_size = 4;
+	int agent_size = 40;
 
 	/* For this many simulation updates for buffer update */
 	int draw_div = 1;
@@ -77,7 +77,7 @@ public class mainApp extends BasicGame implements MouseListener
 	/* Stores the mouse vector across updates */
 	public static Vector2f mouse_pos = new Vector2f(world_size, world_size);
 
-	/* Stores the camera postion */
+	/* Stores the camera position */
 	static int camera_margin = 50;
 	
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));

@@ -51,7 +51,7 @@ public class ViewGeneratorThread extends Thread
 			
 			/* Max is the next closest - Self is 0 */
 			nearestAgent = neighbourlist.getMax();
-
+			
 			distanceCalcCompareKDSQ();
 		}		
 		
@@ -72,6 +72,13 @@ public class ViewGeneratorThread extends Thread
 	 */
 	private void distanceCalcCompareKDSQ()
 	{
+		/* Agent alone in the world */
+		if(currentAgent.equals(nearestAgent))
+		{
+			currentAgent.updateNearestAgentKD(null);
+			
+			return;
+		}
 		
 		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos()) - 																// Part 1
 				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2

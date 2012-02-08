@@ -23,21 +23,25 @@ public class SimpleAgentBody
 		
 	private Color color;
 	private Vector2f body_pos;
+	private Vector2f new_body_pos = new Vector2f(0,0);
 	
 	private int type;
 	
-	private float speed=1;
+	private float max_speed=1;
 	private float direction;
+	
+	private Vector2f forward_vector = new Vector2f(0,-max_speed); 	  /* Forward 1 up */
+	private Vector2f new_forward_vector = new Vector2f(0,0);		  /* Latched 	  */
 	
 	public SimpleAgentBody(Vector2f pos,float size,int type)
 	{
 		this.type = type;
 		
-		this.size = size;		
-		
-		body_pos = pos;
+		this.size = size;			
 		
 		initBody();
+		
+		setIntialPos(pos);
 	}
 	
 	/* Init */
@@ -77,33 +81,62 @@ public class SimpleAgentBody
 	}
 	
 	/* TODO Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
-	public boolean move(Vector2f req_pos)
-	{
+	public boolean move(float req_direction)
+	{		
+		Vector2f new_pos = newPosition(req_direction);
+
 		/* If physics says yes then move the agent */
-		if(!World.isBondaryWall(this.getBodyPos().getX()+req_pos.getX(), this.getBodyPos().getY()+req_pos.getY()))
+		if( !World.isBondaryWall(new_pos.getX(),new_pos.getY()) ) 
 		{
+			//System.out.println("Safe - new_pos : X | " + new_pos.getX() + " Y |" + new_pos.getY());
 			
-			updateBodyPosition(req_pos);
+			updateBodyPosition(new_pos);
 			
 			return true;
+		}
+		else
+		{
+			//System.out.println("Wall - new_pos : X | " + new_pos.getX() + " Y |" + new_pos.getY());
 		}
 		
 		/* Agent is trying to move into a wall - move denied */
 		return false;		
 	}
 
-	/* TODO - Initial Position X/Y */
-	private void setIntialPos(Vector2f pos)
+	private Vector2f newPosition(float req_direction)
 	{
-		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+body_pos.getY());
-			
-		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
+		//System.out.println("req_direction : " + req_direction);
+		
+		/* Get out current forward direction */
+		new_forward_vector.set(forward_vector);
+		
+		/* Change it by the new direction */
+		new_forward_vector.add(req_direction);
+		
+		/* Get our current Cartesian X and Y */
+		new_body_pos.set(body_pos);
+				
+		/* Add our new forward vector */
+		new_body_pos.add(new_forward_vector);
+	
+		//req_pos.set(body_pos.getX()+req_pos.getX(),body_pos.getY()+req_pos.getY());
+		
+		//System.out.println("vector  : X | " + new_body_pos.getX() + " Y |" + new_body_pos.getY());
+		
+		return new_body_pos;
+				
+	}
+	
+	/* Initial Cartesian X/Y Position */
+	private void setIntialPos(Vector2f pos)
+	{	
+		body_pos = pos;
 	}
 	
 	/* Internal Movement */
 	private void updateBodyPosition(Vector2f pos)
 	{
-		body_pos.set(body_pos.getX()+pos.getX(), body_pos.getY()+pos.getY());				
+		body_pos.set(pos);				
 	}
 
 	/* External Getter */
@@ -112,7 +145,30 @@ public class SimpleAgentBody
 		return body_pos;
 	}
 	
-	/* TODO polor directions */
+	/* 
+	 * 
+	 * Helpers 
+	 * 
+	 */
+	private Vector2f polarToCar(float r,float theta)
+	{
+		float x = (float) (r * Math.cos(theta));
+		float y = (float) (r * Math.sin(theta));
+		
+		return new Vector2f(y,-x);
+	}
+	
+	private Vector2f carToPolar(float x, float y)
+	{
+		float r = (float) Math.sqrt((x*x)+(y*y));
+		
+		float theta = (float) Math.atan2(y, x);
+		
+		/* Polar Vector */
+		return new Vector2f(r,theta);
+	}
+	
+	/* Returns the agents direction */
 	public float getDirection()
 	{
 		return this.direction;
