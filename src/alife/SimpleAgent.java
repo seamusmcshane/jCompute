@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package alife;
 import java.util.Iterator;
 import java.util.Random;
@@ -82,9 +85,8 @@ public class SimpleAgent
 	}
 
 	
-	/*
-	 * 
-	 *  AI
+	/**
+	 * Think.
 	 */
 	public void think()
 	{

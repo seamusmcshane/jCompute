@@ -6,30 +6,49 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Line;
 
-/*
- * World Grid
+/**
  * This class contains the methods needed to create 
  * and draw the background grid for the world.
- * - No external interactions other than draw
+ * - No external interactions other than draw which draws an image of the grid.
  */ 
 public class WorldGrid
 {
 	
-	Graphics gridGraphics;
-	Image gridImage;
+	/** The final grid image. */
+	private Image gridImage;
 	
-	/* Grid Lines */
+	/** The grid graphics drawing object. */
+	private Graphics gridGraphics;
+		
+	/** The Horizontal Lines. */
 	private Line[] hlines;
+	
+	/** The Vertical Lines. */
 	private Line[] vlines;
 	
+	/** Number of lines (generated) */
 	private int num;
+	
+	
+	/** The size of the grid. */
 	private int size;
+	
+	/** The step at which to draw each line. */
 	private int step;
+	
+	/** The division at which to draw major lines. */
 	private int major_div; /* TODO make Adjustable */
 	
+	/**
+	 * Instantiates a new world grid.
+	 *
+	 * @param size the size
+	 * @param step the step
+	 */
 	public WorldGrid(int size,int step)
 	{
 		this.size=size;
+		
 		this.step = step;
 		
 		generateGrid();	
@@ -38,10 +57,13 @@ public class WorldGrid
 
 		setupGridGraphics();
 		
-		drawGrid();	
+		drawGridOnImage();	
 	}
 	
-	/* Generation Method */
+	/** 
+	 * Generation Method 
+	 * Calculates the positions of all the lines.
+	 */
 	private void generateGrid()
 	{
 		num=1+(size/step); /* ie if size = 1024 then lines every 8 */
@@ -61,8 +83,10 @@ public class WorldGrid
 				
 	}
 	
-	/* Draw method for the grid */
-	private void drawGrid()
+	/** 
+	 * Draws the grid method on the image object 
+	 */
+	private void drawGridOnImage()
 	{					
 			gridGraphics.setBackground(Color.black);
 		
@@ -87,6 +111,9 @@ public class WorldGrid
 			}		
 	}
 	
+	/**
+	 * Sets up the grid image object.
+	 */
 	private void setupGridImage()
 	{
 		try
@@ -100,6 +127,9 @@ public class WorldGrid
 		}
 	}
 
+	/**
+	 * Points grid graphics to the image object graphics.
+	 */
 	private void setupGridGraphics()
 	{
 		try
@@ -113,6 +143,11 @@ public class WorldGrid
 		}
 	}
 
+	/**
+	 * Draw the grid image on the passed in graphics object.
+	 *
+	 * @param Graphics g
+	 */
 	public void drawGridImage(Graphics g)
 	{
 		g.drawImage(gridImage, 0, 0);		

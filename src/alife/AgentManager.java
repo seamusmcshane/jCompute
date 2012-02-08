@@ -92,7 +92,7 @@ public class AgentManager
 			tAgentDrawAI.setViewDrawing(view_drawing);
 			
 			// Optimization - Only draw visible agents that are inside the camera_boundarie
-			if (tAgentDrawAI.getPos().getX() > (mainApp.camera_bound.getX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (mainApp.camera_bound.getMaxX() - mainApp.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (mainApp.camera_bound.getY() - mainApp.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (mainApp.camera_bound.getMaxY() - mainApp.global_translate.getY()))
+			if (tAgentDrawAI.getPos().getX() > (Simulation.camera_bound.getX() - Simulation.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (Simulation.camera_bound.getMaxX() - Simulation.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (Simulation.camera_bound.getY() - Simulation.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (Simulation.camera_bound.getMaxY() - Simulation.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
 				if(true_drawing==true)
@@ -279,7 +279,7 @@ public class AgentManager
 	
 	private void setTestAgentLocation()
 	{
-		testAgent.setDebugPos(mainApp.mouse_pos);
+		testAgent.setDebugPos(Simulation.mouse_pos);
 	}
 
 	public void setFieldOfViewDrawing(Boolean setting)

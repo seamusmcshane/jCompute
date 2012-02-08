@@ -20,7 +20,7 @@ import org.newdawn.slick.geom.Vector2f;
  * Main App class - the entry point for the starting of the simulation.
  */
 
-public class mainApp extends BasicGame implements MouseListener
+public class Simulation extends BasicGame implements MouseListener
 {
 
 	static AppGameContainer app;
@@ -82,7 +82,7 @@ public class mainApp extends BasicGame implements MouseListener
 	
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));
 			
-	public mainApp()
+	public Simulation()
 	{
 		super("Simulator");
 	}
@@ -222,11 +222,11 @@ public class mainApp extends BasicGame implements MouseListener
 	{
 		if (button == 0)
 		{
-			mainApp.app.setTargetFrameRate(-1);
+			Simulation.app.setTargetFrameRate(-1);
 		}
 		else
 		{
-			mainApp.app.setTargetFrameRate(15);
+			Simulation.app.setTargetFrameRate(15);
 		}
 	}
 
@@ -276,7 +276,7 @@ public class mainApp extends BasicGame implements MouseListener
 			// System.setProperty("net.java.games.input.librarypath",
 			// System.getProperty("org.lwjgl.librarypath"));
 
-			app = new AppGameContainer(new mainApp());
+			app = new AppGameContainer(new Simulation());
 
 			/* Always update */
 			app.setUpdateOnlyWhenVisible(false);
