@@ -73,7 +73,7 @@ public class SimpleAgent
 		
 		//direction = 0;
 		
-		max_moves = 100;
+		max_moves = r.nextInt(50)+50;;
 		
 		chase_max_moves = max_moves/2;
 		
@@ -139,6 +139,8 @@ public class SimpleAgent
 			else /* Rested enough - last rest move */
 			{
 				//System.out.println("R : " + rest_moves);
+				
+				direction = r.nextInt(360)+1;
 				
 				rest_moves=0;
 				

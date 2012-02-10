@@ -16,8 +16,10 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
-/*
+/**
  * Main App class - the entry point for the starting of the simulation.
+ * 
+ * 
  */
 
 public class Simulation extends BasicGame implements MouseListener
@@ -49,15 +51,17 @@ public class Simulation extends BasicGame implements MouseListener
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing=false;
 
-	/* Draw agent field of views */
+	/** Toggle for Drawing agent field of views */
 	Boolean draw_field_of_views=true;
 	
-	/* Simulation objects */
+	/** Simulation Agent Manager */
 	AgentManager agentManager;
+	
+	/** The Simulation World. */
 	static World world;
 
 	/* Size of the world - Pixels - recommended to be power of 2 due to OpenGL texture limits */
-	static int world_size = 512;
+	static int world_size = 1024;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);

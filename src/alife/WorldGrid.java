@@ -146,7 +146,7 @@ public class WorldGrid
 	/**
 	 * Draw the grid image on the passed in graphics object.
 	 *
-	 * @param Graphics g
+	 * @param g Graphics
 	 */
 	public void drawGridImage(Graphics g)
 	{

@@ -41,8 +41,8 @@ public class ViewGeneratorThread extends Thread
 	/**
 	 * Instantiates a new view generator thread.
 	 *
-	 * @param LinkedList of SimpleAgents
-	 * @param KdTree of SimpleAgents
+	 * @param linkedList of SimpleAgents
+	 * @param prTree of SimpleAgents
 	 */
 	public ViewGeneratorThread(LinkedList<SimpleAgent> linkedList,	KdTree<SimpleAgent> prTree)
 	{

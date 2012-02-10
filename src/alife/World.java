@@ -4,7 +4,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Rectangle;
 
-/*
+/**
  * World Class.
  * This class contains the generator and draw methods for the world.
  * It also contains boundary checks that are used to enforce world movement limits.
