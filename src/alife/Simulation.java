@@ -28,8 +28,8 @@ public class Simulation extends BasicGame implements MouseListener
 	static AppGameContainer app;
 
 	/* Window or Screen Size */
-	static int screen_width = 1024;
-	static int screen_height = 768;
+	static int screen_width = 700;
+	static int screen_height = 700;
 
 	/* Graphic frame rate control */
 	static int frame_rate = 15;
@@ -61,7 +61,7 @@ public class Simulation extends BasicGame implements MouseListener
 	static World world;
 
 	/* Size of the world - Pixels - recommended to be power of 2 due to OpenGL texture limits */
-	static int world_size = 1024;
+	static int world_size = 512;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);
@@ -151,7 +151,8 @@ public class Simulation extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		g.setWorldClip(camera_bound);
+		/* Some Linux Drivers have hardware clipping bugs */
+		g.setWorldClip(camera_bound); // Todo Make setting
 		
 		doDraw(bufferGraphics);
 			
