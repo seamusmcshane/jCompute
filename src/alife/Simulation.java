@@ -32,7 +32,7 @@ public class Simulation extends BasicGame implements MouseListener
 	static int screen_height = 700;
 
 	/* Graphic frame rate control */
-	static int frame_rate = 15;
+	static int frame_rate = 60;
 	
 	/* This locks the frame rate to the above rate giving what time would have been used to threads */ 
 	static boolean frame_cap = true; 
@@ -61,7 +61,7 @@ public class Simulation extends BasicGame implements MouseListener
 	static World world;
 
 	/* Size of the world - Pixels - recommended to be power of 2 due to OpenGL texture limits */
-	static int world_size = 512;
+	static int world_size = 1024;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);
@@ -82,7 +82,7 @@ public class Simulation extends BasicGame implements MouseListener
 	public static Vector2f mouse_pos = new Vector2f(world_size, world_size);
 
 	/* Stores the camera position */
-	static int camera_margin = 50;
+	static int camera_margin = 10;
 	
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));
 			
@@ -140,11 +140,15 @@ public class Simulation extends BasicGame implements MouseListener
 		/* Not Used */
 		steps_todo=0;
 
-		while(steps_todo < draw_div)
+		/* Frame Rate is 60 - Update at 1/4 of that for our target sim rate */
+		if(frame_num%4 == 0)
 		{
-			agentManager.doAi();
-			steps_todo++;
-			step_num++;
+			while(steps_todo < draw_div)
+			{
+				agentManager.doAi();
+				steps_todo++;
+				step_num++;
+			}
 		}
 	}
 
@@ -154,8 +158,13 @@ public class Simulation extends BasicGame implements MouseListener
 		/* Some Linux Drivers have hardware clipping bugs */
 		g.setWorldClip(camera_bound); // Todo Make setting
 		
-		doDraw(bufferGraphics);
+		/* Frame Rate is 60 - Sim rate is 1/4 of that for our target sim rate so only redraw the buffer when the sim has updated */
+		if(frame_num%4 == 0)
+		{
+			doDraw(bufferGraphics);
+		}
 			
+		/* Always draw the buffer even if it has not changed */
 		g.drawImage(buffer, 0,0);		
 
 		frame_num++;
@@ -167,7 +176,8 @@ public class Simulation extends BasicGame implements MouseListener
 		
 		g.drawString("Step Num : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
 
-		if(app.getFPS() >= 15 )
+		/* If the frame rate greater than or equal to the target we are updating in real-time or a multiple of real-time */
+		if(app.getFPS() >= frame_rate )
 		{
 			real_time=true;
 		}
@@ -225,14 +235,14 @@ public class Simulation extends BasicGame implements MouseListener
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		if (button == 0)
+		/*if (button == 0)
 		{
 			Simulation.app.setTargetFrameRate(-1);
 		}
 		else
 		{
 			Simulation.app.setTargetFrameRate(15);
-		}
+		}*/
 	}
 
 	/* Allows moving camera around large worlds */
