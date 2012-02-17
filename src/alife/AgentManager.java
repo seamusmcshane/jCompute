@@ -227,7 +227,7 @@ public class AgentManager
 			itr.remove();
 
 			/* Move, Eat ,Sleep etc */
-			temp.think();
+			temp.brain.think();
 
 			doneList.add(temp);
 
@@ -258,7 +258,7 @@ public class AgentManager
 	{
 		if(testAgent==null)
 		{
-			testAgent = new SimpleAgent(-1,0,0,25,2);
+			testAgent = new SimpleAgent(-1,0,0,25);
 			
 			testAgent.setVisible(true);
 			

@@ -100,9 +100,6 @@ public class Simulation extends BasicGame implements MouseListener
 		Random xr = new Random();	
 		Random yr = new Random();
 
-		/* Random Type */
-		Random tr = new Random();
-
 		/* Random Size */
 		Random sr = new Random();
 
@@ -122,11 +119,9 @@ public class Simulation extends BasicGame implements MouseListener
 
 			y = yr.nextInt(world_size) + 1;
 
-			t = tr.nextInt(2) + 1;
-
 			s = sr.nextInt(agent_size) + 4;
 
-			agentManager.addNewAgent(new SimpleAgent(i, x, y, s, t));
+			agentManager.addNewAgent(new SimpleAgent(i, x, y, s));
 
 		}
 		

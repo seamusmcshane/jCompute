@@ -103,7 +103,7 @@ public class ViewGeneratorThread extends Thread
 		/* Agent alone in the world */
 		if(currentAgent.equals(nearestAgent))
 		{
-			currentAgent.updateNearestAgentKD(null);
+			currentAgent.brain.updateNearestAgentKD(null);
 			
 			return;
 		}
@@ -112,11 +112,11 @@ public class ViewGeneratorThread extends Thread
 				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
 				<  ((currentAgent.getRange()*currentAgent.getRange())) )																	// Part 3			
 		{
-			currentAgent.updateNearestAgentKD(nearestAgent);
+			currentAgent.brain.updateNearestAgentKD(nearestAgent);
 		}
 		else // Clear the view 
 		{
-			currentAgent.updateNearestAgentKD(null);
+			currentAgent.brain.updateNearestAgentKD(null);
 		}
 	}	
 		

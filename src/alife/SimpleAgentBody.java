@@ -33,7 +33,7 @@ public class SimpleAgentBody
 	private Vector2f forward_vector = new Vector2f(0,-max_speed); 	  /* Forward 1 up */
 	private Vector2f new_forward_vector = new Vector2f(0,0);		  /* Latched 	  */
 	
-	public SimpleAgentBody(Vector2f pos,float size,int type)
+	public SimpleAgentBody(Vector2f pos,float size)
 	{
 		this.type = type;
 		
@@ -60,24 +60,7 @@ public class SimpleAgentBody
 	@SuppressWarnings("static-access")
 	private void setColor()
 	{
-		switch(type)
-		{
-			case 1: 
-				color = Color.blue;
-				break;
-			case 2: 
-				color = Color.red;
-				break;
-			case 3: 
-				color = Color.green;
-				break;
-			case 4: 
-				color = Color.yellow;
-				break;
-			default :
-				color = color.black;
-			break;
-		}
+		color = Color.yellow;
 	}
 	
 	/* TODO Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
@@ -104,7 +87,7 @@ public class SimpleAgentBody
 	}
 
 	
-	/* Like above but does't move */
+	/* Like above but does't move - can be called by the agent brain to check if the move is valid */
 	public boolean move_possible(float req_direction)
 	{
 		Vector2f new_pos = newPosition(req_direction);
@@ -164,7 +147,7 @@ public class SimpleAgentBody
 	 * Helpers 
 	 * 
 	 */
-	private Vector2f polarToCar(float r,float theta)
+	/*private Vector2f polarToCar(float r,float theta)
 	{
 		float x = (float) (r * Math.cos(theta));
 		float y = (float) (r * Math.sin(theta));
@@ -178,9 +161,9 @@ public class SimpleAgentBody
 		
 		float theta = (float) Math.atan2(y, x);
 		
-		/* Polar Vector */
+		// Polar Vector 
 		return new Vector2f(r,theta);
-	}
+	}*/
 	
 	/* Returns the agents direction */
 	public float getDirection()
@@ -194,7 +177,6 @@ public class SimpleAgentBody
 		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
 
 		g.setColor(color);
-		//g.setColor(Color.white);
 
 		g.fill(body);			
 	}
