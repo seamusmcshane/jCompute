@@ -15,7 +15,7 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
  * Agent Manager Class
  * This class contains the setup methods for the agents.
  * It handles movement , creation and destruction of Agents as well as 
- * multi threaded field of view updates
+ * multi-threaded field of view updates
  * and drawing of the agents.
  */
 
@@ -258,7 +258,7 @@ public class AgentManager
 	{
 		if(testAgent==null)
 		{
-			testAgent = new SimpleAgent(-1,0,0,25);
+			testAgent = new SimpleAgent(-1,0,0,new SimpleAgentStats(0,0,0,0,0)); /* TODO needs updated */
 			
 			testAgent.setVisible(true);
 			

@@ -49,7 +49,7 @@ public class Simulation extends BasicGame implements MouseListener
 	int num_agents = 100;
 	
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	Boolean true_body_drawing=false;
+	Boolean true_body_drawing=true;
 
 	/** Toggle for Drawing agent field of views */
 	Boolean draw_field_of_views=true;
@@ -61,14 +61,11 @@ public class Simulation extends BasicGame implements MouseListener
 	static World world;
 
 	/* Size of the world - Pixels - recommended to be power of 2 due to OpenGL texture limits */
-	static int world_size = 1024;
+	static int world_size = 512;
 	
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0,0);
 	
-	/* Size of the Agents - Pixels */
-	int agent_size = 4;
-
 	/* For this many simulation updates for buffer update */
 	int draw_div = 1;
 	int steps_todo = 0;
@@ -100,9 +97,6 @@ public class Simulation extends BasicGame implements MouseListener
 		Random xr = new Random();	
 		Random yr = new Random();
 
-		/* Random Size */
-		Random sr = new Random();
-
 		agentManager = new AgentManager(num_agents);
 
 		agentManager.setTrueDrawing(true_body_drawing);
@@ -119,9 +113,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 			y = yr.nextInt(world_size) + 1;
 
-			s = sr.nextInt(agent_size) + 4;
-
-			agentManager.addNewAgent(new SimpleAgent(i, x, y, s));
+			agentManager.addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(1f,10f,100f,100f,25f)));
 
 		}
 		
@@ -200,7 +192,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 		g.translate(global_translate.getX(), global_translate.getY());
 
-		/* TODO Centers the world in view correctly - Clipping problem with agents - Math is here or somewhere else */
+		/* TODO Centers the world in view correctly - Clipping problem with agents - Math wrong here or somewhere else */
 		//g.translate(global_translate.getX()+(screen_width/2-(world_size/2)), global_translate.getY()+(screen_height/2-(world_size/2)));
 
 		/* World */

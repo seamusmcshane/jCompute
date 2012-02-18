@@ -23,29 +23,18 @@ public class SimpleAgent
 	private int uid;
 	
 	/* Agent View Range */
-	private int range=10;
-	private float range_limit=0; /* Limit = size + range */
 	private Circle fov;	
-	
-	/* Agent Type */
-	private int type;
-		
-	private float speed;
-		
+				
 	private boolean draw_view = false;
 	private boolean collision=false;
 	private boolean visible = false;
 	
 	
-	public SimpleAgent(int uid,float x,float y,float size)
+	public SimpleAgent(int uid,float x,float y,SimpleAgentStats stats)
 	{
 		this.uid = uid;
-			
-		this.speed = (1/size)+1;
-		
-		this.range = (int) (this.range * size)/2;
-								
-		addAgentBody(new Vector2f(x,y),size);	
+											
+		addAgentBody(new Vector2f(x,y),stats);	
 		
 		addAgentBrain();
 		
@@ -57,7 +46,7 @@ public class SimpleAgent
 	/* 
 	 * Agent 
 	 * 
-	 * */
+	 */
 	public void doAgentStep()
 	{		
 		brain.think();
@@ -65,16 +54,14 @@ public class SimpleAgent
 	
 	/* View Range */
 	private void setUpView()
-	{
-		range_limit =  range;
-				
-		fov = new Circle(body.getBodyPos().getX(),body.getBodyPos().getY(),range_limit);
+	{				
+		fov = new Circle(body.getBodyPos().getX(),body.getBodyPos().getY(),body.stats.getView_range());
 	}
 
 	/* Debug - Representation of View position */
 	private void upDateViewLocation()
 	{
-		fov.setLocation(body.getBodyPos().getX()-(range_limit),body.getBodyPos().getY()-(range_limit));
+		fov.setLocation(body.getBodyPos().getX()-(body.stats.getView_range()),body.getBodyPos().getY()-(body.stats.getView_range()));
 	}
 	
 	/*
@@ -82,9 +69,9 @@ public class SimpleAgent
 	 * Init 
 	 * 
 	 */
-	private void addAgentBody(Vector2f pos,float size)
+	private void addAgentBody(Vector2f pos,SimpleAgentStats stats)
 	{
-		body = new SimpleAgentBody(pos,size);
+		body = new SimpleAgentBody(pos,stats);
 	}
 
 	private void addAgentBrain()
@@ -111,11 +98,6 @@ public class SimpleAgent
 	public Vector2f getPos()
 	{
 		return body.getBodyPos();
-	}
-
-	public double getRange()
-	{
-		return range_limit;
 	}
 
 	/* Debug */	

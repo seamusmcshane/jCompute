@@ -110,7 +110,7 @@ public class ViewGeneratorThread extends Thread
 		
 		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos()) - 																// Part 1
 				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
-				<  ((currentAgent.getRange()*currentAgent.getRange())) )																	// Part 3			
+				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
 		{
 			currentAgent.brain.updateNearestAgentKD(nearestAgent);
 		}

@@ -16,29 +16,36 @@ public class SimpleAgentBody
 {
 	/* Agent Body */
 	private Rectangle body;
-	private float size;
-
+	
+	final SimpleAgentStats stats;
+		
 	private Circle true_body;
 	private float true_size;
 		
 	private Color color;
+	
+	/* Current Body Pos */
 	private Vector2f body_pos;
+	
+	/* Calculated body pos */
 	private Vector2f new_body_pos = new Vector2f(0,0);
+		
+	/* Forward Vector */
+	private Vector2f forward_vector;
 	
-	private int type;
-	
-	private float max_speed=1;
+	/* Calculated forward vector */
+	private Vector2f new_forward_vector = new Vector2f(0,0);		  /* Latched 	  */
+
+	/* Direction of movement of the Agent */
 	private float direction;
 	
-	private Vector2f forward_vector = new Vector2f(0,-max_speed); 	  /* Forward 1 up */
-	private Vector2f new_forward_vector = new Vector2f(0,0);		  /* Latched 	  */
-	
-	public SimpleAgentBody(Vector2f pos,float size)
+	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
 	{
-		this.type = type;
 		
-		this.size = size;			
+		this.stats = stats;
 		
+		forward_vector = new Vector2f(0,-stats.getMaxSpeed()); 	  /* Forward 1 up */
+			
 		initBody();
 		
 		setIntialPos(pos);
@@ -47,7 +54,7 @@ public class SimpleAgentBody
 	/* Init */
 	private void initBody()
 	{
-		body = new Rectangle(0,0,this.size,this.size);
+		body = new Rectangle(0,0,stats.getSize(),stats.getSize());
 
 		true_size = body.getBoundingCircleRadius();
 		
@@ -57,7 +64,6 @@ public class SimpleAgentBody
 	}
 	
 	/* Body Color */
-	@SuppressWarnings("static-access")
 	private void setColor()
 	{
 		color = Color.yellow;
@@ -174,7 +180,7 @@ public class SimpleAgentBody
 	/* Fast Body Draw Method */
 	public void drawRectBody(Graphics g)
 	{
-		body.setLocation(body_pos.getX()-(size/2), body_pos.getY()-(size/2));
+		body.setLocation(body_pos.getX()-(stats.getSize()/2), body_pos.getY()-(stats.getSize()/2));
 
 		g.setColor(color);
 
@@ -199,7 +205,7 @@ public class SimpleAgentBody
 	
 	public float getSize()
 	{
-		return size;
+		return stats.getSize();
 	}
 	
 }

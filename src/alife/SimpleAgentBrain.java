@@ -31,7 +31,6 @@ public class SimpleAgentBrain
 	private int rest_max_moves;
 	
 	private int wall_count=0;
-	private int moves_since_wall=0;
 	
 	public SimpleAgentBrain(SimpleAgentBody body)
 	{
