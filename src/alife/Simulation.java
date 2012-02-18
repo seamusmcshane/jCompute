@@ -260,7 +260,10 @@ public class Simulation extends BasicGame implements MouseListener
 		}
 		else
 		{
-			draw_div--;
+			if(draw_div>0)
+			{
+				draw_div--;
+			}
 		}
 		
 	}
