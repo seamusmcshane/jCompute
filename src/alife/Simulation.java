@@ -28,8 +28,8 @@ public class Simulation extends BasicGame implements MouseListener
 	static AppGameContainer app;
 
 	/* Window or Screen Size */
-	static int screen_width = 700;
-	static int screen_height = 700;
+	static int screen_width = 800;
+	static int screen_height = 800;
 
 	/* Graphic frame rate control */
 	static int frame_rate = 60;
@@ -67,7 +67,7 @@ public class Simulation extends BasicGame implements MouseListener
 	public static Vector2f global_translate = new Vector2f(0,0);
 	
 	/* For this many simulation updates for buffer update */
-	int draw_div = 1;
+	public static int draw_div = 1;
 	int steps_todo = 0;
 	
 	/* Off screen buffer */
@@ -258,6 +258,8 @@ public class Simulation extends BasicGame implements MouseListener
 			}
 		}
 		
+		SimGui.simStepDiv.setValue(draw_div);
+		
 	}
 	
 	/* Camera is moved by translating all the drawing */
@@ -267,7 +269,7 @@ public class Simulation extends BasicGame implements MouseListener
 	}
 
 	/* Main Entry Point */
-	public static void main(String[] args)
+	public static void Launch(String[] args)
 	{
 		try
 		{
@@ -282,7 +284,7 @@ public class Simulation extends BasicGame implements MouseListener
 			// System.getProperty("org.lwjgl.librarypath"));
 
 			app = new AppGameContainer(new Simulation());
-
+			
 			/* Always update */
 			app.setUpdateOnlyWhenVisible(false);
 
@@ -297,6 +299,12 @@ public class Simulation extends BasicGame implements MouseListener
 
 			/* Hardware vsync */
 			app.setVSync(vsync_toggle);
+			
+			/* Always draw even if window not active */
+			app.setAlwaysRender(true);
+			
+			/* Dont close the app if we close the sim */
+			app.setForceExit(false);
 			
 			/* Hardware Anti-Aliasing */
 			//app.setMultiSample(8);
@@ -339,5 +347,7 @@ public class Simulation extends BasicGame implements MouseListener
 		}
 		
 	}
+	
+	
 	
 }
