@@ -39,13 +39,18 @@ import javax.swing.event.ChangeEvent;
 
 public class SimGui
 {
-
-	private boolean simLaunched = false;
-
 	private JFrame frame;
 	
+	/* Sim Controls */
+	private boolean simLaunched = false;
+
+	private boolean simPaused = false;
+	private int pausedStep = 0;			/* Temporary stored step div when paused */
 	
+	
+
 	static JSpinner simStepDiv; 
+	JButton btnPause;
 	
 	/**
 	 * Launch the application.
@@ -141,7 +146,28 @@ public class SimGui
 		simControlsPannel.add(btnLaunch);
 		simControlsPannel.add(btnStartSim);
 
-		JButton btnPause = new JButton("Pause");
+		/* Pause/Resume Button */
+		btnPause = new JButton("Pause");
+		btnPause.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (simPaused == false)
+				{
+					pausedStep = (int) simStepDiv.getValue();
+					simStepDiv.setValue(0);
+					btnPause.setText("Resume");
+					simPaused = true;
+
+				}
+				else
+				{
+					simStepDiv.setValue(pausedStep);
+					btnPause.setText("pause");
+					simPaused = false;			
+				}
+			}
+		});
 		simControlsPannel.add(btnPause);
 
 		JButton btnStop = new JButton("Stop");

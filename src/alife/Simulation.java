@@ -302,7 +302,7 @@ public class Simulation extends BasicGame implements MouseListener
 			
 			/* Always draw even if window not active */
 			app.setAlwaysRender(true);
-			
+						
 			/* Dont close the app if we close the sim */
 			app.setForceExit(false);
 			
