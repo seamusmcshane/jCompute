@@ -445,6 +445,13 @@ public class Simulation extends BasicGame implements MouseListener
 		panel.add(txtSimRateInfo);
 
 		JButton btnStart = new JButton("Start");
+		btnStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				simPaused = false;
+				draw_div=1;
+			}
+		});
 		panel.add(btnStart);
 
 		btnPause = new JButton("Pause");
@@ -497,7 +504,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(new String[]
-		{"512", "1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144"}));
+		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
 		panel_1.add(comboBox, "cell 1 1,growx");
 
 		JPanel statusPanel = new JPanel();
