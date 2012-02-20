@@ -1,11 +1,17 @@
 package alife;
 
 /* The following two imports are for creating executable jar */
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import org.lwjgl.LWJGLUtil;
+import org.lwjgl.opengl.Display;
 
 import java.util.Random;
 import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.CanvasGameContainer;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -25,7 +31,7 @@ import org.newdawn.slick.geom.Vector2f;
 public class Simulation extends BasicGame implements MouseListener
 {
 
-	static AppGameContainer app;
+	static CanvasGameContainer sim;
 
 	/* Window or Screen Size */
 	static int screen_width = 800;
@@ -164,20 +170,20 @@ public class Simulation extends BasicGame implements MouseListener
 		g.drawString("Step Num : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
 
 		/* If the frame rate greater than or equal to the target we are updating in real-time or a multiple of real-time */
-		if(app.getFPS() >= frame_rate )
+		/*if(app.getFPS() >= frame_rate )
 		{
 			real_time=true;
 		}
 		else
 		{
 			real_time=false;
-		}
+		}*/
 		
 		g.drawString("Frame Updates + ( Real-time : " + Boolean.toString(real_time) +") : " + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);	
 				
 		g.drawString("Buffer Updates : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
 		
-		g.drawString("Frame Rate : " + app.getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
+		//g.drawString("Frame Rate : " + app.getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
 
 		g.drawString("Draw Div : " + draw_div, camera_bound.getMinX(), camera_bound.getMinY() + 250);
 		
@@ -257,9 +263,7 @@ public class Simulation extends BasicGame implements MouseListener
 				draw_div--;
 			}
 		}
-		
-		SimGui.simStepDiv.setValue(draw_div);
-		
+				
 	}
 	
 	/* Camera is moved by translating all the drawing */
@@ -269,10 +273,11 @@ public class Simulation extends BasicGame implements MouseListener
 	}
 
 	/* Main Entry Point */
-	public static void Launch(String[] args)
+	public static void main(String[] args)
 	{
 		try
 		{
+
 			/*
 			 * - For stand alone builds un-comment these so the jar will look
 			 * for the native libraries correctly
@@ -283,28 +288,28 @@ public class Simulation extends BasicGame implements MouseListener
 			// System.setProperty("net.java.games.input.librarypath",
 			// System.getProperty("org.lwjgl.librarypath"));
 
-			app = new AppGameContainer(new Simulation());
+			sim = new CanvasGameContainer(new Simulation());
 			
 			/* Always update */
-			app.setUpdateOnlyWhenVisible(false);
+			sim.getContainer().setUpdateOnlyWhenVisible(false);
 
 			/* Screen size / Window Size */
-			app.setDisplayMode(screen_width, screen_height, false);
+			//app.setDisplayMode(screen_width, screen_height, false);
 			
 			/* Not needed */
-			app.setShowFPS(false);
+			sim.getContainer().setShowFPS(false);
 
 			/* Needed as we now do asynchronous drawing */
-			app.setClearEachFrame(true);
+			sim.getContainer().setClearEachFrame(true);
 
 			/* Hardware vsync */
-			app.setVSync(vsync_toggle);
+			sim.getContainer().setVSync(vsync_toggle);
 			
 			/* Always draw even if window not active */
-			app.setAlwaysRender(true);
+			sim.getContainer().setAlwaysRender(true);
 						
 			/* Dont close the app if we close the sim */
-			app.setForceExit(false);
+			sim.getContainer().setForceExit(false);
 			
 			/* Hardware Anti-Aliasing */
 			//app.setMultiSample(8);
@@ -312,16 +317,36 @@ public class Simulation extends BasicGame implements MouseListener
 			/* For 1-1 drawing we can enforce a frame cap and watch the simulation in real-time - performance permitting */
 			if (frame_cap)
 			{
-				app.setTargetFrameRate(frame_rate);
+				sim.getContainer().setTargetFrameRate(frame_rate);
 			}
+		
+			setupFrame();
 
-			app.start();
-
+			sim.start();
 		}
 		catch (SlickException e)
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	private static void setupFrame()
+	{
+		Frame frame = new Frame("Simulation");
+		frame.setLayout(new GridLayout(1, 2));
+		frame.setSize(1024, 800);
+		frame.add(sim);
+
+		frame.addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent e)
+			{
+				Display.destroy();
+				System.exit(0);
+			}
+		});
+		frame.setVisible(true);
+				
 	}
 	
 	private void setUpImageBuffer()
