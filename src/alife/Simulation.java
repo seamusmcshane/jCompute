@@ -281,14 +281,14 @@ public class Simulation extends BasicGame implements MouseListener
 		mouse_pos.set(newx - global_translate.getX(), newy - global_translate.getY());
 	}
 
-	/* Todo - Not used */
+	/* Makes sure valid mouse coordinates are used when the mouse 
+	 * leaves and renters a window that has lost and regained focus.  
+	 * - Prevents view snapping to strange locations
+	 * */
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		/*
-		 * if (button == 0) { Simulation.app.setTargetFrameRate(-1); } else {
-		 * Simulation.app.setTargetFrameRate(15); }
-		 */
+		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
 	}
 
 	/* Allows moving camera around large worlds */
