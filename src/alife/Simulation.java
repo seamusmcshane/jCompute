@@ -1,6 +1,9 @@
 package alife;
 
-/* The following two imports are for creating executable jar */
+/* NOTE! The following two imports are for creating executable jar */
+import java.io.File;
+import org.lwjgl.LWJGLUtil;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -8,11 +11,13 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import org.lwjgl.LWJGLUtil;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
 import org.lwjgl.opengl.Display;
 
 import java.util.Random;
+
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
 import org.newdawn.slick.Color;
@@ -41,50 +46,57 @@ import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JProgressBar;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.factories.FormFactory;
-import net.miginfocom.swing.MigLayout;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.JSeparator;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.RowSpec;
+import com.jgoodies.forms.factories.FormFactory;
+
+import net.miginfocom.swing.MigLayout;
 /**
- * Main App class - the entry point for the starting of the simulation.
- * 
- * 
+ * Simulation class - Gui and Entry Point for starting a Simulation.
  */
-
 public class Simulation extends BasicGame implements MouseListener
 {
-
+	/** OpenGl Canvas */
 	static CanvasGameContainer sim;
 
-	/* Frame Items */
+	/** Gui Frame Items */
 	private static JSlider simRateSlider;
 	private static JButton btnPause;
 	
-	/* Window or Screen Size */
-	static int screen_width = 800;
-	static int screen_height = 800;
+	/** Window Size */
+	static int width = 1000;
+	static int height = 800;
+	
+	/** Right Control Panel Size */
+	static int controlPanelWidth = 250;
+	static int controlPanelHeight = 800;
+	
+	/** Status Bar Size */
+	static int statusPanelWidth = width;
+	static int statusPanelHeight = 30;
+	
+	/** OpenGL Canvas Size */
+	static int world_view_width = width - controlPanelWidth-5;  /* Padding of Control Panel is about 5px */
+	static int world_view_height = height-statusPanelHeight-50; /* menu bar is about 50px */
 
 	/* Graphic frame rate control */
 	static int frame_rate = 60;
-	/*
-	 * This locks the frame rate to the above rate giving what time would have
-	 * been used to threads
-	 */
+	
+	/** This locks the frame rate to the above rate giving what time would have
+	 *  been used to threads */
 	static boolean frame_cap = true;
 
-	/* Frame rate should be greater than or equal to refresh rate if used */
+	/** Frame rate should be greater than or equal to refresh rate if used */
 	static boolean vsync_toggle = false;
 
-	/* Counters */
+	/** Simulation Performance Indicators */
 	static int frame_num = 0;
 	static int step_num = 0;
 	static boolean real_time;
@@ -132,7 +144,7 @@ public class Simulation extends BasicGame implements MouseListener
 	/* Stores the camera position */
 	static int camera_margin = 10;
 
-	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, screen_width - (camera_margin * 2), screen_height - (camera_margin * 2));
+	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, world_view_width - (camera_margin * 2), world_view_height - (camera_margin * 2));
 	private static JTextField txtSimRateInfo;
 	private static JTextField txtAgentno;
 
@@ -246,14 +258,8 @@ public class Simulation extends BasicGame implements MouseListener
 		/* Blank the Image buffer */
 		g.clear();
 
+		/* Move the entire world to simulate a view moving around */
 		g.translate(global_translate.getX(), global_translate.getY());
-
-		/*
-		 * TODO Centers the world in view correctly - Clipping problem with
-		 * agents - Math wrong here or somewhere else
-		 */
-		// g.translate(global_translate.getX()+(screen_width/2-(world_size/2)),
-		// global_translate.getY()+(screen_height/2-(world_size/2)));
 
 		/* World */
 		world.drawWorld(g);
@@ -261,8 +267,8 @@ public class Simulation extends BasicGame implements MouseListener
 		/* Agents */
 		drawAgents(g);
 
+		/* Performance Indicator */
 		buffer_num++;
-
 	}
 
 	/* Agent draw method */
@@ -321,9 +327,6 @@ public class Simulation extends BasicGame implements MouseListener
 			
 			simRateSlider.setValue(draw_div);
 		}
-
-
-
 
 	}
 
@@ -394,14 +397,14 @@ public class Simulation extends BasicGame implements MouseListener
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void setupFrame()
 	{
-		int height = 800;
 		JFrame frame = new JFrame("Simulation");
 		frame.setResizable(false);
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = toolkit.getScreenSize();
-		frame.setBounds((int) (screenSize.getWidth() / 2) - (500), screenSize.height / 2 - 400, 1000, height);
+		frame.setBounds((int) (screenSize.getWidth() / 2) - (500), screenSize.height / 2 - 400, width, height);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -409,19 +412,19 @@ public class Simulation extends BasicGame implements MouseListener
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		controlPanel.setPreferredSize(new Dimension(250, 800));
+		controlPanel.setPreferredSize(new Dimension(controlPanelWidth, controlPanelHeight));
 
 		frame.getContentPane().add(controlPanel, BorderLayout.EAST);
 		controlPanel.setLayout(new BorderLayout(0, 0));
 
-		JPanel panel = new JPanel();
-		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		controlPanel.add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new GridLayout(2, 3, 5, 5));
+		JPanel controlPanelBottom = new JPanel();
+		controlPanelBottom.setBorder(new EmptyBorder(5, 5, 5, 5));
+		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
+		controlPanelBottom.setLayout(new GridLayout(2, 3, 5, 5));
 
-		JLabel label = new JLabel("Sim Rate");
-		label.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(label);
+		JLabel lblSimRate = new JLabel("Sim Rate");
+		lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
+		controlPanelBottom.add(lblSimRate);
 
 		/* Simulation Speed */
 		txtSimRateInfo = new JTextField();
@@ -447,9 +450,9 @@ public class Simulation extends BasicGame implements MouseListener
 
 			}
 		});
-		panel.add(simRateSlider);
+		controlPanelBottom.add(simRateSlider);
 		simRateSlider.setValue(draw_div);
-		panel.add(txtSimRateInfo);
+		controlPanelBottom.add(txtSimRateInfo);
 
 		JButton btnStart = new JButton("Start");
 		btnStart.addActionListener(new ActionListener() {
@@ -459,7 +462,7 @@ public class Simulation extends BasicGame implements MouseListener
 				draw_div=1;
 			}
 		});
-		panel.add(btnStart);
+		controlPanelBottom.add(btnStart);
 
 		btnPause = new JButton("Pause");
 		btnPause.addActionListener(new ActionListener()
@@ -489,35 +492,36 @@ public class Simulation extends BasicGame implements MouseListener
 				}
 			}
 		});
-		panel.add(btnPause);
+		controlPanelBottom.add(btnPause);
 
 		JButton btnReset = new JButton("Reset");
-		panel.add(btnReset);
+		controlPanelBottom.add(btnReset);
 
-		JPanel panel_1 = new JPanel();
-		controlPanel.add(panel_1, BorderLayout.CENTER);
-		panel_1.setLayout(new MigLayout("", "[][grow]", "[][]"));
+		JPanel controlPanelTop = new JPanel();
+		controlPanel.add(controlPanelTop, BorderLayout.CENTER);
+		controlPanelTop.setLayout(new MigLayout("", "[][grow]", "[][]"));
 
 		JLabel lblAgents = new JLabel("Agents");
-		panel_1.add(lblAgents, "cell 0 0,alignx trailing");
+		controlPanelTop.add(lblAgents, "cell 0 0,alignx trailing");
 
 		txtAgentno = new JTextField();
 		txtAgentno.setText("AgentNo");
-		panel_1.add(txtAgentno, "cell 1 0,growx");
+		controlPanelTop.add(txtAgentno, "cell 1 0,growx");
 		txtAgentno.setColumns(10);
 
 		JLabel lblWorldSize = new JLabel("World Size");
-		panel_1.add(lblWorldSize, "cell 0 1,alignx trailing");
+		controlPanelTop.add(lblWorldSize, "cell 0 1,alignx trailing");
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(new String[]
 		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
-		panel_1.add(comboBox, "cell 1 1,growx");
+		controlPanelTop.add(comboBox, "cell 1 1,growx");
 
 		JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
 		statusPanel.setLayout(new MigLayout("", "[][][][][][][][][]", "[]"));
+		statusPanel.setPreferredSize(new Dimension(statusPanelWidth, statusPanelHeight));
 
 		JLabel lblFrameRate = new JLabel("Frame Rate");
 		statusPanel.add(lblFrameRate, "cell 0 0");
@@ -577,33 +581,24 @@ public class Simulation extends BasicGame implements MouseListener
 		{
 			public void windowClosing(WindowEvent e)
 			{
-				Display.destroy();
-				System.exit(0);
+				Display.destroy(); // Tell OpenGL we are done and free the resources used in the canvas. - must be done else sim will lockup.
+				System.exit(0);    // Exit the Simulation and let Java free the memory.
 			}
 		});
 		frame.setVisible(true);
 
 	}
 
+	/** Sets up the off-screen buffer image */
 	private void setUpImageBuffer()
 	{
 		try
 		{
-			buffer = new Image(screen_width + 1, screen_height + 1);
-		}
-		catch (SlickException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try
-		{
+			buffer = new Image(world_view_width + 1, world_view_height + 1);
 			bufferGraphics = buffer.getGraphics();
 		}
 		catch (SlickException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
