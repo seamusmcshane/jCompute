@@ -21,7 +21,6 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -67,7 +66,7 @@ public class Simulation extends BasicGame implements MouseListener
 	static CanvasGameContainer sim;
 
 	/* Frame Items */
-	private static JSlider slider;
+	private static JSlider simRateSlider;
 	private static JButton btnPause;
 	
 	/* Window or Screen Size */
@@ -306,17 +305,25 @@ public class Simulation extends BasicGame implements MouseListener
 	@Override
 	public void mouseWheelMoved(int change)
 	{
-		if (change > 0)
+		if(!simPaused)
 		{
-			draw_div++;
-		}
-		else
-		{
-			if (draw_div > 0)
+			if (change > 0)
 			{
-				draw_div--;
+				draw_div++;
 			}
+			else
+			{
+				if (draw_div > 0)
+				{
+					draw_div--;
+				}
+			}
+			
+			simRateSlider.setValue(draw_div);
 		}
+
+
+
 
 	}
 
@@ -422,26 +429,26 @@ public class Simulation extends BasicGame implements MouseListener
 		txtSimRateInfo.setText("SimRateInfo");
 		txtSimRateInfo.setColumns(10);
 
-		slider = new JSlider();
-		slider.setMinimum(1);
-		slider.setPaintTicks(true);
-		slider.setMinorTickSpacing(5);
-		slider.setMajorTickSpacing(10);
-		slider.setMaximum(50);
-		slider.addChangeListener(new ChangeListener()
+		simRateSlider = new JSlider();
+		simRateSlider.setMinimum(1);
+		simRateSlider.setPaintTicks(true);
+		simRateSlider.setMinorTickSpacing(5);
+		simRateSlider.setMajorTickSpacing(10);
+		simRateSlider.setMaximum(50);
+		simRateSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
 				if(!simPaused)
 				{
-					txtSimRateInfo.setText(Integer.toString(slider.getValue()));
-					draw_div = slider.getValue();					
+					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
+					draw_div = simRateSlider.getValue();					
 				}
 
 			}
 		});
-		panel.add(slider);
-		slider.setValue(draw_div);
+		panel.add(simRateSlider);
+		simRateSlider.setValue(draw_div);
 		panel.add(txtSimRateInfo);
 
 		JButton btnStart = new JButton("Start");
@@ -465,7 +472,7 @@ public class Simulation extends BasicGame implements MouseListener
 					
 					draw_div = latched_div;
 					
-					slider.setValue(draw_div);
+					simRateSlider.setValue(draw_div);
 					
 					simPaused = false;
 
