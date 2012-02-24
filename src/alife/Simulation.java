@@ -102,13 +102,13 @@ public class Simulation extends BasicGame implements MouseListener
 	static boolean real_time;
 
 	/* Number of Agents */
-	int num_agents = 100;
+	int num_agents = 51200;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	Boolean true_body_drawing = true;
+	Boolean true_body_drawing = false;
 
 	/** Toggle for Drawing agent field of views */
-	Boolean draw_field_of_views = true;
+	Boolean draw_field_of_views = false;
 
 	/** Simulation Agent Manager */
 	AgentManager agentManager;
@@ -120,7 +120,7 @@ public class Simulation extends BasicGame implements MouseListener
 	 * Size of the world - Pixels - recommended to be power of 2 due to OpenGL
 	 * texture limits
 	 */
-	static int world_size = 512;
+	static int world_size = 700;
 
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0, 0);
@@ -178,7 +178,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 			y = yr.nextInt(world_size) + 1;
 
-			agentManager.addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(1f, 10f, 100f, 100f, 25f)));
+			agentManager.addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(1f, 5f, 100f, 100f, 25f)));
 
 		}
 
@@ -244,8 +244,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 		g.drawString("Buffer Updates : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
 
-		// g.drawString("Frame Rate : " + app.getFPS(), camera_bound.getMinX(),
-		// camera_bound.getMinY() + 200);
+		g.drawString("Frame Rate : " + sim.getContainer().getFPS(), camera_bound.getMinX(),camera_bound.getMinY() + 200);
 
 		g.drawString("Draw Div : " + draw_div, camera_bound.getMinX(), camera_bound.getMinY() + 250);
 
@@ -374,6 +373,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 			/* Dont close the app if we close the sim */
 			sim.getContainer().setForceExit(false);
+			
 
 			/* Hardware Anti-Aliasing */
 			// app.setMultiSample(8);
