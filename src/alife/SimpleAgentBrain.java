@@ -31,7 +31,7 @@ public class SimpleAgentBrain
 	private int rest_max_moves;
 	
 	private int wall_count=0;
-	
+		
 	public SimpleAgentBrain(SimpleAgentBody body)
 	{
 		/* Agents own Body */
@@ -77,6 +77,19 @@ public class SimpleAgentBrain
 				direction = awayfromAgentDirection();
 			}*/
 
+			if(r.nextInt(100)>50)
+			{
+				direction = towardsAgentDirection();
+
+			}
+			else
+			{
+				direction = awayfromAgentDirection();
+
+			}
+			
+
+			
 			has_thought=true;	
 			
 			chase_moves++;		

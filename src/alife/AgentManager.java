@@ -3,6 +3,7 @@ package alife;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.concurrent.Semaphore;
 
 import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Graphics;
@@ -22,9 +23,6 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 public class AgentManager
 {
 
-	/* KD tree representation of the world space */
-	KdTree<SimpleAgent> worldSpace;
-
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
 	LinkedList<SimpleAgent> doneList;
@@ -32,15 +30,10 @@ public class AgentManager
 	/* DrawAI */
 	ListIterator<SimpleAgent> itrDrawAI;
 	SimpleAgent tAgentDrawAI;
-
-	/* DoAI */
-	int num_threads = 5;
 	
-	ViewGeneratorThread viewThreads[] = new ViewGeneratorThread[num_threads];
+	ViewGeneratorController viewGenerator;
+	Semaphore viewControlerSemaphore;
 	
-	@SuppressWarnings("unchecked")
-	LinkedList<SimpleAgent>[] threadedLists = new LinkedList[num_threads];
-
 	int intial_num_agents;
 
 	int agentCount;
@@ -59,6 +52,22 @@ public class AgentManager
 	public AgentManager(int num_agents)
 	{
 		this.intial_num_agents = num_agents;
+		
+		viewControlerSemaphore = new Semaphore(1);
+					
+		try
+		{
+			viewControlerSemaphore.acquire();
+		}
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		viewGenerator = new ViewGeneratorController(viewControlerSemaphore,3);
+		
+		viewGenerator.start();
 		
 		setUpLists();
 
@@ -130,87 +139,27 @@ public class AgentManager
 		/* Remove bias from agents order in list */
 		randomizeListOrder();
 
+		viewControlerSemaphore.release();
+		
 		/* Threaded */
-		setUpAgentViews();
+		viewGenerator.setBarrierTask(doList,agentCount);
 
+		try
+		{
+			viewControlerSemaphore.acquire();
+		}
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		/* Non Threaded */
 		doAgents();
 
 	}
 
-	/* Creates the KD tree of Agents for letting the agents see the world && Then Creates the Agent Views */
-	private void setUpAgentViews()
-	{
-		/* 2d - KD-Tree */
-		worldSpace = new KdTree<SimpleAgent>(2);
-		
-		int i = 0;
 
-		/* Create a list for each thread and the thread */
-		for (i = 0; i < num_threads; i++)
-		{
-			threadedLists[i] = new LinkedList<SimpleAgent>();
-		}
-
-		ListIterator<SimpleAgent> itr = doList.listIterator();
-
-		/* Calculate the Splits */
-		int div = agentCount / num_threads;
-		int thread_num = 0;
-		int tAgentCount = 0;
-
-		/* Split the lists */
-		while (itr.hasNext())
-		{
-			/* Get an agent */
-			SimpleAgent temp = itr.next();
-
-			/* This Section add each agent and its coordinates to the kd tree */  
-			{
-				double[] pos = new double[2];
-				pos[0] = temp.getPos().getX();
-				pos[1] = temp.getPos().getY();
-				worldSpace.addPoint(pos, temp);			
-			}
-			
-			/* This section does the decision boundaries for splitting the list */
-			if (tAgentCount > div)
-			{
-				div = div + div;
-				thread_num++;
-			}
-
-			/* Add the agent to the smaller list */
-			threadedLists[thread_num].add(temp);
-
-			tAgentCount++;
-		}
-
-		/* Start the threads */
-		for (i = 0; i < num_threads; i++)
-		{
-			viewThreads[i] = new ViewGeneratorThread(threadedLists[i], worldSpace); /* Threads list and the kd-tree */ 
-
-			viewThreads[i].start();
-
-		}
-
-		/* Join the threads so we keep the simulation in sync */
-		for (i = 0; i < num_threads; i++)
-		{
-			try
-			{
-				viewThreads[i].join();
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-
-	}
 
 	/* Performs AI Action and moves it to Done list */
 	private void doAgents()

@@ -66,7 +66,7 @@ public class SimpleAgentBody
 	/* Body Color */
 	private void setColor()
 	{
-		color = Color.yellow;
+		color = Color.blue;
 	}
 	
 	/* TODO Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/

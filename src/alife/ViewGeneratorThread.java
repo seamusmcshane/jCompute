@@ -2,6 +2,7 @@ package alife;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.concurrent.Semaphore;
 
 import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
@@ -38,18 +39,26 @@ public class ViewGeneratorThread extends Thread
 	/** Reused Vector */
 	private double[] pos;
 	
+	private Semaphore mySem;
+	
 	/**
 	 * Instantiates a new view generator thread.
 	 *
 	 * @param linkedList of SimpleAgents
 	 * @param prTree of SimpleAgents
 	 */
-	public ViewGeneratorThread(LinkedList<SimpleAgent> linkedList,	KdTree<SimpleAgent> prTree)
+	public ViewGeneratorThread(Semaphore sem)
+	{
+		mySem = sem;
+		pos = new double[2];
+	}
+	
+	
+	public void setTask(LinkedList<SimpleAgent> linkedList,	KdTree<SimpleAgent> prTree)
 	{
 		this.agentList = linkedList;	
 		agentListItr = agentList.listIterator();
 		this.worldView = prTree;
-		pos = new double[2];
 	}
 	
 	/* (non-Javadoc)
@@ -63,23 +72,38 @@ public class ViewGeneratorThread extends Thread
 		/* Top Priority to the view threads */
 		thisThread.setPriority(Thread.MAX_PRIORITY);
 		
-		// Split the lists
-		while(agentListItr.hasNext()) 
+		while(true)
 		{
-			currentAgent = agentListItr.next();	
+			try
+			{
+				mySem.acquire();
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-						
-			pos[0]=currentAgent.getPos().getX();
-			pos[1]=currentAgent.getPos().getY();	
+			while(agentListItr.hasNext()) 
+			{
+				currentAgent = agentListItr.next();	
+				
+							
+				pos[0]=currentAgent.getPos().getX();
+				pos[1]=currentAgent.getPos().getY();	
+				
+				// Get two - due to closest agent being its self
+				neighborlist = worldView.findNearestNeighbors(pos, 2, distanceKD);
+				
+				// Max is the next closest - Self is 0
+				nearestAgent = neighborlist.getMax();
+				
+				distanceCalcCompareKDSQ();
+			}
 			
-			/* Get two - due to closest agent being its self */
-			neighborlist = worldView.findNearestNeighbors(pos, 2, distanceKD);
+			mySem.release();
 			
-			/* Max is the next closest - Self is 0 */
-			nearestAgent = neighborlist.getMax();
-			
-			distanceCalcCompareKDSQ();
-		}		
+		}
 		
 	}	
 	
