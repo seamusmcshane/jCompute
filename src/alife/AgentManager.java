@@ -53,17 +53,9 @@ public class AgentManager
 	{
 		this.intial_num_agents = num_agents;
 		
-		viewControlerSemaphore = new Semaphore(1);
+		viewControlerSemaphore = new Semaphore(1,true);
 					
-		try
-		{
-			viewControlerSemaphore.acquire();
-		}
-		catch (InterruptedException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		viewControlerSemaphore.acquireUninterruptibly();
 		
 		viewGenerator = new ViewGeneratorController(viewControlerSemaphore,3);
 		
@@ -138,21 +130,13 @@ public class AgentManager
 
 		/* Remove bias from agents order in list */
 		randomizeListOrder();
-
-		viewControlerSemaphore.release();
-		
+	
 		/* Threaded */
 		viewGenerator.setBarrierTask(doList,agentCount);
-
-		try
-		{
-			viewControlerSemaphore.acquire();
-		}
-		catch (InterruptedException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		viewControlerSemaphore.release();
+		
+		viewControlerSemaphore.acquireUninterruptibly();
 		
 		/* Non Threaded */
 		doAgents();

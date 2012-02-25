@@ -55,18 +55,8 @@ public class ViewGeneratorController extends Thread
 		for(i=0;i<num_threads;i++)
 		{
 
-			try
-			{
-				viewGeneratorSemaphores[i].acquire();
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			viewGeneratorSemaphores[i].acquireUninterruptibly();
 		}
-	
-
 		
 	}
 	
@@ -78,6 +68,7 @@ public class ViewGeneratorController extends Thread
 		{
 				viewGeneratorSemaphores[i].release();
 		}		
+
 	}	
 	
 	public void run()
@@ -85,18 +76,8 @@ public class ViewGeneratorController extends Thread
 		while(true)
 		{
 			
-			try
-			{
-				viewControlerSemaphore.acquire();
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-
-			
+			viewControlerSemaphore.acquireUninterruptibly();		
+						
 			// Split the lists
 			splitLists();
 			
@@ -134,7 +115,7 @@ public class ViewGeneratorController extends Thread
 
 		for(int i=0;i<num_threads;i++)
 		{
-			viewGeneratorSemaphores[i] = new Semaphore(1);
+			viewGeneratorSemaphores[i] = new Semaphore(1,true);
 			try
 			{
 				viewGeneratorSemaphores[i].acquire();
@@ -145,9 +126,7 @@ public class ViewGeneratorController extends Thread
 				e.printStackTrace();
 			}
 		}
-		
-		System.out.println("Sems set");
-		
+				
 	}
 	
 	private void setUpThreads()

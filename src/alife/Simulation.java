@@ -102,7 +102,7 @@ public class Simulation extends BasicGame implements MouseListener
 	static boolean real_time;
 
 	/* Number of Agents */
-	int num_agents = 51200;
+	int num_agents = 512;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
@@ -120,15 +120,15 @@ public class Simulation extends BasicGame implements MouseListener
 	 * Size of the world - Pixels - recommended to be power of 2 due to OpenGL
 	 * texture limits
 	 */
-	static int world_size = 700;
+	static int world_size = 1024;
 
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0, 0);
 
 	/* For this many simulation updates for buffer update */
-	public static int draw_div = 0;
+	public static int draw_div = 1;
 	
-	private static boolean simPaused = true;
+	private static boolean simPaused = false;
 	private static int latched_div=0;
 	
 	int steps_todo = 0;
