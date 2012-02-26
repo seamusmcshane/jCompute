@@ -23,6 +23,8 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 public class AgentManager
 {
 
+	int num_threads=3;
+	
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
 	LinkedList<SimpleAgent> doneList;
@@ -57,7 +59,7 @@ public class AgentManager
 					
 		viewControlerSemaphore.acquireUninterruptibly();
 		
-		viewGenerator = new ViewGeneratorController(viewControlerSemaphore,3);
+		viewGenerator = new ViewGeneratorController(viewControlerSemaphore,num_threads);
 		
 		viewGenerator.start();
 		

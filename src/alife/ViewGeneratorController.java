@@ -64,6 +64,7 @@ public class ViewGeneratorController extends Thread
 	{
 		// Ensure all threads are at the barrier
 		int i;
+		
 		for(i=0;i<num_threads;i++)
 		{
 				viewGeneratorSemaphores[i].release();

@@ -74,15 +74,7 @@ public class ViewGeneratorThread extends Thread
 		
 		while(true)
 		{
-			try
-			{
-				mySem.acquire();
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			mySem.acquireUninterruptibly();
 			
 			while(agentListItr.hasNext()) 
 			{

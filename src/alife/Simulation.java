@@ -69,28 +69,38 @@ public class Simulation extends BasicGame implements MouseListener
 	/** Gui Frame Items */
 	private static JSlider simRateSlider;
 	private static JButton btnPause;
-	
+
 	/** Window Size */
 	static int width = 1000;
 	static int height = 800;
-	
+
 	/** Right Control Panel Size */
 	static int controlPanelWidth = 250;
 	static int controlPanelHeight = 800;
-	
+
 	/** Status Bar Size */
 	static int statusPanelWidth = width;
 	static int statusPanelHeight = 30;
-	
+
 	/** OpenGL Canvas Size */
-	static int world_view_width = width - controlPanelWidth-5;  /* Padding of Control Panel is about 5px */
-	static int world_view_height = height-statusPanelHeight-50; /* menu bar is about 50px */
+	static int world_view_width = width - controlPanelWidth - 5; /*
+																 * Padding of
+																 * Control Panel
+																 * is about 5px
+																 */
+	static int world_view_height = height - statusPanelHeight - 50; /*
+																	 * menu bar
+																	 * is about
+																	 * 50px
+																	 */
 
 	/* Graphic frame rate control */
 	static int frame_rate = 60;
-	
-	/** This locks the frame rate to the above rate giving what time would have
-	 *  been used to threads */
+
+	/**
+	 * This locks the frame rate to the above rate giving what time would have
+	 * been used to threads
+	 */
 	static boolean frame_cap = true;
 
 	/** Frame rate should be greater than or equal to refresh rate if used */
@@ -99,10 +109,11 @@ public class Simulation extends BasicGame implements MouseListener
 	/** Simulation Performance Indicators */
 	static int frame_num = 0;
 	static int step_num = 0;
+	static int sps = 0; // steps per second
 	static boolean real_time;
 
 	/* Number of Agents */
-	int num_agents = 512;
+	int num_agents = 1000;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
@@ -127,10 +138,10 @@ public class Simulation extends BasicGame implements MouseListener
 
 	/* For this many simulation updates for buffer update */
 	public static int draw_div = 1;
-	
+
 	private static boolean simPaused = false;
-	private static int latched_div=0;
-	
+	private static int latched_div = 0;
+
 	int steps_todo = 0;
 
 	/* Off screen buffer */
@@ -201,7 +212,9 @@ public class Simulation extends BasicGame implements MouseListener
 				steps_todo++;
 				step_num++;
 			}
+			sps = (1000 / delta) / 4 * draw_div;
 		}
+
 	}
 
 	@Override
@@ -235,18 +248,25 @@ public class Simulation extends BasicGame implements MouseListener
 		 * If the frame rate greater than or equal to the target we are updating
 		 * in real-time or a multiple of real-time
 		 */
-		/*
-		 * if(app.getFPS() >= frame_rate ) { real_time=true; } else {
-		 * real_time=false; }
-		 */
+
+		if (sim.getContainer().getFPS() >= frame_rate)
+		{
+			real_time = true;
+		}
+		else
+		{
+			real_time = false;
+		}
 
 		g.drawString("Frame Updates + ( Real-time : " + Boolean.toString(real_time) + ") : " + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);
 
 		g.drawString("Buffer Updates : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
 
-		g.drawString("Frame Rate : " + sim.getContainer().getFPS(), camera_bound.getMinX(),camera_bound.getMinY() + 200);
+		g.drawString("Frame Rate : " + sim.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
 
 		g.drawString("Draw Div : " + draw_div, camera_bound.getMinX(), camera_bound.getMinY() + 250);
+
+		g.drawString("SPS : " + sps, camera_bound.getMinX(), camera_bound.getMinY() + 300);
 
 		g.draw(camera_bound);
 
@@ -286,10 +306,11 @@ public class Simulation extends BasicGame implements MouseListener
 		mouse_pos.set(newx - global_translate.getX(), newy - global_translate.getY());
 	}
 
-	/* Makes sure valid mouse coordinates are used when the mouse 
-	 * leaves and renters a window that has lost and regained focus.  
-	 * - Prevents view snapping to strange locations
-	 * */
+	/*
+	 * Makes sure valid mouse coordinates are used when the mouse leaves and
+	 * renters a window that has lost and regained focus. - Prevents view
+	 * snapping to strange locations
+	 */
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
@@ -310,7 +331,7 @@ public class Simulation extends BasicGame implements MouseListener
 	@Override
 	public void mouseWheelMoved(int change)
 	{
-		if(!simPaused)
+		if (!simPaused)
 		{
 			if (change > 0)
 			{
@@ -323,7 +344,7 @@ public class Simulation extends BasicGame implements MouseListener
 					draw_div--;
 				}
 			}
-			
+
 			simRateSlider.setValue(draw_div);
 		}
 
@@ -373,7 +394,6 @@ public class Simulation extends BasicGame implements MouseListener
 
 			/* Dont close the app if we close the sim */
 			sim.getContainer().setForceExit(false);
-			
 
 			/* Hardware Anti-Aliasing */
 			// app.setMultiSample(8);
@@ -442,10 +462,10 @@ public class Simulation extends BasicGame implements MouseListener
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				if(!simPaused)
+				if (!simPaused)
 				{
 					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
-					draw_div = simRateSlider.getValue();					
+					draw_div = simRateSlider.getValue();
 				}
 
 			}
@@ -455,11 +475,12 @@ public class Simulation extends BasicGame implements MouseListener
 		controlPanelBottom.add(txtSimRateInfo);
 
 		JButton btnStart = new JButton("Start");
-		btnStart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) 
+		btnStart.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
 			{
 				simPaused = false;
-				draw_div=1;
+				draw_div = 1;
 			}
 		});
 		controlPanelBottom.add(btnStart);
@@ -469,25 +490,25 @@ public class Simulation extends BasicGame implements MouseListener
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if(simPaused)
+				if (simPaused)
 				{
 					btnPause.setText("Pause");
-					
+
 					draw_div = latched_div;
-					
+
 					simRateSlider.setValue(draw_div);
-					
+
 					simPaused = false;
 
 				}
 				else
 				{
 					btnPause.setText("Resume");
-					
-					latched_div=draw_div;
-					
-					draw_div=0;					
-					
+
+					latched_div = draw_div;
+
+					draw_div = 0;
+
 					simPaused = true;
 				}
 			}
@@ -581,8 +602,11 @@ public class Simulation extends BasicGame implements MouseListener
 		{
 			public void windowClosing(WindowEvent e)
 			{
-				Display.destroy(); // Tell OpenGL we are done and free the resources used in the canvas. - must be done else sim will lockup.
-				System.exit(0);    // Exit the Simulation and let Java free the memory.
+				Display.destroy(); // Tell OpenGL we are done and free the
+									// resources used in the canvas. - must be
+									// done else sim will lockup.
+				System.exit(0);    // Exit the Simulation and let Java free the
+								// memory.
 			}
 		});
 		frame.setVisible(true);
