@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import org.lwjgl.opengl.Display;
 
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
@@ -69,6 +70,7 @@ public class Simulation extends BasicGame implements MouseListener
 	/** Gui Frame Items */
 	private static JSlider simRateSlider;
 	private static JButton btnPause;
+	private static JButton btnStart;
 
 	/** Window Size */
 	static int width = 1000;
@@ -83,19 +85,13 @@ public class Simulation extends BasicGame implements MouseListener
 	static int statusPanelHeight = 30;
 
 	/** OpenGL Canvas Size */
-	static int world_view_width = width - controlPanelWidth - 5; /*
-																 * Padding of
-																 * Control Panel
-																 * is about 5px
-																 */
-	static int world_view_height = height - statusPanelHeight - 50; /*
-																	 * menu bar
-																	 * is about
-																	 * 50px
-																	 */
+	static int world_view_width = width - controlPanelWidth - 5;  // Padding of Control Panel is about 5px 
+	static int world_view_height = height - statusPanelHeight - 50; //menu bar is about 50px
 
-	/* Graphic frame rate control */
-	static int frame_rate = 60;
+	/* Default Graphic frame rate control */
+	final static int default_frame_rate = 15;
+	static int frame_rate = default_frame_rate; // Frame rate start up at this
+	final static int frame_rate_gui_interaction = 60;
 
 	/**
 	 * This locks the frame rate to the above rate giving what time would have
@@ -109,11 +105,29 @@ public class Simulation extends BasicGame implements MouseListener
 	/** Simulation Performance Indicators */
 	static int frame_num = 0;
 	static int step_num = 0;
-	static int sps = 0; // steps per second
+	static double sps = 0; 					// steps per second
 	static boolean real_time;
+	
+	// Step Per Second Calculation
+	private static long startTime;
+	private static long previousTime;
+	private static long currentTime;
+	private static long diffTime;	
 
+	private static int num_samples = 150;
+	private static double step_samples[] = new double[num_samples];
+	private static double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
+	private static int asps;	 			// Average Steps Per Second as an int for display purposes
+	
+	// Fixed Step Calculations
+	private static long stepTimeNow;
+	private static long stepTimeDiff;
+	private static long stepTimeTotal;
+	private static long stepTimePrev;
+	private static int stepsCurrent;
+	
 	/* Number of Agents */
-	int num_agents = 1000;
+	int num_agents = 1600;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
@@ -137,9 +151,12 @@ public class Simulation extends BasicGame implements MouseListener
 	public static Vector2f global_translate = new Vector2f(0, 0);
 
 	/* For this many simulation updates for buffer update */
-	public static int draw_div = 1;
+	public static int req_sps = 15;
 
-	private static boolean simPaused = false;
+	/* Sim Start/Pause Control */
+	private static Semaphore pause = new Semaphore(0,true); // Starts Paused
+	private static boolean simPaused = true;
+	private static boolean simStarted = false;
 	private static int latched_div = 0;
 
 	int steps_todo = 0;
@@ -158,6 +175,8 @@ public class Simulation extends BasicGame implements MouseListener
 	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, world_view_width - (camera_margin * 2), world_view_height - (camera_margin * 2));
 	private static JTextField txtSimRateInfo;
 	private static JTextField txtAgentno;
+
+	private static Thread asyncUpdateThread;
 
 	public Simulation()
 	{
@@ -194,27 +213,66 @@ public class Simulation extends BasicGame implements MouseListener
 		}
 
 		setUpImageBuffer();
-
+		
+		setupThreads();
+		
 	}
 
+	// Simulation Step Thread  
+	private void setupThreads()
+	{
+
+			
+			asyncUpdateThread = new Thread(new Runnable()
+			{
+				public void run()
+				{
+					Thread thisThread = Thread.currentThread();
+	
+					/* Top Priority to the simulation thread */
+					thisThread.setPriority(Thread.MAX_PRIORITY);
+					
+					setUpStepsPerSecond();
+					
+					while (true)
+					{
+							Thread.yield(); // Allow other threads to run				
+
+							// The pause semaphore (We do not pause half way through a step)
+							pause.acquireUninterruptibly();
+							
+							// Do a Simulation Step
+							agentManager.doAi();
+							
+							// Calculate the Steps per Second
+							calcStepsPerSecond();					
+
+							// Increment the Step counter
+							step_num++;
+																					
+							// Calculate how much we need to wait (in nano seconds, based on the time taken so far) before proceeding to the next step 
+							while(timeTotal() < (1000000000/req_sps)) // Approximation of what the delay should be
+							{
+								// Inter-Step Busy wait delay
+							}
+							stepTimeTotal=0;
+							
+							// Allow the simulation to be paused again
+							pause.release();
+					}
+				}
+			}
+	
+			);
+	
+			asyncUpdateThread.start();	
+
+	}
+	
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException
 	{
-		/* Not Used */
-		steps_todo = 0;
-
-		/* Frame Rate is 60 - Update at 1/4 of that for our target sim rate */
-		if (frame_num % 4 == 0)
-		{
-			while (steps_todo < draw_div)
-			{
-				agentManager.doAi();
-				steps_todo++;
-				step_num++;
-			}
-			sps = (1000 / delta) / 4 * draw_div;
-		}
-
+		// Not Used
 	}
 
 	@Override
@@ -223,14 +281,7 @@ public class Simulation extends BasicGame implements MouseListener
 		/* Some Linux Drivers have hardware clipping bugs */
 		g.setWorldClip(camera_bound); // Todo Make setting
 
-		/*
-		 * Frame Rate is 60 - Sim rate is 1/4 of that for our target sim rate so
-		 * only redraw the buffer when the sim has updated
-		 */
-		if (frame_num % 4 == 0)
-		{
-			doDraw(bufferGraphics);
-		}
+		doDraw(bufferGraphics);
 
 		/* Always draw the buffer even if it has not changed */
 		g.drawImage(buffer, 0, 0);
@@ -242,31 +293,19 @@ public class Simulation extends BasicGame implements MouseListener
 
 		g.drawString("Alife Sim Test - Number Active Agents : " + num_agents, camera_bound.getMinX(), camera_bound.getMinY());
 
-		g.drawString("Step Num : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
+		g.drawString("Step Num                              : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
 
-		/*
-		 * If the frame rate greater than or equal to the target we are updating
-		 * in real-time or a multiple of real-time
-		 */
+		g.drawString("Frame Updates                         :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);
 
-		if (sim.getContainer().getFPS() >= frame_rate)
-		{
-			real_time = true;
-		}
-		else
-		{
-			real_time = false;
-		}
+		g.drawString("Buffer Updates                        : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
 
-		g.drawString("Frame Updates + ( Real-time : " + Boolean.toString(real_time) + ") : " + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);
+		g.drawString("Frame Rate                            : " + sim.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
 
-		g.drawString("Buffer Updates : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
+		g.drawString("Requested Steps Per Second            : " + req_sps, camera_bound.getMinX(), camera_bound.getMinY() + 250);
 
-		g.drawString("Frame Rate : " + sim.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
-
-		g.drawString("Draw Div : " + draw_div, camera_bound.getMinX(), camera_bound.getMinY() + 250);
-
-		g.drawString("SPS : " + sps, camera_bound.getMinX(), camera_bound.getMinY() + 300);
+		g.drawString("Instant Steps Per Second Performance  : " + sps, camera_bound.getMinX(), camera_bound.getMinY() + 300);
+		
+		g.drawString("Average Steps Per Second Performance  : " + averageStepsPerSecond(), camera_bound.getMinX(), camera_bound.getMinY() + 350);
 
 		g.draw(camera_bound);
 
@@ -315,8 +354,22 @@ public class Simulation extends BasicGame implements MouseListener
 	public void mousePressed(int button, int x, int y)
 	{
 		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
+				
+		mouseInteractionModeOn();
+		
+		//req_sps = 9999;
+		
 	}
 
+	@Override
+	public void mouseReleased(int button, int x, int y)
+	{
+		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
+				
+		mouseInteractionModeOff();
+		
+	}	
+	
 	/* Allows moving camera around large worlds */
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
@@ -335,17 +388,17 @@ public class Simulation extends BasicGame implements MouseListener
 		{
 			if (change > 0)
 			{
-				draw_div++;
+				req_sps++;
 			}
 			else
 			{
-				if (draw_div > 0)
+				if (req_sps > 1)
 				{
-					draw_div--;
+					req_sps--;
 				}
 			}
 
-			simRateSlider.setValue(draw_div);
+			simRateSlider.setValue(req_sps);
 		}
 
 	}
@@ -398,14 +451,8 @@ public class Simulation extends BasicGame implements MouseListener
 			/* Hardware Anti-Aliasing */
 			// app.setMultiSample(8);
 
-			/*
-			 * For 1-1 drawing we can enforce a frame cap and watch the
-			 * simulation in real-time - performance permitting
-			 */
-			if (frame_cap)
-			{
-				sim.getContainer().setTargetFrameRate(frame_rate);
-			}
+			// Set sim start up frame rate 
+			sim.getContainer().setTargetFrameRate(frame_rate);
 
 			setupFrame();
 
@@ -449,7 +496,7 @@ public class Simulation extends BasicGame implements MouseListener
 		/* Simulation Speed */
 		txtSimRateInfo = new JTextField();
 		txtSimRateInfo.setEditable(false);
-		txtSimRateInfo.setText("SimRateInfo");
+		txtSimRateInfo.setText("0");
 		txtSimRateInfo.setColumns(10);
 
 		simRateSlider = new JSlider();
@@ -457,30 +504,29 @@ public class Simulation extends BasicGame implements MouseListener
 		simRateSlider.setPaintTicks(true);
 		simRateSlider.setMinorTickSpacing(5);
 		simRateSlider.setMajorTickSpacing(10);
-		simRateSlider.setMaximum(50);
+		simRateSlider.setMaximum(1000);
 		simRateSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-				if (!simPaused)
-				{
 					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
-					draw_div = simRateSlider.getValue();
-				}
-
+					req_sps = simRateSlider.getValue();
 			}
 		});
 		controlPanelBottom.add(simRateSlider);
-		simRateSlider.setValue(draw_div);
+		simRateSlider.setValue(req_sps);
+		simRateSlider.setEnabled(false);
 		controlPanelBottom.add(txtSimRateInfo);
 
-		JButton btnStart = new JButton("Start");
+		btnStart = new JButton("Start");
 		btnStart.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
-				simPaused = false;
-				draw_div = 1;
+				if(!simStarted)
+				{
+					startSim();
+				}				
 			}
 		});
 		controlPanelBottom.add(btnStart);
@@ -492,28 +538,16 @@ public class Simulation extends BasicGame implements MouseListener
 			{
 				if (simPaused)
 				{
-					btnPause.setText("Pause");
-
-					draw_div = latched_div;
-
-					simRateSlider.setValue(draw_div);
-
-					simPaused = false;
-
+					unPauseSim();
 				}
 				else
 				{
-					btnPause.setText("Resume");
-
-					latched_div = draw_div;
-
-					draw_div = 0;
-
-					simPaused = true;
+					pauseSim();
 				}
 			}
 		});
 		controlPanelBottom.add(btnPause);
+		btnPause.setEnabled(false);
 
 		JButton btnReset = new JButton("Reset");
 		controlPanelBottom.add(btnReset);
@@ -627,5 +661,120 @@ public class Simulation extends BasicGame implements MouseListener
 		}
 
 	}
+	
+	private static void mouseInteractionModeOn()
+	{
+		frame_rate = frame_rate_gui_interaction;
+		
+		sim.getContainer().setTargetFrameRate(frame_rate);
 
+	}
+
+	private static void mouseInteractionModeOff()
+	{
+		frame_rate = default_frame_rate;	
+		
+		sim.getContainer().setTargetFrameRate(frame_rate);
+
+	}
+	
+	// Calculates the total taken between repeated call to this method - used for inter-step time wait
+	private static long timeTotal()
+	{
+		stepTimeNow = System.nanoTime();		 // Current Time
+		
+		stepTimeDiff = stepTimeNow-stepTimePrev; // Time Between this call and the last call
+		
+		stepTimeTotal+=stepTimeDiff;			 // Total the time between calls
+		
+		stepTimePrev = stepTimeNow;				 // Set the current time as the previous to the next call
+		
+		return stepTimeTotal;					// Return the current total
+	}
+	
+	private static void resetTotalTime()
+	{
+		stepTimeTotal=0;
+	}
+	
+	private static void setUpStepsPerSecond()
+	{
+		startTime = System.nanoTime();
+		previousTime = startTime;				// At Start up this is true
+		currentTime = System.nanoTime();
+		diffTime = currentTime-previousTime;	// Diff time is initialized
+	}
+	
+	// Calculates the Average Steps Per Second
+	private static void calcStepsPerSecond()
+	{
+		currentTime = System.nanoTime();			// Current TIme
+		
+		diffTime = currentTime-previousTime;		// Time between this and the last call
+				
+		sps = 1000f/(diffTime/ 1000000f) ;			//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second
+				
+		previousTime = currentTime;		 			// Stores the durrent diff for the diff in the next iteration
+		
+		for(int i=0;i<(num_samples-1);i++)			// Moves the previous samples back by 1, leaves space for the new sps sample 
+		{
+			step_samples[i] = step_samples[(i+1)];
+		}
+		
+		step_samples[num_samples-1] = sps;			// Store the new sps sample
+		
+		tasps = 0;									// clear the old total average (or it will increment for ever)
+		for(int i=0;i<num_samples;i++)
+		{
+			tasps+=step_samples[i];					// Total all the steps
+		}
+
+	}
+	
+	private static int averageStepsPerSecond()
+	{
+		return asps = (int)(tasps/num_samples);			// Average the steps thus giving an average steps per second count
+	}
+	
+	// Called by the start button
+	private static void startSim()
+	{
+		latched_div=1;
+		simStarted=true;
+		unPauseSim();		
+		btnStart.setEnabled(false);	
+		btnPause.setEnabled(true);
+	}
+	
+	
+	// UnPauses the Sim and sets the display frame rate to a less-interactive and less intensive update rate 
+	private static void unPauseSim()
+	{
+
+		btnPause.setText("Pause");			// GUI Pause button indicator
+				
+		simPaused = false;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now unpaused.
+		
+		simRateSlider.setEnabled(true);		// Allow sim step slider changes
+		
+		 mouseInteractionModeOff();			// Set display to a highly interactive frame rates
+		
+		 pause.release();					// Release the pause semaphore
+			 
+	}
+
+	// Pauses the Sim and sets the display frame rate to a more-interactive and more intensive update rate for better mouse interaction 
+	private static void pauseSim()
+	{
+			pause.acquireUninterruptibly();		// Pause the sim
+		
+			btnPause.setText("Resume");			// GUI Pause button indicator
+			
+			simPaused = true;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now paused.
+		
+			simRateSlider.setEnabled(false);	// Do not allow sim step slider changes		
+			
+			mouseInteractionModeOn();			// Set display to a low interactive frame rates
+
+	}
 }

@@ -23,7 +23,11 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 public class AgentManager
 {
 
-	int num_threads=3;
+	// Used to prevent dual Access to the done list - which would cause an exception
+	Semaphore lock = new Semaphore(1,true);
+	
+	// TODO make a GUI setting
+	int num_threads=6;
 	
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
@@ -84,6 +88,9 @@ public class AgentManager
 	public void drawAI(Graphics g)
 	{
 		
+		// Get a lock on the done list
+		lock.acquireUninterruptibly();
+		
 		itrDrawAI = doneList.listIterator();
 
 		while (itrDrawAI.hasNext())
@@ -113,6 +120,9 @@ public class AgentManager
 
 		}
 
+		// Release the lock on the done list
+		lock.release();
+		
 	}
 
 	public void setDrawType(Boolean true_draw)
@@ -123,7 +133,9 @@ public class AgentManager
 	/* Main Method */
 	public void doAi()
 	{
-
+		// Get a lock on the done list
+		lock.acquireUninterruptibly();
+		
 		/* Debug */
 		//doTestAgent();
 		
@@ -142,6 +154,9 @@ public class AgentManager
 		
 		/* Non Threaded */
 		doAgents();
+		
+		// Release the lock on the done list
+		lock.release();
 
 	}
 
