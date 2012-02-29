@@ -54,7 +54,6 @@ public class ViewGeneratorController extends Thread
 		int i;
 		for(i=0;i<num_threads;i++)
 		{
-
 			viewGeneratorSemaphores[i].acquireUninterruptibly();
 		}
 		
@@ -67,7 +66,7 @@ public class ViewGeneratorController extends Thread
 		
 		for(i=0;i<num_threads;i++)
 		{
-				viewGeneratorSemaphores[i].release();
+			viewGeneratorSemaphores[i].release();
 		}		
 
 	}	
@@ -116,16 +115,8 @@ public class ViewGeneratorController extends Thread
 
 		for(int i=0;i<num_threads;i++)
 		{
-			viewGeneratorSemaphores[i] = new Semaphore(1,true);
-			try
-			{
-				viewGeneratorSemaphores[i].acquire();
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			viewGeneratorSemaphores[i] = new Semaphore(0,true);
+
 		}
 				
 	}
@@ -159,6 +150,8 @@ public class ViewGeneratorController extends Thread
 
 		/* Calculate the Splits */
 		int div = agentCount / num_threads;
+		int split = div;
+		
 		int thread_num = 0;
 		int tAgentCount = 0;
 
@@ -168,28 +161,30 @@ public class ViewGeneratorController extends Thread
 			/* Get an agent */
 			SimpleAgent temp = itr.next();
 
-			/* This Section add each agent and its coordinates to the kd tree */  
+			/* This Section adds each agent and its coordinates to the kd tree */  
 			{
 				double[] pos = new double[2];
 				pos[0] = temp.getPos().getX();
 				pos[1] = temp.getPos().getY();
 				worldSpace.addPoint(pos, temp);			
-			}
+			}		
 			
 			/* This section does the decision boundaries for splitting the list */
-			if (tAgentCount > div)
+			if (tAgentCount == split)
 			{
-				div = div + div;
-				thread_num++;
+				if(thread_num < (num_threads-1))
+				{
+					split = split + div;
+					thread_num++;						
+				}			
 			}
 
 			/* Add the agent to the smaller list */
-			taskLists[thread_num].add(temp);
+			taskLists[thread_num].add(temp);	
 
 			tAgentCount++;
 		}
 		/* Lists are now Split */
-		
 
 	}
 	
