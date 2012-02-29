@@ -66,12 +66,7 @@ public class ViewGeneratorThread extends Thread
 	 */
 	public void run()
 	{
-		
-		Thread thisThread = Thread.currentThread();
-
-		/* Top Priority to the view threads */
-		thisThread.setPriority(Thread.MAX_PRIORITY);
-		
+	
 		while(true)
 		{
 			mySem.acquireUninterruptibly();
