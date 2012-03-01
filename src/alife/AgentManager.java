@@ -57,6 +57,11 @@ public class AgentManager
 
 	public AgentManager(int num_agents)
 	{
+		
+		this.num_threads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
+		
+		System.out.println("Threads used for View Generation : " + num_threads);
+		
 		this.intial_num_agents = num_agents;
 		
 		viewControlerSemaphore = new Semaphore(1,true);
