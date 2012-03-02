@@ -158,7 +158,7 @@ public class AgentManager
 		viewControlerSemaphore.acquireUninterruptibly();
 		
 		/* Non Threaded */
-		doAgents();
+		updateDoneList();//
 		
 		// Release the lock on the done list
 		lock.release();
@@ -168,7 +168,7 @@ public class AgentManager
 
 
 	/* Performs AI Action and moves it to Done list */
-	private void doAgents()
+	private void updateDoneList()
 	{
 		ListIterator<SimpleAgent> itr = doList.listIterator();
 
@@ -180,9 +180,9 @@ public class AgentManager
 
 			/* remove from the doList */
 			itr.remove();
-
-			/* Move, Eat ,Sleep etc */
-			temp.brain.think();
+			
+			// If agent not dead ..			
+			// Add to donelist  - agents not added get removed by java.
 
 			doneList.add(temp);
 

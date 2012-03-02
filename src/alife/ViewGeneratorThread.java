@@ -86,6 +86,9 @@ public class ViewGeneratorThread extends Thread
 				nearestAgent = neighborlist.getMax();
 				
 				distanceCalcCompareKDSQ();
+				
+				// Parallel Agent Thinking
+				currentAgent.brain.think(); // Need to add new object or later agents will be operating on the future move rather than the current move
 			}
 			
 			mySem.release();
