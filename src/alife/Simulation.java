@@ -127,7 +127,7 @@ public class Simulation extends BasicGame implements MouseListener
 	private static int stepsCurrent;
 	
 	/* Number of Agents */
-	int num_agents = 1600;
+	int num_agents = 16000;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
@@ -279,7 +279,7 @@ public class Simulation extends BasicGame implements MouseListener
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
 		/* Some Linux Drivers have hardware clipping bugs */
-		g.setWorldClip(camera_bound); // Todo Make setting
+		//g.setWorldClip(camera_bound); // Todo Make setting
 
 		doDraw(bufferGraphics);
 

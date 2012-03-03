@@ -39,7 +39,10 @@ public class ViewGeneratorThread extends Thread
 	/** Reused Vector */
 	private double[] pos;
 	
-	private Semaphore mySem;
+	private Semaphore start;
+	private Semaphore end;
+	
+	private int my_id;
 	
 	/**
 	 * Instantiates a new view generator thread.
@@ -47,9 +50,11 @@ public class ViewGeneratorThread extends Thread
 	 * @param linkedList of SimpleAgents
 	 * @param prTree of SimpleAgents
 	 */
-	public ViewGeneratorThread(Semaphore sem)
+	public ViewGeneratorThread(int id,Semaphore sem1,Semaphore sem2)
 	{
-		mySem = sem;
+		this.my_id =id;
+		start = sem1;
+		end = sem2;
 		pos = new double[2];
 	}
 	
@@ -69,12 +74,14 @@ public class ViewGeneratorThread extends Thread
 	
 		while(true)
 		{
-			mySem.acquireUninterruptibly();
+			start.acquireUninterruptibly();
+			
+			//System.out.println("->Start : " + my_id);
 			
 			while(agentListItr.hasNext()) 
 			{
-				currentAgent = agentListItr.next();	
-				
+								
+				currentAgent = agentListItr.next();				
 							
 				pos[0]=currentAgent.getPos().getX();
 				pos[1]=currentAgent.getPos().getY();	
@@ -86,10 +93,15 @@ public class ViewGeneratorThread extends Thread
 				nearestAgent = neighborlist.getMax();
 				
 				distanceCalcCompareKDSQ();
+				
+				currentAgent.brain.think();
+				
 			}
 			
-			mySem.release();
+			//System.out.println("->End : " + my_id);
 			
+			end.release();		
+						
 		}
 		
 	}	

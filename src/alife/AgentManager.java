@@ -182,7 +182,7 @@ public class AgentManager
 			itr.remove();
 
 			/* Move, Eat ,Sleep etc */
-			temp.brain.think();
+			//temp.brain.think();
 
 			doneList.add(temp);
 
