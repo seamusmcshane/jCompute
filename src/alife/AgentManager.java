@@ -183,7 +183,6 @@ public class AgentManager
 			
 			// If agent not dead ..			
 			// Add to donelist  - agents not added get removed by java.
-
 			doneList.add(temp);
 
 		}

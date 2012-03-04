@@ -13,7 +13,9 @@ public class ViewGeneratorController extends Thread
 	
 	private Semaphore viewControlerSemaphore;
 	
-	private Semaphore viewGeneratorSemaphores[];
+	private Semaphore viewGeneratorStartSemaphores[];
+	
+	private Semaphore viewGeneratorEndSemaphores[];
 	
 	/* KD tree representation of the world space */
 	private KdTree<SimpleAgent> worldSpace;
@@ -48,13 +50,13 @@ public class ViewGeneratorController extends Thread
 		agentList = inList;		
 	}
 	
-	private void setThreadBarrier()
+	private void waitThreadsEnd()
 	{
 		// Ensure all threads are at the barrier
 		int i;
 		for(i=0;i<num_threads;i++)
 		{
-			viewGeneratorSemaphores[i].acquireUninterruptibly();
+			viewGeneratorEndSemaphores[i].acquireUninterruptibly();
 		}
 		
 	}
@@ -66,7 +68,7 @@ public class ViewGeneratorController extends Thread
 		
 		for(i=0;i<num_threads;i++)
 		{
-			viewGeneratorSemaphores[i].release();
+			viewGeneratorStartSemaphores[i].release();
 		}		
 
 	}	
@@ -78,6 +80,8 @@ public class ViewGeneratorController extends Thread
 			
 			viewControlerSemaphore.acquireUninterruptibly();		
 						
+			//System.out.println("Start Barrier");
+			
 			// Split the lists
 			splitLists();
 			
@@ -88,9 +92,13 @@ public class ViewGeneratorController extends Thread
 			releaseThreadBarrier();	
 
 			/* Prepare the barrier */
-			setThreadBarrier();
+			waitThreadsEnd();
+			
+			//System.out.println("End Barrier");
 			
 			viewControlerSemaphore.release();
+			
+			//System.exit(1);
 			
 		}		
 	}
@@ -111,11 +119,15 @@ public class ViewGeneratorController extends Thread
 	
 	private void setUpSemaphores()
 	{
-		viewGeneratorSemaphores = new Semaphore[num_threads];
+		viewGeneratorStartSemaphores = new Semaphore[num_threads];
+		
+		viewGeneratorEndSemaphores = new Semaphore[num_threads];
 
 		for(int i=0;i<num_threads;i++)
 		{
-			viewGeneratorSemaphores[i] = new Semaphore(0,true);
+			viewGeneratorStartSemaphores[i] = new Semaphore(0,true);
+			
+			viewGeneratorEndSemaphores[i] = new Semaphore(0,true);
 
 		}
 				
@@ -127,7 +139,7 @@ public class ViewGeneratorController extends Thread
 
 		for(int i = 0;i<num_threads;i++)
 		{
-			viewThreads[i] = new ViewGeneratorThread(viewGeneratorSemaphores[i]);
+			viewThreads[i] = new ViewGeneratorThread(i,viewGeneratorStartSemaphores[i],viewGeneratorEndSemaphores[i]);
 			viewThreads[i].start();
 		}
 	}
