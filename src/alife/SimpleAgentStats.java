@@ -1,6 +1,6 @@
 package alife;
 /**
- * Used to store the statistics of the current agent.
+ * Used to store the internal statistics of the current agent.
  * 
  */
 public class SimpleAgentStats

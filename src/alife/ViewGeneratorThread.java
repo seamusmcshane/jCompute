@@ -34,8 +34,7 @@ public class ViewGeneratorThread extends Thread
 	
 	/** Reference to the nearest agent. */
 	private SimpleAgent nearestAgent;
-	
-	
+		
 	/** Reused Vector */
 	private double[] pos;
 	
@@ -82,11 +81,12 @@ public class ViewGeneratorThread extends Thread
 			{
 								
 				currentAgent = agentListItr.next();				
-							
+				
+				// Convert our vector to the format for the tree
 				pos[0]=currentAgent.getPos().getX();
 				pos[1]=currentAgent.getPos().getY();	
 				
-				// Get two - due to closest agent being its self
+				// Get two - due to the closest agent to its self being its self
 				neighborlist = worldView.findNearestNeighbors(pos, 2, distanceKD);
 				
 				// Max is the next closest - Self is 0
@@ -127,7 +127,7 @@ public class ViewGeneratorThread extends Thread
 		/* Agent alone in the world */
 		if(currentAgent.equals(nearestAgent))
 		{
-			currentAgent.brain.updateNearestAgentKD(null);
+			currentAgent.brain.view.setView(null);
 			
 			return;
 		}
@@ -136,11 +136,11 @@ public class ViewGeneratorThread extends Thread
 				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
 				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
 		{
-			currentAgent.brain.updateNearestAgentKD(nearestAgent);
+			currentAgent.brain.view.setView(nearestAgent);
 		}
 		else // Clear the view 
 		{
-			currentAgent.brain.updateNearestAgentKD(null);
+			currentAgent.brain.view.setView(null);
 		}
 	}	
 		

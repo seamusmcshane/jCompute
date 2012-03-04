@@ -127,7 +127,7 @@ public class Simulation extends BasicGame implements MouseListener
 	private static int stepsCurrent;
 	
 	/* Number of Agents */
-	int num_agents = 51200;
+	int num_agents = 1000;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
@@ -255,7 +255,8 @@ public class Simulation extends BasicGame implements MouseListener
 							{
 								// Inter-Step Busy wait delay
 							}
-							stepTimeTotal=0;
+							
+							resetTotalTime();
 							
 							// Allow the simulation to be paused again
 							pause.release();
@@ -279,7 +280,7 @@ public class Simulation extends BasicGame implements MouseListener
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
 		/* Some Linux Drivers have hardware clipping bugs */
-		//g.setWorldClip(camera_bound); // Todo Make setting
+		g.setWorldClip(camera_bound); // Todo Make setting
 
 		doDraw(bufferGraphics);
 
@@ -495,15 +496,17 @@ public class Simulation extends BasicGame implements MouseListener
 
 		/* Simulation Speed */
 		txtSimRateInfo = new JTextField();
+		txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
 		txtSimRateInfo.setEditable(false);
 		txtSimRateInfo.setText("0");
 		txtSimRateInfo.setColumns(10);
 
 		simRateSlider = new JSlider();
+		simRateSlider.setPaintTrack(false);
 		simRateSlider.setMinimum(1);
 		simRateSlider.setPaintTicks(true);
-		simRateSlider.setMinorTickSpacing(5);
-		simRateSlider.setMajorTickSpacing(10);
+		simRateSlider.setMinorTickSpacing(100);
+		simRateSlider.setMajorTickSpacing(500);
 		simRateSlider.setMaximum(1000);
 		simRateSlider.addChangeListener(new ChangeListener()
 		{
