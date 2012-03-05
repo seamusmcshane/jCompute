@@ -49,6 +49,7 @@ import javax.swing.JTextField;
 import javax.swing.JProgressBar;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.JSeparator;
@@ -59,6 +60,7 @@ import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
 
 import net.miginfocom.swing.MigLayout;
+import javax.swing.JCheckBox;
 /**
  * Simulation class - Gui and Entry Point for starting a Simulation.
  */
@@ -71,6 +73,7 @@ public class Simulation extends BasicGame implements MouseListener
 	private static JSlider simRateSlider;
 	private static JButton btnPause;
 	private static JButton btnStart;
+
 
 	/** Window Size */
 	static int width = 1000;
@@ -127,7 +130,7 @@ public class Simulation extends BasicGame implements MouseListener
 	private static int stepsCurrent;
 	
 	/* Number of Agents */
-	int num_agents = 1000;
+	int num_agents = 25600;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
@@ -145,13 +148,16 @@ public class Simulation extends BasicGame implements MouseListener
 	 * Size of the world - Pixels - recommended to be power of 2 due to OpenGL
 	 * texture limits
 	 */
-	static int world_size = 1024;
+	static int world_size = 10240;
 
 	/* The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0, 0);
 
 	/* For this many simulation updates for buffer update */
 	public static int req_sps = 15;
+	
+	/* For increasing req steps by a factor of ten */
+	public static int stepx10 = 1;
 
 	/* Sim Start/Pause Control */
 	private static Semaphore pause = new Semaphore(0,true); // Starts Paused
@@ -177,6 +183,7 @@ public class Simulation extends BasicGame implements MouseListener
 	private static JTextField txtAgentno;
 
 	private static Thread asyncUpdateThread;
+
 
 	public Simulation()
 	{
@@ -400,6 +407,7 @@ public class Simulation extends BasicGame implements MouseListener
 			}
 
 			simRateSlider.setValue(req_sps);
+			
 		}
 
 	}
@@ -469,6 +477,32 @@ public class Simulation extends BasicGame implements MouseListener
 	private static void setupFrame()
 	{
 		JFrame frame = new JFrame("Simulation");
+		
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (ClassNotFoundException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch (InstantiationException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch (IllegalAccessException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch (UnsupportedLookAndFeelException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		frame.setResizable(false);
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = toolkit.getScreenSize();
@@ -488,40 +522,78 @@ public class Simulation extends BasicGame implements MouseListener
 		JPanel controlPanelBottom = new JPanel();
 		controlPanelBottom.setBorder(new EmptyBorder(5, 5, 5, 5));
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
-		controlPanelBottom.setLayout(new GridLayout(2, 3, 5, 5));
-
-		JLabel lblSimRate = new JLabel("Sim Rate");
-		lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
-		controlPanelBottom.add(lblSimRate);
+		controlPanelBottom.setLayout(new GridLayout(2, 1, 5, 5));
 
 		/* Simulation Speed */
-		txtSimRateInfo = new JTextField();
-		txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
-		txtSimRateInfo.setEditable(false);
-		txtSimRateInfo.setText("0");
-		txtSimRateInfo.setColumns(10);
+				
+				JPanel panel_1 = new JPanel();
+				controlPanelBottom.add(panel_1);
+						panel_1.setLayout(new GridLayout(0, 3, 5, 5));
+				
+						JLabel lblSimRate = new JLabel("Sim Rate");
+						panel_1.add(lblSimRate);
+						lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
+						
+								txtSimRateInfo = new JTextField();
+								panel_1.add(txtSimRateInfo);
+								txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
+								txtSimRateInfo.setEditable(false);
+								txtSimRateInfo.setText("0");
+								txtSimRateInfo.setColumns(10);
+						simRateSlider = new JSlider();
+						simRateSlider.setSnapToTicks(true);
+						panel_1.add(simRateSlider);
+						simRateSlider.setPaintTrack(false);
+						simRateSlider.setPaintTicks(true);
+						simRateSlider.setMinorTickSpacing(5);
+						simRateSlider.setMajorTickSpacing(15);
+						simRateSlider.addChangeListener(new ChangeListener()
+						{
+							public void stateChanged(ChangeEvent e)
+							{
+									txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
+									
+									/*if(simRateSlider.getValue() == 0)
+									{
+										req_sps = 1 + (simRateSlider.getValue()) * stepx10;	
+									}
+									else
+									{
+										req_sps = (simRateSlider.getValue()) * stepx10;		
+									}*/
+									req_sps = (simRateSlider.getValue()) * stepx10;		
 
-		simRateSlider = new JSlider();
-		simRateSlider.setPaintTrack(false);
-		simRateSlider.setMinimum(1);
-		simRateSlider.setPaintTicks(true);
-		simRateSlider.setMinorTickSpacing(100);
-		simRateSlider.setMajorTickSpacing(500);
-		simRateSlider.setMaximum(1000);
-		simRateSlider.addChangeListener(new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent e)
-			{
-					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
-					req_sps = simRateSlider.getValue();
-			}
-		});
-		controlPanelBottom.add(simRateSlider);
-		simRateSlider.setValue(req_sps);
-		simRateSlider.setEnabled(false);
-		controlPanelBottom.add(txtSimRateInfo);
-
-		btnStart = new JButton("Start");
+									// TODO BACK TO SPLIT GUI
+									
+							}
+						});
+						simRateSlider.setValue(req_sps);
+						simRateSlider.setEnabled(false);
+						
+						JPanel panel = new JPanel();
+						controlPanelBottom.add(panel);
+						panel.setLayout(new GridLayout(1, 2, 5, 5));
+						
+						btnStart = new JButton("Start");
+						panel.add(btnStart);
+						
+								btnPause = new JButton("Pause");
+								panel.add(btnPause);
+								btnPause.addActionListener(new ActionListener()
+								{
+									public void actionPerformed(ActionEvent arg0)
+									{
+										if (simPaused)
+										{
+											unPauseSim();
+										}
+										else
+										{
+											pauseSim();
+										}
+									}
+								});
+								btnPause.setEnabled(false);
 		btnStart.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
@@ -532,28 +604,6 @@ public class Simulation extends BasicGame implements MouseListener
 				}				
 			}
 		});
-		controlPanelBottom.add(btnStart);
-
-		btnPause = new JButton("Pause");
-		btnPause.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				if (simPaused)
-				{
-					unPauseSim();
-				}
-				else
-				{
-					pauseSim();
-				}
-			}
-		});
-		controlPanelBottom.add(btnPause);
-		btnPause.setEnabled(false);
-
-		JButton btnReset = new JButton("Reset");
-		controlPanelBottom.add(btnReset);
 
 		JPanel controlPanelTop = new JPanel();
 		controlPanel.add(controlPanelTop, BorderLayout.CENTER);
