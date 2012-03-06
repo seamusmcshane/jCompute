@@ -21,7 +21,7 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
  * and drawing of the agents.
  */
 
-public class AgentManager
+public class SimpleAgentManager
 {
 
 	// Used to prevent dual Access to the done list - which would cause an exception
@@ -56,7 +56,7 @@ public class AgentManager
 	/* Draw the field of views for the agents */
 	private Boolean view_drawing;
 
-	public AgentManager(int world_size, int agent_number)
+	public SimpleAgentManager(int world_size, int agent_number)
 	{
 		
 		this.num_threads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
@@ -128,7 +128,7 @@ public class AgentManager
 			tAgentDrawAI.setViewDrawing(view_drawing);
 			
 			// Optimization - Only draw visible agents that are inside the camera_boundarie
-			//if (tAgentDrawAI.getPos().getX() > (View.camera_bound.getX() - View.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (View.camera_bound.getMaxX() - View.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (View.camera_bound.getY() - View.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (View.camera_bound.getMaxY() - View.global_translate.getY()))
+			if (tAgentDrawAI.getPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
 				if(true_drawing==true)

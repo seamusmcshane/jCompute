@@ -17,8 +17,9 @@ public class SimpleAgent
 {
 	// Agent Body
 	public SimpleAgentBody body;	
-	public SimpleAgentBrain brain;
 	
+	public SimpleAgentBrain brain;
+		
 	/* Agent Unique ID */
 	private int uid;
 	
@@ -38,7 +39,7 @@ public class SimpleAgent
 		
 		addAgentBrain();
 		
-		setUpView();			
+		setUpView();		
 		
 	}
 	

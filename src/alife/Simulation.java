@@ -124,7 +124,10 @@ public class Simulation
 	private Thread asyncUpdateThread;
 	
 	/** Simulation Agent Manager */
-	public AgentManager agentManager;
+	public SimpleAgentManager simpleAgentManager;
+	
+	/** Simulation Plant Manager */
+	public GenericPlantManager genericPlantManager;
 
 	/** The Simulation World. */
 	public World world;
@@ -133,18 +136,20 @@ public class Simulation
 	{
 		setupThreads();
 		
-		newSim(256,0);
+		newSim(256,0,0);
 	}
 
-	public void newSim(int world_size,int agent_numbers)
+	public void newSim(int world_size,int agent_numbers, int plant_numbers)
 	{
 		world = new World(world_size);
 
-		agentManager = new AgentManager(world_size,agent_numbers);
+		genericPlantManager = new GenericPlantManager(world_size,plant_numbers);
+		
+		simpleAgentManager = new SimpleAgentManager(world_size,agent_numbers);
 
-		agentManager.setTrueDrawing(true_body_drawing);
+		simpleAgentManager.setTrueDrawing(true_body_drawing);
 
-		agentManager.setFieldOfViewDrawing(draw_field_of_views);
+		simpleAgentManager.setFieldOfViewDrawing(draw_field_of_views);
 
 	}
 	
@@ -172,7 +177,10 @@ public class Simulation
 							pause.acquireUninterruptibly();
 							
 							// Do a Simulation Step
-							agentManager.doAi();
+							simpleAgentManager.doAi();
+							
+							// Do Plants
+							genericPlantManager.updatePlants();
 							
 							// Calculate the Steps per Second
 							calcStepsPerSecond();					
@@ -306,8 +314,10 @@ public class Simulation
 			{
 				world.drawWorld(g);
 			}
+			genericPlantManager.drawPlants(g);
+	
+			simpleAgentManager.drawAI(g);	
 			
-			agentManager.drawAI(g);			
 		}
 
 	}

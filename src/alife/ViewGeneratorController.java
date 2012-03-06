@@ -28,7 +28,6 @@ public class ViewGeneratorController extends Thread
 	private LinkedList<SimpleAgent> agentList;
 
 	private int agentCount;
-
 	
 	public ViewGeneratorController(Semaphore viewControlerSemaphore, int num_threads)
 	{

@@ -2,6 +2,7 @@ package alife;
 
 /* NOTE! The following two imports are for creating executable jar */
 import java.awt.BorderLayout;
+import java.awt.Window.Type;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -25,7 +26,7 @@ import org.newdawn.slick.geom.Vector2f;
 /**
  * Simulation class - Gui and Entry Point for starting a Simulation.
  */
-public class View extends BasicGame implements MouseListener
+public class SimulationView extends BasicGame implements MouseListener
 {
 
 	/* Window */
@@ -85,12 +86,12 @@ public class View extends BasicGame implements MouseListener
 	public Vector2f mouse_pos = new Vector2f(0, 0);
 
 	/* Stores the camera position */
-	int camera_margin = 1;
+	static int camera_margin = 2;
 
-	public Rectangle camera_bound = new Rectangle(camera_margin, camera_margin, world_view_width - (camera_margin), world_view_height - (camera_margin));
+	public static Rectangle camera_bound;
 
 
-	public View()
+	public SimulationView()
 	{
 		super("Simulation View");	
 	}
@@ -238,8 +239,11 @@ public class View extends BasicGame implements MouseListener
 		{
 
 			frame = new JFrame("Simulation");
-			//frame.setType(Type.UTILITY);
-			frame.setUndecorated(true);
+			BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
+			borderLayout.setVgap(10);
+			borderLayout.setHgap(10);
+			frame.setType(Type.UTILITY);
+			//frame.setUndecorated(true);
 			
 			frame.setSize(world_view_width, world_view_height);
 			
@@ -255,7 +259,7 @@ public class View extends BasicGame implements MouseListener
 			// System.setProperty("net.java.games.input.librarypath",
 			// System.getProperty("org.lwjgl.librarypath"));
 
-			simView = new CanvasGameContainer(new View());
+			simView = new CanvasGameContainer(new SimulationView());
 
 			//sim.setDisplayMode(world_view_width,world_view_height, false);
 			
@@ -295,6 +299,8 @@ public class View extends BasicGame implements MouseListener
 			frame.setResizable(false);
 			
 			simView.start();
+			
+			camera_bound = new Rectangle(camera_margin, camera_margin, world_view_width - (camera_margin * 2), world_view_height - (camera_margin * 2 ));
 			
 		}
 		catch (SlickException e)
@@ -337,7 +343,7 @@ public class View extends BasicGame implements MouseListener
 	public static void setFocus()
 	{
 		simView.requestFocus();
-		global_translate.set( 100,100 );
+		global_translate.set( 50,50 );
 	}
 	
 }

@@ -18,7 +18,6 @@ public class SimpleAgentTraits
 		this.aggressiveness = aggr;
 		
 		this.cannibalistic = canni;
-	}
-	
+	}	
 	
 }

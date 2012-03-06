@@ -36,7 +36,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.JCheckBox;
 import javax.swing.border.TitledBorder;
 
-public class GUI
+public class SimulationGUI
 {
 	private static JFrame gui;
 
@@ -48,6 +48,7 @@ public class GUI
 	private static JTextField txtSimRateInfo;
 	private static JComboBox comboBoxAgentNumbers;
 	private static JComboBox comboBoxWorldSize;
+	private static JComboBox comboBoxPlantNumbers;
 
 	/* static in screen sizes */
 	static int screen_width;
@@ -84,7 +85,7 @@ public class GUI
 
 		setUpSimulation();
 
-		View.displayView(sim, view_x, view_y, view_width, view_height);
+		SimulationView.displayView(sim, view_x, view_y, view_width, view_height);
 
 	}
 
@@ -144,7 +145,7 @@ public class GUI
 		JPanel controlPanelTop = new JPanel();
 		controlPanelTop.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		controlPanel.add(controlPanelTop, BorderLayout.CENTER);
-		controlPanelTop.setLayout(new MigLayout("", "[][grow]", "[][]"));
+		controlPanelTop.setLayout(new MigLayout("", "[][grow]", "[][][]"));
 
 		JLabel lblAgents = new JLabel("Agents");
 		controlPanelTop.add(lblAgents, "cell 0 0,alignx trailing");
@@ -153,14 +154,21 @@ public class GUI
 		comboBoxAgentNumbers.setModel(new DefaultComboBoxModel(new String[]
 		{"100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
 		controlPanelTop.add(comboBoxAgentNumbers, "cell 1 0,growx");
+		
+		JLabel lblPlants = new JLabel("Plants");
+		controlPanelTop.add(lblPlants, "cell 0 1,alignx trailing");
+		
+		comboBoxPlantNumbers = new JComboBox();
+		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
+		controlPanelTop.add(comboBoxPlantNumbers, "cell 1 1,growx");
 
 		JLabel lblWorldSize = new JLabel("World Size");
-		controlPanelTop.add(lblWorldSize, "cell 0 1,alignx trailing");
+		controlPanelTop.add(lblWorldSize, "cell 0 2,alignx trailing");
 
 		comboBoxWorldSize = new JComboBox();
 		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
 		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
-		controlPanelTop.add(comboBoxWorldSize, "cell 1 1,growx");
+		controlPanelTop.add(comboBoxWorldSize, "cell 1 2,growx");
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
@@ -290,7 +298,7 @@ public class GUI
 		{
 			public void windowClosing(WindowEvent e)
 			{
-				View.exitDisplay(); // Tell OpenGL we are done and free the
+				SimulationView.exitDisplay(); // Tell OpenGL we are done and free the
 				// resources used in the canvas. - must be
 				// done else sim will lockup.
 				System.exit(0);    // Exit the Simulation and let Java free the
@@ -334,7 +342,7 @@ public class GUI
 
 	private static void newSim()
 	{
-		sim.newSim(Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), Integer.parseInt(comboBoxAgentNumbers.getSelectedItem().toString()));
+		sim.newSim(Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), Integer.parseInt(comboBoxAgentNumbers.getSelectedItem().toString()),Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()));
 		
 		/* If needed the GC can free old objects now, before the simulation starts */
 		System.gc();
@@ -355,7 +363,7 @@ public class GUI
 
 	private static void simStartedState()
 	{
-		View.setFocus();
+		SimulationView.setFocus();
 		
 		sim.startSim();
 		
