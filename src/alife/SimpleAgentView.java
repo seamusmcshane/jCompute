@@ -9,17 +9,25 @@ import org.newdawn.slick.geom.Vector2f;
 public class SimpleAgentView
 {
 
-	/** State of View */
+	/** States of View */
 	private boolean agentInView;
+	private boolean plantInView;
+	
 	
 	/** Stats of agent in view */
 	private SimpleAgentViewStats inViewAgentStats;
+	private GenericPlantViewStats inViewPlantStats;
 	
 	/** A class that manages the view of the agent */
 	 public SimpleAgentView()
 	 {
 		 inViewAgentStats = new SimpleAgentViewStats();
+		 
+		 inViewPlantStats = new GenericPlantViewStats();
+		 
 		 agentInView=false;
+		 
+		 plantInView=false;
 	 }
 	 
 /**
@@ -27,7 +35,7 @@ public class SimpleAgentView
  * 
  * Decides State of View
  */
-	 public void setView(SimpleAgent agent)
+	 public void setAgentView(SimpleAgent agent)
 	 {
 		 if(agent != null)  // Agent is in view
 		 {
@@ -44,8 +52,29 @@ public class SimpleAgentView
 			 // clear stats
 			 inViewAgentStats.clearStats();			 
 		 }
+		 
 	 }
 
+	 public void setPlantView(GenericPlant plant)
+	 {
+	 
+		 if(plant != null)
+		 {
+			 plantInView=true;
+	 		 
+			 // Copy stats
+			 inViewPlantStats.updateStats(plant);			 
+		 }
+		 else
+		 {
+			 plantInView=false; 
+
+			 // clear stats
+			 inViewPlantStats.clearStats();				 
+		 }
+		 
+	 }
+	 
 /*
  * View Getters
  * 	 
@@ -60,10 +89,26 @@ public class SimpleAgentView
 		 return inViewAgentStats.getAgentPos();
 	 }
 	 
+	 /** Nearest Agent Position */
+	 public Vector2f getNearestPlantPos()
+	 {
+		 if(agentInView == false)
+		 {
+			 return null;
+		 }
+		 return inViewPlantStats.getPlantPos();
+	 }
+	 
 	 /** Status of View */
 	 public boolean hasAgentInView()
 	 {
 		 return agentInView;
+	 }
+
+	 /** Status of View */
+	 public boolean hasPlantInView()
+	 {
+		 return plantInView;
 	 }
 	 
 	/** Returns the direction to move in to go away from the nearest agent */ 
@@ -82,6 +127,26 @@ public class SimpleAgentView
 		float dx = getNearestAgentPos().getX()-myBody.getBodyPos().getX() ;
 
 		float dy =  myBody.getBodyPos().getY() - getNearestAgentPos().getY();
+		
+		return (float) Math.toDegrees(Math.atan2(dx,dy));
+	}
+
+	/** Returns the direction to move in to go away from the nearest plant */ 
+	public float awayfromPlantDirection(SimpleAgentBody myBody)
+	{
+		float dx = getNearestPlantPos().getX()-myBody.getBodyPos().getX() ;
+
+		float dy =  myBody.getBodyPos().getY() - getNearestPlantPos().getY();
+		
+		return (float) Math.toDegrees(Math.atan2(dy,dx));
+	}
+	
+	/** Returns the direction to move in to go towards the nearest plant */
+	public float towardsPlantDirection(SimpleAgentBody myBody)
+	{
+		float dx = getNearestPlantPos().getX()-myBody.getBodyPos().getX() ;
+
+		float dy =  myBody.getBodyPos().getY() - getNearestPlantPos().getY();
 		
 		return (float) Math.toDegrees(Math.atan2(dx,dy));
 	}
