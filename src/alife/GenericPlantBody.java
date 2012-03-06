@@ -47,6 +47,11 @@ public class GenericPlantBody
 		setColor();
 	}
 	
+	public Vector2f getBodyPos()
+	{
+		return body_pos;
+	}
+	
 	/* Fast Body Draw Method */
 	public void drawRectBody(Graphics g)
 	{
