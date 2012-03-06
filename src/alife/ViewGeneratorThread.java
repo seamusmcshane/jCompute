@@ -127,7 +127,7 @@ public class ViewGeneratorThread extends Thread
 		/* Agent alone in the world */
 		if(currentAgent.equals(nearestAgent))
 		{
-			currentAgent.brain.view.setView(null);
+			currentAgent.brain.view.setAgentView(null);
 			
 			return;
 		}
@@ -136,11 +136,11 @@ public class ViewGeneratorThread extends Thread
 				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
 				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
 		{
-			currentAgent.brain.view.setView(nearestAgent);
+			currentAgent.brain.view.setAgentView(nearestAgent);
 		}
 		else // Clear the view 
 		{
-			currentAgent.brain.view.setView(null);
+			currentAgent.brain.view.setAgentView(null);
 		}
 	}	
 		
