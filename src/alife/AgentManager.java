@@ -3,6 +3,7 @@ package alife;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 import org.lwjgl.input.Mouse;
@@ -40,8 +41,8 @@ public class AgentManager
 	ViewGeneratorController viewGenerator;
 	Semaphore viewControlerSemaphore;
 	
-	int intial_num_agents;
-
+	int initial_num_agents;
+	
 	int agentCount;
 	int agentsDone;
 	int agentsTodo;
@@ -55,15 +56,13 @@ public class AgentManager
 	/* Draw the field of views for the agents */
 	private Boolean view_drawing;
 
-	public AgentManager(int num_agents)
+	public AgentManager(int world_size, int agent_number)
 	{
 		
 		this.num_threads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
 		
 		System.out.println("Threads used for View Generation : " + num_threads);
-		
-		this.intial_num_agents = num_agents;
-		
+				
 		viewControlerSemaphore = new Semaphore(1,true);
 					
 		viewControlerSemaphore.acquireUninterruptibly();
@@ -74,11 +73,33 @@ public class AgentManager
 		
 		setUpLists();
 
+		addAgents(world_size,agent_number);
+
 		agentsTodo = 0;
 		agentsDone = 0;
 		agentCount = 0;
 	}
 
+	
+	private void addAgents(int world_size,int agent_number)
+	{
+		initial_num_agents = agent_number;
+		
+		/* Random Starting Position */
+		Random xr = new Random();
+		Random yr = new Random();
+		
+		int x, y;
+		
+		for (int i = 0; i < agent_number; i++)
+		{
+			x = xr.nextInt(world_size) + 1;
+			y = yr.nextInt(world_size) + 1;
+
+			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(1f, 5f, 100f, 100f, 25f)));
+		}		
+	}
+	
 	/* Being born counts as an Action thus all new agents start in the done list */
 	public void addNewAgent(SimpleAgent agent)
 	{		
@@ -107,7 +128,7 @@ public class AgentManager
 			tAgentDrawAI.setViewDrawing(view_drawing);
 			
 			// Optimization - Only draw visible agents that are inside the camera_boundarie
-			if (tAgentDrawAI.getPos().getX() > (Simulation.camera_bound.getX() - Simulation.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (Simulation.camera_bound.getMaxX() - Simulation.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (Simulation.camera_bound.getY() - Simulation.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (Simulation.camera_bound.getMaxY() - Simulation.global_translate.getY()))
+			//if (tAgentDrawAI.getPos().getX() > (View.camera_bound.getX() - View.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (View.camera_bound.getMaxX() - View.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (View.camera_bound.getY() - View.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (View.camera_bound.getMaxY() - View.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
 				if(true_drawing==true)
@@ -233,7 +254,7 @@ public class AgentManager
 	
 	private void setTestAgentLocation()
 	{
-		testAgent.setDebugPos(Simulation.mouse_pos);
+		//testAgent.setDebugPos(Simulation.mouse_pos);
 	}
 
 	public void setFieldOfViewDrawing(Boolean setting)

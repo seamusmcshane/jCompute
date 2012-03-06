@@ -64,171 +64,94 @@ import javax.swing.JCheckBox;
 /**
  * Simulation class - Gui and Entry Point for starting a Simulation.
  */
-public class Simulation extends BasicGame implements MouseListener
+public class Simulation
 {
-	/** OpenGl Canvas */
-	static CanvasGameContainer sim;
-
-	/** Gui Frame Items */
-	private static JSlider simRateSlider;
-	private static JButton btnPause;
-	private static JButton btnStart;
-
-
-	/** Window Size */
-	static int width = 1000;
-	static int height = 800;
-
-	/** Right Control Panel Size */
-	static int controlPanelWidth = 250;
-	static int controlPanelHeight = 800;
-
-	/** Status Bar Size */
-	static int statusPanelWidth = width;
-	static int statusPanelHeight = 30;
-
-	/** OpenGL Canvas Size */
-	static int world_view_width = width - controlPanelWidth - 5;  // Padding of Control Panel is about 5px 
-	static int world_view_height = height - statusPanelHeight - 50; //menu bar is about 50px
 
 	/* Default Graphic frame rate control */
-	final static int default_frame_rate = 15;
-	static int frame_rate = default_frame_rate; // Frame rate start up at this
-	final static int frame_rate_gui_interaction = 60;
-
-	/**
-	 * This locks the frame rate to the above rate giving what time would have
-	 * been used to threads
-	 */
-	static boolean frame_cap = true;
-
-	/** Frame rate should be greater than or equal to refresh rate if used */
-	static boolean vsync_toggle = false;
+	final int default_frame_rate = 15;
+	int frame_rate = default_frame_rate; // Frame rate start up at this
+	final int frame_rate_gui_interaction = 60;
 
 	/** Simulation Performance Indicators */
-	static int frame_num = 0;
-	static int step_num = 0;
-	static double sps = 0; 					// steps per second
-	static boolean real_time;
+	int step_num = 0;
+	double sps = 0; 					// steps per second
+	boolean real_time;
 	
 	// Step Per Second Calculation
-	private static long startTime;
-	private static long previousTime;
-	private static long currentTime;
-	private static long diffTime;	
+	private long startTime;
+	private long previousTime;
+	private long currentTime;
+	private long diffTime;	
 
-	private static int num_samples = 150;
-	private static double step_samples[] = new double[num_samples];
-	private static double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
-	private static int asps;	 			// Average Steps Per Second as an int for display purposes
+	private int num_samples = 150;
+	private double step_samples[] = new double[num_samples];
+	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
+	private int asps;	 			// Average Steps Per Second as an int for display purposes
 	
 	// Fixed Step Calculations
-	private static long stepTimeNow;
-	private static long stepTimeDiff;
-	private static long stepTimeTotal;
-	private static long stepTimePrev;
-	private static int stepsCurrent;
+	private long stepTimeNow;
+	private long stepTimeDiff;
+	private long stepTimeTotal;
+	private long stepTimePrev;
+	private int stepsCurrent;
 	
 	/* Number of Agents */
-	int num_agents = 25600;
-
+	int initial_num_agents=0;
+	
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
 	Boolean true_body_drawing = false;
 
 	/** Toggle for Drawing agent field of views */
 	Boolean draw_field_of_views = false;
-
-	/** Simulation Agent Manager */
-	AgentManager agentManager;
-
-	/** The Simulation World. */
-	static World world;
-
-	/*
-	 * Size of the world - Pixels - recommended to be power of 2 due to OpenGL
-	 * texture limits
-	 */
-	static int world_size = 10240;
-
+	
 	/* The translation vector for the camera view */
-	public static Vector2f global_translate = new Vector2f(0, 0);
+	public Vector2f global_translate = new Vector2f(0, 0);
 
 	/* For this many simulation updates for buffer update */
-	public static int req_sps = 15;
+	public int req_sps = 15;
 	
 	/* For increasing req steps by a factor of ten */
-	public static int stepx10 = 1;
+	public int stepx10 = 1;
 
 	/* Sim Start/Pause Control */
-	private static Semaphore pause = new Semaphore(0,true); // Starts Paused
-	private static boolean simPaused = true;
-	private static boolean simStarted = false;
-	private static int latched_div = 0;
+	private Semaphore pause;
+	
+	private boolean simPaused = true;
+	private boolean simStarted = false;
+	private int latched_div = 0;
 
-	int steps_todo = 0;
+	/** Simulation Update Thread */
+	private Thread asyncUpdateThread;
+	
+	/** Simulation Agent Manager */
+	public AgentManager agentManager;
 
-	/* Off screen buffer */
-	Graphics bufferGraphics;
-	Image buffer;
-	int buffer_num = 0;
-
-	/* Stores the mouse vector across updates */
-	public static Vector2f mouse_pos = new Vector2f(world_size, world_size);
-
-	/* Stores the camera position */
-	static int camera_margin = 10;
-
-	public static Rectangle camera_bound = new Rectangle(0 + camera_margin, 0 + camera_margin, world_view_width - (camera_margin * 2), world_view_height - (camera_margin * 2));
-	private static JTextField txtSimRateInfo;
-	private static JTextField txtAgentno;
-
-	private static Thread asyncUpdateThread;
-
+	/** The Simulation World. */
+	public World world;
 
 	public Simulation()
 	{
-		super("Simulator");
+		setupThreads();
+		
+		newSim(256,0);
 	}
 
-	@Override
-	public void init(GameContainer container) throws SlickException
+	public void newSim(int world_size,int agent_numbers)
 	{
 		world = new World(world_size);
 
-		/* Random Starting Position */
-		Random xr = new Random();
-		Random yr = new Random();
-
-		agentManager = new AgentManager(num_agents);
+		agentManager = new AgentManager(world_size,agent_numbers);
 
 		agentManager.setTrueDrawing(true_body_drawing);
 
 		agentManager.setFieldOfViewDrawing(draw_field_of_views);
 
-		int i;
-
-		int x, y, t, s;
-		for (i = 0; i < num_agents; i++)
-		{
-
-			x = xr.nextInt(world_size) + 1;
-
-			y = yr.nextInt(world_size) + 1;
-
-			agentManager.addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(1f, 5f, 100f, 100f, 25f)));
-
-		}
-
-		setUpImageBuffer();
-		
-		setupThreads();
-		
 	}
-
-	// Simulation Step Thread  
+	
+	// Simulation Main Thread  
 	private void setupThreads()
 	{
-
+			pause = new Semaphore(0,true); // Starts Paused
 			
 			asyncUpdateThread = new Thread(new Runnable()
 			{
@@ -277,480 +200,7 @@ public class Simulation extends BasicGame implements MouseListener
 
 	}
 	
-	@Override
-	public void update(GameContainer container, int delta) throws SlickException
-	{
-		// Not Used
-	}
-
-	@Override
-	public void render(GameContainer container, Graphics g) throws SlickException
-	{
-		/* Some Linux Drivers have hardware clipping bugs */
-		g.setWorldClip(camera_bound); // Todo Make setting
-
-		doDraw(bufferGraphics);
-
-		/* Always draw the buffer even if it has not changed */
-		g.drawImage(buffer, 0, 0);
-
-		frame_num++;
-
-		/* Gui Overlay */
-		g.setColor(Color.white);
-
-		g.drawString("Alife Sim Test - Number Active Agents : " + num_agents, camera_bound.getMinX(), camera_bound.getMinY());
-
-		g.drawString("Step Num                              : " + step_num, camera_bound.getMinX(), camera_bound.getMinY() + 50);
-
-		g.drawString("Frame Updates                         :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 100);
-
-		g.drawString("Buffer Updates                        : " + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 150);
-
-		g.drawString("Frame Rate                            : " + sim.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 200);
-
-		g.drawString("Requested Steps Per Second            : " + req_sps, camera_bound.getMinX(), camera_bound.getMinY() + 250);
-
-		g.drawString("Instant Steps Per Second Performance  : " + sps, camera_bound.getMinX(), camera_bound.getMinY() + 300);
-		
-		g.drawString("Average Steps Per Second Performance  : " + averageStepsPerSecond(), camera_bound.getMinX(), camera_bound.getMinY() + 350);
-
-		g.draw(camera_bound);
-
-	}
-
-	private void doDraw(Graphics g)
-	{
-		/* Blank the Image buffer */
-		g.clear();
-
-		/* Move the entire world to simulate a view moving around */
-		g.translate(global_translate.getX(), global_translate.getY());
-
-		/* World */
-		world.drawWorld(g);
-
-		/* Agents */
-		drawAgents(g);
-
-		/* Performance Indicator */
-		buffer_num++;
-	}
-
-	/* Agent draw method */
-	private void drawAgents(Graphics g)
-	{
-		agentManager.drawAI(g);
-	}
-
-	/*
-	 * Keeps the simulation aware of the mouse position minus any translation of
-	 * the view
-	 */
-	@Override
-	public void mouseMoved(int oldx, int oldy, int newx, int newy)
-	{
-		mouse_pos.set(newx - global_translate.getX(), newy - global_translate.getY());
-	}
-
-	/*
-	 * Makes sure valid mouse coordinates are used when the mouse leaves and
-	 * renters a window that has lost and regained focus. - Prevents view
-	 * snapping to strange locations
-	 */
-	@Override
-	public void mousePressed(int button, int x, int y)
-	{
-		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
-				
-		mouseInteractionModeOn();
-		
-		//req_sps = 9999;
-		
-	}
-
-	@Override
-	public void mouseReleased(int button, int x, int y)
-	{
-		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
-				
-		mouseInteractionModeOff();
-		
-	}	
-	
-	/* Allows moving camera around large worlds */
-	@Override
-	public void mouseDragged(int oldx, int oldy, int newx, int newy)
-	{
-		float x = (newx) - mouse_pos.getX();
-		float y = (newy) - mouse_pos.getY();
-
-		moveCamera(x, y);
-
-	}
-
-	@Override
-	public void mouseWheelMoved(int change)
-	{
-		if (!simPaused)
-		{
-			if (change > 0)
-			{
-				req_sps++;
-			}
-			else
-			{
-				if (req_sps > 1)
-				{
-					req_sps--;
-				}
-			}
-
-			simRateSlider.setValue(req_sps);
-			
-		}
-
-	}
-
-	/* Camera is moved by translating all the drawing */
-	private void moveCamera(float x, float y)
-	{
-		global_translate.set(x, y);
-	}
-
-	/* Main Entry Point */
-	public static void main(String[] args)
-	{
-		try
-		{
-
-			/*
-			 * - For stand alone builds un-comment these so the jar will look
-			 * for the native libraries correctly
-			 */
-			// System.setProperty("org.lwjgl.librarypath", new File(new
-			// File(System.getProperty("user.dir"), "native"),
-			// LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
-			// System.setProperty("net.java.games.input.librarypath",
-			// System.getProperty("org.lwjgl.librarypath"));
-
-			sim = new CanvasGameContainer(new Simulation());
-
-			/* Always update */
-			sim.getContainer().setUpdateOnlyWhenVisible(false);
-
-			/* Screen size / Window Size */
-			// app.setDisplayMode(screen_width, screen_height, false);
-
-			/* Not needed */
-			sim.getContainer().setShowFPS(false);
-
-			/* Needed as we now do asynchronous drawing */
-			sim.getContainer().setClearEachFrame(true);
-
-			/* Hardware vsync */
-			sim.getContainer().setVSync(vsync_toggle);
-
-			/* Always draw even if window not active */
-			sim.getContainer().setAlwaysRender(true);
-
-			/* Dont close the app if we close the sim */
-			sim.getContainer().setForceExit(false);
-
-			/* Hardware Anti-Aliasing */
-			// app.setMultiSample(8);
-
-			// Set sim start up frame rate 
-			sim.getContainer().setTargetFrameRate(frame_rate);
-
-			setupFrame();
-
-			sim.start();
-		}
-		catch (SlickException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private static void setupFrame()
-	{
-		JFrame frame = new JFrame("Simulation");
-		
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (ClassNotFoundException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		catch (InstantiationException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		catch (IllegalAccessException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		catch (UnsupportedLookAndFeelException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		frame.setResizable(false);
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		Dimension screenSize = toolkit.getScreenSize();
-		frame.setBounds((int) (screenSize.getWidth() / 2) - (500), screenSize.height / 2 - 400, width, height);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
-
-		frame.getContentPane().add(sim, BorderLayout.CENTER);
-
-		JPanel controlPanel = new JPanel();
-		controlPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		controlPanel.setPreferredSize(new Dimension(controlPanelWidth, controlPanelHeight));
-
-		frame.getContentPane().add(controlPanel, BorderLayout.EAST);
-		controlPanel.setLayout(new BorderLayout(0, 0));
-
-		JPanel controlPanelBottom = new JPanel();
-		controlPanelBottom.setBorder(new EmptyBorder(5, 5, 5, 5));
-		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
-		controlPanelBottom.setLayout(new GridLayout(2, 1, 5, 5));
-
-		/* Simulation Speed */
-				
-				JPanel panel_1 = new JPanel();
-				controlPanelBottom.add(panel_1);
-						panel_1.setLayout(new GridLayout(0, 3, 5, 5));
-				
-						JLabel lblSimRate = new JLabel("Sim Rate");
-						panel_1.add(lblSimRate);
-						lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
-						
-								txtSimRateInfo = new JTextField();
-								panel_1.add(txtSimRateInfo);
-								txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
-								txtSimRateInfo.setEditable(false);
-								txtSimRateInfo.setText("0");
-								txtSimRateInfo.setColumns(10);
-						simRateSlider = new JSlider();
-						simRateSlider.setSnapToTicks(true);
-						panel_1.add(simRateSlider);
-						simRateSlider.setPaintTrack(false);
-						simRateSlider.setPaintTicks(true);
-						simRateSlider.setMinorTickSpacing(5);
-						simRateSlider.setMajorTickSpacing(15);
-						simRateSlider.addChangeListener(new ChangeListener()
-						{
-							public void stateChanged(ChangeEvent e)
-							{
-									txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
-									
-									/*if(simRateSlider.getValue() == 0)
-									{
-										req_sps = 1 + (simRateSlider.getValue()) * stepx10;	
-									}
-									else
-									{
-										req_sps = (simRateSlider.getValue()) * stepx10;		
-									}*/
-									req_sps = (simRateSlider.getValue()) * stepx10;		
-
-									// TODO BACK TO SPLIT GUI
-									
-							}
-						});
-						simRateSlider.setValue(req_sps);
-						simRateSlider.setEnabled(false);
-						
-						JPanel panel = new JPanel();
-						controlPanelBottom.add(panel);
-						panel.setLayout(new GridLayout(1, 2, 5, 5));
-						
-						btnStart = new JButton("Start");
-						panel.add(btnStart);
-						
-								btnPause = new JButton("Pause");
-								panel.add(btnPause);
-								btnPause.addActionListener(new ActionListener()
-								{
-									public void actionPerformed(ActionEvent arg0)
-									{
-										if (simPaused)
-										{
-											unPauseSim();
-										}
-										else
-										{
-											pauseSim();
-										}
-									}
-								});
-								btnPause.setEnabled(false);
-		btnStart.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				if(!simStarted)
-				{
-					startSim();
-				}				
-			}
-		});
-
-		JPanel controlPanelTop = new JPanel();
-		controlPanel.add(controlPanelTop, BorderLayout.CENTER);
-		controlPanelTop.setLayout(new MigLayout("", "[][grow]", "[][]"));
-
-		JLabel lblAgents = new JLabel("Agents");
-		controlPanelTop.add(lblAgents, "cell 0 0,alignx trailing");
-
-		txtAgentno = new JTextField();
-		txtAgentno.setText("AgentNo");
-		controlPanelTop.add(txtAgentno, "cell 1 0,growx");
-		txtAgentno.setColumns(10);
-
-		JLabel lblWorldSize = new JLabel("World Size");
-		controlPanelTop.add(lblWorldSize, "cell 0 1,alignx trailing");
-
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[]
-		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
-		controlPanelTop.add(comboBox, "cell 1 1,growx");
-
-		JPanel statusPanel = new JPanel();
-		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
-		statusPanel.setLayout(new MigLayout("", "[][][][][][][][][]", "[]"));
-		statusPanel.setPreferredSize(new Dimension(statusPanelWidth, statusPanelHeight));
-
-		JLabel lblFrameRate = new JLabel("Frame Rate");
-		statusPanel.add(lblFrameRate, "cell 0 0");
-
-		JLabel lblDframerate = new JLabel("dFrame_Rate");
-		statusPanel.add(lblDframerate, "cell 1 0");
-
-		JSeparator separator = new JSeparator();
-		statusPanel.add(separator, "cell 2 0");
-
-		JLabel lblBufferUpdates = new JLabel("Buffer Updates");
-		statusPanel.add(lblBufferUpdates, "cell 3 0");
-
-		JLabel lblDbufferupdates = new JLabel("dBufferUpdates");
-		statusPanel.add(lblDbufferupdates, "cell 4 0");
-
-		JSeparator separator_1 = new JSeparator();
-		statusPanel.add(separator_1, "cell 5 0");
-
-		JLabel lblSimulationSteps = new JLabel("Simulation Steps");
-		statusPanel.add(lblSimulationSteps, "cell 6 0");
-
-		JLabel lblDsimsteps = new JLabel("dSim_Steps");
-		statusPanel.add(lblDsimsteps, "cell 7 0");
-
-		JSeparator separator_2 = new JSeparator();
-		statusPanel.add(separator_2, "cell 8 0");
-
-		JMenuBar menuBar = new JMenuBar();
-		frame.setJMenuBar(menuBar);
-
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-
-		JMenuItem mntmNew = new JMenuItem("New");
-		mnFile.add(mntmNew);
-
-		JMenuItem mntmOpen = new JMenuItem("Open");
-		mnFile.add(mntmOpen);
-
-		JMenuItem mntmSave = new JMenuItem("Save");
-		mnFile.add(mntmSave);
-
-		JMenuItem mntmSaveAs = new JMenuItem("Save As");
-		mnFile.add(mntmSaveAs);
-
-		JMenuItem mntmQuit = new JMenuItem("Quit");
-		mnFile.add(mntmQuit);
-
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-
-		JMenuItem mntmAbout = new JMenuItem("About");
-		mnHelp.add(mntmAbout);
-
-		frame.addWindowListener(new WindowAdapter()
-		{
-			public void windowClosing(WindowEvent e)
-			{
-				Display.destroy(); // Tell OpenGL we are done and free the
-									// resources used in the canvas. - must be
-									// done else sim will lockup.
-				System.exit(0);    // Exit the Simulation and let Java free the
-								// memory.
-			}
-		});
-		frame.setVisible(true);
-
-	}
-
-	/** Sets up the off-screen buffer image */
-	private void setUpImageBuffer()
-	{
-		try
-		{
-			buffer = new Image(world_view_width + 1, world_view_height + 1);
-			bufferGraphics = buffer.getGraphics();
-		}
-		catch (SlickException e)
-		{
-			e.printStackTrace();
-		}
-
-	}
-	
-	private static void mouseInteractionModeOn()
-	{
-		frame_rate = frame_rate_gui_interaction;
-		
-		sim.getContainer().setTargetFrameRate(frame_rate);
-
-	}
-
-	private static void mouseInteractionModeOff()
-	{
-		frame_rate = default_frame_rate;	
-		
-		sim.getContainer().setTargetFrameRate(frame_rate);
-
-	}
-	
-	// Calculates the total taken between repeated call to this method - used for inter-step time wait
-	private static long timeTotal()
-	{
-		stepTimeNow = System.nanoTime();		 // Current Time
-		
-		stepTimeDiff = stepTimeNow-stepTimePrev; // Time Between this call and the last call
-		
-		stepTimeTotal+=stepTimeDiff;			 // Total the time between calls
-		
-		stepTimePrev = stepTimeNow;				 // Set the current time as the previous to the next call
-		
-		return stepTimeTotal;					// Return the current total
-	}
-	
-	private static void resetTotalTime()
-	{
-		stepTimeTotal=0;
-	}
-	
-	private static void setUpStepsPerSecond()
+	private void setUpStepsPerSecond()
 	{
 		startTime = System.nanoTime();
 		previousTime = startTime;				// At Start up this is true
@@ -759,7 +209,7 @@ public class Simulation extends BasicGame implements MouseListener
 	}
 	
 	// Calculates the Average Steps Per Second
-	private static void calcStepsPerSecond()
+	private void calcStepsPerSecond()
 	{
 		currentTime = System.nanoTime();			// Current TIme
 		
@@ -784,50 +234,81 @@ public class Simulation extends BasicGame implements MouseListener
 
 	}
 	
-	private static int averageStepsPerSecond()
+	// Average the steps thus giving an average steps per second count
+	public int averageStepsPerSecond()
 	{
-		return asps = (int)(tasps/num_samples);			// Average the steps thus giving an average steps per second count
+		return asps = (int)(tasps/num_samples);			
+	}
+
+	// Calculates the total taken between repeated call to this method - used for inter-step time wait
+	private long timeTotal()
+	{
+		stepTimeNow = System.nanoTime();		 // Current Time
+		
+		stepTimeDiff = stepTimeNow-stepTimePrev; // Time Between this call and the last call
+		
+		stepTimeTotal+=stepTimeDiff;			 // Total the time between calls
+		
+		stepTimePrev = stepTimeNow;				 // Set the current time as the previous to the next call
+		
+		return stepTimeTotal;					// Return the current total
+	}
+	
+	private void resetTotalTime()
+	{
+		stepTimeTotal=0;
 	}
 	
 	// Called by the start button
-	private static void startSim()
+	public void startSim()
 	{
 		latched_div=1;
 		simStarted=true;
 		unPauseSim();		
-		btnStart.setEnabled(false);	
-		btnPause.setEnabled(true);
 	}
 	
-	
 	// UnPauses the Sim and sets the display frame rate to a less-interactive and less intensive update rate 
-	private static void unPauseSim()
+	public void unPauseSim()
 	{
-
-		btnPause.setText("Pause");			// GUI Pause button indicator
 				
 		simPaused = false;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now unpaused.
 		
-		simRateSlider.setEnabled(true);		// Allow sim step slider changes
-		
-		 mouseInteractionModeOff();			// Set display to a highly interactive frame rates
-		
-		 pause.release();					// Release the pause semaphore
+		pause.release();					// Release the pause semaphore
 			 
 	}
 
+	public boolean simPaused()
+	{
+		return simPaused;
+	}
+	
 	// Pauses the Sim and sets the display frame rate to a more-interactive and more intensive update rate for better mouse interaction 
-	private static void pauseSim()
+	public void pauseSim()
 	{
 			pause.acquireUninterruptibly();		// Pause the sim
+					
+			simPaused = true;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now paused.					
+	}
 		
-			btnPause.setText("Resume");			// GUI Pause button indicator
+	public void reqSimUpdateRate(int steps)
+	{
+		if(steps>0)
+		{
+			req_sps = steps;
+		}
+	}
+	
+	public void drawSim(Graphics g)
+	{	
+		if(simStarted)
+		{
+			if(world!=null)
+			{
+				world.drawWorld(g);
+			}
 			
-			simPaused = true;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now paused.
-		
-			simRateSlider.setEnabled(false);	// Do not allow sim step slider changes		
-			
-			mouseInteractionModeOn();			// Set display to a low interactive frame rates
+			agentManager.drawAI(g);			
+		}
 
 	}
 }

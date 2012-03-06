@@ -14,6 +14,7 @@ public class World
 {
 
 	WorldGrid grid;
+	
 	Rectangle world_bound;
 
 	private static int world_size;
@@ -23,7 +24,7 @@ public class World
 	{
 		this.world_size = size;
 		
-		world_bound = new Rectangle(0,0,world_size+1,world_size+1);
+		world_bound = new Rectangle(0,0,world_size+1,world_size+1);	
 		
 		createGrid();
 	}
@@ -104,10 +105,11 @@ public class World
 	/* Draw method */
 	public void drawWorld(Graphics g)
 	{
-		grid.drawGridImage(g);
-		
-		g.setColor(Color.blue);
-		
-		g.draw(world_bound);
+			grid.drawGrid(g);
+			
+			g.setColor(Color.blue);
+			
+			g.draw(world_bound);			
+
 	}	
 }

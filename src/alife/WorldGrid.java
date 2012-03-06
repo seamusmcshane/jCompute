@@ -13,13 +13,7 @@ import org.newdawn.slick.geom.Line;
  */ 
 public class WorldGrid
 {
-	
-	/** The final grid image. */
-	private Image gridImage;
-	
-	/** The grid graphics drawing object. */
-	private Graphics gridGraphics;
-		
+				
 	/** The Horizontal Lines. */
 	private Line[] hlines;
 	
@@ -53,11 +47,6 @@ public class WorldGrid
 		
 		generateGrid();	
 		
-		setupGridImage();
-
-		setupGridGraphics();
-		
-		drawGridOnImage();	
 	}
 	
 	/** 
@@ -86,71 +75,29 @@ public class WorldGrid
 	/** 
 	 * Draws the grid method on the image object 
 	 */
-	private void drawGridOnImage()
+	public void drawGrid(Graphics g)
 	{					
-			gridGraphics.setBackground(Color.black);
+			g.setBackground(Color.black);
 		
-			gridGraphics.setColor(new Color(25,25,25));
+			g.setColor(new Color(25,25,25));
 			
-			gridGraphics.setLineWidth(2f);
+			g.setLineWidth(2f);
 			
-			gridGraphics.setAntiAlias(true);
+			g.setAntiAlias(true);
 			
 			for(int i=0;i<num;i++)
 			{					
 				if(i%major_div == 0)
 				{
-					gridGraphics.setColor(new Color(50,50,50));	/* Major Div */
+					g.setColor(new Color(50,50,50));	/* Major Div */
 				}
 				else
 				{
-					gridGraphics.setColor(new Color(25,25,25));	/* Normal Line */
+					g.setColor(new Color(25,25,25));	/* Normal Line */
 				}
-				gridGraphics.draw(hlines[i]);
-				gridGraphics.draw(vlines[i]);
+				g.draw(hlines[i]);
+				g.draw(vlines[i]);
 			}		
-	}
-	
-	/**
-	 * Sets up the grid image object.
-	 */
-	private void setupGridImage()
-	{
-		try
-		{
-			gridImage = new Image(size,size);
-		}
-		catch (SlickException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Points grid graphics to the image object graphics.
-	 */
-	private void setupGridGraphics()
-	{
-		try
-		{
-			gridGraphics = gridImage.getGraphics();
-		}
-		catch (SlickException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Draw the grid image on the passed in graphics object.
-	 *
-	 * @param g Graphics
-	 */
-	public void drawGridImage(Graphics g)
-	{
-		g.drawImage(gridImage, 0, 0);		
 	}
 	
 }
