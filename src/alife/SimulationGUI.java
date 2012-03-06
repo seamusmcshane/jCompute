@@ -57,13 +57,17 @@ public class SimulationGUI
 	/** Window Size */
 	static int pad = 10;
 
-	static int control_gui_width = 250;
-	static int control_gui_height = 600;
+	static int total_height = 0;
+	static int total_width = 0;
+	
+	static int control_gui_width = 350; // Hard-Coded as GUI needs certain width needs based on button text size
+	
+	static int control_gui_height = 0;
 	static int control_gui_x;
 	static int control_gui_y;
 
-	static int view_width = 800;
-	static int view_height = 600;
+	static int view_width = 0;
+	static int view_height = 0;
 	static int view_x;
 	static int view_y;
 
@@ -79,6 +83,8 @@ public class SimulationGUI
 	{
 		retrieveScreenSize();
 
+		calculateWindowSizes();
+		
 		calculateWindowPositions();
 
 		setUpFrame();
@@ -94,6 +100,17 @@ public class SimulationGUI
 		sim = new Simulation();
 	}
 
+	private static void calculateWindowSizes()
+	{
+		total_height = (int) (screen_height / 1.5f);
+				
+		control_gui_height = total_height;
+		
+		view_width = (screen_width - control_gui_width) / 2;
+		view_height = total_height;
+
+	}
+	
 	private static void calculateWindowPositions()
 	{
 		control_gui_x = (screen_width / 2) - ((control_gui_width + view_width) / 2);
@@ -143,8 +160,8 @@ public class SimulationGUI
 		controlPanel.setLayout(new BorderLayout(0, 0));
 
 		JPanel controlPanelTop = new JPanel();
-		controlPanelTop.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanel.add(controlPanelTop, BorderLayout.CENTER);
+		controlPanelTop.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Setup", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		controlPanel.add(controlPanelTop, BorderLayout.NORTH);
 		controlPanelTop.setLayout(new MigLayout("", "[][grow]", "[][][]"));
 
 		JLabel lblAgents = new JLabel("Agents");
@@ -172,7 +189,7 @@ public class SimulationGUI
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
-		controlPanelBottom.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		controlPanelBottom.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		controlPanelBottom.setLayout(new GridLayout(2, 1, 5, 5));
 
 		JPanel row1 = new JPanel();
@@ -234,6 +251,43 @@ public class SimulationGUI
 
 		btnPause = new JButton("Pause");
 		row2.add(btnPause);
+		
+		JPanel panel = new JPanel();
+		panel.setBorder(new TitledBorder(null, "Graph", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		controlPanel.add(panel, BorderLayout.CENTER);
+		panel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel keyPanel = new JPanel();
+		keyPanel.setBorder(new TitledBorder(null, "Key", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel.add(keyPanel, BorderLayout.SOUTH);
+		keyPanel.setLayout(new GridLayout(0, 6, 0, 0));
+		
+		JLabel lblKeyPlants = new JLabel("Plants");
+		lblKeyPlants.setHorizontalAlignment(SwingConstants.CENTER);
+		keyPanel.add(lblKeyPlants);
+		
+		JLabel lblPlantno = new JLabel("plant_no");
+		lblPlantno.setHorizontalAlignment(SwingConstants.CENTER);
+		keyPanel.add(lblPlantno);
+		
+		JLabel lblPred = new JLabel("Predators");
+		lblPred.setHorizontalAlignment(SwingConstants.CENTER);
+		keyPanel.add(lblPred);
+		
+		JLabel lblPredno = new JLabel("pred_no");
+		lblPredno.setHorizontalAlignment(SwingConstants.CENTER);
+		keyPanel.add(lblPredno);
+		
+		JLabel lblPrey = new JLabel("Prey");
+		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
+		keyPanel.add(lblPrey);
+		
+		JLabel lblPreyno = new JLabel("prey_no");
+		lblPreyno.setHorizontalAlignment(SwingConstants.CENTER);
+		keyPanel.add(lblPreyno);
+		
+		JPanel graphPanel = new JPanel();
+		panel.add(graphPanel, BorderLayout.CENTER);
 		btnPause.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
@@ -379,15 +433,21 @@ public class SimulationGUI
 		
 		comboBoxWorldSize.setEnabled(false);	
 
+		comboBoxPlantNumbers.setEnabled(false);	
+
+		
 	}
 	
 	private static void startUpState()
 	{
 		comboBoxAgentNumbers.setEnabled(true);
 		comboBoxWorldSize.setEnabled(true);
+		comboBoxPlantNumbers.setEnabled(true);	
+
 		btnStart.setEnabled(false);
 		simRateSlider.setEnabled(false);
 		btnPause.setEnabled(false);
+		
 	}
 
 	private static void simPausedState()
@@ -397,7 +457,8 @@ public class SimulationGUI
 		
 		comboBoxAgentNumbers.setEnabled(true);
 		comboBoxWorldSize.setEnabled(true);	
-		
+		comboBoxPlantNumbers.setEnabled(true);	
+
 	}
 	
 	private static void simUnPausedState()
@@ -407,6 +468,7 @@ public class SimulationGUI
 
 		comboBoxAgentNumbers.setEnabled(false);
 		comboBoxWorldSize.setEnabled(false);	
+		comboBoxPlantNumbers.setEnabled(false);	
 	}
 	
 }
