@@ -33,8 +33,9 @@ public class SimpleAgentStats
 		/* Rest Need */
 		private int rest_steps;
 		
+		SimpleAgentType type;
 		
-	public SimpleAgentStats(float rus, float sz, float me, float mh, float vr)
+	public SimpleAgentStats(SimpleAgentType type,float rus, float sz, float me, float mh, float vr)
 	{
 		this.max_speed = rus;
 		

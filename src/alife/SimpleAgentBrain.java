@@ -16,14 +16,16 @@ public class SimpleAgentBrain
 	
 	public SimpleAgentView view;
 	
-	/* Nearest Agent */
-	//private SimpleAgent nearestAgent=null;
+    boolean hasThought=false;
 	
 	/* Movement */
 	float direction;
 	Random r;
 	private int moves=0;
-		
+	private int chase_moves;
+	private int chase_max_moves;
+	
+	/* Move counters */		
 	public SimpleAgentBrain(SimpleAgentBody body)
 	{
 		/* Agents own Body */
@@ -42,15 +44,28 @@ public class SimpleAgentBrain
 	 */
 	public void think()
 	{
-				
+		
 		/* Enforce 1 think/move per agent */
-		boolean has_thought=false;
+		hasThought=false;
 				
-		// Random Walk
-		myBody.move(r.nextInt(360)+1);
+		myBody.move(direction);
 
 	}
-	
 
+	private void chaseState()
+	{
+		
+	}
+	
+	private void restState()
+	{
+		
+	}
+	
+	private void roamState()
+	{
+		
+	}
+	
 	
 }

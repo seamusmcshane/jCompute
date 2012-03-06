@@ -11,6 +11,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
+import alife.SimulationEnums.AgentType;
 
 /*
  * 
@@ -96,7 +97,7 @@ public class SimpleAgentManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(1f, 5f, 100f, 100f, 25f)));
+			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, 100f, 25f)));
 		}		
 	}
 	
@@ -233,7 +234,7 @@ public class SimpleAgentManager
 	{
 		if(testAgent==null)
 		{
-			testAgent = new SimpleAgent(-1,0,0,new SimpleAgentStats(0,0,0,0,0)); /* TODO needs updated */
+			testAgent = new SimpleAgent(-1,0,0,new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, 100f, 25f)); /* TODO needs updated */
 			
 			testAgent.setVisible(true);
 			
