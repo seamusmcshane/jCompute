@@ -62,11 +62,10 @@ import com.jgoodies.forms.factories.FormFactory;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JCheckBox;
 /**
- * Simulation class - Gui and Entry Point for starting a Simulation.
+ * Simulation class - GUI and Entry Point for starting a Simulation.
  */
 public class Simulation
 {
-
 	/* Default Graphic frame rate control */
 	final int default_frame_rate = 15;
 	int frame_rate = default_frame_rate; // Frame rate start up at this
@@ -98,11 +97,7 @@ public class Simulation
 	/* Number of Agents */
 	int initial_num_agents=0;
 	
-	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	Boolean true_body_drawing = false;
-
-	/** Toggle for Drawing agent field of views */
-	Boolean draw_field_of_views = false;
+	SimulationManager simManager;
 	
 	/* The translation vector for the camera view */
 	public Vector2f global_translate = new Vector2f(0, 0);
@@ -115,7 +110,7 @@ public class Simulation
 
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
-	
+		
 	private boolean simPaused = true;
 	private boolean simStarted = false;
 	private int latched_div = 0;
@@ -123,12 +118,6 @@ public class Simulation
 	/** Simulation Update Thread */
 	private Thread asyncUpdateThread;
 	
-	/** Simulation Agent Manager */
-	public SimpleAgentManager simpleAgentManager;
-	
-	/** Simulation Plant Manager */
-	public GenericPlantManager genericPlantManager;
-
 	/** The Simulation World. */
 	public World world;
 
@@ -143,14 +132,7 @@ public class Simulation
 	{
 		world = new World(world_size);
 
-		genericPlantManager = new GenericPlantManager(world_size,plant_numbers);
-		
-		simpleAgentManager = new SimpleAgentManager(world_size,agent_numbers);
-
-		simpleAgentManager.setTrueDrawing(true_body_drawing);
-
-		simpleAgentManager.setFieldOfViewDrawing(draw_field_of_views);
-
+		simManager = new SimulationManager(world_size,agent_numbers, plant_numbers);	
 	}
 	
 	// Simulation Main Thread  
@@ -176,11 +158,7 @@ public class Simulation
 							// The pause semaphore (We do not pause half way through a step)
 							pause.acquireUninterruptibly();
 							
-							// Do a Simulation Step
-							simpleAgentManager.doAi();
-							
-							// Do Plants
-							genericPlantManager.updatePlants();
+							simManager.doUpdate();
 							
 							// Calculate the Steps per Second
 							calcStepsPerSecond();					
@@ -314,11 +292,7 @@ public class Simulation
 			{
 				world.drawWorld(g);
 			}
-			genericPlantManager.drawPlants(g);
-	
-			simpleAgentManager.drawAI(g);	
-			
+			simManager.drawAgentsAndPlants(g);			
 		}
-
 	}
 }
