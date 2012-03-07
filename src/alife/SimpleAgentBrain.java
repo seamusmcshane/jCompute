@@ -55,16 +55,24 @@ public class SimpleAgentBrain
 		/* Enforce 1 think/move per agent */
 		hasThought=false;
 				
-		evaulateView();
+		evaulateViewState();
+		
+		doState();
 		
 		myBody.move(direction);
 
 	}
 
-	private void evaulateView()
+	private void doState()
+	{
+	 	
+	}
+	
+	
+	private void evaulateViewState()
 	{
 		
-		if(view.hasAgentInView())
+		if(view.hasAgentInView()) // Agents in View
 		{
 			if(myBody.stats.getType().compareType(view.agentType()))
 			{
@@ -86,8 +94,16 @@ public class SimpleAgentBrain
 				}
 			}
 		}
-		else
+		else // No Agents in View
 		{
+			if(myBody.stats.getType().eatsPlants())
+			{
+				// move towards 
+			}
+			else
+			{
+				// Roam - no food for us
+			}
 			
 		}
 		

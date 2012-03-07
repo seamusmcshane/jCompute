@@ -57,4 +57,21 @@ public class SimpleAgentType
 		return eval;
 		
 	}
+	
+	public boolean eatsPlants()
+	{
+		boolean eval = false;
+		
+		if(this.type == AgentType.PREDATOR) // Predators do not eat plants in this simulation
+		{
+			eval = false;
+		}
+		else // Logical prey do
+		{
+			eval = true;
+		}
+		
+		return eval;
+		
+	}
 }
