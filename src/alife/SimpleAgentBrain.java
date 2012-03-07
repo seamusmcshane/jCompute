@@ -16,11 +16,18 @@ public class SimpleAgentBrain
 	
 	public SimpleAgentView view;
 	
-    boolean hasThought=false;
-	
+	/* State Logic */
+    private boolean hasThought=false;
+	    
+    /* View evaluation */
+    private boolean plantIsFood=false;
+    private boolean agentIsFood=false;
+    private boolean agentIsTheat=false;
+    
+    
 	/* Movement */
-	float direction;
-	Random r;
+	private float direction;
+	private Random r;
 	private int moves=0;
 	private int chase_moves;
 	private int chase_max_moves;
@@ -48,10 +55,49 @@ public class SimpleAgentBrain
 		/* Enforce 1 think/move per agent */
 		hasThought=false;
 				
-		myBody.move(r.nextInt(360)+1);
+		evaulateView();
+		
+		myBody.move(direction);
 
 	}
 
+	private void evaulateView()
+	{
+		
+		if(view.hasAgentInView())
+		{
+			if(myBody.stats.getType().compareType(view.agentType()))
+			{
+				agentIsTheat=false;
+			}
+			else // Are we prey are predator
+			{
+				if(myBody.stats.getType().strongerThan(view.agentType()) == 1)
+				{
+					// Chase
+				}
+				else if(myBody.stats.getType().strongerThan(view.agentType()) == 0)
+				{
+					// Ignore
+				}
+				else // -1
+				{
+					// RUN!
+				}
+			}
+		}
+		else
+		{
+			
+		}
+		
+	}
+	
+	private void evaluateState()
+	{
+		
+	}
+	
 	private void chaseState()
 	{
 		

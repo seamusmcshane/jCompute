@@ -33,10 +33,13 @@ public class SimpleAgentStats
 		/* Rest Need */
 		private int rest_steps;
 		
-		SimpleAgentType type;
+		private SimpleAgentType type;
 		
 	public SimpleAgentStats(SimpleAgentType type,float rus, float sz, float me, float mh, float vr)
 	{
+		
+		this.type = type;
+		
 		this.max_speed = rus;
 		
 		this.size = sz;
@@ -55,6 +58,11 @@ public class SimpleAgentStats
 	private void calculate_procedural_constants()
 	{
 		
+	}
+	
+	public SimpleAgentType getType()
+	{
+		return type;
 	}
 	
 	public float getSize()
