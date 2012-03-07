@@ -2,6 +2,8 @@ package alife;
 
 import org.newdawn.slick.geom.Vector2f;
 
+import alife.SimulationEnums.AgentType;
+
 /** Used to store the "visible" statistics of the inViewAgent */
 public class SimpleAgentViewStats
 {
@@ -9,7 +11,10 @@ public class SimpleAgentViewStats
 	private float size;	
 	
 	/** Position of the Agent in view (Cartesian) */
-	Vector2f agentPos;
+	private Vector2f agentPos;
+	
+	/** Type of Agent in view */
+	private SimpleAgentType type;
 	
 	/**
 	 * A class that represents the statistics on a view of a SimpleAgent 
@@ -28,7 +33,9 @@ public class SimpleAgentViewStats
 		// Copies the Agent Positon
 		agentPos.set(agent.body.getBodyPos());
 		
-		this.size = agent.body.getSize();	
+		this.size = agent.body.stats.getSize();	
+		
+		this.type = agent.body.stats.getType();
 	}	
 	
 /**
@@ -56,6 +63,8 @@ public class SimpleAgentViewStats
 
 		/** Position of the Agent in view (Cartesian) */
 		agentPos.set(0, 0);
+		
+		this.type = null;
 
 	}
 	
@@ -73,6 +82,11 @@ public class SimpleAgentViewStats
 	public float getAgentSize()
 	{
 		return size;
+	}
+	
+	public SimpleAgentType getAgentType()
+	{
+		return type;
 	}
 	
 }

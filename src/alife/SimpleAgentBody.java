@@ -203,9 +203,4 @@ public class SimpleAgentBody
 		body_pos.set(pos.getX(), pos.getY());		
 	}
 	
-	public float getSize()
-	{
-		return stats.getSize();
-	}
-	
 }

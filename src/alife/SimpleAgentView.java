@@ -2,6 +2,8 @@ package alife;
 
 import org.newdawn.slick.geom.Vector2f;
 
+import alife.SimulationEnums.AgentType;
+
 
 /*
  * Manages State of the view
@@ -10,8 +12,8 @@ public class SimpleAgentView
 {
 
 	/** States of View */
-	private boolean agentInView;
-	private boolean plantInView;
+	private boolean agentInView=false;
+	private boolean plantInView=false;
 	
 	
 	/** Stats of agent in view */
@@ -24,10 +26,7 @@ public class SimpleAgentView
 		 inViewAgentStats = new SimpleAgentViewStats();
 		 
 		 inViewPlantStats = new GenericPlantViewStats();
-		 
-		 agentInView=false;
-		 
-		 plantInView=false;
+
 	 }
 	 
 /**
@@ -84,7 +83,7 @@ public class SimpleAgentView
 	 {
 		 if(agentInView == false)
 		 {
-			 return null;
+			 return null; // To stop external code calling this explicitly with out checking if its been updated
 		 }
 		 return inViewAgentStats.getAgentPos();
 	 }
@@ -92,7 +91,7 @@ public class SimpleAgentView
 	 /** Nearest Agent Position */
 	 public Vector2f getNearestPlantPos()
 	 {
-		 if(agentInView == false)
+		 if(plantInView == false)
 		 {
 			 return null;
 		 }
@@ -110,11 +109,17 @@ public class SimpleAgentView
 	 {
 		 return plantInView;
 	 }
+
+	 public SimpleAgentType agentType()
+	 {
+		 return inViewAgentStats.getAgentType();
+	 }
 	 
+/* Following functions may fail if not checked by calling the above function helpers */	 
 	/** Returns the direction to move in to go away from the nearest agent */ 
 	public float awayfromAgentDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestAgentPos().getX()-myBody.getBodyPos().getX() ;
+		float dx = getNearestAgentPos().getX() - myBody.getBodyPos().getX() ;
 
 		float dy =  myBody.getBodyPos().getY() - getNearestAgentPos().getY();
 		
@@ -124,7 +129,7 @@ public class SimpleAgentView
 	/** Returns the direction to move in to go towards the nearest agent */
 	public float towardsAgentDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestAgentPos().getX()-myBody.getBodyPos().getX() ;
+		float dx = getNearestAgentPos().getX() - myBody.getBodyPos().getX() ;
 
 		float dy =  myBody.getBodyPos().getY() - getNearestAgentPos().getY();
 		
@@ -134,7 +139,7 @@ public class SimpleAgentView
 	/** Returns the direction to move in to go away from the nearest plant */ 
 	public float awayfromPlantDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestPlantPos().getX()-myBody.getBodyPos().getX() ;
+		float dx = getNearestPlantPos().getX() - myBody.getBodyPos().getX();
 
 		float dy =  myBody.getBodyPos().getY() - getNearestPlantPos().getY();
 		
@@ -144,7 +149,7 @@ public class SimpleAgentView
 	/** Returns the direction to move in to go towards the nearest plant */
 	public float towardsPlantDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestPlantPos().getX()-myBody.getBodyPos().getX() ;
+		float dx = getNearestPlantPos().getX() - myBody.getBodyPos().getX();
 
 		float dy =  myBody.getBodyPos().getY() - getNearestPlantPos().getY();
 		

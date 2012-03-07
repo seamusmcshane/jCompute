@@ -109,7 +109,7 @@ public class SimpleAgentManager
 			tAgentDrawAI.setViewDrawing(view_drawing);
 			
 			// Optimization - Only draw visible agents that are inside the camera_boundarie
-			if (tAgentDrawAI.getPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tAgentDrawAI.getPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tAgentDrawAI.getPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tAgentDrawAI.getPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
+			if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
 				if(true_drawing==true)

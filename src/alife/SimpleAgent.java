@@ -95,12 +95,6 @@ public class SimpleAgent
 		return fov;
 	}
 	
-	/* KNN */
-	public Vector2f getPos()
-	{
-		return body.getBodyPos();
-	}
-
 	/* Debug */	
 	public void setViewDrawing(boolean setting)
 	{
@@ -127,7 +121,8 @@ public class SimpleAgent
 			g.setColor(Color.yellow);
 			g.draw(fov);
 
-		}		
+		}
+		
 	}
 	
 	public int getId()

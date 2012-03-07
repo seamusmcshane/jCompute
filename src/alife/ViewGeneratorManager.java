@@ -17,17 +17,22 @@ public class ViewGeneratorManager extends Thread
 	
 	private Semaphore viewGeneratorEndSemaphores[];
 	
-	/* KD tree representation of the world space */
-	private KdTree<SimpleAgent> worldSpace;
+	/* KD tree representations of the world space */
+	private KdTree<SimpleAgent> agentKDTree;
+	private KdTree<GenericPlant> plantKDTree;
 	
 	private ViewGeneratorThread viewThreads[];
 
 	@SuppressWarnings("unchecked")
-	private LinkedList<SimpleAgent>[] taskLists;
+	private LinkedList<SimpleAgent>[] agentTaskLists;
 	
 	private LinkedList<SimpleAgent> agentList;
+	
+	private LinkedList<GenericPlant> plantList;
 
 	private int agentCount;
+	private int plantCount;
+
 	
 	public ViewGeneratorManager(Semaphore viewControlerSemaphore, int num_threads)
 	{
@@ -45,8 +50,14 @@ public class ViewGeneratorManager extends Thread
 	
 	public void setBarrierAgentTask(LinkedList<SimpleAgent> inList, int num_agents)
 	{
-		agentCount = num_agents;		
 		agentList = inList;		
+		agentCount = num_agents;		
+	}
+	
+	public void setBarrierPlantTask(LinkedList<GenericPlant> inList, int num_plants)
+	{
+		plantList = inList;
+		plantCount = num_plants;		
 	}
 	
 	private void waitThreadsEnd()
@@ -81,11 +92,13 @@ public class ViewGeneratorManager extends Thread
 						
 			//System.out.println("Start Barrier");
 			
+			createPlantKDTree();
+			
 			// Split the lists
-			splitLists();
+			splitAgentList();			
 			
 			// set the tasks
-			setTasks();
+			setViewThreadsTasks();
 			
 			// Pull down the barrier / Release the threads
 			releaseThreadBarrier();	
@@ -102,18 +115,18 @@ public class ViewGeneratorManager extends Thread
 		}		
 	}
 	
-	private void setTasks()
+	private void setViewThreadsTasks()
 	{
 		for(int i = 0;i<num_threads;i++)
 		{
-			viewThreads[i].setTask(taskLists[i], worldSpace);
+			viewThreads[i].setTask(agentTaskLists[i], agentKDTree,plantKDTree);
 		}	
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void setUpTaskLists()
 	{
-		taskLists = new LinkedList[num_threads];
+		agentTaskLists = new LinkedList[num_threads];
 	}
 	
 	private void setUpSemaphores()
@@ -144,17 +157,17 @@ public class ViewGeneratorManager extends Thread
 	}
 	
 	/* splits the List */
-	private void splitLists()
+	private void splitAgentList()
 	{
 		/* 2d - KD-Tree */
-		worldSpace = new KdTree<SimpleAgent>(2);
+		agentKDTree = new KdTree<SimpleAgent>(2);
 		
 		int i = 0;
 
 		/* Create a list for each thread and the thread */
 		for (i = 0; i < num_threads; i++)
 		{
-			taskLists[i] = new LinkedList<SimpleAgent>();
+			agentTaskLists[i] = new LinkedList<SimpleAgent>();
 		}
 
 		ListIterator<SimpleAgent> itr = agentList.listIterator();
@@ -175,9 +188,9 @@ public class ViewGeneratorManager extends Thread
 			/* This Section adds each agent and its coordinates to the kd tree */  
 			{
 				double[] pos = new double[2];
-				pos[0] = temp.getPos().getX();
-				pos[1] = temp.getPos().getY();
-				worldSpace.addPoint(pos, temp);			
+				pos[0] = temp.body.getBodyPos().getX();
+				pos[1] = temp.body.getBodyPos().getY();
+				agentKDTree.addPoint(pos, temp);			
 			}		
 			
 			/* This section does the decision boundaries for splitting the list */
@@ -191,12 +204,36 @@ public class ViewGeneratorManager extends Thread
 			}
 
 			/* Add the agent to the smaller list */
-			taskLists[thread_num].add(temp);	
+			agentTaskLists[thread_num].add(temp);	
 
 			tAgentCount++;
 		}
 		/* Lists are now Split */
 
 	}
-	
+		
+	private void createPlantKDTree()
+	{
+		/* 2d - KD-Tree */
+		plantKDTree = new KdTree<GenericPlant>(2);	
+		
+		ListIterator<GenericPlant> itr = plantList.listIterator();
+		/* Split the lists */
+		
+		while (itr.hasNext())
+		{
+			/* Get an agent */
+			GenericPlant temp = itr.next();
+
+			/* This Section adds each plant and its coordinates to the kd tree */  
+			{
+				double[] pos = new double[2];
+				pos[0] = temp.body.getBodyPos().getX();
+				pos[1] = temp.body.getBodyPos().getY();
+				plantKDTree.addPoint(pos, temp);			
+			}		
+		}
+		/* Tree is created */
+		
+	}
 }

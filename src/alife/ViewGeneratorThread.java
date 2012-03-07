@@ -17,8 +17,9 @@ public class ViewGeneratorThread extends Thread
 	/** The Agent list. */
 	LinkedList<SimpleAgent> agentList;
 	
-	/** The Entire World View. */
-	KdTree<SimpleAgent> worldView;
+	/** The Entire World View. (Both Trees) */
+	KdTree<SimpleAgent> agentKDTree;
+	KdTree<GenericPlant> plantKDTree;
 	
 	/** The Agent List Iterator. */
 	ListIterator<SimpleAgent> agentListItr;
@@ -26,14 +27,16 @@ public class ViewGeneratorThread extends Thread
     /** The distance function object. */
     SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
 
-	/** The agents neighbor list. */
-	private MaxHeap<SimpleAgent> neighborlist;
+	/** The agents and plants neighbor list. */
+	private MaxHeap<SimpleAgent> agentNeighborList;
+	private MaxHeap<GenericPlant>plantNeighborList;
 	
 	/** Reference to the current agent. */
 	private SimpleAgent currentAgent;
 	
 	/** Reference to the nearest agent. */
 	private SimpleAgent nearestAgent;
+	private GenericPlant nearestPlant;
 		
 	/** Reused Vector */
 	private double[] pos;
@@ -58,11 +61,15 @@ public class ViewGeneratorThread extends Thread
 	}
 	
 	
-	public void setTask(LinkedList<SimpleAgent> linkedList,	KdTree<SimpleAgent> prTree)
+	public void setTask(LinkedList<SimpleAgent> linkedList,	KdTree<SimpleAgent> agentKDTree,KdTree<GenericPlant> plantKDTree)
 	{
 		this.agentList = linkedList;	
+		
 		agentListItr = agentList.listIterator();
-		this.worldView = prTree;
+		
+		/* KD Trees */
+		this.agentKDTree = agentKDTree;
+		this.plantKDTree = plantKDTree;
 	}
 	
 	/* (non-Javadoc)
@@ -83,19 +90,24 @@ public class ViewGeneratorThread extends Thread
 				currentAgent = agentListItr.next();				
 				
 				// Convert our vector to the format for the tree
-				pos[0]=currentAgent.getPos().getX();
-				pos[1]=currentAgent.getPos().getY();	
+				pos[0]=currentAgent.body.getBodyPos().getX();
+				pos[1]=currentAgent.body.getBodyPos().getY();	
 				
-				// Get two - due to the closest agent to its self being its self
-				neighborlist = worldView.findNearestNeighbors(pos, 2, distanceKD);
+				// Get two agents - due to the closest agent to its self being its self, but one plant
+				agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
+				plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
+
 				
 				// Max is the next closest - Self is 0
-				nearestAgent = neighborlist.getMax();
+				nearestAgent = agentNeighborList.getMax();
+				nearestPlant = plantNeighborList.getMax();
 				
-				distanceCalcCompareKDSQ();
+				/* calculate if the Nearest Agents and Plants are in the view Range of the current agent */ 
+				agentViewRangeKDSQAgents();
+				agentViewRangeKDSQPlants();
 				
 				// Parallel Agent Thinking
-				currentAgent.brain.think(); // Need to add new object or later agents will be operating on the future move rather than the current move
+				currentAgent.brain.think(); // TODO Need to add new object or later agents will be operating on the future move rather than the current move
 
 			}
 			
@@ -122,7 +134,7 @@ public class ViewGeneratorThread extends Thread
 	 * True - add it to the Agent to the current agents view.
 	 * False- clear the view.
 	 */
-	public void distanceCalcCompareKDSQ() /* Public for inclusion into java doc */
+	public void agentViewRangeKDSQAgents() /* Public for inclusion into java doc */
 	{
 		/* Agent alone in the world */
 		if(currentAgent.equals(nearestAgent))
@@ -132,8 +144,8 @@ public class ViewGeneratorThread extends Thread
 			return;
 		}
 		
-		if( (currentAgent.getPos().distanceSquared(nearestAgent.getPos()) - 																// Part 1
-				( (currentAgent.body.getSize()+currentAgent.body.getSize()) * (nearestAgent.body.getSize()+nearestAgent.body.getSize()) ) ) // Part 2
+		if( (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) - 																// Part 1
+				( (currentAgent.body.stats.getSize()+currentAgent.body.stats.getSize()) * (nearestAgent.body.stats.getSize()+nearestAgent.body.stats.getSize()) ) ) // Part 2
 				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
 		{
 			currentAgent.brain.view.setAgentView(nearestAgent);
@@ -144,4 +156,25 @@ public class ViewGeneratorThread extends Thread
 		}
 	}	
 		
+	// As above but for plants - with the logical exception that plants can be extinct.
+	public void agentViewRangeKDSQPlants()
+	{
+		if(nearestPlant == null) // All plants are extinct..
+		{
+			currentAgent.brain.view.setPlantView(null); // Cannot see plants
+			return;
+		}
+		
+		if( (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos()) - 																// Part 1
+				( (currentAgent.body.stats.getSize()+currentAgent.body.stats.getSize()) * (nearestPlant.body.stats.getSize()+nearestPlant.body.stats.getSize()) ) ) // Part 2
+				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
+		{
+			currentAgent.brain.view.setPlantView(nearestPlant);
+		}
+		else // Clear the view 
+		{
+			currentAgent.brain.view.setPlantView(null); // not in range
+		}	
+	}
+	
 }

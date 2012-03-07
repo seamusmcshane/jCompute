@@ -84,7 +84,7 @@ public class GenericPlantManager
 	// View update
 	public void stage2()
 	{
-		
+		viewGenerator.setBarrierPlantTask(doList,plantCount);
 	}
 	
 	// List update
