@@ -24,9 +24,6 @@ import alife.SimulationEnums.AgentType;
 
 public class SimpleAgentManager
 {
-
-	// Used to prevent dual Access to the done list - which would cause an exception
-	Semaphore lock = new Semaphore(1,true);
 	
 	// TODO make a GUI setting
 	int num_threads=6;
@@ -112,12 +109,9 @@ public class SimpleAgentManager
 	}
 
 	/* Draws all the agents */
-	public void drawAI(Graphics g)
+	public void drawAgent(Graphics g)
 	{
-		
-		// Get a lock on the done list
-		lock.acquireUninterruptibly();
-		
+
 		itrDrawAI = doneList.listIterator();
 
 		while (itrDrawAI.hasNext())
@@ -147,8 +141,7 @@ public class SimpleAgentManager
 
 		}
 
-		// Release the lock on the done list
-		lock.release();
+
 		
 	}
 
@@ -157,37 +150,33 @@ public class SimpleAgentManager
 		this.true_drawing = true_draw;
 	}
 	
-	/* Main Method */
-	public void doAi()
+	
+	// List prepare
+	public void stage1()
 	{
-		// Get a lock on the done list
-		lock.acquireUninterruptibly();
-		
-		/* Debug */
-		//doTestAgent();
-		
 		/* Safe starting position */
 		setUpLists();
 
 		/* Remove bias from agents order in list */
-		randomizeListOrder();
+		randomizeListOrder();		
+	}
 	
+	// View update
+	public void stage2()
+	{
 		/* Threaded */
 		viewGenerator.setBarrierTask(doList,agentCount);
 		
 		viewControlerSemaphore.release();
 		
-		viewControlerSemaphore.acquireUninterruptibly();
-		
-		/* Non Threaded */
-		updateDoneList();//
-		
-		// Release the lock on the done list
-		lock.release();
-
+		viewControlerSemaphore.acquireUninterruptibly();		
 	}
-
-
+	
+	// List update
+	public void stage3()
+	{
+		updateDoneList();		
+	}
 
 	/* Performs AI Action and moves it to Done list */
 	private void updateDoneList()

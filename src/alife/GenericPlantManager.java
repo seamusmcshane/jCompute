@@ -1,5 +1,6 @@
 package alife;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
@@ -10,9 +11,6 @@ import org.newdawn.slick.Graphics;
 public class GenericPlantManager
 {
 
-	// Used to prevent dual Access to the done list - which would cause an exception
-	Semaphore lock = new Semaphore(1,true);
-	
 	/* Plant Action Linked Lists */
 	LinkedList<GenericPlant> doList;	
 	LinkedList<GenericPlant> doneList;
@@ -40,8 +38,6 @@ public class GenericPlantManager
 	public void drawPlants(Graphics g)
 	{
 		
-		lock.acquireUninterruptibly();
-		
 		itrDrawPlant = doneList.listIterator();
 
 		while (itrDrawPlant.hasNext())
@@ -64,22 +60,45 @@ public class GenericPlantManager
 				{
 					tPlantDraw.body.drawRectBody(g);						
 				}
-
+				
 			}
-
+			
 		}
-		
-		lock.release();
 		
 	}
 	
-	/* Plant Update Loop */
-	public void updatePlants()
+	// List prepare
+	public void stage1()
 	{
-		lock.acquireUninterruptibly();
-		
 		setUpLists();
 		
+		randomizeListOrder();		
+	}
+	
+	// View update
+	public void stage2()
+	{
+		
+	}
+	
+	// List update
+	public void stage3()
+	{
+		int growth_num=updateDoneList();
+		
+		/* Plant Growth per Step - adds this many plants per step */
+		addPlants(world_size,growth_num);		
+	}
+		
+	/* Randomize the doList */
+	private void randomizeListOrder()
+	{
+		Collections.shuffle(doList);
+	}
+	
+	// Updates the Done list, calculates the cost and counts the of number of plants to add (reproduction)
+	public int updateDoneList()
+	{
 		int growth_num=0;
 		
 		ListIterator<GenericPlant> itr = doList.listIterator();
@@ -108,10 +127,7 @@ public class GenericPlantManager
 			
 		}
 		
-		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(world_size,growth_num);
-		
-		lock.release();
+		return growth_num;		
 	}
 	
 	private void addPlants(int world_size,int plant_number)

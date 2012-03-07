@@ -1,10 +1,15 @@
 package alife;
 
+import java.util.concurrent.Semaphore;
+
 import org.newdawn.slick.Graphics;
 
 public class SimulationManager
 {
 
+	// Used to prevent dual Access to the lists - which would cause an exception
+	Semaphore lock = new Semaphore(1,true);
+	
 	/** Simulation Agent Manager */
 	public SimpleAgentManager simpleAgentManager;
 	
@@ -23,25 +28,78 @@ public class SimulationManager
 		
 		simpleAgentManager = new SimpleAgentManager(world_size,agent_numbers);
 
+		
+		// TODO FIX
 		simpleAgentManager.setTrueDrawing(true_body_drawing);
 
 		simpleAgentManager.setFieldOfViewDrawing(draw_field_of_views);
 	}
-		
+			
 	public void doUpdate()
 	{
-		// Do a Simulation Step
-		simpleAgentManager.doAi();
+		
+		// Get a lock managers to prevent dual access by draw methods
+		lock.acquireUninterruptibly();
+		
+		// Prepare
+		stage1();
+		
+		// Distribute
+		stage2();
+		
+		// Collect
+		stage3();
 		
 		// Do Plants
-		genericPlantManager.updatePlants();
+		//genericPlantManager.updatePlants();
+		
+		// Do a Agent Step
+		//simpleAgentManager.doAi();
+		
+		// Release the lock on the managers
+		lock.release();
+		
 	}
 
+	private void stage1()
+	{
+		//setup lists
+		genericPlantManager.stage1();
+		simpleAgentManager.stage1();
+
+		//randomise
+	}
+	
+	// View barrier operates in this method timeslot
+	private void stage2()
+	{
+		// Prepare views
+		genericPlantManager.stage2();
+		simpleAgentManager.stage2();
+		
+	}
+	
+	private void stage3()
+	{
+		genericPlantManager.stage3();
+		simpleAgentManager.stage3();
+
+		// update lists
+		// add new entities
+	}
+	
 	public void drawAgentsAndPlants(Graphics g)
 	{
+		
+		// Get a lock on the done list
+		lock.acquireUninterruptibly();
+		
 		genericPlantManager.drawPlants(g);
 		
-		simpleAgentManager.drawAI(g);	
+		simpleAgentManager.drawAgent(g);	
+		
+		// Release the lock on the done list
+		lock.release();
 	}
 	
 }
