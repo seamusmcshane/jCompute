@@ -25,8 +25,14 @@ public class GenericPlantManager
 	
 	private int world_size;
 	
-	public GenericPlantManager(int world_size,int inital_number)
+	/* Reference for setting task */
+	ViewGeneratorManager viewGenerator;
+	
+	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number)
 	{		
+		
+		this.viewGenerator = viewGenerator;
+		
 		this.world_size = world_size;
 		
 		setUpLists();

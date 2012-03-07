@@ -24,10 +24,7 @@ import alife.SimulationEnums.AgentType;
 
 public class SimpleAgentManager
 {
-	
-	// TODO make a GUI setting
-	int num_threads=6;
-	
+		
 	/* Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
 	LinkedList<SimpleAgent> doneList;
@@ -35,10 +32,7 @@ public class SimpleAgentManager
 	/* DrawAI */
 	ListIterator<SimpleAgent> itrDrawAI;
 	SimpleAgent tAgentDrawAI;
-	
-	ViewGeneratorController viewGenerator;
-	Semaphore viewControlerSemaphore;
-	
+		
 	int initial_num_agents;
 	
 	int agentCount;
@@ -54,21 +48,13 @@ public class SimpleAgentManager
 	/* Draw the field of views for the agents */
 	private Boolean view_drawing;
 
-	public SimpleAgentManager(int world_size, int agent_number)
+	/* Reference for setting task */
+	ViewGeneratorManager viewGenerator;
+	
+	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_number)
 	{
-		
-		this.num_threads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
-		
-		System.out.println("Threads used for View Generation : " + num_threads);
-				
-		viewControlerSemaphore = new Semaphore(1,true);
+		this.viewGenerator = viewGenerator;
 					
-		viewControlerSemaphore.acquireUninterruptibly();
-		
-		viewGenerator = new ViewGeneratorController(viewControlerSemaphore,num_threads);
-		
-		viewGenerator.start();
-		
 		setUpLists();
 
 		addAgents(world_size,agent_number);
@@ -161,15 +147,12 @@ public class SimpleAgentManager
 		randomizeListOrder();		
 	}
 	
-	// View update
+	// View 
 	public void stage2()
 	{
-		/* Threaded */
-		viewGenerator.setBarrierTask(doList,agentCount);
-		
-		viewControlerSemaphore.release();
-		
-		viewControlerSemaphore.acquireUninterruptibly();		
+		// Set our Task for the view
+		viewGenerator.setBarrierAgentTask(doList,agentCount);
+			
 	}
 	
 	// List update

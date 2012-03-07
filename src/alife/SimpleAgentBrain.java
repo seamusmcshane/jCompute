@@ -48,7 +48,7 @@ public class SimpleAgentBrain
 		/* Enforce 1 think/move per agent */
 		hasThought=false;
 				
-		myBody.move(direction);
+		myBody.move(r.nextInt(360)+1);
 
 	}
 

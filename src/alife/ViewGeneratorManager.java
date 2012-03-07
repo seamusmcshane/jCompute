@@ -6,7 +6,7 @@ import java.util.concurrent.Semaphore;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 
-public class ViewGeneratorController extends Thread
+public class ViewGeneratorManager extends Thread
 {
 
 	private int num_threads;
@@ -29,7 +29,7 @@ public class ViewGeneratorController extends Thread
 
 	private int agentCount;
 	
-	public ViewGeneratorController(Semaphore viewControlerSemaphore, int num_threads)
+	public ViewGeneratorManager(Semaphore viewControlerSemaphore, int num_threads)
 	{
 		this.viewControlerSemaphore = viewControlerSemaphore;
 		
@@ -43,7 +43,7 @@ public class ViewGeneratorController extends Thread
 		
 	}
 	
-	public void setBarrierTask(LinkedList<SimpleAgent> inList, int num_agents)
+	public void setBarrierAgentTask(LinkedList<SimpleAgent> inList, int num_agents)
 	{
 		agentCount = num_agents;		
 		agentList = inList;		

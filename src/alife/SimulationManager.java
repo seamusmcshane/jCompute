@@ -22,19 +22,52 @@ public class SimulationManager
 	/** Toggle for Drawing agent field of views */
 	Boolean draw_field_of_views = false;
 	
+	// TODO make a GUI setting
+	int num_threads=6;
+	ViewGeneratorManager viewGenerator;
+	Semaphore viewManagerSemaphore;
+	
 	public SimulationManager(int world_size,int plant_numbers,int agent_numbers)
 	{
-		genericPlantManager = new GenericPlantManager(world_size,plant_numbers);
 		
-		simpleAgentManager = new SimpleAgentManager(world_size,agent_numbers);
+		setUpViewManager();
+		
+		setUpPlantManager(world_size,plant_numbers);
 
+		setUpAgentManager(world_size,agent_numbers);
+
+	}
+	
+	private void setUpPlantManager(int world_size,int plant_numbers)
+	{
+		genericPlantManager = new GenericPlantManager(viewGenerator,world_size,plant_numbers);		
+	}
+	
+	private void setUpAgentManager(int world_size,int agent_numbers)
+	{
+		simpleAgentManager = new SimpleAgentManager(viewGenerator,world_size,agent_numbers);
 		
-		// TODO FIX
+		// TODO MAKE GUI SETTING
 		simpleAgentManager.setTrueDrawing(true_body_drawing);
 
-		simpleAgentManager.setFieldOfViewDrawing(draw_field_of_views);
+		simpleAgentManager.setFieldOfViewDrawing(draw_field_of_views);		
 	}
-			
+	
+	private void setUpViewManager()
+	{
+		this.num_threads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
+		
+		System.out.println("Threads used for View Generation : " + num_threads);
+		
+		viewManagerSemaphore = new Semaphore(1,true);
+		
+		viewManagerSemaphore.acquireUninterruptibly();
+		
+		viewGenerator = new ViewGeneratorManager(viewManagerSemaphore,num_threads);
+		
+		viewGenerator.start();	
+	}
+	
 	public void doUpdate()
 	{
 		
@@ -76,6 +109,10 @@ public class SimulationManager
 		// Prepare views
 		genericPlantManager.stage2();
 		simpleAgentManager.stage2();
+		
+		viewManagerSemaphore.release();
+		
+		viewManagerSemaphore.acquireUninterruptibly();	
 		
 	}
 	
