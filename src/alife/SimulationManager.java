@@ -68,7 +68,8 @@ public class SimulationManager
 		viewGenerator.start();	
 	}
 	
-	public void doUpdate()
+	// Every stage1 and stage3 could be run in parallel - stage 2 is already threaded 
+	public void doSimulationUpdate()
 	{
 		
 		// Get a lock managers to prevent dual access by draw methods
@@ -83,12 +84,6 @@ public class SimulationManager
 		// Collect
 		stage3();
 		
-		// Do Plants
-		//genericPlantManager.updatePlants();
-		
-		// Do a Agent Step
-		//simpleAgentManager.doAi();
-		
 		// Release the lock on the managers
 		lock.release();
 		
@@ -98,6 +93,7 @@ public class SimulationManager
 	{
 		//setup lists
 		genericPlantManager.stage1();
+		
 		simpleAgentManager.stage1();
 
 		//randomise

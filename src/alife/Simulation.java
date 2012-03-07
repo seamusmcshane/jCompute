@@ -158,7 +158,7 @@ public class Simulation
 							// The pause semaphore (We do not pause half way through a step)
 							pause.acquireUninterruptibly();
 							
-							simManager.doUpdate();
+							simManager.doSimulationUpdate();
 							
 							// Calculate the Steps per Second
 							calcStepsPerSecond();					
@@ -167,9 +167,9 @@ public class Simulation
 							step_num++;
 																					
 							// Calculate how much we need to wait (in nano seconds, based on the time taken so far) before proceeding to the next step 
-							while(timeTotal() < (1000000000/req_sps)) // Approximation of what the delay should be
+							while(timeTotal() < (1000000000/req_sps)) // Approximation :) of what the inter-step delay should be
 							{
-								// Inter-Step Busy wait delay
+								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
 							}
 							
 							resetTotalTime();
@@ -203,7 +203,7 @@ public class Simulation
 				
 		sps = 1000f/(diffTime/ 1000000f) ;			//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second
 				
-		previousTime = currentTime;		 			// Stores the durrent diff for the diff in the next iteration
+		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 		
 		for(int i=0;i<(num_samples-1);i++)			// Moves the previous samples back by 1, leaves space for the new sps sample 
 		{

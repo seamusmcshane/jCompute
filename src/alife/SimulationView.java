@@ -150,16 +150,6 @@ public class SimulationView extends BasicGame implements MouseListener
 	}
 
 	/*
-	 * Keeps the simulation aware of the mouse position minus any translation of
-	 * the view
-	 */
-	@Override
-	public void mouseMoved(int oldx, int oldy, int newx, int newy)
-	{
-		mouse_pos.set(newx - global_translate.getX(), newy - global_translate.getY());
-	}
-
-	/*
 	 * Makes sure valid mouse coordinates are used when the mouse leaves and
 	 * renters a window that has lost and regained focus. - Prevents view
 	 * snapping to strange locations
@@ -174,15 +164,6 @@ public class SimulationView extends BasicGame implements MouseListener
 		//req_sps = 9999;
 		
 	}
-
-	@Override
-	public void mouseReleased(int button, int x, int y)
-	{
-		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
-				
-		mouseInteractionModeOff();
-		
-	}	
 	
 	/* Allows moving camera around large worlds */
 	@Override
@@ -195,6 +176,15 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	}
 
+	@Override
+	public void mouseReleased(int button, int x, int y)
+	{
+		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
+				
+		mouseInteractionModeOff();
+		
+	}	
+	
 	@Override
 	public void mouseWheelMoved(int change)
 	{
