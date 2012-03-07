@@ -159,13 +159,13 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
 				
-		mouseInteractionModeOn();
+		mouseInteractionModeOn(); // Changes to a higher frame update rate
 		
 		//req_sps = 9999;
 		
 	}
 	
-	/* Allows moving camera around large worlds */
+	/* Allows moving camera around large worlds view mouse dragging on the simulation view */
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
@@ -181,7 +181,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
 				
-		mouseInteractionModeOff();
+		mouseInteractionModeOff(); // Changes to a lower frame update rate
 		
 	}	
 	
