@@ -9,7 +9,10 @@ public class GenericPlantViewStats
 	private float energy;	
 	
 	/** Position of the Plant in view (Cartesian) */
-	Vector2f plantPos;
+	private Vector2f plantPos;
+	
+	/** Original plant that this view refers to */
+	private GenericPlant original_plant=null;
 	
 	/**
 	 * A class that represents the statistics on a view of a GenericPlant 
@@ -25,6 +28,8 @@ public class GenericPlantViewStats
  */
 	public void updateStats(GenericPlant plant)
 	{
+		original_plant = plant;
+		
 		// Copies the Plant Position
 		plantPos.set(plant.body.getBodyPos());
 		
@@ -37,6 +42,9 @@ public class GenericPlantViewStats
  */
 	public void initStats()
 	{
+		
+		original_plant = null;
+		
 		/** Energy of Plant in view */
 		this.energy=0;
 
@@ -51,6 +59,8 @@ public class GenericPlantViewStats
  */
 	public void clearStats()
 	{
+		original_plant = null;
+		
 		/** Energy of Plant in view */
 		this.energy=0;
 
@@ -73,6 +83,11 @@ public class GenericPlantViewStats
 	public float getEnergy()
 	{
 		return energy;
+	}
+	
+	public GenericPlant getOriginalPlantRef()
+	{
+		return original_plant;
 	}
 	
 }
