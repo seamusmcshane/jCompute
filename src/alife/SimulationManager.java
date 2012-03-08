@@ -27,14 +27,14 @@ public class SimulationManager
 	ViewGeneratorManager viewGenerator;
 	Semaphore viewManagerSemaphore;
 	
-	public SimulationManager(int world_size,int agent_numbers,int plant_numbers)
+	public SimulationManager(int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers)
 	{
 		
 		setUpViewManager();
 		
 		setUpPlantManager(world_size,plant_numbers);
 
-		setUpAgentManager(world_size,agent_numbers);
+		setUpAgentManager(world_size,agent_prey_numbers,agent_predator_numbers);
 
 	}
 	
@@ -43,9 +43,9 @@ public class SimulationManager
 		genericPlantManager = new GenericPlantManager(viewGenerator,world_size,plant_numbers);		
 	}
 	
-	private void setUpAgentManager(int world_size,int agent_numbers)
+	private void setUpAgentManager(int world_size,int agent_prey_numbers,int agent_predator_numbers)
 	{
-		simpleAgentManager = new SimpleAgentManager(viewGenerator,world_size,agent_numbers);
+		simpleAgentManager = new SimpleAgentManager(viewGenerator,world_size,agent_prey_numbers,agent_predator_numbers);
 		
 		// TODO MAKE GUI SETTING
 		simpleAgentManager.setTrueDrawing(true_body_drawing);

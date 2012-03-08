@@ -125,14 +125,14 @@ public class Simulation
 	{
 		setupThreads();
 		
-		newSim(256,0,0);
+		newSim(256,0,0,0);
 	}
 
-	public void newSim(int world_size,int agent_numbers, int plant_numbers)
+	public void newSim(int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers)
 	{
 		world = new World(world_size);
 
-		simManager = new SimulationManager(world_size,agent_numbers, plant_numbers);	
+		simManager = new SimulationManager(world_size,agent_prey_numbers,agent_predator_numbers,  plant_numbers);
 	}
 	
 	// Simulation Main Thread  

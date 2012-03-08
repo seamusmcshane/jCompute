@@ -6,6 +6,8 @@ import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
+import alife.SimulationEnums.AgentType;
+
 /*
  * Agent Body Class
  * - This Class performs the world movement checks and contains the draw code of this visual representation of the body.
@@ -66,7 +68,14 @@ public class SimpleAgentBody
 	/* Body Color */
 	private void setColor()
 	{
-		color = Color.blue;
+		if(stats.getType().getType() == AgentType.PREY)
+		{
+			color = Color.blue;
+		}
+		else
+		{
+			color = Color.red;
+		}
 	}
 	
 	/* TODO Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/

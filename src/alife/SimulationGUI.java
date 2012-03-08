@@ -49,7 +49,8 @@ public class SimulationGUI
 	private static JButton btnPause;
 	private static JButton btnStart;
 	private static JTextField txtSimRateInfo;
-	private static JComboBox comboBoxAgentNumbers;
+	private static JComboBox comboBoxPreyNumbers; 
+	private static JComboBox comboBoxPredNumbers;
 	private static JComboBox comboBoxWorldSize;
 	private static JComboBox comboBoxPlantNumbers;
 
@@ -142,17 +143,15 @@ public class SimulationGUI
 		gui.setResizable(false);
 		gui.setTitle("Alife Simulation");
 
-		gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
+		// for editing
+		gui.setBounds(control_gui_x, control_gui_y, 350, 600);
+		
+		// For distribution
+		//gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
+
+		
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
-
-		/* Simulation Speed */
-		JPanel statusPanel = new JPanel();
-		statusPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		gui.getContentPane().add(statusPanel, BorderLayout.SOUTH);
-		// statusPanel.setPreferredSize(new Dimension(statusPanelWidth,
-		// statusPanelHeight));
-		statusPanel.setLayout(new BorderLayout(0, 0));
 
 		JPanel controlPanel = new JPanel();
 		controlPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -165,30 +164,40 @@ public class SimulationGUI
 		JPanel controlPanelTop = new JPanel();
 		controlPanelTop.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Setup", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		controlPanel.add(controlPanelTop, BorderLayout.NORTH);
-		controlPanelTop.setLayout(new MigLayout("", "[][grow]", "[][][]"));
+		controlPanelTop.setLayout(new GridLayout(0, 4, 5, 5));
 
-		JLabel lblAgents = new JLabel("Agents");
-		controlPanelTop.add(lblAgents, "cell 0 0,alignx trailing");
+		JLabel lblPredS = new JLabel("Predators");
+		controlPanelTop.add(lblPredS);
 
-		comboBoxAgentNumbers = new JComboBox();
-		comboBoxAgentNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
-		controlPanelTop.add(comboBoxAgentNumbers, "cell 1 0,growx");
+		comboBoxPredNumbers = new JComboBox();
+		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPredNumbers.setSelectedIndex(0);
+		controlPanelTop.add(comboBoxPredNumbers);
+		
+		JLabel lblPreyS = new JLabel("Prey");
+		controlPanelTop.add(lblPreyS);
+		
+		comboBoxPreyNumbers = new JComboBox();
+		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPreyNumbers.setSelectedIndex(0);
+		controlPanelTop.add(comboBoxPreyNumbers);
 		
 		JLabel lblPlants = new JLabel("Plants");
-		controlPanelTop.add(lblPlants, "cell 0 1,alignx trailing");
+		controlPanelTop.add(lblPlants);
 		
 		comboBoxPlantNumbers = new JComboBox();
-		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
-		controlPanelTop.add(comboBoxPlantNumbers, "cell 1 1,growx");
+		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPlantNumbers.setSelectedIndex(1);
+		controlPanelTop.add(comboBoxPlantNumbers);
 
 		JLabel lblWorldSize = new JLabel("World Size");
-		controlPanelTop.add(lblWorldSize, "cell 0 2,alignx trailing");
+		controlPanelTop.add(lblWorldSize);
 
 		comboBoxWorldSize = new JComboBox();
 		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
 		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
-		controlPanelTop.add(comboBoxWorldSize, "cell 1 2,growx");
+		comboBoxWorldSize.setSelectedIndex(0);
+		controlPanelTop.add(comboBoxWorldSize);
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
@@ -256,42 +265,67 @@ public class SimulationGUI
 		btnPause = new JButton("Pause");
 		row2.add(btnPause);
 		
-		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Graph", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanel.add(panel, BorderLayout.CENTER);
-		panel.setLayout(new BorderLayout(0, 0));
+		JPanel simStatsPanel = new JPanel();
+		simStatsPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		controlPanel.add(simStatsPanel, BorderLayout.CENTER);
+		simStatsPanel.setLayout(new BorderLayout(0, 0));
 		
-		JPanel keyPanel = new JPanel();
-		keyPanel.setBorder(new TitledBorder(null, "Key", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.add(keyPanel, BorderLayout.SOUTH);
-		keyPanel.setLayout(new GridLayout(0, 6, 0, 0));
+		JPanel statsPanelBottom = new JPanel();
+		statsPanelBottom.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simStatsPanel.add(statsPanelBottom, BorderLayout.SOUTH);
+		statsPanelBottom.setLayout(new GridLayout(2, 6, 0, 0));
+		
+		JPanel panel = new JPanel();
+		statsPanelBottom.add(panel);
+		panel.setLayout(new GridLayout(0, 6, 0, 0));
 		
 		JLabel lblKeyPlants = new JLabel("Plants");
+		panel.add(lblKeyPlants);
 		lblKeyPlants.setHorizontalAlignment(SwingConstants.CENTER);
-		keyPanel.add(lblKeyPlants);
 		
-		JLabel lblPlantno = new JLabel("plant_no");
+		JLabel lblPlantno = new JLabel("0");
+		panel.add(lblPlantno);
 		lblPlantno.setHorizontalAlignment(SwingConstants.CENTER);
-		keyPanel.add(lblPlantno);
 		
 		JLabel lblPred = new JLabel("Predators");
+		panel.add(lblPred);
 		lblPred.setHorizontalAlignment(SwingConstants.CENTER);
-		keyPanel.add(lblPred);
 		
-		JLabel lblPredno = new JLabel("pred_no");
+		JLabel lblPredno = new JLabel("0");
+		panel.add(lblPredno);
 		lblPredno.setHorizontalAlignment(SwingConstants.CENTER);
-		keyPanel.add(lblPredno);
 		
 		JLabel lblPrey = new JLabel("Prey");
+		panel.add(lblPrey);
 		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
-		keyPanel.add(lblPrey);
 		
-		JLabel lblPreyno = new JLabel("prey_no");
+		JLabel lblPreyno = new JLabel("0");
+		panel.add(lblPreyno);
 		lblPreyno.setHorizontalAlignment(SwingConstants.CENTER);
-		keyPanel.add(lblPreyno);
+		
+		JPanel panel_1 = new JPanel();
+		statsPanelBottom.add(panel_1);
+		panel_1.setLayout(new GridLayout(0, 6, 0, 0));
+		
+		JLabel lblASPS = new JLabel("ASPS");
+		lblASPS.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_1.add(lblASPS);
+		
+		JLabel lblAspsno = new JLabel("0");
+		lblAspsno.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_1.add(lblAspsno);
+		
+		JLabel lblRunTime = new JLabel("Run Time");
+		lblRunTime.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_1.add(lblRunTime);
+		
+		JLabel lblRuntimeno = new JLabel("0");
+		lblRuntimeno.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_1.add(lblRuntimeno);
 		
 		JPanel graphPanel = new JPanel();
-		panel.add(graphPanel, BorderLayout.CENTER);
+		graphPanel.setBorder(null);
+		simStatsPanel.add(graphPanel, BorderLayout.CENTER);
 		btnPause.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
@@ -407,7 +441,10 @@ public class SimulationGUI
 
 	private static void newSim()
 	{
-		sim.newSim(Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), Integer.parseInt(comboBoxAgentNumbers.getSelectedItem().toString()),Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()));
+		sim.newSim(Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), 
+				Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()),
+				Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()),
+				Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()));
 		
 		/* If needed the GC can free old objects now, before the simulation starts */
 		System.gc();
@@ -439,7 +476,9 @@ public class SimulationGUI
 		
 		simRateSlider.setEnabled(true);
 		
-		comboBoxAgentNumbers.setEnabled(false);
+		comboBoxPreyNumbers.setEnabled(false);
+		
+		comboBoxPredNumbers.setEnabled(false);
 		
 		comboBoxWorldSize.setEnabled(false);	
 
@@ -453,7 +492,8 @@ public class SimulationGUI
 	
 	private static void startUpState()
 	{
-		comboBoxAgentNumbers.setEnabled(true);
+		comboBoxPreyNumbers.setEnabled(true);
+		comboBoxPredNumbers.setEnabled(true);
 		comboBoxWorldSize.setEnabled(true);
 		comboBoxPlantNumbers.setEnabled(true);	
 
@@ -469,7 +509,8 @@ public class SimulationGUI
 		btnPause.setText("Resume");	
 		btnNew.setEnabled(true);	
 		
-		comboBoxAgentNumbers.setEnabled(true);
+		comboBoxPreyNumbers.setEnabled(true);
+		comboBoxPredNumbers.setEnabled(true);
 		comboBoxWorldSize.setEnabled(true);	
 		comboBoxPlantNumbers.setEnabled(true);	
 		
@@ -482,7 +523,8 @@ public class SimulationGUI
 		btnPause.setText("Pause");		
 		btnNew.setEnabled(false);
 
-		comboBoxAgentNumbers.setEnabled(false);
+		comboBoxPreyNumbers.setEnabled(false);
+		comboBoxPredNumbers.setEnabled(false);
 		comboBoxWorldSize.setEnabled(false);	
 		comboBoxPlantNumbers.setEnabled(false);	
 		

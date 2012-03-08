@@ -51,13 +51,13 @@ public class SimpleAgentManager
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
-	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_number)
+	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_prey_numbers,int agent_predator_numbers)
 	{
 		this.viewGenerator = viewGenerator;
 					
 		setUpLists();
 
-		addAgents(world_size,agent_number);
+		addAgents(world_size,agent_prey_numbers,agent_predator_numbers);
 
 		agentsTodo = 0;
 		agentsDone = 0;
@@ -65,9 +65,9 @@ public class SimpleAgentManager
 	}
 
 	
-	private void addAgents(int world_size,int agent_number)
+	private void addAgents(int world_size,int agent_prey_numbers,int agent_predator_numbers)
 	{
-		initial_num_agents = agent_number;
+		initial_num_agents = agent_prey_numbers + agent_predator_numbers;
 		
 		/* Random Starting Position */
 		Random xr = new Random();
@@ -75,13 +75,24 @@ public class SimpleAgentManager
 		
 		int x, y;
 		
-		for (int i = 0; i < agent_number; i++)
+		
+		// Prey
+		for (int i = 0; i < agent_prey_numbers; i++)
+		{
+			x = xr.nextInt(world_size) + 1;
+			y = yr.nextInt(world_size) + 1;
+
+			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),1f, 5f, 100f, 100f, 25f)));
+		}	
+		
+		// Predator
+		for (int i = 0; i < agent_predator_numbers; i++)
 		{
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
 			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, 100f, 25f)));
-		}		
+		}	
 	}
 	
 	/* Being born counts as an Action thus all new agents start in the done list */
