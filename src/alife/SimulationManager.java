@@ -17,10 +17,10 @@ public class SimulationManager
 	public GenericPlantManager genericPlantManager;
 	
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	Boolean true_body_drawing = false;
+	Boolean true_body_drawing = true;
 
 	/** Toggle for Drawing agent field of views */
-	Boolean draw_field_of_views = false;
+	Boolean draw_field_of_views = true;
 	
 	// TODO make a GUI setting
 	int num_threads=6;

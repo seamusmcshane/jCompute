@@ -13,8 +13,7 @@ public class SimpleAgentView
 
 	/** States of View */
 	private boolean agentInView=false;
-	private boolean plantInView=false;
-	
+	private boolean plantInView=false;	
 	
 	/** Stats of agent in view */
 	private SimpleAgentViewStats inViewAgentStats;
@@ -166,5 +165,21 @@ public class SimpleAgentView
 			direction=direction+360;
 		}
 		return direction;
+	}
+	
+	public float distanceTo(Vector2f from,Vector2f posTo)
+	{	
+		return from.distanceSquared(posTo);
+	}
+	
+	/** Not to be called by agents directly */
+	public GenericPlant getOriginalPlantRef()
+	{
+		return inViewPlantStats.getOriginalPlantRef();
+	}
+	
+	public SimpleAgent getOriginalAgentRef()
+	{
+		return inViewAgentStats.getOriginalAgentRef();
 	}
 }

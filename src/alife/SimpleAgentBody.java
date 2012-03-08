@@ -41,6 +41,17 @@ public class SimpleAgentBody
 	/* Direction of movement of the Agent */
 	private float direction;
 	
+	/* Is this agent still alive */
+	private boolean alive=true;
+	
+	/* has this agent ate a plant */
+	private boolean ate_plant=false;
+	
+	/* has this agent ate an agent */
+	private boolean ate_agent=false;
+	
+	private int energy_eat_rate = 50;
+	
 	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
 	{
 		
@@ -148,6 +159,7 @@ public class SimpleAgentBody
 	/* Internal Movement */
 	private void updateBodyPosition(Vector2f pos)
 	{
+		stats.decrementMoveEnergy();
 		body_pos.set(pos);				
 	}
 
@@ -155,6 +167,61 @@ public class SimpleAgentBody
 	public Vector2f getBodyPos()
 	{
 		return body_pos;
+	}
+	
+	public void eatAgent()
+	{
+		
+	}
+	
+	public boolean eatPlant(SimpleAgentView view)
+	{		
+		if(view.getOriginalPlantRef()!= null )
+		{
+
+			if(!view.getOriginalPlantRef().body.stats.isDead())
+			{
+				if(isCloseEnoughToEat(view))
+				{
+					// Remove plant energy
+					stats.addEnergy(view.getOriginalPlantRef().body.stats.decrementEnergy(energy_eat_rate));
+					
+					return true;
+					
+					// add to agent
+					// stats.addEnergy..
+				}
+			}
+			
+		}		
+		return false;		
+	}
+	
+	private boolean isCloseEnoughToEat(SimpleAgentView view)
+	{
+		
+		if(view.distanceTo(getBodyPos(), view.getOriginalPlantRef().body.getBodyPos()) < (stats.getSize()+view.getOriginalPlantRef().body.stats.getSize() ))
+		{
+			return true;
+		}		
+		
+		return false;		
+	}
+	
+	/* Simulation Eval Methods */
+	public boolean isAlive()
+	{
+		return alive;
+	}
+	
+	public boolean atePlant()
+	{
+		return ate_plant;
+	}
+	
+	public boolean ateAgent()
+	{
+		return ate_agent;		
 	}
 	
 	/* 

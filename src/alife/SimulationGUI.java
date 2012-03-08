@@ -178,7 +178,7 @@ public class SimulationGUI
 		controlPanelTop.add(lblPreyS);
 		
 		comboBoxPreyNumbers = new JComboBox();
-		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPreyNumbers.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxPreyNumbers);
 		
@@ -194,8 +194,7 @@ public class SimulationGUI
 		controlPanelTop.add(lblWorldSize);
 
 		comboBoxWorldSize = new JComboBox();
-		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
-		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
+		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[] {"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
 		comboBoxWorldSize.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxWorldSize);
 

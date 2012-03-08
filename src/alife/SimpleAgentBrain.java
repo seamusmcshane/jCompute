@@ -28,9 +28,19 @@ public class SimpleAgentBrain
 	/* Movement */
 	private float direction;
 	private Random r;
+	
 	private int moves=0;
-	private int chase_moves;
-	private int chase_max_moves;
+	
+	private int roam_moves=0;
+	private int roam_max_moves=20;
+	
+	private int hunt_moves=0;
+	private int hunt_max_moves=20;
+	
+	private int hunt_exit_wait=0;
+	private int hunt_exit_max_wait=40;
+	
+	private boolean rest=false;
 	
 	/* Move counters */		
 	public SimpleAgentBrain(SimpleAgentBody body)
@@ -43,15 +53,14 @@ public class SimpleAgentBrain
 		r = new Random();		
 		
 		/* Agent starts moving in a random direction */
-		direction = r.nextInt(360)+1;
+		direction = r.nextInt(360);
 
 	}
 
 	/**
 	 * Think - threes steps 
 	 * Step 1 - An instant evaluation based on view alone. (Rule)
-	 * Step 2 - A reevaluation based on circumstance of the agent. (Exception)
-	 * Step 3 - The performing of the chosen state. (Execute)
+	 * Step 2 - A reevaluation based on circumstance of the agent before performing the state. (Exception then Execute)
 	 */
 	public void think()
 	{
@@ -63,66 +72,41 @@ public class SimpleAgentBrain
 		evaulateViewState();
 		
 		// Overrides set based on circumstance
-		reevalateState();
-		
-		// Performs the state.
-		doState();
-		
-		myBody.move(direction);
-
-	}
-
-	
-	// Performs the state that has been chosen.
-	private void doState()
-	{
-	
-		switch(state)
+		reEvalateState();
+				
+		if(!rest)
 		{
-			case ROAM:
-				
-				// Just move
-				
-				break;
-			case HUNT:				
-				// have i been chasing for a while... maybe giveup as i dont seem to be catching this prey.
-				
-				break;
-			case EVADE:				
-				// have i been hunted for a while... maybe i should move towards another prey
-				
-				break;								
-			case GRAZE:				
-				// -- No transition... view needs to be more complex.. is there more food around...
-				
-				break;				
-		}	
+			myBody.move(direction);
+			moves++;
+		}
 
-		
 	}
-	
 	
 	/** Reevaluates the evaluated state to avoid some static behavior */
-	private void reevalateState()
+	private void reEvalateState()
 	{
 		switch(state)
 		{
 			case ROAM:
-				// have i been roaming for a while... maybe change direction..
+		
+				roamState();
 				
 				break;
 			case HUNT:				
-				// have i been chasing for a while... maybe giveup as i dont seem to be catching this prey. -> Back to Roam mode
+				
+				huntState();
 				
 				break;
-			case EVADE:				
-				// -- No transition... view needs to be more complex.. are there other prey i could hide with... etc
+			case EVADE:		
 				
+				evadeState();
+
 				break;								
 			case GRAZE:				
-				// -- No transition... view needs to be more complex.. is there more food around...
+
+				grazeState();
 				
-				break;				
+				break;			
 		}		
 	}
 	
@@ -132,36 +116,36 @@ public class SimpleAgentBrain
 		// Agents take precedence over plants in the evaluation - so prey will run way first even if a food source is nearby
 		if(view.hasAgentInView()) // Agents in View
 		{
-			if(myBody.stats.getType().isSameType(view.agentType())) // Predators do not eat other predators and logical same behavior with prey
+
+			if(myBody.stats.getType().strongerThan(view.agentType()) == 1) // I am predator to this prey!
 			{
-				agentIsTheat=false;
-				
-				// Roam - move around looking for food
-				state = AgentState.ROAM;
-				
+				// Hunt this agent down
+				state = AgentState.HUNT;
 			}
-			else // Are we prey or predator
+			else if(myBody.stats.getType().strongerThan(view.agentType()) == 0) // This agent is equal in strength to me (same type)
 			{
-				if(myBody.stats.getType().strongerThan(view.agentType()) == 1) // I am predator to this prey!
+				if(view.hasPlantInView() && myBody.stats.getType().eatsPlants()) // Do we eat plants?
 				{
-					// Hunt this agent down
-					state = AgentState.HUNT;
+					// move towards 
+					state = AgentState.GRAZE;
 				}
-				else if(myBody.stats.getType().strongerThan(view.agentType()) == 0) // This agent is equal in strength to me
+				else // Nope we eat other agents - but there are none...
 				{
-					// Roam - look for food...
+					// Roam - no food for us
 					state = AgentState.ROAM;
 				}
-				else // -1 - this agent is my natural predator
-				{
-					// Evade - this agent will hunt me down
-					state = AgentState.EVADE;
-				}
 			}
+			else // -1 - this agent is my natural predator
+			{
+				// Evade - this agent will hunt me down
+				state = AgentState.EVADE;
+			}
+			
 		}
 		else // No Agents in View
 		{
-			if(myBody.stats.getType().eatsPlants()) // Do we eat plants?
+			
+			if(view.hasPlantInView() && myBody.stats.getType().eatsPlants()) // Do we eat plants?
 			{
 				// move towards 
 				state = AgentState.GRAZE;
@@ -176,28 +160,93 @@ public class SimpleAgentBrain
 		
 	}
 	
-	private void evaluateState()
+	/* Roam State */
+	private void roamState()
+	{	
+		roam_moves++;
+		
+		if(roam_moves>roam_max_moves) // Have i been roaming for a while...  change direction..
+		{
+			direction = r.nextInt(360);
+			roam_moves=0;
+		}
+		
+		direction = direction;	
+
+	}
+	
+	/* Hunt State */
+	private void huntState()
+	{
+		hunt_moves++;
+		
+		if(hunt_moves>hunt_max_moves) // have i been chasing for a while... maybe giveup as i dont seem to be catching this prey. -> Back to Roam mode
+		{
+			huntExitSubState();	
+		}
+		else
+		{
+			direction = view.towardsAgentDirection(myBody);	
+			
+			// Check if can eat agent...
+			eatAgentSubState();
+			
+		}
+						
+	}
+	
+	private void eatAgentSubState()
 	{
 		
 	}
 	
-	private void chaseState()
+	private boolean eatPlantSubState()
 	{
+		if(myBody.eatPlant(view))
+		{
+			return true;
+		}
+		else
+		{
+			return false;		
+		}
+	}
+	
+	private void huntExitSubState()
+	{
+		hunt_exit_wait++;
+		
+		if(hunt_exit_wait>hunt_exit_max_wait)
+		{
+			direction = r.nextInt(360);
+			hunt_moves=0;
+			rest=false;
+			
+			state = AgentState.ROAM; // Back to roaming state
+		}
+		else
+		{
+			rest=true;
+		}
 		
 	}
 	
+	private void grazeState()
+	{
+		// -- No transition... view needs to be more complex.. is there more food around...
+		direction = view.towardsPlantDirection(myBody);
+		
+		if(eatPlantSubState())
+		{
+			state = AgentState.ROAM; // Back to roaming state
+		}
+				
+	}
+	
+	// Evade State -- No transition... view needs to be more complex.. are there other prey i could hide with... etc
 	private void evadeState()
 	{
-		
+		direction = view.awayfromAgentDirection(myBody);				
 	}
-		
-	private void roamState()
-	{
-		
-	}
-	
-	private void restState()
-	{
-		
-	}
+
 }

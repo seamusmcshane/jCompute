@@ -6,6 +6,10 @@ package alife;
 public class SimpleAgentStats
 {
 	
+		private final float base_move_cost;
+		
+		private boolean dead;
+	
 /* Agent Specific Constants */	
 		
 		/* Agent Run speed */
@@ -16,9 +20,8 @@ public class SimpleAgentStats
 		
 		/* Max Energy of Agent */
 		private final float max_energy;
-		
-		/* Physical Health of Agent */
-		private final float max_health;
+
+		private float energy;
 		
 		/* View Range */
 		private final float view_range;
@@ -29,34 +32,55 @@ public class SimpleAgentStats
 		private long age;
 		
 /* Calculated Stats */
-		
-		/* Rest Need */
-		private int rest_steps;
-		
+				
 		private SimpleAgentType type;
 		
-	public SimpleAgentStats(SimpleAgentType type,float rus, float sz, float me, float mh, float vr)
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
 	{
+		this.dead = false;
 		
 		this.type = type;
 		
-		this.max_speed = rus;
+		this.max_speed = ms;
 		
 		this.size = sz;
 		
 		this.max_energy = me;
 		
-		this.max_health = mh;
+		this.energy = max_energy /2 ;
 		
 		this.age = 0;
 		
 		this.view_range = size+vr;
 		
-		calculate_procedural_constants();
-	}
+		this.base_move_cost = base_move_cost;
 
-	private void calculate_procedural_constants()
+	}
+	
+	public void decrementMoveEnergy()
 	{
+		//System.out.println("cost to move : " + (size*base_move_cost));
+		energy = energy - (size*base_move_cost);
+
+		//System.out.println("energy : " + energy);
+		
+		if(energy <= 0 )
+		{
+			dead = true;
+			
+			//System.out.println("DEAD!");
+		}
+				
+	}
+	
+	public void addEnergy(float energy)
+	{
+		this.energy = this.energy + energy;
+		
+		if(this.energy > max_energy)
+		{
+			this.energy = max_energy;
+		}
 		
 	}
 	
@@ -69,14 +93,29 @@ public class SimpleAgentStats
 	{
 		return size;
 	}
+	
+	public float getSizeSquard()
+	{
+		return (size*size);
+	}
 
 	public float getView_range()
 	{
 		return view_range;
 	}	
 	
+	public float getViewRangeSquared()
+	{
+		return (view_range*view_range);
+	}	
+	
 	public float getMaxSpeed()
 	{
 		return max_speed;
+	}
+	
+	public boolean isDead()
+	{
+		return dead;
 	}
 }

@@ -21,7 +21,7 @@ public class GenericPlantManager
 
 	private ListIterator<GenericPlant> itrDrawPlant;
 	
-	private boolean true_drawing = false;
+	private boolean true_drawing = true;
 	
 	private int world_size;
 	
@@ -149,7 +149,7 @@ public class GenericPlantManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewPlant(new GenericPlant(x,y,10, 100, 0.1f));
+			addNewPlant(new GenericPlant(x,y,50, 100, 0.1f));
 		}		
 	}
 

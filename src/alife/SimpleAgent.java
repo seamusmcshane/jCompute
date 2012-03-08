@@ -26,11 +26,13 @@ public class SimpleAgent
 	/* Agent View Range */
 	private Circle fov;	
 				
+	/* View rannge drawing */
 	private boolean draw_view = false;
+	
 	private boolean collision=false;
-	private boolean visible = false;
 	
-	
+	private boolean removal_tag=false;
+			
 	public SimpleAgent(int uid,float x,float y,SimpleAgentStats stats)
 	{
 		this.uid = uid;
@@ -85,11 +87,6 @@ public class SimpleAgent
 	 * Graphics 
 	 * 
 	 */
-	public void setVisible(boolean status)
-	{
-		visible = status;
-	}
-
 	public Circle getFieldofView()
 	{
 		return fov;
@@ -129,5 +126,18 @@ public class SimpleAgent
 	{
 		return uid;
 	}
+	
+	
+	/* Used by simulation loop to remove an agent */
+	public void setRemovalFlag(boolean remove)
+	{
+		removal_tag = remove;
+	}
+		
+	public boolean remove()
+	{
+		return removal_tag;
+	}
+	
 	
 }

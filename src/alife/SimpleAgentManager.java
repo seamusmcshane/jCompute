@@ -43,10 +43,10 @@ public class SimpleAgentManager
 	SimpleAgent testAgent;
 
 	/* Draw the Pixel perfect real bodies or a faster less intensive rectangular version */
-	private Boolean true_drawing;
+	private Boolean true_drawing=true;
 	
 	/* Draw the field of views for the agents */
-	private Boolean view_drawing;
+	private Boolean view_drawing=true;
 
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
@@ -75,6 +75,8 @@ public class SimpleAgentManager
 		
 		int x, y;
 		
+		float base_movement_cost = 0.15f;
+		float base_view_range = 25f;
 		
 		// Prey
 		for (int i = 0; i < agent_prey_numbers; i++)
@@ -82,7 +84,8 @@ public class SimpleAgentManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),1f, 5f, 100f, 100f, 25f)));
+			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
+			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),1f, 5f, 100f, base_view_range, base_movement_cost)));
 		}	
 		
 		// Predator
@@ -91,15 +94,13 @@ public class SimpleAgentManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, 100f, 25f)));
+			addNewAgent(new SimpleAgent(i, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, base_view_range, base_movement_cost)));
 		}	
 	}
 	
 	/* Being born counts as an Action thus all new agents start in the done list */
 	public void addNewAgent(SimpleAgent agent)
 	{		
-		agent.setVisible(true);
-
 		doneList.add(agent);
 
 		agentCount++;
@@ -186,17 +187,14 @@ public class SimpleAgentManager
 			/* remove from the doList */
 			itr.remove();
 			
-			// If agent not dead ..			
-			// Add to donelist  - agents not added get removed by java.
-			doneList.add(temp);
+			// If agent not dead ..	
+			if(!temp.body.stats.isDead())
+			{
+				// Add to donelist  - agents not added get removed by java.
+				doneList.add(temp);				
+			}		
 
 		}
-	}
-
-	/* TODO */
-	private boolean removeAgent(SimpleAgent agent)
-	{
-		return doList.remove(agent);
 	}
 
 	/* Sets up the safe starting position for the lists */
@@ -216,11 +214,9 @@ public class SimpleAgentManager
 	private void doTestAgent()
 	{
 		if(testAgent==null)
-		{
-			testAgent = new SimpleAgent(-1,0,0,new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, 100f, 25f)); /* TODO needs updated */
-			
-			testAgent.setVisible(true);
-			
+		{			
+			testAgent = new SimpleAgent(-1,0,0,new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, 100f, 0.15f)); /* TODO needs updated */
+						
 			testAgent.setViewDrawing(view_drawing);
 			
 			doneList.add(testAgent);
