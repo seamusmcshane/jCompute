@@ -27,7 +27,7 @@ public class SimulationManager
 	ViewGeneratorManager viewGenerator;
 	Semaphore viewManagerSemaphore;
 	
-	public SimulationManager(int world_size,int plant_numbers,int agent_numbers)
+	public SimulationManager(int world_size,int agent_numbers,int plant_numbers)
 	{
 		
 		setUpViewManager();

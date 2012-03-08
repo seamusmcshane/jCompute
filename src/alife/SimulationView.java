@@ -2,7 +2,10 @@ package alife;
 
 /* NOTE! The following two imports are for creating executable jar */
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.Window.Type;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -23,6 +26,7 @@ import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
+import java.awt.event.WindowFocusListener;
 /**
  * Simulation class - Gui and Entry Point for starting a Simulation.
  */
@@ -238,6 +242,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			frame.setSize(world_view_width, world_view_height);
 			
 			frame.setLocation(x, y);
+			frame.setAlwaysOnTop(true);
 			
 			/*
 			 * - For stand alone builds un-comment these so the jar will look
@@ -250,7 +255,6 @@ public class SimulationView extends BasicGame implements MouseListener
 			// System.getProperty("org.lwjgl.librarypath"));
 
 			simView = new CanvasGameContainer(new SimulationView());
-
 			//sim.setDisplayMode(world_view_width,world_view_height, false);
 			
 			/* Always update */
@@ -330,10 +334,28 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	}
 	
-	public static void setFocus()
+	public static void setInitalViewTranslate()
 	{
-		simView.requestFocus();
 		global_translate.set( 50,50 );
 	}
 	
+	public static void setFocus()
+	{
+		if(simView!=null)
+		{
+			simView.requestFocus();
+			simView.transferFocus();
+		}
+	}
+	
+	public static void maximise()
+	{
+		//frame.setState(Frame.MAXIMIZED_BOTH);
+		frame.setVisible(true);
+	}
+	
+	public static void minimise()
+	{
+		frame.setVisible(false);
+	}	
 }

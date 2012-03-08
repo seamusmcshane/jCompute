@@ -2,6 +2,7 @@ package alife;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 
@@ -35,6 +36,8 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JCheckBox;
 import javax.swing.border.TitledBorder;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SimulationGUI
 {
@@ -204,9 +207,10 @@ public class SimulationGUI
 		row1.add(txtSimRateInfo);
 		txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
 		txtSimRateInfo.setEditable(false);
-		txtSimRateInfo.setText("0");
+		txtSimRateInfo.setText("15");
 		txtSimRateInfo.setColumns(10);
 		simRateSlider = new JSlider();
+		simRateSlider.setValue(15);
 		simRateSlider.setSnapToTicks(true);
 		row1.add(simRateSlider);
 		simRateSlider.setPaintTrack(false);
@@ -293,16 +297,11 @@ public class SimulationGUI
 			public void actionPerformed(ActionEvent arg0)
 			{
 				if (sim.simPaused())
-				{
-					sim.unPauseSim();
-					
+				{			
 					simUnPausedState();
-
 				}
 				else
-				{
-					sim.pauseSim();
-					
+				{					
 					simPausedState();															
 				}
 			}
@@ -358,10 +357,22 @@ public class SimulationGUI
 				System.exit(0);    // Exit the Simulation and let Java free the
 								// memory.
 			}
+			
+			public void windowIconified(WindowEvent e)
+			{
+				SimulationView.minimise();
+			}
+			
+			public void windowDeiconified(WindowEvent e)
+			{
+				SimulationView.maximise();
+			}
+			
 		});
 
 		gui.setVisible(true);
-		
+		gui.setAlwaysOnTop(true);
+
 		startUpState();
 		
 	}
@@ -401,7 +412,7 @@ public class SimulationGUI
 		/* If needed the GC can free old objects now, before the simulation starts */
 		System.gc();
 		
-		btnNew.setEnabled(false);
+		btnNew.setEnabled(true);
 		
 		btnStart.setEnabled(true);
 		
@@ -417,8 +428,7 @@ public class SimulationGUI
 
 	private static void simStartedState()
 	{
-		SimulationView.setFocus();
-		
+	
 		sim.startSim();
 		
 		btnNew.setEnabled(false);
@@ -433,9 +443,12 @@ public class SimulationGUI
 		
 		comboBoxWorldSize.setEnabled(false);	
 
-		comboBoxPlantNumbers.setEnabled(false);	
-
+		comboBoxPlantNumbers.setEnabled(false);
 		
+		SimulationView.setInitalViewTranslate();
+		
+		SimulationView.setFocus();
+				
 	}
 	
 	private static void startUpState()
@@ -447,6 +460,7 @@ public class SimulationGUI
 		btnStart.setEnabled(false);
 		simRateSlider.setEnabled(false);
 		btnPause.setEnabled(false);
+	
 		
 	}
 
@@ -458,6 +472,8 @@ public class SimulationGUI
 		comboBoxAgentNumbers.setEnabled(true);
 		comboBoxWorldSize.setEnabled(true);	
 		comboBoxPlantNumbers.setEnabled(true);	
+		
+		sim.pauseSim();
 
 	}
 	
@@ -469,6 +485,8 @@ public class SimulationGUI
 		comboBoxAgentNumbers.setEnabled(false);
 		comboBoxWorldSize.setEnabled(false);	
 		comboBoxPlantNumbers.setEnabled(false);	
+		
+		sim.unPauseSim();
 	}
 	
 }
