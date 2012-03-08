@@ -17,7 +17,7 @@ public class SimpleAgentType
 		return type;
 	}
 	
-	public boolean compareType(SimpleAgentType type)
+	public boolean isSameType(SimpleAgentType type)
 	{
 		
 		if(this.type == type.getType())
