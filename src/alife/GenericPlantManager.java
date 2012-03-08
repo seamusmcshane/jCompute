@@ -55,7 +55,7 @@ public class GenericPlantManager
 			//tPlantDraw.setViewDrawing(view_drawing);
 			
 			// Optimization - Only draw visible agents that are inside the camera_boundarie
-			//if (tPlantDraw.getPos().getX() > (View.camera_bound.getX() - View.global_translate.getX()) && tPlantDraw.getPos().getX() < (View.camera_bound.getMaxX() - View.global_translate.getX()) && tPlantDraw.getPos().getY() > (View.camera_bound.getY() - View.global_translate.getY()) && tPlantDraw.getPos().getY() < (View.camera_bound.getMaxY() - View.global_translate.getY()))
+			if (tPlantDraw.body.getBodyPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tPlantDraw.body.getBodyPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tPlantDraw.body.getBodyPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tPlantDraw.body.getBodyPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
 				if(true_drawing==true)
