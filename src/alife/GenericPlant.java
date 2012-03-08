@@ -11,10 +11,5 @@ public class GenericPlant
 	{
 		body = new GenericPlantBody(new Vector2f(x,y),starting_energy, max_energy, absorption_rate);
 	}	
-	
-	public void doStep()
-	{
-		body.stats.increamentEnergy();
-	}
-	
+		
 }

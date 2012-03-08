@@ -50,7 +50,7 @@ public class SimpleAgentBody
 	/* has this agent ate an agent */
 	private boolean ate_agent=false;
 	
-	private int energy_eat_rate = 50;
+	private int energy_eat_rate = 10;
 	
 	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
 	{
@@ -89,7 +89,7 @@ public class SimpleAgentBody
 		}
 	}
 	
-	/* TODO Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
+	/* Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
 	public boolean move(float req_direction)
 	{		
 		Vector2f new_pos = newPosition(req_direction);
@@ -111,7 +111,6 @@ public class SimpleAgentBody
 		/* Agent is trying to move into a wall - move denied */
 		return false;		
 	}
-
 	
 	/* Like above but does't move - can be called by the agent brain to check if the move is valid */
 	public boolean move_possible(float req_direction)
@@ -159,8 +158,8 @@ public class SimpleAgentBody
 	/* Internal Movement */
 	private void updateBodyPosition(Vector2f pos)
 	{
-		stats.decrementMoveEnergy();
-		body_pos.set(pos);				
+			stats.decrementMoveEnergy();
+			body_pos.set(pos);					
 	}
 
 	/* External Getter */
@@ -169,10 +168,37 @@ public class SimpleAgentBody
 		return body_pos;
 	}
 	
-	public void eatAgent()
+	public boolean eatAgent(SimpleAgentView view)
+	{		
+		if(view.getOriginalAgentRef()!= null )
+		{
+
+			if(!view.getOriginalAgentRef().body.stats.isDead())
+			{
+				if(isAgentCloseEnoughToEat(view))
+				{
+					// Kill Agent
+					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAgent());
+					
+					return true;
+				}
+			}
+			
+		}		
+		return false;		
+	}
+	
+	private boolean isAgentCloseEnoughToEat(SimpleAgentView view)
 	{
 		
+		if(view.distanceTo(getBodyPos(), view.getOriginalAgentRef().body.getBodyPos()) < (stats.getSize()+view.getOriginalAgentRef().body.stats.getSize() ))
+		{
+			return true;
+		}		
+		
+		return false;		
 	}
+	
 	
 	public boolean eatPlant(SimpleAgentView view)
 	{		
@@ -181,7 +207,7 @@ public class SimpleAgentBody
 
 			if(!view.getOriginalPlantRef().body.stats.isDead())
 			{
-				if(isCloseEnoughToEat(view))
+				if(isPlantCloseEnoughToEat(view))
 				{
 					// Remove plant energy
 					stats.addEnergy(view.getOriginalPlantRef().body.stats.decrementEnergy(energy_eat_rate));
@@ -197,7 +223,7 @@ public class SimpleAgentBody
 		return false;		
 	}
 	
-	private boolean isCloseEnoughToEat(SimpleAgentView view)
+	private boolean isPlantCloseEnoughToEat(SimpleAgentView view)
 	{
 		
 		if(view.distanceTo(getBodyPos(), view.getOriginalPlantRef().body.getBodyPos()) < (stats.getSize()+view.getOriginalPlantRef().body.stats.getSize() ))

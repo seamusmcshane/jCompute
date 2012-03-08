@@ -170,7 +170,7 @@ public class SimulationGUI
 		controlPanelTop.add(lblPredS);
 
 		comboBoxPredNumbers = new JComboBox();
-		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPredNumbers.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxPredNumbers);
 		
@@ -178,7 +178,7 @@ public class SimulationGUI
 		controlPanelTop.add(lblPreyS);
 		
 		comboBoxPreyNumbers = new JComboBox();
-		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPreyNumbers.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxPreyNumbers);
 		
@@ -186,7 +186,7 @@ public class SimulationGUI
 		controlPanelTop.add(lblPlants);
 		
 		comboBoxPlantNumbers = new JComboBox();
-		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPlantNumbers.setSelectedIndex(1);
 		controlPanelTop.add(comboBoxPlantNumbers);
 

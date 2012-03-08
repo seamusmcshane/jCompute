@@ -17,7 +17,6 @@ public class SimpleAgentBrain
 	public SimpleAgentView view;
 	
 	/* State Logic */
-    private boolean hasThought=false;
     private AgentState state = AgentState.ROAM;
 	    
     /* View evaluation */
@@ -32,16 +31,20 @@ public class SimpleAgentBrain
 	private int moves=0;
 	
 	private int roam_moves=0;
-	private int roam_max_moves=20;
+	private int roam_max_moves=40;
 	
 	private int hunt_moves=0;
-	private int hunt_max_moves=20;
+	private int hunt_max_moves=40;
 	
 	private int hunt_exit_wait=0;
-	private int hunt_exit_max_wait=40;
+	private int hunt_exit_max_wait=0;
+	
+	
+	private int learn_to_move_max = 20;
+	private int learn_to_move_count = 0;
 	
 	private boolean rest=false;
-	
+		
 	/* Move counters */		
 	public SimpleAgentBrain(SimpleAgentBody body)
 	{
@@ -64,26 +67,40 @@ public class SimpleAgentBrain
 	 */
 	public void think()
 	{
-		
-		/* Enforce 1 think/move per agent */
-		hasThought=false;
 				
 		// Sets the state based on the view...
 		evaulateViewState();
 		
-		// Overrides set based on circumstance
-		reEvalateState();
+		// Overrides state based on circumstance
+		reEvaluateState();
 				
-		if(!rest)
+		if(!learnToMoveCounterPassed())
 		{
-			myBody.move(direction);
-			moves++;
+			direction = r.nextInt(360);
 		}
+
+		myBody.move(direction);	
+
+		moves++;
 
 	}
 	
+	/* Simulates the time it would take to learn to move */
+	public boolean learnToMoveCounterPassed()
+	{
+		if(learn_to_move_count < learn_to_move_max)
+		{
+			learn_to_move_count++;
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
 	/** Reevaluates the evaluated state to avoid some static behavior */
-	private void reEvalateState()
+	private void reEvaluateState()
 	{
 		switch(state)
 		{
@@ -171,8 +188,6 @@ public class SimpleAgentBrain
 			roam_moves=0;
 		}
 		
-		direction = direction;	
-
 	}
 	
 	/* Hunt State */
@@ -188,16 +203,45 @@ public class SimpleAgentBrain
 		{
 			direction = view.towardsAgentDirection(myBody);	
 			
-			// Check if can eat agent...
-			eatAgentSubState();
-			
+			// Check if ate agent...
+			if(eatAgentSubState())
+			{
+				state = AgentState.ROAM; // Back to roaming state
+			}
 		}
 						
 	}
 	
-	private void eatAgentSubState()
+	private void huntExitSubState()
 	{
 		
+		if(hunt_exit_wait>hunt_exit_max_wait)
+		{
+			direction = r.nextInt(360);
+			hunt_moves=0;
+			hunt_exit_wait=0;
+			
+			rest=false;
+			
+			state = AgentState.ROAM; // Back to roaming state
+		}
+		else
+		{
+			hunt_exit_wait++;
+			rest=true;
+		}
+		
+	}	
+	private boolean eatAgentSubState()
+	{
+		if(myBody.eatAgent(view))
+		{
+			return true;
+		}
+		else
+		{
+			return false;		
+		}		
 	}
 	
 	private boolean eatPlantSubState()
@@ -212,24 +256,7 @@ public class SimpleAgentBrain
 		}
 	}
 	
-	private void huntExitSubState()
-	{
-		hunt_exit_wait++;
-		
-		if(hunt_exit_wait>hunt_exit_max_wait)
-		{
-			direction = r.nextInt(360);
-			hunt_moves=0;
-			rest=false;
-			
-			state = AgentState.ROAM; // Back to roaming state
-		}
-		else
-		{
-			rest=true;
-		}
-		
-	}
+
 	
 	private void grazeState()
 	{

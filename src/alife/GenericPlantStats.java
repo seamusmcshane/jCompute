@@ -10,7 +10,7 @@ public class GenericPlantStats
 	
 	private float size;
 	
-	private int size_div=5;
+	private int size_div=1;
 	
 	private boolean dead;
 	
@@ -21,7 +21,7 @@ public class GenericPlantStats
 		
 		max_size = max_energy / size_div;
 		
-		size = starting_energy / size_div;		
+		size = 1;		
 		
 		if(starting_energy>max_energy)
 		{
@@ -37,32 +37,42 @@ public class GenericPlantStats
 	}
 	
 	/** Increments the Energy for living plants */
-	public void increamentEnergy()
+	public void increment()
 	{
 		if(!isDead())
 		{
 			energy = energy + absorption_rate;
+			
+			if(energy>max_energy)
+			{
+				energy = max_energy;
+			}
 		}
 	}
 	
 	/* Remove energy from living plants */
 	public float decrementEnergy(float num)
-	{					
-		if( (energy - num) <= 0) // if we take more energy that what is left.. take all the energy
-		{
-			num = energy;
-			
-			energy = 0;
-			
-			dead = true; // plant has been killed
-			
-		}
-		else
-		{
-			energy = energy - num; // else take the amount we tried for
-		}
+	{		
 		
-		return num;	
+		if(!isDead())
+		{
+			if( (energy - num) <= 0) // if we take more energy that what is left.. take all the energy
+			{
+				num = energy;
+				
+				energy = 0;
+				
+				dead = true; // plant has been killed
+				
+			}
+			else
+			{
+				energy = energy - num; // else take the amount we tried for
+			}		
+		}
+
+		
+		return (num);	// 1/x efficiency
 	}
 	
 	public float getEnergy()

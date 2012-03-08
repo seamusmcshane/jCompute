@@ -24,12 +24,18 @@ public class GenericPlantManager
 	private boolean true_drawing = true;
 	
 	private int world_size;
+	private int inital_number;
+	
+	private float base_plant_reproduction_cost=99f;
+	private float base_plant_energy_absorption_rate=1f;
+	private float plant_regen_rate=0.25f;
 	
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
 	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number)
 	{		
+		this.inital_number = inital_number;
 		
 		this.viewGenerator = viewGenerator;
 		
@@ -90,10 +96,15 @@ public class GenericPlantManager
 	// List update
 	public void stage3()
 	{
-		int growth_num=updateDoneList();
+		updateDoneList();
+		
+		if(plantCount<inital_number)
+		{
+			addPlants(world_size,inital_number/10);
+		}
 		
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(world_size,growth_num);		
+		addPlants(world_size,1);		
 	}
 		
 	/* Randomize the doList */
@@ -102,11 +113,10 @@ public class GenericPlantManager
 		Collections.shuffle(doList);
 	}
 	
-	// Updates the Done list, calculates the cost and counts the of number of plants to add (reproduction)
-	public int updateDoneList()
+	// Updates the Done list.
+	public void updateDoneList()
 	{
-		int growth_num=0;
-		
+			
 		ListIterator<GenericPlant> itr = doList.listIterator();
 		
 		while (itr.hasNext())
@@ -120,20 +130,13 @@ public class GenericPlantManager
 			
 			if(!temp.body.stats.isDead())
 			{
-				temp.body.stats.increamentEnergy();
-				
-				if(temp.body.stats.getEnergy() > 90)
-				{
-					growth_num++;
-					temp.body.stats.decrementEnergy(80);
-				}
-				
+				temp.body.stats.increment();
+								
 				doneList.add(temp);
 			}
 			
 		}
-		
-		return growth_num;		
+	
 	}
 	
 	private void addPlants(int world_size,int plant_number)
@@ -149,7 +152,7 @@ public class GenericPlantManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewPlant(new GenericPlant(x,y,50, 100, 0.1f));
+			addNewPlant(new GenericPlant(x,y,100f, 100f, base_plant_energy_absorption_rate));
 		}		
 	}
 
@@ -157,7 +160,6 @@ public class GenericPlantManager
 	public void addNewPlant(GenericPlant plant)
 	{		
 		doneList.add(plant);
-
 		plantCount++;		
 	}
 	
@@ -167,6 +169,11 @@ public class GenericPlantManager
 	{
 		doList = doneList;
 		doneList = new LinkedList<GenericPlant>();
+	}
+
+	public void setTrueDrawing(Boolean true_body_drawing)
+	{
+		this.true_drawing = true_body_drawing;		
 	}
 	
 }

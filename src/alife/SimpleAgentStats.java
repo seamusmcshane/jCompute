@@ -25,6 +25,10 @@ public class SimpleAgentStats
 		
 		/* View Range */
 		private final float view_range;
+		
+		private float reproductionCost;
+		private float base_reproduction_cost;
+
 
 /* 	General Statistics */
 		
@@ -35,7 +39,7 @@ public class SimpleAgentStats
 				
 		private SimpleAgentType type;
 		
-	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost,float base_reproduction_cost)
 	{
 		this.dead = false;
 		
@@ -47,28 +51,34 @@ public class SimpleAgentStats
 		
 		this.max_energy = me;
 		
-		this.energy = max_energy /2 ;
+		this.energy = max_energy / 10 ;
 		
 		this.age = 0;
 		
 		this.view_range = size+vr;
 		
 		this.base_move_cost = base_move_cost;
+		
+		
+		this.base_reproduction_cost =base_reproduction_cost;
+		
+		this.reproductionCost = max_energy*base_reproduction_cost;
+				
+		if(reproductionCost>max_energy)
+		{
+			this.reproductionCost = max_energy;
+		}
 
 	}
 	
 	public void decrementMoveEnergy()
 	{
-		//System.out.println("cost to move : " + (size*base_move_cost));
 		energy = energy - (size*base_move_cost);
-
-		//System.out.println("energy : " + energy);
 		
 		if(energy <= 0 )
 		{
 			dead = true;
-			
-			//System.out.println("DEAD!");
+
 		}
 				
 	}
@@ -82,6 +92,13 @@ public class SimpleAgentStats
 			this.energy = max_energy;
 		}
 		
+	}
+	
+	public float killAgent()
+	{
+		dead = true;
+		
+		return (energy);
 	}
 	
 	public SimpleAgentType getType()
@@ -104,6 +121,12 @@ public class SimpleAgentStats
 		return view_range;
 	}	
 	
+	public float getBaseView_range()
+	{
+		return view_range-size;
+	
+	}
+	
 	public float getViewRangeSquared()
 	{
 		return (view_range*view_range);
@@ -117,5 +140,31 @@ public class SimpleAgentStats
 	public boolean isDead()
 	{
 		return dead;
+	}
+	
+	public void decrementReproductionCost()
+	{
+		energy = (energy - reproductionCost );
+	}
+	
+	public float getReproductionCost()
+	{
+		return reproductionCost;
+	}
+	
+	public float getBaseReproductionCost()
+	{
+		return base_reproduction_cost;
+	}
+	
+	// cost is 1/2 max energy level
+	public boolean canReproduce()
+	{
+		if(energy > reproductionCost)
+		{
+						
+			return true;
+		}
+		return false;
 	}
 }
