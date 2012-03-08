@@ -334,9 +334,9 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	}
 	
-	public static void setInitalViewTranslate()
+	public static void setInitalViewTranslate(int x,int y)
 	{
-		global_translate.set( 50,50 );
+		global_translate.set( x,y );
 	}
 	
 	public static void setFocus()

@@ -461,6 +461,9 @@ public class SimulationGUI
 		
 		simRateSlider.setValue(15);
 
+		// Centers the simulated world in the view
+		SimulationView.setInitalViewTranslate( (view_width/2)- ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2 ),(view_height/2)- ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2 ) );
+
 	}
 
 	private static void simStartedState()
@@ -483,9 +486,7 @@ public class SimulationGUI
 		comboBoxWorldSize.setEnabled(false);	
 
 		comboBoxPlantNumbers.setEnabled(false);
-		
-		SimulationView.setInitalViewTranslate();
-		
+				
 		SimulationView.setFocus();
 				
 	}
