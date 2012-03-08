@@ -16,6 +16,8 @@ public class SimpleAgentViewStats
 	/** Type of Agent in view */
 	private SimpleAgentType type;
 	
+	private SimpleAgent original_agent;
+	
 	/**
 	 * A class that represents the statistics on a view of a SimpleAgent 
 	 */
@@ -30,6 +32,8 @@ public class SimpleAgentViewStats
  */
 	public void updateStats(SimpleAgent agent)
 	{
+		original_agent = agent;
+		
 		// Copies the Agent Positon
 		agentPos.set(agent.body.getBodyPos());
 		
@@ -44,6 +48,8 @@ public class SimpleAgentViewStats
  */
 	public void initStats()
 	{
+		original_agent = null;
+		
 		/** Size of Agent in view */
 		this.size=0;
 
@@ -58,6 +64,8 @@ public class SimpleAgentViewStats
  */
 	public void clearStats()
 	{
+		original_agent = null;
+		
 		/** Size of Agent in view */
 		this.size=0;
 
@@ -87,6 +95,12 @@ public class SimpleAgentViewStats
 	public SimpleAgentType getAgentType()
 	{
 		return type;
+	}
+	
+	/** A reference to the original agent that this view is about - Must not be used by agents themselves */
+	public SimpleAgent getOriginalAgentRef()
+	{
+		return original_agent;
 	}
 	
 }
