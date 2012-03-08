@@ -95,19 +95,23 @@ public class ViewGeneratorThread extends Thread
 				
 				// Get two agents - due to the closest agent to its self being its self, but one plant
 				agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
-				plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
-
 				
 				// Max is the next closest - Self is 0
 				nearestAgent = agentNeighborList.getMax();
-				nearestPlant = plantNeighborList.getMax();
 				
-				/* calculate if the Nearest Agents and Plants are in the view Range of the current agent */ 
+				/* calculate if the Nearest Agents are in the view Range of the current agent */ 
 				agentViewRangeKDSQAgents();
-				agentViewRangeKDSQPlants();
-				
+
+				if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
+				{
+					plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
+					nearestPlant = plantNeighborList.getMax();
+					/* calculate if the Nearest Plants are in the view Range of the current agent */ 
+					agentViewRangeKDSQPlants();
+				}
+
 				// Parallel Agent Thinking
-				currentAgent.brain.think(); // TODO Need to add new object or later agents will be operating on the future move rather than the current move
+				currentAgent.brain.think();
 
 			}
 			
