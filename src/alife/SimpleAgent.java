@@ -122,6 +122,11 @@ public class SimpleAgent
 		
 	}
 	
+	public void setId(int id)
+	{
+		this.uid = id;
+	}
+	
 	public int getId()
 	{
 		return uid;

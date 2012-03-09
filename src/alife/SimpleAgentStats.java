@@ -23,10 +23,19 @@ public class SimpleAgentStats
 
 		private float energy;
 		
+		private boolean hungry=true;
+		
+		private float hungryThreshold;
+		
 		/* View Range */
 		private final float view_range;
 		
+		
+		/* Reproduction */
+		private float reproductionBank;
+		
 		private float reproductionCost;
+		
 		private float base_reproduction_cost;
 
 
@@ -51,15 +60,18 @@ public class SimpleAgentStats
 		
 		this.max_energy = me;
 		
+		this.reproductionBank = 0;
+		
 		this.energy = max_energy / 10 ;
+		
+		this.hungryThreshold = max_energy / 2;
 		
 		this.age = 0;
 		
 		this.view_range = size+vr;
 		
 		this.base_move_cost = base_move_cost;
-		
-		
+				
 		this.base_reproduction_cost =base_reproduction_cost;
 		
 		this.reproductionCost = max_energy*base_reproduction_cost;
@@ -71,6 +83,23 @@ public class SimpleAgentStats
 
 	}
 	
+	public boolean isHungry()
+	{
+		return hungry;
+	}
+	
+	private void updateHunger()
+	{
+		if(energy<hungryThreshold)
+		{
+			hungry=true;
+		}
+		else
+		{
+			hungry=false;
+		}
+	}	
+	
 	public void decrementMoveEnergy()
 	{
 		energy = energy - (size*base_move_cost);
@@ -78,20 +107,27 @@ public class SimpleAgentStats
 		if(energy <= 0 )
 		{
 			dead = true;
-
 		}
-				
+		
+		updateHunger();				
 	}
 	
 	public void addEnergy(float energy)
-	{
-		this.energy = this.energy + energy;
+	{	
+		energy = energy / 2;
 		
+		this.energy = this.energy + energy;
 		if(this.energy > max_energy)
 		{
 			this.energy = max_energy;
 		}
 		
+		this.reproductionBank = this.reproductionBank + energy; 
+		
+		if(this.reproductionBank > max_energy)
+		{
+			this.reproductionBank = max_energy;
+		}		
 	}
 	
 	public float killAgent()
@@ -123,8 +159,7 @@ public class SimpleAgentStats
 	
 	public float getBaseView_range()
 	{
-		return view_range-size;
-	
+		return view_range-size;	
 	}
 	
 	public float getViewRangeSquared()
@@ -144,7 +179,7 @@ public class SimpleAgentStats
 	
 	public void decrementReproductionCost()
 	{
-		energy = (energy - reproductionCost );
+		reproductionBank = (reproductionBank - reproductionCost );
 	}
 	
 	public float getReproductionCost()
@@ -160,9 +195,8 @@ public class SimpleAgentStats
 	// cost is 1/2 max energy level
 	public boolean canReproduce()
 	{
-		if(energy > reproductionCost)
-		{
-						
+		if(reproductionBank > reproductionCost)
+		{						
 			return true;
 		}
 		return false;

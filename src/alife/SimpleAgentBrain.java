@@ -135,9 +135,18 @@ public class SimpleAgentBrain
 		{
 
 			if(myBody.stats.getType().strongerThan(view.agentType()) == 1) // I am predator to this prey!
-			{
-				// Hunt this agent down
-				state = AgentState.HUNT;
+			{				
+				if(myBody.stats.isHungry())
+				{
+					// Hunt this agent down
+					state = AgentState.HUNT;
+				}
+				else
+				{
+					// Explore...
+					state = AgentState.ROAM;
+				}				
+
 			}
 			else if(myBody.stats.getType().strongerThan(view.agentType()) == 0) // This agent is equal in strength to me (same type)
 			{
@@ -164,8 +173,19 @@ public class SimpleAgentBrain
 			
 			if(view.hasPlantInView() && myBody.stats.getType().eatsPlants()) // Do we eat plants?
 			{
-				// move towards 
-				state = AgentState.GRAZE;
+				
+				if(myBody.stats.isHungry())
+				{
+					// move towards 
+					state = AgentState.GRAZE;
+				}
+				else
+				{
+					// Explore...
+					state = AgentState.ROAM;
+				}		
+				
+
 			}
 			else // Nope we eat other agents - but there are none...
 			{
