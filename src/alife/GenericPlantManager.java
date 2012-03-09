@@ -97,14 +97,14 @@ public class GenericPlantManager
 	public void stage3()
 	{
 		updateDoneList();
-		
-		if(plantCount<inital_number)
-		{
-			addPlants(world_size,inital_number/10);
-		}
-		
+				
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(world_size,1);		
+		addPlants(world_size,(int) (Math.log10(world_size)/Math.log10(2)));	// log2(512) - +9... log2(1024)+10...
+		
+		
+		// Stats Counter
+		StatsPanel.setPlantNo(plantCount);
+		
 	}
 		
 	/* Randomize the doList */
@@ -116,7 +116,9 @@ public class GenericPlantManager
 	// Updates the Done list.
 	public void updateDoneList()
 	{
-			
+		/* Recount all the plants - since some will have died...*/
+		plantCount=0;
+		
 		ListIterator<GenericPlant> itr = doList.listIterator();
 		
 		while (itr.hasNext())
@@ -133,6 +135,7 @@ public class GenericPlantManager
 				temp.body.stats.increment();
 								
 				doneList.add(temp);
+				plantCount++;
 			}
 			
 		}
@@ -152,7 +155,7 @@ public class GenericPlantManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewPlant(new GenericPlant(x,y,100f, 100f, base_plant_energy_absorption_rate));
+			addNewPlant(new GenericPlant(x,y,50f, 100f, base_plant_energy_absorption_rate));
 		}		
 	}
 

@@ -49,10 +49,11 @@ public class SimulationGUI
 	private static JButton btnPause;
 	private static JButton btnStart;
 	private static JTextField txtSimRateInfo;
-	private static JComboBox comboBoxPreyNumbers; 
+	private static JComboBox comboBoxPreyNumbers;
 	private static JComboBox comboBoxPredNumbers;
 	private static JComboBox comboBoxWorldSize;
 	private static JComboBox comboBoxPlantNumbers;
+	private static StatsPanel statsPanel;
 
 	/* static in screen sizes */
 	static int screen_width;
@@ -63,9 +64,9 @@ public class SimulationGUI
 
 	static int total_height = 0;
 	static int total_width = 0;
-	
+
 	static int control_gui_width = 350; // Hard-Coded as GUI needs certain width needs based on button text size
-	
+
 	static int control_gui_height = 0;
 	static int control_gui_x;
 	static int control_gui_y;
@@ -88,7 +89,7 @@ public class SimulationGUI
 		retrieveScreenSize();
 
 		calculateWindowSizes();
-		
+
 		calculateWindowPositions();
 
 		setUpFrame();
@@ -107,14 +108,14 @@ public class SimulationGUI
 	private static void calculateWindowSizes()
 	{
 		total_height = (int) (screen_height / 1.5f);
-				
+
 		control_gui_height = total_height;
-		
+
 		view_width = (screen_width - control_gui_width) / 2;
 		view_height = total_height;
 
 	}
-	
+
 	private static void calculateWindowPositions()
 	{
 		control_gui_x = (screen_width / 2) - ((control_gui_width + view_width) / 2);
@@ -145,11 +146,10 @@ public class SimulationGUI
 
 		// for editing
 		gui.setBounds(control_gui_x, control_gui_y, 350, 600);
-		
+
 		// For distribution
 		//gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
 
-		
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -170,23 +170,26 @@ public class SimulationGUI
 		controlPanelTop.add(lblPredS);
 
 		comboBoxPredNumbers = new JComboBox();
-		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPredNumbers.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxPredNumbers);
-		
+
 		JLabel lblPreyS = new JLabel("Prey");
 		controlPanelTop.add(lblPreyS);
-		
+
 		comboBoxPreyNumbers = new JComboBox();
-		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPreyNumbers.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxPreyNumbers);
-		
+
 		JLabel lblPlants = new JLabel("Plants");
 		controlPanelTop.add(lblPlants);
-		
+
 		comboBoxPlantNumbers = new JComboBox();
-		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
 		comboBoxPlantNumbers.setSelectedIndex(1);
 		controlPanelTop.add(comboBoxPlantNumbers);
 
@@ -194,7 +197,8 @@ public class SimulationGUI
 		controlPanelTop.add(lblWorldSize);
 
 		comboBoxWorldSize = new JComboBox();
-		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[] {"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
+		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
+		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
 		comboBoxWorldSize.setSelectedIndex(0);
 		controlPanelTop.add(comboBoxWorldSize);
 
@@ -229,18 +233,18 @@ public class SimulationGUI
 		{
 			public void stateChanged(ChangeEvent e)
 			{
-			
-				if(simRateSlider.getValue() == 0)
+
+				if (simRateSlider.getValue() == 0)
 				{
 					txtSimRateInfo.setText("1");
 				}
 				else
 				{
-					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));	
-				}				
-				
+					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
+				}
+
 				sim.reqSimUpdateRate(simRateSlider.getValue());
-				
+
 			}
 		});
 
@@ -263,79 +267,20 @@ public class SimulationGUI
 
 		btnPause = new JButton("Pause");
 		row2.add(btnPause);
-		
-		JPanel simStatsPanel = new JPanel();
-		simStatsPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanel.add(simStatsPanel, BorderLayout.CENTER);
-		simStatsPanel.setLayout(new BorderLayout(0, 0));
-		
-		JPanel statsPanelBottom = new JPanel();
-		statsPanelBottom.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		simStatsPanel.add(statsPanelBottom, BorderLayout.SOUTH);
-		statsPanelBottom.setLayout(new GridLayout(2, 6, 0, 0));
-		
-		JPanel panel = new JPanel();
-		statsPanelBottom.add(panel);
-		panel.setLayout(new GridLayout(0, 6, 0, 0));
-		
-		JLabel lblKeyPlants = new JLabel("Plants");
-		panel.add(lblKeyPlants);
-		lblKeyPlants.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JLabel lblPlantno = new JLabel("0");
-		panel.add(lblPlantno);
-		lblPlantno.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JLabel lblPred = new JLabel("Predators");
-		panel.add(lblPred);
-		lblPred.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JLabel lblPredno = new JLabel("0");
-		panel.add(lblPredno);
-		lblPredno.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JLabel lblPrey = new JLabel("Prey");
-		panel.add(lblPrey);
-		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JLabel lblPreyno = new JLabel("0");
-		panel.add(lblPreyno);
-		lblPreyno.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JPanel panel_1 = new JPanel();
-		statsPanelBottom.add(panel_1);
-		panel_1.setLayout(new GridLayout(0, 6, 0, 0));
-		
-		JLabel lblASPS = new JLabel("ASPS");
-		lblASPS.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_1.add(lblASPS);
-		
-		JLabel lblAspsno = new JLabel("0");
-		lblAspsno.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_1.add(lblAspsno);
-		
-		JLabel lblRunTime = new JLabel("Run Time");
-		lblRunTime.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_1.add(lblRunTime);
-		
-		JLabel lblRuntimeno = new JLabel("0");
-		lblRuntimeno.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_1.add(lblRuntimeno);
-		
-		JPanel graphPanel = new JPanel();
-		graphPanel.setBorder(null);
-		simStatsPanel.add(graphPanel, BorderLayout.CENTER);
+
+		statsPanel = new StatsPanel();
+		controlPanel.add(statsPanel, BorderLayout.CENTER);
 		btnPause.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
 				if (sim.simPaused())
-				{			
+				{
 					simUnPausedState();
 				}
 				else
-				{					
-					simPausedState();															
+				{
+					simPausedState();
 				}
 			}
 		});
@@ -367,10 +312,10 @@ public class SimulationGUI
 
 		JMenuItem mntmQuit = new JMenuItem("Quit");
 		mnFile.add(mntmQuit);
-		
+
 		JMenu mnOptions = new JMenu("Options");
 		menuBar.add(mnOptions);
-		
+
 		JMenuItem mntmSettings = new JMenuItem("Settings");
 		mnOptions.add(mntmSettings);
 
@@ -384,30 +329,28 @@ public class SimulationGUI
 		{
 			public void windowClosing(WindowEvent e)
 			{
-				SimulationView.exitDisplay(); // Tell OpenGL we are done and free the
-				// resources used in the canvas. - must be
-				// done else sim will lockup.
-				System.exit(0);    // Exit the Simulation and let Java free the
-								// memory.
+				SimulationView.exitDisplay(); // Tell OpenGL we are done and free the resources used in the canvas. - must be done else sim will lockup.
+
+				System.exit(0);    // Exit the Simulation and let Java free the memory.
 			}
-			
+
 			public void windowIconified(WindowEvent e)
 			{
 				SimulationView.minimise();
 			}
-			
+
 			public void windowDeiconified(WindowEvent e)
 			{
 				SimulationView.maximise();
 			}
-			
+
 		});
 
 		gui.setVisible(true);
 		gui.setAlwaysOnTop(true);
 
 		startUpState();
-		
+
 	}
 
 	private static void lookandFeel()
@@ -440,95 +383,97 @@ public class SimulationGUI
 
 	private static void newSim()
 	{
-		sim.newSim(Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), 
-				Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()),
-				Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()),
-				Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()));
-		
-		/* If needed the GC can free old objects now, before the simulation starts */
+		sim.newSim(statsPanel, Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()), Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()), Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()));
+
+		/*
+		 * If needed the GC can free old objects now, before the simulation
+		 * starts
+		 */
 		System.gc();
-		
+
 		btnNew.setEnabled(true);
-		
+
 		btnStart.setEnabled(true);
-		
+
 		btnPause.setEnabled(false);
-		
+
 		btnPause.setText("Pause");
-		
+
 		simRateSlider.setEnabled(false);
-		
+
 		simRateSlider.setValue(15);
 
 		// Centers the simulated world in the view
-		SimulationView.setInitalViewTranslate( (view_width/2)- ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2 ),(view_height/2)- ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2 ) );
+		SimulationView.setInitalViewTranslate((view_width / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2), (view_height / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2));
 
+		/* Clear the old stats */
+		StatsPanel.clearStats();
+		
 	}
 
 	private static void simStartedState()
 	{
-	
+
 		sim.startSim();
-		
+
 		btnNew.setEnabled(false);
-		
+
 		btnStart.setEnabled(false);
-		
+
 		btnPause.setEnabled(true);
-		
+
 		simRateSlider.setEnabled(true);
-		
+
 		comboBoxPreyNumbers.setEnabled(false);
-		
+
 		comboBoxPredNumbers.setEnabled(false);
-		
-		comboBoxWorldSize.setEnabled(false);	
+
+		comboBoxWorldSize.setEnabled(false);
 
 		comboBoxPlantNumbers.setEnabled(false);
-				
+
 		SimulationView.setFocus();
-				
+
 	}
-	
+
 	private static void startUpState()
 	{
 		comboBoxPreyNumbers.setEnabled(true);
 		comboBoxPredNumbers.setEnabled(true);
 		comboBoxWorldSize.setEnabled(true);
-		comboBoxPlantNumbers.setEnabled(true);	
+		comboBoxPlantNumbers.setEnabled(true);
 
 		btnStart.setEnabled(false);
 		simRateSlider.setEnabled(false);
 		btnPause.setEnabled(false);
-	
-		
+
 	}
 
 	private static void simPausedState()
-	{		
-		btnPause.setText("Resume");	
-		btnNew.setEnabled(true);	
-		
+	{
+		btnPause.setText("Resume");
+		btnNew.setEnabled(true);
+
 		comboBoxPreyNumbers.setEnabled(true);
 		comboBoxPredNumbers.setEnabled(true);
-		comboBoxWorldSize.setEnabled(true);	
-		comboBoxPlantNumbers.setEnabled(true);	
-		
+		comboBoxWorldSize.setEnabled(true);
+		comboBoxPlantNumbers.setEnabled(true);
+
 		sim.pauseSim();
 
 	}
-	
+
 	private static void simUnPausedState()
 	{
-		btnPause.setText("Pause");		
+		btnPause.setText("Pause");
 		btnNew.setEnabled(false);
 
 		comboBoxPreyNumbers.setEnabled(false);
 		comboBoxPredNumbers.setEnabled(false);
-		comboBoxWorldSize.setEnabled(false);	
-		comboBoxPlantNumbers.setEnabled(false);	
-		
+		comboBoxWorldSize.setEnabled(false);
+		comboBoxPlantNumbers.setEnabled(false);
+
 		sim.unPauseSim();
 	}
-	
+
 }

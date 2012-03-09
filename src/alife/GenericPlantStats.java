@@ -72,7 +72,7 @@ public class GenericPlantStats
 		}
 
 		
-		return (num);	// 1/x efficiency
+		return (num/4);	// 1/x efficiency
 	}
 	
 	public float getEnergy()

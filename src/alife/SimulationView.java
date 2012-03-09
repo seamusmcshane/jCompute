@@ -282,7 +282,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			// app.setMultiSample(8);
 
 			// Set sim start up frame rate 
-			simView.getContainer().setTargetFrameRate(frame_rate);
+			simView.getContainer().setTargetFrameRate(default_frame_rate);
 
 			frame.getContentPane().add(simView, BorderLayout.CENTER);
 

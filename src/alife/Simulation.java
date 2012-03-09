@@ -121,15 +121,21 @@ public class Simulation
 	/** The Simulation World. */
 	public World world;
 
+	/** need to sync graph updates with sim updates */
+	private StatsPanel stats;
+	
 	public Simulation()
 	{
 		setupThreads();
 		
-		newSim(256,0,0,0);
+		newSim(null,256,0,0,0);
 	}
 
-	public void newSim(int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers)
+	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers)
 	{
+		
+		this.stats = stats;
+		
 		world = new World(world_size);
 
 		simManager = new SimulationManager(world_size,agent_prey_numbers,agent_predator_numbers,  plant_numbers);
@@ -173,6 +179,8 @@ public class Simulation
 							}
 							
 							resetTotalTime();
+							
+							stats.updateGraph();
 							
 							// Allow the simulation to be paused again
 							pause.release();
@@ -218,6 +226,8 @@ public class Simulation
 			tasps+=step_samples[i];					// Total all the steps
 		}
 
+		StatsPanel.setASPS(averageStepsPerSecond());
+		
 	}
 	
 	// Average the steps thus giving an average steps per second count
