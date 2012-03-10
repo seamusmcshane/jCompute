@@ -21,7 +21,7 @@ public class GenericPlantStats
 		
 		max_size = max_energy / size_div;
 		
-		size = 1;		
+		size = 2;		
 		
 		if(starting_energy>max_energy)
 		{
