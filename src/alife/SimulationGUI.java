@@ -60,12 +60,12 @@ public class SimulationGUI
 	static int screen_height;
 
 	/** Window Size */
-	static int pad = 10;
+	static int pad = 0;
 
 	static int total_height = 0;
 	static int total_width = 0;
 
-	static int control_gui_width = 350; // Hard-Coded as GUI needs certain width needs based on button text size
+	static int control_gui_width = 400; // Hard-Coded as GUI needs certain width needs based on button text size
 
 	static int control_gui_height = 0;
 	static int control_gui_x;
@@ -109,10 +109,10 @@ public class SimulationGUI
 	{
 		total_height = (int) (screen_height / 1.5f);
 
-		control_gui_height = total_height;
+		control_gui_height = screen_height - 48;
 
-		view_width = (screen_width - control_gui_width) / 2;
-		view_height = total_height;
+		view_width = screen_width - control_gui_width;
+		view_height = screen_height - 48;
 
 	}
 
@@ -145,10 +145,10 @@ public class SimulationGUI
 		gui.setTitle("Alife Simulation");
 
 		// for editing
-		gui.setBounds(control_gui_x, control_gui_y, 350, 600);
+		//gui.setBounds(control_gui_x, control_gui_y, 350, 600);
 
 		// For distribution
-		//gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
+		gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
 
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
