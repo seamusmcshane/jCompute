@@ -172,8 +172,8 @@ public class Simulation
 							// Increment the Step counter
 							step_num++;
 																					
-							// Calculate how much we need to wait (in nano seconds, based on the time taken so far) before proceeding to the next step 
-							while(timeTotal() < (1000000000/req_sps)) // Approximation :) of what the inter-step delay should be
+							// Calculate how much we need to wait (in milliseconds, based on the time taken so far) before proceeding to the next step 
+							while(timeTotal() < (1000/req_sps)) // Approximation of what the inter-step delay should be
 							{
 								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
 							}
@@ -196,20 +196,20 @@ public class Simulation
 	
 	private void setUpStepsPerSecond()
 	{
-		startTime = System.nanoTime();
+		startTime = System.currentTimeMillis();
 		previousTime = startTime;				// At Start up this is true
-		currentTime = System.nanoTime();
+		currentTime = System.currentTimeMillis();
 		diffTime = currentTime-previousTime;	// Diff time is initialized
 	}
 	
 	// Calculates the Average Steps Per Second
 	private void calcStepsPerSecond()
 	{
-		currentTime = System.nanoTime();			// Current TIme
+		currentTime = System.currentTimeMillis();	// Current TIme
 		
 		diffTime = currentTime-previousTime;		// Time between this and the last call
 				
-		sps = 1000f/(diffTime/ 1000000f) ;			//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second
+		sps = 1000f/(diffTime) ;					// Gives a instantaneous performance indicator of steps per second
 				
 		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 		
@@ -239,7 +239,7 @@ public class Simulation
 	// Calculates the total taken between repeated call to this method - used for inter-step time wait
 	private long timeTotal()
 	{
-		stepTimeNow = System.nanoTime();		 // Current Time
+		stepTimeNow = System.currentTimeMillis();		 // Current Time
 		
 		stepTimeDiff = stepTimeNow-stepTimePrev; // Time Between this call and the last call
 		
