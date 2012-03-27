@@ -84,7 +84,7 @@ public class Simulation
 
 	private int num_samples = 150;
 	private double step_samples[] = new double[num_samples];
-	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
+	private int tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
 	private int asps;	 			// Average Steps Per Second as an int for display purposes
 	
 	// Fixed Step Calculations
@@ -209,7 +209,7 @@ public class Simulation
 		
 		diffTime = currentTime-previousTime;		// Time between this and the last call
 				
-		sps = 1000f/(diffTime) ;					// Gives a instantaneous performance indicator of steps per second
+		sps = (diffTime) ;					// Gives a instantaneous performance indicator of steps per second
 				
 		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 		
@@ -227,13 +227,14 @@ public class Simulation
 		}
 
 		StatsPanel.setASPS(averageStepsPerSecond());
+		//StatsPanel.setASPS((int)tasps);
 		
 	}
 	
 	// Average the steps thus giving an average steps per second count
 	public int averageStepsPerSecond()
 	{
-		return asps = (int)(tasps/num_samples);			
+		return asps = 1000/(tasps/num_samples);			
 	}
 
 	// Calculates the total taken between repeated call to this method - used for inter-step time wait
