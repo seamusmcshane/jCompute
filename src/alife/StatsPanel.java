@@ -72,18 +72,21 @@ public class StatsPanel extends JPanel
 
 		lblPlants.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPlants);
+		lblPlantNo.setForeground(Color.GREEN);
 
 		lblPlantNo.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPlantNo);
 
 		lblPredators.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPredators);
+		lblPredatorsNo.setForeground(Color.RED);
 
 		lblPredatorsNo.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPredatorsNo);
 
 		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPrey);
+		lblPreyNo.setForeground(Color.BLUE);
 
 		lblPreyNo.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPreyNo);
