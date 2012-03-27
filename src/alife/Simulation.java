@@ -73,7 +73,6 @@ public class Simulation
 
 	/** Simulation Performance Indicators */
 	int step_num = 0;
-	double sps = 0; 					// steps per second
 	boolean real_time;
 	
 	// Step Per Second Calculation
@@ -82,7 +81,7 @@ public class Simulation
 	private long currentTime;
 	private long diffTime;	
 
-	private int num_samples = 150;
+	private int num_samples = 15;
 	private double step_samples[] = new double[num_samples];
 	private int tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
 	private int asps;	 			// Average Steps Per Second as an int for display purposes
@@ -172,8 +171,8 @@ public class Simulation
 							// Increment the Step counter
 							step_num++;
 																					
-							// Calculate how much we need to wait (in milliseconds, based on the time taken so far) before proceeding to the next step 
-							while(timeTotal() < (1000/req_sps)) // Approximation of what the inter-step delay should be
+							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
+							while(timeTotal() < (1000000000/req_sps)) // Approximation of what the inter-step delay should be
 							{
 								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
 							}
@@ -196,9 +195,9 @@ public class Simulation
 	
 	private void setUpStepsPerSecond()
 	{
-		startTime = System.currentTimeMillis();
+		startTime = System.nanoTime();
 		previousTime = startTime;				// At Start up this is true
-		currentTime = System.currentTimeMillis();
+		currentTime = System.nanoTime();
 		diffTime = currentTime-previousTime;	// Diff time is initialized
 	}
 	
@@ -209,7 +208,6 @@ public class Simulation
 		
 		diffTime = currentTime-previousTime;		// Time between this and the last call
 				
-		sps = (diffTime) ;					// Gives a instantaneous performance indicator of steps per second
 				
 		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 		
@@ -218,7 +216,7 @@ public class Simulation
 			step_samples[i] = step_samples[(i+1)];
 		}
 		
-		step_samples[num_samples-1] = sps;			// Store the new sps sample
+		step_samples[num_samples-1] = (diffTime);			// Store the new sps sample
 		
 		tasps = 0;									// clear the old total average (or it will increment for ever)
 		for(int i=0;i<num_samples;i++)
@@ -240,7 +238,7 @@ public class Simulation
 	// Calculates the total taken between repeated call to this method - used for inter-step time wait
 	private long timeTotal()
 	{
-		stepTimeNow = System.currentTimeMillis();		 // Current Time
+		stepTimeNow = System.nanoTime();		 // Current Time
 		
 		stepTimeDiff = stepTimeNow-stepTimePrev; // Time Between this call and the last call
 		
