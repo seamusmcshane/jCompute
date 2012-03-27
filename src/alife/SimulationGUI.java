@@ -298,14 +298,14 @@ public class SimulationGUI
 		txtSimRateInfo.setText("15");
 		txtSimRateInfo.setColumns(10);
 		simRateSlider = new JSlider();
-		simRateSlider.setMaximum(200);
+		simRateSlider.setMaximum(300);
 		simRateSlider.setValue(15);
 		simRateSlider.setSnapToTicks(true);
 		row1.add(simRateSlider);
 		simRateSlider.setPaintTrack(false);
 		simRateSlider.setPaintTicks(true);
-		simRateSlider.setMinorTickSpacing(5);
-		simRateSlider.setMajorTickSpacing(15);
+		simRateSlider.setMinorTickSpacing(15);
+		simRateSlider.setMajorTickSpacing(30);
 		simRateSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
