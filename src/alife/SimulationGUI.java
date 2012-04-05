@@ -32,6 +32,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import javax.swing.border.TitledBorder;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 public class SimulationGUI
 {
@@ -139,10 +142,10 @@ public class SimulationGUI
 		gui.setTitle("Alife Simulation");
 
 		// for editing
-		//gui.setBounds(control_gui_x, control_gui_y, 350, 600);
+		gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
 
 		// For distribution
-		gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
+		//gui.setBounds(control_gui_x, control_gui_y, 457, 1032);
 
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
@@ -157,57 +160,76 @@ public class SimulationGUI
 
 		JPanel controlPanelTop = new JPanel();
 		controlPanel.add(controlPanelTop, BorderLayout.NORTH);
-		controlPanelTop.setLayout(new BorderLayout(0, 0));
+		GridBagLayout gbl_controlPanelTop = new GridBagLayout();
+		gbl_controlPanelTop.columnWidths = new int[]{0};
+		gbl_controlPanelTop.rowHeights = new int[]{63, 143, 0, 0};
+		gbl_controlPanelTop.columnWeights = new double[]{1.0, 1.0};
+		gbl_controlPanelTop.rowWeights = new double[]{Double.MIN_VALUE};
+		controlPanelTop.setLayout(gbl_controlPanelTop);
 		
 		JPanel mainSetupPanel = new JPanel();
 		mainSetupPanel.setBorder(new TitledBorder(null, "Simulation Setup", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanelTop.add(mainSetupPanel, BorderLayout.NORTH);
-		mainSetupPanel.setLayout(new GridLayout(2, 4, 0, 0));
-
-		JLabel lblPredS = new JLabel("Predators");
-		lblPredS.setHorizontalAlignment(SwingConstants.CENTER);
-		mainSetupPanel.add(lblPredS);
-
-		comboBoxPredNumbers = new JComboBox();
-		mainSetupPanel.add(comboBoxPredNumbers);
-		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
-		comboBoxPredNumbers.setSelectedIndex(0);
-
-		JLabel lblPreyS = new JLabel("Prey");
-		lblPreyS.setHorizontalAlignment(SwingConstants.CENTER);
-		mainSetupPanel.add(lblPreyS);
-
-		comboBoxPreyNumbers = new JComboBox();
-		mainSetupPanel.add(comboBoxPreyNumbers);
-		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
-		comboBoxPreyNumbers.setSelectedIndex(0);
-
-		JLabel lblPlants = new JLabel("Plants");
-		lblPlants.setHorizontalAlignment(SwingConstants.CENTER);
-		mainSetupPanel.add(lblPlants);
-
-		comboBoxPlantNumbers = new JComboBox();
-		mainSetupPanel.add(comboBoxPlantNumbers);
-		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
-		comboBoxPlantNumbers.setSelectedIndex(1);
-
-		JLabel lblWorldSize = new JLabel("World Size");
-		lblWorldSize.setHorizontalAlignment(SwingConstants.CENTER);
-		mainSetupPanel.add(lblWorldSize);
-
-		comboBoxWorldSize = new JComboBox();
-		mainSetupPanel.add(comboBoxWorldSize);
-		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
-		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
-		comboBoxWorldSize.setSelectedIndex(0);
+		GridBagConstraints gbc_mainSetupPanel = new GridBagConstraints();
+		gbc_mainSetupPanel.anchor = GridBagConstraints.NORTH;
+		gbc_mainSetupPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_mainSetupPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_mainSetupPanel.gridwidth = 2;
+		gbc_mainSetupPanel.gridx = 0;
+		gbc_mainSetupPanel.gridy = 0;
+		controlPanelTop.add(mainSetupPanel, gbc_mainSetupPanel);
+		mainSetupPanel.setLayout(new GridLayout(2, 4, 5, 5));
+		
+				JLabel lblPredS = new JLabel("Predators");
+				lblPredS.setHorizontalAlignment(SwingConstants.CENTER);
+				mainSetupPanel.add(lblPredS);
+				
+						comboBoxPredNumbers = new JComboBox();
+						mainSetupPanel.add(comboBoxPredNumbers);
+						comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
+						{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+						comboBoxPredNumbers.setSelectedIndex(0);
+						
+								JLabel lblPreyS = new JLabel("Prey");
+								lblPreyS.setHorizontalAlignment(SwingConstants.CENTER);
+								mainSetupPanel.add(lblPreyS);
+								
+										comboBoxPreyNumbers = new JComboBox();
+										mainSetupPanel.add(comboBoxPreyNumbers);
+										comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
+										{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+										comboBoxPreyNumbers.setSelectedIndex(0);
+										
+												JLabel lblPlants = new JLabel("Plants");
+												lblPlants.setHorizontalAlignment(SwingConstants.CENTER);
+												mainSetupPanel.add(lblPlants);
+												
+														comboBoxPlantNumbers = new JComboBox();
+														mainSetupPanel.add(comboBoxPlantNumbers);
+														comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
+														{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+														comboBoxPlantNumbers.setSelectedIndex(1);
+														
+																JLabel lblWorldSize = new JLabel("World Size");
+																lblWorldSize.setHorizontalAlignment(SwingConstants.CENTER);
+																mainSetupPanel.add(lblWorldSize);
+																
+																		comboBoxWorldSize = new JComboBox();
+																		mainSetupPanel.add(comboBoxWorldSize);
+																		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
+																		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
+																		comboBoxWorldSize.setSelectedIndex(0);
 		
 		JPanel agentParamPanel = new JPanel();
 		agentParamPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Agent Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanelTop.add(agentParamPanel, BorderLayout.CENTER);
-		agentParamPanel.setLayout(new GridLayout(0, 3, 0, 0));
+		GridBagConstraints gbc_agentParamPanel = new GridBagConstraints();
+		gbc_agentParamPanel.anchor = GridBagConstraints.NORTH;
+		gbc_agentParamPanel.gridwidth = 2;
+		gbc_agentParamPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_agentParamPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_agentParamPanel.gridx = 0;
+		gbc_agentParamPanel.gridy = 1;
+		controlPanelTop.add(agentParamPanel, gbc_agentParamPanel);
+		agentParamPanel.setLayout(new GridLayout(0, 3, 5, 5));
 		
 		JLabel lbl_spacer = new JLabel("");
 		agentParamPanel.add(lbl_spacer);
@@ -220,63 +242,128 @@ public class SimulationGUI
 		lblPredator.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblPredator);
 		
+		JLabel lblSpeed = new JLabel("Speed");
+		lblSpeed.setHorizontalAlignment(SwingConstants.CENTER);
+		agentParamPanel.add(lblSpeed);
+		
+		JComboBox comboBoxPreySpeed = new JComboBox();
+		agentParamPanel.add(comboBoxPreySpeed);
+		
+		JComboBox comboBoxPredatorSpeed = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorSpeed);
+		
 		JLabel lblViewRange = new JLabel("View Range");
 		lblViewRange.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblViewRange);
 		
-		JComboBox comboBox = new JComboBox();
-		agentParamPanel.add(comboBox);
+		JComboBox comboBoxPreyViewRange = new JComboBox();
+		agentParamPanel.add(comboBoxPreyViewRange);
 		
-		JComboBox comboBox_1 = new JComboBox();
-		agentParamPanel.add(comboBox_1);
+		JComboBox comboBoxPredatorViewRange = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorViewRange);
 		
 		JLabel lblDigestiveEfficn = new JLabel("Digestive Efficiency");
 		lblDigestiveEfficn.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblDigestiveEfficn);
 		
-		JComboBox comboBox_2 = new JComboBox();
-		agentParamPanel.add(comboBox_2);
+		JComboBox comboBoxPreyDE = new JComboBox();
+		agentParamPanel.add(comboBoxPreyDE);
 		
-		JComboBox comboBox_3 = new JComboBox();
-		agentParamPanel.add(comboBox_3);
+		JComboBox comboBoxPredatorDE = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorDE);
 		
-		JLabel lblReproductionDiv = new JLabel("Energy Division");
+		JLabel lblReproductionDiv = new JLabel("R Energy Div");
 		lblReproductionDiv.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblReproductionDiv);
 		
-		JSlider slider = new JSlider();
-		agentParamPanel.add(slider);
+		JComboBox comboBoxPreyREDiv = new JComboBox();
+		agentParamPanel.add(comboBoxPreyREDiv);
 		
-		JSlider slider_1 = new JSlider();
-		agentParamPanel.add(slider_1);
+		JComboBox comboBoxPredatorREDiv = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorREDiv);
 		
 		JLabel lblMovementCost = new JLabel("Movement Cost");
 		lblMovementCost.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblMovementCost);
 		
-		JSlider slider_2 = new JSlider();
-		agentParamPanel.add(slider_2);
+		JComboBox comboBoxPreyMoveCost = new JComboBox();
+		agentParamPanel.add(comboBoxPreyMoveCost);
 		
-		JSlider slider_3 = new JSlider();
-		agentParamPanel.add(slider_3);
+		JComboBox comboBoxPredatorMoveCost = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorMoveCost);
 		
-		JPanel plantParamPanel = new JPanel();
-		controlPanelTop.add(plantParamPanel, BorderLayout.SOUTH);
-		plantParamPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		JLabel lblHungerThreshold = new JLabel("Hunger Threshold");
+		lblHungerThreshold.setHorizontalAlignment(SwingConstants.CENTER);
+		agentParamPanel.add(lblHungerThreshold);
+		
+		JComboBox comboBoxPreyHungerThres = new JComboBox();
+		agentParamPanel.add(comboBoxPreyHungerThres);
+		
+		JComboBox comboBoxPredatorHungerThres = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorHungerThres);
+		
+		JLabel lblConsumptionRate = new JLabel("Consumption Rate");
+		lblConsumptionRate.setHorizontalAlignment(SwingConstants.CENTER);
+		agentParamPanel.add(lblConsumptionRate);
+		
+		JComboBox comboBoxConsumptionRatePrey = new JComboBox();
+		agentParamPanel.add(comboBoxConsumptionRatePrey);
+		
+		JLabel lblConsumptionRatePred = new JLabel("1x");
+		lblConsumptionRatePred.setHorizontalAlignment(SwingConstants.CENTER);
+		agentParamPanel.add(lblConsumptionRatePred);
+		
+		JPanel plantAndAgentParamPanel = new JPanel();
+		plantAndAgentParamPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Plant and Agent Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_plantAndAgentParamPanel = new GridBagConstraints();
+		gbc_plantAndAgentParamPanel.anchor = GridBagConstraints.NORTH;
+		gbc_plantAndAgentParamPanel.gridwidth = 2;
+		gbc_plantAndAgentParamPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_plantAndAgentParamPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_plantAndAgentParamPanel.gridx = 0;
+		gbc_plantAndAgentParamPanel.gridy = 2;
+		controlPanelTop.add(plantAndAgentParamPanel, gbc_plantAndAgentParamPanel);
+		plantAndAgentParamPanel.setLayout(new GridLayout(0, 2, 5, 5));
 		
 		JLabel lblStartingEnergy = new JLabel("Starting Energy");
 		lblStartingEnergy.setHorizontalAlignment(SwingConstants.CENTER);
-		plantParamPanel.add(lblStartingEnergy);
+		plantAndAgentParamPanel.add(lblStartingEnergy);
 		
-		JSlider slider_4 = new JSlider();
-		plantParamPanel.add(slider_4);
+		JComboBox comboBox_4 = new JComboBox();
+		plantAndAgentParamPanel.add(comboBox_4);
 		
 		JLabel lblReproductionCost = new JLabel("Reproduction Cost");
 		lblReproductionCost.setHorizontalAlignment(SwingConstants.CENTER);
-		plantParamPanel.add(lblReproductionCost);
+		plantAndAgentParamPanel.add(lblReproductionCost);
 		
-		JSlider slider_5 = new JSlider();
-		plantParamPanel.add(slider_5);
+		JComboBox comboBox_5 = new JComboBox();
+		plantAndAgentParamPanel.add(comboBox_5);
+		
+		JPanel panel = new JPanel();
+		panel.setBorder(new TitledBorder(null, "Plant Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.gridwidth = 2;
+		gbc_panel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panel.anchor = GridBagConstraints.NORTH;
+		gbc_panel.insets = new Insets(0, 0, 5, 0);
+		gbc_panel.gridx = 0;
+		gbc_panel.gridy = 3;
+		controlPanelTop.add(panel, gbc_panel);
+		panel.setLayout(new GridLayout(0, 2, 5, 5));
+		
+		JLabel lblPlant_regen_rate = new JLabel("Plant Regen Rate");
+		lblPlant_regen_rate.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(lblPlant_regen_rate);
+		
+		JComboBox comboBoxPlantRegenRate = new JComboBox();
+		panel.add(comboBoxPlantRegenRate);
+		
+		JLabel lblEnergyAbso = new JLabel("Energy Abso");
+		lblEnergyAbso.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(lblEnergyAbso);
+		
+		JComboBox comboBoxEnergyAbsorptionRate = new JComboBox();
+		panel.add(comboBoxEnergyAbsorptionRate);
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
