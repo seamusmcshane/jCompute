@@ -91,7 +91,6 @@ public class Simulation
 	private long stepTimeDiff;
 	private long stepTimeTotal;
 	private long stepTimePrev;
-	private int stepsCurrent;
 	
 	/* Number of Agents */
 	int initial_num_agents=0;
@@ -121,23 +120,23 @@ public class Simulation
 	public World world;
 
 	/** need to sync graph updates with sim updates */
-	private StatsPanel stats;
+	private StatsPanel stats_panel;
 	
 	public Simulation()
 	{
 		setupThreads();
 		
-		newSim(null,256,0,0,0);
+		newSim(null,256,0,0,0,new GenericPlantStats(0,0,0,"",0),0);
 	}
 
-	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers)
+	public void newSim(StatsPanel stats_panel, int world_size, int agent_prey_numbers, int agent_predator_numbers, int plant_numbers, GenericPlantStats plant_stats, int plant_regen_rate)
 	{
 		
-		this.stats = stats;
+		this.stats_panel = stats_panel;
 		
 		world = new World(world_size);
 
-		simManager = new SimulationManager(world_size,agent_prey_numbers,agent_predator_numbers,  plant_numbers);
+		simManager = new SimulationManager(world_size,agent_prey_numbers,agent_predator_numbers, plant_numbers, plant_stats,plant_regen_rate);
 	}
 	
 	// Simulation Main Thread  
@@ -179,7 +178,7 @@ public class Simulation
 							
 							resetTotalTime();
 							
-							stats.updateGraph();
+							stats_panel.updateGraph();
 							
 							// Allow the simulation to be paused again
 							pause.release();

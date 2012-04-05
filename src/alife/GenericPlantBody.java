@@ -20,9 +20,9 @@ public class GenericPlantBody
 	
 	private Color color;
 	
-	public GenericPlantBody(Vector2f pos,float starting_energy, float max_energy, float absorption_rate)
+	public GenericPlantBody(Vector2f pos,GenericPlantStats stats)
 	{
-		stats = new GenericPlantStats(starting_energy, max_energy, absorption_rate);
+		this.stats = stats;
 				
 		initBody();
 		

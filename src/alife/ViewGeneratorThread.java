@@ -96,7 +96,7 @@ public class ViewGeneratorThread extends Thread
 			
 //			temp.body.stats.increment();
 
-			while(plantListItr.hasNext()) 
+			/*while(plantListItr.hasNext()) 
 			{
 								
 				currentPlant = plantListItr.next();				
@@ -105,10 +105,9 @@ public class ViewGeneratorThread extends Thread
 				{
 					// Parallel Agent Thinking
 					currentPlant.body.stats.increment();
-				}
+				}			
 
-			}			
-			
+			}	*/					
 			
 			while(agentListItr.hasNext()) 
 			{

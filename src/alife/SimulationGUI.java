@@ -46,10 +46,52 @@ public class SimulationGUI
 	private static JButton btnPause;
 	private static JButton btnStart;
 	private static JTextField txtSimRateInfo;
+	
+	/* Setup */
 	private static JComboBox comboBoxPreyNumbers;
 	private static JComboBox comboBoxPredNumbers;
-	private static JComboBox comboBoxWorldSize;
 	private static JComboBox comboBoxPlantNumbers;
+	private static JComboBox comboBoxWorldSize;	
+	
+	/* Prey */
+	private static JComboBox comboBoxPreyViewRange;	
+	private static JComboBox comboBoxPreyDE;	
+	private static JComboBox comboBoxPreyREDiv;	
+	private static JComboBox comboBoxPreySpeed;	
+	private static JComboBox comboBoxPreyMoveCost;	
+	private static JComboBox comboBoxPreyHungerThres;	
+	private static JComboBox comboBoxPreyConsumptionRate;
+	private static JComboBox comboBoxPreyReproductionCost;	
+	private static JComboBox comboBoxPreyStartingEnergy;
+	
+	/* Predators */
+	private static JComboBox comboBoxPredatorDE;	
+	private static JComboBox comboBoxPredatorViewRange;	
+	private static JComboBox comboBoxPredatorSpeed;	
+	private static JComboBox comboBoxPredatorMoveCost;
+	private static JComboBox comboBoxPredatorHungerThres;
+	private static JComboBox comboBoxPredatorsReproductionCost;
+	private static JComboBox comboBoxPredatorStartingEnergy;
+	private static JComboBox comboBoxPredatorREDiv;
+	
+	/* Plants */
+	private static JComboBox comboBoxPlantEnergyAbsorptionRate;	
+	private static int default_plant_energy_absorption_rate_index=0; // Selects 1
+	
+	private static JComboBox comboBoxPlantRegenRate;
+	private static int default_plant_regen_rate_index=0; // Selects 0
+	
+	private static JComboBox comboBoxPlantREnergyDiv;
+	private static int default_Plant_REnergy_Div_index=1; // Selects 50:50
+	
+	
+	private static JComboBox ComboBoxStartingPlantEnergy;	
+	private static int default_plant_starting_energy_index=49; // Selects 50	
+	
+	private static JComboBox comboBoxPlantReproductionCost;
+	private static int default_plant_reproduction_cost_index=98; // Selects 99
+	
+	/* Custom Jpanel for stats */
 	private static StatsPanel statsPanel;
 
 	/* static in screen sizes */
@@ -162,7 +204,7 @@ public class SimulationGUI
 		controlPanel.add(controlPanelTop, BorderLayout.NORTH);
 		GridBagLayout gbl_controlPanelTop = new GridBagLayout();
 		gbl_controlPanelTop.columnWidths = new int[]{0};
-		gbl_controlPanelTop.rowHeights = new int[]{63, 143, 0, 0};
+		gbl_controlPanelTop.rowHeights = new int[]{63, 143, 0};
 		gbl_controlPanelTop.columnWeights = new double[]{1.0, 1.0};
 		gbl_controlPanelTop.rowWeights = new double[]{Double.MIN_VALUE};
 		controlPanelTop.setLayout(gbl_controlPanelTop);
@@ -246,124 +288,149 @@ public class SimulationGUI
 		lblSpeed.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblSpeed);
 		
-		JComboBox comboBoxPreySpeed = new JComboBox();
+		comboBoxPreySpeed = new JComboBox();
 		agentParamPanel.add(comboBoxPreySpeed);
 		
-		JComboBox comboBoxPredatorSpeed = new JComboBox();
+		comboBoxPredatorSpeed = new JComboBox();
 		agentParamPanel.add(comboBoxPredatorSpeed);
 		
 		JLabel lblViewRange = new JLabel("View Range");
 		lblViewRange.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblViewRange);
 		
-		JComboBox comboBoxPreyViewRange = new JComboBox();
+		comboBoxPreyViewRange = new JComboBox();
 		agentParamPanel.add(comboBoxPreyViewRange);
 		
-		JComboBox comboBoxPredatorViewRange = new JComboBox();
+		comboBoxPredatorViewRange = new JComboBox();
 		agentParamPanel.add(comboBoxPredatorViewRange);
 		
 		JLabel lblDigestiveEfficn = new JLabel("Digestive Efficiency");
 		lblDigestiveEfficn.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblDigestiveEfficn);
 		
-		JComboBox comboBoxPreyDE = new JComboBox();
+		comboBoxPreyDE = new JComboBox();
 		agentParamPanel.add(comboBoxPreyDE);
 		
-		JComboBox comboBoxPredatorDE = new JComboBox();
+		comboBoxPredatorDE = new JComboBox();
 		agentParamPanel.add(comboBoxPredatorDE);
 		
 		JLabel lblReproductionDiv = new JLabel("R Energy Div");
 		lblReproductionDiv.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblReproductionDiv);
 		
-		JComboBox comboBoxPreyREDiv = new JComboBox();
+		comboBoxPreyREDiv = new JComboBox();
 		agentParamPanel.add(comboBoxPreyREDiv);
 		
-		JComboBox comboBoxPredatorREDiv = new JComboBox();
+		comboBoxPredatorREDiv = new JComboBox();
 		agentParamPanel.add(comboBoxPredatorREDiv);
 		
 		JLabel lblMovementCost = new JLabel("Movement Cost");
 		lblMovementCost.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblMovementCost);
 		
-		JComboBox comboBoxPreyMoveCost = new JComboBox();
+		comboBoxPreyMoveCost = new JComboBox();
 		agentParamPanel.add(comboBoxPreyMoveCost);
 		
-		JComboBox comboBoxPredatorMoveCost = new JComboBox();
+		comboBoxPredatorMoveCost = new JComboBox();
 		agentParamPanel.add(comboBoxPredatorMoveCost);
 		
 		JLabel lblHungerThreshold = new JLabel("Hunger Threshold");
 		lblHungerThreshold.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblHungerThreshold);
 		
-		JComboBox comboBoxPreyHungerThres = new JComboBox();
+		comboBoxPreyHungerThres = new JComboBox();
 		agentParamPanel.add(comboBoxPreyHungerThres);
 		
-		JComboBox comboBoxPredatorHungerThres = new JComboBox();
+		comboBoxPredatorHungerThres = new JComboBox();
 		agentParamPanel.add(comboBoxPredatorHungerThres);
 		
 		JLabel lblConsumptionRate = new JLabel("Consumption Rate");
 		lblConsumptionRate.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblConsumptionRate);
 		
-		JComboBox comboBoxConsumptionRatePrey = new JComboBox();
-		agentParamPanel.add(comboBoxConsumptionRatePrey);
+		comboBoxPreyConsumptionRate = new JComboBox();
+		agentParamPanel.add(comboBoxPreyConsumptionRate);
 		
 		JLabel lblConsumptionRatePred = new JLabel("1x");
 		lblConsumptionRatePred.setHorizontalAlignment(SwingConstants.CENTER);
 		agentParamPanel.add(lblConsumptionRatePred);
 		
-		JPanel plantAndAgentParamPanel = new JPanel();
-		plantAndAgentParamPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Plant and Agent Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_plantAndAgentParamPanel = new GridBagConstraints();
-		gbc_plantAndAgentParamPanel.anchor = GridBagConstraints.NORTH;
-		gbc_plantAndAgentParamPanel.gridwidth = 2;
-		gbc_plantAndAgentParamPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_plantAndAgentParamPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_plantAndAgentParamPanel.gridx = 0;
-		gbc_plantAndAgentParamPanel.gridy = 2;
-		controlPanelTop.add(plantAndAgentParamPanel, gbc_plantAndAgentParamPanel);
-		plantAndAgentParamPanel.setLayout(new GridLayout(0, 2, 5, 5));
+		JLabel lblReproductionCost = new JLabel("Reproduction Cost");
+		agentParamPanel.add(lblReproductionCost);
+		lblReproductionCost.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		comboBoxPreyReproductionCost = new JComboBox();
+		agentParamPanel.add(comboBoxPreyReproductionCost);
+		comboBoxPreyReproductionCost.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
+		
+		comboBoxPredatorsReproductionCost = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorsReproductionCost);
 		
 		JLabel lblStartingEnergy = new JLabel("Starting Energy");
-		lblStartingEnergy.setHorizontalAlignment(SwingConstants.CENTER);
-		plantAndAgentParamPanel.add(lblStartingEnergy);
+		agentParamPanel.add(lblStartingEnergy);
 		
-		JComboBox comboBox_4 = new JComboBox();
-		plantAndAgentParamPanel.add(comboBox_4);
+		comboBoxPreyStartingEnergy = new JComboBox();
+		agentParamPanel.add(comboBoxPreyStartingEnergy);
 		
-		JLabel lblReproductionCost = new JLabel("Reproduction Cost");
-		lblReproductionCost.setHorizontalAlignment(SwingConstants.CENTER);
-		plantAndAgentParamPanel.add(lblReproductionCost);
+		comboBoxPredatorStartingEnergy = new JComboBox();
+		agentParamPanel.add(comboBoxPredatorStartingEnergy);
 		
-		JComboBox comboBox_5 = new JComboBox();
-		plantAndAgentParamPanel.add(comboBox_5);
+		JPanel plantParamPanel = new JPanel();
+		plantParamPanel.setBorder(new TitledBorder(null, "Plant Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_plantParamPanel = new GridBagConstraints();
+		gbc_plantParamPanel.gridwidth = 2;
+		gbc_plantParamPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_plantParamPanel.anchor = GridBagConstraints.NORTH;
+		gbc_plantParamPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_plantParamPanel.gridx = 0;
+		gbc_plantParamPanel.gridy = 2;
+		controlPanelTop.add(plantParamPanel, gbc_plantParamPanel);
+		plantParamPanel.setLayout(new GridLayout(0, 2, 5, 5));
 		
-		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Plant Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.gridwidth = 2;
-		gbc_panel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_panel.anchor = GridBagConstraints.NORTH;
-		gbc_panel.insets = new Insets(0, 0, 5, 0);
-		gbc_panel.gridx = 0;
-		gbc_panel.gridy = 3;
-		controlPanelTop.add(panel, gbc_panel);
-		panel.setLayout(new GridLayout(0, 2, 5, 5));
-		
-		JLabel lblPlant_regen_rate = new JLabel("Plant Regen Rate");
+		JLabel lblPlant_regen_rate = new JLabel("Plant Regen Rate (Plants/Step)");
 		lblPlant_regen_rate.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblPlant_regen_rate);
+		plantParamPanel.add(lblPlant_regen_rate);
 		
-		JComboBox comboBoxPlantRegenRate = new JComboBox();
-		panel.add(comboBoxPlantRegenRate);
+		comboBoxPlantRegenRate = new JComboBox();
+		comboBoxPlantRegenRate.setModel(new DefaultComboBoxModel(new String[] {"0", "2", "4", "8", "16", "32", "64", "128", "256", "512"}));
+		plantParamPanel.add(comboBoxPlantRegenRate);
+		comboBoxPlantRegenRate.setSelectedIndex(default_plant_regen_rate_index);		
 		
-		JLabel lblEnergyAbso = new JLabel("Energy Abso");
+		JLabel lblEnergyAbso = new JLabel("Energy Absob Rate");
 		lblEnergyAbso.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblEnergyAbso);
+		plantParamPanel.add(lblEnergyAbso);
 		
-		JComboBox comboBoxEnergyAbsorptionRate = new JComboBox();
-		panel.add(comboBoxEnergyAbsorptionRate);
+		comboBoxPlantEnergyAbsorptionRate = new JComboBox();
+		comboBoxPlantEnergyAbsorptionRate.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
+		plantParamPanel.add(comboBoxPlantEnergyAbsorptionRate);
+		comboBoxPlantEnergyAbsorptionRate.setSelectedIndex(default_plant_energy_absorption_rate_index);
+		
+		JLabel lblplantREnergyDiv = new JLabel("R Energ Div");
+		lblplantREnergyDiv.setHorizontalAlignment(SwingConstants.CENTER);
+		plantParamPanel.add(lblplantREnergyDiv);
+		
+		comboBoxPlantREnergyDiv = new JComboBox();
+		comboBoxPlantREnergyDiv.setModel(new DefaultComboBoxModel(new String[] {"25:75", "50:50", "25:75"}));
+		plantParamPanel.add(comboBoxPlantREnergyDiv);
+		comboBoxPlantREnergyDiv.setSelectedIndex(default_Plant_REnergy_Div_index);
+		
+		JLabel lblStartingPlantEnergy = new JLabel("Starting Energy");
+		plantParamPanel.add(lblStartingPlantEnergy);
+		lblStartingPlantEnergy.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		ComboBoxStartingPlantEnergy = new JComboBox();
+		plantParamPanel.add(ComboBoxStartingPlantEnergy);
+		ComboBoxStartingPlantEnergy.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100"}));
+		ComboBoxStartingPlantEnergy.setSelectedIndex(default_plant_starting_energy_index);		
+		
+		JLabel lblPlantReproductionCost = new JLabel("Reproduction Cost");
+		lblPlantReproductionCost.setHorizontalAlignment(SwingConstants.CENTER);
+		plantParamPanel.add(lblPlantReproductionCost);
+		
+		comboBoxPlantReproductionCost = new JComboBox();
+		plantParamPanel.add(comboBoxPlantReproductionCost);
+		comboBoxPlantReproductionCost.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
+		comboBoxPlantReproductionCost.setSelectedIndex(default_plant_reproduction_cost_index);
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
@@ -547,11 +614,29 @@ public class SimulationGUI
 
 	private static void newSim()
 	{
-		sim.newSim(statsPanel, Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()), Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()), Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()));
+		
+		
+		// Artificial Plant boost
+		int plant_regen_rate = Integer.parseInt(comboBoxPlantRegenRate.getSelectedItem().toString());
+				
+		//(float starting_energy, float max_energy, float absorption_rate,String renergy_div, int base_reproduction_cost)
+		GenericPlantStats default_plant_stats = new GenericPlantStats(
+				Integer.parseInt(ComboBoxStartingPlantEnergy.getSelectedItem().toString()),
+				100,/*Max Energy*/ 
+				Integer.parseInt(comboBoxPlantEnergyAbsorptionRate.getSelectedItem().toString()),
+				comboBoxPlantREnergyDiv.getSelectedItem().toString(), 
+				Integer.parseInt(comboBoxPlantReproductionCost.getSelectedItem().toString()));
+		
+		// Create a new sim 
+		sim.newSim(statsPanel, Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()),
+				Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()), 
+				Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()), 
+				Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()),
+				default_plant_stats,plant_regen_rate);
 
 		/*
-		 * If needed the GC can free old objects now, before the simulation
-		 * starts
+		 * If needed the GC can free old objects now, 
+		 * before the simulation starts.
 		 */
 		System.gc();
 

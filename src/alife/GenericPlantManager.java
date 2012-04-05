@@ -26,20 +26,24 @@ public class GenericPlantManager
 	private int world_size;
 	private int inital_number;
 	
-	private float base_plant_reproduction_cost=99f;
-	private float base_plant_energy_absorption_rate=1f;
-	private float plant_regen_rate=0.25f;
+	private int plant_regen_rate=0;
 	
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
-	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number)
+	private GenericPlantStats default_stats;	
+	
+	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number, GenericPlantStats stats, int plant_regen_rate)
 	{		
 		this.inital_number = inital_number;
 		
 		this.viewGenerator = viewGenerator;
 		
 		this.world_size = world_size;
+				
+		this.default_stats = stats;
+		
+		this.plant_regen_rate = plant_regen_rate;
 		
 		setUpLists();
 		
@@ -99,7 +103,7 @@ public class GenericPlantManager
 		updateDoneList();
 				
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(world_size,(int) (Math.log10(world_size)/Math.log10(2)));	// log2(512) - +9... log2(1024)+10...
+		addPlants(world_size,plant_regen_rate);	// log2(512) - +9... log2(1024)+10...
 		
 		
 		// Stats Counter
@@ -131,10 +135,14 @@ public class GenericPlantManager
 			itr.remove();
 			
 			if(!temp.body.stats.isDead())
-			{							
+			{					
+				
+				temp.body.stats.increment();
+				
 				doneList.add(temp);
+				
 				plantCount++;
-			}
+			}	
 			
 		}
 	
@@ -146,14 +154,18 @@ public class GenericPlantManager
 		Random xr = new Random();
 		Random yr = new Random();
 		
+		// Clone the stats so they are all unique (not the same reference)
+		GenericPlantStats plant_stats = default_stats.clone();
+						
+		//GenericPlantStats(float starting_energy, float max_energy, float absorption_rate,String renergy_div, int base_reproduction_cost)		
 		int x, y;
 		
 		for (int i = 0; i < plant_number; i++)
 		{
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
-
-			addNewPlant(new GenericPlant(x,y,50f, 100f, base_plant_energy_absorption_rate));
+			
+			addNewPlant(new GenericPlant(x,y,plant_stats));
 		}		
 	}
 
@@ -161,6 +173,7 @@ public class GenericPlantManager
 	public void addNewPlant(GenericPlant plant)
 	{		
 		doneList.add(plant);
+		
 		plantCount++;		
 	}
 	
