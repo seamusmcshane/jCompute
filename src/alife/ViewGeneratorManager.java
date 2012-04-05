@@ -16,19 +16,19 @@ public class ViewGeneratorManager extends Thread
 	private Semaphore viewGeneratorStartSemaphores[];
 	
 	private Semaphore viewGeneratorEndSemaphores[];
-	
-	/* KD tree representations of the world space */
-	private KdTree<SimpleAgent> agentKDTree;
-	private KdTree<GenericPlant> plantKDTree;
-	
+		
 	private ViewGeneratorThread viewThreads[];
 
 	@SuppressWarnings("unchecked")
+	
+	private KdTree<SimpleAgent> agentKDTree;	
+	private LinkedList<SimpleAgent> agentList;
 	private LinkedList<SimpleAgent>[] agentTaskLists;
 	
-	private LinkedList<SimpleAgent> agentList;
-	
+	private KdTree<GenericPlant> plantKDTree;
 	private LinkedList<GenericPlant> plantList;
+	private LinkedList<GenericPlant>[] plantTaskLists;
+	
 
 	private int agentCount;
 	private int plantCount;
@@ -92,9 +92,10 @@ public class ViewGeneratorManager extends Thread
 						
 			//System.out.println("Start Barrier");
 			
-			createPlantKDTree();
+			// Creates the plant kd tree and divides plant list in to sub lists
+			splitPlantList();
 			
-			// Split the lists
+			// Creates the agent kd tree and divides plant list in to sub lists
 			splitAgentList();			
 			
 			// set the tasks
@@ -109,9 +110,7 @@ public class ViewGeneratorManager extends Thread
 			//System.out.println("End Barrier");
 			
 			viewControlerSemaphore.release();
-			
-			//System.exit(1);
-			
+						
 		}		
 	}
 	
@@ -119,7 +118,7 @@ public class ViewGeneratorManager extends Thread
 	{
 		for(int i = 0;i<num_threads;i++)
 		{
-			viewThreads[i].setTask(agentTaskLists[i], agentKDTree,plantKDTree);
+			viewThreads[i].setTask(agentTaskLists[i], agentKDTree, plantTaskLists[i], plantKDTree);
 		}	
 	}
 	
@@ -127,6 +126,7 @@ public class ViewGeneratorManager extends Thread
 	private void setUpTaskLists()
 	{
 		agentTaskLists = new LinkedList[num_threads];
+		plantTaskLists = new LinkedList[num_threads];		
 	}
 	
 	private void setUpSemaphores()
@@ -137,12 +137,9 @@ public class ViewGeneratorManager extends Thread
 
 		for(int i=0;i<num_threads;i++)
 		{
-			viewGeneratorStartSemaphores[i] = new Semaphore(0,true);
-			
+			viewGeneratorStartSemaphores[i] = new Semaphore(0,true);			
 			viewGeneratorEndSemaphores[i] = new Semaphore(0,true);
-
-		}
-				
+		}				
 	}
 	
 	private void setUpThreads()
@@ -156,6 +153,62 @@ public class ViewGeneratorManager extends Thread
 		}
 	}
 	
+	/* splits the List */
+	private void splitPlantList()
+	{
+		/* 2d - KD-Tree */
+		plantKDTree = new KdTree<GenericPlant>(2);
+		
+		int i = 0;
+
+		/* Create a list for each thread and the thread */
+		for (i = 0; i < num_threads; i++)
+		{
+			plantTaskLists[i] = new LinkedList<GenericPlant>();
+		}
+
+		ListIterator<GenericPlant> itr = plantList.listIterator();
+
+		/* Calculate the Splits */
+		int div = plantCount / num_threads;
+		int split = div;
+		
+		int thread_num = 0;
+		int tPlantCount = 0;
+
+		/* Split the lists */
+		while (itr.hasNext())
+		{
+			/* Get an agent */
+			GenericPlant temp = itr.next();
+
+			/* This Section adds each plant and its coordinates to the kd tree */  
+			{
+				double[] pos = new double[2];
+				pos[0] = temp.body.getBodyPos().getX();
+				pos[1] = temp.body.getBodyPos().getY();
+				plantKDTree.addPoint(pos, temp);			
+			}		
+			
+			/* This section does the decision boundaries for splitting the list */
+			if (tPlantCount == split)
+			{
+				if(thread_num < (num_threads-1))
+				{
+					split = split + div;
+					thread_num++;						
+				}			
+			}
+
+			/* Add the plant to the smaller list */
+			plantTaskLists[thread_num].add(temp);	
+
+			tPlantCount++;
+		}
+		/* Lists are now Split */
+
+	}
+		
 	/* splits the List */
 	private void splitAgentList()
 	{
@@ -210,30 +263,5 @@ public class ViewGeneratorManager extends Thread
 		}
 		/* Lists are now Split */
 
-	}
-		
-	private void createPlantKDTree()
-	{
-		/* 2d - KD-Tree */
-		plantKDTree = new KdTree<GenericPlant>(2);	
-		
-		ListIterator<GenericPlant> itr = plantList.listIterator();
-		/* Split the lists */
-		
-		while (itr.hasNext())
-		{
-			/* Get an agent */
-			GenericPlant temp = itr.next();
-
-			/* This Section adds each plant and its coordinates to the kd tree */  
-			{
-				double[] pos = new double[2];
-				pos[0] = temp.body.getBodyPos().getX();
-				pos[1] = temp.body.getBodyPos().getY();
-				plantKDTree.addPoint(pos, temp);			
-			}		
-		}
-		/* Tree is created */
-		
 	}
 }

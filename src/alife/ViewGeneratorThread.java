@@ -17,12 +17,18 @@ public class ViewGeneratorThread extends Thread
 	/** The Agent list. */
 	LinkedList<SimpleAgent> agentList;
 	
+	/** The Plant list. */
+	LinkedList<GenericPlant> plantList;	
+	
 	/** The Entire World View. (Both Trees) */
 	KdTree<SimpleAgent> agentKDTree;
 	KdTree<GenericPlant> plantKDTree;
 	
 	/** The Agent List Iterator. */
 	ListIterator<SimpleAgent> agentListItr;
+	
+	/** The Plant List Iterator. */
+	ListIterator<GenericPlant> plantListItr;	
 	    
     /** The distance function object. */
     SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
@@ -33,6 +39,7 @@ public class ViewGeneratorThread extends Thread
 	
 	/** Reference to the current agent. */
 	private SimpleAgent currentAgent;
+	private GenericPlant currentPlant;	
 	
 	/** Reference to the nearest agent. */
 	private SimpleAgent nearestAgent;
@@ -61,11 +68,13 @@ public class ViewGeneratorThread extends Thread
 	}
 	
 	
-	public void setTask(LinkedList<SimpleAgent> linkedList,	KdTree<SimpleAgent> agentKDTree,KdTree<GenericPlant> plantKDTree)
+	public void setTask(LinkedList<SimpleAgent> agentList,	KdTree<SimpleAgent> agentKDTree,LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
 	{
-		this.agentList = linkedList;	
+		this.agentList = agentList;	
+		this.plantList = plantList;	
 		
 		agentListItr = agentList.listIterator();
+		plantListItr = plantList.listIterator();
 		
 		/* KD Trees */
 		this.agentKDTree = agentKDTree;
@@ -83,6 +92,23 @@ public class ViewGeneratorThread extends Thread
 			start.acquireUninterruptibly();
 			
 			//System.out.println("->Start : " + my_id);
+			
+			
+//			temp.body.stats.increment();
+
+			while(plantListItr.hasNext()) 
+			{
+								
+				currentPlant = plantListItr.next();				
+				
+				if(!currentPlant.body.stats.isDead())
+				{
+					// Parallel Agent Thinking
+					currentPlant.body.stats.increment();
+				}
+
+			}			
+			
 			
 			while(agentListItr.hasNext()) 
 			{

@@ -131,9 +131,7 @@ public class GenericPlantManager
 			itr.remove();
 			
 			if(!temp.body.stats.isDead())
-			{
-				temp.body.stats.increment();
-								
+			{							
 				doneList.add(temp);
 				plantCount++;
 			}
