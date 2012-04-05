@@ -126,17 +126,17 @@ public class Simulation
 	{
 		setupThreads();
 		
-		newSim(null,256,0,0,0,0);
+		newSim(null,256,0,0,0,0,0,0); // Never used - needed for successful startup
 	}
 
-	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers ,int plant_regen_rate)
+	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers ,int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate)
 	{
 		
 		this.stats = stats;
 		
 		world = new World(world_size);
 
-		simManager = new SimulationManager(world_size, agent_prey_numbers, agent_predator_numbers, plant_numbers, plant_regen_rate);
+		simManager = new SimulationManager(world_size, agent_prey_numbers, agent_predator_numbers, plant_numbers, plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);
 	}
 	
 	// Simulation Main Thread  

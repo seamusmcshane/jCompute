@@ -27,20 +27,20 @@ public class SimulationManager
 	ViewGeneratorManager viewGenerator;
 	Semaphore viewManagerSemaphore;
 	
-	public SimulationManager(int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers, int plant_regen_rate)
+	public SimulationManager(int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers, int plant_regen_rate , int plantstartingenergy, int plant_energy_absorption_rate)
 	{
 		
 		setUpViewManager();
 		
-		setUpPlantManager(world_size,plant_numbers,plant_regen_rate);
+		setUpPlantManager(world_size,plant_numbers,plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);
 
 		setUpAgentManager(world_size,agent_prey_numbers,agent_predator_numbers);
 
 	}
 	
-	private void setUpPlantManager(int world_size,int plant_numbers,int plant_regen_rate)
+	private void setUpPlantManager(int world_size,int plant_numbers,int plant_regen_rate,int plantstartingenergy, int plant_energy_absorption_rate)
 	{
-		genericPlantManager = new GenericPlantManager(viewGenerator,world_size,plant_numbers,plant_regen_rate);		
+		genericPlantManager = new GenericPlantManager(viewGenerator,world_size,plant_numbers,plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);		
 	}
 	
 	private void setUpAgentManager(int world_size,int agent_prey_numbers,int agent_predator_numbers)

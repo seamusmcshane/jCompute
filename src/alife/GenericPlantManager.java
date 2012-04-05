@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Vector2f;
 
 public class GenericPlantManager
 {
@@ -26,15 +27,18 @@ public class GenericPlantManager
 	private int world_size;
 	private int inital_number;
 	
-	private float base_plant_reproduction_cost=99f;
+	private float base_plant_reproduction_cost=0.99f;
 	private float base_plant_energy_absorption_rate=1f;
 	
+	private float plantstartingenergy;
 	private int plant_regen_rate;
+	
+	private Random rPos = new Random();
 	
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
-	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number, int plant_regen_rate)
+	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number, int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate)
 	{		
 		this.inital_number = inital_number;
 		
@@ -45,6 +49,10 @@ public class GenericPlantManager
 		setUpLists();
 		
 		this.plant_regen_rate = plant_regen_rate;
+		
+		this.plantstartingenergy = plantstartingenergy;
+		
+		this.base_plant_energy_absorption_rate = plant_energy_absorption_rate;
 		
 		addPlants(world_size,inital_number);		
 	}
@@ -134,9 +142,24 @@ public class GenericPlantManager
 			itr.remove();
 			
 			if(!temp.body.stats.isDead())
-			{							
+			{						
+				
+				/* This results in a unstable growth rate for plants - DISABLED */
+				/*if(temp.body.stats.canReproduce())
+				{										
+					temp.body.stats.decrementReproductionCost();
+					
+					int x = rPos.nextInt(world_size) + 1;
+					int y = rPos.nextInt(world_size) + 1;
+										
+					addNewPlant(new GenericPlant(x,y,50f, 100f, base_plant_energy_absorption_rate,base_plant_reproduction_cost));										
+					
+				}*/
+				//
+				
 				doneList.add(temp);
 				plantCount++;
+				
 			}
 			
 		}
@@ -156,7 +179,7 @@ public class GenericPlantManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewPlant(new GenericPlant(x,y,50f, 100f, base_plant_energy_absorption_rate));
+			addNewPlant(new GenericPlant(x,y,plantstartingenergy, 100f, base_plant_energy_absorption_rate,base_plant_reproduction_cost));
 		}		
 	}
 
@@ -178,6 +201,6 @@ public class GenericPlantManager
 	public void setTrueDrawing(Boolean true_body_drawing)
 	{
 		this.true_drawing = true_body_drawing;		
-	}
-	
+	}	
+			
 }

@@ -1,5 +1,7 @@
 package alife;
 
+import org.newdawn.slick.geom.Vector2f;
+
 public class GenericPlantStats
 {
 	private float energy;
@@ -14,7 +16,13 @@ public class GenericPlantStats
 	
 	private boolean dead;
 	
-	public GenericPlantStats(float starting_energy, float max_energy, float absorption_rate)
+	/* Reproduction */
+	private float reproductionBank;	
+	private float reproductionCost;	
+	private float base_reproduction_cost;
+	
+	
+	public GenericPlantStats(float starting_energy, float max_energy, float absorption_rate, float base_reproduction_cost)
 	{		
 		
 		dead = false;
@@ -34,6 +42,15 @@ public class GenericPlantStats
 		
 		this.absorption_rate = absorption_rate;
 		
+		this.base_reproduction_cost = base_reproduction_cost;
+		
+		this.reproductionCost = max_energy*base_reproduction_cost;
+				
+		if(reproductionCost>max_energy)
+		{
+			this.reproductionCost = max_energy;
+		}
+		
 	}
 	
 	/** Increments the Energy for living plants */
@@ -41,12 +58,20 @@ public class GenericPlantStats
 	{
 		if(!isDead())
 		{
-			energy = energy + absorption_rate;
 			
-			if(energy>max_energy)
+			this.energy = this.energy + (absorption_rate/2);
+			
+			if(this.energy > max_energy)
 			{
-				energy = max_energy;
+				this.energy = max_energy;
 			}
+			
+			this.reproductionBank = this.reproductionBank + (absorption_rate/2);
+			
+			if(this.reproductionBank > max_energy)
+			{
+				this.reproductionBank = max_energy;
+			}	
 		}
 	}
 	
@@ -91,4 +116,19 @@ public class GenericPlantStats
 		return size;
 	}
 	
+	public void decrementReproductionCost()
+	{
+		reproductionBank = (reproductionBank - reproductionCost );
+	}
+	
+	// cost is 1/2 max energy level
+	public boolean canReproduce()
+	{
+		if(reproductionBank > reproductionCost)
+		{						
+			return true;
+		}
+		return false;
+	}
+		
 }

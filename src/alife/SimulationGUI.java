@@ -51,6 +51,8 @@ public class SimulationGUI
 	private static JComboBox comboBoxWorldSize;
 	private static JComboBox comboBoxPlantNumbers;
 	private static JComboBox comboBoxPlantRegenRate;
+	private static JComboBox comboBoxEnergyAbsorptionRate;
+	private static JComboBox comboBoxPlantStartingEnergy;	
 	
 	private static StatsPanel statsPanel;
 
@@ -376,7 +378,8 @@ public class SimulationGUI
 		lblEnergyAbso.setHorizontalAlignment(SwingConstants.LEFT);
 		panel.add(lblEnergyAbso);
 		
-		JComboBox comboBoxEnergyAbsorptionRate = new JComboBox();
+		comboBoxEnergyAbsorptionRate = new JComboBox();
+		comboBoxEnergyAbsorptionRate.setEnabled(false);
 		comboBoxEnergyAbsorptionRate.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		panel.add(comboBoxEnergyAbsorptionRate);
 		
@@ -385,6 +388,7 @@ public class SimulationGUI
 		panel.add(lblREnergyDiv);
 		
 		JComboBox comboBoxPlantRedDiv = new JComboBox();
+		comboBoxPlantRedDiv.setEnabled(false);
 		comboBoxPlantRedDiv.setModel(new DefaultComboBoxModel(new String[] {"0.25", "0.50", "0.75", "1.00"}));
 		panel.add(comboBoxPlantRedDiv);
 		
@@ -392,7 +396,7 @@ public class SimulationGUI
 		lblPlantStartingEnergy.setHorizontalAlignment(SwingConstants.LEFT);
 		panel.add(lblPlantStartingEnergy);
 		
-		JComboBox comboBoxPlantStartingEnergy = new JComboBox();
+		comboBoxPlantStartingEnergy = new JComboBox();
 		comboBoxPlantStartingEnergy.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		panel.add(comboBoxPlantStartingEnergy);
 		
@@ -401,6 +405,7 @@ public class SimulationGUI
 		panel.add(lblRepoCost);
 		
 		JComboBox comboBoxPlantRepoCost = new JComboBox();
+		comboBoxPlantRepoCost.setEnabled(false);
 		comboBoxPlantRepoCost.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		panel.add(comboBoxPlantRepoCost);
 
@@ -587,12 +592,14 @@ public class SimulationGUI
 	private static void newSim()
 	{
 		sim.newSim(statsPanel, 				
-	   Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()), /*World Size */
-	   Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()), /* Prey Numbers*/
-	   Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()), /* Pred Numbers */
-	   Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()) /* Plant Numbers */
-	   ,Integer.parseInt(comboBoxPlantRegenRate.getSelectedItem().toString())); /* Plant Regeneration Rate */
-
+	   Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()) /*World Size */
+	  , Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString()) /* Prey Numbers*/
+	   ,Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString()) /* Pred Numbers */
+	   ,Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString()) /* Plant Numbers */
+	   ,Integer.parseInt(comboBoxPlantRegenRate.getSelectedItem().toString()) /* Plant Regeneration Rate */
+		, Integer.parseInt(comboBoxEnergyAbsorptionRate.getSelectedItem().toString()) /* Plant Energy Absorbtion Rate */
+		, Integer.parseInt(comboBoxPlantStartingEnergy.getSelectedItem().toString()) 
+		);
 		
 		
 		/*
