@@ -91,7 +91,6 @@ public class Simulation
 	private long stepTimeDiff;
 	private long stepTimeTotal;
 	private long stepTimePrev;
-	private int stepsCurrent;
 	
 	/* Number of Agents */
 	int initial_num_agents=0;
@@ -127,17 +126,17 @@ public class Simulation
 	{
 		setupThreads();
 		
-		newSim(null,256,0,0,0);
+		newSim(null,256,0,0,0,0);
 	}
 
-	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers)
+	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers ,int plant_regen_rate)
 	{
 		
 		this.stats = stats;
 		
 		world = new World(world_size);
 
-		simManager = new SimulationManager(world_size,agent_prey_numbers,agent_predator_numbers,  plant_numbers);
+		simManager = new SimulationManager(world_size, agent_prey_numbers, agent_predator_numbers, plant_numbers, plant_regen_rate);
 	}
 	
 	// Simulation Main Thread  

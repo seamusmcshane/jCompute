@@ -28,12 +28,13 @@ public class GenericPlantManager
 	
 	private float base_plant_reproduction_cost=99f;
 	private float base_plant_energy_absorption_rate=1f;
-	private float plant_regen_rate=0.25f;
+	
+	private int plant_regen_rate;
 	
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
-	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number)
+	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number, int plant_regen_rate)
 	{		
 		this.inital_number = inital_number;
 		
@@ -42,6 +43,8 @@ public class GenericPlantManager
 		this.world_size = world_size;
 		
 		setUpLists();
+		
+		this.plant_regen_rate = plant_regen_rate;
 		
 		addPlants(world_size,inital_number);		
 	}
@@ -99,7 +102,7 @@ public class GenericPlantManager
 		updateDoneList();
 				
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(world_size,(int) (Math.log10(world_size)/Math.log10(2)));	// log2(512) - +9... log2(1024)+10...
+		addPlants(world_size,plant_regen_rate);	// log2(512) - +9... log2(1024)+10...
 		
 		
 		// Stats Counter
