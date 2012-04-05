@@ -51,7 +51,7 @@ public class ViewGeneratorThread extends Thread
 	private Semaphore start;
 	private Semaphore end;
 	
-	private int my_id;
+	private int my_id; // Debug
 	
 	/**
 	 * Instantiates a new view generator thread.
@@ -90,12 +90,7 @@ public class ViewGeneratorThread extends Thread
 		while(true)
 		{
 			start.acquireUninterruptibly();
-			
-			//System.out.println("->Start : " + my_id);
-			
-			
-//			temp.body.stats.increment();
-
+							
 			while(plantListItr.hasNext()) 
 			{
 								
@@ -103,7 +98,7 @@ public class ViewGeneratorThread extends Thread
 				
 				if(!currentPlant.body.stats.isDead())
 				{
-					// Parallel Agent Thinking
+					// Parallel plant calculations
 					currentPlant.body.stats.increment();
 				}
 
@@ -140,9 +135,7 @@ public class ViewGeneratorThread extends Thread
 				currentAgent.brain.think();
 
 			}
-			
-			//System.out.println("->End : " + my_id);
-			
+						
 			end.release();		
 						
 		}
