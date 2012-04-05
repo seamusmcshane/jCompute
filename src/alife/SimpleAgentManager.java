@@ -34,7 +34,6 @@ public class SimpleAgentManager
 	SimpleAgent tAgentDrawAI;
 			
 	float base_movement_cost = 0.025f;
-	float base_view_range = 25f;
 	float base_prey_reproduction_cost = 0.50f; // percent
 	float base_predator_reproduction_cost = 0.55f; // percent
 
@@ -63,8 +62,13 @@ public class SimpleAgentManager
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
-	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_prey_numbers,int agent_predator_numbers)
+	/* Agent Settings */
+	SimpleAgentManagementSetupParam agentSettings;
+	
+	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
 	{
+		this.agentSettings = agentSettings;
+
 		agentCount = 0;
 		prey_count = 0;
 		pred_count = 0;
@@ -73,11 +77,10 @@ public class SimpleAgentManager
 		this.viewGenerator = viewGenerator;
 					
 		setUpLists();
-
+		
 		addAgents(world_size,agent_prey_numbers,agent_predator_numbers);
 
 	}
-
 	
 	private void addAgents(int world_size,int agent_prey_numbers,int agent_predator_numbers)
 	{
@@ -96,7 +99,7 @@ public class SimpleAgentManager
 			y = yr.nextInt(world_size) + 1;
 
 			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),0.9f, 5f, 100f, base_view_range, base_movement_cost,base_prey_reproduction_cost)));
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f, 100f, agentSettings.getPreyViewRange(), base_movement_cost,base_prey_reproduction_cost)));
 
 		}	
 		
@@ -106,7 +109,8 @@ public class SimpleAgentManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),1f, 5f, 100f, (base_view_range*2), base_movement_cost,base_predator_reproduction_cost)));
+			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost,float base_reproduction_cost)
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f, 100f, agentSettings.getPredatorViewRange(), base_movement_cost,base_predator_reproduction_cost)));
 
 		}	
 	}
