@@ -27,7 +27,7 @@ public class GenericPlantStats
 		
 		dead = false;
 		
-		max_size = max_energy / size_div;
+		max_size = max_energy / size_div; // Not used
 		
 		size = 3;		
 		
@@ -97,7 +97,7 @@ public class GenericPlantStats
 		}
 
 		
-		return (num/4);	// 1/x efficiency
+		return num;
 	}
 	
 	public float getEnergy()
