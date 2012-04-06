@@ -25,6 +25,8 @@ public class SimpleAgentStats
 		
 		private boolean hungry=true;
 		
+		private float digestive_efficency;
+		
 		private float hungryThreshold;
 		
 		/* View Range */
@@ -38,6 +40,7 @@ public class SimpleAgentStats
 		
 		private float base_reproduction_cost;
 
+		private float energy_consumption_rate;
 
 /* 	General Statistics */
 		
@@ -50,7 +53,7 @@ public class SimpleAgentStats
 		
 		private float starting_energy;
 		
-	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr,float base_move_cost,float base_reproduction_cost)
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de)
 	{
 		this.dead = false;
 		
@@ -78,7 +81,11 @@ public class SimpleAgentStats
 		this.base_reproduction_cost =base_reproduction_cost;
 		
 		this.reproductionCost = max_energy*base_reproduction_cost;
-				
+		
+		this.energy_consumption_rate = ecr;
+		
+		this.digestive_efficency = de;
+		
 		if(reproductionCost>max_energy)
 		{
 			this.reproductionCost = max_energy;
@@ -117,6 +124,9 @@ public class SimpleAgentStats
 	
 	public void addEnergy(float energy)
 	{	
+		
+		energy = energy*digestive_efficency;  // How efficiently can this agent convert what it eats to energy
+		
 		energy = energy / 2;
 		
 		this.energy = this.energy + energy;
@@ -137,7 +147,7 @@ public class SimpleAgentStats
 	{
 		dead = true;
 		
-		return (energy);
+		return energy;
 	}
 	
 	public SimpleAgentType getType()
@@ -210,6 +220,15 @@ public class SimpleAgentStats
 		return base_move_cost;
 	}
 	
+	public float getEnergyConsumptionRate()
+	{
+		return energy_consumption_rate;
+	}
+	
+	public float getDigestiveEfficency()
+	{
+		return digestive_efficency;
+	}
 	
 	// cost is 1/2 max energy level
 	public boolean canReproduce()

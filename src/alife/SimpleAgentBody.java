@@ -49,9 +49,7 @@ public class SimpleAgentBody
 	
 	/* has this agent ate an agent */
 	private boolean ate_agent=false;
-	
-	private int energy_eat_rate = 10;
-	
+		
 	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
 	{
 		
@@ -178,7 +176,7 @@ public class SimpleAgentBody
 				if(isAgentCloseEnoughToEat(view))
 				{
 					// Kill Agent
-					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAgent());
+					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAgent()); // 100% energy
 					
 					return true;
 				}
@@ -209,13 +207,10 @@ public class SimpleAgentBody
 			{
 				if(isPlantCloseEnoughToEat(view))
 				{
-					// Remove plant energy
-					stats.addEnergy(view.getOriginalPlantRef().body.stats.decrementEnergy(energy_eat_rate));
+					// Remove plant energy (decrements the energy_consumption_rate amount from the plant each time)
+					stats.addEnergy(view.getOriginalPlantRef().body.stats.decrementEnergy(stats.getEnergyConsumptionRate()));
 					
 					return true;
-					
-					// add to agent
-					// stats.addEnergy..
 				}
 			}
 			

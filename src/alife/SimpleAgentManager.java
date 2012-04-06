@@ -93,7 +93,7 @@ public class SimpleAgentManager
 			y = yr.nextInt(world_size) + 1;
 
 			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f,agentSettings.getPreyStartingEnergy(), 100f,agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(),agentSettings.getPreyRepoCost())));
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f,agentSettings.getPreyStartingEnergy(), 100f,agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(),agentSettings.getPreyRepoCost(),agentSettings.getPreyConsumptionRate(),agentSettings.getPreyDE())));
 
 		}	
 		
@@ -104,7 +104,7 @@ public class SimpleAgentManager
 			y = yr.nextInt(world_size) + 1;
 
 			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost,float base_reproduction_cost)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f, 100f,agentSettings.getPredatorHungerThres(),agentSettings.getPredStartingEnergy(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost())));
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f, 100f,agentSettings.getPredatorHungerThres(),agentSettings.getPredStartingEnergy(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost(),agentSettings.getPredatorConsumptionRate(),agentSettings.getPredatorDE())));
 
 		}	
 	}
@@ -241,7 +241,7 @@ public class SimpleAgentManager
 					temp.body.stats.decrementReproductionCost(); 
 					
 					// For now same as predecessor 
-					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX()+0.01f, temp.body.getBodyPos().getY()-0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()),temp.body.stats.getMaxSpeed(), 5f, temp.body.stats.getStartingEnergy(),100f,temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseView_range(), temp.body.stats.getBaseMoveCost(),temp.body.stats.getBaseReproductionCost())));
+					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX()+0.01f, temp.body.getBodyPos().getY()-0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()),temp.body.stats.getMaxSpeed(), 5f, temp.body.stats.getStartingEnergy(),100f,temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseView_range(), temp.body.stats.getBaseMoveCost(),temp.body.stats.getBaseReproductionCost(),temp.body.stats.getEnergyConsumptionRate(),temp.body.stats.getDigestiveEfficency())));
 				}
 				
 				// Add to donelist  - agents not added get removed by java.
