@@ -289,7 +289,7 @@ public class SimulationGUI
 	{
 		total_height = (int) (screen_height / 1.5f);
 
-		control_gui_height = screen_height - 48;
+		control_gui_height = screen_height+(1024%(screen_height - 48));
 
 		view_width = screen_width - control_gui_width - (pad*2);
 		view_height = screen_height - 48;
