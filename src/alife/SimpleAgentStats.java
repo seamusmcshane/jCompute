@@ -50,7 +50,7 @@ public class SimpleAgentStats
 		
 		private float starting_energy;
 		
-	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float vr,float base_move_cost,float base_reproduction_cost)
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr,float base_move_cost,float base_reproduction_cost)
 	{
 		this.dead = false;
 		
@@ -67,8 +67,8 @@ public class SimpleAgentStats
 		this.energy = se ; // Starting Energy
 		starting_energy = se;
 		
-		this.hungryThreshold = max_energy / 2;
-		
+		this.hungryThreshold = ht ; // in energy
+				
 		this.age = 0;
 		
 		this.view_range = size+vr;
@@ -198,6 +198,11 @@ public class SimpleAgentStats
 	public float getStartingEnergy()
 	{
 		return starting_energy;
+	}
+	
+	public float getHungryThreshold()
+	{
+		return hungryThreshold;
 	}
 	
 	public float getBaseMoveCost()
