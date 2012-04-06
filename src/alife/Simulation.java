@@ -73,7 +73,9 @@ public class Simulation
 
 	/** Simulation Performance Indicators */
 	int step_num = 0;
-	boolean real_time;
+	private long step_start_time=0;
+	private long step_end_time=0;
+	private long step_total_time=0; // Total Simulation run-time is the time taken per step for each step
 	
 	// Step Per Second Calculation
 	private long startTime;
@@ -131,7 +133,8 @@ public class Simulation
 
 	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers ,int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate, SimpleAgentManagementSetupParam agentSettings)
 	{
-		
+		this.step_num = 0;
+				
 		this.stats = stats;
 		
 		world = new World(world_size);
@@ -154,13 +157,15 @@ public class Simulation
 					thisThread.setPriority(Thread.MAX_PRIORITY);
 					
 					setUpStepsPerSecond();
-					
+										
 					while (true)
 					{
 							Thread.yield(); // Allow other threads to run				
 
 							// The pause semaphore (We do not pause half way through a step)
 							pause.acquireUninterruptibly();
+							
+							step_start_time = System.currentTimeMillis();
 							
 							simManager.doSimulationUpdate();
 							
@@ -169,6 +174,8 @@ public class Simulation
 
 							// Increment the Step counter
 							step_num++;
+							
+							stats.setStepNo(step_num);
 																					
 							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
 							while(timeTotal() < (1000000000/req_sps)) // Approximation of what the inter-step delay should be
@@ -176,7 +183,15 @@ public class Simulation
 								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
 							}
 							
+							// resets the value calculated in timeTotal()
 							resetTotalTime();
+																				
+							
+							step_end_time = System.currentTimeMillis();
+
+							step_total_time += step_end_time-step_start_time;
+							
+							stats.setTime(step_total_time);
 							
 							stats.updateGraph();
 							

@@ -12,6 +12,9 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 import javax.swing.border.EtchedBorder;
 
 public class StatsPanel extends JPanel
@@ -35,6 +38,7 @@ public class StatsPanel extends JPanel
 
 	/* Counters */
 	private static int ASPS=0; // Average Steps per second
+	private static int stepNo=0;
 	private static int plantNo = 0;
 	private static int preyNo = 0;
 	private static int predNo = 0;
@@ -56,8 +60,8 @@ public class StatsPanel extends JPanel
 
 	private static int maxVal = 0;
 	private final JLabel lblStep = new JLabel("Step");
-	private final JLabel lblStepNo = new JLabel("0");
-
+	private final static JLabel lblStepNo = new JLabel("0");
+	
 	public StatsPanel()
 	{
 		setBorder(new TitledBorder(null, "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -213,6 +217,24 @@ public class StatsPanel extends JPanel
 	{
 		ASPS=no;
 		lblASPSNo.setText(Integer.toString(ASPS));
+	}
+	
+	public static void setStepNo(int no)
+	{
+		stepNo=no;
+		lblStepNo.setText(Integer.toString(no));
+	}
+		
+	// Called in the update sim loop
+	public static void setTime(long time)
+	{
+			time = time / 1000; // seconds
+			int days= (int) (time / 86400); // to days
+			int hrs= (int) (time / 3600)%24; // to hrs
+			int mins= (int) ((time/60)%60);	// to seconds
+			int sec= (int) (time%60);
+
+			lblRunTimeNo.setText(String.format("%d:%02d:%02d:%02d", days,hrs,mins,sec));			
 	}
 	
 	public void updateGraph()
