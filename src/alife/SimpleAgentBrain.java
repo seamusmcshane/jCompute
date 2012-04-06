@@ -31,16 +31,16 @@ public class SimpleAgentBrain
 	private int moves=0;
 	
 	private int roam_moves=0;
-	private int roam_max_moves=40;
+	private int roam_max_moves=20;
 	
 	private int hunt_moves=0;
-	private int hunt_max_moves=40;
+	private int hunt_max_moves=30;
 	
 	private int hunt_exit_wait=0;
 	private int hunt_exit_max_wait=0;
 	
 	
-	private int learn_to_move_max = 20;
+	private int learn_to_move_max = 10;
 	private int learn_to_move_count = 0;
 	
 	private boolean rest=false;
