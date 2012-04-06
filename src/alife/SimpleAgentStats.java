@@ -6,7 +6,7 @@ package alife;
 public class SimpleAgentStats
 {
 	
-		private final float base_move_cost;
+		private final float base_move_cost;  // Starting move cost
 		
 		private boolean dead;
 	
@@ -48,7 +48,9 @@ public class SimpleAgentStats
 				
 		private SimpleAgentType type;
 		
-	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost,float base_reproduction_cost)
+		private float starting_energy;
+		
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float vr,float base_move_cost,float base_reproduction_cost)
 	{
 		this.dead = false;
 		
@@ -62,7 +64,8 @@ public class SimpleAgentStats
 		
 		this.reproductionBank = 0;
 		
-		this.energy = max_energy / 10 ;
+		this.energy = se ; // Starting Energy
+		starting_energy = se;
 		
 		this.hungryThreshold = max_energy / 2;
 		
@@ -191,6 +194,17 @@ public class SimpleAgentStats
 	{
 		return base_reproduction_cost;
 	}
+	
+	public float getStartingEnergy()
+	{
+		return starting_energy;
+	}
+	
+	public float getBaseMoveCost()
+	{
+		return base_move_cost;
+	}
+	
 	
 	// cost is 1/2 max energy level
 	public boolean canReproduce()
