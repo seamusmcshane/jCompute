@@ -310,7 +310,7 @@ public class Simulation
 		}
 	}
 	
-	public void drawSim(Graphics g)
+	public void drawSim(Graphics g,boolean true_drawing)
 	{	
 		if(simStarted)
 		{
@@ -318,7 +318,7 @@ public class Simulation
 			{
 				world.drawWorld(g);
 			}
-			simManager.drawAgentsAndPlants(g);			
+			simManager.drawAgentsAndPlants(g,true_drawing);			
 		}
 	}
 }

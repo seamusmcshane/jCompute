@@ -46,9 +46,6 @@ public class SimpleAgentManager
 
 	/* For Debug */
 	SimpleAgent testAgent;
-
-	/* Draw the Pixel perfect real bodies or a faster less intensive rectangular version */
-	private Boolean true_drawing=true;
 	
 	/* Draw the field of views for the agents */
 	private Boolean view_drawing=true;
@@ -61,7 +58,7 @@ public class SimpleAgentManager
 	
 	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
 	{
-		this.agentSettings = agentSettings;
+		this.agentSettings = agentSettings;  // All the intial agent settings are contained in this struct
 
 		agentCount = 0;
 		prey_count = 0;
@@ -93,7 +90,7 @@ public class SimpleAgentManager
 			y = yr.nextInt(world_size) + 1;
 
 			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f,agentSettings.getPreyStartingEnergy(), 100f,agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(),agentSettings.getPreyRepoCost(),agentSettings.getPreyConsumptionRate(),agentSettings.getPreyDE())));
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f,agentSettings.getPreyStartingEnergy(), 100f,agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(),agentSettings.getPreyRepoCost(),agentSettings.getPreyConsumptionRate(),agentSettings.getPreyDE(),agentSettings.getPreyREDiv())));
 
 		}	
 		
@@ -104,7 +101,7 @@ public class SimpleAgentManager
 			y = yr.nextInt(world_size) + 1;
 
 			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost,float base_reproduction_cost)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f, 100f,agentSettings.getPredatorHungerThres(),agentSettings.getPredStartingEnergy(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost(),agentSettings.getPredatorConsumptionRate(),agentSettings.getPredatorDE())));
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f, 100f,agentSettings.getPredatorHungerThres(),agentSettings.getPredStartingEnergy(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost(),agentSettings.getPredatorConsumptionRate(),agentSettings.getPredatorDE(),agentSettings.getPredatorREDiv())));
 
 		}	
 	}
@@ -150,7 +147,7 @@ public class SimpleAgentManager
 	}
 
 	/* Draws all the agents */
-	public void drawAgent(Graphics g)
+	public void drawAgent(Graphics g,boolean true_drawing)
 	{
 
 		itrDrawAI = doneList.listIterator();
@@ -183,12 +180,6 @@ public class SimpleAgentManager
 		}
 		
 	}
-
-	public void setDrawType(Boolean true_draw)
-	{
-		this.true_drawing = true_draw;
-	}
-	
 	
 	// List prepare
 	public void stage1()
@@ -204,8 +195,7 @@ public class SimpleAgentManager
 	public void stage2()
 	{
 		// Set our Task for the view
-		viewGenerator.setBarrierAgentTask(doList,agentCount);
-			
+		viewGenerator.setBarrierAgentTask(doList,agentCount);			
 	}
 	
 	// List update
@@ -214,7 +204,10 @@ public class SimpleAgentManager
 		updateDoneList();		
 	}
 
-	/* Performs AI Action and moves it to Done list */
+	/* This method moves agents between the do and done lists
+	 * It is in effect managing the births and deaths of agents.
+	 * If an agent can reproduce it does (deterministic), new agents get added to the done list (first action is being born).
+	 * Agents that are dead stay in the do list which gets nullified at the start next step. */
 	private void updateDoneList()
 	{
 		ListIterator<SimpleAgent> itr = doList.listIterator();
@@ -226,7 +219,7 @@ public class SimpleAgentManager
 		while (itr.hasNext())
 		{
 
-			/* Remove this Agent from the List */
+			/* Get a reference to the current agent */
 			SimpleAgent temp = itr.next();
 
 			/* remove from the doList */
@@ -240,8 +233,10 @@ public class SimpleAgentManager
 				{										
 					temp.body.stats.decrementReproductionCost(); 
 					
-					// For now same as predecessor 
-					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX()+0.01f, temp.body.getBodyPos().getY()-0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()),temp.body.stats.getMaxSpeed(), 5f, temp.body.stats.getStartingEnergy(),100f,temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseView_range(), temp.body.stats.getBaseMoveCost(),temp.body.stats.getBaseReproductionCost(),temp.body.stats.getEnergyConsumptionRate(),temp.body.stats.getDigestiveEfficency())));
+					/* This sets the new agent the same as predecessor
+					 * If evolution was ever to be added, there would need to be a way of 
+					 * Calculating the next generation agent stats here. */
+					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX()+0.01f, temp.body.getBodyPos().getY()-0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()),temp.body.stats.getMaxSpeed(), 5f, temp.body.stats.getStartingEnergy(),100f,temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseView_range(), temp.body.stats.getBaseMoveCost(),temp.body.stats.getBaseReproductionCost(),temp.body.stats.getEnergyConsumptionRate(),temp.body.stats.getDigestiveEfficency(),temp.body.stats.getReproductionEnergyDivision())));
 				}
 				
 				// Add to donelist  - agents not added get removed by java.
@@ -268,12 +263,6 @@ public class SimpleAgentManager
 		Collections.shuffle(doList);
 	}
 	
-	/* Draw true circular bodies or faster rectangular ones */
-	public void setTrueDrawing(Boolean setting)
-	{
-		true_drawing = setting;
-	}
-
 	public void setFieldOfViewDrawing(Boolean setting)
 	{
 		view_drawing = setting;

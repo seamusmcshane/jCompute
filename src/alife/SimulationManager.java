@@ -16,9 +16,6 @@ public class SimulationManager
 	/** Simulation Plant Manager */
 	public GenericPlantManager genericPlantManager;
 	
-	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	Boolean true_body_drawing = false;
-
 	/** Toggle for Drawing agent field of views */
 	Boolean draw_field_of_views = false;
 	
@@ -47,12 +44,6 @@ public class SimulationManager
 	{
 		simpleAgentManager = new SimpleAgentManager(viewGenerator,world_size,agent_prey_numbers,agent_predator_numbers, agentSettings);
 		
-		// TODO MAKE GUI SETTING
-		simpleAgentManager.setTrueDrawing(true_body_drawing);
-		
-		genericPlantManager.setTrueDrawing(true_body_drawing);
-
-
 		simpleAgentManager.setFieldOfViewDrawing(draw_field_of_views);		
 	}
 	
@@ -124,7 +115,7 @@ public class SimulationManager
 		// add new entities
 	}
 	
-	public void drawAgentsAndPlants(Graphics g)
+	public void drawAgentsAndPlants(Graphics g, boolean true_drawing)
 	{
 		
 		// Get a lock on the done list
@@ -132,7 +123,7 @@ public class SimulationManager
 		
 		genericPlantManager.drawPlants(g);
 		
-		simpleAgentManager.drawAgent(g);	
+		simpleAgentManager.drawAgent(g,true_drawing);	
 		
 		// Release the lock on the done list
 		lock.release();
