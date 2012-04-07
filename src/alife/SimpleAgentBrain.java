@@ -30,8 +30,8 @@ public class SimpleAgentBrain
 	
 	private int moves=0;
 	
-	private int roam_moves=0;
-	private int roam_max_moves=20;
+	private int roam_moves=40; // Starts at the exit of roaming state
+	private int roam_max_moves=40;
 	
 	private int hunt_moves=0;
 	private int hunt_max_moves=30;
@@ -40,7 +40,7 @@ public class SimpleAgentBrain
 	private int hunt_exit_max_wait=0;
 	
 	
-	private int learn_to_move_max = 10;
+	private int learn_to_move_max = 20;
 	private int learn_to_move_count = 0;
 	
 	private boolean rest=false;
@@ -99,7 +99,7 @@ public class SimpleAgentBrain
 		}
 	}
 	
-	/** Reevaluates the evaluated state to avoid some static behavior */
+	/** Reevaluates the evaluated state to avoid some static behaviour */
 	private void reEvaluateState()
 	{
 		switch(state)

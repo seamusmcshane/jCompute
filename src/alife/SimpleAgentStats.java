@@ -30,7 +30,7 @@ public class SimpleAgentStats
 		private float hungryThreshold;
 		
 		/* View Range */
-		private final float view_range;
+		private float view_range;
 		
 		
 		/* Reproduction */
@@ -136,7 +136,7 @@ public class SimpleAgentStats
 		// How efficiently can this agent convert what it eats to energy it can use.
 		energy = energy * digestive_efficency;  
 				
-		/* This adds energy to the agents survial bank
+		/* This adds energy to the agents survival bank
 		 * eg assuming reproduction_energy_division = 0.25, energy = 10;
 		 * then what is added is 10*0.25 ie 2.5
 		 */
