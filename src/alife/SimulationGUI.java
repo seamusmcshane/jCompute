@@ -167,6 +167,10 @@ public class SimulationGUI
 
 	private static JCheckBoxMenuItem chckbxmntmDisplayView;
 
+	private static JCheckBoxMenuItem chckbxmntmDrawTrueBodies;
+
+	private static JCheckBoxMenuItem chckbxmntmDrawFieldOf;
+
 	/* Logic */
 
 	/**
@@ -757,10 +761,40 @@ public class SimulationGUI
 		JMenu mnAgentDrawing = new JMenu("Agent Drawing");
 		mnOptions.add(mnAgentDrawing);
 		
-		JCheckBoxMenuItem chckbxmntmDrawTrueBodies = new JCheckBoxMenuItem("Draw True Bodies");
+		chckbxmntmDrawTrueBodies = new JCheckBoxMenuItem("Draw True Bodies");
+		chckbxmntmDrawTrueBodies.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) 
+			{
+				if(chckbxmntmDrawTrueBodies.isSelected())
+				{
+					// have been checked
+					SimulationView.setTrueDrawing(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setTrueDrawing(false);
+				}				
+			}
+		});
 		mnAgentDrawing.add(chckbxmntmDrawTrueBodies);
 		
-		JCheckBoxMenuItem chckbxmntmDrawFieldOf = new JCheckBoxMenuItem("Draw Field of Views");
+		chckbxmntmDrawFieldOf = new JCheckBoxMenuItem("Draw Field of Views");
+		chckbxmntmDrawFieldOf.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) 
+			{
+				if(chckbxmntmDrawFieldOf.isSelected())
+				{
+					// have been checked
+					SimulationView.setViewRangeDrawing(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setViewRangeDrawing(false);
+				}				
+			}
+		});
 		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
 
 		JMenu mnHelp = new JMenu("Help");

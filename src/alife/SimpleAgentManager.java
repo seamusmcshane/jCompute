@@ -47,9 +47,6 @@ public class SimpleAgentManager
 	/* For Debug */
 	SimpleAgent testAgent;
 	
-	/* Draw the field of views for the agents */
-	private Boolean view_drawing=true;
-
 	/* Reference for setting task */
 	ViewGeneratorManager viewGenerator;
 	
@@ -89,7 +86,7 @@ public class SimpleAgentManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost)
+			//SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de, float red)
 			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f,agentSettings.getPreyStartingEnergy(), 100f,agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(),agentSettings.getPreyRepoCost(),agentSettings.getPreyConsumptionRate(),agentSettings.getPreyDE(),agentSettings.getPreyREDiv())));
 
 		}	
@@ -100,8 +97,8 @@ public class SimpleAgentManager
 			x = xr.nextInt(world_size) + 1;
 			y = yr.nextInt(world_size) + 1;
 
-			// (SimpleAgentType type,float ms, float sz, float me, float vr,float base_move_cost,float base_reproduction_cost)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f, 100f,agentSettings.getPredatorHungerThres(),agentSettings.getPredStartingEnergy(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost(),agentSettings.getPredatorConsumptionRate(),agentSettings.getPredatorDE(),agentSettings.getPredatorREDiv())));
+			//SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de, float red)
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f,agentSettings.getPredStartingEnergy(), 100f,agentSettings.getPredatorHungerThres(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost(),agentSettings.getPredatorConsumptionRate(),agentSettings.getPredatorDE(),agentSettings.getPredatorREDiv())));
 
 		}	
 	}
@@ -147,7 +144,7 @@ public class SimpleAgentManager
 	}
 
 	/* Draws all the agents */
-	public void drawAgent(Graphics g,boolean true_drawing)
+	public void drawAgent(Graphics g,boolean true_drawing,boolean view_range_drawing)
 	{
 
 		itrDrawAI = doneList.listIterator();
@@ -156,9 +153,6 @@ public class SimpleAgentManager
 		{
 
 			tAgentDrawAI = itrDrawAI.next();
-
-			/* Set the current status of the view drawing */
-			tAgentDrawAI.setViewDrawing(view_drawing);
 			
 			// Optimization - Only draw visible agents that are inside the camera_boundarie
 			if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
@@ -173,8 +167,12 @@ public class SimpleAgentManager
 					tAgentDrawAI.body.drawRectBody(g);						
 				}
 
-				/* Optimization - Only draw the views of agents we can see */
-				tAgentDrawAI.drawViewRange(g);
+				
+				if(view_range_drawing)
+				{
+					/* Optimization - Only draw the views of agents we can see */
+					tAgentDrawAI.drawViewRange(g);					
+				}
 			}
 
 		}
@@ -262,9 +260,5 @@ public class SimpleAgentManager
 	{
 		Collections.shuffle(doList);
 	}
-	
-	public void setFieldOfViewDrawing(Boolean setting)
-	{
-		view_drawing = setting;
-	}	
+
 }

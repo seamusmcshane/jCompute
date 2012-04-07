@@ -22,9 +22,8 @@ public class GenericPlantManager
 
 	private ListIterator<GenericPlant> itrDrawPlant;
 	
-	private boolean true_drawing = true;
-	
 	private int world_size;
+	
 	private int inital_number;
 	
 	private float base_plant_reproduction_cost=0.99f;
@@ -58,16 +57,16 @@ public class GenericPlantManager
 	}
 
 	/* Draws all the plants */
-	public void drawPlants(Graphics g)
+	public void drawPlants(Graphics g,boolean true_drawing)
 	{
 		
 		itrDrawPlant = doneList.listIterator();
 
 		while (itrDrawPlant.hasNext())
 		{
-
+			
 			tPlantDraw = itrDrawPlant.next();
-
+			
 			/* Set the current status of the view drawing */
 			//tPlantDraw.setViewDrawing(view_drawing);
 			
@@ -188,8 +187,7 @@ public class GenericPlantManager
 	{		
 		doneList.add(plant);
 		plantCount++;		
-	}
-	
+	}	
 	
 	/* Sets up the safe starting position for the lists */
 	private void setUpLists()
@@ -197,10 +195,5 @@ public class GenericPlantManager
 		doList = doneList;
 		doneList = new LinkedList<GenericPlant>();
 	}
-
-	public void setTrueDrawing(Boolean true_body_drawing)
-	{
-		this.true_drawing = true_body_drawing;		
-	}	
 			
 }

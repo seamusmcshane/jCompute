@@ -61,6 +61,9 @@ public class SimulationView extends BasicGame implements MouseListener
 	/* Draw true circular bodies or faster rectangular ones */
 	static boolean true_drawing=false;
 	
+	/* Draw the View range of the agents */
+	static boolean view_range_drawing=false;
+	
 	/**
 	 * This locks the frame rate to the above rate giving what time would have
 	 * been used to threads
@@ -155,7 +158,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		/* Move the entire world to simulate a view moving around */
 		g.translate(global_translate.getX(), global_translate.getY());
 		
-		sim.drawSim(g,true_drawing);
+		sim.drawSim(g,true_drawing,view_range_drawing);
 
 		/* Performance Indicator */
 		buffer_num++;
@@ -360,6 +363,11 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		//frame.setState(Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
+	}
+	
+	public static void setViewRangeDrawing(boolean in_view_range_drawing)
+	{
+		view_range_drawing = in_view_range_drawing;
 	}
 	
 	public static void setTrueDrawing(boolean in_true_drawing)

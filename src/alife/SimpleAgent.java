@@ -25,10 +25,7 @@ public class SimpleAgent
 	
 	/* Agent View Range */
 	private Circle fov;	
-				
-	/* View rannge drawing */
-	private boolean draw_view = false;
-	
+					
 	private boolean collision=false;
 	
 	private boolean removal_tag=false;
@@ -91,34 +88,18 @@ public class SimpleAgent
 	{
 		return fov;
 	}
-	
-	/* Debug */	
-	public void setViewDrawing(boolean setting)
-	{
-		draw_view = setting;
-	}
-	
+		
 	public void setDebugPos(Vector2f pos)
 	{
 		body.setDebugPos(pos);		
 	}
 	
 	public void drawViewRange(Graphics g)
-	{
-	
+	{	
 		upDateViewLocation();
-		
-		if(draw_view && !collision)
-		{ 
-			g.setColor(Color.white);
-			g.draw(fov);
-		}
-		else if(collision)
-		{
-			g.setColor(Color.yellow);
-			g.draw(fov);
 
-		}
+		g.setColor(Color.white);
+		g.draw(fov);
 		
 	}
 	
