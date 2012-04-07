@@ -35,6 +35,15 @@ import javax.swing.border.TitledBorder;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import javax.swing.JCheckBoxMenuItem;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class SimulationGUI
 {
@@ -156,6 +165,8 @@ public class SimulationGUI
 
 	private static JPanel plantParamPanel;
 
+	private static JCheckBoxMenuItem chckbxmntmDisplayView;
+
 	/* Logic */
 
 	/**
@@ -239,7 +250,7 @@ public class SimulationGUI
 		
 		/* Energy Consumption Rate */
 		agentSettings.setPreyConsumptionRate(Float.parseFloat(comboBoxPreyConsumptionRate.getSelectedItem().toString()));
-		agentSettings.setPredatorConsumptionRate(1); // Not Used 100%
+		agentSettings.setPredatorConsumptionRate(100); // Not Used 100%
 		
 		/* Reproduction Cost */ 
 		agentSettings.setPreyRepoCost(Float.parseFloat(comboBoxPreyRepoCost.getSelectedItem().toString()));
@@ -251,8 +262,6 @@ public class SimulationGUI
 		
 		sim.newSim(statsPanel,word_size ,prey_no,pred_no,plant_no,plant_regen_rate,plant_starting_energy,plant_energy_absorption_rate,agentSettings);
 		
-		// comboBoxPreySpeed
-		// comboBoxPredSpeed
 		
 		/*
 		 * If needed the GC can free old objects now, before the simulation
@@ -724,9 +733,35 @@ public class SimulationGUI
 
 		JMenu mnOptions = new JMenu("Options");
 		menuBar.add(mnOptions);
-
-		JMenuItem mntmSettings = new JMenuItem("Settings");
-		mnOptions.add(mntmSettings);
+		
+		chckbxmntmDisplayView = new JCheckBoxMenuItem("Display View");
+		chckbxmntmDisplayView.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) 
+			{				
+				if(chckbxmntmDisplayView.isSelected())
+				{
+					// have been checked
+					SimulationView.setVisible(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setVisible(false);
+				}	
+				
+			}
+		});
+		chckbxmntmDisplayView.setSelected(true);
+		mnOptions.add(chckbxmntmDisplayView);
+		
+		JMenu mnAgentDrawing = new JMenu("Agent Drawing");
+		mnOptions.add(mnAgentDrawing);
+		
+		JCheckBoxMenuItem chckbxmntmDrawTrueBodies = new JCheckBoxMenuItem("Draw True Bodies");
+		mnAgentDrawing.add(chckbxmntmDrawTrueBodies);
+		
+		JCheckBoxMenuItem chckbxmntmDrawFieldOf = new JCheckBoxMenuItem("Draw Field of Views");
+		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
 
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
@@ -867,4 +902,12 @@ public class SimulationGUI
 		sim.unPauseSim();
 	}
 
+	private class SwingAction extends AbstractAction {
+		public SwingAction() {
+			putValue(NAME, "SwingAction");
+			putValue(SHORT_DESCRIPTION, "Some short description");
+		}
+		public void actionPerformed(ActionEvent e) {
+		}
+	}
 }

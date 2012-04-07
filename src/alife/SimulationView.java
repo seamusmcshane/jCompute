@@ -55,6 +55,12 @@ public class SimulationView extends BasicGame implements MouseListener
 	/* Simulation Reference */
 	static Simulation sim;
 	
+	/* Is Simulation view drawing enabled */
+	static boolean draw_sim=true;
+	
+	/* Draw true circular bodies or faster rectangular ones */
+	static boolean true_drawing=false;
+	
 	/**
 	 * This locks the frame rate to the above rate giving what time would have
 	 * been used to threads
@@ -115,28 +121,30 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		/* Some Linux Drivers have hardware clipping bugs */
-		
-		g.setWorldClip(camera_bound); // Todo Make setting
-		
-		doDraw(bufferGraphics);
+		if(draw_sim)
+		{
+			/* Some Linux Drivers have hardware clipping bugs */
+			
+			g.setWorldClip(camera_bound); // Todo Make setting
+			
+			doDraw(bufferGraphics);
 
-		/* Always draw the buffer even if it has not changed */
-		g.drawImage(buffer, 0, 0);
+			/* Always draw the buffer even if it has not changed */
+			g.drawImage(buffer, 0, 0);
 
-		/* Gui Overlay */
-		g.setColor(Color.white);
+			/* Gui Overlay */
+			g.setColor(Color.white);
 
-		g.drawString("Frame Updates  :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 10);
+			g.drawString("Frame Updates  :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 10);
 
-		g.drawString("Buffer Updates :" + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 30);
+			g.drawString("Buffer Updates :" + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 30);
 
-		g.drawString("FPS            :" + simView.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 50);
+			g.drawString("FPS            :" + simView.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 50);
 
-		g.draw(camera_bound);
-		
-		frame_num++;
-
+			g.draw(camera_bound);
+			
+			frame_num++;			
+		}
 	}
 
 	private void doDraw(Graphics g)
@@ -146,8 +154,8 @@ public class SimulationView extends BasicGame implements MouseListener
 
 		/* Move the entire world to simulate a view moving around */
 		g.translate(global_translate.getX(), global_translate.getY());
-
-		sim.drawSim(g);
+		
+		sim.drawSim(g,true_drawing);
 
 		/* Performance Indicator */
 		buffer_num++;
@@ -352,6 +360,20 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		//frame.setState(Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
+	}
+	
+	public static void setTrueDrawing(boolean in_true_drawing)
+	{
+		true_drawing = in_true_drawing;
+	}
+	
+	public static void setVisible(boolean visible)
+	{
+		if(frame!=null)
+		{
+			frame.setVisible(visible);
+			draw_sim = visible; // draw if visible
+		}
 	}
 	
 	public static void minimise()
