@@ -53,7 +53,9 @@ public class SimpleAgentStats
 		
 		private float starting_energy;
 		
-	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de)
+		private float reproduction_energy_division;
+		
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de, float red)
 	{
 		this.dead = false;
 		
@@ -86,9 +88,11 @@ public class SimpleAgentStats
 		
 		this.digestive_efficency = de;
 		
+		this.reproduction_energy_division = red;
+		
 		if(reproductionCost>max_energy)
 		{
-			this.reproductionCost = max_energy;
+			this.reproductionCost = max_energy; // Agent will most likely die on reproduction
 		}
 
 	}
@@ -122,25 +126,36 @@ public class SimpleAgentStats
 		updateHunger();				
 	}
 	
+	/**
+	 * This method is in effect the digestive method.
+	 * It add energy taking in to account how efficient the agents digestion is.
+	 * The energy is split between reproduction energy banks and normal energy.
+	 */
 	public void addEnergy(float energy)
 	{	
-		
-		energy = energy*digestive_efficency;  // How efficiently can this agent convert what it eats to energy
-		
-		energy = energy / 2;
-		
-		this.energy = this.energy + energy;
+		// How efficiently can this agent convert what it eats to energy it can use.
+		energy = energy * digestive_efficency;  
+				
+		/* This adds energy to the agents survial bank
+		 * eg assuming reproduction_energy_division = 0.25, energy = 10;
+		 * then what is added is 10*0.25 ie 2.5
+		 */
+		this.energy = this.energy + ( energy * (1*reproduction_energy_division)) ;	
 		if(this.energy > max_energy)
 		{
 			this.energy = max_energy;
 		}
 		
-		this.reproductionBank = this.reproductionBank + energy; 
-		
+		/* As above but the remainder of the multiple is added
+		 * if energy = 10, and reproduction_energy_division = 0.25
+		 * then 1-0.25 = 0.75 , 10*0.75 = 7.5.
+		 */
+		this.reproductionBank = this.reproductionBank + (energy*(1-reproduction_energy_division));
 		if(this.reproductionBank > max_energy)
 		{
 			this.reproductionBank = max_energy;
 		}		
+		
 	}
 	
 	public float killAgent()
@@ -228,6 +243,11 @@ public class SimpleAgentStats
 	public float getDigestiveEfficency()
 	{
 		return digestive_efficency;
+	}
+	
+	public float getReproductionEnergyDivision()
+	{
+		return reproduction_energy_division;
 	}
 	
 	// cost is 1/2 max energy level

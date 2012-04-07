@@ -226,8 +226,8 @@ public class SimulationGUI
 		agentSettings.setPredatorDE(Float.parseFloat(comboBoxPredatorDE.getSelectedItem().toString()));
 		
 		/* Reproduction Energy Divider */
-		agentSettings.setPreyREDiv(1);
-		agentSettings.setPredatorDE(1);
+		agentSettings.setPreyREDiv(Float.parseFloat(comboBoxPreyREDiv.getSelectedItem().toString()));
+		agentSettings.setPredatorREDiv(Float.parseFloat(comboBoxPredatorREDiv.getSelectedItem().toString()));
 		
 		/* Energy Movement Cost */
 		agentSettings.setPreyMoveCost(Float.parseFloat(comboBoxPreyMoveCost.getSelectedItem().toString()));
