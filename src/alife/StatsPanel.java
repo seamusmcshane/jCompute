@@ -16,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import javax.swing.border.EtchedBorder;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class StatsPanel extends JPanel
 {
@@ -30,7 +32,7 @@ public class StatsPanel extends JPanel
 	private static JLabel lblPrey = new JLabel("Prey");
 	private static JLabel lblPreyNo = new JLabel("0");
 	private static JPanel simulationInfoRow = new JPanel();
-	private static JLabel lblASPS = new JLabel("ASPS");
+	private static JLabel lblASPS = new JLabel("Avg Steps/Sec");
 	private static JLabel lblASPSNo = new JLabel("0");
 	private static JLabel lblRunTime = new JLabel("Run Time");
 	private static JLabel lblRunTimeNo = new JLabel("0");
@@ -56,7 +58,8 @@ public class StatsPanel extends JPanel
 	private static int preyMax = 0;
 	private static int predMax = 0;
 
-	private static boolean tiePredPreyMax = true;
+	/* Graph Scales - click graph */
+	private int scale_mode = 0; /* 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied */	
 
 	private static int maxVal = 0;
 	private final JLabel lblStep = new JLabel("Step");
@@ -64,10 +67,10 @@ public class StatsPanel extends JPanel
 	
 	public StatsPanel()
 	{
-		setBorder(new TitledBorder(null, "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Population Graph", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
 
-		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Stats", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Simulation Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		add(simStatCountPanel, BorderLayout.SOUTH);
 		simStatCountPanel.setLayout(new GridLayout(2, 6, 0, 0));
 
@@ -76,7 +79,7 @@ public class StatsPanel extends JPanel
 
 		lblPlants.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPlants);
-		lblPlantNo.setForeground(Color.GREEN);
+		lblPlantNo.setForeground(new Color(0, 128, 0));
 
 		lblPlantNo.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPlantNo);
@@ -117,6 +120,14 @@ public class StatsPanel extends JPanel
 										simulationInfoRow.add(lblRunTimeNo);
 
 		graphPanel = new StatsGraphPanel(plantSamples,preySamples,predSamples,sampleNum,samplePeriod);
+		graphPanel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				// Clicking graph changes mode
+				scale_mode = (scale_mode + 1) % 3; // Wrap at 3				
+			}
+		});
 		
 		graphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		graphPanel.setBackground(Color.gray);
@@ -238,9 +249,8 @@ public class StatsPanel extends JPanel
 	}
 	
 	public void updateGraph()
-	{	
-				
-		graphPanel.updateGraph(plantsMax,preyMax,predMax,tiePredPreyMax);
+	{			
+		graphPanel.updateGraph(plantsMax,preyMax,predMax,scale_mode);
 	}
 		
 	public static void clearStats()

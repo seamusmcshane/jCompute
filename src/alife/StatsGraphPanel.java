@@ -39,7 +39,7 @@ public class StatsGraphPanel extends JPanel
 		
 	}
 
-	public void updateGraph(float plantMax,float preyMax, float predMax,boolean tiePredPreyMax)
+	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode)
 	{
 		this.plantMax = plantMax;
 		
@@ -47,24 +47,55 @@ public class StatsGraphPanel extends JPanel
 		
 		this.predMax = predMax;
 		
-		if(tiePredPreyMax)
+		/* 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied */
+		switch(scale_mode)
 		{
-			tiePredPreyMax();
+			case 0:
+				// Do nothing.
+				break;
+			case 1:
+				tiePredPreyMax();
+				break;
+			case 2:
+				tieAllMax();
+				break;
 		}
-		
+				
 		this.repaint();
 	}
-	
-	public void tiePredPreyMax()
-	{		
-		if(preyMax > predMax)
+		
+	/* Does the plants or agents have the greater point
+	 * Max is tied to the greater */
+	public void tieAllMax()
+	{
+		float agent_max = tiePredPreyMax();
+		
+		if(plantMax > agent_max)
 		{
-			predMax = preyMax;
+			predMax = plantMax;
+			preyMax = plantMax;
 		}
 		else
 		{
-			predMax = preyMax;
+			plantMax = agent_max;
+		}	
+	}
+	
+	/* Which of the agents has the greater max point in the graph 
+	 * max is tied to the greater, also returns max for further evaluation */
+	public float tiePredPreyMax()
+	{		
+		float max;
+		if(preyMax > predMax)
+		{
+			max = predMax = preyMax;
 		}
+		else
+		{
+			max = predMax = preyMax;
+		}
+		
+		return max;
 	}
 	
 	public void paintComponent(Graphics g)
