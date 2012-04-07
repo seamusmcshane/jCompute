@@ -9,11 +9,13 @@ import java.awt.Toolkit;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -331,14 +333,14 @@ public class SimulationGUI
 		gui = new JFrame();
 		gui.setResizable(false);
 		gui.setTitle("Alife Simulation");
+        gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
 
 		// for editing
 		gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
 
 		// For distribution
 		//gui.setBounds(control_gui_x, control_gui_y, 457, 1032);
-
-		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
 
 		JPanel controlPanel = new JPanel();
@@ -720,19 +722,13 @@ public class SimulationGUI
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
-		JMenuItem mntmNew = new JMenuItem("New");
-		mnFile.add(mntmNew);
-
-		JMenuItem mntmOpen = new JMenuItem("Open");
-		mnFile.add(mntmOpen);
-
-		JMenuItem mntmSave = new JMenuItem("Save");
-		mnFile.add(mntmSave);
-
-		JMenuItem mntmSaveAs = new JMenuItem("Save As");
-		mnFile.add(mntmSaveAs);
-
 		JMenuItem mntmQuit = new JMenuItem("Quit");
+		mntmQuit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				doSimExit();
+			}
+		});
 		mnFile.add(mntmQuit);
 
 		JMenu mnOptions = new JMenu("Options");
@@ -807,9 +803,7 @@ public class SimulationGUI
 		{
 			public void windowClosing(WindowEvent e)
 			{
-				SimulationView.exitDisplay(); // Tell OpenGL we are done and free the resources used in the canvas. - must be done else sim will lockup.
-
-				System.exit(0);    // Exit the Simulation and let Java free the memory.
+				doSimExit();
 			}
 
 			public void windowIconified(WindowEvent e)
@@ -825,12 +819,36 @@ public class SimulationGUI
 		});
 
 		gui.setVisible(true);
-		gui.setAlwaysOnTop(true);
+		//gui.setAlwaysOnTop(true);
 
 		startUpState();
 
 	}
 
+	private static void doSimExit()
+	{
+		
+        String message;
+        message = "Do you want to quit?";
+
+        JOptionPane pane = new JOptionPane(message,JOptionPane.QUESTION_MESSAGE,JOptionPane.YES_NO_OPTION);
+
+        JDialog dialog = pane.createDialog(null, "Close Application");
+
+        dialog.pack();          
+        dialog.setVisible(true);
+        
+        int value = ((Integer)pane.getValue()).intValue();
+
+        if(value == JOptionPane.YES_OPTION)
+        {
+			SimulationView.exitDisplay(); // Tell OpenGL we are done and free the resources used in the canvas. - must be done else sim will lockup.        	
+            // Do EXIT
+            System.exit(0);
+        }	
+		
+	}
+	
 	private static void lookandFeel()
 	{
 		try

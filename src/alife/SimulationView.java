@@ -253,7 +253,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			frame.setSize(world_view_width, world_view_height);
 			
 			frame.setLocation(x, y);
-			frame.setAlwaysOnTop(true);
+			//frame.setAlwaysOnTop(true);
 			
 			/*
 			 * - For stand alone builds un-comment these so the jar will look
@@ -388,4 +388,5 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		frame.setVisible(false);
 	}	
+
 }
