@@ -29,7 +29,7 @@ public class GenericPlantStats
 		
 		max_size = max_energy / size_div; // Not used
 		
-		size = 3;		
+		size = 2;		
 		
 		if(starting_energy>max_energy)
 		{
@@ -93,9 +93,8 @@ public class GenericPlantStats
 			else
 			{
 				energy = energy - num; // else take the amount we tried for
-			}		
+			}
 		}
-
 		
 		return num;
 	}

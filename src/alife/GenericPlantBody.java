@@ -73,6 +73,11 @@ public class GenericPlantBody
 		drawRectBody(g);
 	}
 
+	public float getTrueSizeSQRD()
+	{
+		return (true_size*true_size)*2; //radius > diameter
+	}
+	
 	/* Body Color */
 	private void setColor()
 	{

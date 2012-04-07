@@ -188,8 +188,8 @@ public class SimpleAgentBody
 	
 	private boolean isAgentCloseEnoughToEat(SimpleAgentView view)
 	{
-		
-		if(view.distanceTo(getBodyPos(), view.getOriginalAgentRef().body.getBodyPos()) < (stats.getSize()+view.getOriginalAgentRef().body.stats.getSize() ))
+		// If the distance between the position of the agent and other agent is less than the "true size" of the two bodies... ie are the agent and other agent touching
+		if( (view.distanceTo(getBodyPos(), view.getOriginalAgentRef().body.getBodyPos()) ) < ( this.getTrueSizeSQRD() + view.getOriginalAgentRef().body.getTrueSizeSQRD()))
 		{
 			return true;
 		}		
@@ -220,8 +220,8 @@ public class SimpleAgentBody
 	
 	private boolean isPlantCloseEnoughToEat(SimpleAgentView view)
 	{
-		
-		if(view.distanceTo(getBodyPos(), view.getOriginalPlantRef().body.getBodyPos()) < (stats.getSize()+view.getOriginalPlantRef().body.stats.getSize() ))
+		// If the distance between the position of the agent and plant is less than the size of the two bodies... ie are the agent and plant touching
+		if( (view.distanceTo(getBodyPos(), view.getOriginalPlantRef().body.getBodyPos()) ) < ( this.getTrueSizeSQRD() + view.getOriginalPlantRef().body.getTrueSizeSQRD()))
 		{
 			return true;
 		}		
@@ -293,6 +293,11 @@ public class SimpleAgentBody
 		g.fill(true_body);	
 		
 		drawRectBody(g);
+	}
+	
+	public double getTrueSizeSQRD()
+	{
+		return (true_size*true_size)*2;
 	}
 	
 	public void setDebugPos(Vector2f pos)
