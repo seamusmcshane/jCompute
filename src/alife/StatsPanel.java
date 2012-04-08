@@ -140,29 +140,37 @@ public class StatsPanel extends JPanel
 		/* Assume pSample is the max */
 		plantsMax = pSample;
 		
-		// Moves the previous samples back by 1, leaves space for the new sps sample
-		for (int i = 0; i < (sampleNum - 1); i++)
-		{		
-			plantSamples[i] = plantSamples[(i + 1)];
-			
-			/* Max Value */
-			if(plantSamples[i] > plantsMax)
-			{
-				plantsMax = plantSamples[i];
-			}			
-		}
-
 		// If at the start of the sim add the new sample at the current step pos
 		if(stepNo<sampleNum)
 		{
+			// Finds the max value for scaling 
+			for (int i = 0; i < (sampleNum - 1); i++)
+			{						
+				/* Max Value */
+				if(plantSamples[i] > plantsMax)
+				{
+					plantsMax = plantSamples[i];
+				}			
+			}			
+			
 			plantSamples[stepNo] = pSample;			// Store the new sps sample			
 		}
 		else // if we have steps matches our array max then add the new one at the end
 		{
-			plantSamples[sampleNum - 1] = pSample;			// Store the new sps sample
-		}
-		
+			// Moves the previous samples back by 1, leaves space for the new sps sample
+			for (int i = 0; i < (sampleNum - 1); i++)
+			{		
+				plantSamples[i] = plantSamples[(i + 1)];
 				
+				// Finds the max value for scaling 
+				if(plantSamples[i] > plantsMax)
+				{
+					plantsMax = plantSamples[i];
+				}			
+			}			
+			
+			plantSamples[sampleNum - 1] = pSample;			// Store the new sps sample
+		}				
 	}
 
 	// Starts adding samples at the start of the array until filled, then moves them back and adds at the end	
@@ -171,24 +179,37 @@ public class StatsPanel extends JPanel
 		/* Assume pSample is the max */
 		preyMax = pSample;
 		
-		// Moves the previous samples back by 1, leaves space for the new sps sample
-		for (int i = 0; i < (sampleNum - 1); i++)
-		{		
-			preySamples[i] = preySamples[(i + 1)];
-			
-			/* Max Value */
-			if(preySamples[i] > preyMax)
-			{
-				preyMax = preySamples[i];
-			}			
-		}
+
 
 		if(stepNo<sampleNum)
 		{
-			preySamples[stepNo] = pSample;			// Store the new sps sample			
+			// Finds the max value for scaling 
+			for (int i = 0; i < (sampleNum - 1); i++)
+			{						
+				/* Max Value */
+				if(preySamples[i] > preyMax)
+				{
+					preyMax = preySamples[i];
+				}			
+			}			
+			
+			preySamples[stepNo] = pSample;			// Store the new sps sample
+			
 		}
 		else
 		{
+			// Moves the previous samples back by 1, leaves space for the new sps sample
+			for (int i = 0; i < (sampleNum - 1); i++)
+			{		
+				preySamples[i] = preySamples[(i + 1)];
+				
+				// Finds the max value for scaling 
+				if(preySamples[i] > preyMax)
+				{
+					preyMax = preySamples[i];
+				}			
+			}			
+			
 			preySamples[sampleNum - 1] = pSample;			// Store the new sps sample
 		}				
 	}	
@@ -199,24 +220,36 @@ public class StatsPanel extends JPanel
 		/* Assume pSample is the max */
 		predMax = pSample;
 		
-		// Moves the previous samples back by 1, leaves space for the new sps sample
-		for (int i = 0; i < (sampleNum - 1); i++)
-		{		
-			predSamples[i] = predSamples[(i + 1)];
-			
-			/* Max Value */
-			if(predSamples[i] > predMax)
-			{
-				predMax = predSamples[i];
-			}			
-		}
-
 		if(stepNo<sampleNum)
 		{
-			predSamples[stepNo] = pSample;			// Store the new sps sample			
+			// Finds the max value for scaling 
+			for (int i = 0; i < (sampleNum - 1); i++)
+			{						
+				/* Max Value */
+				if(predSamples[i] > predMax)
+				{
+					predMax = predSamples[i];
+				}			
+			}			
+			
+			predSamples[stepNo] = pSample;			// Store the new sps sample	
+			
+			
 		}
 		else
 		{
+			// Moves the previous samples back by 1, leaves space for the new sps sample
+			for (int i = 0; i < (sampleNum - 1); i++)
+			{		
+				predSamples[i] = predSamples[(i + 1)];
+				
+				// Finds the max value for scaling 
+				if(predSamples[i] > predMax)
+				{
+					predMax = predSamples[i];
+				}			
+			}			
+			
 			predSamples[sampleNum - 1] = pSample;			// Store the new sps sample
 		}					
 	}	
@@ -274,7 +307,7 @@ public class StatsPanel extends JPanel
 	
 	public void updateGraph()
 	{			
-		graphPanel.updateGraph(plantsMax,preyMax,predMax,scale_mode);
+		graphPanel.updateGraph(plantsMax,preyMax,predMax,scale_mode,stepNo);
 	}
 		
 	public static void clearStats()

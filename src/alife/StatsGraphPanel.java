@@ -1,5 +1,6 @@
 package alife;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -23,6 +24,8 @@ public class StatsGraphPanel extends JPanel
 	private static float sampleNum;
 	private static float samplePeriod;
 	
+	private static float graphSamples=1;
+	
 	private static float plantMax = 0;
 	private static float preyMax = 0;
 	private static float predMax = 0;
@@ -39,13 +42,22 @@ public class StatsGraphPanel extends JPanel
 		
 	}
 
-	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode)
+	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode,int stepNo)
 	{
 		this.plantMax = plantMax;
 		
 		this.preyMax = preyMax;
 		
 		this.predMax = predMax;
+		
+		if(stepNo<sampleNum)
+		{
+			graphSamples=stepNo;
+		}
+		else
+		{
+			graphSamples=sampleNum;
+		}
 		
 		/* 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied */
 		switch(scale_mode)
@@ -60,8 +72,14 @@ public class StatsGraphPanel extends JPanel
 				tieAllMax();
 				break;
 		}
-				
-		this.repaint();
+		
+		
+		/* No need to Draw the graph every step */
+		if(stepNo%5 == 0)
+		{
+			this.repaint();
+		}
+		
 	}
 		
 	/* Does the plants or agents have the greater point
@@ -117,7 +135,7 @@ public class StatsGraphPanel extends JPanel
 
 	public void drawPred(Graphics2D g2)
 	{				
-		float scaleWidthInterval = graphWidth/ sampleNum;
+		float scaleWidthInterval = graphWidth/ graphSamples;
 		float scaleHeightInterval = graphHeight / (predMax+1);
 		
 		int sampleXVal = 0;
@@ -125,7 +143,7 @@ public class StatsGraphPanel extends JPanel
 		
 		g2.setColor(Color.red);
 		
-		for(int i =0;i<sampleNum;i++)
+		for(int i =0;i<graphSamples;i++)
 		{			
 			sampleXVal = (int) (i*scaleWidthInterval);
 			
@@ -137,7 +155,7 @@ public class StatsGraphPanel extends JPanel
 	
 	public void drawPrey(Graphics2D g2)
 	{				
-		float scaleWidthInterval = graphWidth/ sampleNum;
+		float scaleWidthInterval = graphWidth/ graphSamples;
 		float scaleHeightInterval = graphHeight / (preyMax+1);
 		
 		int sampleXVal = 0;
@@ -145,7 +163,7 @@ public class StatsGraphPanel extends JPanel
 		
 		g2.setColor(Color.blue);
 		
-		for(int i =0;i<sampleNum;i++)
+		for(int i =0;i<graphSamples;i++)
 		{
 			
 			sampleXVal = (int) (i*scaleWidthInterval);
@@ -159,18 +177,16 @@ public class StatsGraphPanel extends JPanel
 	public void drawPlants(Graphics2D g2)
 	{
 				
-		float scaleWidthInterval = graphWidth/ sampleNum;
+		float scaleWidthInterval = graphWidth/ graphSamples;
 		float scaleHeightInterval = graphHeight / (plantMax+1);
 		
 		int sampleXVal = 0;
 		int sampleYVal = 0;
-
-		
+	    
 		g2.setColor(Color.green);
 		
-		for(int i =0;i<sampleNum;i++)
-		{
-			
+		for(int i =0;i<graphSamples;i++)
+		{			
 			sampleXVal = (int) (i*scaleWidthInterval);
 			
 			sampleYVal = graphHeight - ((int)(plantsSamples[i]*scaleHeightInterval));			
