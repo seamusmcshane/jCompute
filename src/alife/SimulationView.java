@@ -1,12 +1,14 @@
 package alife;
 
-/* NOTE! The following two imports are for creating executable jar */
 import java.awt.BorderLayout;
 import java.awt.Window.Type;
+import java.io.File;
 
 import javax.swing.JFrame;
 
+/* NOTE! The following two imports are for creating executable jar */
 import org.lwjgl.LWJGLException;
+import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
@@ -249,12 +251,9 @@ public class SimulationView extends BasicGame implements MouseListener
 			 * - For stand alone builds un-comment these so the jar will look
 			 * for the native libraries correctly
 			 */
-			// System.setProperty("org.lwjgl.librarypath", new File(new
-			// File(System.getProperty("user.dir"), "native"),
-			// LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
-			// System.setProperty("net.java.games.input.librarypath",
-			// System.getProperty("org.lwjgl.librarypath"));
-
+			/* System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
+			 System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
+			 */
 			simView = new CanvasGameContainer(new SimulationView());
 			//sim.setDisplayMode(world_view_width,world_view_height, false);
 			

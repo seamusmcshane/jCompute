@@ -645,6 +645,7 @@ public class SimulationGUI
 		txtSimRateInfo.setText("15");
 		txtSimRateInfo.setColumns(10);
 		simRateSlider = new JSlider();
+		simRateSlider.setMinimum(15);
 		simRateSlider.setMaximum(300);
 		simRateSlider.setValue(15);
 		simRateSlider.setSnapToTicks(true);

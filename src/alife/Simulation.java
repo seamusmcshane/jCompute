@@ -83,7 +83,7 @@ public class Simulation
 	private long currentTime;
 	private long diffTime;	
 
-	private int num_samples = 15;
+	private int num_samples = 150;
 	private double step_samples[] = new double[num_samples];
 	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
 	private double sps;	 			// Average Steps Per Second as an int for display purposes
