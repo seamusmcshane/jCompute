@@ -2,15 +2,7 @@ package alife;
 
 /* NOTE! The following two imports are for creating executable jar */
 import java.awt.BorderLayout;
-import java.awt.Frame;
 import java.awt.Window.Type;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.util.Random;
-import java.util.concurrent.Semaphore;
 
 import javax.swing.JFrame;
 
@@ -26,7 +18,6 @@ import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
-import java.awt.event.WindowFocusListener;
 /**
  * Simulation class - Gui and Entry Point for starting a Simulation.
  */
@@ -99,7 +90,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	public Vector2f mouse_pos = new Vector2f(0, 0);
 
 	/* Stores the camera position */
-	static int camera_margin = 2;
+	static int camera_margin = 0;
 
 	public static Rectangle camera_bound;
 
@@ -126,9 +117,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		if(draw_sim)
 		{
-			/* Some Linux Drivers have hardware clipping bugs */
-			
-			g.setWorldClip(camera_bound); // Todo Make setting
+			/* AMD Opensource Linux Drivers have hardware clipping bugs (Update Drivers to Xorg 1.12 for fix) */			
+			g.setWorldClip(camera_bound);
 			
 			doDraw(bufferGraphics);
 
@@ -163,7 +153,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		/* Performance Indicator */
 		buffer_num++;
 	}
-
+	
 	/*
 	 * Makes sure valid mouse coordinates are used when the mouse leaves and
 	 * renters a window that has lost and regained focus. - Prevents view
