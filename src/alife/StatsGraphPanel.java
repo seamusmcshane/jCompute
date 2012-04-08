@@ -1,12 +1,8 @@
 package alife;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-
 import javax.swing.JPanel;
 
 public class StatsGraphPanel extends JPanel

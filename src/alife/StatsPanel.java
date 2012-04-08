@@ -32,9 +32,9 @@ public class StatsPanel extends JPanel
 	private static JLabel lblPrey = new JLabel("Prey");
 	private static JLabel lblPreyNo = new JLabel("0");
 	private static JPanel simulationInfoRow = new JPanel();
-	private static JLabel lblASPS = new JLabel("Avg Steps/Sec");
+	private static JLabel lblASPS = new JLabel(" AS/Sec");
 	private static JLabel lblASPSNo = new JLabel("0");
-	private static JLabel lblRunTime = new JLabel("Run Time");
+	private static JLabel lblRunTime = new JLabel("Time");
 	private static JLabel lblRunTimeNo = new JLabel("0");
 	private static StatsGraphPanel graphPanel;
 
@@ -47,7 +47,7 @@ public class StatsPanel extends JPanel
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
 	private static int samplePeriod=60;
-	private static int sampleNum = 9000;
+	private static int sampleNum = 4500; // 5 mins real-time (15sps)
 	
 	private static int plantSamples[] = new int[sampleNum];	
 	private static int preySamples[] = new int[sampleNum];
@@ -62,7 +62,7 @@ public class StatsPanel extends JPanel
 	private int scale_mode = 2; /* 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied */	
 
 	private static int maxVal = 0;
-	private final JLabel lblStep = new JLabel("Step");
+	private final JLabel lblStep = new JLabel("Step No");
 	private final static JLabel lblStepNo = new JLabel("0");
 	
 	public StatsPanel()

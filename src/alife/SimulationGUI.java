@@ -89,10 +89,10 @@ public class SimulationGUI
 	private static int predator_default_speed_selected = 99; // Selects 1.00	
 
 	private static JComboBox comboBoxPreyViewRange;
-	private static int prey_default_view_range_selected = 24; // Selects 25
+	private static int prey_default_view_range_selected = 9; // Selects 10
 	
 	private static JComboBox comboBoxPredatorViewRange;
-	private static int predator_default_view_range_selected = 24; // Selects 25
+	private static int predator_default_view_range_selected = 9; // Selects 10
 	
 	private static JComboBox comboBoxPreyDE;
 	private static int prey_default_DE_selected = 39; // 0.40
@@ -131,10 +131,10 @@ public class SimulationGUI
 	private static int predator_default_repocost_selected = 54;		// // Selects 55			
 	
 	private static JComboBox comboBoxPreyStartingEnergy;
-	private static int prey_default_startingenergy_selected = 49;	 // Selects 50		
+	private static int prey_default_startingenergy_selected = 24;	 // Selects 25		
 	
 	private static JComboBox comboBoxPredStartingEnergy;	
-	private static int predator_default_startingenergy_selected = 49;	// Selects 50			
+	private static int predator_default_startingenergy_selected = 24;	// Selects 25			
 	
 	private static StatsPanel statsPanel;
 
