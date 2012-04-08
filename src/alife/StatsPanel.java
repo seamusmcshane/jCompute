@@ -59,7 +59,7 @@ public class StatsPanel extends JPanel
 	private static int predMax = 0;
 
 	/* Graph Scales - click graph */
-	private int scale_mode = 0; /* 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied */	
+	private int scale_mode = 2; /* 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied */	
 
 	private static int maxVal = 0;
 	private final JLabel lblStep = new JLabel("Step");
@@ -134,6 +134,7 @@ public class StatsPanel extends JPanel
 		add(graphPanel, BorderLayout.CENTER);
 	}
 
+	// Starts adding samples at the start of the array until filled, then moves them back and adds at the end	
 	public static void addSamplePlantsGraph(int pSample)
 	{
 		/* Assume pSample is the max */
@@ -151,10 +152,20 @@ public class StatsPanel extends JPanel
 			}			
 		}
 
-		plantSamples[sampleNum - 1] = pSample;			// Store the new sps sample
+		// If at the start of the sim add the new sample at the current step pos
+		if(stepNo<sampleNum)
+		{
+			plantSamples[stepNo] = pSample;			// Store the new sps sample			
+		}
+		else // if we have steps matches our array max then add the new one at the end
+		{
+			plantSamples[sampleNum - 1] = pSample;			// Store the new sps sample
+		}
+		
 				
 	}
 
+	// Starts adding samples at the start of the array until filled, then moves them back and adds at the end	
 	public static void addSamplePreyGraph(int pSample)
 	{
 		/* Assume pSample is the max */
@@ -172,10 +183,17 @@ public class StatsPanel extends JPanel
 			}			
 		}
 
-		preySamples[sampleNum - 1] = pSample;			// Store the new sps sample
-				
+		if(stepNo<sampleNum)
+		{
+			preySamples[stepNo] = pSample;			// Store the new sps sample			
+		}
+		else
+		{
+			preySamples[sampleNum - 1] = pSample;			// Store the new sps sample
+		}				
 	}	
 
+	// Starts adding samples at the start of the array until filled, then moves them back and adds at the end 
 	public static void addSamplePredGraph(int pSample)
 	{
 		/* Assume pSample is the max */
@@ -193,8 +211,14 @@ public class StatsPanel extends JPanel
 			}			
 		}
 
-		predSamples[sampleNum - 1] = pSample;			// Store the new sps sample
-				
+		if(stepNo<sampleNum)
+		{
+			predSamples[stepNo] = pSample;			// Store the new sps sample			
+		}
+		else
+		{
+			predSamples[sampleNum - 1] = pSample;			// Store the new sps sample
+		}					
 	}	
 	
 	public static void setPlantNo(int no)
