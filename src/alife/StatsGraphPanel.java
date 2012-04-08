@@ -12,23 +12,23 @@ import javax.swing.JPanel;
 public class StatsGraphPanel extends JPanel
 {
 	
-	private static int plantsSamples[];
-	private static int preySamples[];
-	private static int predSamples[];
+	private int plantsSamples[];
+	private int preySamples[];
+	private int predSamples[];
 	
-	private static int graphX;
-	private static int graphY;
-	private static int graphWidth;
-	private static int graphHeight;
+	private int graphX;
+	private int graphY;
+	private int graphWidth;
+	private int graphHeight;
 	
-	private static float sampleNum;
-	private static float samplePeriod;
+	private float sampleNum;
+	private float samplePeriod;
 	
-	private static float graphSamples=1;
+	private float graphSamples=1;
 	
-	private static float plantMax = 0;
-	private static float preyMax = 0;
-	private static float predMax = 0;
+	private float plantMax = 0;
+	private float preyMax = 0;
+	private float predMax = 0;
 	
 	public StatsGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum, int samplePeriod)
 	{
@@ -125,103 +125,73 @@ public class StatsGraphPanel extends JPanel
 				
 		calculateGraphSize();
 		
-		drawPlants(g2);
-		
-		drawPrey(g2);
-		
-		drawPred(g2);
+		drawSamples(g2);
+
 		
 	}
 
-	public void drawPred(Graphics2D g2)
+	public void drawSamples(Graphics2D g2)
 	{				
 		float scaleWidthInterval = graphWidth/ graphSamples;
-		float scaleHeightInterval = graphHeight / (predMax+1);
 		
-		int sampleXVal = 0;
-		int sampleYVal = 0;	
-		int samplePXVal = 0;
-		int samplePYVal = 0; 
-		
-		g2.setColor(Color.red);
-		
-		for(int i =0;i<graphSamples;i++)
-		{			
-			sampleXVal = (int) (i*scaleWidthInterval);
-			
-			sampleYVal = graphHeight - ((int)(predSamples[i]*scaleHeightInterval));			
-			
-			g2.drawLine( sampleXVal ,sampleYVal, sampleXVal, sampleYVal);
-			
-			g2.drawLine(samplePXVal ,samplePYVal, sampleXVal, sampleYVal);
-			
-			samplePXVal = sampleXVal;
-			samplePYVal = sampleYVal;			
-		}
-	}	
-	
-	public void drawPrey(Graphics2D g2)
-	{				
-		float scaleWidthInterval = graphWidth/ graphSamples;
-		float scaleHeightInterval = graphHeight / (preyMax+1);
-		
-		int sampleXVal = 0;
-		int sampleYVal = 0;
-		int samplePXVal = 0;
-		int samplePYVal = 0;   		
-		
-		g2.setColor(Color.blue);
-		
-		for(int i =0;i<graphSamples;i++)
-		{
-			
-			sampleXVal = (int) (i*scaleWidthInterval);
-			
-			sampleYVal = graphHeight - ((int)(preySamples[i]*scaleHeightInterval));			
-						
-			g2.drawLine(samplePXVal ,samplePYVal, sampleXVal, sampleYVal);
-			
-			samplePXVal = sampleXVal;
-			samplePYVal = sampleYVal;
-		}
-	}	
-	
-	public void drawPlants(Graphics2D g2)
-	{
-				
-		float scaleWidthInterval = graphWidth/ graphSamples;
-		float scaleHeightInterval = graphHeight / (plantMax+1);
-		
-		int sampleXVal = 0;
-		int sampleYVal = 0;
-		int samplePXVal = 0;
-		int samplePYVal = 0;    
-		
-		g2.setColor(Color.green);
-		
-		for(int i =0;i<graphSamples;i++)
-		{			
-			sampleXVal = (int) (i*scaleWidthInterval);
-			
-			sampleYVal = graphHeight - ((int)(plantsSamples[i]*scaleHeightInterval));			
-			
-			g2.drawLine(samplePXVal ,samplePYVal, sampleXVal, sampleYVal);
-			
-			samplePXVal = sampleXVal;
-			samplePYVal = sampleYVal;
-			
-			/*System.out.println("graphHeight            :" + graphHeight);
-			System.out.println("graphWidth             :" + graphWidth);
-			
-			System.out.println("graphWidth / sampleNum :" + graphWidth / sampleNum);
-			System.out.println(" scaleWidthInterval   : " + scaleWidthInterval);
-			System.out.println(" i*scaleWidthInterval : " + i*scaleWidthInterval);
-			System.out.println(" i*scaleWidthInterval : " + (int)(i*scaleWidthInterval));
-			System.out.println(" i                    : " + i);*/
+		float predScaleHeightInterval = graphHeight / (predMax+1);
+		float preyScaleHeightInterval = graphHeight / (preyMax+1);
+		float plantsScaleHeightInterval = graphHeight / (plantMax+1);
 
+		
+		int predSampleXVal = 0;
+		int predSampleYVal = 0;	
+		int predSamplePXVal = 0;
+		int predSamplePYVal = 0; 
+		
+		int plantsSampleXVal = 0;
+		int plantsSampleYVal = 0;	
+		int plantsSamplePXVal = 0;
+		int plantsSamplePYVal = 0; 
+		
+		int preySampleXVal = 0;
+		int preySampleYVal = 0;	
+		int preySamplePXVal = 0;
+		int preySamplePYVal = 0; 
+				
+		/* Loops through all three sample arrays */
+		for(int i =0;i<graphSamples;i++)
+		{			
+			/* Plants */
+			g2.setColor(Color.GREEN);
+			plantsSampleXVal = (int) (i*scaleWidthInterval);
+			
+			plantsSampleYVal = graphHeight - ((int)(plantsSamples[i]*plantsScaleHeightInterval));			
+						
+			g2.drawLine(plantsSamplePXVal ,plantsSamplePYVal, plantsSampleXVal, plantsSampleYVal);
+			
+			plantsSamplePXVal = plantsSampleXVal;
+			plantsSamplePYVal = plantsSampleYVal;				
+			
+			/* Prey */
+			g2.setColor(Color.BLUE);
+			preySampleXVal = (int) (i*scaleWidthInterval);
+			
+			preySampleYVal = graphHeight - ((int)(preySamples[i]*preyScaleHeightInterval));			
+						
+			g2.drawLine(preySamplePXVal ,preySamplePYVal, preySampleXVal, preySampleYVal);
+			
+			preySamplePXVal = preySampleXVal;
+			preySamplePYVal = preySampleYVal;				
+		
+			/* Predators */
+			g2.setColor(Color.red);
+			predSampleXVal = (int) (i*scaleWidthInterval);
+			
+			predSampleYVal = graphHeight - ((int)(predSamples[i]*predScaleHeightInterval));			
+						
+			g2.drawLine(predSamplePXVal ,predSamplePYVal, predSampleXVal, predSampleYVal);
+			
+			predSamplePXVal = predSampleXVal;
+			predSamplePYVal = predSampleYVal;			
 		}
 	}	
-	
+		
 	private void calculateGraphSize()
 	{
 		graphX = this.getX();
