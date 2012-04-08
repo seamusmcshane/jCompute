@@ -139,7 +139,9 @@ public class StatsGraphPanel extends JPanel
 		float scaleHeightInterval = graphHeight / (predMax+1);
 		
 		int sampleXVal = 0;
-		int sampleYVal = 0;
+		int sampleYVal = 0;	
+		int samplePXVal = 0;
+		int samplePYVal = 0; 
 		
 		g2.setColor(Color.red);
 		
@@ -150,6 +152,11 @@ public class StatsGraphPanel extends JPanel
 			sampleYVal = graphHeight - ((int)(predSamples[i]*scaleHeightInterval));			
 			
 			g2.drawLine( sampleXVal ,sampleYVal, sampleXVal, sampleYVal);
+			
+			g2.drawLine(samplePXVal ,samplePYVal, sampleXVal, sampleYVal);
+			
+			samplePXVal = sampleXVal;
+			samplePYVal = sampleYVal;			
 		}
 	}	
 	
@@ -160,6 +167,8 @@ public class StatsGraphPanel extends JPanel
 		
 		int sampleXVal = 0;
 		int sampleYVal = 0;
+		int samplePXVal = 0;
+		int samplePYVal = 0;   		
 		
 		g2.setColor(Color.blue);
 		
@@ -169,8 +178,11 @@ public class StatsGraphPanel extends JPanel
 			sampleXVal = (int) (i*scaleWidthInterval);
 			
 			sampleYVal = graphHeight - ((int)(preySamples[i]*scaleHeightInterval));			
+						
+			g2.drawLine(samplePXVal ,samplePYVal, sampleXVal, sampleYVal);
 			
-			g2.drawLine( sampleXVal ,sampleYVal, sampleXVal, sampleYVal);
+			samplePXVal = sampleXVal;
+			samplePYVal = sampleYVal;
 		}
 	}	
 	
@@ -182,7 +194,9 @@ public class StatsGraphPanel extends JPanel
 		
 		int sampleXVal = 0;
 		int sampleYVal = 0;
-	    
+		int samplePXVal = 0;
+		int samplePYVal = 0;    
+		
 		g2.setColor(Color.green);
 		
 		for(int i =0;i<graphSamples;i++)
@@ -191,7 +205,10 @@ public class StatsGraphPanel extends JPanel
 			
 			sampleYVal = graphHeight - ((int)(plantsSamples[i]*scaleHeightInterval));			
 			
-			g2.drawLine( sampleXVal ,sampleYVal, sampleXVal, sampleYVal);
+			g2.drawLine(samplePXVal ,samplePYVal, sampleXVal, sampleYVal);
+			
+			samplePXVal = sampleXVal;
+			samplePYVal = sampleYVal;
 			
 			/*System.out.println("graphHeight            :" + graphHeight);
 			System.out.println("graphWidth             :" + graphWidth);
