@@ -12,12 +12,14 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import javax.swing.border.EtchedBorder;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JTabbedPane;
 /**
  * A Custom Panel for controlling the display of Simulation stats in the GUI
  *
@@ -41,7 +43,8 @@ public class StatsPanel extends JPanel
 	private static JLabel lblRunTimeNo = new JLabel("0");
 	
 	/** The custom panel for drawing the graph */
-	private static StatsGraphPanel graphPanel;
+	private static StatsLineGraphPanel lineGraphPanel;
+	private static StatsLorenzGraphPanel lorenzGraphPanel;
 
 	/* Counters */
 	private static int ASPS = 0; // Average Steps per second
@@ -52,7 +55,7 @@ public class StatsPanel extends JPanel
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
 	private static int samplePeriod = 60;
-	private static int sampleNum = 4500; // 4500 = 5 mins real-time (15sps)
+	private static int sampleNum = 9000; // 9000 = 10 mins real-time (15sps)
 
 	/** The Sample arrays */
 	private static int plantSamples[] = new int[sampleNum];
@@ -70,6 +73,7 @@ public class StatsPanel extends JPanel
 	private static int maxVal = 0;
 	private final JLabel lblStep = new JLabel("Step No");
 	private final static JLabel lblStepNo = new JLabel("0");
+	private final JTabbedPane tabbedGraphs = new JTabbedPane(JTabbedPane.TOP);
 
 	public StatsPanel()
 	{
@@ -124,9 +128,11 @@ public class StatsPanel extends JPanel
 
 		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblRunTimeNo);
+		
+		add(tabbedGraphs, BorderLayout.CENTER);
 
-		graphPanel = new StatsGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
-		graphPanel.addMouseListener(new MouseAdapter()
+		lineGraphPanel = new StatsLineGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
+		lineGraphPanel.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent arg0)
@@ -136,9 +142,36 @@ public class StatsPanel extends JPanel
 			}
 		});
 
-		graphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		graphPanel.setBackground(Color.gray);
-		add(graphPanel, BorderLayout.CENTER);
+		lineGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		lineGraphPanel.setBackground(Color.gray);
+		tabbedGraphs.addTab("Line Graph", null, lineGraphPanel,"Graphs");
+
+		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		lorenzGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		
+		
+		lorenzGraphPanel.addMouseMotionListener(new MouseMotionAdapter()
+        {
+            // Send Position of the mouse to the tree for draging
+            public void mouseDragged(MouseEvent e)
+            {
+            	lorenzGraphPanel.moveGraph(e.getX(),e.getY());
+                e.consume();
+            }
+
+            // Updates the mouse continuously for collision detection
+            public void mouseMoved(MouseEvent e)
+            {
+            	lorenzGraphPanel.setMpos(e.getX(),e.getY());
+                e.consume();
+            }
+
+        });
+		
+		lorenzGraphPanel.setBackground(Color.gray);
+		tabbedGraphs.addTab("Lorenz Graph", null, lorenzGraphPanel,"Graphs");		
+		
+		//add(graphPanel, BorderLayout.CENTER);
 	}
 
 	/**
@@ -348,7 +381,8 @@ public class StatsPanel extends JPanel
 	 */
 	public void updateGraph()
 	{
-		graphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
+		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
+		lorenzGraphPanel.updateGraph(stepNo);	
 	}
 
 	/** Clears the values in the Arrays of samples */
