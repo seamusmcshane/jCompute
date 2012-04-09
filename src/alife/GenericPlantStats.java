@@ -1,7 +1,10 @@
 package alife;
-
-import org.newdawn.slick.geom.Vector2f;
-
+/**
+ * This class holds the stats for an individual plant.
+ * It manages the energy of the plant.
+ * 	Including all variables acting on the energy.
+ * It also manages reproduction energy.
+ */
 public class GenericPlantStats
 {
 	private float energy;
@@ -20,7 +23,6 @@ public class GenericPlantStats
 	private float reproductionBank;	
 	private float reproductionCost;	
 	private float base_reproduction_cost;
-	
 	
 	public GenericPlantStats(float starting_energy, float max_energy, float absorption_rate, float base_reproduction_cost)
 	{		
@@ -53,29 +55,35 @@ public class GenericPlantStats
 		
 	}
 	
-	/** Increments the Energy for living plants */
+	/** Increments the Energy for living plants 
+	 * Taking into account reproduction division. (DISABLED)
+	 * */
 	public void increment()
 	{
 		if(!isDead())
 		{
 			
-			this.energy = this.energy + (absorption_rate/2);
+			this.energy = this.energy + (absorption_rate);
+//			this.energy = this.energy + (absorption_rate/2);
 			
 			if(this.energy > max_energy)
 			{
 				this.energy = max_energy;
 			}
 			
-			this.reproductionBank = this.reproductionBank + (absorption_rate/2);
+			/*this.reproductionBank = this.reproductionBank + (absorption_rate/2);
 			
 			if(this.reproductionBank > max_energy)
 			{
 				this.reproductionBank = max_energy;
-			}	
+			}	*/
 		}
 	}
 	
-	/* Remove energy from living plants */
+	/**
+	 *  Remove energy from living plants 
+	 *  Happens when the plant is being ate.
+	 *  */
 	public float decrementEnergy(float num)
 	{		
 		
@@ -99,6 +107,7 @@ public class GenericPlantStats
 		return num;
 	}
 	
+	/** Returns the total energy value of this plant */
 	public float getEnergy()
 	{			
 		return energy;	
@@ -110,17 +119,19 @@ public class GenericPlantStats
 		return dead;
 	}
 
+	/** Returns this size of this plant */
 	public float getSize()
 	{
 		return size;
 	}
 	
+	/** Performs the reproduction cost calculation */
 	public void decrementReproductionCost()
 	{
 		reproductionBank = (reproductionBank - reproductionCost );
 	}
-	
-	// cost is 1/2 max energy level
+
+	/** Returns if this plant can reproduce */
 	public boolean canReproduce()
 	{
 		if(reproductionBank > reproductionCost)

@@ -2,7 +2,8 @@ package alife;
 
 import org.newdawn.slick.geom.Vector2f;
 
-/** Used to store the "visible" statistics of the inViewPlant */
+/** Used to store the "visible" statistics of the inViewPlant  for agents.
+ * */
 public class GenericPlantViewStats
 {
 	/** Energy Value of Plant in view */

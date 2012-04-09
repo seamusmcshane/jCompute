@@ -194,7 +194,9 @@ public class BarrierTaskThread extends Thread
 		}
 	}	
 		
-	// As above but for plants - with the logical exception that plants can be extinct and thus the list empty.
+	/** 
+	 * As above but for plants - with the logical exception that plants can be extinct and thus the list empty.
+	 */
 	public void agentViewRangeKDSQPlants()
 	{
 		if(nearestPlant == null) // All plants are extinct..

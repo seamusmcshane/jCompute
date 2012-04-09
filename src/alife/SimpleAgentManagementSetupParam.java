@@ -1,5 +1,9 @@
 package alife;
-
+/**
+ * This class is used for transferring many parameters into the simulation from the GUI in bulk
+ * avoiding the need to pass them in singular.
+ *
+ */
 public class SimpleAgentManagementSetupParam
 {
 	private float predatorspeed;

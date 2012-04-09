@@ -8,48 +8,55 @@ import org.newdawn.slick.geom.Vector2f;
 
 import alife.SimulationEnums.AgentType;
 
-/*
+/**
  * Agent Body Class
  * - This Class performs the world movement checks and contains the draw code of this visual representation of the body.
- * - This is the only agent class that other agents "should"interact with.
+ * - This is the only agent class that other agents brains "should" interact with.
  */
-
 public class SimpleAgentBody
 {
-	/* Agent Body */
+	/** Agent Body */
 	private Rectangle body;
 	
+	/** The stats of this agent body */
 	final SimpleAgentStats stats;
 		
+	/** The circular body and size */
 	private Circle true_body;
 	private float true_size;
 		
+	/** Color of this agent */
 	private Color color;
 	
-	/* Current Body Pos */
+	/** Current Body Pos */
 	private Vector2f body_pos;
 	
-	/* Calculated body pos */
+	/** Calculated body pos */
 	private Vector2f new_body_pos = new Vector2f(0,0);
 		
-	/* Forward Vector */
+	/** Forward Vector */
 	private Vector2f forward_vector;
 	
-	/* Calculated forward vector */
+	/** Calculated forward vector */
 	private Vector2f new_forward_vector = new Vector2f(0,0);		  /* Latched 	  */
 
-	/* Direction of movement of the Agent */
+	/** Direction of movement of the Agent */
 	private float direction;
 	
-	/* Is this agent still alive */
+	/** Is this agent still alive */
 	private boolean alive=true;
 	
-	/* has this agent ate a plant */
+	/** has this agent ate a plant */
 	private boolean ate_plant=false;
 	
-	/* has this agent ate an agent */
+	/** has this agent ate an agent */
 	private boolean ate_agent=false;
 		
+	/**
+	 * Creates a new agents body centred on the pos with the set stats.
+	 * @param pos
+	 * @param stats
+	 */
 	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
 	{
 		
@@ -62,7 +69,7 @@ public class SimpleAgentBody
 		setIntialPos(pos);
 	}
 	
-	/* Init */
+	/** Initialises the two body representations */
 	private void initBody()
 	{
 		body = new Rectangle(0,0,stats.getSize(),stats.getSize());
@@ -74,20 +81,20 @@ public class SimpleAgentBody
 		setColor();
 	}
 	
-	/* Body Color */
+	/** Sets the Body Color */
 	private void setColor()
 	{
 		if(stats.getType().getType() == AgentType.PREY)
 		{
 			color = Color.blue;
 		}
-		else
+		else // Predator
 		{
 			color = Color.red;
 		}
 	}
 	
-	/* Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
+	/** Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
 	public boolean move(float req_direction)
 	{		
 		Vector2f new_pos = newPosition(req_direction);
@@ -110,7 +117,7 @@ public class SimpleAgentBody
 		return false;		
 	}
 	
-	/* Like above but does't move - can be called by the agent brain to check if the move is valid */
+	/** Like above but does't move - can be called by the agent brain to check if the move is valid */
 	public boolean move_possible(float req_direction)
 	{
 		Vector2f new_pos = newPosition(req_direction);
@@ -123,6 +130,11 @@ public class SimpleAgentBody
 		return false;		
 	}
 	
+	/**
+	 * Used to turn a direction of movement into a new XY coordinate.
+	 * @param req_direction
+	 * @return new_body_pos
+	 */
 	private Vector2f newPosition(float req_direction)
 	{
 		//System.out.println("req_direction : " + req_direction);
@@ -143,29 +155,33 @@ public class SimpleAgentBody
 		
 		//System.out.println("vector  : X | " + new_body_pos.getX() + " Y |" + new_body_pos.getY());
 		
-		return new_body_pos;
-				
+		return new_body_pos;				
 	}
 	
-	/* Initial Cartesian X/Y Position */
+	/** Initial Cartesian X/Y Position */
 	private void setIntialPos(Vector2f pos)
 	{	
 		body_pos = pos;
 	}
 	
-	/* Internal Movement */
+	/** Internal Movement - decrements move energy */
 	private void updateBodyPosition(Vector2f pos)
 	{
 			stats.decrementMoveEnergy();
 			body_pos.set(pos);					
 	}
 
-	/* External Getter */
+	/** External Getter */
 	public Vector2f getBodyPos()
 	{
 		return body_pos;
 	}
 	
+	/**
+	 * The eat agent Action, attempts to eat the agent in view.
+	 * @param view
+	 * @return
+	 */
 	public boolean eatAgent(SimpleAgentView view)
 	{		
 		if(view.getOriginalAgentRef()!= null )
@@ -186,6 +202,11 @@ public class SimpleAgentBody
 		return false;		
 	}
 	
+	/**
+	 * Checks if the agent in view is close enough to eat.
+	 * @param view
+	 * @return
+	 */
 	private boolean isAgentCloseEnoughToEat(SimpleAgentView view)
 	{
 		// If the distance between the position of the agent and other agent is less than the "true size" of the two bodies... ie are the agent and other agent touching
@@ -197,7 +218,11 @@ public class SimpleAgentBody
 		return false;		
 	}
 	
-	
+	/**
+	 * The eat plant Action, attempts to eat the plant in view.
+	 * @param view
+	 * @return
+	 */
 	public boolean eatPlant(SimpleAgentView view)
 	{		
 		if(view.getOriginalPlantRef()!= null )
@@ -217,7 +242,12 @@ public class SimpleAgentBody
 		}		
 		return false;		
 	}
-	
+
+	/**
+	 * Checks if the plant in view is close enough to eat.
+	 * @param view
+	 * @return
+	 */	
 	private boolean isPlantCloseEnoughToEat(SimpleAgentView view)
 	{
 		// If the distance between the position of the agent and plant is less than the size of the two bodies... ie are the agent and plant touching
@@ -228,53 +258,14 @@ public class SimpleAgentBody
 		
 		return false;		
 	}
-	
-	/* Simulation Eval Methods */
-	public boolean isAlive()
-	{
-		return alive;
-	}
-	
-	public boolean atePlant()
-	{
-		return ate_plant;
-	}
-	
-	public boolean ateAgent()
-	{
-		return ate_agent;		
-	}
-	
-	/* 
-	 * 
-	 * Helpers 
-	 * 
-	 */
-	/*private Vector2f polarToCar(float r,float theta)
-	{
-		float x = (float) (r * Math.cos(theta));
-		float y = (float) (r * Math.sin(theta));
 		
-		return new Vector2f(y,-x);
-	}
-	
-	private Vector2f carToPolar(float x, float y)
-	{
-		float r = (float) Math.sqrt((x*x)+(y*y));
-		
-		float theta = (float) Math.atan2(y, x);
-		
-		// Polar Vector 
-		return new Vector2f(r,theta);
-	}*/
-	
-	/* Returns the agents direction */
+	/** Returns the agents direction of movement */
 	public float getDirection()
 	{
 		return this.direction;
 	}
 
-	/* Fast Body Draw Method */
+	/** Fast Body Draw Method - rectangles */
 	public void drawRectBody(Graphics g)
 	{
 		body.setLocation(body_pos.getX()-(stats.getSize()/2), body_pos.getY()-(stats.getSize()/2));
@@ -284,6 +275,7 @@ public class SimpleAgentBody
 		g.fill(body);			
 	}
 	
+	/** Slow Draw method - circles */
 	public void drawTrueBody(Graphics g)
 	{
 		true_body.setLocation(body_pos.getX()-(true_size), body_pos.getY()-(true_size));
@@ -295,14 +287,10 @@ public class SimpleAgentBody
 		drawRectBody(g);
 	}
 	
-	public double getTrueSizeSQRD()
+	/** Returns the true size squared for use in collision detection */
+	public float getTrueSizeSQRD()
 	{
 		return (true_size*true_size)*2;
-	}
-	
-	public void setDebugPos(Vector2f pos)
-	{
-		body_pos.set(pos.getX(), pos.getY());		
 	}
 	
 }

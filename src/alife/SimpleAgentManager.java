@@ -13,7 +13,7 @@ import org.newdawn.slick.geom.Vector2f;
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import alife.SimulationEnums.AgentType;
 
-/*
+/**
  * 
  * Agent Manager Class
  * This class contains the setup methods for the agents.

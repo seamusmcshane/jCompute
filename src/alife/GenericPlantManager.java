@@ -64,19 +64,19 @@ public class GenericPlantManager
 		this.barrierManager = barrierManager;
 		
 		this.world_size = world_size;
-		
-		setUpLists();
-		
+				
 		this.plant_regen_rate = plant_regen_rate;
 		
 		this.plantstartingenergy = plantstartingenergy;
 		
 		this.base_plant_energy_absorption_rate = plant_energy_absorption_rate;
 		
+		setUpLists();
+		
 		addPlants(world_size,inital_number);		
 	}
 
-	/* Draws all the plants */
+	/** Draws all the plants with a toggle for body type */
 	public void drawPlants(Graphics g,boolean true_drawing)
 	{
 		
@@ -86,11 +86,8 @@ public class GenericPlantManager
 		{
 			
 			tPlantDraw = itrDrawPlant.next();
-			
-			/* Set the current status of the view drawing */
-			//tPlantDraw.setViewDrawing(view_drawing);
-			
-			// Optimization - Only draw visible agents that are inside the camera_boundarie
+						
+			/* Optimization - Only draw visible plants that are inside the camera_boundaries */
 			if (tPlantDraw.body.getBodyPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tPlantDraw.body.getBodyPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tPlantDraw.body.getBodyPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tPlantDraw.body.getBodyPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
@@ -109,7 +106,7 @@ public class GenericPlantManager
 		
 	}
 	
-	// List prepare
+	/** Plant List preparation for the barrier */
 	public void stage1()
 	{
 		setUpLists();
@@ -117,33 +114,35 @@ public class GenericPlantManager
 		randomizeListOrder();		
 	}
 	
-	// View update
+	/** Sets the barrier task for plants */
 	public void stage2()
 	{
 		barrierManager.setBarrierPlantTask(doList,plantCount);
 	}
 	
-	// List update
+	/** This stage performs the list updating, addition of new plants and stats updates. */
 	public void stage3()
 	{
+		// The removal of dead plants
 		updateDoneList();
 				
 		/* Plant Growth per Step - adds this many plants per step */
 		addPlants(world_size,plant_regen_rate);	// log2(512) - +9... log2(1024)+10...
-		
 		
 		// Stats Counter
 		StatsPanel.setPlantNo(plantCount);
 		
 	}
 		
-	/* Randomize the doList */
+	/** Randomize the doList - to reduce list position bias */
 	private void randomizeListOrder()
 	{
 		Collections.shuffle(doList);
 	}
 	
-	// Updates the Done list.
+	/** Updates the Done list. 
+	 * This effectly is handling the death of plants in the simulation and if later implemented the reproduction of plants. 
+	 * */
 	public void updateDoneList()
 	{
 		/* Recount all the plants - since some will have died...*/
@@ -154,12 +153,13 @@ public class GenericPlantManager
 		while (itr.hasNext())
 		{
 
-			/* Remove this Agent from the List */
+			/* Remove this Plant from the List */
 			GenericPlant temp = itr.next();
 
 			/* remove from the doList */
 			itr.remove();
 			
+			/** Is plant dead? */
 			if(!temp.body.stats.isDead())
 			{						
 				
@@ -176,6 +176,7 @@ public class GenericPlantManager
 				}*/
 				//
 				
+				/** Plant is not dead add it to the done list */
 				doneList.add(temp);
 				plantCount++;
 				
@@ -185,6 +186,7 @@ public class GenericPlantManager
 	
 	}
 	
+	/** Adds (n) number of plants randomly in the world */
 	private void addPlants(int world_size,int plant_number)
 	{	
 		/* Random Starting Position */
@@ -202,14 +204,16 @@ public class GenericPlantManager
 		}		
 	}
 
-	/* Being born counts as an Action thus all new agents start in the done list */
+	/** Being born counts as an Action thus all new plants start in the done list */
 	public void addNewPlant(GenericPlant plant)
 	{		
 		doneList.add(plant);
 		plantCount++;		
 	}	
 	
-	/* Sets up the safe starting position for the lists */
+	/** Sets up the safe starting position for the lists 
+	 * Any plant not moved out of the done list has been marked as dead and will not be in the do list.
+	 * */
 	private void setUpLists()
 	{
 		doList = doneList;
