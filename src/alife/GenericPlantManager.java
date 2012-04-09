@@ -4,39 +4,59 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.concurrent.Semaphore;
-
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Vector2f;
-
+/**
+ * This class manages the plants in the simulation.
+ * Drawing, adding, removing and regeneration.
+ * 
+ */
 public class GenericPlantManager
 {
 
-	/* Plant Action Linked Lists */
-	LinkedList<GenericPlant> doList;	
-	LinkedList<GenericPlant> doneList;
+	/** Plant Action Linked Lists */
+	private LinkedList<GenericPlant> doList;	
+	private LinkedList<GenericPlant> doneList;
 	
-	GenericPlant tPlantDraw; 
-	
-	int plantCount=0;
+	/** The Total number of plants managed by this class */
+	private int plantCount=0;
 
+	/** The interator used to draw the plants */
 	private ListIterator<GenericPlant> itrDrawPlant;
 	
+	/** A re-used reference in the draw method */
+	private GenericPlant tPlantDraw; 	
+	
+	/** The size of the world, needed for correctly placing new plants */
 	private int world_size;
 	
+	/** The initial Number of plants */
 	private int inital_number;
 	
-	private float base_plant_reproduction_cost=0.99f;
+	/** The reproduction cost for plants */
+	private float base_plant_reproduction_cost=0.99f; // Disabled
+	
+	/** A reference to the plant absorption rate, so new plants can have the same value */
 	private float base_plant_energy_absorption_rate=1f;
 	
+	/** The default value for the plants starting energy */
 	private float plantstartingenergy;
+	
+	/** The amount of plants that are to be regenerated each step */
 	private int plant_regen_rate;
-	
-	private Random rPos = new Random();
-	
-	/* Reference for setting task */
+		
+	/** Reference for setting task in the */
 	ViewGeneratorManager viewGenerator;
 	
+	/**
+	 * Creates a plant manager.
+	 * 
+	 * @param viewGenerator
+	 * @param world_size
+	 * @param inital_number
+	 * @param plant_regen_rate
+	 * @param plantstartingenergy
+	 * @param plant_energy_absorption_rate
+	 */
 	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number, int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate)
 	{		
 		this.inital_number = inital_number;
