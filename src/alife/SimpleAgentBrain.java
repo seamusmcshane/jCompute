@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.newdawn.slick.geom.Circle;
 
-import alife.SimpleAgentTypeEnum.AgentState;
+import alife.SimpleAgentEnum.AgentState;
 
 public class SimpleAgentBrain
 {

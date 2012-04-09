@@ -6,7 +6,7 @@ import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
-import alife.SimpleAgentTypeEnum.AgentType;
+import alife.SimpleAgentEnum.AgentType;
 
 /**
  * Agent Body Class

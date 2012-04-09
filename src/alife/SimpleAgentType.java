@@ -1,22 +1,30 @@
 package alife;
 
-import alife.SimpleAgentTypeEnum.AgentType;
-
+import alife.SimpleAgentEnum.AgentType;
+/**
+ * This Class does the Agent Type evaluations for the agents brains.
+ */
 public class SimpleAgentType
 {
-
+	/** The type enum */
 	private AgentType type;
 	
+	/**
+	 * Creates a type.
+	 * @param type
+	 */
 	public SimpleAgentType(AgentType type)
 	{
 		this.type = type;
 	}
 	
+	/** Returns the type */
 	public AgentType getType()
 	{
 		return type;
 	}
 	
+	/** Compares the type */
 	public boolean isSameType(SimpleAgentType type)
 	{
 		
@@ -30,7 +38,11 @@ public class SimpleAgentType
 	}
 	
 	
-	// Enum Strength Evaluations (Tri-Logic)
+	/**
+	 * Enum Strength Evaluation.
+	 * @param type
+	 * @return
+	 */
 	public int strongerThan(SimpleAgentType type)
 	{
 		int eval = 0;
@@ -58,6 +70,7 @@ public class SimpleAgentType
 		
 	}
 	
+	/** The Evaluation of if this type eats plants */
 	public boolean eatsPlants()
 	{
 		boolean eval = false;
