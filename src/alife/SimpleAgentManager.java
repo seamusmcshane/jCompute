@@ -11,7 +11,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
-import alife.SimulationEnums.AgentType;
+import alife.SimpleAgentTypeEnum.AgentType;
 
 /**
  * 

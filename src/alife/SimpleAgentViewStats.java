@@ -2,7 +2,7 @@ package alife;
 
 import org.newdawn.slick.geom.Vector2f;
 
-import alife.SimulationEnums.AgentType;
+import alife.SimpleAgentTypeEnum.AgentType;
 
 /** Used to store the "visible" statistics of the inViewAgent */
 public class SimpleAgentViewStats

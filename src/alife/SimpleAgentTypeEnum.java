@@ -1,6 +1,6 @@
 package alife;
 
-public class SimulationEnums
+public class SimpleAgentTypeEnum
 {
 	public enum AgentType{PREY,PREDATOR};
 	

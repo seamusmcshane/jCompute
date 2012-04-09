@@ -1,6 +1,6 @@
 package alife;
 
-import alife.SimulationEnums.AgentType;
+import alife.SimpleAgentTypeEnum.AgentType;
 
 public class SimpleAgentType
 {
