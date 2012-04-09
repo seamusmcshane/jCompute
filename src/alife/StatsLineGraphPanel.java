@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 /**
  * A Custom Panel used for drawing a graph.
  */
-public class StatsGraphPanel extends JPanel
+public class StatsLineGraphPanel extends JPanel
 {
 	/** The references to the sample arrays */
 	private int plantsSamples[];
@@ -36,7 +36,7 @@ public class StatsGraphPanel extends JPanel
 	 * @param sampleNum
 	 * @param samplePeriod
 	 */
-	public StatsGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum, int samplePeriod)
+	public StatsLineGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum, int samplePeriod)
 	{
 
 		this.plantsSamples = plantsSamples;
