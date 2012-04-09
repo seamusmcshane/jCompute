@@ -48,12 +48,12 @@ public class SimpleAgentManager
 	SimpleAgent testAgent;
 	
 	/* Reference for setting task */
-	ViewGeneratorManager viewGenerator;
+	BarrierManager barrierManager;
 	
 	/* Agent Settings */
 	SimpleAgentManagementSetupParam agentSettings;
 	
-	public SimpleAgentManager(ViewGeneratorManager viewGenerator,int world_size, int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
+	public SimpleAgentManager(BarrierManager barrierManager,int world_size, int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
 	{
 		this.agentSettings = agentSettings;  // All the intial agent settings are contained in this struct
 
@@ -62,7 +62,7 @@ public class SimpleAgentManager
 		pred_count = 0;
 		agentIdCount=0;
 		
-		this.viewGenerator = viewGenerator;
+		this.barrierManager = barrierManager;
 					
 		setUpLists();
 		
@@ -193,7 +193,7 @@ public class SimpleAgentManager
 	public void stage2()
 	{
 		// Set our Task for the view
-		viewGenerator.setBarrierAgentTask(doList,agentCount);			
+		barrierManager.setBarrierAgentTask(doList,agentCount);			
 	}
 	
 	// List update

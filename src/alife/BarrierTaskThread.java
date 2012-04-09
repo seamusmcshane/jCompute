@@ -9,9 +9,14 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 
 /**
- *  This thread object will iterate through a linked list of agents passed to it and find the nearest neighbor for each agent in the linked list using the KdTree pass to it.
+ *  This thread object will iterate through a linked list of agents passed to it, 
+ *  finding the nearest neighbour for each agent in the linked list using the KdTree pass to it.
+ *  It also performs the agents step.
+ *  
+ *  This thread object will also iterate through a linked list of plants.
+ *  This performs the plant step. ie photosynthesis 
  */
-public class ViewGeneratorThread extends Thread
+public class BarrierTaskThread extends Thread
 {
 	
 	/** The Agent list. */
@@ -45,21 +50,22 @@ public class ViewGeneratorThread extends Thread
 	private SimpleAgent nearestAgent;
 	private GenericPlant nearestPlant;
 		
-	/** Reused Vector */
+	/** Reused Position Vector */
 	private double[] pos;
 	
+	/** The start and end semaphores for this thread */
 	private Semaphore start;
 	private Semaphore end;
 	
 	private int my_id; // Debug
 	
 	/**
-	 * Instantiates a new view generator thread.
-	 *
-	 * @param linkedList of SimpleAgents
-	 * @param prTree of SimpleAgents
+	 * Instantiates a new barrier task thread.
+	 * @param id
+	 * @param sem1
+	 * @param sem2
 	 */
-	public ViewGeneratorThread(int id,Semaphore sem1,Semaphore sem2)
+	public BarrierTaskThread(int id,Semaphore sem1,Semaphore sem2)
 	{
 		this.my_id =id;
 		start = sem1;
@@ -67,7 +73,13 @@ public class ViewGeneratorThread extends Thread
 		pos = new double[2];
 	}
 	
-	
+	/**
+	 * Sets the task for this thread.
+	 * @param agentList
+	 * @param agentKDTree
+	 * @param plantList
+	 * @param plantKDTree
+	 */
 	public void setTask(LinkedList<SimpleAgent> agentList,	KdTree<SimpleAgent> agentKDTree,LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;	
@@ -81,16 +93,19 @@ public class ViewGeneratorThread extends Thread
 		this.plantKDTree = plantKDTree;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Thread#run()
+	/**
+	 * Section 1 - perform plant iteration.
+	 * Section 2 - same for agents.
 	 */
 	public void run()
 	{
 	
 		while(true)
 		{
+			
 			start.acquireUninterruptibly();
-							
+			
+			/** Section 1 */
 			while(plantListItr.hasNext()) 
 			{
 								
@@ -104,7 +119,7 @@ public class ViewGeneratorThread extends Thread
 
 			}			
 			
-			
+			/** Section 2 */
 			while(agentListItr.hasNext()) 
 			{
 								
@@ -179,7 +194,7 @@ public class ViewGeneratorThread extends Thread
 		}
 	}	
 		
-	// As above but for plants - with the logical exception that plants can be extinct.
+	// As above but for plants - with the logical exception that plants can be extinct and thus the list empty.
 	public void agentViewRangeKDSQPlants()
 	{
 		if(nearestPlant == null) // All plants are extinct..

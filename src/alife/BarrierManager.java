@@ -5,38 +5,51 @@ import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
-
-public class ViewGeneratorManager extends Thread
+/**
+ * 
+ * This class instantiates a barrier manager.
+ * Its task is to generate plant and agent kd trees.
+ * Then divide the lists of agents and trees in to smaller lists to be processed in threads.
+ */
+public class BarrierManager extends Thread
 {
-
+	/** Number of threads used in this barrier */
 	private int num_threads;
 	
-	private Semaphore viewControlerSemaphore;
+	/* The lock for the entire barrier */
+	private Semaphore barrierControlerSemaphore;
 	
-	private Semaphore viewGeneratorStartSemaphores[];
+	/** The start semaphores for the threads */
+	private Semaphore barrierManagerStartSemaphores[];
 	
-	private Semaphore viewGeneratorEndSemaphores[];
+	/** The end semaphores for the threads */
+	private Semaphore barrierManagerEndSemaphores[];
 		
-	private ViewGeneratorThread viewThreads[];
+	/** The array of threads */
+	private BarrierTaskThread barrierThreads[];
 
-	@SuppressWarnings("unchecked")
-	
+	/** References for Agent Tasks */
 	private KdTree<SimpleAgent> agentKDTree;	
 	private LinkedList<SimpleAgent> agentList;
 	private LinkedList<SimpleAgent>[] agentTaskLists;
 	
+	/** References for Plant Tasks */
 	private KdTree<GenericPlant> plantKDTree;
 	private LinkedList<GenericPlant> plantList;
 	private LinkedList<GenericPlant>[] plantTaskLists;
 	
-
+	/** Counts used in list division */
 	private int agentCount;
 	private int plantCount;
 
-	
-	public ViewGeneratorManager(Semaphore viewControlerSemaphore, int num_threads)
+	/**
+	 * Creates a new barrier manager.
+	 * @param barrierControlerSemaphore
+	 * @param num_threads
+	 */
+	public BarrierManager(Semaphore barrierControlerSemaphore, int num_threads)
 	{
-		this.viewControlerSemaphore = viewControlerSemaphore;
+		this.barrierControlerSemaphore = barrierControlerSemaphore;
 		
 		this.num_threads = num_threads;
 		
@@ -48,47 +61,15 @@ public class ViewGeneratorManager extends Thread
 		
 	}
 	
-	public void setBarrierAgentTask(LinkedList<SimpleAgent> inList, int num_agents)
-	{
-		agentList = inList;		
-		agentCount = num_agents;		
-	}
-	
-	public void setBarrierPlantTask(LinkedList<GenericPlant> inList, int num_plants)
-	{
-		plantList = inList;
-		plantCount = num_plants;		
-	}
-	
-	private void waitThreadsEnd()
-	{
-		// Ensure all threads are at the barrier
-		int i;
-		for(i=0;i<num_threads;i++)
-		{
-			viewGeneratorEndSemaphores[i].acquireUninterruptibly();
-		}
-		
-	}
-	
-	private void releaseThreadBarrier()
-	{
-		// Ensure all threads are at the barrier
-		int i;
-		
-		for(i=0;i<num_threads;i++)
-		{
-			viewGeneratorStartSemaphores[i].release();
-		}		
-
-	}	
-	
+	/**
+	 * The barrier manager runs in its own thread. 
+	 */
 	public void run()
 	{
 		while(true)
 		{
 			
-			viewControlerSemaphore.acquireUninterruptibly();		
+			barrierControlerSemaphore.acquireUninterruptibly();		
 						
 			//System.out.println("Start Barrier");
 			
@@ -99,7 +80,7 @@ public class ViewGeneratorManager extends Thread
 			splitAgentList();			
 			
 			// set the tasks
-			setViewThreadsTasks();
+			setbarrierThreadsTasks();
 			
 			// Pull down the barrier / Release the threads
 			releaseThreadBarrier();	
@@ -109,51 +90,116 @@ public class ViewGeneratorManager extends Thread
 			
 			//System.out.println("End Barrier");
 			
-			viewControlerSemaphore.release();
+			barrierControlerSemaphore.release();
 						
 		}		
 	}
 	
-	private void setViewThreadsTasks()
+	/**
+	 * Updates the barrier with a new list of agents to process.
+	 * @param inList
+	 * @param num_agents
+	 */
+	public void setBarrierAgentTask(LinkedList<SimpleAgent> inList, int num_agents)
+	{
+		agentList = inList;		
+		agentCount = num_agents;		
+	}
+	
+	/** 
+	 * Updates the barrier with a new list of plants to process.
+	 * @param inList
+	 * @param num_plants
+	 */
+	public void setBarrierPlantTask(LinkedList<GenericPlant> inList, int num_plants)
+	{
+		plantList = inList;
+		plantCount = num_plants;		
+	}
+	
+	/**
+	 * Releases the threads to begin processing
+	 */
+	private void releaseThreadBarrier()
+	{
+		// Ensure all threads are at the barrier
+		int i;
+		
+		for(i=0;i<num_threads;i++)
+		{
+			barrierManagerStartSemaphores[i].release();
+		}		
+
+	}	
+	
+	/**
+	 * The Barrier will wait in this method until all threads are finished
+	 */
+	private void waitThreadsEnd()
+	{
+		// Ensure all threads are at the barrier
+		int i;
+		for(i=0;i<num_threads;i++)
+		{
+			barrierManagerEndSemaphores[i].acquireUninterruptibly();
+		}
+		
+	}
+	
+	/**
+	 * Sets the references in the threads to the sub lists they need to process.
+	 */
+	private void setbarrierThreadsTasks()
 	{
 		for(int i = 0;i<num_threads;i++)
 		{
-			viewThreads[i].setTask(agentTaskLists[i], agentKDTree, plantTaskLists[i], plantKDTree);
+			barrierThreads[i].setTask(agentTaskLists[i], agentKDTree, plantTaskLists[i], plantKDTree);
 		}	
 	}
-	
-	@SuppressWarnings("unchecked")
+
+	/**
+	 * Initialises the Linked Lists.
+	 */
 	private void setUpTaskLists()
 	{
 		agentTaskLists = new LinkedList[num_threads];
 		plantTaskLists = new LinkedList[num_threads];		
 	}
 	
+	/** 
+	 * Initialises the internal barrier semaphores.
+	 */
 	private void setUpSemaphores()
 	{
-		viewGeneratorStartSemaphores = new Semaphore[num_threads];
+		barrierManagerStartSemaphores = new Semaphore[num_threads];
 		
-		viewGeneratorEndSemaphores = new Semaphore[num_threads];
+		barrierManagerEndSemaphores = new Semaphore[num_threads];
 
 		for(int i=0;i<num_threads;i++)
 		{
-			viewGeneratorStartSemaphores[i] = new Semaphore(0,true);			
-			viewGeneratorEndSemaphores[i] = new Semaphore(0,true);
+			barrierManagerStartSemaphores[i] = new Semaphore(0,true);			
+			barrierManagerEndSemaphores[i] = new Semaphore(0,true);
 		}				
 	}
 	
+	/**
+	 * Initialises the barrier threads with their semaphores.
+	 */
 	private void setUpThreads()
 	{
-		viewThreads = new ViewGeneratorThread[num_threads];
+		barrierThreads = new BarrierTaskThread[num_threads];
 
 		for(int i = 0;i<num_threads;i++)
 		{
-			viewThreads[i] = new ViewGeneratorThread(i,viewGeneratorStartSemaphores[i],viewGeneratorEndSemaphores[i]);
-			viewThreads[i].start();
+			barrierThreads[i] = new BarrierTaskThread(i,barrierManagerStartSemaphores[i],barrierManagerEndSemaphores[i]);
+			barrierThreads[i].start();
 		}
 	}
 	
-	/* splits the List */
+	/**
+	 * 1) Generates the plant KD tree using the list.
+	 * 2) Splits the large linked list into (n) smaller linked list.
+	 */
 	private void splitPlantList()
 	{
 		/* 2d - KD-Tree */
@@ -209,7 +255,10 @@ public class ViewGeneratorManager extends Thread
 
 	}
 		
-	/* splits the List */
+	/**
+	 * 1) Generates the agent KD tree using the list.
+	 * 2) Splits the large linked list into (n) smaller linked list.
+	 */
 	private void splitAgentList()
 	{
 		/* 2d - KD-Tree */

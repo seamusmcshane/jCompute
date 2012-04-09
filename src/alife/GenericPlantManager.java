@@ -45,7 +45,7 @@ public class GenericPlantManager
 	private int plant_regen_rate;
 		
 	/** Reference for setting task in the */
-	ViewGeneratorManager viewGenerator;
+	BarrierManager barrierManager;
 	
 	/**
 	 * Creates a plant manager.
@@ -57,11 +57,11 @@ public class GenericPlantManager
 	 * @param plantstartingenergy
 	 * @param plant_energy_absorption_rate
 	 */
-	public GenericPlantManager(ViewGeneratorManager viewGenerator,int world_size,int inital_number, int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate)
+	public GenericPlantManager(BarrierManager barrierManager,int world_size,int inital_number, int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate)
 	{		
 		this.inital_number = inital_number;
 		
-		this.viewGenerator = viewGenerator;
+		this.barrierManager = barrierManager;
 		
 		this.world_size = world_size;
 		
@@ -120,7 +120,7 @@ public class GenericPlantManager
 	// View update
 	public void stage2()
 	{
-		viewGenerator.setBarrierPlantTask(doList,plantCount);
+		barrierManager.setBarrierPlantTask(doList,plantCount);
 	}
 	
 	// List update

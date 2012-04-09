@@ -20,7 +20,7 @@ public class SimulationManager
 	private int num_threads=0;
 	
 	/** The threaded/barrier manager */
-	private ViewGeneratorManager viewGenerator;
+	private BarrierManager barrierManager;
 	
 	/** Controls when the barrier is released **/
 	private Semaphore viewManagerSemaphore;
@@ -36,12 +36,12 @@ public class SimulationManager
 	
 	private void setUpPlantManager(int world_size,int plant_numbers,int plant_regen_rate,int plantstartingenergy, int plant_energy_absorption_rate)
 	{
-		genericPlantManager = new GenericPlantManager(viewGenerator,world_size,plant_numbers,plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);		
+		genericPlantManager = new GenericPlantManager(barrierManager,world_size,plant_numbers,plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);		
 	}
 	
 	private void setUpAgentManager(int world_size,int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
 	{
-		simpleAgentManager = new SimpleAgentManager(viewGenerator,world_size,agent_prey_numbers,agent_predator_numbers, agentSettings);		
+		simpleAgentManager = new SimpleAgentManager(barrierManager,world_size,agent_prey_numbers,agent_predator_numbers, agentSettings);		
 	}
 	
 	private void setUpViewManager()
@@ -54,9 +54,9 @@ public class SimulationManager
 		
 		viewManagerSemaphore.acquireUninterruptibly();
 		
-		viewGenerator = new ViewGeneratorManager(viewManagerSemaphore,num_threads);
+		barrierManager = new BarrierManager(viewManagerSemaphore,num_threads);
 		
-		viewGenerator.start();	
+		barrierManager.start();	
 	}
 	
 	// Every stage1 and stage3 could be run in parallel - stage 2 is already threaded 
