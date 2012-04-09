@@ -19,15 +19,25 @@ public class StatsLorenzGraphPanel extends JPanel
 	private int graphWidth;
 	private int graphHeight;
 	
-	float scaleMax = 0.0015f; // Auto Scaling not implemented - (a "bit" difficult).
+	float scale = 0.0015f; 	// Default Scale
 	
 	private float sampleNum;
 	
 	private float graphSamples=1;
 	
+
+	
+	/** Graph Origin */
 	int originX=175;
 	int originY=250;
 	
+	/** Line Vectors */
+	int cx=originX;
+	int cy=originY;
+	int nx=originX;
+	int ny=originY;
+	
+	/** Mouse Coordinates */
     private int cmX=0;
     private int cmY=0;
 	
@@ -103,12 +113,23 @@ public class StatsLorenzGraphPanel extends JPanel
 		    int gy=((int) (y+0.1*(28*x-y-x*z)) );
 		    int gz=(int) (z+0.1*(-8*z/3+x*y));
 		    
-		    gy=(int)(gy*scaleMax);
-		    gz=(int)(gz*scaleMax);
+		    gy=(int)(gy*scale);
+		    gz=(int)(gz*scale);
+		    
+		    if(i==0)
+		    {
+			    nx=gy;
+			    ny=gz;	
+		    }
+		    cx=gy;
+		    cy=gz;
 		    
 		    g2.setColor(Color.yellow);
-		    g2.drawLine(gy+(originX),gz+(originY),gy+(originX),gz+(originY));
+		    g2.drawLine(cx+(originX),cy+(originY),nx+(originX),ny+(originY));
 
+		    nx=cx;
+		    ny=cy;
+		    
 		    /*System.out.println("scaleMax "+scaleMax);
 		    System.out.println("gy" + gy);
 		    System.out.println("gz "+ gz);*/
@@ -118,6 +139,24 @@ public class StatsLorenzGraphPanel extends JPanel
 
 	}
 	
+    public void setZoom(float inZoom)
+    {
+    	float zoom = inZoom / 10000;
+        if(scale>0)
+        {
+            scale=scale+zoom;
+            
+            System.out.println("scale"+scale);
+            System.out.println("InZoom"+inZoom);
+            System.out.println("zoom"+zoom);
+
+        }
+        else
+        {
+        	scale = 0.001f;
+        }
+
+    }  
 	
     public void setMpos(int x,int y)
     {

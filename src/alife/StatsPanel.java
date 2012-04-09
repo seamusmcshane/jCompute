@@ -13,6 +13,8 @@ import javax.swing.SwingConstants;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -166,6 +168,15 @@ public class StatsPanel extends JPanel
                 e.consume();
             }
 
+        });
+		
+		lorenzGraphPanel.addMouseWheelListener(new MouseWheelListener()
+        {
+            // Adjusts the zSlider (Zoom) 
+            public void mouseWheelMoved(MouseWheelEvent e)
+            {
+            	lorenzGraphPanel.setZoom(e.getWheelRotation());
+            }
         });
 		
 		lorenzGraphPanel.setBackground(Color.gray);
