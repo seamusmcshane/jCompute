@@ -37,8 +37,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	 * @param preySamples
 	 * @param predSamples
 	 * @param sampleNum
-	 * @param samplePeriod
-	 */
+	 **/
 	public StatsLorenzGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum)
 	{
 
@@ -52,10 +51,6 @@ public class StatsLorenzGraphPanel extends JPanel
 
 	/**
 	 * Updates the graph and draws it on an interval based on stepNo.
-	 * @param plantMax
-	 * @param preyMax
-	 * @param predMax
-	 * @param scale_mode
 	 * @param stepNo
 	 */
 	public void updateGraph(int stepNo)
@@ -91,9 +86,8 @@ public class StatsLorenzGraphPanel extends JPanel
 
 	}
 
-	/** Draws the graph lines 
+	/** Draws the graph line.
 	 * Based on http://www.sat.t.u-tokyo.ac.jp/~hideyuki/java/Attract.java
-	 * 
 	 * */
 	public void drawSamples(Graphics2D g2)
 	{				
@@ -124,6 +118,7 @@ public class StatsLorenzGraphPanel extends JPanel
 
 	}
 	
+	
     public void setMpos(int x,int y)
     {
         cmX=x;
@@ -139,7 +134,7 @@ public class StatsLorenzGraphPanel extends JPanel
         cmY=mY;
     }
 	
-	/** Gets the widths and height of this panel */
+	/** Gets the widths and height of this panel - Not used TODO - autoscaling */
 	private void calculateGraphSize()
 	{
 		graphX = this.getX();

@@ -381,6 +381,7 @@ public class StatsPanel extends JPanel
 	 */
 	public void updateGraph()
 	{
+		/* These could be threaded - TODO more threads!*/
 		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
 		lorenzGraphPanel.updateGraph(stepNo);	
 	}
