@@ -9,14 +9,15 @@ import org.newdawn.slick.geom.Rectangle;
  * This class contains the generator and draw methods for the world.
  * It also contains boundary checks that are used to enforce world movement limits.
  */
-
 public class World
 {
-
+	/* The world grid background */
 	WorldGrid grid;
 	
+	/** The world boundary */
 	Rectangle world_bound;
 
+	/** The size of the world */
 	private static int world_size;
 	
 	@SuppressWarnings("static-access")
@@ -29,7 +30,12 @@ public class World
 		createGrid();
 	}
 
-	/* Checks if the Coordinate is a World Boundary - Called by agent body */
+	/**
+	 * Checks if the Coordinate is a World Boundary - Called by agent body
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	public static boolean isBondaryWall(float x,float y)
 	{		
 		/* Top */
@@ -61,7 +67,11 @@ public class World
 
 	}
 	
-	/* This this the left or right of the world */
+	/**
+	 * Is this the left or right of the world.
+	 * @param x
+	 * @return
+	 */
 	private static boolean checkXBoundary(float x)
 	{
 		/* Left */
@@ -78,7 +88,11 @@ public class World
 		return false;
 	}
 
-	/* Is this the top or bottom of this world */
+	/**
+	 * Is this the top or bottom of this world.
+	 * @param y
+	 * @return
+	 */
 	private static boolean checkYBoundary(float y)
 	{
 		/* Left */
@@ -95,14 +109,17 @@ public class World
 		return false;
 	}
 	
-	/* Generate the world grid object - TODO add select step size */
+	/**
+	 *  Generate the world grid object
+	 */
 	private void createGrid()
 	{
 		int grid_steps=8;
 		grid = new WorldGrid(world_size,grid_steps);
 	}
 	
-	/* Draw method */
+	/**
+	 *  Draw method for the world */
 	public void drawWorld(Graphics g)
 	{
 			grid.drawGrid(g);

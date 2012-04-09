@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
-
+/**
+ * A Custom Panel used for drawing a graph.
+ */
 public class StatsGraphPanel extends JPanel
 {
-	
+	/** The references to the sample arrays */
 	private int plantsSamples[];
 	private int preySamples[];
 	private int predSamples[];
@@ -26,6 +28,14 @@ public class StatsGraphPanel extends JPanel
 	private float preyMax = 0;
 	private float predMax = 0;
 	
+	/**
+	 * A new Graph Panel
+	 * @param plantsSamples
+	 * @param preySamples
+	 * @param predSamples
+	 * @param sampleNum
+	 * @param samplePeriod
+	 */
 	public StatsGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum, int samplePeriod)
 	{
 
@@ -38,6 +48,14 @@ public class StatsGraphPanel extends JPanel
 		
 	}
 
+	/**
+	 * Updates the graph and draws it on an interval based on stepNo.
+	 * @param plantMax
+	 * @param preyMax
+	 * @param predMax
+	 * @param scale_mode
+	 * @param stepNo
+	 */
 	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode,int stepNo)
 	{
 		this.plantMax = plantMax;
@@ -67,8 +85,7 @@ public class StatsGraphPanel extends JPanel
 			case 2:
 				tieAllMax();
 				break;
-		}
-		
+		}		
 		
 		/* No need to Draw the graph every step */
 		if(stepNo%5 == 0)
@@ -78,7 +95,8 @@ public class StatsGraphPanel extends JPanel
 		
 	}
 		
-	/* Does the plants or agents have the greater point
+	/** 
+	 * Does the plants or agents have the greater point
 	 * Max is tied to the greater */
 	public void tieAllMax()
 	{
@@ -95,7 +113,8 @@ public class StatsGraphPanel extends JPanel
 		}	
 	}
 	
-	/* Which of the agents has the greater max point in the graph 
+	/**
+	 * Which of the agents has the greater max point in the graph 
 	 * max is tied to the greater, also returns max for further evaluation */
 	public float tiePredPreyMax()
 	{		
@@ -112,20 +131,20 @@ public class StatsGraphPanel extends JPanel
 		return max;
 	}
 	
+	/** Draws the graph */
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
 				
 		Graphics2D g2 = (Graphics2D) g;	
 		
-				
 		calculateGraphSize();
 		
 		drawSamples(g2);
 
-		
 	}
 
+	/** Draws the graph lines */
 	public void drawSamples(Graphics2D g2)
 	{				
 		float scaleWidthInterval = graphWidth/ graphSamples;
@@ -188,12 +207,13 @@ public class StatsGraphPanel extends JPanel
 		}
 	}	
 		
+	/** Gets the widths and height of this panel */
 	private void calculateGraphSize()
 	{
 		graphX = this.getX();
 		graphY = this.getY();
-		graphWidth = this.getWidth();
-		graphHeight = this.getHeight();
+		graphWidth = this.getWidth()-1;
+		graphHeight = this.getHeight()-2;
 	}
 
 }

@@ -7,7 +7,7 @@ import org.newdawn.slick.Graphics;
 public class SimulationManager
 {
 
-	// Used to prevent dual Access to the lists - which would cause an exception
+	/** Used to prevent dual Access to the lists - which would cause an exception */
 	private Semaphore lock = new Semaphore(1,true);
 	
 	/** Simulation Agent Manager */

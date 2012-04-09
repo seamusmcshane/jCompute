@@ -5,8 +5,8 @@ import org.newdawn.slick.geom.Vector2f;
 import alife.SimpleAgentEnum.AgentType;
 
 
-/*
- * Manages State of the view
+/**
+ * This Class holds the representation of a view for the agent in the current simulation step.
  */
 public class SimpleAgentView
 {
@@ -15,11 +15,13 @@ public class SimpleAgentView
 	private boolean agentInView=false;
 	private boolean plantInView=false;	
 	
-	/** Stats of agent in view */
+	/** Stats of plants and agents in view */
 	private SimpleAgentViewStats inViewAgentStats;
 	private GenericPlantViewStats inViewPlantStats;
-	
-	/** A class that manages the view of the agent */
+
+	/**
+	 * Creates a view.
+	 */
 	 public SimpleAgentView()
 	 {
 		 inViewAgentStats = new SimpleAgentViewStats();
@@ -28,11 +30,14 @@ public class SimpleAgentView
 
 	 }
 	 
-/**
+/*
  * View Update
  * 
- * Decides State of View
  */
+	 /**
+	  * Sets the agent in view.
+	  * @param agent
+	  */
 	 public void setAgentView(SimpleAgent agent)
 	 {
 		 if(agent != null)  // Agent is in view
@@ -53,6 +58,10 @@ public class SimpleAgentView
 		 
 	 }
 
+	 /**
+	  * Sets the plant in view.
+	  * @param plant
+	  */
 	 public void setPlantView(GenericPlant plant)
 	 {
 	 
@@ -167,6 +176,7 @@ public class SimpleAgentView
 		return direction;
 	}
 	
+	/** Returns the squared distances between two vectors */
 	public float distanceTo(Vector2f from,Vector2f posTo)
 	{	
 		return from.distanceSquared(posTo);

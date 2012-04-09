@@ -25,11 +25,10 @@ import org.newdawn.slick.geom.Vector2f;
  */
 public class SimulationView extends BasicGame implements MouseListener
 {
-
-	/* Window */
+	/** Window */
 	static JFrame frame;
 	
-	/* Window Position */
+	/** Window Position */
 	static int x;
 	static int y;
 	
@@ -40,26 +39,26 @@ public class SimulationView extends BasicGame implements MouseListener
 	static int world_view_width;
 	static int world_view_height;
 
-	/* Default Graphic frame rate control */
+	/** Default Graphic frame rate control */
 	final static int default_frame_rate = 15;
 	static int frame_rate = default_frame_rate; // Frame rate start up at this
 	final int frame_rate_gui_interaction = 60;
 
-	/* Simulation Reference */
+	/** Simulation Reference */
 	static Simulation sim;
 	
-	/* Is Simulation view drawing enabled */
+	/** Is Simulation view drawing enabled */
 	static boolean draw_sim=true;
 	
-	/* Draw true circular bodies or faster rectangular ones */
+	/** Draw true circular bodies or faster rectangular ones */
 	static boolean true_drawing=false;
 	
-	/* Draw the View range of the agents */
+	/** Draw the View range of the agents */
 	static boolean view_range_drawing=false;
 	
 	/**
-	 * This locks the frame rate to the above rate giving what time would have
-	 * been used to threads
+	 * This locks the frame rate to the following rate allowing more time
+	 * to be used for simulation threads.
 	 */
 	boolean frame_cap = true;
 
@@ -67,36 +66,34 @@ public class SimulationView extends BasicGame implements MouseListener
 	static boolean vsync_toggle = false;
 
 	/** Simulation Performance Indicators */
-	int frame_num = 0;
-	int step_num = 0;
-	double sps = 0; 					// steps per second
-	boolean real_time;
+	private int frame_num = 0;
 
 	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	Boolean true_body_drawing = false;
+	private Boolean true_body_drawing = false;
 
 	/** Toggle for Drawing agent field of views */
-	Boolean draw_field_of_views = false;
+	private Boolean draw_field_of_views = false;
 
-	/* The translation vector for the camera view */
+	/** The translation vector for the camera view */
 	public static Vector2f global_translate = new Vector2f(0, 0);
 
-	int steps_todo = 0;
+	/** Off screen buffer */
+	private Graphics bufferGraphics;
+	private Image buffer;
+	private int buffer_num = 0;
 
-	/* Off screen buffer */
-	Graphics bufferGraphics;
-	Image buffer;
-	int buffer_num = 0;
-
-	/* Stores the mouse vector across updates */
+	/** Stores the mouse vector across updates */
 	public Vector2f mouse_pos = new Vector2f(0, 0);
 
-	/* Stores the camera position */
+	/** Stores the camera margin */
 	static int camera_margin = 0;
 
+	/** Camera View Size */
 	public static Rectangle camera_bound;
 
-
+	/**
+	 * The Simulation View.
+	 */
 	public SimulationView()
 	{
 		super("Simulation View");	
@@ -104,8 +101,8 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	@Override
 	public void init(GameContainer container) throws SlickException
-	{		setUpImageBuffer();
-		
+	{
+		/* Creates the buffered graphic */		setUpImageBuffer();		
 	}
 	
 	@Override
@@ -122,12 +119,14 @@ public class SimulationView extends BasicGame implements MouseListener
 			/* AMD Opensource Linux Drivers have hardware clipping bugs (Update Drivers to Xorg 1.12 for fix) */			
 			g.setWorldClip(camera_bound);
 			
+			/* Draws on the buffer */
 			doDraw(bufferGraphics);
 
 			/* Always draw the buffer even if it has not changed */
 			g.drawImage(buffer, 0, 0);
 
-			/* Gui Overlay */
+/* Debug 
+			// Gui Overlay
 			g.setColor(Color.white);
 
 			g.drawString("Frame Updates  :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 10);
@@ -137,11 +136,12 @@ public class SimulationView extends BasicGame implements MouseListener
 			g.drawString("FPS            :" + simView.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 50);
 
 			g.draw(camera_bound);
-			
+*/			
 			frame_num++;			
 		}
 	}
-
+	
+	/** Draws the sim view on the image buffer */
 	private void doDraw(Graphics g)
 	{
 		/* Blank the Image buffer */
@@ -156,7 +156,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		buffer_num++;
 	}
 	
-	/*
+	/**
 	 * Makes sure valid mouse coordinates are used when the mouse leaves and
 	 * renters a window that has lost and regained focus. - Prevents view
 	 * snapping to strange locations
@@ -172,7 +172,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		
 	}
 	
-	/* Allows moving camera around large worlds view mouse dragging on the simulation view */
+	/** Allows moving camera around large worlds via mouse dragging on the simulation view */
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
@@ -198,7 +198,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	}
 
-	/* Camera is moved by translating all the drawing */
+	/** Camera is moved by translating all the drawing */
 	private void moveCamera(float x, float y)
 	{
 		global_translate.set(x, y);
@@ -209,7 +209,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		Display.destroy();
 	}
 	
-	/* Setup Window */
+	/** Setup Window */
 	private static void setUpWindowDimesions(int xin, int yin, int width, int height)
 	{
 		/* Position */
@@ -221,7 +221,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		world_view_height = height; 
 	}
 		
-	/* Main Entry Point */
+	/* Main Entry Point for View */
 	/**
 	 * @wbp.parser.entryPoint
 	 */
@@ -350,7 +350,6 @@ public class SimulationView extends BasicGame implements MouseListener
 	
 	public static void maximise()
 	{
-		//frame.setState(Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
 	}
 	
