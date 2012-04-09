@@ -141,7 +141,7 @@ public class GenericPlantManager
 	}
 	
 	/** Updates the Done list. 
-	 * This effectly is handling the death of plants in the simulation and if later implemented the reproduction of plants. 
+	 * This is effectively handling the death of plants in the simulation and if later implemented the reproduction of plants. 
 	 * */
 	public void updateDoneList()
 	{

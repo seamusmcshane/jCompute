@@ -25,34 +25,38 @@ import alife.SimulationEnums.AgentType;
 public class SimpleAgentManager
 {
 		
-	/* Actions Linked Lists */
+	/** The agent Actions Linked Lists */
 	LinkedList<SimpleAgent> doList;
 	LinkedList<SimpleAgent> doneList;
 
-	/* DrawAI */
+	/** The draw agent references */
 	ListIterator<SimpleAgent> itrDrawAI;
 	SimpleAgent tAgentDrawAI;
 	
-	/* Holds UniqueId Id for agent */
+	/** Holds Unique Id position agent id */
 	int agentIdCount;
 	
+	/** The agent count */
 	int agentCount;
 	
+	/** Predator and prey counts */
 	int prey_count;
 	int pred_count;
 	
-	int agentsDone;
-	int agentsTodo;
-
-	/* For Debug */
-	SimpleAgent testAgent;
-	
-	/* Reference for setting task */
+	/** Reference for setting barrier tasks */
 	BarrierManager barrierManager;
 	
-	/* Agent Settings */
+	/** Agent Settings */
 	SimpleAgentManagementSetupParam agentSettings;
 	
+	/**
+	 * Creates am Agent manager.
+	 * @param barrierManager
+	 * @param world_size
+	 * @param agent_prey_numbers
+	 * @param agent_predator_numbers
+	 * @param agentSettings
+	 */
 	public SimpleAgentManager(BarrierManager barrierManager,int world_size, int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
 	{
 		this.agentSettings = agentSettings;  // All the intial agent settings are contained in this struct
@@ -70,6 +74,12 @@ public class SimpleAgentManager
 
 	}
 	
+	/**
+	 * Adds in build the set number of predators and prey to the world.
+	 * @param world_size
+	 * @param agent_prey_numbers
+	 * @param agent_predator_numbers
+	 */
 	private void addAgents(int world_size,int agent_prey_numbers,int agent_predator_numbers)
 	{
 		
@@ -102,8 +112,11 @@ public class SimpleAgentManager
 
 		}	
 	}
-	
-	/* Add an  agent to the list for the next step  - keeps counts */
+
+	/**
+	 * Add an  agent to the done list for the next step  - keeps counts of agents and types added.
+	 * @param agent
+	 */
 	public void addAgent(SimpleAgent agent)
 	{		
 		doneList.add(agent);
@@ -120,8 +133,11 @@ public class SimpleAgentManager
 		agentCount++;	
 			
 	}
-	
-	/* Add an NEW agent to the list for the next step and gives it a UID - keeps counts */
+
+	/**
+	 * Add an NEW agent to the done list for the next step and gives it a UID - keeps counts
+	 * @param agent
+	 */
 	public void addNewAgent(SimpleAgent agent)
 	{		
 
@@ -143,7 +159,12 @@ public class SimpleAgentManager
 		doneList.add(agent);
 	}
 
-	/* Draws all the agents */
+	/**
+	 * Draws all the agents.
+	 * @param g
+	 * @param true_drawing
+	 * @param view_range_drawing
+	 */
 	public void drawAgent(Graphics g,boolean true_drawing,boolean view_range_drawing)
 	{
 
@@ -179,7 +200,7 @@ public class SimpleAgentManager
 		
 	}
 	
-	// List prepare
+	/** Agent List preparation for the barrier */
 	public void stage1()
 	{
 		/* Safe starting position */
@@ -189,20 +210,25 @@ public class SimpleAgentManager
 		randomizeListOrder();		
 	}
 	
-	// View 
+	/** Sets the barrier task for agents */
 	public void stage2()
 	{
-		// Set our Task for the view
 		barrierManager.setBarrierAgentTask(doList,agentCount);			
 	}
 	
-	// List update
+	/** This stage performs the list updating and stats updates. */
 	public void stage3()
 	{
-		updateDoneList();		
+		updateDoneList();
+		
+		/* Stats Panel */
+		StatsPanel.setPredNo(pred_count);
+		
+		StatsPanel.setPreyNo(prey_count);			
 	}
 
-	/* This method moves agents between the do and done lists
+	/**
+	 * This method moves agents between the do and done lists
 	 * It is in effect managing the births and deaths of agents.
 	 * If an agent can reproduce it does (deterministic), new agents get added to the done list (first action is being born).
 	 * Agents that are dead stay in the do list which gets nullified at the start next step. */
@@ -231,9 +257,9 @@ public class SimpleAgentManager
 				{										
 					temp.body.stats.decrementReproductionCost(); 
 					
-					/* This sets the new agent the same as predecessor
+					/* This sets the new agent stats the same as predecessor
 					 * If evolution was ever to be added, there would need to be a way of 
-					 * Calculating the next generation agent stats here. */
+					 * Calculating/Mutating the next generation agent stats here. */
 					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX()+0.01f, temp.body.getBodyPos().getY()-0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()),temp.body.stats.getMaxSpeed(), 5f, temp.body.stats.getStartingEnergy(),100f,temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseView_range(), temp.body.stats.getBaseMoveCost(),temp.body.stats.getBaseReproductionCost(),temp.body.stats.getEnergyConsumptionRate(),temp.body.stats.getDigestiveEfficency(),temp.body.stats.getReproductionEnergyDivision())));
 				}
 				
@@ -241,21 +267,16 @@ public class SimpleAgentManager
 				addAgent(temp);
 			}		
 		}
-		
-		/* Stats Panel */
-		StatsPanel.setPredNo(pred_count);
-		
-		StatsPanel.setPreyNo(prey_count);	
 	}
 
-	/* Sets up the safe starting position for the lists */
+	/** Sets up the safe starting position for the lists */
 	private void setUpLists()
 	{
 		doList = doneList;
 		doneList = new LinkedList<SimpleAgent>();
 	}
 	
-	/* Randomize the doList */
+	/** Randomize the doList */
 	private void randomizeListOrder()
 	{
 		Collections.shuffle(doList);

@@ -1,61 +1,83 @@
 package alife;
 /**
- * Used to store the internal statistics of the current agent.
- * 
+ * This class holds the stats for an individual agent.
+ * It manages the energy of the agent.
+ * 	Including all variables acting on the energy.
+ * It also manages reproduction energy.
  */
 public class SimpleAgentStats
 {
+	/** The movement cost of the agent before modification */
+	private final float base_move_cost;
 	
-		private final float base_move_cost;  // Starting move cost
+	/** the dead tag for the sim */
+	private boolean dead;
 		
-		private boolean dead;
+	/** Agent movement speed */
+	private final float max_speed;
 	
-/* Agent Specific Constants */	
+	/** Agent Size */
+	private final float size;
+	
+	/** Max Energy of Agent */
+	private final float max_energy;
+	
+	/** Current Energy of the agent */
+	private float energy;
+	
+	/** Agents hungry state */
+	private boolean hungry=true;
+	
+	/** The ability of this agent to consume energy */
+	private float digestive_efficency;
+	
+	/** The threshold before this agent is hungry */
+	private float hungryThreshold;
+	
+	/** View Range */
+	private float view_range;
+	
+	/** Reproduction Energy */
+	private float reproductionBank;
+	
+	/** Cost of reproduction */
+	private float reproductionCost;
+	
+	/** Base cost of reproduction */
+	private float base_reproduction_cost;
+	
+	/** The consumption rate of energy from what every the agent is eating (Current only plants) */
+	private float energy_consumption_rate;
+	
+	/** Agent age in Simulation Steps */
+	private long age; // not used - todo evolution
+	
+	/** This agents type Predator/Prey */
+	private SimpleAgentType type;
+	
+	/** The starting energy level */
+	private float starting_energy;
+	
+	/** The ratio of energy to reproduction or survival */
+	private float reproduction_energy_division;
 		
-		/* Agent Run speed */
-		private final float max_speed;
 		
-		/* Agent Size */
-		private final float size;
-		
-		/* Max Energy of Agent */
-		private final float max_energy;
-
-		private float energy;
-		
-		private boolean hungry=true;
-		
-		private float digestive_efficency;
-		
-		private float hungryThreshold;
-		
-		/* View Range */
-		private float view_range;
-		
-		
-		/* Reproduction */
-		private float reproductionBank;
-		
-		private float reproductionCost;
-		
-		private float base_reproduction_cost;
-
-		private float energy_consumption_rate;
-
-/* 	General Statistics */
-		
-		/* Agent in Simulation Steps */
-		private long age;
-		
-/* Calculated Stats */
-				
-		private SimpleAgentType type;
-		
-		private float starting_energy;
-		
-		private float reproduction_energy_division;
-		
-	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de, float red)
+	/**
+	 * Creates the stats for this agent.
+	 * @param type
+	 * @param ms - Max Speed
+	 * @param sz - Size
+	 * @param se - Starting Energy
+	 * @param me - max energy
+	 * @param ht - hunger threshold
+	 * @param vr - view range
+	 * @param bmc - base movement cost
+	 * @param brc - base reproduction cost
+	 * @param ecr - energy consumption rate
+	 * @param de - digestive efficiency
+	 * @param red - reproduction energy division
+	 */
+	public SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float bmc,float brc, float ecr, float de, float red)
 	{
 		this.dead = false;
 		
@@ -78,11 +100,11 @@ public class SimpleAgentStats
 		
 		this.view_range = size+vr;
 		
-		this.base_move_cost = base_move_cost;
+		this.base_move_cost = bmc;
 				
-		this.base_reproduction_cost =base_reproduction_cost;
+		this.base_reproduction_cost =brc;
 		
-		this.reproductionCost = max_energy*base_reproduction_cost;
+		this.reproductionCost = max_energy*brc;
 		
 		this.energy_consumption_rate = ecr;
 		
@@ -97,11 +119,13 @@ public class SimpleAgentStats
 
 	}
 	
+	/** Hungry status */
 	public boolean isHungry()
 	{
 		return hungry;
 	}
 	
+	/** Hungry toggle */
 	private void updateHunger()
 	{
 		if(energy<hungryThreshold)
@@ -114,6 +138,7 @@ public class SimpleAgentStats
 		}
 	}	
 	
+	/** The movement cost decrementer */
 	public void decrementMoveEnergy()
 	{
 		energy = energy - (size*base_move_cost);
@@ -158,6 +183,7 @@ public class SimpleAgentStats
 		
 	}
 	
+	/** Sets the agent as dead */
 	public float killAgent()
 	{
 		dead = true;
@@ -165,92 +191,103 @@ public class SimpleAgentStats
 		return energy;
 	}
 	
+	/** Agent type */
 	public SimpleAgentType getType()
 	{
 		return type;
 	}
 	
+	/** Agents size */
 	public float getSize()
 	{
 		return size;
 	}
 	
-	public float getSizeSquard()
-	{
-		return (size*size);
-	}
-
+	/** Agents view range */
 	public float getView_range()
 	{
 		return view_range;
 	}	
 	
+	/** View range minus size */
 	public float getBaseView_range()
 	{
 		return view_range-size;	
 	}
 	
+	/** View range in squard size */
 	public float getViewRangeSquared()
 	{
 		return (view_range*view_range);
 	}	
 	
+	/** Agents speed */
 	public float getMaxSpeed()
 	{
 		return max_speed;
 	}
 	
+	/** Agents dead tag */
 	public boolean isDead()
 	{
 		return dead;
 	}
 	
+	/** Decrements the reproduction cost */
 	public void decrementReproductionCost()
 	{
 		reproductionBank = (reproductionBank - reproductionCost );
 	}
 	
+	/** Get the calculated reproduction cost for this agent */
 	public float getReproductionCost()
 	{
 		return reproductionCost;
 	}
 	
+	/** Get the base reproduction cost */
 	public float getBaseReproductionCost()
 	{
 		return base_reproduction_cost;
 	}
 	
+	/** The starting energy for this agent */
 	public float getStartingEnergy()
 	{
 		return starting_energy;
 	}
 	
+	/** This agents hunger threshold */
 	public float getHungryThreshold()
 	{
 		return hungryThreshold;
 	}
 	
+	/** The base movement cost of this agent */
 	public float getBaseMoveCost()
 	{
 		return base_move_cost;
 	}
 	
+	/** The energy consumption rate for this agent */
 	public float getEnergyConsumptionRate()
 	{
 		return energy_consumption_rate;
 	}
 	
+	/** The digestive efficiency for this agent */
 	public float getDigestiveEfficency()
 	{
 		return digestive_efficency;
 	}
 	
+	/** The Reproduction Energy Division for this agent */
 	public float getReproductionEnergyDivision()
 	{
 		return reproduction_energy_division;
 	}
 	
-	// cost is 1/2 max energy level
+	/** Returns if this agent can reproduce */
 	public boolean canReproduce()
 	{
 		if(reproductionBank > reproductionCost)
