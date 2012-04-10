@@ -124,9 +124,13 @@ public class StatsLorenzGraphPanel extends JPanel
 		for(int i =0;i<graphSamples;i++)
 		{			
 			// The values we feed to the Lorenz equations.
-		    double x=(plantsSamples[i])-lmod;		    		
+		    double x=(plantsSamples[i])-lmod; 	    		
 		    double y=(predSamples[i])-lmod;
 		    double z=(preySamples[i])-lmod;
+		    /* Lmod is half of the max value of all samples, meaning this can cause X,Y and Z to go negative.
+		     * By going negative the other half of the Lorenz system is drawn.	
+		     */
+		    
 		    
 		    // Modified Lorenz Equations
 		    int gx=((int)(x+0.1*(-10*x+10*y)));
@@ -215,6 +219,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	    originX=-(cx)+graphWidth/2;
 	    originY=-(cy)+graphHeight/2;    	    	
     	repaint();
+    	lmod=0;
     }
     
 	/** Gets the widths and height of this panel **/
