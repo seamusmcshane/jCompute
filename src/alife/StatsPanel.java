@@ -86,9 +86,19 @@ public class StatsPanel extends JPanel
 	private final static JLabel lblStepNo = new JLabel("0");
 	private final JTabbedPane tabbedGraphs = new JTabbedPane(JTabbedPane.TOP);
 	private final JPanel lorenzContainerPanel = new JPanel();
-	private final JPanel lorenzControlPanel = new JPanel();
+	private final static JPanel rightPanel = new JPanel();
 	private final JSlider lorenzZoomSlider = new JSlider();
 	private final JButton btnCenter = new JButton("Center");
+	private final static JPanel bottomPanel = new JPanel();
+	private final JSlider xScaleslider = new JSlider();
+	private final JLabel lblZoom = new JLabel("Zoom");
+	private final JLabel lblXscale = new JLabel("XScale");
+	private final static JPanel leftPanel = new JPanel();
+	private final JSlider yScaleslider = new JSlider();
+	private final JLabel lblYscale = new JLabel("Y Scale");
+	
+	/* Used to prevent showing sliders in a small area when paused */
+	private static boolean paused;
 
 	public StatsPanel()
 	{
@@ -165,30 +175,56 @@ public class StatsPanel extends JPanel
 		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
 
 		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		
+		lorenzGraphPanel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) 
+			{
+				if(!paused)
+				{
+					if(rightPanel.isVisible())
+					{
+						rightPanel.setVisible(false);
+						leftPanel.setVisible(false);
+						bottomPanel.setVisible(false);
+
+					}
+					else
+					{
+						rightPanel.setVisible(true);	
+						leftPanel.setVisible(true);
+						bottomPanel.setVisible(true);					
+					}				
+				}
+				else
+				{
+					lorenzGraphPanel.resetGraph(1);
+				}
+				e.consume();				
+			}
+		});
 		lorenzContainerPanel.add(lorenzGraphPanel, BorderLayout.CENTER);
 		lorenzGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 
 		lorenzGraphPanel.addMouseMotionListener(new MouseMotionAdapter()
 		{
-			// Send Position of the mouse to the tree for draging
 			public void mouseDragged(MouseEvent e)
 			{
 				lorenzGraphPanel.moveGraph(e.getX(), e.getY());
 				e.consume();
 			}
-
-			// Updates the mouse continuously for collision detection
+			
 			public void mouseMoved(MouseEvent e)
 			{
-				lorenzGraphPanel.setMpos(e.getX(), e.getY());
-				e.consume();
+				//lorenzGraphPanel.setMpos(e.getX(), e.getY());
+				//e.consume();
 			}
 
 		});
 
 		lorenzGraphPanel.addMouseWheelListener(new MouseWheelListener()
 		{
-			// Adjusts the zSlider (Zoom) 
+			// Adjusts the lorenzZoomSlider (Zoom) 
 			public void mouseWheelMoved(MouseWheelEvent e)
 			{
 				lorenzZoomSlider.setValue( (lorenzZoomSlider.getValue()+(e.getWheelRotation()*10)) );
@@ -197,30 +233,27 @@ public class StatsPanel extends JPanel
 
 		lorenzGraphPanel.setBackground(Color.black);
 		lorenzGraphPanel.setLayout(new BoxLayout(lorenzGraphPanel, BoxLayout.X_AXIS));
-		lorenzControlPanel.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent arg0) 
-			{
-				lorenzGraphPanel.resetGraph();
-			}
-		});
-		lorenzContainerPanel.add(lorenzControlPanel, BorderLayout.EAST);
-		lorenzControlPanel.setLayout(new BorderLayout(0, 0));
+
+		lorenzContainerPanel.add(rightPanel, BorderLayout.EAST);
+		rightPanel.setLayout(new BorderLayout(0, 0));
 		btnCenter.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
-				lorenzGraphPanel.resetGraph();
+				lorenzGraphPanel.resetGraph(1);
 			}
 		});
 
-		lorenzControlPanel.add(btnCenter, BorderLayout.SOUTH);
-		lorenzZoomSlider.addChangeListener(new ChangeListener() {
+		rightPanel.add(btnCenter, BorderLayout.SOUTH);
+		lorenzZoomSlider.addChangeListener(new ChangeListener() 
+		{
 			public void stateChanged(ChangeEvent arg0) 
 			{
 				lorenzGraphPanel.setZoom(lorenzZoomSlider.getValue());
 			}
 		});
+		
+		rightPanel.setVisible(false);
 
 		lorenzZoomSlider.setPaintLabels(true);
 		lorenzZoomSlider.setMajorTickSpacing(100);
@@ -230,8 +263,56 @@ public class StatsPanel extends JPanel
 		lorenzZoomSlider.setPaintTicks(true);
 		lorenzZoomSlider.setOrientation(SwingConstants.VERTICAL);
 
-		lorenzControlPanel.add(lorenzZoomSlider, BorderLayout.CENTER);
+		rightPanel.add(lorenzZoomSlider, BorderLayout.CENTER);
+		lblZoom.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		rightPanel.add(lblZoom, BorderLayout.NORTH);
+		
+		lorenzContainerPanel.add(bottomPanel, BorderLayout.SOUTH);
+		bottomPanel.setLayout(new BorderLayout(0, 0));
+		xScaleslider.addChangeListener(new ChangeListener() 
+		{
+			public void stateChanged(ChangeEvent e) 
+			{
+				lorenzGraphPanel.setXScale(xScaleslider.getValue());
+			}
+		});
+		xScaleslider.setSnapToTicks(true);
+		xScaleslider.setPaintTicks(true);
+		xScaleslider.setPaintLabels(true);
+		xScaleslider.setValue(1);
+		xScaleslider.setMajorTickSpacing(1);
+		xScaleslider.setMinimum(1);
+		xScaleslider.setMaximum(10);
+		
+		bottomPanel.add(xScaleslider);
+		lblXscale.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		bottomPanel.add(lblXscale, BorderLayout.WEST);
+		bottomPanel.setVisible(false);
 
+		lorenzContainerPanel.add(leftPanel, BorderLayout.WEST);
+		leftPanel.setLayout(new BorderLayout(0, 0));
+		yScaleslider.addChangeListener(new ChangeListener() 
+		{
+			public void stateChanged(ChangeEvent e) 
+			{
+				lorenzGraphPanel.setYScale(yScaleslider.getValue());
+			}
+		});
+		yScaleslider.setMajorTickSpacing(1);
+		yScaleslider.setSnapToTicks(true);
+		yScaleslider.setValue(1);
+		yScaleslider.setPaintLabels(true);
+		yScaleslider.setPaintTicks(true);
+		yScaleslider.setMinimum(1);
+		yScaleslider.setMaximum(10);
+		yScaleslider.setOrientation(SwingConstants.VERTICAL);
+		
+		leftPanel.add(yScaleslider);
+		
+		leftPanel.add(lblYscale, BorderLayout.NORTH);
+		leftPanel.setVisible(false);
 		//add(graphPanel, BorderLayout.CENTER);
 	}
 
@@ -457,6 +538,25 @@ public class StatsPanel extends JPanel
 			predSamples[i] = 0;
 
 		}
+	}
+	
+	public static void setPaused(boolean ipaused)
+	{
+		paused = ipaused;
+		
+		if(paused)
+		{
+			StatsPanel.hideLorenzPanels();	
+		}
+		
+	}
+	
+	private static void hideLorenzPanels()
+	{
+		rightPanel.setVisible(false);
+		leftPanel.setVisible(false);
+		bottomPanel.setVisible(false);
+		lorenzGraphPanel.resetGraph(1);		
 	}
 
 }

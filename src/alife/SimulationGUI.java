@@ -934,6 +934,8 @@ public class SimulationGUI
 		
 		plantParamPanel.setVisible(true);
 
+		StatsPanel.setPaused(true);
+						
 		sim.pauseSim();
 
 	}
@@ -952,6 +954,8 @@ public class SimulationGUI
 		
 		plantParamPanel.setVisible(false);
 
+		StatsPanel.setPaused(false);
+		
 		sim.unPauseSim();
 	}
 

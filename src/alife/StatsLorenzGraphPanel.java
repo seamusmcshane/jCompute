@@ -25,7 +25,9 @@ public class StatsLorenzGraphPanel extends JPanel
 	boolean drawing = false;
 	float lmod = 0;
 		
-	float scale = 0; 	// Graph Scale
+	float zoom = 0; 	// Graph Scale
+	float xScale=1;
+	float yScale=1;
 	
 	private float sampleNum;
 	
@@ -143,8 +145,8 @@ public class StatsLorenzGraphPanel extends JPanel
 		    
 		    // Scale the point position by the graph scale.
 		    //gx=(int)(gx*scale);
-		    gy=(int)(gy*scale);
-		    gz=(int)(gz*scale);
+		    gy=(int)(gy*zoom*xScale);
+		    gz=(int)(gz*zoom*yScale);
 		    
 		    if(i==0)
 		    {
@@ -182,17 +184,27 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 	}
 	
+	public void setXScale(int xScale)
+	{
+		this.xScale = xScale;
+	}
+	
+	public void setYScale(int yScale)
+	{
+		this.yScale = yScale;
+	}	
+	
     public void setZoom(float inZoom)
     {
-    	float zoom = (inZoom/1000000f);
+    	inZoom = (inZoom/1000000f);
     	
-        if(zoom>0)
+        if(inZoom>0)
         {
-            scale=zoom;
+        	zoom=inZoom;
         }
         else
         {
-        	scale = 1/1000000f;
+        	zoom = 1/1000000f;
         }
 
         repaint();
@@ -216,14 +228,23 @@ public class StatsLorenzGraphPanel extends JPanel
         repaint();
     }
 	
-    public void resetGraph()
+    private void resetGraph()
     {
     	calculateGraphSize();
 	    originX=-(cx)+graphWidth/2;
 	    originY=-(cy)+graphHeight/2;    	    	
-    	repaint();
     	lmod=0;
+    	repaint();    	
     }
+    
+    public void resetGraph(int ignored)
+    {
+    	calculateGraphSize();
+	    originX=graphWidth/2;
+	    originY=graphHeight/2;    	    	
+    	//lmod=0;
+    	repaint();    	
+    }    
     
 	/** Gets the widths and height of this panel **/
 	private void calculateGraphSize()
