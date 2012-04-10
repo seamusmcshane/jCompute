@@ -20,6 +20,9 @@ public class StatsLorenzGraphPanel extends JPanel
 	private int graphWidth;
 	private int graphHeight;
 	
+	boolean drawing = false;
+	float lmod = 0;
+		
 	float scale = 0; 	// Graph Scale
 	
 	private float sampleNum;
@@ -29,10 +32,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	/** Graph Origin */
 	float originX=0;
 	float originY=0;
-	
-	float tx=0;
-	float ty=0;
-	
+
 	/** Line Vectors */
 	float cx=originX;
 	float cy=originY;
@@ -67,8 +67,19 @@ public class StatsLorenzGraphPanel extends JPanel
 	 * Updates the graph and draws it on an interval based on stepNo.
 	 * @param stepNo
 	 */
-	public void updateGraph(int stepNo)
+	public void updateGraph(int plantsMax,int preyMax, int predMax, int stepNo)
 	{
+		// No need to ensure this updates, just that it gets updated eventually.
+		if(!drawing)
+		{
+			// Find the max (keeps largest forever)
+			lmod=Math.max(lmod,plantsMax);					
+			lmod=Math.max(lmod, preyMax);
+			lmod=Math.max(lmod, preyMax);
+			
+			// half the max so lmod will cause the curve to phaze invert on a negative (ie x=50, max = 200, lmod = 100, drawing x = -50 etc)
+			lmod=lmod/2;			
+		}
 		
 		if(stepNo<sampleNum)
 		{
@@ -100,23 +111,30 @@ public class StatsLorenzGraphPanel extends JPanel
 
 	}
 
-	/** Draws the graph line.
+	/** 
+	 * Draws the graph line.
 	 * Based on http://www.sat.t.u-tokyo.ac.jp/~hideyuki/java/Attract.java
 	 * */
 	public void drawSamples(Graphics2D g2)
 	{				
 		
+		drawing = true;
+		
 		/* Loops through all three sample arrays */
 		for(int i =0;i<graphSamples;i++)
 		{			
-		    double x=predSamples[i];
-		    double y=preySamples[i];
-		    double z=plantsSamples[i];		    
+			// The values we feed to the Lorenz equations.
+		    double x=(plantsSamples[i])-lmod;		    		
+		    double y=(predSamples[i])-lmod;
+		    double z=(preySamples[i])-lmod;
 		    
-		    int gx= ( (int) (x+0.1*(-10*x+10*y)));
-		    int gy=((int) (y+0.1*(28*x-y-x*z)) );
-		    int gz=(int) (z+0.1*(-8*z/3+x*y));
+		    // Modified Lorenz Equations
+		    int gx=((int)(x+0.1*(-10*x+10*y)));
+		    int gy=((int)(y+0.1*(28*x-y-x*z)) );
+		    int gz=(int)(z+0.1*(-8*z/3+x*y));
 		    
+		    // Scale the point position by the graph scale.
+		    //gx=(int)(gx*scale);
 		    gy=(int)(gy*scale);
 		    gz=(int)(gz*scale);
 		    
@@ -125,29 +143,41 @@ public class StatsLorenzGraphPanel extends JPanel
 			    nx=gy;
 			    ny=gz;	
 		    }
+		    
+		    // The current point
 		    cx=gy;
 		    cy=gz;
-		    // R G B
+		     		    
+		    // Line Width
+		    g2.setStroke(new BasicStroke(1));
 		    
-		    g2.setStroke(new BasicStroke(2));
+		    // R G B
 		    g2.setColor(new Color( (int)(predSamples[i]*0.391)%255, (int)(plantsSamples[i]*0.391)%255 , (int)(preySamples[i]*0.391)%255 ));
-		    g2.drawLine((int)(cx+(originX)),(int)(cy+(originY)),(int)(nx+(originX)),(int)(ny+(originY)));
-
+		    
+		    // Draws line based on where the origin is.
+		    g2.drawLine((int)(cx+(originX)),(int)(-cy+(originY)),(int)(nx+(originX)),(int)(-ny+(originY)));
+		    
+		    // The next lines - next point		    
 		    nx=cx;
 		    ny=cy;
-		    
-		    /*System.out.println("scaleMax "+scaleMax);
-		    System.out.println("gy" + gy);
-		    System.out.println("gz "+ gz);*/
-		    //System.out.println("gnx" + gnx);
-		    //System.out.println("gny" + gny);
+
+		  /*  System.out.println("originX" + originX);
+		    System.out.println("originY "+ originY);
+		    System.out.println("cx" + cx);
+		    System.out.println("cy" + cy);*/
 		}
 
+		drawing = false;
+		
+		// Track the last Sample (follows it on the graph)
+	    originX=-(cx)+graphWidth/2;
+	    originY=-(-cy)+graphHeight/2;			
+		
 	}
 	
     public void setZoom(float inZoom)
     {
-    	float zoom = (inZoom/100000f);
+    	float zoom = (inZoom/1000000f);
     	
         if(zoom>0)
         {
@@ -155,29 +185,25 @@ public class StatsLorenzGraphPanel extends JPanel
         }
         else
         {
-        	scale = 1/100000f;
+        	scale = 1/1000000f;
         }
 
-        /* Account for the zoom translate for the origin */
-        originX += (tx*scale);
-        originY += ty*scale;
         repaint();
     }  
 	
+    // Not used anymore
     public void setMpos(int x,int y)
     {
         cmX=x;
         cmY=y;
     }
     
+    // Not used anymore
     public void moveGraph(int mX,int mY)
     {
         originX=originX+(mX-cmX);
         originY=originY+(mY-cmY);
 
-        tx=(mX-cmX);
-        ty=(mX-cmX);        		        	
-        
         cmX=mX;
         cmY=mY;
         repaint();
@@ -186,16 +212,12 @@ public class StatsLorenzGraphPanel extends JPanel
     public void resetGraph()
     {
     	calculateGraphSize();
-    	originX=(this.getWidth()/4)*3;
-    	originY=(this.getHeight()/4);
-    	
-    	tx=0;
-    	ty=0;
-    	
+	    originX=-(cx)+graphWidth/2;
+	    originY=-(cy)+graphHeight/2;    	    	
     	repaint();
     }
     
-	/** Gets the widths and height of this panel - Not used TODO - autoscaling */
+	/** Gets the widths and height of this panel **/
 	private void calculateGraphSize()
 	{
 		graphX = this.getX();

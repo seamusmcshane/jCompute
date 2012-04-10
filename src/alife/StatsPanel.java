@@ -444,7 +444,7 @@ public class StatsPanel extends JPanel
 	{
 		/* These could be threaded - TODO more threads! */
 		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
-		lorenzGraphPanel.updateGraph(stepNo);
+		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo);
 	}
 
 	/** Clears the values in the Arrays of samples */
