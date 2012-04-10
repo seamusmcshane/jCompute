@@ -3,6 +3,8 @@ package alife;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import javax.swing.JPanel;
 /**
  * A Custom Panel used for drawing a graph.
@@ -137,6 +139,8 @@ public class StatsLineGraphPanel extends JPanel
 		super.paintComponent(g);
 				
 		Graphics2D g2 = (Graphics2D) g;	
+		
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);		    
 		
 		calculateGraphSize();
 		
