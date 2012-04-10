@@ -1,5 +1,6 @@
 package alife;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,23 +20,24 @@ public class StatsLorenzGraphPanel extends JPanel
 	private int graphWidth;
 	private int graphHeight;
 	
-	float scale = 0.0015f; 	// Default Scale
+	float scale = 0; 	// Graph Scale
 	
 	private float sampleNum;
 	
 	private float graphSamples=1;
-	
 
-	
 	/** Graph Origin */
-	int originX=175;
-	int originY=250;
+	float originX=0;
+	float originY=0;
+	
+	float tx=0;
+	float ty=0;
 	
 	/** Line Vectors */
-	int cx=originX;
-	int cy=originY;
-	int nx=originX;
-	int ny=originY;
+	float cx=originX;
+	float cy=originY;
+	float nx=originX;
+	float ny=originY;
 	
 	/** Mouse Coordinates */
     private int cmX=0;
@@ -57,6 +59,8 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 		this.sampleNum = sampleNum;
 		
+		resetGraph();		
+		setZoom(100);
 	}
 
 	/**
@@ -123,9 +127,11 @@ public class StatsLorenzGraphPanel extends JPanel
 		    }
 		    cx=gy;
 		    cy=gz;
+		    // R G B
 		    
-		    g2.setColor(Color.yellow);
-		    g2.drawLine(cx+(originX),cy+(originY),nx+(originX),ny+(originY));
+		    g2.setStroke(new BasicStroke(2));
+		    g2.setColor(new Color( (int)(predSamples[i]*0.391)%255, (int)(plantsSamples[i]*0.391)%255 , (int)(preySamples[i]*0.391)%255 ));
+		    g2.drawLine((int)(cx+(originX)),(int)(cy+(originY)),(int)(nx+(originX)),(int)(ny+(originY)));
 
 		    nx=cx;
 		    ny=cy;
@@ -141,21 +147,21 @@ public class StatsLorenzGraphPanel extends JPanel
 	
     public void setZoom(float inZoom)
     {
-    	float zoom = inZoom / 10000;
-        if(scale>0)
+    	float zoom = (inZoom/100000f);
+    	
+        if(zoom>0)
         {
-            scale=scale+zoom;
-            
-            System.out.println("scale"+scale);
-            System.out.println("InZoom"+inZoom);
-            System.out.println("zoom"+zoom);
-
+            scale=zoom;
         }
         else
         {
-        	scale = 0.001f;
+        	scale = 1/100000f;
         }
 
+        /* Account for the zoom translate for the origin */
+        originX += (tx*scale);
+        originY += ty*scale;
+        repaint();
     }  
 	
     public void setMpos(int x,int y)
@@ -169,10 +175,26 @@ public class StatsLorenzGraphPanel extends JPanel
         originX=originX+(mX-cmX);
         originY=originY+(mY-cmY);
 
+        tx=(mX-cmX);
+        ty=(mX-cmX);        		        	
+        
         cmX=mX;
         cmY=mY;
+        repaint();
     }
 	
+    public void resetGraph()
+    {
+    	calculateGraphSize();
+    	originX=(this.getWidth()/4)*3;
+    	originY=(this.getHeight()/4);
+    	
+    	tx=0;
+    	ty=0;
+    	
+    	repaint();
+    }
+    
 	/** Gets the widths and height of this panel - Not used TODO - autoscaling */
 	private void calculateGraphSize()
 	{

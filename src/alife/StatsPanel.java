@@ -22,6 +22,15 @@ import javax.swing.border.EtchedBorder;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTabbedPane;
+import javax.swing.JSlider;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 /**
  * A Custom Panel for controlling the display of Simulation stats in the GUI
  *
@@ -43,7 +52,7 @@ public class StatsPanel extends JPanel
 	private static JLabel lblASPSNo = new JLabel("0");
 	private static JLabel lblRunTime = new JLabel("Time");
 	private static JLabel lblRunTimeNo = new JLabel("0");
-	
+
 	/** The custom panel for drawing the graph */
 	private static StatsLineGraphPanel lineGraphPanel;
 	private static StatsLorenzGraphPanel lorenzGraphPanel;
@@ -76,10 +85,14 @@ public class StatsPanel extends JPanel
 	private final JLabel lblStep = new JLabel("Step No");
 	private final static JLabel lblStepNo = new JLabel("0");
 	private final JTabbedPane tabbedGraphs = new JTabbedPane(JTabbedPane.TOP);
+	private final JPanel lorenzContainerPanel = new JPanel();
+	private final JPanel lorenzControlPanel = new JPanel();
+	private final JSlider lorenzZoomSlider = new JSlider();
+	private final JButton btnCenter = new JButton("Center");
 
 	public StatsPanel()
 	{
-		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Population Graph", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Graphs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
 
 		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Simulation Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -130,7 +143,7 @@ public class StatsPanel extends JPanel
 
 		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblRunTimeNo);
-		
+
 		add(tabbedGraphs, BorderLayout.CENTER);
 
 		lineGraphPanel = new StatsLineGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
@@ -146,42 +159,79 @@ public class StatsPanel extends JPanel
 
 		lineGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		lineGraphPanel.setBackground(Color.gray);
-		tabbedGraphs.addTab("Line Graph", null, lineGraphPanel,"Graphs");
+		tabbedGraphs.addTab("Line", null, lineGraphPanel, "Graphs");
+
+		tabbedGraphs.addTab("Lorenz", null, lorenzContainerPanel, null);
+		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
 
 		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		lorenzContainerPanel.add(lorenzGraphPanel, BorderLayout.CENTER);
 		lorenzGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		
-		
+
 		lorenzGraphPanel.addMouseMotionListener(new MouseMotionAdapter()
-        {
-            // Send Position of the mouse to the tree for draging
-            public void mouseDragged(MouseEvent e)
-            {
-            	lorenzGraphPanel.moveGraph(e.getX(),e.getY());
-                e.consume();
-            }
+		{
+			// Send Position of the mouse to the tree for draging
+			public void mouseDragged(MouseEvent e)
+			{
+				lorenzGraphPanel.moveGraph(e.getX(), e.getY());
+				e.consume();
+			}
 
-            // Updates the mouse continuously for collision detection
-            public void mouseMoved(MouseEvent e)
-            {
-            	lorenzGraphPanel.setMpos(e.getX(),e.getY());
-                e.consume();
-            }
+			// Updates the mouse continuously for collision detection
+			public void mouseMoved(MouseEvent e)
+			{
+				lorenzGraphPanel.setMpos(e.getX(), e.getY());
+				e.consume();
+			}
 
-        });
-		
+		});
+
 		lorenzGraphPanel.addMouseWheelListener(new MouseWheelListener()
-        {
-            // Adjusts the zSlider (Zoom) 
-            public void mouseWheelMoved(MouseWheelEvent e)
-            {
-            	lorenzGraphPanel.setZoom(e.getWheelRotation());
-            }
-        });
-		
-		lorenzGraphPanel.setBackground(Color.gray);
-		tabbedGraphs.addTab("Lorenz Graph", null, lorenzGraphPanel,"Graphs");		
-		
+		{
+			// Adjusts the zSlider (Zoom) 
+			public void mouseWheelMoved(MouseWheelEvent e)
+			{
+				lorenzZoomSlider.setValue( (lorenzZoomSlider.getValue()+(e.getWheelRotation()*10)) );
+			}
+		});
+
+		lorenzGraphPanel.setBackground(Color.black);
+		lorenzGraphPanel.setLayout(new BoxLayout(lorenzGraphPanel, BoxLayout.X_AXIS));
+		lorenzControlPanel.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent arg0) 
+			{
+				lorenzGraphPanel.resetGraph();
+			}
+		});
+		lorenzContainerPanel.add(lorenzControlPanel, BorderLayout.EAST);
+		lorenzControlPanel.setLayout(new BorderLayout(0, 0));
+		btnCenter.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				lorenzGraphPanel.resetGraph();
+			}
+		});
+
+		lorenzControlPanel.add(btnCenter, BorderLayout.SOUTH);
+		lorenzZoomSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) 
+			{
+				lorenzGraphPanel.setZoom(lorenzZoomSlider.getValue());
+			}
+		});
+
+		lorenzZoomSlider.setPaintLabels(true);
+		lorenzZoomSlider.setMajorTickSpacing(100);
+		lorenzZoomSlider.setMinorTickSpacing(50);
+		lorenzZoomSlider.setMaximum(1000);
+		lorenzZoomSlider.setValue(100);
+		lorenzZoomSlider.setPaintTicks(true);
+		lorenzZoomSlider.setOrientation(SwingConstants.VERTICAL);
+
+		lorenzControlPanel.add(lorenzZoomSlider, BorderLayout.CENTER);
+
 		//add(graphPanel, BorderLayout.CENTER);
 	}
 
@@ -392,9 +442,9 @@ public class StatsPanel extends JPanel
 	 */
 	public void updateGraph()
 	{
-		/* These could be threaded - TODO more threads!*/
+		/* These could be threaded - TODO more threads! */
 		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
-		lorenzGraphPanel.updateGraph(stepNo);	
+		lorenzGraphPanel.updateGraph(stepNo);
 	}
 
 	/** Clears the values in the Arrays of samples */
