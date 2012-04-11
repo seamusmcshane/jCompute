@@ -58,7 +58,7 @@ public class StatsLineGraphPanel extends JPanel
 	 * @param scale_mode
 	 * @param stepNo
 	 */
-	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode,int stepNo)
+	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode,int stepNo,int graph_draw_div)
 	{
 		this.plantMax = plantMax;
 		
@@ -90,7 +90,7 @@ public class StatsLineGraphPanel extends JPanel
 		}		
 		
 		/* No need to Draw the graph every step */
-		if(stepNo%5 == 0)
+		if(stepNo%graph_draw_div == 0)
 		{
 			this.repaint();
 		}
