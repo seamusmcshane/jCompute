@@ -277,13 +277,10 @@ public class StatsPanel extends JPanel
 				lorenzGraphPanel.setXScale(xScaleslider.getValue());
 			}
 		});
-		xScaleslider.setSnapToTicks(true);
 		xScaleslider.setPaintTicks(true);
 		xScaleslider.setPaintLabels(true);
-		xScaleslider.setValue(1);
-		xScaleslider.setMajorTickSpacing(1);
-		xScaleslider.setMinimum(1);
-		xScaleslider.setMaximum(10);
+		xScaleslider.setValue(10);
+		xScaleslider.setMajorTickSpacing(10);
 		
 		bottomPanel.add(xScaleslider);
 		lblXscale.setHorizontalAlignment(SwingConstants.CENTER);
@@ -300,13 +297,10 @@ public class StatsPanel extends JPanel
 				lorenzGraphPanel.setYScale(yScaleslider.getValue());
 			}
 		});
-		yScaleslider.setMajorTickSpacing(1);
-		yScaleslider.setSnapToTicks(true);
-		yScaleslider.setValue(1);
+		yScaleslider.setMajorTickSpacing(10);
+		yScaleslider.setValue(10);
 		yScaleslider.setPaintLabels(true);
 		yScaleslider.setPaintTicks(true);
-		yScaleslider.setMinimum(1);
-		yScaleslider.setMaximum(10);
 		yScaleslider.setOrientation(SwingConstants.VERTICAL);
 		
 		leftPanel.add(yScaleslider);

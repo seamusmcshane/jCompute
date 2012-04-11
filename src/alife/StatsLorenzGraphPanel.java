@@ -198,14 +198,14 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 	}
 	
-	public void setXScale(int xScale)
+	public void setXScale(float xScale)
 	{
-		this.xScale = xScale;
+		this.xScale = (xScale+1)/10f;
 	}
 	
-	public void setYScale(int yScale)
+	public void setYScale(float yScale)
 	{
-		this.yScale = yScale;
+		this.yScale = (yScale+1)/10f;
 	}	
 	
     public void setZoom(float inZoom)
