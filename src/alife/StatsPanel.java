@@ -88,7 +88,7 @@ public class StatsPanel extends JPanel
 	private final JPanel lorenzContainerPanel = new JPanel();
 	private final static JPanel rightPanel = new JPanel();
 	private final JSlider lorenzZoomSlider = new JSlider();
-	private final JButton btnCenter = new JButton("Center");
+	private final JButton btnReset = new JButton("Reset Graph");
 	private final static JPanel bottomPanel = new JPanel();
 	private final JSlider xScaleslider = new JSlider();
 	private final JLabel lblZoom = new JLabel("Zoom");
@@ -99,6 +99,8 @@ public class StatsPanel extends JPanel
 	
 	/* Used to prevent showing sliders in a small area when paused */
 	private static boolean paused;
+	private final JButton btnMode = new JButton("Free Mode");
+	private final JPanel rightButtonsPanel = new JPanel();
 
 	public StatsPanel()
 	{
@@ -236,15 +238,6 @@ public class StatsPanel extends JPanel
 
 		lorenzContainerPanel.add(rightPanel, BorderLayout.EAST);
 		rightPanel.setLayout(new BorderLayout(0, 0));
-		btnCenter.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				lorenzGraphPanel.resetGraph(1);
-			}
-		});
-
-		rightPanel.add(btnCenter, BorderLayout.SOUTH);
 		lorenzZoomSlider.addChangeListener(new ChangeListener() 
 		{
 			public void stateChanged(ChangeEvent arg0) 
@@ -286,6 +279,36 @@ public class StatsPanel extends JPanel
 		lblXscale.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		bottomPanel.add(lblXscale, BorderLayout.WEST);
+		bottomPanel.add(rightButtonsPanel, BorderLayout.EAST);
+		rightButtonsPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		btnMode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				if(lorenzGraphPanel.getRatioMode())
+				{
+					btnMode.setText("Free Mode");					
+					lorenzGraphPanel.setRatioMode(false);
+				}
+				else
+				{
+					btnMode.setText("Ratio Mode");
+					lorenzGraphPanel.setRatioMode(true);
+				}				
+			}
+		});
+		rightButtonsPanel.add(btnMode);
+		rightButtonsPanel.add(btnReset);
+		btnReset.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				lorenzGraphPanel.resetGraph(1);
+				xScaleslider.setValue(10);
+				yScaleslider.setValue(10);
+				lorenzZoomSlider.setValue(100);
+				
+			}
+		});
 		bottomPanel.setVisible(false);
 
 		lorenzContainerPanel.add(leftPanel, BorderLayout.WEST);

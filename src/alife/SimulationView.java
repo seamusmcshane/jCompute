@@ -1,18 +1,17 @@
 package alife;
 
 import java.awt.BorderLayout;
-import java.awt.Window.Type;
-import java.io.File;
-
+import java.awt.Frame;
 import javax.swing.JFrame;
 
-/* NOTE! The following two imports are for creating executable jar */
-import org.lwjgl.LWJGLException;
-import org.lwjgl.LWJGLUtil;
+ 
+// NOTE! The following three imports are need when creating executable jar 
+/*import org.lwjgl.LWJGLException;
+import org.lwjgl.LWJGLUtil; 
+import java.io.File; */
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -20,13 +19,15 @@ import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 /**
  * Simulation class - Gui and Entry Point for starting a Simulation.
  */
 public class SimulationView extends BasicGame implements MouseListener
 {
 	/** Window */
-	static JFrame frame;
+	static JFrame frmSimulationView;
 	
 	/** Window Position */
 	static int x;
@@ -41,7 +42,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/** Default Graphic frame rate control */
 	final static int default_frame_rate = 15;
-	static int frame_rate = default_frame_rate; // Frame rate start up at this
+	static int frame_rate = default_frame_rate; // Frame rate starts up set at this
 	final int frame_rate_gui_interaction = 60;
 
 	/** Simulation Reference */
@@ -90,7 +91,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/** Camera View Size */
 	public static Rectangle camera_bound;
-
+	
 	/**
 	 * The Simulation View.
 	 */
@@ -235,16 +236,31 @@ public class SimulationView extends BasicGame implements MouseListener
 		try
 		{
 
-			frame = new JFrame("Simulation");
-			BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
+			frmSimulationView = new JFrame("Simulation");
+			frmSimulationView.setTitle("Simulation View");
+			frmSimulationView.addWindowListener(new WindowAdapter() {
+				
+				public void windowIconified(WindowEvent e)
+				{
+					SimulationGUI.minimise();
+				}
+
+				public void windowDeiconified(WindowEvent e)
+				{
+					SimulationGUI.maximise();
+					SimulationView.maximise();
+				}
+			});
+
+			BorderLayout borderLayout = (BorderLayout) frmSimulationView.getContentPane().getLayout();
 			borderLayout.setVgap(10);
 			borderLayout.setHgap(10);
-			frame.setType(Type.UTILITY);
+			//frame.setType(Type.UTILITY);
 			//frame.setUndecorated(true);
 			
-			frame.setSize(world_view_width, world_view_height);
+			frmSimulationView.setSize(world_view_width, world_view_height);
 			
-			frame.setLocation(x, y);
+			frmSimulationView.setLocation(x, y);
 			//frame.setAlwaysOnTop(true);
 			
 			/*
@@ -255,6 +271,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			 System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
 			 */
 			simView = new CanvasGameContainer(new SimulationView());
+			
 			//sim.setDisplayMode(world_view_width,world_view_height, false);
 			
 			/* Always update */
@@ -284,13 +301,13 @@ public class SimulationView extends BasicGame implements MouseListener
 			// Set sim start up frame rate 
 			simView.getContainer().setTargetFrameRate(default_frame_rate);
 
-			frame.getContentPane().add(simView, BorderLayout.CENTER);
+			frmSimulationView.getContentPane().add(simView, BorderLayout.CENTER);
 
-			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
+			frmSimulationView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 
-			frame.setVisible(true);
+			frmSimulationView.setVisible(true);
 			
-			frame.setResizable(false);
+			frmSimulationView.setResizable(false);
 			
 			simView.start();
 			
@@ -343,14 +360,21 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		if(simView!=null)
 		{
+
+			simView.setFocusable(true);
 			simView.requestFocus();
-			simView.transferFocus();
+			System.out.println("Got Focus");
+			simView.setFocusable(false);
+
+
+			//simView.transferFocus();			
 		}
 	}
 	
 	public static void maximise()
 	{
-		frame.setVisible(true);
+		frmSimulationView.setVisible(true);
+		frmSimulationView.setState(Frame.NORMAL);
 	}
 	
 	public static void setViewRangeDrawing(boolean in_view_range_drawing)
@@ -365,16 +389,16 @@ public class SimulationView extends BasicGame implements MouseListener
 	
 	public static void setVisible(boolean visible)
 	{
-		if(frame!=null)
+		if(frmSimulationView!=null)
 		{
-			frame.setVisible(visible);
+			frmSimulationView.setVisible(visible);
 			draw_sim = visible; // draw if visible
 		}
 	}
 	
 	public static void minimise()
 	{
-		frame.setVisible(false);
+		frmSimulationView.setVisible(false);
 	}	
 
 }

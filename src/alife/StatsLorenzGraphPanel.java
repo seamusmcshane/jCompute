@@ -23,6 +23,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	private int graphHeight;
 	
 	boolean drawing = false;
+	boolean mode_ratio_based=false;
 	float lmod = 0;
 	float lmod_max=0;	
 	
@@ -33,13 +34,14 @@ public class StatsLorenzGraphPanel extends JPanel
 	float predator_graph_boost = 4; 
 	
 	/* As above but plants always are in large numbers and get a negative boost */ 
-	float plant_graph_negative_factor = 0.75f;
+	float plant_graph_negative_factor = 0.65f;
 		
 	float zoom = 0; 	// Graph Scale
 	float xScale=1;
 	float yScale=1;
 	float max_graph_line_size=1f;
 	
+	int alpha_min=1000;
 	
 	private float sampleNum;
 	
@@ -76,7 +78,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		this.sampleNum = sampleNum;
 		
 		completeResetGraph();		
-		setZoom(100);
+		setZoom(100);		
 	}
 
 	/**
@@ -88,6 +90,32 @@ public class StatsLorenzGraphPanel extends JPanel
 		// No need to ensure this updates, just that it gets updated eventually.
 		if(!drawing)
 		{
+			if(mode_ratio_based)
+			{
+				predator_graph_boost=(preyMax/predMax);
+				
+				// Limit the ratios
+				if(predator_graph_boost>4)
+				{
+					plant_graph_negative_factor=4;
+				}					
+				
+				plant_graph_negative_factor= ((preyMax+predMax)/(plantsMax));
+				
+				// Limit the ratios
+				if(plant_graph_negative_factor<=0.65f)
+				{
+					plant_graph_negative_factor=0.65f;
+				}
+				
+			
+			}
+			else // Ratio mode drawing off
+			{
+				predator_graph_boost = 1; 
+				plant_graph_negative_factor = 1;				
+			}
+
 			// Find the max (keeps largest forever)
 			lmod_max=Math.max(lmod_max,plantsMax*plant_graph_negative_factor);					
 			lmod_max=Math.max(lmod_max, preyMax);
@@ -175,8 +203,17 @@ public class StatsLorenzGraphPanel extends JPanel
 		    
 		    // R G B A
 		    //System.out.println("" +  (int)(predSamples[i]*(255/lmod_max))%255 + "" +  (int)(plantsSamples[i]*(255/lmod_max))%255 + "" +  (int)(preySamples[i]*(255/lmod_max))%255 + "" + (int) (i*(255/graphSamples))%255);
-		    g2.setColor(new Color( (int)((predSamples[i]*predator_graph_boost)*(255/lmod_max))%255, (int)((plantsSamples[i]*plant_graph_negative_factor)*(255/lmod_max))%255 , (int)(preySamples[i]*(255/lmod_max))%255 ,(int) (i*(255/graphSamples))%255));
+		    		    
+		    if(i<1000) // Fade out old pixels
+		    {
+			    g2.setColor(new Color( (int)((predSamples[i]*predator_graph_boost)*(255/lmod_max))%255, (int)((plantsSamples[i]*plant_graph_negative_factor)*(255/lmod_max))%255 , (int)(preySamples[i]*(255/lmod_max))%255 ,(int) (i*(255/graphSamples))%255));		    	
+		    }
+		    else
+		    {
+			    g2.setColor(new Color( (int)((predSamples[i]*predator_graph_boost)*(255/lmod_max))%255, (int)((plantsSamples[i]*plant_graph_negative_factor)*(255/lmod_max))%255 , (int)(preySamples[i]*(255/lmod_max))%255));		    	
+		    }
 		    
+
 		    // Draws line based on where the origin is.
 		    g2.drawLine((int)(cx+(originX)),(int)(-cy+(originY)),(int)(nx+(originX)),(int)(-ny+(originY)));
 		    
@@ -270,5 +307,15 @@ public class StatsLorenzGraphPanel extends JPanel
 		graphHeight = this.getHeight()-2;
 		
 	}
+	
+	public boolean getRatioMode()
+	{
+		return mode_ratio_based;
+	}
+	
+	public void setRatioMode(boolean mode)
+	{
+		mode_ratio_based=mode;
+	}	
 
 }
