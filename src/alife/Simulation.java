@@ -111,7 +111,7 @@ public class Simulation
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
 		
-	private boolean simPaused = true;
+	private static boolean simPaused = true;
 	private boolean simStarted = false;
 	private int latched_div = 0;
 
@@ -289,7 +289,7 @@ public class Simulation
 			 
 	}
 
-	public boolean simPaused()
+	public static boolean simPaused()
 	{
 		return simPaused;
 	}

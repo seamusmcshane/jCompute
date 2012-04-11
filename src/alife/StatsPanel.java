@@ -21,6 +21,8 @@ import java.util.Locale;
 import javax.swing.border.EtchedBorder;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JSlider;
 import javax.swing.BoxLayout;
@@ -31,6 +33,11 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.JCheckBox;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 /**
  * A Custom Panel for controlling the display of Simulation stats in the GUI
  *
@@ -81,6 +88,9 @@ public class StatsPanel extends JPanel
 	/* Graph Scales - click graph */
 	private int scale_mode = 2; // 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied
 
+	/* Graph State */
+	private static boolean graphs_full = false;
+
 	private static int maxVal = 0;
 	private final JLabel lblStep = new JLabel("Step No");
 	private final static JLabel lblStepNo = new JLabel("0");
@@ -96,19 +106,257 @@ public class StatsPanel extends JPanel
 	private final static JPanel leftPanel = new JPanel();
 	private final JSlider yScaleslider = new JSlider();
 	private final JLabel lblYscale = new JLabel("Y Scale");
-	
+
 	/* Used to prevent showing sliders in a small area when paused */
 	private static boolean paused;
 	private final JButton btnMode = new JButton("Free Mode");
 	private final JPanel rightButtonsPanel = new JPanel();
+	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Show Full Graphs");
+	private final JPanel panel = new JPanel();
+	private final JPanel graphSettingsPanel = new JPanel();
+	private final JLabel lblGraphDrawDiv = new JLabel("Graph Draw Div");
+	private final JComboBox comboBoxGraphDrawDiv = new JComboBox();
+	
+	/* Update the graphs based on ratio of steps */
+	private int graph_draw_div = 1;
+	private final JPanel lineGraphContainerPanel = new JPanel();
+	private final static JPanel lineGraphbottomPanel = new JPanel();
+	private final JButton btnIndependentScale = new JButton("Independent");
+	private final JButton btnPredatorpreyLinked = new JButton("Predator/Prey");
+	private final JButton btnSameScale = new JButton("Same");
 
 	public StatsPanel()
 	{
+
 		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Graphs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
 
+		add(tabbedGraphs, BorderLayout.CENTER);
+		
+		tabbedGraphs.addTab("Line", null, lineGraphContainerPanel, null);
+				lineGraphContainerPanel.setLayout(new BorderLayout(0, 0));
+				lineGraphContainerPanel.add(lineGraphbottomPanel, BorderLayout.SOUTH);
+				lineGraphbottomPanel.setLayout(new GridLayout(0, 3, 0, 0));
+				btnIndependentScale.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) 
+					{
+						scale_mode = 0;
+					}
+				});
+				
+				lineGraphbottomPanel.add(btnIndependentScale);
+				btnPredatorpreyLinked.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) 
+					{
+						scale_mode = 1;
+					}
+				});
+				
+				lineGraphbottomPanel.add(btnPredatorpreyLinked);
+				btnSameScale.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) 
+					{
+						scale_mode = 2;
+					}
+				});
+				
+				lineGraphbottomPanel.add(btnSameScale);
+				lineGraphbottomPanel.setVisible(false);
+		
+				lineGraphPanel = new StatsLineGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
+				lineGraphContainerPanel.add(lineGraphPanel);
+				lineGraphPanel.addMouseListener(new MouseAdapter()
+				{
+					@Override
+					public void mouseClicked(MouseEvent arg0)
+					{						
+						if(graphs_full) // Only allow extra interface controls on the large view
+						{
+							if(lineGraphbottomPanel.isVisible())
+							{
+								lineGraphbottomPanel.setVisible(false);
+							}
+							else
+							{
+								lineGraphbottomPanel.setVisible(true);							
+							}
+							
+						}
+						
+					}
+				});
+
+		lineGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		lineGraphPanel.setBackground(Color.gray);
+
+		tabbedGraphs.addTab("Lorenz", null, lorenzContainerPanel, null);
+		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
+
+		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		lorenzGraphPanel.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent arg0) 
+			{
+				repaint();
+			}
+
+		});
+
+		lorenzGraphPanel.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if(graphs_full) // Only allow extra interface controls on the large view
+				{
+					if (rightPanel.isVisible())
+					{
+						rightPanel.setVisible(false);
+						leftPanel.setVisible(false);
+						bottomPanel.setVisible(false);
+
+					}
+					else
+					{
+						rightPanel.setVisible(true);
+						leftPanel.setVisible(true);
+						bottomPanel.setVisible(true);
+					}					
+				}
+
+				e.consume();
+			}
+		});
+		lorenzContainerPanel.add(lorenzGraphPanel, BorderLayout.CENTER);
+		lorenzGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+
+		lorenzGraphPanel.addMouseMotionListener(new MouseMotionAdapter()
+		{
+			public void mouseDragged(MouseEvent e)
+			{
+				//lorenzGraphPanel.moveGraph(e.getX(), e.getY());
+				//e.consume();
+			}
+
+			public void mouseMoved(MouseEvent e)
+			{
+				//lorenzGraphPanel.setMpos(e.getX(), e.getY());
+				//e.consume();
+			}
+
+		});
+
+		lorenzGraphPanel.addMouseWheelListener(new MouseWheelListener()
+		{
+			// Adjusts the lorenzZoomSlider (Zoom) 
+			public void mouseWheelMoved(MouseWheelEvent e)
+			{
+				lorenzZoomSlider.setValue((lorenzZoomSlider.getValue() + (e.getWheelRotation() * 10)));
+			}
+		});
+
+		lorenzGraphPanel.setBackground(Color.black);
+		lorenzGraphPanel.setLayout(new BoxLayout(lorenzGraphPanel, BoxLayout.X_AXIS));
+
+		lorenzContainerPanel.add(rightPanel, BorderLayout.EAST);
+		rightPanel.setLayout(new BorderLayout(0, 0));
+		lorenzZoomSlider.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent arg0)
+			{
+				lorenzGraphPanel.setZoom(lorenzZoomSlider.getValue());
+			}
+		});
+
+		rightPanel.setVisible(false);
+
+		lorenzZoomSlider.setPaintLabels(true);
+		lorenzZoomSlider.setMajorTickSpacing(100);
+		lorenzZoomSlider.setMinorTickSpacing(50);
+		lorenzZoomSlider.setMaximum(1000);
+		lorenzZoomSlider.setValue(100);
+		lorenzZoomSlider.setPaintTicks(true);
+		lorenzZoomSlider.setOrientation(SwingConstants.VERTICAL);
+
+		rightPanel.add(lorenzZoomSlider, BorderLayout.CENTER);
+		lblZoom.setHorizontalAlignment(SwingConstants.CENTER);
+
+		rightPanel.add(lblZoom, BorderLayout.NORTH);
+
+		lorenzContainerPanel.add(bottomPanel, BorderLayout.SOUTH);
+		bottomPanel.setLayout(new BorderLayout(0, 0));
+		xScaleslider.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent e)
+			{
+				lorenzGraphPanel.setXScale(xScaleslider.getValue());
+			}
+		});
+		xScaleslider.setPaintTicks(true);
+		xScaleslider.setPaintLabels(true);
+		xScaleslider.setValue(10);
+		xScaleslider.setMajorTickSpacing(10);
+
+		bottomPanel.add(xScaleslider);
+		lblXscale.setHorizontalAlignment(SwingConstants.CENTER);
+
+		bottomPanel.add(lblXscale, BorderLayout.WEST);
+		bottomPanel.add(rightButtonsPanel, BorderLayout.EAST);
+		rightButtonsPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		btnMode.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (lorenzGraphPanel.getRatioMode())
+				{
+					btnMode.setText("Free Mode");
+					lorenzGraphPanel.setRatioMode(false);
+				}
+				else
+				{
+					btnMode.setText("Ratio Mode");
+					lorenzGraphPanel.setRatioMode(true);
+				}
+			}
+		});
+		rightButtonsPanel.add(btnMode);
+		rightButtonsPanel.add(btnReset);
+		btnReset.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				xScaleslider.setValue(10);
+				yScaleslider.setValue(10);
+				lorenzZoomSlider.setValue(100);
+				lorenzGraphPanel.resetGraph(1);			
+			}
+		});
+		bottomPanel.setVisible(false);
+
+		lorenzContainerPanel.add(leftPanel, BorderLayout.WEST);
+		leftPanel.setLayout(new BorderLayout(0, 0));
+		yScaleslider.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent e)
+			{
+				lorenzGraphPanel.setYScale(yScaleslider.getValue());
+			}
+		});
+		yScaleslider.setMajorTickSpacing(10);
+		yScaleslider.setValue(10);
+		yScaleslider.setPaintLabels(true);
+		yScaleslider.setPaintTicks(true);
+		yScaleslider.setOrientation(SwingConstants.VERTICAL);
+
+		leftPanel.add(yScaleslider);
+
+		leftPanel.add(lblYscale, BorderLayout.NORTH);
+
+		add(panel, BorderLayout.SOUTH);
+		panel.setLayout(new BorderLayout(0, 0));
+		panel.add(simStatCountPanel);
+
 		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Simulation Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		add(simStatCountPanel, BorderLayout.SOUTH);
 		simStatCountPanel.setLayout(new GridLayout(2, 6, 0, 0));
 
 		simStatCountPanel.add(alifeInfoRow);
@@ -156,179 +404,43 @@ public class StatsPanel extends JPanel
 		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblRunTimeNo);
 
-		add(tabbedGraphs, BorderLayout.CENTER);
-
-		lineGraphPanel = new StatsLineGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
-		lineGraphPanel.addMouseListener(new MouseAdapter()
+		panel.add(graphSettingsPanel, BorderLayout.NORTH);
+		graphSettingsPanel.setLayout(new GridLayout(0, 3, 0, 0));
+		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
+		chckbxFullSizeGraphCheckBox.setEnabled(false);
+		chckbxFullSizeGraphCheckBox.addItemListener(new ItemListener()
 		{
-			@Override
-			public void mouseClicked(MouseEvent arg0)
+			public void itemStateChanged(ItemEvent arg0)
 			{
-				// Clicking graph changes mode
-				scale_mode = (scale_mode + 1) % 3; // Wrap at 3
-			}
-		});
-
-		lineGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		lineGraphPanel.setBackground(Color.gray);
-		tabbedGraphs.addTab("Line", null, lineGraphPanel, "Graphs");
-
-		tabbedGraphs.addTab("Lorenz", null, lorenzContainerPanel, null);
-		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
-
-		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
-		
-		lorenzGraphPanel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) 
-			{
-				if(!paused)
+				if (Simulation.simPaused())
 				{
-					if(rightPanel.isVisible())
+					if (graphs_full)
 					{
-						rightPanel.setVisible(false);
-						leftPanel.setVisible(false);
-						bottomPanel.setVisible(false);
-
+						setGraphsFull(false);
 					}
 					else
 					{
-						rightPanel.setVisible(true);	
-						leftPanel.setVisible(true);
-						bottomPanel.setVisible(true);					
-					}				
+						setGraphsFull(true);
+					}
 				}
-				else
-				{
-					lorenzGraphPanel.resetGraph(1);
-				}
-				e.consume();				
 			}
-		});
-		lorenzContainerPanel.add(lorenzGraphPanel, BorderLayout.CENTER);
-		lorenzGraphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 
-		lorenzGraphPanel.addMouseMotionListener(new MouseMotionAdapter()
+		});
+		chckbxFullSizeGraphCheckBox.setVerticalAlignment(SwingConstants.BOTTOM);
+		lblGraphDrawDiv.setHorizontalAlignment(SwingConstants.CENTER);
+
+		graphSettingsPanel.add(lblGraphDrawDiv);
+		comboBoxGraphDrawDiv.addItemListener(new ItemListener()
 		{
-			public void mouseDragged(MouseEvent e)
+			public void itemStateChanged(ItemEvent arg0)
 			{
-				//lorenzGraphPanel.moveGraph(e.getX(), e.getY());
-				//e.consume();
-			}
-			
-			public void mouseMoved(MouseEvent e)
-			{
-				//lorenzGraphPanel.setMpos(e.getX(), e.getY());
-				//e.consume();
-			}
-
-		});
-
-		lorenzGraphPanel.addMouseWheelListener(new MouseWheelListener()
-		{
-			// Adjusts the lorenzZoomSlider (Zoom) 
-			public void mouseWheelMoved(MouseWheelEvent e)
-			{
-				lorenzZoomSlider.setValue( (lorenzZoomSlider.getValue()+(e.getWheelRotation()*10)) );
+				graph_draw_div=(Integer.parseInt(comboBoxGraphDrawDiv.getSelectedItem().toString()));
 			}
 		});
+		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[]
+		{"1", "2", "5", "10", "20"}));
 
-		lorenzGraphPanel.setBackground(Color.black);
-		lorenzGraphPanel.setLayout(new BoxLayout(lorenzGraphPanel, BoxLayout.X_AXIS));
-
-		lorenzContainerPanel.add(rightPanel, BorderLayout.EAST);
-		rightPanel.setLayout(new BorderLayout(0, 0));
-		lorenzZoomSlider.addChangeListener(new ChangeListener() 
-		{
-			public void stateChanged(ChangeEvent arg0) 
-			{
-				lorenzGraphPanel.setZoom(lorenzZoomSlider.getValue());
-			}
-		});
-		
-		rightPanel.setVisible(false);
-
-		lorenzZoomSlider.setPaintLabels(true);
-		lorenzZoomSlider.setMajorTickSpacing(100);
-		lorenzZoomSlider.setMinorTickSpacing(50);
-		lorenzZoomSlider.setMaximum(1000);
-		lorenzZoomSlider.setValue(100);
-		lorenzZoomSlider.setPaintTicks(true);
-		lorenzZoomSlider.setOrientation(SwingConstants.VERTICAL);
-
-		rightPanel.add(lorenzZoomSlider, BorderLayout.CENTER);
-		lblZoom.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		rightPanel.add(lblZoom, BorderLayout.NORTH);
-		
-		lorenzContainerPanel.add(bottomPanel, BorderLayout.SOUTH);
-		bottomPanel.setLayout(new BorderLayout(0, 0));
-		xScaleslider.addChangeListener(new ChangeListener() 
-		{
-			public void stateChanged(ChangeEvent e) 
-			{
-				lorenzGraphPanel.setXScale(xScaleslider.getValue());
-			}
-		});
-		xScaleslider.setPaintTicks(true);
-		xScaleslider.setPaintLabels(true);
-		xScaleslider.setValue(10);
-		xScaleslider.setMajorTickSpacing(10);
-		
-		bottomPanel.add(xScaleslider);
-		lblXscale.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		bottomPanel.add(lblXscale, BorderLayout.WEST);
-		bottomPanel.add(rightButtonsPanel, BorderLayout.EAST);
-		rightButtonsPanel.setLayout(new GridLayout(0, 1, 0, 0));
-		btnMode.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) 
-			{
-				if(lorenzGraphPanel.getRatioMode())
-				{
-					btnMode.setText("Free Mode");					
-					lorenzGraphPanel.setRatioMode(false);
-				}
-				else
-				{
-					btnMode.setText("Ratio Mode");
-					lorenzGraphPanel.setRatioMode(true);
-				}				
-			}
-		});
-		rightButtonsPanel.add(btnMode);
-		rightButtonsPanel.add(btnReset);
-		btnReset.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				lorenzGraphPanel.resetGraph(1);
-				xScaleslider.setValue(10);
-				yScaleslider.setValue(10);
-				lorenzZoomSlider.setValue(100);
-				
-			}
-		});
-		bottomPanel.setVisible(false);
-
-		lorenzContainerPanel.add(leftPanel, BorderLayout.WEST);
-		leftPanel.setLayout(new BorderLayout(0, 0));
-		yScaleslider.addChangeListener(new ChangeListener() 
-		{
-			public void stateChanged(ChangeEvent e) 
-			{
-				lorenzGraphPanel.setYScale(yScaleslider.getValue());
-			}
-		});
-		yScaleslider.setMajorTickSpacing(10);
-		yScaleslider.setValue(10);
-		yScaleslider.setPaintLabels(true);
-		yScaleslider.setPaintTicks(true);
-		yScaleslider.setOrientation(SwingConstants.VERTICAL);
-		
-		leftPanel.add(yScaleslider);
-		
-		leftPanel.add(lblYscale, BorderLayout.NORTH);
+		graphSettingsPanel.add(comboBoxGraphDrawDiv);
 		leftPanel.setVisible(false);
 		//add(graphPanel, BorderLayout.CENTER);
 	}
@@ -541,8 +653,8 @@ public class StatsPanel extends JPanel
 	public void updateGraph()
 	{
 		/* These could be threaded - TODO more threads! */
-		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
-		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo);
+		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo, graph_draw_div);
+		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo, graph_draw_div);
 	}
 
 	/** Clears the values in the Arrays of samples */
@@ -556,32 +668,66 @@ public class StatsPanel extends JPanel
 		}
 		lorenzGraphPanel.completeResetGraph();
 	}
-	
+
 	public static void setPaused(boolean ipaused)
 	{
 		paused = ipaused;
 		
-		if(paused)
-		{
-			StatsPanel.hideLorenzPanels();	
+		if (paused)
+		{		
+			chckbxFullSizeGraphCheckBox.setSelected(false);		
+			chckbxFullSizeGraphCheckBox.setEnabled(true);
+			
+			setGraphsFull(false);				
+			
 		}
+		else
+		{
+			chckbxFullSizeGraphCheckBox.setSelected(true);			
+			chckbxFullSizeGraphCheckBox.setEnabled(false);
+			
+			setGraphsFull(true);	
+		}
+
+	}
+
+	private static void setGraphsFull(boolean status)
+	{
+		graphs_full = status;
 		
+		if (status) // Hide the panels/show graphs 
+		{								
+			SimulationGUI.agentParamPanel.setVisible(false);
+			SimulationGUI.plantParamPanel.setVisible(false);		
+		}
+		else 
+		{
+			hideLorenzPanels();
+			hideLinePanels();
+			SimulationGUI.agentParamPanel.setVisible(true);
+			SimulationGUI.plantParamPanel.setVisible(true);	
+		}		
 	}
 	
-	public static void showLorenzPanels()
+	private static void hideLinePanels()
+	{
+		lineGraphbottomPanel.setVisible(false);							
+	}
+	
+	private static void showLorenzPanels()
 	{
 		rightPanel.setVisible(true);
 		leftPanel.setVisible(true);
 		bottomPanel.setVisible(true);
-		lorenzGraphPanel.resetGraph(1);		
-	}	
-	
-	public static void hideLorenzPanels()
+		lorenzGraphPanel.resetGraph(1);
+	}
+
+	private static void hideLorenzPanels()
 	{
 		rightPanel.setVisible(false);
 		leftPanel.setVisible(false);
 		bottomPanel.setVisible(false);
-		lorenzGraphPanel.resetGraph(1);		
+		lorenzGraphPanel.resetGraph(1);
 	}
 
 }

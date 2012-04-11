@@ -46,6 +46,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import javax.swing.JToggleButton;
+import javax.swing.JCheckBox;
 
 public class SimulationGUI
 {
@@ -147,7 +149,7 @@ public class SimulationGUI
 
 	/* GUI Size Hard-Coded - minimum size before cropping occurs */
 	static int control_gui_width = 375;
-	static int control_gui_height = 850;
+	static int control_gui_height = 800;
 
 	static int control_gui_x;
 	static int control_gui_y;
@@ -163,9 +165,9 @@ public class SimulationGUI
 	// A param Object to carry variables though the classes.
 	private static SimpleAgentManagementSetupParam agentSettings = new SimpleAgentManagementSetupParam();
 
-	private static JPanel agentParamPanel;
+	public static JPanel agentParamPanel;
 
-	private static JPanel plantParamPanel;
+	public static JPanel plantParamPanel;
 
 	private static JCheckBoxMenuItem chckbxmntmDisplayView;
 
@@ -773,33 +775,7 @@ public class SimulationGUI
 		row2.add(btnPause);
 
 		statsPanel = new StatsPanel();
-		statsPanel.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent arg0)
-			{
-				if (sim.simPaused())
-				{
-					if (agentParamPanel.isVisible())
-					{
-						agentParamPanel.setVisible(false);
 
-						plantParamPanel.setVisible(false);
-
-						StatsPanel.showLorenzPanels();
-					}
-					else
-					{
-
-						StatsPanel.hideLorenzPanels();
-
-						agentParamPanel.setVisible(true);
-
-						plantParamPanel.setVisible(true);
-					}
-				}
-			}
-		});
 		controlPanel.add(statsPanel, BorderLayout.CENTER);
 		btnPause.addActionListener(new ActionListener()
 		{
@@ -1042,9 +1018,6 @@ public class SimulationGUI
 		comboBoxWorldSize.setEnabled(true);
 		comboBoxPlantNumbers.setEnabled(true);
 
-		agentParamPanel.setVisible(true);
-
-		plantParamPanel.setVisible(true);
 
 		StatsPanel.setPaused(true);
 
@@ -1060,27 +1033,11 @@ public class SimulationGUI
 		comboBoxPreyNumbers.setEnabled(false);
 		comboBoxPredNumbers.setEnabled(false);
 		comboBoxWorldSize.setEnabled(false);
-		comboBoxPlantNumbers.setEnabled(false);
-
-		agentParamPanel.setVisible(false);
-
-		plantParamPanel.setVisible(false);
+		comboBoxPlantNumbers.setEnabled(false);
 
 		StatsPanel.setPaused(false);
 
 		sim.unPauseSim();
-	}
-
-	private class SwingAction extends AbstractAction
-	{
-		public SwingAction()
-		{
-			putValue(NAME, "SwingAction");
-			putValue(SHORT_DESCRIPTION, "Some short description");
-		}
-		public void actionPerformed(ActionEvent e)
-		{
-		}
 	}
 
 	public static void maximise()
