@@ -24,10 +24,22 @@ public class StatsLorenzGraphPanel extends JPanel
 	
 	boolean drawing = false;
 	float lmod = 0;
+	float lmod_max=0;	
+	
+	/*
+	 * Large numbers of Predators rarely appear except in an Ecosystem collapse event.
+	 * Thus red is rarely on the graph, for better visuals the color value for predator numbers are boosted by this factor.
+	 */
+	float predator_graph_boost = 4; 
+	
+	/* As above but plants always are in large numbers and get a negative boost */ 
+	float plant_graph_negative_factor = 0.75f;
 		
 	float zoom = 0; 	// Graph Scale
 	float xScale=1;
 	float yScale=1;
+	float max_graph_line_size=1f;
+	
 	
 	private float sampleNum;
 	
@@ -63,7 +75,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 		this.sampleNum = sampleNum;
 		
-		resetGraph();		
+		completeResetGraph();		
 		setZoom(100);
 	}
 
@@ -77,12 +89,12 @@ public class StatsLorenzGraphPanel extends JPanel
 		if(!drawing)
 		{
 			// Find the max (keeps largest forever)
-			lmod=Math.max(lmod,plantsMax);					
-			lmod=Math.max(lmod, preyMax);
-			lmod=Math.max(lmod, preyMax);
+			lmod_max=Math.max(lmod_max,plantsMax*plant_graph_negative_factor);					
+			lmod_max=Math.max(lmod_max, preyMax);
+			lmod_max=Math.max(lmod_max, predMax*predator_graph_boost);
 			
 			// half the max so lmod will cause the curve to phaze invert on a negative (ie x=50, max = 200, lmod = 100, drawing x = -50 etc)
-			lmod=lmod/2;			
+			lmod=lmod_max/2;			
 		}
 		
 		if(stepNo<sampleNum)
@@ -130,8 +142,8 @@ public class StatsLorenzGraphPanel extends JPanel
 		for(int i =0;i<graphSamples;i++)
 		{			
 			// The values we feed to the Lorenz equations.
-		    double x=(plantsSamples[i])-lmod; 	    		
-		    double y=(predSamples[i])-lmod;
+		    double x=(plantsSamples[i]*plant_graph_negative_factor)-lmod; 	    		
+		    double y=(predSamples[i]*predator_graph_boost)-lmod;
 		    double z=(preySamples[i])-lmod;
 		    /* Lmod is half of the max value of all samples, meaning this can cause X,Y and Z to go negative.
 		     * By going negative the other half of the Lorenz system is drawn.	
@@ -150,18 +162,20 @@ public class StatsLorenzGraphPanel extends JPanel
 		    
 		    if(i==0)
 		    {
-			    nx=gy;
-			    ny=gz;	
+			    nx=gz;
+			    ny=gy;	
 		    }
 		    
 		    // The current point
-		    cx=gy;
-		    cy=gz;
+		    cx=gz;
+		    cy=gy;
 		     		    
 		    // Line Width
-		    g2.setStroke(new BasicStroke(1));
+		    g2.setStroke(new BasicStroke(i*(max_graph_line_size/graphSamples) ));
+		    
 		    // R G B A
-		    g2.setColor(new Color( (int)(predSamples[i]*0.391)%255, (int)(plantsSamples[i]*0.391)%255 , (int)(preySamples[i]*0.391)%255 ,(int) (i*(255/graphSamples))%255));
+		    //System.out.println("" +  (int)(predSamples[i]*(255/lmod_max))%255 + "" +  (int)(plantsSamples[i]*(255/lmod_max))%255 + "" +  (int)(preySamples[i]*(255/lmod_max))%255 + "" + (int) (i*(255/graphSamples))%255);
+		    g2.setColor(new Color( (int)((predSamples[i]*predator_graph_boost)*(255/lmod_max))%255, (int)((plantsSamples[i]*plant_graph_negative_factor)*(255/lmod_max))%255 , (int)(preySamples[i]*(255/lmod_max))%255 ,(int) (i*(255/graphSamples))%255));
 		    
 		    // Draws line based on where the origin is.
 		    g2.drawLine((int)(cx+(originX)),(int)(-cy+(originY)),(int)(nx+(originX)),(int)(-ny+(originY)));
@@ -228,12 +242,13 @@ public class StatsLorenzGraphPanel extends JPanel
         repaint();
     }
 	
-    private void resetGraph()
+    public void completeResetGraph()
     {
     	calculateGraphSize();
 	    originX=-(cx)+graphWidth/2;
 	    originY=-(cy)+graphHeight/2;    	    	
     	lmod=0;
+    	lmod_max=0;
     	repaint();    	
     }
     

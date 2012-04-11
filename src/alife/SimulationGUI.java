@@ -694,6 +694,33 @@ public class SimulationGUI
 		row2.add(btnPause);
 
 		statsPanel = new StatsPanel();
+		statsPanel.addMouseListener(new MouseAdapter() 
+		{
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				if (sim.simPaused())
+				{					
+					if(agentParamPanel.isVisible())
+					{
+						agentParamPanel.setVisible(false);
+						
+						plantParamPanel.setVisible(false);
+						
+						StatsPanel.showLorenzPanels();
+					}
+					else
+					{
+						
+						StatsPanel.hideLorenzPanels();
+						
+						agentParamPanel.setVisible(true);
+						
+						plantParamPanel.setVisible(true);
+					}
+				}
+			}
+		});
 		controlPanel.add(statsPanel, BorderLayout.CENTER);
 		btnPause.addActionListener(new ActionListener()
 		{
@@ -902,6 +929,8 @@ public class SimulationGUI
 		agentParamPanel.setVisible(false);
 		
 		plantParamPanel.setVisible(false);
+				
+		StatsPanel.setPaused(false);
 		
 		SimulationView.setFocus();
 

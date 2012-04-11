@@ -210,8 +210,8 @@ public class StatsPanel extends JPanel
 		{
 			public void mouseDragged(MouseEvent e)
 			{
-				lorenzGraphPanel.moveGraph(e.getX(), e.getY());
-				e.consume();
+				//lorenzGraphPanel.moveGraph(e.getX(), e.getY());
+				//e.consume();
 			}
 			
 			public void mouseMoved(MouseEvent e)
@@ -536,8 +536,8 @@ public class StatsPanel extends JPanel
 			plantSamples[i] = 0;
 			preySamples[i] = 0;
 			predSamples[i] = 0;
-
 		}
+		lorenzGraphPanel.completeResetGraph();
 	}
 	
 	public static void setPaused(boolean ipaused)
@@ -551,7 +551,15 @@ public class StatsPanel extends JPanel
 		
 	}
 	
-	private static void hideLorenzPanels()
+	public static void showLorenzPanels()
+	{
+		rightPanel.setVisible(true);
+		leftPanel.setVisible(true);
+		bottomPanel.setVisible(true);
+		lorenzGraphPanel.resetGraph(1);		
+	}	
+	
+	public static void hideLorenzPanels()
 	{
 		rightPanel.setVisible(false);
 		leftPanel.setVisible(false);
