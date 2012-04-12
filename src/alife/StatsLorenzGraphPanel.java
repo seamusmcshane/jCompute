@@ -85,7 +85,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	 * Updates the graph and draws it on an interval based on stepNo.
 	 * @param stepNo
 	 */
-	public void updateGraph(int plantsMax,int preyMax, int predMax, int stepNo,int graph_draw_div)
+	public void updateGraph(int plantsMax,int preyMax, int predMax, int stepNo)
 	{
 		// No need to ensure this updates, just that it gets updated eventually.
 		if(!drawing)
@@ -133,13 +133,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		{
 			graphSamples=sampleNum;
 		}
-				
-		/* No need to Draw the graph every step */
-		if(stepNo%graph_draw_div == 0)
-		{
-			this.repaint();
-		}
-		
+						
 	}
 				
 	/** Draws the graph */
@@ -318,4 +312,8 @@ public class StatsLorenzGraphPanel extends JPanel
 		mode_ratio_based=mode;
 	}	
 
+	public void drawGraph()
+	{
+		this.repaint();
+	}
 }

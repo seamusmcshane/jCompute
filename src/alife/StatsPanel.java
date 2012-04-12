@@ -63,7 +63,9 @@ public class StatsPanel extends JPanel
 	/** The custom panel for drawing the graph */
 	private static StatsLineGraphPanel lineGraphPanel;
 	private static StatsLorenzGraphPanel lorenzGraphPanel;
+	private static StatsStackedGraphPanel stackedGraphPanel;
 
+	
 	/* Counters */
 	private static int ASPS = 0; // Average Steps per second
 	private static int stepNo = 0;
@@ -87,7 +89,8 @@ public class StatsPanel extends JPanel
 
 	/* Graph Scales - click graph */
 	private int scale_mode = 2; // 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied
-
+	private int graph_visible=0;
+	
 	/* Graph State */
 	private static boolean graphs_full = false;
 
@@ -124,12 +127,20 @@ public class StatsPanel extends JPanel
 	private final JButton btnIndependentScale = new JButton("Independent");
 	private final JButton btnPredatorpreyLinked = new JButton("Predator/Prey");
 	private final JButton btnSameScale = new JButton("Same");
+	private final JPanel stackGraphContainerPanel = new JPanel();
 
 	public StatsPanel()
 	{
 
 		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Graphs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
+		tabbedGraphs.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) 
+			{
+				graph_visible = tabbedGraphs.getSelectedIndex();
+		        System.out.println("Tab=" + graph_visible);
+			}
+		});
 
 		add(tabbedGraphs, BorderLayout.CENTER);
 		
@@ -351,6 +362,14 @@ public class StatsPanel extends JPanel
 		leftPanel.add(yScaleslider);
 
 		leftPanel.add(lblYscale, BorderLayout.NORTH);
+		
+		tabbedGraphs.addTab("Stacked", null, stackGraphContainerPanel, null);
+		
+		stackedGraphPanel = new StatsStackedGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		stackedGraphPanel.setBackground(Color.gray);
+
+		stackGraphContainerPanel.setLayout(new BorderLayout(0, 0));
+		stackGraphContainerPanel.add(stackedGraphPanel, BorderLayout.CENTER);
 
 		add(panel, BorderLayout.SOUTH);
 		panel.setLayout(new BorderLayout(0, 0));
@@ -653,8 +672,28 @@ public class StatsPanel extends JPanel
 	public void updateGraph()
 	{
 		/* These could be threaded - TODO more threads! */
-		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo, graph_draw_div);
-		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo, graph_draw_div);
+		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
+		stackedGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo);		
+		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo);		
+
+		/* No need to Draw the graphs every step */
+		if(stepNo%graph_draw_div == 0)
+		{
+			switch(graph_visible)
+			{
+				case 0:
+					lineGraphPanel.drawGraph();
+				break;
+				case 1:
+					lorenzGraphPanel.drawGraph();
+				break;
+				case 2:
+					stackedGraphPanel.drawGraph();
+				break;
+			}
+		}
+		
+
 	}
 
 	/** Clears the values in the Arrays of samples */

@@ -6,10 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
-/**
- * A Custom Panel used for drawing a graph.
- */
-public class StatsLineGraphPanel extends JPanel
+
+public class StatsStackedGraphPanel extends JPanel
 {
 	/** The references to the sample arrays */
 	private int plantsSamples[];
@@ -22,7 +20,6 @@ public class StatsLineGraphPanel extends JPanel
 	private int graphHeight;
 	
 	private float sampleNum;
-	private float samplePeriod;
 	
 	private float graphSamples=1;
 		
@@ -38,7 +35,7 @@ public class StatsLineGraphPanel extends JPanel
 	 * @param sampleNum
 	 * @param samplePeriod
 	 */
-	public StatsLineGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum, int samplePeriod)
+	public StatsStackedGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum)
 	{
 
 		this.plantsSamples = plantsSamples;
@@ -46,8 +43,7 @@ public class StatsLineGraphPanel extends JPanel
 		this.predSamples = predSamples;
 		
 		this.sampleNum = sampleNum;
-		this.samplePeriod = samplePeriod;
-		
+
 	}
 
 	/**
@@ -58,7 +54,7 @@ public class StatsLineGraphPanel extends JPanel
 	 * @param scale_mode
 	 * @param stepNo
 	 */
-	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode,int stepNo)
+	public void updateGraph(float plantMax,float preyMax, float predMax,int stepNo)
 	{
 		this.plantMax = plantMax;
 		
@@ -73,21 +69,8 @@ public class StatsLineGraphPanel extends JPanel
 		else
 		{
 			graphSamples=sampleNum;
-		}
-
-		switch(scale_mode)
-		{
-			case 0:
-				// Do nothing. - All on there own scales
-				break;
-			case 1:
-				tiePredPreyMax(); // Predator, Prey tied to the same scale
-				break;
-			case 2:
-				tieAllMax();	// Predator, Prey and Plants on the same scale
-				break;		
 		}		
-	
+
 	}
 		
 	/** 
@@ -134,76 +117,76 @@ public class StatsLineGraphPanel extends JPanel
 		Graphics2D g2 = (Graphics2D) g;	
 		
 	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);		    
-		
+
 		calculateGraphSize();
 		
 		drawSamples(g2);
-
 	}
 
 	/** Draws the graph lines */
 	public void drawSamples(Graphics2D g2)
 	{				
-		float scaleWidthInterval = graphWidth/ graphSamples;
 		
-		float predScaleHeightInterval = graphHeight / (predMax+1);
-		float preyScaleHeightInterval = graphHeight / (preyMax+1);
-		float plantsScaleHeightInterval = graphHeight / (plantMax+1);
+		float scaleWidthInterval = graphWidth/ sampleNum;
+		
+		float total_height_scale=0;
+		
+		float total_val=0;
 		
 		int predSampleXVal = 0;
 		int predSampleYVal = 0;	
-		int predSamplePXVal = 0;
-		int predSamplePYVal = 0; 
 		
 		int plantsSampleXVal = 0;
 		int plantsSampleYVal = 0;	
-		int plantsSamplePXVal = 0;
-		int plantsSamplePYVal = 0; 
-		
+
 		int preySampleXVal = 0;
 		int preySampleYVal = 0;	
-		int preySamplePXVal = 0;
-		int preySamplePYVal = 0; 
 				
 		/* Loops through all three sample arrays */
-		for(int i =0;i<graphSamples;i++)
+		for(int i =0;i<sampleNum;i++)
 		{			
+			
+			total_val = plantsSamples[i]+preySamples[i]+predSamples[i];
+			
+			total_height_scale = graphHeight/(total_val+1);
+				
 			/* Plants */
-			g2.setColor(Color.GREEN);
-			plantsSampleXVal = (int) (i*scaleWidthInterval);
-			
-			plantsSampleYVal = graphHeight - ((int)(plantsSamples[i]*plantsScaleHeightInterval));			
-						
-			g2.drawLine(plantsSamplePXVal ,plantsSamplePYVal, plantsSampleXVal, plantsSampleYVal);
-			
-			plantsSamplePXVal = plantsSampleXVal;
-			plantsSamplePYVal = plantsSampleYVal;				
-			
+			plantsSampleXVal = (int) (i*scaleWidthInterval);					
+			plantsSampleYVal = ((int)(plantsSamples[i]*total_height_scale));													
+							
 			/* Prey */
-			g2.setColor(Color.BLUE);
-			preySampleXVal = (int) (i*scaleWidthInterval);
+			preySampleXVal = (int) (i*scaleWidthInterval);					
+			preySampleYVal = ((int)(preySamples[i]*total_height_scale));														
+				
+			/* Predator */
+			predSampleXVal = (int) (i*scaleWidthInterval);					
+			predSampleYVal = ((int)(predSamples[i]*total_height_scale));		
 			
-			preySampleYVal = graphHeight - ((int)(preySamples[i]*preyScaleHeightInterval));			
-						
-			g2.drawLine(preySamplePXVal ,preySamplePYVal, preySampleXVal, preySampleYVal);
+			if(preySamples[i]>0)
+			{
+				g2.setColor(Color.GREEN);				
+				g2.drawLine(plantsSampleXVal ,graphHeight, plantsSampleXVal,graphHeight-plantsSampleYVal);			
+			}
+							
+			if(preySamples[i]>0)
+			{
+				g2.setColor(Color.BLUE);
+				g2.drawLine(preySampleXVal ,graphHeight-plantsSampleYVal, preySampleXVal,predSampleYVal);				
+			}
 			
-			preySamplePXVal = preySampleXVal;
-			preySamplePYVal = preySampleYVal;				
-		
-			/* Predators */
-			g2.setColor(Color.red);
-			predSampleXVal = (int) (i*scaleWidthInterval);
-			
-			predSampleYVal = graphHeight - ((int)(predSamples[i]*predScaleHeightInterval));			
-						
-			g2.drawLine(predSamplePXVal ,predSamplePYVal, predSampleXVal, predSampleYVal);
-			
-			predSamplePXVal = predSampleXVal;
-			predSamplePYVal = predSampleYVal;					
-						
+			if(predSamples[i]>0)
+			{
+				g2.setColor(Color.RED);
+				g2.drawLine(predSampleXVal ,0, predSampleXVal,predSampleYVal);				
+			}						
 		}
 	}	
 		
+	public void drawGraph()
+	{
+		this.repaint();
+	}
+	
 	/** Gets the widths and height of this panel */
 	private void calculateGraphSize()
 	{
@@ -212,10 +195,5 @@ public class StatsLineGraphPanel extends JPanel
 		graphWidth = this.getWidth()-1;
 		graphHeight = this.getHeight()-2;
 	}
-	
-	public void drawGraph()
-	{
-		this.repaint();
-	}	
 
 }
