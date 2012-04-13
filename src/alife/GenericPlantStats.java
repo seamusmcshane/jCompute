@@ -23,6 +23,7 @@ public class GenericPlantStats
 	/* Reproduction - DISABLED */
 	private float reproductionBank;	
 	private float reproductionCost;	
+	
 	@SuppressWarnings("unused")
 	private float base_reproduction_cost;
 	
@@ -33,6 +34,7 @@ public class GenericPlantStats
 		
 		max_size = max_energy / size_div; // Not used
 		
+		/* hard coded sizes for now - planned is - plants size changes with growth */
 		size = 2;		
 		
 		if(starting_energy>max_energy)
@@ -113,6 +115,24 @@ public class GenericPlantStats
 	public float getEnergy()
 	{			
 		return energy;	
+	}
+	
+	/** Returns the max energy value this plant can achieve*/
+	public float getMaxEnergy()
+	{			
+		return max_energy;	
+	}
+	
+	/** Returns the energy absorption rate this plant can has*/
+	public float getAbsorptionRate()
+	{			
+		return absorption_rate;	
+	}
+	
+	/** Returns the energy reproduction cost of this plant */
+	public float getBaseReproductionCost()
+	{			
+		return base_reproduction_cost;	
 	}
 	
 	/** Return true if the plan is dead */
