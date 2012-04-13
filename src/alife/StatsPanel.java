@@ -154,6 +154,7 @@ public class StatsPanel extends JPanel
 				lineGraphContainerPanel.setLayout(new BorderLayout(0, 0));
 				lineGraphContainerPanel.add(lineGraphbottomPanel, BorderLayout.SOUTH);
 				lineGraphbottomPanel.setLayout(new GridLayout(0, 3, 0, 0));
+				btnIndependentScale.setToolTipText("All lines drawn on independent scales.");
 				btnIndependentScale.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) 
 					{
@@ -162,6 +163,7 @@ public class StatsPanel extends JPanel
 				});
 				
 				lineGraphbottomPanel.add(btnIndependentScale);
+				btnPredatorpreyLinked.setToolTipText("Predator and Prey lines drawn on the same scale.");
 				btnPredatorpreyLinked.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) 
 					{
@@ -170,6 +172,7 @@ public class StatsPanel extends JPanel
 				});
 				
 				lineGraphbottomPanel.add(btnPredatorpreyLinked);
+				btnSameScale.setToolTipText("All lines drawn on the same scale.");
 				btnSameScale.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) 
 					{
@@ -181,6 +184,7 @@ public class StatsPanel extends JPanel
 				lineGraphbottomPanel.setVisible(false);
 		
 				lineGraphPanel = new StatsLineGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
+				lineGraphPanel.setToolTipText("Click to adjust graph.");
 				lineGraphContainerPanel.add(lineGraphPanel);
 				lineGraphPanel.addMouseListener(new MouseAdapter()
 				{
@@ -210,6 +214,7 @@ public class StatsPanel extends JPanel
 		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
 
 		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		lorenzGraphPanel.setToolTipText("Click to adjust graph.");
 		lorenzGraphPanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent arg0) 
@@ -275,6 +280,7 @@ public class StatsPanel extends JPanel
 
 		lorenzContainerPanel.add(rightPanel, BorderLayout.EAST);
 		rightPanel.setLayout(new BorderLayout(0, 0));
+		lorenzZoomSlider.setToolTipText("Adjust zoom.");
 		lorenzZoomSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent arg0)
@@ -300,6 +306,7 @@ public class StatsPanel extends JPanel
 
 		lorenzContainerPanel.add(bottomPanel, BorderLayout.SOUTH);
 		bottomPanel.setLayout(new BorderLayout(0, 0));
+		xScaleslider.setToolTipText("Adjust scale of X axis drawing.");
 		xScaleslider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
@@ -318,6 +325,7 @@ public class StatsPanel extends JPanel
 		bottomPanel.add(lblXscale, BorderLayout.WEST);
 		bottomPanel.add(rightButtonsPanel, BorderLayout.EAST);
 		rightButtonsPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		btnMode.setToolTipText("Toggle the graph drawing mode.");
 		btnMode.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
@@ -335,6 +343,7 @@ public class StatsPanel extends JPanel
 			}
 		});
 		rightButtonsPanel.add(btnMode);
+		btnReset.setToolTipText("Reset the graph adjustments to defaults.");
 		rightButtonsPanel.add(btnReset);
 		btnReset.addActionListener(new ActionListener()
 		{
@@ -350,6 +359,7 @@ public class StatsPanel extends JPanel
 
 		lorenzContainerPanel.add(leftPanel, BorderLayout.WEST);
 		leftPanel.setLayout(new BorderLayout(0, 0));
+		yScaleslider.setToolTipText("Adjust scale of Y axis drawing.");
 		yScaleslider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
@@ -392,6 +402,7 @@ public class StatsPanel extends JPanel
 		
 		alifeInfoRow.add(plantNoPanel);
 		plantNoPanel.setLayout(new BorderLayout(0, 0));
+		lblPlantNo.setToolTipText("Plant Numbers.");
 		lblPlantNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
 		plantNoPanel.add(lblPlantNo, BorderLayout.CENTER);
 		lblPlantNo.setForeground(new Color(0, 255, 0));
@@ -405,6 +416,7 @@ public class StatsPanel extends JPanel
 		
 		alifeInfoRow.add(predatorsNoPanel);
 		predatorsNoPanel.setLayout(new BorderLayout(0, 0));
+		lblPredatorsNo.setToolTipText("Predator Numbers.");
 		lblPredatorsNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
 		predatorsNoPanel.add(lblPredatorsNo, BorderLayout.CENTER);
 		lblPredatorsNo.setForeground(Color.RED);
@@ -418,6 +430,7 @@ public class StatsPanel extends JPanel
 		
 		alifeInfoRow.add(preyNoPanel);
 		preyNoPanel.setLayout(new BorderLayout(0, 0));
+		lblPreyNo.setToolTipText("Prey Numbers.");
 		lblPreyNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
 		preyNoPanel.add(lblPreyNo, BorderLayout.CENTER);
 		lblPreyNo.setForeground(Color.BLUE);
@@ -429,24 +442,28 @@ public class StatsPanel extends JPanel
 
 		lblASPS.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblASPS);
+		lblASPSNo.setToolTipText("Average steps per second.");
 
 		lblASPSNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblASPSNo);
 		lblStep.setHorizontalAlignment(SwingConstants.CENTER);
 
 		simulationInfoRow.add(lblStep);
+		lblStepNo.setToolTipText("Total number of steps.");
 		lblStepNo.setHorizontalAlignment(SwingConstants.CENTER);
 
 		simulationInfoRow.add(lblStepNo);
 
 		lblRunTime.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblRunTime);
+		lblRunTimeNo.setToolTipText("Real-Time counter of how long the simualtion has run.");
 
 		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblRunTimeNo);
 
 		panel.add(graphSettingsPanel, BorderLayout.NORTH);
 		graphSettingsPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the Size of the Graphs.");
 		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
 		chckbxFullSizeGraphCheckBox.setEnabled(false);
@@ -474,6 +491,7 @@ public class StatsPanel extends JPanel
 		drawDivPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		drawDivPanel.add(lblGraphDrawDiv);
 		lblGraphDrawDiv.setHorizontalAlignment(SwingConstants.CENTER);
+		comboBoxGraphDrawDiv.setToolTipText("Changes the drawing rate of the graphs vs step rate of the simulation. (step rate/draw div)");
 		drawDivPanel.add(comboBoxGraphDrawDiv);
 		comboBoxGraphDrawDiv.addItemListener(new ItemListener()
 		{
