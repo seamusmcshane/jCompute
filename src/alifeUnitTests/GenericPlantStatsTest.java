@@ -1,5 +1,7 @@
 package alifeUnitTests;
-
+/**
+ * Tests the GenericPlantStats class
+ */
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -23,12 +25,64 @@ public class GenericPlantStatsTest
 		plant1 = new GenericPlantStats(starting_energy, max_energy, absorption_rate, base_reproduction_cost);
 	}
 	
+	/*
+	 * Tests the plant is alive at object creation.
+	 */
 	@Test
 	public void notDead()
 	{
 		assertEquals(false,plant1.isDead());
 	}
 
+	/*
+	 * Tests if the plants max energy is correctly being enforced.
+	 */
+	@Test 
+	public void plantMaxEnergyCorrect()
+	{
+		/* Not dead */
+		assertEquals(false,plant1.isDead());
+		
+		/* Deliberate designed to test overflow energy*/
+		for(int i=0;i< (absorption_rate*max_energy) ;i++)
+		{
+			plant1.increment();
+		}
+		
+		/* Energy should not over flow and must equal max_energy */
+		assertEquals(max_energy,max_energy,plant1.getEnergy());
+		
+		/* Should also be alive */
+		assertEquals(false,plant1.isDead());
+	}
+
+	
+	/*
+	 * Tests if the plant dies after all its energy is taken.
+	 */
+	@Test
+	public void plantDiesAfterBeingAte()
+	{
+		/* Not Dead */
+		assertEquals(false,plant1.isDead());
+		
+		/* Take almost all all the plants energy */
+		plant1.decrementEnergy(starting_energy-1);	
+		
+		/* Not dead yet */
+		assertEquals(false,plant1.isDead());
+		
+		/* Take the reset of the plants energy */
+		plant1.decrementEnergy(1);		
+		
+		/* is Dead */
+		assertEquals(true,plant1.isDead());
+	}
+	
+	/*
+	 * Initial Parameter setting tests 
+	 */
+	
 	@Test
 	public void energySetCorrect()
 	{
