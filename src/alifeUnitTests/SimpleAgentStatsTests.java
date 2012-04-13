@@ -17,7 +17,7 @@ public class SimpleAgentStatsTests
 	SimpleAgentStats agentPreyStats;
 	SimpleAgentStats agentPredatorStats;
 	
-	/** The movement cost of the agent before modification */
+	/** The movement cost of the agent */
 	float base_move_cost=0.025f;
 		
 	/** Agent movement speed */
@@ -29,7 +29,7 @@ public class SimpleAgentStatsTests
 	/** Max Energy of Agent */
 	float max_energy=100f;
 	
-	/** Current Energy of the agent */
+	/** Starting Energy Energy of the agent */
 	float energy=50f;
 	
 	/** The ability of this agent to consume energy */
@@ -60,11 +60,17 @@ public class SimpleAgentStatsTests
 	@Before
 	public void setUp() throws Exception
 	{
-		// SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float bmc,float brc, float ecr, float de, float red)
 		agentPredatorStats = new SimpleAgentStats(predatorType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);		
 		agentPreyStats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);
 	}
 
+	
+	@Test
+	public void notDead()
+	{
+		assertEquals(false,agentPredatorStats.isDead());
+	}
+	
 	/*
 	 * Types
 	 */
@@ -88,6 +94,7 @@ public class SimpleAgentStatsTests
 		agentPreyStats.decrementMoveEnergy();
 		assertEquals(true,agentPreyStats.isHungry());
 						
+		/* Eat some food - not Hungry */
 		agentPreyStats.addEnergy(10);		
 		agentPreyStats.decrementMoveEnergy();
 		assertEquals(false,agentPreyStats.isHungry());
@@ -97,16 +104,24 @@ public class SimpleAgentStatsTests
 	@Test
 	public void agentReproductionTests()
 	{								
-		assertEquals(false,agentPreyStats.canReproduce());
-		
+		/* Cannot Reproduce */
+		assertEquals(false,agentPreyStats.canReproduce());		
 		agentPreyStats.addEnergy(200);
 			
+		/* Still cannot */
 		assertEquals(false,agentPreyStats.canReproduce());
 		
-		agentPreyStats.addEnergy(201);
+		/* Reproduction threshold */
+		agentPreyStats.addEnergy(1);
 
-		assertEquals(true,agentPreyStats.canReproduce());		
-
+		/* Can Reproduce */
+		assertEquals(true,agentPreyStats.canReproduce());	
+		
+		/* Reproduce */
+		agentPreyStats.decrementReproductionCost();
+		
+		/* Cannot Reproduce */
+		assertEquals(false,agentPreyStats.canReproduce());			
 
 	}	
 
@@ -127,4 +142,79 @@ public class SimpleAgentStatsTests
 		
 	}
 	
+	@Test
+	public void agentKilledTest()
+	{		
+		assertEquals(false,agentPreyStats.isDead());
+		agentPreyStats.killAgent();		
+		assertEquals(true,agentPreyStats.isDead());
+	}	
+	
+	@Test
+	public void speedSetCorrectly()
+	{
+		assertEquals(max_speed,max_speed,agentPreyStats.getBaseMoveCost());
+	}
+	
+	@Test
+	public void sizeSetCorrectly()
+	{
+		assertEquals(size,size,agentPreyStats.getSize());
+	}	
+	
+	@Test
+	public void startingEnergySetCorrectly()
+	{
+		assertEquals(energy,energy,agentPreyStats.getStartingEnergy());
+	}	
+	
+	@Test
+	public void maxEnergySetCorrectly()
+	{
+		assertEquals(max_energy,max_energy,agentPreyStats.getEnergy());
+	}	
+		
+	@Test
+	public void hungryThresholdSetCorrectly()
+	{
+		assertEquals(hungryThreshold,hungryThreshold,agentPreyStats.getHungryThreshold());
+	}	
+	
+	@Test
+	public void baseViewRangeSetCorrectly()
+	{
+		assertEquals(view_range,view_range,agentPreyStats.getBaseViewRange());
+	}	
+	
+	@Test
+	public void viewRangeCalcCorrectly()
+	{
+		assertEquals(view_range-size,view_range-size,agentPreyStats.getViewRange());
+		
+		assertEquals(view_range*view_range,view_range*view_range,agentPreyStats.getViewRangeSquared());
+	}
+	
+	@Test
+	public void baseReproductionCostSetCorrectly()
+	{
+		assertEquals(base_reproduction_cost,base_reproduction_cost,agentPreyStats.getHungryThreshold());
+	}	
+
+	@Test
+	public void energyConsumptionRateCostSetCorrectly()
+	{
+		assertEquals(energy_consumption_rate,energy_consumption_rate,agentPreyStats.getHungryThreshold());
+	}	
+	
+	@Test
+	public void digestiveEfficencySetCorrectly()
+	{
+		assertEquals(digestive_efficency,digestive_efficency,agentPreyStats.getHungryThreshold());
+	}	
+	
+	@Test
+	public void reproductionEnergyDivisionCostSetCorrectly()
+	{
+		assertEquals(reproduction_energy_division,reproduction_energy_division,agentPreyStats.getHungryThreshold());
+	}	
 }
