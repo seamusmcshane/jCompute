@@ -184,7 +184,7 @@ public class BarrierTaskThread extends Thread
 		
 		if( (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) - 																// Part 1
 				( (currentAgent.body.stats.getSize()+currentAgent.body.stats.getSize()) * (nearestAgent.body.stats.getSize()+nearestAgent.body.stats.getSize()) ) ) // Part 2
-				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
+				<  ((currentAgent.body.stats.getViewRange()*currentAgent.body.stats.getViewRange())) )																	// Part 3			
 		{
 			currentAgent.brain.view.setAgentView(nearestAgent);
 		}
@@ -207,7 +207,7 @@ public class BarrierTaskThread extends Thread
 		
 		if( (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos()) - 																// Part 1
 				( (currentAgent.body.stats.getSize()+currentAgent.body.stats.getSize()) * (nearestPlant.body.stats.getSize()+nearestPlant.body.stats.getSize()) ) ) // Part 2
-				<  ((currentAgent.body.stats.getView_range()*currentAgent.body.stats.getView_range())) )																	// Part 3			
+				<  ((currentAgent.body.stats.getViewRange()*currentAgent.body.stats.getViewRange())) )																	// Part 3			
 		{
 			currentAgent.brain.view.setPlantView(nearestPlant);
 		}

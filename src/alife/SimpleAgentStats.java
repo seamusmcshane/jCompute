@@ -203,14 +203,14 @@ public class SimpleAgentStats
 		return size;
 	}
 	
-	/** Agents view range */
-	public float getView_range()
+	/** Agents view range in front of the agent the agent */
+	public float getViewRange()
 	{
 		return view_range;
 	}	
 	
 	/** View range minus size */
-	public float getBaseView_range()
+	public float getBaseViewRange()
 	{
 		return view_range-size;	
 	}
@@ -257,6 +257,12 @@ public class SimpleAgentStats
 		return starting_energy;
 	}
 	
+	/** The max energy for this agent */
+	public float getMaxEnergy()
+	{
+		return max_energy;
+	}	
+	
 	/** This agents hunger threshold */
 	public float getHungryThreshold()
 	{
@@ -297,6 +303,7 @@ public class SimpleAgentStats
 		return false;
 	}
 	
+	/** Returns the value of the Agents energy */
 	public float getEnergy()
 	{
 		return energy;

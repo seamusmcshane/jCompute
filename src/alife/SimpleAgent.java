@@ -43,13 +43,13 @@ public class SimpleAgent
 	/** Generates the agents View representation */
 	private void setUpView()
 	{				
-		fov = new Circle(body.getBodyPos().getX(),body.getBodyPos().getY(),body.stats.getView_range());
+		fov = new Circle(body.getBodyPos().getX(),body.getBodyPos().getY(),body.stats.getViewRange());
 	}
 
 	/** Updates the location of the representation of View position */
 	private void upDateViewLocation()
 	{
-		fov.setLocation(body.getBodyPos().getX()-(body.stats.getView_range()),body.getBodyPos().getY()-(body.stats.getView_range()));
+		fov.setLocation(body.getBodyPos().getX()-(body.stats.getViewRange()),body.getBodyPos().getY()-(body.stats.getViewRange()));
 	}
 	
 	/** Gives this agent a body with the set stats */
