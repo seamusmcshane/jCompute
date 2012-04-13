@@ -36,7 +36,7 @@ public class World
 	 * @param y
 	 * @return
 	 */
-	public static boolean isBondaryWall(float x,float y)
+	public static boolean isBoundaryWall(float x,float y)
 	{		
 		/* Top */
 		if(y<=0)

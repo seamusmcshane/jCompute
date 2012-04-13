@@ -100,7 +100,7 @@ public class SimpleAgentBody
 		Vector2f new_pos = newPosition(req_direction);
 
 		/* If physics says yes then move the agent */
-		if( !World.isBondaryWall(new_pos.getX(),new_pos.getY()) ) 
+		if( !World.isBoundaryWall(new_pos.getX(),new_pos.getY()) ) 
 		{
 			//System.out.println("Safe - new_pos : X | " + new_pos.getX() + " Y |" + new_pos.getY());
 			
@@ -122,7 +122,7 @@ public class SimpleAgentBody
 	{
 		Vector2f new_pos = newPosition(req_direction);
 
-		if( !World.isBondaryWall(new_pos.getX(),new_pos.getY()) ) 
+		if( !World.isBoundaryWall(new_pos.getX(),new_pos.getY()) ) 
 		{					
 			return true;
 		}
