@@ -94,7 +94,12 @@ public class StatsPanel extends JPanel
 	/* Graph State */
 	private static boolean graphs_full = false;
 
-	private static int maxVal = 0;
+	/* Used to prevent showing sliders in a small area when paused */
+	private static boolean paused;
+	
+	/* Update the graphs based on ratio of steps */
+	private int graph_draw_div = 1;
+	
 	private final JLabel lblStep = new JLabel("Step No");
 	private final static JLabel lblStepNo = new JLabel("0");
 	private final JTabbedPane tabbedGraphs = new JTabbedPane(JTabbedPane.TOP);
@@ -109,9 +114,7 @@ public class StatsPanel extends JPanel
 	private final static JPanel leftPanel = new JPanel();
 	private final JSlider yScaleslider = new JSlider();
 	private final JLabel lblYscale = new JLabel("Y Scale");
-
-	/* Used to prevent showing sliders in a small area when paused */
-	private static boolean paused;
+	
 	private final JButton btnMode = new JButton("Free Mode");
 	private final JPanel rightButtonsPanel = new JPanel();
 	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Show Full Graphs");
@@ -119,9 +122,7 @@ public class StatsPanel extends JPanel
 	private final JPanel graphSettingsPanel = new JPanel();
 	private final JLabel lblGraphDrawDiv = new JLabel("Graph Draw Div");
 	private final JComboBox comboBoxGraphDrawDiv = new JComboBox();
-	
-	/* Update the graphs based on ratio of steps */
-	private int graph_draw_div = 1;
+		
 	private final JPanel lineGraphContainerPanel = new JPanel();
 	private final static JPanel lineGraphbottomPanel = new JPanel();
 	private final JButton btnIndependentScale = new JButton("Independent");
@@ -131,14 +132,13 @@ public class StatsPanel extends JPanel
 
 	public StatsPanel()
 	{
-
 		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Graphs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
 		tabbedGraphs.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) 
 			{
-				graph_visible = tabbedGraphs.getSelectedIndex();
-		        System.out.println("Tab=" + graph_visible);
+				// Allows the graph update function to work out which tab is visible and therefore which graph to draw
+				graph_visible = tabbedGraphs.getSelectedIndex(); 
 			}
 		});
 
@@ -210,7 +210,6 @@ public class StatsPanel extends JPanel
 			{
 				repaint();
 			}
-
 		});
 
 		lorenzGraphPanel.addMouseListener(new MouseAdapter()
@@ -225,7 +224,6 @@ public class StatsPanel extends JPanel
 						rightPanel.setVisible(false);
 						leftPanel.setVisible(false);
 						bottomPanel.setVisible(false);
-
 					}
 					else
 					{
@@ -318,15 +316,15 @@ public class StatsPanel extends JPanel
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if (lorenzGraphPanel.getRatioMode())
+				if (lorenzGraphPanel.getDynamicMode())
 				{
-					btnMode.setText("Free Mode");
-					lorenzGraphPanel.setRatioMode(false);
+					btnMode.setText("Static Mode");
+					lorenzGraphPanel.setDynamicMode(false);
 				}
 				else
 				{
-					btnMode.setText("Ratio Mode");
-					lorenzGraphPanel.setRatioMode(true);
+					btnMode.setText("Dynamic Mode");
+					lorenzGraphPanel.setDynamicMode(true);
 				}
 			}
 		});
