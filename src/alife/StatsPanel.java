@@ -38,6 +38,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.border.BevelBorder;
+import java.awt.Font;
 /**
  * A Custom Panel for controlling the display of Simulation stats in the GUI
  *
@@ -129,6 +131,10 @@ public class StatsPanel extends JPanel
 	private final JButton btnPredatorpreyLinked = new JButton("Predator/Prey");
 	private final JButton btnSameScale = new JButton("Same");
 	private final JPanel stackGraphContainerPanel = new JPanel();
+	private final JPanel drawDivPanel = new JPanel();
+	private final JPanel plantNoPanel = new JPanel();
+	private final JPanel predatorsNoPanel = new JPanel();
+	private final JPanel preyNoPanel = new JPanel();
 
 	public StatsPanel()
 	{
@@ -381,24 +387,42 @@ public class StatsPanel extends JPanel
 
 		lblPlants.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPlants);
-		lblPlantNo.setForeground(new Color(0, 128, 0));
+		plantNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		plantNoPanel.setBackground(new Color(128, 128, 128));
+		
+		alifeInfoRow.add(plantNoPanel);
+		plantNoPanel.setLayout(new BorderLayout(0, 0));
+		lblPlantNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
+		plantNoPanel.add(lblPlantNo, BorderLayout.CENTER);
+		lblPlantNo.setForeground(new Color(0, 255, 0));
 
 		lblPlantNo.setHorizontalAlignment(SwingConstants.CENTER);
-		alifeInfoRow.add(lblPlantNo);
 
 		lblPredators.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPredators);
+		predatorsNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		predatorsNoPanel.setBackground(new Color(128, 128, 128));
+		
+		alifeInfoRow.add(predatorsNoPanel);
+		predatorsNoPanel.setLayout(new BorderLayout(0, 0));
+		lblPredatorsNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
+		predatorsNoPanel.add(lblPredatorsNo, BorderLayout.CENTER);
 		lblPredatorsNo.setForeground(Color.RED);
 
 		lblPredatorsNo.setHorizontalAlignment(SwingConstants.CENTER);
-		alifeInfoRow.add(lblPredatorsNo);
 
 		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPrey);
+		preyNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		preyNoPanel.setBackground(new Color(128, 128, 128));
+		
+		alifeInfoRow.add(preyNoPanel);
+		preyNoPanel.setLayout(new BorderLayout(0, 0));
+		lblPreyNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
+		preyNoPanel.add(lblPreyNo, BorderLayout.CENTER);
 		lblPreyNo.setForeground(Color.BLUE);
 
 		lblPreyNo.setHorizontalAlignment(SwingConstants.CENTER);
-		alifeInfoRow.add(lblPreyNo);
 
 		simStatCountPanel.add(simulationInfoRow);
 		simulationInfoRow.setLayout(new GridLayout(0, 6, 0, 0));
@@ -422,7 +446,8 @@ public class StatsPanel extends JPanel
 		simulationInfoRow.add(lblRunTimeNo);
 
 		panel.add(graphSettingsPanel, BorderLayout.NORTH);
-		graphSettingsPanel.setLayout(new GridLayout(0, 3, 0, 0));
+		graphSettingsPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
 		chckbxFullSizeGraphCheckBox.setEnabled(false);
 		chckbxFullSizeGraphCheckBox.addItemListener(new ItemListener()
@@ -444,9 +469,12 @@ public class StatsPanel extends JPanel
 
 		});
 		chckbxFullSizeGraphCheckBox.setVerticalAlignment(SwingConstants.BOTTOM);
+		
+		graphSettingsPanel.add(drawDivPanel);
+		drawDivPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		drawDivPanel.add(lblGraphDrawDiv);
 		lblGraphDrawDiv.setHorizontalAlignment(SwingConstants.CENTER);
-
-		graphSettingsPanel.add(lblGraphDrawDiv);
+		drawDivPanel.add(comboBoxGraphDrawDiv);
 		comboBoxGraphDrawDiv.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent arg0)
@@ -455,8 +483,6 @@ public class StatsPanel extends JPanel
 			}
 		});
 		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[] {"1", "3", "5", "15", "30", "60", "120", "240", "300"}));
-
-		graphSettingsPanel.add(comboBoxGraphDrawDiv);
 		leftPanel.setVisible(false);
 		//add(graphPanel, BorderLayout.CENTER);
 	}

@@ -29,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -174,6 +175,7 @@ public class SimulationGUI
 	private static JCheckBoxMenuItem chckbxmntmDrawTrueBodies;
 
 	private static JCheckBoxMenuItem chckbxmntmDrawFieldOf;
+	private static JPanel simRateInfoPanel;
 
 	/* Logic */
 
@@ -715,12 +717,23 @@ public class SimulationGUI
 		controlPanelBottom.add(row1);
 		row1.setLayout(new GridLayout(0, 3, 10, 5));
 
-		JLabel lblSimRate = new JLabel("Sim Rate");
+		JLabel lblSimRate = new JLabel("Requested Step Rate");
 		row1.add(lblSimRate);
 		lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		simRateInfoPanel = new JPanel();
+		simRateInfoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		row1.add(simRateInfoPanel);
+		simRateInfoPanel.setLayout(new BorderLayout(0, 0));
+		txtSimRateInfo = new JTextField()
+		{
+		    @Override public void setBorder(Border border) 
+		    {
+		    	//Override the border setting of this text field to do nothing.
+		    }
+		};
 
-		txtSimRateInfo = new JTextField();
-		row1.add(txtSimRateInfo);
+		simRateInfoPanel.add(txtSimRateInfo, BorderLayout.CENTER);
 		txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
 		txtSimRateInfo.setEditable(false);
 		txtSimRateInfo.setText("15");
