@@ -1,5 +1,6 @@
 package alife;
 
+import alife.SimpleAgentEnum.AgentEval;
 import alife.SimpleAgentEnum.AgentType;
 /**
  * This Class does the Agent Type evaluations for the agents brains.
@@ -43,27 +44,28 @@ public class SimpleAgentType
 	 * @param type
 	 * @return
 	 */
-	public int strongerThan(SimpleAgentType type)
+	public AgentEval strongerThan(SimpleAgentType type)
 	{
-		int eval = 0;
+		AgentEval eval = AgentEval.SAME;
+		
 		if( (this.type == AgentType.PREDATOR ) && ( type.getType() == AgentType.PREDATOR ) )
 		{
-			eval = 0;
+			eval = AgentEval.SAME;
 		}
 
 		if( (this.type == AgentType.PREDATOR ) && ( type.getType() == AgentType.PREY ) )
 		{
-			eval = 1;
+			eval = AgentEval.STRONGER;
 		}
 			
 		if( (this.type == AgentType.PREY ) && ( type.getType() == AgentType.PREDATOR ) )
 		{
-			eval = -1;
+			eval = AgentEval.WEAKER;
 		}
 		
 		if( (this.type == AgentType.PREY ) && ( type.getType() == AgentType.PREY ) )
 		{
-			eval = 0;
+			eval = AgentEval.SAME;
 		}
 		
 		return eval;

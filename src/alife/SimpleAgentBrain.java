@@ -1,10 +1,8 @@
 package alife;
 
-import java.util.Iterator;
 import java.util.Random;
 
-import org.newdawn.slick.geom.Circle;
-
+import alife.SimpleAgentEnum.AgentEval;
 import alife.SimpleAgentEnum.AgentState;
 
 public class SimpleAgentBrain
@@ -19,15 +17,9 @@ public class SimpleAgentBrain
 	/* State Logic */
     private AgentState state = AgentState.ROAM;
 	    
-    /* View evaluation */
-    private boolean plantIsFood=false;
-    private boolean agentIsFood=false;
-    private boolean agentIsTheat=false;
-
 	/* Movement */
 	private float direction;
-	private Random r;
-	
+	private Random r;	
 	private int moves=0;
 	
 	private int roam_moves=40; // Starts at the exit of roaming state
@@ -134,7 +126,7 @@ public class SimpleAgentBrain
 		if(view.hasAgentInView()) // Agents in View
 		{
 
-			if(myBody.stats.getType().strongerThan(view.agentType()) == 1) // I am predator to this prey!
+			if(myBody.stats.getType().strongerThan(view.agentType()) == AgentEval.STRONGER) // I am predator to this prey!
 			{				
 				if(myBody.stats.isHungry())
 				{
@@ -148,7 +140,7 @@ public class SimpleAgentBrain
 				}				
 
 			}
-			else if(myBody.stats.getType().strongerThan(view.agentType()) == 0) // This agent is equal in strength to me (same type)
+			else if(myBody.stats.getType().strongerThan(view.agentType()) == AgentEval.SAME) // This agent is equal in strength to me (same type)
 			{
 				if(view.hasPlantInView() && myBody.stats.getType().eatsPlants()) // Do we eat plants?
 				{
@@ -161,7 +153,7 @@ public class SimpleAgentBrain
 					state = AgentState.ROAM;
 				}
 			}
-			else // -1 - this agent is my natural predator
+			else // this agent is my natural predator (AgentEval.WEAKER)
 			{
 				// Evade - this agent will hunt me down
 				state = AgentState.EVADE;
@@ -275,9 +267,7 @@ public class SimpleAgentBrain
 			return false;		
 		}
 	}
-	
 
-	
 	private void grazeState()
 	{
 		// -- No transition... view needs to be more complex.. is there more food around...

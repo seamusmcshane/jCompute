@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import alife.SimpleAgentEnum.AgentEval;
 import alife.SimpleAgentEnum.AgentType;
 import alife.SimpleAgentType;
 import alife.World;
@@ -81,7 +82,7 @@ public class SimpleAgentTypeEvaluationTest
 	public void PredatorvsPredatorStrongerThanTests()
 	{
 		/* Predator vs Predator */
-		assertEquals(0,agent1.strongerThan(agent3));
+		assertEquals(AgentEval.SAME,agent1.strongerThan(agent3));
 	}
 	
 	
@@ -89,7 +90,7 @@ public class SimpleAgentTypeEvaluationTest
 	public void PreyVsPreyStrongerThanTests()
 	{
 		/* Prey vs Prey */
-		assertEquals(0,agent2.strongerThan(agent4));
+		assertEquals(AgentEval.SAME,agent2.strongerThan(agent4));
 	}
 	
 	
@@ -97,7 +98,7 @@ public class SimpleAgentTypeEvaluationTest
 	public void PredatorvsPreyStrongerThanTests()
 	{		
 		/* Predator vs Prey */
-		assertEquals(1,agent1.strongerThan(agent2));
+		assertEquals(AgentEval.STRONGER,agent1.strongerThan(agent2));
 	}
 	
 	
@@ -105,7 +106,7 @@ public class SimpleAgentTypeEvaluationTest
 	public void PreyvsPredatorStrongerThanTests()
 	{		
 		/* Prey vs Predator */
-		assertEquals(-1,agent2.strongerThan(agent1));
+		assertEquals(AgentEval.WEAKER,agent2.strongerThan(agent1));
 	}
 	
 	@Test
