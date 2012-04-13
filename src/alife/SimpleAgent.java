@@ -74,11 +74,11 @@ public class SimpleAgent
 	 */
 	public void drawViewRange(Graphics g)
 	{	
-		upDateViewLocation();
+		upDateViewLocation();		
 
 		g.setColor(Color.white);
-		g.draw(fov);
 		
+		g.draw(fov);		
 	}
 	
 	/** Sets a unique agent id for debug */

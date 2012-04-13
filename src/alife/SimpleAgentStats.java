@@ -296,4 +296,9 @@ public class SimpleAgentStats
 		}
 		return false;
 	}
+	
+	public float getEnergy()
+	{
+		return energy;
+	}
 }
