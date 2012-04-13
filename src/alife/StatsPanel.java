@@ -454,8 +454,7 @@ public class StatsPanel extends JPanel
 				graph_draw_div=(Integer.parseInt(comboBoxGraphDrawDiv.getSelectedItem().toString()));
 			}
 		});
-		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[]
-		{"1", "2", "5", "10", "20"}));
+		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[] {"1", "3", "5", "15", "30", "60", "120", "240", "300"}));
 
 		graphSettingsPanel.add(comboBoxGraphDrawDiv);
 		leftPanel.setVisible(false);
