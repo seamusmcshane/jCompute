@@ -20,11 +20,7 @@ public class SimpleAgent
 	
 	/** Agent View Range */
 	private Circle fov;	
-					
-	private boolean collision=false;
-	
-	private boolean removal_tag=false;
-			
+		
 	/**
 	 * Creates a new agent.
 	 * @param uid

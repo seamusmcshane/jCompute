@@ -25,6 +25,7 @@ public class SimpleAgentManagementSetupParam
 	private float predatorhungerthres;
 	
 	private float preyconsumptionrate;
+	@SuppressWarnings("unused")
 	private float predatorconsumptionrate;
 	
 	private float preyrepocost;

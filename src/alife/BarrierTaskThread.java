@@ -57,7 +57,7 @@ public class BarrierTaskThread extends Thread
 	private Semaphore start;
 	private Semaphore end;
 	
-	private int my_id; // Debug
+	//private int my_id; // Debug
 	
 	/**
 	 * Instantiates a new barrier task thread.
@@ -67,7 +67,7 @@ public class BarrierTaskThread extends Thread
 	 */
 	public BarrierTaskThread(int id,Semaphore sem1,Semaphore sem2)
 	{
-		this.my_id =id;
+	//	this.my_id =id;
 		start = sem1;
 		end = sem2;
 		pos = new double[2];

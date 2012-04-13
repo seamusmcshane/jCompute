@@ -30,6 +30,7 @@ public class GenericPlantManager
 	private int world_size;
 	
 	/** The initial Number of plants */
+	@SuppressWarnings("unused")
 	private int inital_number;
 	
 	/** The reproduction cost for plants */

@@ -160,6 +160,7 @@ public class BarrierManager extends Thread
 	/**
 	 * Initialises the Linked Lists.
 	 */
+	@SuppressWarnings("unchecked")
 	private void setUpTaskLists()
 	{
 		agentTaskLists = new LinkedList[num_threads];

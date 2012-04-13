@@ -42,18 +42,9 @@ public class SimpleAgentBody
 
 	/** Direction of movement of the Agent */
 	private float direction;
-	
-	/** Is this agent still alive */
-	private boolean alive=true;
-	
-	/** has this agent ate a plant */
-	private boolean ate_plant=false;
-	
-	/** has this agent ate an agent */
-	private boolean ate_agent=false;
-		
+			
 	/**
-	 * Creates a new agents body centred on the pos with the set stats.
+	 * Creates a new agents body centered on the pos with the set stats.
 	 * @param pos
 	 * @param stats
 	 */
@@ -69,7 +60,7 @@ public class SimpleAgentBody
 		setIntialPos(pos);
 	}
 	
-	/** Initialises the two body representations */
+	/** Initializes the two body representations */
 	private void initBody()
 	{
 		body = new Rectangle(0,0,stats.getSize(),stats.getSize());

@@ -11,6 +11,7 @@ public class GenericPlantStats
 	private float max_energy;
 	private float absorption_rate=0;
 
+	@SuppressWarnings("unused")
 	private float max_size;
 	
 	private float size;
@@ -19,9 +20,10 @@ public class GenericPlantStats
 	
 	private boolean dead;
 	
-	/* Reproduction */
+	/* Reproduction - DISABLED */
 	private float reproductionBank;	
 	private float reproductionCost;	
+	@SuppressWarnings("unused")
 	private float base_reproduction_cost;
 	
 	public GenericPlantStats(float starting_energy, float max_energy, float absorption_rate, float base_reproduction_cost)
