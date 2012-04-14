@@ -77,7 +77,7 @@ public class StatsPanel extends JPanel
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
 	private static int samplePeriod = 60;
-	private static int sampleNum = 9000; // 9000 = 10 mins real-time (15sps)
+	private static int sampleNum = 18000; // 9000 = 10 mins real-time (15sps)
 
 	/** The Sample arrays */
 	private static int plantSamples[] = new int[sampleNum];
@@ -117,7 +117,7 @@ public class StatsPanel extends JPanel
 	private final JSlider yScaleslider = new JSlider();
 	private final JLabel lblYscale = new JLabel("Y Scale");
 	
-	private final JButton btnMode = new JButton("Free Mode");
+	private final JButton btnMode = new JButton("Static Mode");
 	private final JPanel rightButtonsPanel = new JPanel();
 	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Show Full Graphs");
 	private final JPanel panel = new JPanel();

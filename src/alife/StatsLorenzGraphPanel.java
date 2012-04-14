@@ -24,6 +24,8 @@ public class StatsLorenzGraphPanel extends JPanel
 	
 	boolean drawing = false;
 	boolean mode_dynamic_based=false;
+	float mode_scale=0.15f;
+	
 	float lmod = 0;
 	float lmod_max=0;	
 	
@@ -131,6 +133,8 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 		if(mode_dynamic_based)
 		{
+			mode_scale=0.25f;
+			
 			predator_graph_boost=(float)((float)preyMax/(float)predMax);
 			
 			// Limit the ratios
@@ -150,6 +154,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		}
 		else // Dynamic mode drawing off
 		{
+			mode_scale=0.15f;
 			plant_graph_negative_factor=0.05f;
 			predator_graph_boost = 4; 
 			plant_graph_negative_factor = 1;				
@@ -175,9 +180,9 @@ public class StatsLorenzGraphPanel extends JPanel
 		     */
 		    		    
 		    // Modified Lorenz Equations
-		    int gx=((int)(x+0.1*( (-10*x)+(10*y))));
-		    int gy=((int)(y+0.1*( (28*x)+(y-(x*z)) ) ) );
-		    int gz=(int)(z+0.1*(  (-8*(z/3)) +(x*y) ) );
+		    int gx=(int) ( ((x+( (-10*x)    +(10*y))   ) )*(mode_scale));
+		    int gy=(int) (((y+( (28*x)     +(y-(x*z))) ) )*(mode_scale));
+		    int gz=(int) ((z+( (-8*(z/3)) +(x*y)   ) )*(mode_scale));
 		    
 		    // Scale the point position by the graph scale.
 		    //gx=(int)(gx*scale);
@@ -195,7 +200,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		    cy=gy;
 		     		    
 		    // Line Width
-		    g2.setStroke(new BasicStroke(i*(max_graph_line_size/graphSamples) ));
+		    g2.setStroke(new BasicStroke( (i*(max_graph_line_size/graphSamples))));
 		    
 		    // R G B A
 		    //System.out.println("" +  (int)(predSamples[i]*(255/lmod_max))%255 + "" +  (int)(plantsSamples[i]*(255/lmod_max))%255 + "" +  (int)(preySamples[i]*(255/lmod_max))%255 + "" + (int) (i*(255/graphSamples))%255);
@@ -226,11 +231,13 @@ public class StatsLorenzGraphPanel extends JPanel
 	public void setXScale(float xScale)
 	{
 		this.xScale = (xScale+1)/10f;
+        repaint();
 	}
 	
 	public void setYScale(float yScale)
 	{
 		this.yScale = (yScale+1)/10f;
+        repaint();
 	}	
 	
     public void setZoom(float inZoom)
