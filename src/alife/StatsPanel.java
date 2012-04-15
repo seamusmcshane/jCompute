@@ -120,7 +120,7 @@ public class StatsPanel extends JPanel
 	private final JButton btnMode = new JButton("Static Mode");
 	private final JPanel rightButtonsPanel = new JPanel();
 	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Show Full Graphs");
-	private final JPanel panel = new JPanel();
+	private final JPanel statsBottomPanel = new JPanel();
 	private final JPanel graphSettingsPanel = new JPanel();
 	private final JLabel lblGraphDrawDiv = new JLabel("Graph Draw Div");
 	private final JComboBox comboBoxGraphDrawDiv = new JComboBox();
@@ -385,9 +385,9 @@ public class StatsPanel extends JPanel
 		stackGraphContainerPanel.setLayout(new BorderLayout(0, 0));
 		stackGraphContainerPanel.add(stackedGraphPanel, BorderLayout.CENTER);
 
-		add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new BorderLayout(0, 0));
-		panel.add(simStatCountPanel);
+		add(statsBottomPanel, BorderLayout.SOUTH);
+		statsBottomPanel.setLayout(new BorderLayout(0, 0));
+		statsBottomPanel.add(simStatCountPanel);
 
 		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Simulation Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		simStatCountPanel.setLayout(new GridLayout(2, 6, 0, 0));
@@ -461,7 +461,7 @@ public class StatsPanel extends JPanel
 		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblRunTimeNo);
 
-		panel.add(graphSettingsPanel, BorderLayout.NORTH);
+		statsBottomPanel.add(graphSettingsPanel, BorderLayout.NORTH);
 		graphSettingsPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the Size of the Graphs.");
 		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);

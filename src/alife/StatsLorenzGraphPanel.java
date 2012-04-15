@@ -311,6 +311,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	public void setDynamicMode(boolean mode)
 	{
 		mode_dynamic_based=mode;
+		this.resetGraph(1);
 	}	
 
 	public void drawGraph()

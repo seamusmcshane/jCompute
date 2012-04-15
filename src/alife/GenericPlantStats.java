@@ -32,10 +32,10 @@ public class GenericPlantStats
 		
 		dead = false;
 		
-		max_size = max_energy / size_div; // Not used
+		max_size = max_energy / size_div; // Not used size div = 1
 		
 		/* hard coded sizes for now - planned is - plants size changes with growth */
-		size = 2;		
+		size = 1;		
 		
 		if(starting_energy>max_energy)
 		{

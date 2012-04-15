@@ -115,8 +115,9 @@ public class StatsStackedGraphPanel extends JPanel
 		super.paintComponent(g);
 				
 		Graphics2D g2 = (Graphics2D) g;	
-		
-	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);		    
+	
+		// Too Slow for this graph
+	   // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);		    
 
 		calculateGraphSize();
 		
