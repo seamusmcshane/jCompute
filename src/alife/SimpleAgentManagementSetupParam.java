@@ -187,7 +187,7 @@ public class SimpleAgentManagementSetupParam
 
 	public float getPredatorConsumptionRate()
 	{
-		return preyconsumptionrate;
+		return predatorconsumptionrate;
 	}
 
 
