@@ -18,6 +18,8 @@ public class SimpleAgentManagementSetupParamTests
 {
 
 	SimpleAgentManagementSetupParam params;
+	int max_value = 1000;
+	
 	
 	/* Value Generator */
 	Random r;
@@ -33,17 +35,16 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorSpeed()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorSpeed(value);
 		
-		assertEquals(true,params.getPredatorSpeed() == value);
-	
+		assertEquals(true,params.getPredatorSpeed() == value);	
 	}
 	
 	@Test
 	public void preySpeed()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreySpeed(value);
 		
 		assertEquals(true,params.getPreySpeed() == value);
@@ -55,7 +56,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorViewRange()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorViewRange(value);
 		
 		assertEquals(true,params.getPredatorViewRange() == value);
@@ -64,7 +65,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyViewRange()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyViewRange(value);
 		
 		assertEquals(true,params.getPreyViewRange() == value);
@@ -74,7 +75,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorDE()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorDE(value);
 		
 		assertEquals(true,params.getPredatorDE() == value);
@@ -83,7 +84,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyDE()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyDE(value);
 		
 		assertEquals(true,params.getPreyDE() == value);
@@ -93,7 +94,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorREDiv()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorREDiv(value);
 		
 		assertEquals(true,params.getPredatorREDiv() == value);
@@ -102,7 +103,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyREDiv()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyREDiv(value);
 		
 		assertEquals(true,params.getPreyREDiv() == value);
@@ -112,7 +113,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorMoveCost()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorMoveCost(value);
 		
 		assertEquals(true,params.getPredatorMoveCost() == value);
@@ -121,7 +122,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyMoveCost()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyMoveCost(value);
 		
 		assertEquals(true,params.getPreyMoveCost() == value);
@@ -131,7 +132,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorHungerThres()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorHungerThres(value);
 		
 		assertEquals(true,params.getPredatorHungerThres() == value);
@@ -140,7 +141,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyHungerThres()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyHungerThres(value);
 		
 		assertEquals(true,params.getPreyHungerThres() == value);
@@ -150,7 +151,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorConsumptionRate()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredatorConsumptionRate(value);
 		
 		assertEquals(true,params.getPredatorConsumptionRate() == value);
@@ -159,7 +160,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyConsumptionRate()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyConsumptionRate(value);
 		
 		assertEquals(true,params.getPreyConsumptionRate() == value);
@@ -169,7 +170,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorRepoCost()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredRepoCost(value);
 		
 		assertEquals(true,params.getPredRepoCost() == value);
@@ -178,7 +179,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyRepoCost()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyRepoCost(value);
 		
 		assertEquals(true,params.getPreyRepoCost() == value);
@@ -188,7 +189,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorStartingEnergy()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPredStartingEnergy(value);
 		
 		assertEquals(true,params.getPredStartingEnergy() == value);
@@ -197,7 +198,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preyStartingEnergy()
 	{
-		float value = r.nextInt(100)+1;
+		float value = r.nextInt(max_value)+1;
 		params.setPreyStartingEnergy(value);
 		
 		assertEquals(true,params.getPreyStartingEnergy() == value);
