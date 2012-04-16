@@ -1,4 +1,4 @@
-package alife;
+package alifeUnitTests;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import alife.SimpleAgentManagementSetupParam;
 /**
  * 
  * Simple Agent Management Setup Param Tests
