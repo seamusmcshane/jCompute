@@ -811,6 +811,22 @@ public class StatsPanel extends JPanel
 	/** Clears the values in the Arrays of samples */
 	public static void clearStats()
 	{
+		
+		ASPS = 0; // Average Steps per second
+		lblASPSNo.setText(Integer.toString(ASPS));
+
+		stepNo = 0;
+		lblStepNo.setText(Integer.toString(stepNo));
+		
+		plantNo = 0;
+		lblPlantNo.setText(Integer.toString(plantNo));
+
+		predNo = 0;
+		lblPredatorsNo.setText(Integer.toString(predNo));
+				
+		preyNo = 0;
+		lblPreyNo.setText(Integer.toString(preyNo));	
+		
 		/* Lock the arrays as we are about to clear them */
 		sample_lock.acquireUninterruptibly();
 		

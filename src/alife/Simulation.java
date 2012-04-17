@@ -84,7 +84,7 @@ public class Simulation
 	private long diffTime;	
 
 	private int num_samples = 150;
-	private double step_samples[] = new double[num_samples];
+	private double step_samples[];
 	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
 	private double sps;	 			// Average Steps Per Second as an int for display purposes
 	
@@ -133,13 +133,34 @@ public class Simulation
 
 	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers ,int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate, SimpleAgentManagementSetupParam agentSettings)
 	{
-		this.step_num = 0;
-				
-		this.stats = stats;
 		
+		step_samples = new double[num_samples];
+		
+		this.step_num = 0;
+		
+		stats.setStepNo(step_num);
+				
+		this.step_total_time = 0;
+
+		stats.setTime(step_total_time);
+		
+		tasps = 0;
+		sps = 0;
+		StatsPanel.setASPS(averageStepsPerSecond());
+		
+		this.stats = stats;
+				
 		world = new World(world_size);
 
 		simManager = new SimulationManager(world_size, agent_prey_numbers, agent_predator_numbers, plant_numbers, plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate, agentSettings);
+		
+		if(stats!=null)
+		{
+			stats.clearStats();
+			
+			stats.updateGraph();
+		}
+
 	}
 	
 	// Simulation Main Thread  
@@ -171,6 +192,8 @@ public class Simulation
 							
 							// Calculate the Steps per Second
 							calcStepsPerSecond();					
+
+							StatsPanel.setASPS(averageStepsPerSecond());
 
 							// Increment the Step counter
 							step_num++;
@@ -241,7 +264,6 @@ public class Simulation
 			tasps+=step_samples[i];					// Total all the steps
 		}
 
-		StatsPanel.setASPS(averageStepsPerSecond());
 		//StatsPanel.setASPS((int)tasps);
 		
 	}
