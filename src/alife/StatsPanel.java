@@ -232,7 +232,7 @@ public class StatsPanel extends JPanel
 		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
 
 		lorenzGraphPanel = new StatsLorenzGraphPanel();
-		lorenzGraphPanel.setToolTipText("<html>\r\nA graph that allows visualizing the amount of chaos in the ecosystem.<br>\r\n<br>\r\n<font color =red>Red</font> Pixels - Predators.<br>\r\n<font color =blue>Blue</font> Pixels- Prey.<br>\r\n<font color =green>Green</font> Pixels- - Plants.<br>\r\n<br>\r\nClick to adjust graph view.<br>\r\nStatic Mode - draw graph based on total numbers in each group.<br>\r\nDynamic Mode - draw graph based on ratios of each group to the others. <br>\r\n<br>\r\nPredators number representation is boosted in dynamic mode for visual aesthetics.<br>\r\n</html>\r\n");
+		lorenzGraphPanel.setToolTipText("<html>\r\nA graph that allows visualizing the amount of chaos in the ecosystem.<br>\r\n<br>\r\n<font color =red>Red</font> Pixels - Predators.<br>\r\n<font color =blue>Blue</font> Pixels- Prey.<br>\r\n<font color =green>Green</font> Pixels- - Plants.<br>\r\n<br>\r\nClick to adjust graph view.<br>\r\nStatic Mode - draw graph based on total numbers in each group. (Lorenz)<br>\r\nDynamic Mode - draw graph based on ratios of each group to the others. (Modified Lorenz)<br>\r\n<br>\r\nPredators number representation is boosted in dynamic mode for visual aesthetics.<br>\r\n</html>\r\n");
 		lorenzGraphPanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent arg0) 
