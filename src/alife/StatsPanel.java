@@ -17,6 +17,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.border.EtchedBorder;
 import java.awt.event.MouseAdapter;
@@ -77,12 +78,15 @@ public class StatsPanel extends JPanel
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
 	private static int samplePeriod = 60;
-	private static int sampleNum = 18000; // 9000 = 10 mins real-time (15sps)
+	private static int sampleNum = 0; // 9000 = 10 mins real-time (15sps) - Set by combox default
 
+	/* Prevents access to the arrays when being regenerated */
+	private static Semaphore sample_lock = new Semaphore(1);
+	
 	/** The Sample arrays */
-	private static int plantSamples[] = new int[sampleNum];
-	private static int preySamples[] = new int[sampleNum];
-	private static int predSamples[] = new int[sampleNum];
+	private static int plantSamples[];
+	private static int preySamples[];
+	private static int predSamples[];
 
 	/* Record of max values for graph scaling */
 	private static int plantsMax = 0;
@@ -91,6 +95,11 @@ public class StatsPanel extends JPanel
 
 	/* Graph Scales - click graph */
 	private int scale_mode = 2; // 0 = all on own scale, 1 - plants on own scale, prey+pred tied, 2 - all tied
+	
+	/* The count of graph updates - used for scroll drawing from lef */
+	private static int graphStartVal=0;
+	
+	/* Graph can be seen */
 	private int graph_visible=0;
 	
 	/* Graph State */
@@ -101,6 +110,9 @@ public class StatsPanel extends JPanel
 	
 	/* Update the graphs based on ratio of steps */
 	private int graph_draw_div = 1;
+	
+	/* Draw or do not draw the graphs */
+	private boolean draw_graphs = true;
 	
 	private final JLabel lblStep = new JLabel("Step No");
 	private final static JLabel lblStepNo = new JLabel("0");
@@ -131,13 +143,14 @@ public class StatsPanel extends JPanel
 	private final JButton btnPredatorpreyLinked = new JButton("Predator/Prey");
 	private final JButton btnSameScale = new JButton("Same");
 	private final JPanel stackGraphContainerPanel = new JPanel();
-	private final JPanel drawDivPanel = new JPanel();
 	private final JPanel plantNoPanel = new JPanel();
 	private final JPanel predatorsNoPanel = new JPanel();
 	private final JPanel preyNoPanel = new JPanel();
+	private final JLabel lblSamples = new JLabel("Samples");
+	private final static JComboBox comboBoxGraphSamples = new JComboBox();
 
 	public StatsPanel()
-	{
+	{		
 		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Graphs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
 		tabbedGraphs.addChangeListener(new ChangeListener() {
@@ -159,6 +172,7 @@ public class StatsPanel extends JPanel
 					public void actionPerformed(ActionEvent arg0) 
 					{
 						scale_mode = 0;
+						lineGraphPanel.setScaleMode(scale_mode);
 					}
 				});
 				
@@ -168,6 +182,7 @@ public class StatsPanel extends JPanel
 					public void actionPerformed(ActionEvent e) 
 					{
 						scale_mode = 1;
+						lineGraphPanel.setScaleMode(scale_mode);
 					}
 				});
 				
@@ -177,13 +192,14 @@ public class StatsPanel extends JPanel
 					public void actionPerformed(ActionEvent e) 
 					{
 						scale_mode = 2;
+						lineGraphPanel.setScaleMode(scale_mode);
 					}
 				});
 				
 				lineGraphbottomPanel.add(btnSameScale);
 				lineGraphbottomPanel.setVisible(false);
 		
-				lineGraphPanel = new StatsLineGraphPanel(plantSamples, preySamples, predSamples, sampleNum, samplePeriod);
+				lineGraphPanel = new StatsLineGraphPanel();
 				lineGraphPanel.setToolTipText("Click to adjust graph.");
 				lineGraphContainerPanel.add(lineGraphPanel);
 				lineGraphPanel.addMouseListener(new MouseAdapter()
@@ -213,7 +229,7 @@ public class StatsPanel extends JPanel
 		tabbedGraphs.addTab("Lorenz", null, lorenzContainerPanel, null);
 		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
 
-		lorenzGraphPanel = new StatsLorenzGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		lorenzGraphPanel = new StatsLorenzGraphPanel();
 		lorenzGraphPanel.setToolTipText("Click to adjust graph.");
 		lorenzGraphPanel.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -379,7 +395,7 @@ public class StatsPanel extends JPanel
 		
 		tabbedGraphs.addTab("Stacked", null, stackGraphContainerPanel, null);
 		
-		stackedGraphPanel = new StatsStackedGraphPanel(plantSamples, preySamples, predSamples, sampleNum);
+		stackedGraphPanel = new StatsStackedGraphPanel();
 		stackedGraphPanel.setBackground(Color.gray);
 
 		stackGraphContainerPanel.setLayout(new BorderLayout(0, 0));
@@ -462,7 +478,7 @@ public class StatsPanel extends JPanel
 		simulationInfoRow.add(lblRunTimeNo);
 
 		statsBottomPanel.add(graphSettingsPanel, BorderLayout.NORTH);
-		graphSettingsPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		graphSettingsPanel.setLayout(new GridLayout(0, 5, 0, 0));
 		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the Size of the Graphs.");
 		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
@@ -486,23 +502,53 @@ public class StatsPanel extends JPanel
 
 		});
 		chckbxFullSizeGraphCheckBox.setVerticalAlignment(SwingConstants.BOTTOM);
-		
-		graphSettingsPanel.add(drawDivPanel);
-		drawDivPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		drawDivPanel.add(lblGraphDrawDiv);
+		graphSettingsPanel.add(lblGraphDrawDiv);
 		lblGraphDrawDiv.setHorizontalAlignment(SwingConstants.CENTER);
+		graphSettingsPanel.add(comboBoxGraphDrawDiv);
 		comboBoxGraphDrawDiv.setToolTipText("Changes the drawing rate of the graphs vs step rate of the simulation. (step rate/draw div)");
-		drawDivPanel.add(comboBoxGraphDrawDiv);
 		comboBoxGraphDrawDiv.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent arg0)
 			{
-				graph_draw_div=(Integer.parseInt(comboBoxGraphDrawDiv.getSelectedItem().toString()));
+				String draw_div_string = comboBoxGraphDrawDiv.getSelectedItem().toString();
+				
+				// Enable / Drawing or set the draw div
+				if(draw_div_string == "Update Off")
+				{
+					draw_graphs = false;
+				}
+				else
+				{
+					draw_graphs = true;
+					
+					graph_draw_div=(Integer.parseInt(draw_div_string));
+				}											
 			}
 		});
-		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[] {"1", "3", "5", "15", "30", "60", "120", "240", "300"}));
+		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[] {"Update Off", "1", "3", "5", "15", "30", "60", "120", "240", "300"}));
+		comboBoxGraphDrawDiv.setSelectedIndex(1);
+		lblSamples.setToolTipText("Number of Samples in the Graphs");
+		lblSamples.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		graphSettingsPanel.add(lblSamples);
+
+		comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[] {"1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144", "524288", "1048576"}));
+
+		comboBoxGraphSamples.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) 
+			{
+				sampleNum = Integer.parseInt(comboBoxGraphSamples.getSelectedItem().toString());
+				
+				/* Clear the graph */
+				clearStats();
+			}
+		});
+		comboBoxGraphSamples.setSelectedIndex(4); // default 8192
+		
+		graphSettingsPanel.add(comboBoxGraphSamples);
+		
 		leftPanel.setVisible(false);
-		//add(graphPanel, BorderLayout.CENTER);
+
 	}
 
 	/**
@@ -516,7 +562,7 @@ public class StatsPanel extends JPanel
 		plantsMax = pSample;
 
 		// If at the start of the sim add the new sample at the current step pos
-		if (stepNo < sampleNum)
+		if (graphStartVal < sampleNum)
 		{
 			// Finds the max value for scaling
 			for (int i = 0; i < (sampleNum - 1); i++)
@@ -528,7 +574,7 @@ public class StatsPanel extends JPanel
 				}
 			}
 
-			plantSamples[stepNo] = pSample;			// Store the new sps sample
+			plantSamples[graphStartVal] = pSample;			// Store the new sps sample
 		}
 		else
 		// if we have steps matches our array max then add the new one at the
@@ -561,7 +607,7 @@ public class StatsPanel extends JPanel
 		/* Assume pSample is the max */
 		preyMax = pSample;
 
-		if (stepNo < sampleNum)
+		if (graphStartVal < sampleNum)
 		{
 			// Finds the max value for scaling
 			for (int i = 0; i < (sampleNum - 1); i++)
@@ -573,7 +619,7 @@ public class StatsPanel extends JPanel
 				}
 			}
 
-			preySamples[stepNo] = pSample;			// Store the new sps sample
+			preySamples[graphStartVal] = pSample;			// Store the new sps sample
 
 		}
 		else
@@ -605,7 +651,7 @@ public class StatsPanel extends JPanel
 		/* Assume pSample is the max */
 		predMax = pSample;
 
-		if (stepNo < sampleNum)
+		if (graphStartVal < sampleNum)
 		{
 			// Finds the max value for scaling
 			for (int i = 0; i < (sampleNum - 1); i++)
@@ -617,7 +663,7 @@ public class StatsPanel extends JPanel
 				}
 			}
 
-			predSamples[stepNo] = pSample;			// Store the new sps sample
+			predSamples[graphStartVal] = pSample;			// Store the new sps sample
 
 		}
 		else
@@ -642,31 +688,45 @@ public class StatsPanel extends JPanel
 	/** The total plant numbers */
 	public static void setPlantNo(int no)
 	{
+		sample_lock.acquireUninterruptibly();
+
 		plantNo = no;
 
 		lblPlantNo.setText(Integer.toString(plantNo));
 
 		addSamplePlantsGraph(no);
+		
+		sample_lock.release();
+
 	}
 
 	/** The total number of prey */
 	public static void setPreyNo(int no)
 	{
+		sample_lock.acquireUninterruptibly();
+
 		preyNo = no;
 
 		lblPreyNo.setText(Integer.toString(preyNo));
 
 		addSamplePreyGraph(no);
+		
+		sample_lock.release();
+
 	}
 
 	/** The Total number of predators */
 	public static void setPredNo(int no)
 	{
+		sample_lock.acquireUninterruptibly();
+		
 		predNo = no;
 
 		lblPredatorsNo.setText(Integer.toString(predNo));
 
 		addSamplePredGraph(predNo);
+		
+		sample_lock.release();
 	}
 
 	/**
@@ -712,13 +772,14 @@ public class StatsPanel extends JPanel
 	 */
 	public void updateGraph()
 	{
+		
 		/* These could be threaded - TODO more threads! */
-		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, scale_mode, stepNo);
-		stackedGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo);		
-		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, stepNo);		
+		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax,graphStartVal);
+		stackedGraphPanel.updateGraph(plantsMax, preyMax, predMax, graphStartVal);		
+		lorenzGraphPanel.updateGraph(plantsMax, preyMax, predMax, graphStartVal);		
 
-		/* No need to Draw the graphs every step */
-		if(stepNo%graph_draw_div == 0)
+		/* Draw the graphs every X no of steps only draw graphs if enabled */
+		if(stepNo%graph_draw_div == 0 && draw_graphs)
 		{
 			switch(graph_visible)
 			{
@@ -732,21 +793,32 @@ public class StatsPanel extends JPanel
 					stackedGraphPanel.drawGraph();
 				break;
 			}
-		}
-		
+		}		
+
+		graphStartVal++; // Keep count of update
 
 	}
 
 	/** Clears the values in the Arrays of samples */
 	public static void clearStats()
 	{
-		for (int i = 0; i < sampleNum; i++)
-		{
-			plantSamples[i] = 0;
-			preySamples[i] = 0;
-			predSamples[i] = 0;
-		}
+		/* Lock the arrays as we are about to clear them */
+		sample_lock.acquireUninterruptibly();
+		
+		graphStartVal=0; // Graph samples has been cleared start at 0 again.
+		
+		plantSamples = new int[sampleNum];
+		preySamples = new int[sampleNum];
+		predSamples = new int[sampleNum];		
+				
+		lineGraphPanel.setSampleArrays(plantSamples, preySamples, predSamples, sampleNum);
+		stackedGraphPanel.setSampleArrays(plantSamples, preySamples, predSamples, sampleNum);
+		lorenzGraphPanel.setSampleArrays(plantSamples, preySamples, predSamples, sampleNum);
+		
 		lorenzGraphPanel.completeResetGraph();
+		
+		sample_lock.release();
+		
 	}
 
 	public static void setPaused(boolean ipaused)
@@ -758,6 +830,8 @@ public class StatsPanel extends JPanel
 			chckbxFullSizeGraphCheckBox.setSelected(false);		
 			chckbxFullSizeGraphCheckBox.setEnabled(true);
 			
+			comboBoxGraphSamples.setEnabled(true);
+			
 			setGraphsFull(false);				
 			
 		}
@@ -765,7 +839,9 @@ public class StatsPanel extends JPanel
 		{
 			chckbxFullSizeGraphCheckBox.setSelected(true);			
 			chckbxFullSizeGraphCheckBox.setEnabled(false);
-			
+
+			comboBoxGraphSamples.setEnabled(false);
+
 			setGraphsFull(true);	
 		}
 

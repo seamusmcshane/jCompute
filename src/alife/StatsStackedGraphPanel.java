@@ -35,26 +35,31 @@ public class StatsStackedGraphPanel extends JPanel
 	 * @param sampleNum
 	 * @param samplePeriod
 	 */
-	public StatsStackedGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum)
+	public StatsStackedGraphPanel()
 	{
 
+	}
+
+	public void setSampleArrays(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum)
+	{
 		this.plantsSamples = plantsSamples;
 		this.preySamples = preySamples;
 		this.predSamples = predSamples;
 		
-		this.sampleNum = sampleNum;
-
+		graphSamples=1;
+		
+		this.sampleNum = sampleNum;		
 	}
-
+	
 	/**
-	 * Updates the graph and draws it on an interval based on stepNo.
+	 * Updates the graph and draws it on an interval based on currSampleNum.
 	 * @param plantMax
 	 * @param preyMax
 	 * @param predMax
 	 * @param scale_mode
-	 * @param stepNo
+	 * @param currSampleNum
 	 */
-	public void updateGraph(float plantMax,float preyMax, float predMax,int stepNo)
+	public void updateGraph(float plantMax,float preyMax, float predMax,int currSampleNum)
 	{
 		this.plantMax = plantMax;
 		
@@ -62,9 +67,9 @@ public class StatsStackedGraphPanel extends JPanel
 		
 		this.predMax = predMax;
 		
-		if(stepNo<sampleNum)
+		if(currSampleNum<sampleNum)
 		{
-			graphSamples=stepNo;
+			graphSamples=currSampleNum;
 		}
 		else
 		{
@@ -127,6 +132,10 @@ public class StatsStackedGraphPanel extends JPanel
 	/** Draws the graph lines */
 	public void drawSamples(Graphics2D g2)
 	{				
+		if(plantsSamples == null || preySamples == null || predSamples == null)
+		{
+			return;
+		}
 		
 		float scaleWidthInterval = graphWidth/ sampleNum;
 		

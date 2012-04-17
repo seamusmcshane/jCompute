@@ -21,11 +21,12 @@ public class StatsLineGraphPanel extends JPanel
 	private int graphWidth;
 	private int graphHeight;
 	
-	private float sampleNum;
-	private float samplePeriod;
-	
+	private float maxSampleNum;
+		
 	private float graphSamples=1;
 		
+	private int scale_mode=2;
+	
 	private float plantMax = 0;
 	private float preyMax = 0;
 	private float predMax = 0;
@@ -38,27 +39,31 @@ public class StatsLineGraphPanel extends JPanel
 	 * @param sampleNum
 	 * @param samplePeriod
 	 */
-	public StatsLineGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum, int samplePeriod)
+	public StatsLineGraphPanel()
 	{
 
+		
+	}
+	
+	public void setSampleArrays(int plantsSamples[],	int preySamples[], int predSamples[], int maxSampleNum)
+	{
 		this.plantsSamples = plantsSamples;
 		this.preySamples = preySamples;
 		this.predSamples = predSamples;
 		
-		this.sampleNum = sampleNum;
-		this.samplePeriod = samplePeriod;
+		graphSamples=1;
 		
-	}
+		this.maxSampleNum = maxSampleNum;			
+	}	
 
 	/**
-	 * Updates the graph and draws it on an interval based on stepNo.
+	 * Updates the graph and draws it on an interval based on currSampleNum.
 	 * @param plantMax
 	 * @param preyMax
 	 * @param predMax
-	 * @param scale_mode
-	 * @param stepNo
+	 * @param currSampleNum
 	 */
-	public void updateGraph(float plantMax,float preyMax, float predMax,int scale_mode,int stepNo)
+	public void updateGraph(float plantMax,float preyMax, float predMax, int currSampleNum)
 	{
 		this.plantMax = plantMax;
 		
@@ -66,15 +71,6 @@ public class StatsLineGraphPanel extends JPanel
 		
 		this.predMax = predMax;
 		
-		if(stepNo<sampleNum)
-		{
-			graphSamples=stepNo;
-		}
-		else
-		{
-			graphSamples=sampleNum;
-		}
-
 		switch(scale_mode)
 		{
 			case 0:
@@ -87,9 +83,23 @@ public class StatsLineGraphPanel extends JPanel
 				tieAllMax();	// Predator, Prey and Plants on the same scale
 				break;		
 		}		
-	
+		
+		if(currSampleNum<maxSampleNum)
+		{
+			graphSamples=currSampleNum;
+		}
+		else
+		{
+			graphSamples=maxSampleNum;
+		}
+			
 	}
 		
+	public void setScaleMode(int scale_mode)
+	{
+		this.scale_mode = scale_mode;
+	}
+	
 	/** 
 	 * Does the plants or agents have the greater point
 	 * Max is tied to the greater */
@@ -144,6 +154,12 @@ public class StatsLineGraphPanel extends JPanel
 	/** Draws the graph lines */
 	public void drawSamples(Graphics2D g2)
 	{				
+		
+		if(plantsSamples == null || preySamples == null || predSamples == null)
+		{
+			return;
+		}
+		
 		float scaleWidthInterval = graphWidth/ graphSamples;
 		
 		float predScaleHeightInterval = graphHeight / (predMax+1);
@@ -165,8 +181,11 @@ public class StatsLineGraphPanel extends JPanel
 		int preySamplePXVal = 0;
 		int preySamplePYVal = 0; 
 				
+		
+
+		
 		/* Loops through all three sample arrays */
-		for(int i =0;i<graphSamples;i++)
+		for(int i = 0;i<graphSamples;i++)
 		{			
 			/* Plants */
 			g2.setColor(Color.GREEN);

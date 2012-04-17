@@ -73,32 +73,36 @@ public class StatsLorenzGraphPanel extends JPanel
 	 * @param predSamples
 	 * @param sampleNum
 	 **/
-	public StatsLorenzGraphPanel(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum)
+	public StatsLorenzGraphPanel()
 	{
-
-		this.plantsSamples = plantsSamples;
-		this.preySamples = preySamples;
-		this.predSamples = predSamples;
-		
-		this.sampleNum = sampleNum;
-		
 		completeResetGraph();		
 		setZoom(100);		
 	}
 
+	public void setSampleArrays(int plantsSamples[],	int preySamples[], int predSamples[], int sampleNum)
+	{
+		this.plantsSamples = plantsSamples;
+		this.preySamples = preySamples;
+		this.predSamples = predSamples;
+		
+		graphSamples=1;
+		
+		this.sampleNum = sampleNum;		
+	}
+	
 	/**
-	 * Updates the graph and draws it on an interval based on stepNo.
-	 * @param stepNo
+	 * Updates the graph and draws it on an interval based on currSampleNum.
+	 * @param currSampleNum
 	 */
-	public void updateGraph(int plantsMax,int preyMax, int predMax, int stepNo)
+	public void updateGraph(int plantsMax,int preyMax, int predMax, int currSampleNum)
 	{
 		this.plantsMax = plantsMax;
 		this.preyMax=preyMax;
 		this.predMax=predMax;
 		
-		if(stepNo<sampleNum)
+		if(currSampleNum<sampleNum)
 		{
-			graphSamples=stepNo;
+			graphSamples=currSampleNum;
 		}
 		else
 		{
@@ -128,6 +132,10 @@ public class StatsLorenzGraphPanel extends JPanel
 	 * */
 	public void drawSamples(Graphics2D g2)
 	{				
+		if(plantsSamples == null || preySamples == null || predSamples == null)
+		{
+			return;
+		}
 		
 		drawing = true;		
 		
