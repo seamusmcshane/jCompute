@@ -131,10 +131,10 @@ public class StatsPanel extends JPanel
 	
 	private final JButton btnMode = new JButton("Static Mode");
 	private final JPanel rightButtonsPanel = new JPanel();
-	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Show Full Graphs");
+	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Full Graphs");
 	private final JPanel statsBottomPanel = new JPanel();
 	private final JPanel graphSettingsPanel = new JPanel();
-	private final JLabel lblGraphDrawDiv = new JLabel("Graph Draw Div");
+	private final JLabel lblGraphDrawDiv = new JLabel("Draw Div");
 	private final JComboBox comboBoxGraphDrawDiv = new JComboBox();
 		
 	private final JPanel lineGraphContainerPanel = new JPanel();
@@ -148,6 +148,8 @@ public class StatsPanel extends JPanel
 	private final JPanel preyNoPanel = new JPanel();
 	private final JLabel lblSamples = new JLabel("Samples");
 	private final static JComboBox comboBoxGraphSamples = new JComboBox();
+	private final JPanel drawDivPanel = new JPanel();
+	private final JPanel samplesPanel = new JPanel();
 
 	public StatsPanel()
 	{		
@@ -200,7 +202,7 @@ public class StatsPanel extends JPanel
 				lineGraphbottomPanel.setVisible(false);
 		
 				lineGraphPanel = new StatsLineGraphPanel();
-				lineGraphPanel.setToolTipText("Click to adjust graph.");
+				lineGraphPanel.setToolTipText("<html>\r\nA Graph that allows visualizing the total numbers in each group.<br>\r\n<br>\r\nClick to adjust graph scales.<br>\r\n<br>\r\n<font color =red>Red</font> Line - Predators.<br>\r\n<font color =blue>Blue</font> Line - Prey.<br>\r\n<font color =green>Green</font> Line - Plants.<br>\r\n<br>\r\n</html>\r\n");
 				lineGraphContainerPanel.add(lineGraphPanel);
 				lineGraphPanel.addMouseListener(new MouseAdapter()
 				{
@@ -230,7 +232,7 @@ public class StatsPanel extends JPanel
 		lorenzContainerPanel.setLayout(new BorderLayout(0, 0));
 
 		lorenzGraphPanel = new StatsLorenzGraphPanel();
-		lorenzGraphPanel.setToolTipText("Click to adjust graph.");
+		lorenzGraphPanel.setToolTipText("<html>\r\nA graph that allows visualizing the amount of chaos in the ecosystem.<br>\r\n<br>\r\n<font color =red>Red</font> Pixels - Predators.<br>\r\n<font color =blue>Blue</font> Pixels- Prey.<br>\r\n<font color =green>Green</font> Pixels- - Plants.<br>\r\n<br>\r\nClick to adjust graph view.<br>\r\nStatic Mode - draw graph based on total numbers in each group.<br>\r\nDynamic Mode - draw graph based on ratios of each group to the others. <br>\r\n<br>\r\nPredators number representation is boosted in dynamic mode for visual aesthetics.<br>\r\n</html>\r\n");
 		lorenzGraphPanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent arg0) 
@@ -396,6 +398,7 @@ public class StatsPanel extends JPanel
 		tabbedGraphs.addTab("Stacked", null, stackGraphContainerPanel, null);
 		
 		stackedGraphPanel = new StatsStackedGraphPanel();
+		stackedGraphPanel.setToolTipText("<html>\r\nA graph that allows visualizing the group ratios of Artifical Life.\r\n<br>\r\n<font color =red>Red</font> Area- Predators.<br>\r\n<font color =blue>Blue</font> Area- Prey.<br>\r\n<font color =green>Green</font> Area- - Plants.<br>\r\n<br>\r\n</html>\r\n");
 		stackedGraphPanel.setBackground(Color.gray);
 
 		stackGraphContainerPanel.setLayout(new BorderLayout(0, 0));
@@ -458,14 +461,14 @@ public class StatsPanel extends JPanel
 
 		lblASPS.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblASPS);
-		lblASPSNo.setToolTipText("Average steps per second.");
+		lblASPSNo.setToolTipText("Average steps per second over the last 150 steps.");
 
 		lblASPSNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simulationInfoRow.add(lblASPSNo);
 		lblStep.setHorizontalAlignment(SwingConstants.CENTER);
 
 		simulationInfoRow.add(lblStep);
-		lblStepNo.setToolTipText("Total number of steps.");
+		lblStepNo.setToolTipText("Total number of simulated steps.");
 		lblStepNo.setHorizontalAlignment(SwingConstants.CENTER);
 
 		simulationInfoRow.add(lblStepNo);
@@ -478,8 +481,8 @@ public class StatsPanel extends JPanel
 		simulationInfoRow.add(lblRunTimeNo);
 
 		statsBottomPanel.add(graphSettingsPanel, BorderLayout.NORTH);
-		graphSettingsPanel.setLayout(new GridLayout(0, 5, 0, 0));
-		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the Size of the Graphs.");
+		graphSettingsPanel.setLayout(new GridLayout(0, 3, 0, 0));
+		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the viewing size of the graphs when paused.");
 		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
 		chckbxFullSizeGraphCheckBox.setEnabled(false);
@@ -502,10 +505,35 @@ public class StatsPanel extends JPanel
 
 		});
 		chckbxFullSizeGraphCheckBox.setVerticalAlignment(SwingConstants.BOTTOM);
-		graphSettingsPanel.add(lblGraphDrawDiv);
+		
+		graphSettingsPanel.add(samplesPanel);
+		samplesPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		samplesPanel.add(lblSamples);
+		lblSamples.setToolTipText("");
+		lblSamples.setHorizontalAlignment(SwingConstants.CENTER);
+		samplesPanel.add(comboBoxGraphSamples);
+		comboBoxGraphSamples.setToolTipText("<html>\r\nAllows changing the length of the sample perioid covered by graphs.<br>\r\n<br>\r\nCalculation -:<br>\r\n 15 steps/sec * 60  * 5 = 4500 samples for five minutes)<br>\r\n<br>\r\nNote 1 : Large sample periods can negatively affect performance.<br>\r\nNote 2 : This will clear the samples in the current period, if change.<br>\r\n</html>");
+		
+				comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[] {"1125", "2250", "4500", "9000", "18000", "36000", "72000", "144000", "288000", "576000"}));
+				
+						comboBoxGraphSamples.addItemListener(new ItemListener() {
+							public void itemStateChanged(ItemEvent e) 
+							{
+								sampleNum = Integer.parseInt(comboBoxGraphSamples.getSelectedItem().toString());
+								
+								/* Clear the graph */
+								clearStats();
+							}
+						});
+		comboBoxGraphSamples.setSelectedIndex(4);
+		
+		graphSettingsPanel.add(drawDivPanel);
+		drawDivPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		drawDivPanel.add(lblGraphDrawDiv);
+		lblGraphDrawDiv.setToolTipText("");
 		lblGraphDrawDiv.setHorizontalAlignment(SwingConstants.CENTER);
-		graphSettingsPanel.add(comboBoxGraphDrawDiv);
-		comboBoxGraphDrawDiv.setToolTipText("Changes the drawing rate of the graphs vs step rate of the simulation. (step rate/draw div)");
+		drawDivPanel.add(comboBoxGraphDrawDiv);
+		comboBoxGraphDrawDiv.setToolTipText("<html>\r\nChanges the drawing rate of the graphs vs step rate of the simulation. <br>\r\n\r\nCalculation :\r\nAverage step rate/draw div = graph update rate~\r\n\r\n</html>");
 		comboBoxGraphDrawDiv.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent arg0)
@@ -513,7 +541,7 @@ public class StatsPanel extends JPanel
 				String draw_div_string = comboBoxGraphDrawDiv.getSelectedItem().toString();
 				
 				// Enable / Drawing or set the draw div
-				if(draw_div_string == "Update Off")
+				if(draw_div_string == "Off")
 				{
 					draw_graphs = false;
 				}
@@ -525,27 +553,8 @@ public class StatsPanel extends JPanel
 				}											
 			}
 		});
-		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[] {"Update Off", "1", "3", "5", "15", "30", "60", "120", "240", "300"}));
+		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[] {"Off", "1", "3", "5", "15", "30", "60", "120", "240", "300"}));
 		comboBoxGraphDrawDiv.setSelectedIndex(1);
-		lblSamples.setToolTipText("Number of Samples in the Graphs");
-		lblSamples.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		graphSettingsPanel.add(lblSamples);
-
-		comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[] {"1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144", "524288", "1048576"}));
-
-		comboBoxGraphSamples.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) 
-			{
-				sampleNum = Integer.parseInt(comboBoxGraphSamples.getSelectedItem().toString());
-				
-				/* Clear the graph */
-				clearStats();
-			}
-		});
-		comboBoxGraphSamples.setSelectedIndex(4); // default 8192
-		
-		graphSettingsPanel.add(comboBoxGraphSamples);
 		
 		leftPanel.setVisible(false);
 

@@ -128,7 +128,6 @@ public class SimulationView extends BasicGame implements MouseListener
 
 /* Debug 
 			// Gui Overlay
-			g.setColor(Color.white);
 
 			g.drawString("Frame Updates  :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 10);
 
