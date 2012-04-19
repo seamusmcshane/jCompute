@@ -49,6 +49,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import javax.swing.JToggleButton;
 import javax.swing.JCheckBox;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.ButtonGroup;
 
 public class SimulationGUI
 {
@@ -176,6 +178,9 @@ public class SimulationGUI
 
 	private static JCheckBoxMenuItem chckbxmntmDrawFieldOf;
 	private static JPanel simRateInfoPanel;
+	private static JMenu mnParameters;
+	private static final ButtonGroup buttonGroup = new ButtonGroup();
+	private static JMenuItem mntmUnlock;
 
 	/* Logic */
 
@@ -858,6 +863,19 @@ public class SimulationGUI
 			}
 		});
 		mnFile.add(mntmQuit);
+		
+		mnParameters = new JMenu("Parameters");
+		menuBar.add(mnParameters);
+		
+		mntmUnlock = new JMenuItem("Unlock");
+		mntmUnlock.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				/* do the parameter unlocking sequence */
+				parametersUnlock();
+			}
+		});
+		mnParameters.add(mntmUnlock);
 
 		JMenu mnOptions = new JMenu("Options");
 		menuBar.add(mnOptions);
@@ -1021,18 +1039,13 @@ public class SimulationGUI
 
 		simRateSlider.setEnabled(true);
 
-		comboBoxPreyNumbers.setEnabled(false);
-
-		comboBoxPredNumbers.setEnabled(false);
-
-		comboBoxWorldSize.setEnabled(false);
-
-		comboBoxPlantNumbers.setEnabled(false);
-
 		agentParamPanel.setVisible(false);
 
 		plantParamPanel.setVisible(false);
 
+		/* Locks the paramters */
+		parametersLock();		
+		
 		StatsPanel.setPaused(false);
 
 		//SimulationView.setFocus();
@@ -1041,11 +1054,6 @@ public class SimulationGUI
 
 	private static void startUpState()
 	{
-		comboBoxPreyNumbers.setEnabled(true);
-		comboBoxPredNumbers.setEnabled(true);
-		comboBoxWorldSize.setEnabled(true);
-		comboBoxPlantNumbers.setEnabled(true);
-
 		btnStart.setEnabled(false);
 		simRateSlider.setEnabled(false);
 		btnPause.setEnabled(false);
@@ -1056,12 +1064,6 @@ public class SimulationGUI
 	{
 		btnPause.setText("Resume");
 		btnGenerate.setEnabled(true);
-
-		comboBoxPreyNumbers.setEnabled(true);
-		comboBoxPredNumbers.setEnabled(true);
-		comboBoxWorldSize.setEnabled(true);
-		comboBoxPlantNumbers.setEnabled(true);
-
 
 		StatsPanel.setPaused(true);
 
@@ -1074,16 +1076,115 @@ public class SimulationGUI
 		btnPause.setText("Pause");
 		btnGenerate.setEnabled(false);
 
-		comboBoxPreyNumbers.setEnabled(false);
-		comboBoxPredNumbers.setEnabled(false);
-		comboBoxWorldSize.setEnabled(false);
-		comboBoxPlantNumbers.setEnabled(false);
-
 		StatsPanel.setPaused(false);
 
 		sim.unPauseSim();
 	}
 
+	public static void parametersLock()
+	{
+		/* Main Setup panel */
+		comboBoxPreyNumbers.setEnabled(false);
+		comboBoxPredNumbers.setEnabled(false);
+		comboBoxWorldSize.setEnabled(false);
+		comboBoxPlantNumbers.setEnabled(false);
+		
+		/* Agent Param Panel */
+		comboBoxPreySpeed.setEnabled(false);
+		comboBoxPreyDE.setEnabled(false);
+		comboBoxPreyREDiv.setEnabled(false);
+		comboBoxPreyViewRange.setEnabled(false);
+		comboBoxPreyMoveCost.setEnabled(false);
+		comboBoxPreyHungerThres.setEnabled(false);
+		comboBoxPreyConsumptionRate.setEnabled(false);
+		comboBoxPreyRepoCost.setEnabled(false);
+		comboBoxPreyStartingEnergy.setEnabled(false);
+		
+		comboBoxPredatorViewRange.setEnabled(false);
+		comboBoxPredatorSpeed.setEnabled(false);
+		comboBoxPredatorDE.setEnabled(false);
+		comboBoxPredatorREDiv.setEnabled(false);
+		comboBoxPredatorMoveCost.setEnabled(false);
+		comboBoxPredatorHungerThres.setEnabled(false);
+		comboBoxPredatorConsumptionRate.setEnabled(false);
+		comboBoxPredRepoCost.setEnabled(false);
+		comboBoxPredStartingEnergy.setEnabled(false);
+
+		
+		/* Plant Param Panel */
+		comboBoxPlantRegenRate.setEnabled(false);
+		comboBoxPlantStartingEnergy.setEnabled(false);
+		comboBoxPlantRepoCost.setEnabled(false);
+		comboBoxEnergyAbsorptionRate.setEnabled(false);
+
+	}
+	
+	public static void parametersUnlock()
+	{
+		
+		String message;
+		message = "Unlocking paramters will end this simulation!\nDo wish to unlock the parameters?";
+
+		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+		JDialog dialog = pane.createDialog(null, "Unlock Parameters");
+
+		dialog.pack();
+		dialog.setVisible(true);
+
+		int value = ((Integer) pane.getValue()).intValue();
+
+		if (value == JOptionPane.YES_OPTION)
+		{
+			/* Main Setup panel */
+			comboBoxPreyNumbers.setEnabled(true);
+			comboBoxPredNumbers.setEnabled(true);
+			comboBoxWorldSize.setEnabled(true);
+			comboBoxPlantNumbers.setEnabled(true);
+			
+			/* Agent Param Panel */
+			comboBoxPreySpeed.setEnabled(true);
+			comboBoxPreyDE.setEnabled(true);
+			comboBoxPreyREDiv.setEnabled(true);
+			comboBoxPreyViewRange.setEnabled(true);
+			comboBoxPreyMoveCost.setEnabled(true);
+			comboBoxPreyHungerThres.setEnabled(true);
+			comboBoxPreyConsumptionRate.setEnabled(true);
+			comboBoxPreyRepoCost.setEnabled(true);
+			comboBoxPreyStartingEnergy.setEnabled(true);
+			
+			comboBoxPredatorViewRange.setEnabled(true);
+			comboBoxPredatorSpeed.setEnabled(true);
+			comboBoxPredatorDE.setEnabled(true);
+			comboBoxPredatorREDiv.setEnabled(true);
+			comboBoxPredatorMoveCost.setEnabled(true);
+			comboBoxPredatorHungerThres.setEnabled(true);
+			comboBoxPredatorConsumptionRate.setEnabled(true);
+			comboBoxPredRepoCost.setEnabled(true);
+			comboBoxPredStartingEnergy.setEnabled(true);
+
+			
+			/* Plant Param Panel */
+			comboBoxPlantRegenRate.setEnabled(true);
+			comboBoxPlantStartingEnergy.setEnabled(true);
+			comboBoxPlantRepoCost.setEnabled(true);
+			comboBoxEnergyAbsorptionRate.setEnabled(true);
+
+			/* Check needed due to semaphores being used */
+			if(!sim.simPaused())
+			{
+				/* Pause the sim */
+				simPausedState();
+				
+				/* Disable resume */
+				btnPause.setEnabled(false);				
+			}
+
+		}
+		
+
+	}
+	
 	public static void maximise()
 	{
 		gui.setState(Frame.NORMAL);
