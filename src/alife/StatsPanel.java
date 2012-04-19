@@ -102,7 +102,7 @@ public class StatsPanel extends JPanel
 	/* Graph can be seen */
 	private int graph_visible=0;
 	
-	/* Graph State */
+	/* Graph State - default */
 	private static boolean graphs_full = false;
 
 	/* Used to prevent showing sliders in a small area when paused */
@@ -485,14 +485,20 @@ public class StatsPanel extends JPanel
 		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the viewing size of the graphs when paused.");
 		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
-		chckbxFullSizeGraphCheckBox.setEnabled(false);
+		
+		chckbxFullSizeGraphCheckBox.setEnabled(true);
+		
+		/* Set to value of graphs full */
+		chckbxFullSizeGraphCheckBox.setSelected(graphs_full);
+		
 		chckbxFullSizeGraphCheckBox.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent arg0)
 			{
-				if (Simulation.simPaused())
+				/* Paused not used anymore */
+				//if (Simulation.simPaused())
 				{
-					if (graphs_full)
+					if (graphs_full) // Toggle graph size
 					{
 						setGraphsFull(false);
 					}
@@ -825,7 +831,10 @@ public class StatsPanel extends JPanel
 		lblPredatorsNo.setText(Integer.toString(predNo));
 				
 		preyNo = 0;
-		lblPreyNo.setText(Integer.toString(preyNo));	
+		lblPreyNo.setText(Integer.toString(preyNo));
+		
+		/* Reset the time */
+		setTime(0);
 		
 		/* Lock the arrays as we are about to clear them */
 		sample_lock.acquireUninterruptibly();
@@ -852,22 +861,22 @@ public class StatsPanel extends JPanel
 		
 		if (paused)
 		{		
-			chckbxFullSizeGraphCheckBox.setSelected(false);		
-			chckbxFullSizeGraphCheckBox.setEnabled(true);
+			//chckbxFullSizeGraphCheckBox.setSelected(false);		
+			//chckbxFullSizeGraphCheckBox.setEnabled(true);
 			
 			comboBoxGraphSamples.setEnabled(true);
 			
-			setGraphsFull(false);				
+			//setGraphsFull(false);				
 			
 		}
 		else
 		{
-			chckbxFullSizeGraphCheckBox.setSelected(true);			
-			chckbxFullSizeGraphCheckBox.setEnabled(false);
+			//chckbxFullSizeGraphCheckBox.setSelected(true);			
+			//chckbxFullSizeGraphCheckBox.setEnabled(false);
 
 			comboBoxGraphSamples.setEnabled(false);
 
-			setGraphsFull(true);	
+			//setGraphsFull(true);	
 		}
 
 	}

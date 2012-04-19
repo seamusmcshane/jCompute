@@ -1039,9 +1039,8 @@ public class SimulationGUI
 
 		simRateSlider.setEnabled(true);
 
-		agentParamPanel.setVisible(false);
-
-		plantParamPanel.setVisible(false);
+		// agentParamPanel.setVisible(false);
+		// plantParamPanel.setVisible(false);
 
 		/* Locks the paramters */
 		parametersLock();		
@@ -1065,10 +1064,9 @@ public class SimulationGUI
 		btnPause.setText("Resume");
 		btnGenerate.setEnabled(true);
 
-		StatsPanel.setPaused(true);
+		//StatsPanel.setPaused(true);
 
 		sim.pauseSim();
-
 	}
 
 	private static void simUnPausedState()
@@ -1159,7 +1157,10 @@ public class SimulationGUI
 			comboBoxPredatorREDiv.setEnabled(true);
 			comboBoxPredatorMoveCost.setEnabled(true);
 			comboBoxPredatorHungerThres.setEnabled(true);
-			comboBoxPredatorConsumptionRate.setEnabled(true);
+			
+			/* comboBoxPredatorConsumptionRate is disabled due as feature not implemented */
+			// comboBoxPredatorConsumptionRate.setEnabled(true);
+			
 			comboBoxPredRepoCost.setEnabled(true);
 			comboBoxPredStartingEnergy.setEnabled(true);
 
@@ -1167,9 +1168,12 @@ public class SimulationGUI
 			/* Plant Param Panel */
 			comboBoxPlantRegenRate.setEnabled(true);
 			comboBoxPlantStartingEnergy.setEnabled(true);
-			comboBoxPlantRepoCost.setEnabled(true);
+			
+			/* comboBoxPlantRepoCost is disabled due as feature not implemented */
+			// comboBoxPlantRepoCost.setEnabled(true);			
+			
 			comboBoxEnergyAbsorptionRate.setEnabled(true);
-
+					
 			/* Check needed due to semaphores being used */
 			if(!sim.simPaused())
 			{
@@ -1179,10 +1183,11 @@ public class SimulationGUI
 				/* Disable resume */
 				btnPause.setEnabled(false);				
 			}
+			
+			/* Clear the old stats */
+			StatsPanel.clearStats();
 
-		}
-		
-
+		}	
 	}
 	
 	public static void maximise()
