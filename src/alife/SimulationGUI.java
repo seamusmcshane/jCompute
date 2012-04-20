@@ -179,8 +179,20 @@ public class SimulationGUI
 	private static JCheckBoxMenuItem chckbxmntmDrawFieldOf;
 	private static JPanel simRateInfoPanel;
 	private static JMenu mnParameters;
-	private static final ButtonGroup buttonGroup = new ButtonGroup();
 	private static JMenuItem mntmUnlock;
+	private static JMenu mnFrameRate;
+	private static JRadioButtonMenuItem rdbtnmntm15FramesPerSecond;
+	private static JRadioButtonMenuItem rdbtnmntm60FramesPerSecond;
+	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
+	private static JRadioButtonMenuItem rdbtnmntmUnlimitedFrameRate;
+	private static JMenu mnVerticalSync;
+	private static JRadioButtonMenuItem rdbtnmntmVsyncOn;
+	private static JRadioButtonMenuItem rdbtnmntmVsyncOff;
+	private static final ButtonGroup vSyncButtonGroup = new ButtonGroup();
+	private static JMenu mnOverlay;
+	private static JRadioButtonMenuItem rdbtnmntmOverlayEnabled;
+	private static JRadioButtonMenuItem rdbtnmntmOverlayDisabled;
+	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
 
 	/* Logic */
 
@@ -200,6 +212,9 @@ public class SimulationGUI
 		setUpSimulation();
 
 		SimulationView.displayView(sim, view_x, view_y, view_width, view_height);
+		
+		/* Creates a ready made Simulation using defaults */ 
+		newSim();
 
 	}
 
@@ -877,8 +892,8 @@ public class SimulationGUI
 		});
 		mnParameters.add(mntmUnlock);
 
-		JMenu mnOptions = new JMenu("Options");
-		menuBar.add(mnOptions);
+		JMenu mnViewOptions = new JMenu("View");
+		menuBar.add(mnViewOptions);
 
 		chckbxmntmDisplayView = new JCheckBoxMenuItem("Display View");
 		chckbxmntmDisplayView.addItemListener(new ItemListener()
@@ -899,10 +914,10 @@ public class SimulationGUI
 			}
 		});
 		chckbxmntmDisplayView.setSelected(true);
-		mnOptions.add(chckbxmntmDisplayView);
+		mnViewOptions.add(chckbxmntmDisplayView);
 
 		JMenu mnAgentDrawing = new JMenu("Agent Drawing");
-		mnOptions.add(mnAgentDrawing);
+		mnViewOptions.add(mnAgentDrawing);
 
 		chckbxmntmDrawTrueBodies = new JCheckBoxMenuItem("Draw True Bodies");
 		chckbxmntmDrawTrueBodies.addItemListener(new ItemListener()
@@ -941,7 +956,98 @@ public class SimulationGUI
 			}
 		});
 		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
+		
+		mnFrameRate = new JMenu("Frame Rate");
+		mnViewOptions.add(mnFrameRate);
+			
+		rdbtnmntm15FramesPerSecond = new JRadioButtonMenuItem("15 Frames Per Second");
+		rdbtnmntm15FramesPerSecond.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				SimulationView.setStandardUpdateRate();
+			}
+		});
 
+		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
+		rdbtnmntm15FramesPerSecond.setSelected(true);
+		mnFrameRate.add(rdbtnmntm15FramesPerSecond);
+		
+		rdbtnmntm60FramesPerSecond = new JRadioButtonMenuItem("60 Frames Per Second");
+		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SimulationView.setHighUpdateRate();
+			}
+		});
+		frameRateButtonGroup.add(rdbtnmntm60FramesPerSecond);
+		mnFrameRate.add(rdbtnmntm60FramesPerSecond);
+		
+		rdbtnmntmUnlimitedFrameRate = new JRadioButtonMenuItem("Unlimited");
+		rdbtnmntmUnlimitedFrameRate.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SimulationView.setUnlimitedUpdateRate();
+			}
+		});
+		
+		frameRateButtonGroup.add(rdbtnmntmUnlimitedFrameRate);
+		mnFrameRate.add(rdbtnmntmUnlimitedFrameRate);
+		
+		mnVerticalSync = new JMenu("Vertical Sync");
+		mnViewOptions.add(mnVerticalSync);
+		
+		rdbtnmntmVsyncOn = new JRadioButtonMenuItem("VSync On");
+		vSyncButtonGroup.add(rdbtnmntmVsyncOn);
+		rdbtnmntmVsyncOn.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SimulationView.setVerticalSync(true);
+			}
+		});
+		mnVerticalSync.add(rdbtnmntmVsyncOn);
+		
+		rdbtnmntmVsyncOff = new JRadioButtonMenuItem("VSync Off");
+		rdbtnmntmVsyncOff.setSelected(true);
+		vSyncButtonGroup.add(rdbtnmntmVsyncOff);
+		rdbtnmntmVsyncOff.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SimulationView.setVerticalSync(false);
+			}
+		});		
+		mnVerticalSync.add(rdbtnmntmVsyncOff);
+		
+		mnOverlay = new JMenu("Overlay");
+		mnViewOptions.add(mnOverlay);
+		
+		rdbtnmntmOverlayEnabled = new JRadioButtonMenuItem("Enabled");
+		rdbtnmntmOverlayEnabled.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SimulationView.setViewOverLay(true);
+			}
+		});
+		overlayButtonGroup.add(rdbtnmntmOverlayEnabled);
+		mnOverlay.add(rdbtnmntmOverlayEnabled);
+		
+		rdbtnmntmOverlayDisabled = new JRadioButtonMenuItem("Disabled");
+		rdbtnmntmOverlayDisabled.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SimulationView.setViewOverLay(false);
+			}
+		});
+		rdbtnmntmOverlayDisabled.setSelected(true);
+		overlayButtonGroup.add(rdbtnmntmOverlayDisabled);
+		mnOverlay.add(rdbtnmntmOverlayDisabled);
+		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 
@@ -1198,5 +1304,13 @@ public class SimulationGUI
 	public static void minimise()
 	{
 		gui.setState(Frame.ICONIFIED);
+	}
+	private class SwingAction extends AbstractAction {
+		public SwingAction() {
+			putValue(NAME, "SwingAction");
+			putValue(SHORT_DESCRIPTION, "Some short description");
+		}
+		public void actionPerformed(ActionEvent e) {
+		}
 	}
 }

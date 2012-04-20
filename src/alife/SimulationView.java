@@ -43,7 +43,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	/** Default Graphic frame rate control */
 	final static int default_frame_rate = 15;
 	static int frame_rate = default_frame_rate; // Frame rate starts up set at this
-	final int frame_rate_gui_interaction = 60;
+	final static int frame_rate_gui_interaction = 60;
 
 	/** Simulation Reference */
 	static Simulation sim;
@@ -92,6 +92,12 @@ public class SimulationView extends BasicGame implements MouseListener
 	/** Camera View Size */
 	public static Rectangle camera_bound;
 	
+	/** Allows fixing the update rate at the mouseInteraction rate **/
+	private static boolean highUpdateRate=false;
+	
+	/** Toggles the drawing of the text overlay */
+	private static boolean overlay=false;
+	
 	/**
 	 * The Simulation View.
 	 */
@@ -125,18 +131,18 @@ public class SimulationView extends BasicGame implements MouseListener
 
 			/* Always draw the buffer even if it has not changed */
 			g.drawImage(buffer, 0, 0);
+ 
+			// View Overlay
+			if(overlay)
+			{
+				g.drawString("Frame Updates     :" + frame_num, camera_bound.getMinX()+10, camera_bound.getMinY() + 10);
 
-/* Debug 
-			// Gui Overlay
+				g.drawString("Buffer Updates    :" + buffer_num, camera_bound.getMinX()+10, camera_bound.getMinY() + 30);
 
-			g.drawString("Frame Updates  :" + frame_num, camera_bound.getMinX(), camera_bound.getMinY() + 10);
+				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), camera_bound.getMinX()+10, camera_bound.getMinY() + 50);
 
-			g.drawString("Buffer Updates :" + buffer_num, camera_bound.getMinX(), camera_bound.getMinY() + 30);
-
-			g.drawString("FPS            :" + simView.getContainer().getFPS(), camera_bound.getMinX(), camera_bound.getMinY() + 50);
-
-			g.draw(camera_bound);
-*/			
+				g.draw(camera_bound);				
+			}					
 			frame_num++;			
 		}
 	}
@@ -334,20 +340,64 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	}
 	
-	private void mouseInteractionModeOn()
+	public static void setUnlimitedUpdateRate()
 	{
+		highUpdateRate = true;
+		
+		frame_rate = frame_rate_gui_interaction;
+		
+		simView.getContainer().setTargetFrameRate(-1);
+	}	
+	
+	public static void setVerticalSync(boolean sync)
+	{
+		vsync_toggle = sync;
+		simView.getContainer().setVSync(vsync_toggle);
+	}
+	
+	public static void setHighUpdateRate()
+	{
+		highUpdateRate = true;
+		
 		frame_rate = frame_rate_gui_interaction;
 		
 		simView.getContainer().setTargetFrameRate(frame_rate);
+		
+	}
+	
+	public static void setViewOverLay(boolean ioverlay)
+	{
+		overlay = ioverlay;
+	}
+	
+	public static void setStandardUpdateRate()
+	{
+		highUpdateRate = false;
 
+		frame_rate = default_frame_rate;	
+		
+		simView.getContainer().setTargetFrameRate(frame_rate);		
+		
+	}
+	
+	private void mouseInteractionModeOn()
+	{
+		if(!highUpdateRate) // Only Toggle if allowed to
+		{
+			frame_rate = frame_rate_gui_interaction;
+			
+			simView.getContainer().setTargetFrameRate(frame_rate);		
+		}
 	}
 
 	private void mouseInteractionModeOff()
 	{
-		frame_rate = default_frame_rate;	
-		
-		simView.getContainer().setTargetFrameRate(frame_rate);
-
+		if(!highUpdateRate) // Only Toggle if allowed to
+		{		
+			frame_rate = default_frame_rate;	
+			
+			simView.getContainer().setTargetFrameRate(frame_rate);
+		}
 	}
 	
 	public static void setInitalViewTranslate(int x,int y)
@@ -359,12 +409,10 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		if(simView!=null)
 		{
-
 			simView.setFocusable(true);
 			simView.requestFocus();
 			System.out.println("Got Focus");
 			simView.setFocusable(false);
-
 
 			//simView.transferFocus();			
 		}
