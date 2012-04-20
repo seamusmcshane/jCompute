@@ -25,8 +25,8 @@ public class SimpleAgentManagerTests
 
 	SimpleAgentManagementSetupParam agentSettings= new SimpleAgentManagementSetupParam();
 	
-	int agent_prey_numbers=512;
-	int agent_predator_numbers=256;
+	int agentPreyNumbers=512;
+	int agentPredatorNumbers=256;
 		
 	@Before
 	public void setUp() throws Exception
@@ -68,7 +68,7 @@ public class SimpleAgentManagerTests
 
 		agentSettings.setPreyStartingEnergy(value);
 		
-		agentManger = new SimpleAgentManager(barrierManager,world_size, agent_prey_numbers,agent_predator_numbers,agentSettings);
+		agentManger = new SimpleAgentManager(barrierManager,world_size, agentPreyNumbers,agentPredatorNumbers,agentSettings);
 
 	}
 
@@ -78,7 +78,7 @@ public class SimpleAgentManagerTests
 	@Test
 	public void initialPreyNumbers()
 	{
-		assertEquals(agent_prey_numbers,agent_prey_numbers,agentManger.getPreyCount());
+		assertEquals(agentPreyNumbers,agentPreyNumbers,agentManger.getPreyCount());
 	}
 	
 	/*
@@ -87,7 +87,7 @@ public class SimpleAgentManagerTests
 	@Test
 	public void initialPredatorNumbers()
 	{
-		assertEquals(agent_predator_numbers,agent_predator_numbers,agentManger.getPredatorCount());
+		assertEquals(agentPredatorNumbers,agentPredatorNumbers,agentManger.getPredatorCount());
 	}
 	
 	/*
@@ -96,7 +96,7 @@ public class SimpleAgentManagerTests
 	@Test
 	public void initialTotalAgentNumbers()
 	{
-		assertEquals(agent_prey_numbers+agent_predator_numbers,agent_prey_numbers+agent_predator_numbers,agentManger.getAgentCount());		
+		assertEquals(agentPreyNumbers+agentPredatorNumbers,agentPreyNumbers+agentPredatorNumbers,agentManger.getAgentCount());		
 	}
 
 }
