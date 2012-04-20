@@ -851,6 +851,11 @@ public class StatsPanel extends JPanel
 		
 		lorenzGraphPanel.completeResetGraph();
 		
+		lineGraphPanel.drawGraph();
+		lorenzGraphPanel.drawGraph();
+		stackedGraphPanel.drawGraph();
+
+		
 		sample_lock.release();
 		
 	}

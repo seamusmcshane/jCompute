@@ -1064,7 +1064,7 @@ public class SimulationGUI
 		btnPause.setText("Resume");
 		btnGenerate.setEnabled(true);
 
-		//StatsPanel.setPaused(true);
+		StatsPanel.setPaused(true);
 
 		sim.pauseSim();
 	}
