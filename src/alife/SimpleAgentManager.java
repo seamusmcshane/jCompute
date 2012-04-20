@@ -40,8 +40,8 @@ public class SimpleAgentManager
 	int agentCount;
 	
 	/** Predator and prey counts */
-	int prey_count;
-	int pred_count;
+	int preyCount;
+	int predatorCount;
 	
 	/** Reference for setting barrier tasks */
 	BarrierManager barrierManager;
@@ -57,20 +57,20 @@ public class SimpleAgentManager
 	 * @param agent_predator_numbers
 	 * @param agentSettings
 	 */
-	public SimpleAgentManager(BarrierManager barrierManager,int world_size, int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
+	public SimpleAgentManager(BarrierManager barrierManager,int worldSize, int agentPreyNumbers,int agentPredatorNumbers,SimpleAgentManagementSetupParam agentSettings)
 	{
 		this.agentSettings = agentSettings;  // All the intial agent settings are contained in this struct
 
 		agentCount = 0;
-		prey_count = 0;
-		pred_count = 0;
+		preyCount = 0;
+		predatorCount = 0;
 		agentIdCount=0;
 		
 		this.barrierManager = barrierManager;
 					
 		setUpLists();
 		
-		addAgents(world_size,agent_prey_numbers,agent_predator_numbers);
+		addAgents(worldSize,agentPreyNumbers,agentPredatorNumbers);
 
 	}
 	
@@ -117,17 +117,17 @@ public class SimpleAgentManager
 	 * Add an  agent to the done list for the next step  - keeps counts of agents and types added.
 	 * @param agent
 	 */
-	public void addAgent(SimpleAgent agent)
+	private void addAgent(SimpleAgent agent)
 	{		
 		doneList.add(agent);
 
 		if(agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
-			pred_count++;
+			predatorCount++;
 		}
 		else // AgentType.PREY
 		{
-			prey_count++;
+			preyCount++;
 		}
 		
 		agentCount++;	
@@ -138,16 +138,16 @@ public class SimpleAgentManager
 	 * Add an NEW agent to the done list for the next step and gives it a UID - keeps counts
 	 * @param agent
 	 */
-	public void addNewAgent(SimpleAgent agent)
+	private void addNewAgent(SimpleAgent agent)
 	{		
 
 		if(agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
-			pred_count++;
+			predatorCount++;
 		}
 		else // AgentType.PREY
 		{
-			prey_count++;
+			preyCount++;
 		}
 		
 		agentCount++;
@@ -222,9 +222,9 @@ public class SimpleAgentManager
 		updateDoneList();
 		
 		/* Stats Panel */
-		StatsPanel.setPredNo(pred_count);
+		StatsPanel.setPredNo(predatorCount);
 		
-		StatsPanel.setPreyNo(prey_count);			
+		StatsPanel.setPreyNo(preyCount);			
 	}
 
 	/**
@@ -237,8 +237,8 @@ public class SimpleAgentManager
 		ListIterator<SimpleAgent> itr = doList.listIterator();
 
 		agentCount=0;
-		prey_count = 0;
-		pred_count = 0;
+		preyCount = 0;
+		predatorCount = 0;
 		
 		while (itr.hasNext())
 		{
@@ -280,6 +280,33 @@ public class SimpleAgentManager
 	private void randomizeListOrder()
 	{
 		Collections.shuffle(doList);
+	}
+	
+	/**
+	 * Added for Unit tests
+	 * @return agentCount
+	 */
+	public int getAgentCount()
+	{
+		return agentCount;
+	}
+	
+	/**
+	 * Added for Unit tests
+	 * @return preyCount
+	 */
+	public int getPreyCount()
+	{
+		return preyCount;
+	}
+
+	/**
+	 * Added for Unit tests
+	 * @return predatorCount
+	 */
+	public int getPredatorCount()
+	{
+		return predatorCount;
 	}
 
 }
