@@ -124,6 +124,5 @@ public class SimulationManager
 		
 		// Release the lock on the done list
 		lock.release();
-	}
-	
+	}	
 }

@@ -213,9 +213,6 @@ public class SimulationGUI
 
 		SimulationView.displayView(sim, view_x, view_y, view_width, view_height);
 		
-		/* Creates a ready made Simulation using defaults */ 
-		newSim();
-
 	}
 
 	private static void newSim()

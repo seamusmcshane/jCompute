@@ -109,7 +109,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
-		/* Creates the buffered graphic */		setUpImageBuffer();		
+		/* Creates the buffered graphic */		setUpImageBuffer();	
 	}
 	
 	@Override

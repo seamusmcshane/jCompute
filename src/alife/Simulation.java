@@ -334,7 +334,7 @@ public class Simulation
 	
 	public void drawSim(Graphics g,boolean true_drawing,boolean view_range_drawing)
 	{	
-		//if(simStarted)
+		if(simStarted)
 		{
 			if(world!=null)
 			{
