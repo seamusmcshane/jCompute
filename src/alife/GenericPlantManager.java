@@ -144,7 +144,7 @@ public class GenericPlantManager
 	/** Updates the Done list. 
 	 * This is effectively handling the death of plants in the simulation and if later implemented the reproduction of plants. 
 	 * */
-	public void updateDoneList()
+	private void updateDoneList()
 	{
 		/* Recount all the plants - since some will have died...*/
 		plantCount=0;
@@ -206,7 +206,7 @@ public class GenericPlantManager
 	}
 
 	/** Being born counts as an Action thus all new plants start in the done list */
-	public void addNewPlant(GenericPlant plant)
+	private void addNewPlant(GenericPlant plant)
 	{		
 		doneList.add(plant);
 		plantCount++;		
@@ -219,6 +219,15 @@ public class GenericPlantManager
 	{
 		doList = doneList;
 		doneList = new LinkedList<GenericPlant>();
+	}
+	
+	/**
+	 * Added for Unit tests
+	 * @return
+	 */
+	public int getPlantNo()
+	{
+		return plantCount;
 	}
 			
 }
