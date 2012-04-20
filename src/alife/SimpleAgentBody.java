@@ -284,4 +284,9 @@ public class SimpleAgentBody
 		return (true_size*true_size)*2;
 	}
 	
+	public SimpleAgentStats getStatsDebugMethod()
+	{
+		return stats;
+	}
+	
 }
