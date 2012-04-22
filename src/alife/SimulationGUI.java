@@ -1282,10 +1282,11 @@ public class SimulationGUI
 			{
 				/* Pause the sim */
 				simPausedState();
-				
-				/* Disable resume */
-				btnPause.setEnabled(false);				
+							
 			}
+
+			/* Disable resume */
+			btnPause.setEnabled(false);	
 			
 			/* Clear the old stats */
 			StatsPanel.clearStats();
