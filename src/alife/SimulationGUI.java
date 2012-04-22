@@ -1226,7 +1226,7 @@ public class SimulationGUI
 		String message;
 		message = "Unlocking paramters will end this simulation!\nDo wish to unlock the parameters?";
 
-		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+		JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
 
 		JDialog dialog = pane.createDialog(null, "Unlock Parameters");
 
