@@ -52,9 +52,9 @@ public class SimpleAgentManager
 	/**
 	 * Creates am Agent manager.
 	 * @param barrierManager
-	 * @param world_size
-	 * @param agent_prey_numbers
-	 * @param agent_predator_numbers
+	 * @param worldSize
+	 * @param agentPreyNumbers
+	 * @param agentPredatorNumbers
 	 * @param agentSettings
 	 */
 	public SimpleAgentManager(BarrierManager barrierManager,int worldSize, int agentPreyNumbers,int agentPredatorNumbers,SimpleAgentManagementSetupParam agentSettings)
@@ -76,11 +76,11 @@ public class SimpleAgentManager
 	
 	/**
 	 * Adds in build the set number of predators and prey to the world.
-	 * @param world_size
-	 * @param agent_prey_numbers
-	 * @param agent_predator_numbers
+	 * @param worldSize
+	 * @param agentPreyNumbers
+	 * @param agentPredatorNumbers
 	 */
-	private void addAgents(int world_size,int agent_prey_numbers,int agent_predator_numbers)
+	private void addAgents(int worldSize,int agentPreyNumbers,int agentPredatorNumbers)
 	{
 		
 		/* Random Starting Position */
@@ -90,11 +90,11 @@ public class SimpleAgentManager
 		int x, y;
 		
 		// Prey
-		for (int i = 0; i < agent_prey_numbers; i++)
+		for (int i = 0; i < agentPreyNumbers; i++)
 		{
 		
-			x = xr.nextInt(world_size) + 1;
-			y = yr.nextInt(world_size) + 1;
+			x = xr.nextInt(worldSize) + 1;
+			y = yr.nextInt(worldSize) + 1;
 
 			//SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de, float red)
 			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY),agentSettings.getPreySpeed(), 5f,agentSettings.getPreyStartingEnergy(), 100f,agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(),agentSettings.getPreyRepoCost(),agentSettings.getPreyConsumptionRate(),agentSettings.getPreyDE(),agentSettings.getPreyREDiv())));
@@ -102,10 +102,10 @@ public class SimpleAgentManager
 		}	
 		
 		// Predator
-		for (int i = 0; i < agent_predator_numbers; i++)
+		for (int i = 0; i < agentPredatorNumbers; i++)
 		{
-			x = xr.nextInt(world_size) + 1;
-			y = yr.nextInt(world_size) + 1;
+			x = xr.nextInt(worldSize) + 1;
+			y = yr.nextInt(worldSize) + 1;
 
 			//SimpleAgentStats(SimpleAgentType type,float ms, float sz, float se,float me, float ht, float vr, float base_move_cost,float base_reproduction_cost, float ecr, float de, float red)
 			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR),agentSettings.getPredatorSpeed(), 5f,agentSettings.getPredStartingEnergy(), 100f,agentSettings.getPredatorHungerThres(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(),agentSettings.getPredRepoCost(),agentSettings.getPredatorConsumptionRate(),agentSettings.getPredatorDE(),agentSettings.getPredatorREDiv())));
@@ -165,7 +165,7 @@ public class SimpleAgentManager
 	 * @param true_drawing
 	 * @param view_range_drawing
 	 */
-	public void drawAgent(Graphics g,boolean true_drawing,boolean view_range_drawing)
+	public void drawAgent(Graphics g,boolean trueDrawing,boolean viewRangeDrawing)
 	{
 
 		itrDrawAI = doneList.listIterator();
@@ -179,7 +179,7 @@ public class SimpleAgentManager
 			if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
-				if(true_drawing==true)
+				if(trueDrawing)
 				{
 					tAgentDrawAI.body.drawTrueBody(g);	
 				}
@@ -189,7 +189,7 @@ public class SimpleAgentManager
 				}
 
 				
-				if(view_range_drawing)
+				if(viewRangeDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
 					tAgentDrawAI.drawViewRange(g);					
