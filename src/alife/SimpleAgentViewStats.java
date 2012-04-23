@@ -4,7 +4,10 @@ import org.newdawn.slick.geom.Vector2f;
 
 import alife.SimpleAgentEnum.AgentType;
 
-/** Used to store the "visible" statistics of the inViewAgent */
+/** Used to store the "visible" statistics of the inViewAgent
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
+ */
 public class SimpleAgentViewStats
 {
 	/** Size of Agent in view */
@@ -26,10 +29,10 @@ public class SimpleAgentViewStats
 		initStats();
 	}
 	
-/**
- * Update Statistics
- * 
- */
+	/**
+	 * Update Statistics
+	 * @param agent SimpleAgent
+	 */
 	public void updateStats(SimpleAgent agent)
 	{
 		original_agent = agent;
@@ -42,10 +45,9 @@ public class SimpleAgentViewStats
 		this.type = agent.body.stats.getType();
 	}	
 	
-/**
- * 
- * Initialization 
- */
+	/**
+	 * Initialization 
+	 */
 	public void initStats()
 	{
 		original_agent = null;
@@ -58,10 +60,9 @@ public class SimpleAgentViewStats
 		
 	}
 
-/**
- * Clear Statistics
- * 
- */
+	/**
+	 * Clear Statistics
+	 */
 	public void clearStats()
 	{
 		original_agent = null;
@@ -76,28 +77,34 @@ public class SimpleAgentViewStats
 
 	}
 	
-/**
- * Statistics Getters
- * 
- */
-	/** Position of the Agent in view (Cartesian) */
+	/** Position of the Agent in view (Cartesian) 
+	 * @return Vector2f
+	 * */
 	public Vector2f getAgentPos()
 	{
 		return agentPos;
 	}
 
-	/** Size of Agent in view */
+	/** Size of Agent in view 
+	 * @return float
+	 */
 	public float getAgentSize()
 	{
 		return size;
 	}
 	
+	/**
+	 * Method getAgentType.
+	 * @return SimpleAgentType
+	 */
 	public SimpleAgentType getAgentType()
 	{
 		return type;
 	}
 	
-	/** A reference to the original agent that this view is about - Must not be used by agents themselves */
+	/** A reference to the original agent that this view is about - Must not be used by agents themselves 
+	 * @return SimpleAgent
+	 */
 	public SimpleAgent getOriginalAgentRef()
 	{
 		return original_agent;
