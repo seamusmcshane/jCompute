@@ -94,12 +94,12 @@ public class SimpleAgentBody
 	/** 
 	 * Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement.
 	 * 
-	 * @param reqDirection float
+	 * @param requestedDirection float
 	 * 	
 	 * @return boolean   */
-	public boolean move(float reqDirection)
+	public boolean move(float requestedDirection)
 	{		
-		Vector2f newPos = newPosition(reqDirection);
+		Vector2f newPos = newPosition(requestedDirection);
 
 		/* If physics says yes then move the agent */
 		if( !World.isBoundaryWall(newPos.getX(),newPos.getY()) ) 
@@ -175,8 +175,8 @@ public class SimpleAgentBody
 		bodyPos = pos;
 	}
 	
-	/** Internal Movement - decrements move energy
-	 *
+	/** 
+	 * Internal Movement - decrements move energy
 	 * @param pos Vector2f
 	 */
 	private void updateBodyPosition(Vector2f pos)
@@ -187,7 +187,6 @@ public class SimpleAgentBody
 
 	/** 
 	 * Returns the position of the body
-	
 	 * @return Vector2f  */
 	public Vector2f getBodyPos()
 	{
@@ -196,9 +195,7 @@ public class SimpleAgentBody
 	
 	/**
 	 * The eat agent Action, attempts to eat the agent in view.
-	 * 
-	 * @param view	
-	 * 
+	 * @param view 
 	 * @return boolean */
 	public boolean eatAgent(SimpleAgentView view)
 	{		
@@ -222,9 +219,7 @@ public class SimpleAgentBody
 	
 	/**
 	 * Checks if the agent in view is close enough to eat.
-	 * 
 	 * @param view
-	 * 	
 	 * @return boolean */
 	private boolean isAgentCloseEnoughToEat(SimpleAgentView view)
 	{
@@ -239,9 +234,7 @@ public class SimpleAgentBody
 	
 	/**
 	 * The eat plant Action, attempts to eat the plant in view.
-	 * 
 	 * @param view	
-	 * 
 	 * @return boolean */
 	public boolean eatPlant(SimpleAgentView view)
 	{		
@@ -265,9 +258,7 @@ public class SimpleAgentBody
 
 	/**
 	 * Checks if the plant in view is close enough to eat.
-	 * 
 	 * @param view	
-	 * 
 	 * @return boolean */	
 	private boolean isPlantCloseEnoughToEat(SimpleAgentView view)
 	{
@@ -280,17 +271,16 @@ public class SimpleAgentBody
 		return false;		
 	}
 		
-	/** Returns the agents direction of movement.
-	 * 
-	
+	/** 
+	 * Returns the agents direction of movement. 
 	 * @return float */
 	public float getDirection()
 	{
 		return this.direction;
 	}
 
-	/** Fast Body Draw Method - rectangles
-	 * 
+	/** 
+	 * Fast Body Draw Method - rectangles
 	 * @param g Graphics
 	 */
 	public void drawRectBody(Graphics g)
@@ -304,7 +294,6 @@ public class SimpleAgentBody
 	
 	/** 
 	 * Slow Draw method - circles
-	 *  
 	 * @param g Graphics
 	 */
 	public void drawTrueBody(Graphics g)
@@ -320,7 +309,6 @@ public class SimpleAgentBody
 	
 	/** 
 	 * Returns the true size squared for use in collision detection. 
-	 * 
 	 * @return float */
 	public float getTrueSizeSQRD()
 	{
@@ -329,7 +317,6 @@ public class SimpleAgentBody
 	
 	/**
 	 * Method getStatsDebugMethod.
-	 * 	
 	 * @return SimpleAgentStats  */
 	public SimpleAgentStats getStatsDebugMethod()
 	{
