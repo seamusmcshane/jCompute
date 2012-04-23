@@ -79,7 +79,7 @@ public class SimpleAgentTests
 	@Test
 	public void idIsCorrect()
 	{
-		assertEquals(agentId,agentId,testAgent.getId());
+		assertEquals(agentId,agentId,testAgent.getAgentId());
 	}
 
 	@Test
