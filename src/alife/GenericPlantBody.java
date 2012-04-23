@@ -9,6 +9,8 @@ import org.newdawn.slick.geom.Vector2f;
  * 
  * This Class is the body of a plant.
  *
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class GenericPlantBody
 {
@@ -16,76 +18,107 @@ public class GenericPlantBody
 
 	private Rectangle body;
 	
-	private Vector2f body_pos;
+	private Vector2f bodyPos;
 	
-	private Circle true_body;
+	private Circle trueBody;
 	
-	private float true_size;
+	private float trueSize;
 	
 	private Color color;
 	
-	public GenericPlantBody(Vector2f pos,float starting_energy, float max_energy, float absorption_rate, float base_plant_reproduction_cost)
+	/**
+	 * Constructor for GenericPlantBody.
+	 * @param pos Vector2f
+	 * @param startingEnergy float
+	 * @param maxEnergy float
+	 * @param absorptionRate float
+	 * @param basePlantReproductionCost float
+	 */
+	public GenericPlantBody(Vector2f pos,float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
 	{
-		stats = new GenericPlantStats(starting_energy, max_energy, absorption_rate, base_plant_reproduction_cost);
+		stats = new GenericPlantStats(startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
 				
 		initBody();
 		
 		setIntialPos(pos);
 	}	
 	
-	/** Initialises The body. */
+	/** 
+	 * Initializes The body. 
+	 */
 	private void initBody()
 	{
 		body = new Rectangle(0,0,stats.getSize(),stats.getSize());
 
-		true_size = body.getBoundingCircleRadius();
+		trueSize = body.getBoundingCircleRadius();
 		
-		true_body = new Circle(0,0,true_size);
+		trueBody = new Circle(0,0,trueSize);
 					
 		setColor();
 	}
 	
-	/** Sets the Initial Cartesian X/Y Position */
+	/** 
+	 * Sets the Initial Cartesian X/Y Position.
+	 *
+	 * @param pos Vector2f
+	 */
 	private void setIntialPos(Vector2f pos)
 	{	
-		body_pos = pos;
+		bodyPos = pos;
 	}	
 	
-	/** Returns a Vector2f representing the position of the plants body */
+	/** 
+	 * Returns a Vector2f representing the position of the plants body.
+	 * 
+	 * @return Vector2f */
 	public Vector2f getBodyPos()
 	{
-		return body_pos;
+		return bodyPos;
 	}
 	
-	/** Draws the Faster Rectangle version of the plant Body */
+	/** 
+	 * Draws the Faster Rectangle version of the plant Body.
+	 * 
+	 * @param g Graphics
+	 */
 	public void drawRectBody(Graphics g)
 	{
-		body.setLocation(body_pos.getX()-(stats.getSize()/2), body_pos.getY()-(stats.getSize()/2));
+		body.setLocation(bodyPos.getX()-(stats.getSize()/2), bodyPos.getY()-(stats.getSize()/2));
 
 		g.setColor(color);
 
 		g.fill(body);			
 	}
 	
-	/** Draws the true circular body of the plant */
+	/** 
+	 * Draws the true circular body of the plant.
+	 *  
+	 * @param g Graphics
+	 */
 	public void drawTrueBody(Graphics g)
 	{
-		true_body.setLocation(body_pos.getX()-(true_size), body_pos.getY()-(true_size));
+		trueBody.setLocation(bodyPos.getX()-(trueSize), bodyPos.getY()-(trueSize));
 
 		g.setColor(color);
 		
-		g.fill(true_body);	
+		g.fill(trueBody);	
 		
 		drawRectBody(g);
 	}
 
-	/** Returns the true size squared for use in collision detection */
+	/** 
+	 * Returns the true size squared for use in collision detection.
+	 * 
+	 * @return float */
 	public float getTrueSizeSQRD()
 	{
-		return (true_size*true_size)*2; //radius > diameter
+		return (trueSize*trueSize)*2; //radius > diameter
 	}
 	
-	/** Sets the Color of the Body of this plant */
+	/** 
+	 * Sets the Color of the Body of this plant.
+	 * 
+	 */
 	private void setColor()
 	{
 		color = Color.green;
