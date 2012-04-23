@@ -6,6 +6,8 @@ import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Vector2f;
 /**
  * This Class is an instantiation of an Agent.
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class SimpleAgent
 {
@@ -40,25 +42,35 @@ public class SimpleAgent
 		
 	}
 	
-	/** Generates the agents View representation */
+	/** 
+	 * Generates the agents View representation 
+	 */
 	private void setUpView()
 	{				
 		fov = new Circle(body.getBodyPos().getX(),body.getBodyPos().getY(),body.stats.getViewRange());
 	}
 
-	/** Updates the location of the representation of View position */
+	/** 
+	 * Updates the location of the representation of View position 
+	 */
 	private void upDateViewLocation()
 	{
 		fov.setLocation(body.getBodyPos().getX()-(body.stats.getViewRange()),body.getBodyPos().getY()-(body.stats.getViewRange()));
 	}
 	
-	/** Gives this agent a body with the set stats */
+	/** 
+	 * Gives this agent a body with the set stats 
+	 * @param pos Vector2f
+	 * @param stats SimpleAgentStats
+	 */
 	private void addAgentBody(Vector2f pos,SimpleAgentStats stats)
 	{
 		body = new SimpleAgentBody(pos,stats);
 	}
 
-	/** Gives this agent a brain */
+	/** 
+	 * Gives this agent a brain 
+	 */
 	private void addAgentBrain()
 	{
 		brain = new SimpleAgentBrain(body);
@@ -77,14 +89,19 @@ public class SimpleAgent
 		g.draw(fov);		
 	}
 	
-	/** Sets a unique agent id for debug */
+	/** 
+	 * Sets a unique agent id for debug 
+	 * @param id int
+	 */
 	public void setId(int id)
 	{
 		this.uid = id;
 	}
 	
-	/* Returns the agent id */
-	public int getId()
+	/**
+	 * Returns the agent id
+	 * @return int */
+	public int getAgentId()
 	{
 		return uid;
 	}
