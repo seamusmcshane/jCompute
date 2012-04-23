@@ -11,6 +11,8 @@ import javax.swing.JPanel;
  */
 public class StatsLineGraphPanel extends JPanel
 {
+
+	private static final long serialVersionUID = 8946884538574615118L;
 	/** The references to the sample arrays */
 	private int plantsSamples[];
 	private int preySamples[];

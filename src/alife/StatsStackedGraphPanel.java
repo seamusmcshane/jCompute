@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 
 public class StatsStackedGraphPanel extends JPanel
 {
+	private static final long serialVersionUID = -8039820081105789703L;
+
 	/** The references to the sample arrays */
 	private int plantsSamples[];
 	private int preySamples[];
