@@ -9,6 +9,8 @@ import org.newdawn.slick.Graphics;
  * This class manages the plants in the simulation.
  * Drawing, adding, removing and regeneration.
  * 
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class GenericPlantManager
 {
@@ -20,65 +22,69 @@ public class GenericPlantManager
 	/** The Total number of plants managed by this class */
 	private int plantCount=0;
 
-	/** The interator used to draw the plants */
+	/** The iterator used to draw the plants */
 	private ListIterator<GenericPlant> itrDrawPlant;
 	
 	/** A re-used reference in the draw method */
 	private GenericPlant tPlantDraw; 	
 	
 	/** The size of the world, needed for correctly placing new plants */
-	private int world_size;
+	private int worldSize;
 	
 	/** The initial Number of plants */
 	@SuppressWarnings("unused")
-	private int inital_number;
+	private int initalNumber;
 	
 	/** The reproduction cost for plants */
-	private float base_plant_reproduction_cost=0.99f; // Disabled
+	private float basePlantReproductionCost=0.99f; // Disabled
 	
 	/** A reference to the plant absorption rate, so new plants can have the same value */
-	private float base_plant_energy_absorption_rate=1f;
+	private float basePlantEnergyAbsorptionRate=1f;
 	
 	/** The default value for the plants starting energy */
-	private float plantstartingenergy;
+	private float plantStartingEnergy;
 	
 	/** The amount of plants that are to be regenerated each step */
-	private int plant_regen_rate;
+	private int plantRegenRate;
 		
 	/** Reference for setting task in the */
 	BarrierManager barrierManager;
 	
 	/**
 	 * Creates a plant manager.
-	 * 
-	 * @param viewGenerator
-	 * @param world_size
-	 * @param inital_number
-	 * @param plant_regen_rate
-	 * @param plantstartingenergy
-	 * @param plant_energy_absorption_rate
+	 * 	
+	 * @param worldSize
+	 * @param initalNumber
+	 * @param plantRegenRate
+	 * @param plantStartingEnergy
+	 * @param plantEnergyAbsorptionRate
+	 * @param barrierManager BarrierManager
 	 */
-	public GenericPlantManager(BarrierManager barrierManager,int world_size,int inital_number, int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate)
+	public GenericPlantManager(BarrierManager barrierManager,int worldSize,int initalNumber, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate)
 	{		
-		this.inital_number = inital_number;
+		this.initalNumber = initalNumber;
 		
 		this.barrierManager = barrierManager;
 		
-		this.world_size = world_size;
+		this.worldSize = worldSize;
 				
-		this.plant_regen_rate = plant_regen_rate;
+		this.plantRegenRate = plantRegenRate;
 		
-		this.plantstartingenergy = plantstartingenergy;
+		this.plantStartingEnergy = plantStartingEnergy;
 		
-		this.base_plant_energy_absorption_rate = plant_energy_absorption_rate;
+		this.basePlantEnergyAbsorptionRate = plantEnergyAbsorptionRate;
 		
 		setUpLists();
 		
-		addPlants(world_size,inital_number);		
+		addPlants(worldSize,initalNumber);		
 	}
 
-	/** Draws all the plants with a toggle for body type */
-	public void drawPlants(Graphics g,boolean true_drawing)
+	/** Draws all the plants with a toggle for body type
+	 *  
+	 * @param g Graphics	
+	 * @param trueDrawing boolean
+	 */
+	public void drawPlants(Graphics g,boolean trueDrawing)
 	{
 		
 		itrDrawPlant = doneList.listIterator();
@@ -92,7 +98,7 @@ public class GenericPlantManager
 			if (tPlantDraw.body.getBodyPos().getX() > (SimulationView.camera_bound.getX() - SimulationView.global_translate.getX()) && tPlantDraw.body.getBodyPos().getX() < (SimulationView.camera_bound.getMaxX() - SimulationView.global_translate.getX()) && tPlantDraw.body.getBodyPos().getY() > (SimulationView.camera_bound.getY() - SimulationView.global_translate.getY()) && tPlantDraw.body.getBodyPos().getY() < (SimulationView.camera_bound.getMaxY() - SimulationView.global_translate.getY()))
 			{
 				/* Optimization - draw correct circular bodies or faster rectangular bodies */
-				if(true_drawing==true)
+				if(trueDrawing)
 				{
 					tPlantDraw.body.drawTrueBody(g);	
 				}
@@ -107,7 +113,9 @@ public class GenericPlantManager
 		
 	}
 	
-	/** Plant List preparation for the barrier */
+	/** 
+	 * Plant List preparation for the barrier
+	 */
 	public void stage1()
 	{
 		setUpLists();
@@ -128,14 +136,16 @@ public class GenericPlantManager
 		updateDoneList();
 				
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(world_size,plant_regen_rate);	// log2(512) - +9... log2(1024)+10...
+		addPlants(worldSize,plantRegenRate);	// log2(512) - +9... log2(1024)+10...
 		
 		// Stats Counter
 		StatsPanel.setPlantNo(plantCount);
 		
 	}
 		
-	/** Randomize the doList - to reduce list position bias */
+	/** 
+	 * Randomize the doList - to reduce list position bias
+	 */
 	private void randomizeListOrder()
 	{
 		Collections.shuffle(doList);
@@ -143,7 +153,7 @@ public class GenericPlantManager
 	
 	/** Updates the Done list. 
 	 * This is effectively handling the death of plants in the simulation and if later implemented the reproduction of plants. 
-	 * */
+	 */
 	private void updateDoneList()
 	{
 		/* Recount all the plants - since some will have died...*/
@@ -169,10 +179,10 @@ public class GenericPlantManager
 				{										
 					temp.body.stats.decrementReproductionCost();
 					
-					int x = rPos.nextInt(world_size) + 1;
-					int y = rPos.nextInt(world_size) + 1;
+					int x = rPos.nextInt(worldSize) + 1;
+					int y = rPos.nextInt(worldSize) + 1;
 										
-					addNewPlant(new GenericPlant(x,y,50f, 100f, base_plant_energy_absorption_rate,base_plant_reproduction_cost));										
+					addNewPlant(new GenericPlant(x,y,50f, 100f, basePlantEnergyAbsorptionRate,basePlantReproductionCost));										
 					
 				}*/
 				//
@@ -187,8 +197,13 @@ public class GenericPlantManager
 	
 	}
 	
-	/** Adds (n) number of plants randomly in the world */
-	private void addPlants(int world_size,int plant_number)
+	/** 
+	 * Adds (n) number of plants randomly in the world
+	 * 
+	 * @param worldSize int
+	 * @param plantNumber int
+	 */
+	private void addPlants(int worldSize,int plantNumber)
 	{	
 		/* Random Starting Position */
 		Random xr = new Random();
@@ -196,23 +211,28 @@ public class GenericPlantManager
 		
 		int x, y;
 		
-		for (int i = 0; i < plant_number; i++)
+		for (int i = 0; i < plantNumber; i++)
 		{
-			x = xr.nextInt(world_size) + 1;
-			y = yr.nextInt(world_size) + 1;
+			x = xr.nextInt(worldSize) + 1;
+			y = yr.nextInt(worldSize) + 1;
 
-			addNewPlant(new GenericPlant(x,y,plantstartingenergy, 100f, base_plant_energy_absorption_rate,base_plant_reproduction_cost));
+			addNewPlant(new GenericPlant(x,y,plantStartingEnergy, 100f, basePlantEnergyAbsorptionRate,basePlantReproductionCost));
 		}		
 	}
 
-	/** Being born counts as an Action thus all new plants start in the done list */
+	/** 
+	 * Being born counts as an Action thus all new plants start in the done list
+	 *  
+	 * @param plant GenericPlant
+	 */
 	private void addNewPlant(GenericPlant plant)
 	{		
 		doneList.add(plant);
 		plantCount++;		
 	}	
 	
-	/** Sets up the safe starting position for the lists 
+	/** 
+	 * Sets up the safe starting position for the lists 
 	 * Any plant not moved out of the done list has been marked as dead and will not be in the do list.
 	 * */
 	private void setUpLists()
@@ -223,8 +243,8 @@ public class GenericPlantManager
 	
 	/**
 	 * Added for Unit tests
-	 * @return
-	 */
+	 * 	
+	 * @return int */
 	public int getPlantNo()
 	{
 		return plantCount;
