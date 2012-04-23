@@ -10,11 +10,13 @@ import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction
 
 /**
  *  This thread object will iterate through a linked list of agents passed to it, 
- *  finding the nearest neighbour for each agent in the linked list using the KdTree pass to it.
+ *  finding the nearest neighbor for each agent in the linked list using the KdTree pass to it.
  *  It also performs the agents step.
  *  
  *  This thread object will also iterate through a linked list of plants.
  *  This performs the plant step. ie photosynthesis 
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class BarrierTaskThread extends Thread
 {
@@ -62,14 +64,16 @@ public class BarrierTaskThread extends Thread
 	/**
 	 * Instantiates a new barrier task thread.
 	 * @param id
-	 * @param sem1
-	 * @param sem2
+	
+	
+	 * @param startSem Semaphore
+	 * @param endSem Semaphore
 	 */
-	public BarrierTaskThread(int id,Semaphore sem1,Semaphore sem2)
+	public BarrierTaskThread(int id,Semaphore startSem,Semaphore endSem)
 	{
 	//	this.my_id =id;
-		start = sem1;
-		end = sem2;
+		start = startSem;
+		end = endSem;
 		pos = new double[2];
 	}
 	
@@ -94,8 +98,9 @@ public class BarrierTaskThread extends Thread
 	}
 	
 	/**
-	 * Section 1 - perform plant iteration.
-	 * Section 2 - same for agents.
+	 * Section 1 - Iterate over the plants.
+	 * Section 2 - Iterate over the agents.
+	 * @see java.lang.Runnable#run()
 	 */
 	public void run()
 	{
@@ -172,7 +177,7 @@ public class BarrierTaskThread extends Thread
 	 * True - add it to the Agent to the current agents view.
 	 * False- clear the view.
 	 */
-	public void agentViewRangeKDSQAgents() /* Public for inclusion into java doc */
+	private void agentViewRangeKDSQAgents()
 	{
 		/* Agent alone in the world */
 		if(currentAgent.equals(nearestAgent))
@@ -197,7 +202,7 @@ public class BarrierTaskThread extends Thread
 	/** 
 	 * As above but for plants - with the logical exception that plants can be extinct and thus the list empty.
 	 */
-	public void agentViewRangeKDSQPlants()
+	private void agentViewRangeKDSQPlants()
 	{
 		if(nearestPlant == null) // All plants are extinct..
 		{

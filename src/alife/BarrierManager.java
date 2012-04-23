@@ -101,7 +101,6 @@ public class BarrierManager extends Thread
 	/**
 	 * Updates the barrier with a new list of agents to process.
 	 * @param inList
-	
 	 * @param numAgents int
 	 */
 	public void setBarrierAgentTask(LinkedList<SimpleAgent> inList, int numAgents)
@@ -113,7 +112,6 @@ public class BarrierManager extends Thread
 	/** 
 	 * Updates the barrier with a new list of plants to process.
 	 * @param inList
-	
 	 * @param numPlants int
 	 */
 	public void setBarrierPlantTask(LinkedList<GenericPlant> inList, int numPlants)
@@ -163,7 +161,7 @@ public class BarrierManager extends Thread
 	}
 
 	/**
-	 * Initialises the Linked Lists.
+	 * Initializes the Linked Lists.
 	 */
 	@SuppressWarnings("unchecked")
 	private void setUpTaskLists()
@@ -173,7 +171,7 @@ public class BarrierManager extends Thread
 	}
 	
 	/** 
-	 * Initialises the internal barrier semaphores.
+	 * Initializes the internal barrier semaphores.
 	 */
 	private void setUpSemaphores()
 	{
@@ -189,7 +187,7 @@ public class BarrierManager extends Thread
 	}
 	
 	/**
-	 * Initialises the barrier threads with their semaphores.
+	 * Initializes the barrier threads with their semaphores.
 	 */
 	private void setUpThreads()
 	{
