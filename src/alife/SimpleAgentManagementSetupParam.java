@@ -3,36 +3,38 @@ package alife;
  * This class is used for transferring many parameters into the simulation from the GUI in bulk
  * avoiding the need to pass them in singular.
  *
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class SimpleAgentManagementSetupParam
 {
-	private float predatorspeed;
-	private float preyspeed;	
+	private float predatorSpeed;
+	private float preySpeed;	
 
-	private float preyviewrange;
-	private float predatorviewrange;
+	private float preyViewRange;
+	private float predatorViewRange;
 	
-	private float preyde;
-	private float predatorde;
+	private float preyDE;
+	private float predatorDE;
 	
-	private float preyrediv;
-	private float predatorrediv;
+	private float preyREDiv;
+	private float predatorREDiv;
 	
-	private float preymovecost;
-	private float predatormovecost;
+	private float preyMoveCost;
+	private float predatorMoveCost;
 	
-	private float preyhungerthres;
-	private float predatorhungerthres;
+	private float preyHungerThres;
+	private float predatorHungerThres;
 	
-	private float preyconsumptionrate;
+	private float preyConsumptionRate;
 	@SuppressWarnings("unused")
-	private float predatorconsumptionrate;
+	private float predatorConsumptionRate;
 	
-	private float preyrepocost;
-	private float predrepocost;
+	private float preyRepoCost;
+	private float predRepoCost;
 	
-	private float preystartingenergy;
-	private float predstartingenergy;
+	private float preyStartingEnergy;
+	private float predStartingEnergy;
 
 	
 	public SimpleAgentManagementSetupParam()
@@ -41,218 +43,362 @@ public class SimpleAgentManagementSetupParam
 		
 	}
 	
+	/**
+	 * Method getPredatorSpeed.
+	 * @return float
+	 */
 	public float getPredatorSpeed()
 	{
-		return predatorspeed;
+		return predatorSpeed;
 	}
 
 
-	public void setPredatorSpeed(float predatorspeed)
+	/**
+	 * Method setPredatorSpeed.
+	 * @param predatorSpeed float
+	 */
+	public void setPredatorSpeed(float predatorSpeed)
 	{
-		this.predatorspeed = predatorspeed;
+		this.predatorSpeed = predatorSpeed;
 	}
 
 
+	/**
+	 * Method getPreySpeed.
+	 * @return float
+	 */
 	public float getPreySpeed()
 	{
-		return preyspeed;
+		return preySpeed;
 	}
 
 
-	public void setPreySpeed(float preyspeed)
+	/**
+	 * Method setPreySpeed.
+	 * @param preySpeed float
+	 */
+	public void setPreySpeed(float preySpeed)
 	{
-		this.preyspeed = preyspeed;
+		this.preySpeed = preySpeed;
 	}
 
 
+	/**
+	 * Method getPreyViewRange.
+	 * @return float
+	 */
 	public float getPreyViewRange()
 	{
-		return preyviewrange;
+		return preyViewRange;
 	}
 
 
-	public void setPreyViewRange(float preyviewrange)
+	/**
+	 * Method setPreyViewRange.
+	 * @param preyViewRange float
+	 */
+	public void setPreyViewRange(float preyViewRange)
 	{
-		this.preyviewrange = preyviewrange;
+		this.preyViewRange = preyViewRange;
 	}
 
 
+	/**
+	 * Method getPredatorViewRange.
+	 * @return float
+	 */
 	public float getPredatorViewRange()
 	{
-		return predatorviewrange;
+		return predatorViewRange;
 	}
 
 
-	public void setPredatorViewRange(float predatorviewrange)
+	/**
+	 * Method setPredatorViewRange.
+	 * @param predatorViewRange float
+	 */
+	public void setPredatorViewRange(float predatorViewRange)
 	{
-		this.predatorviewrange = predatorviewrange;
+		this.predatorViewRange = predatorViewRange;
 	}
 
 
+	/**
+	 * Method getPreyDE.
+	 * @return float
+	 */
 	public float getPreyDE()
 	{
-		return preyde;
+		return preyDE;
 	}
 
 
-	public void setPreyDE(float preyde)
+	/**
+	 * Method setPreyDE.
+	 * @param preyDE float
+	 */
+	public void setPreyDE(float preyDE)
 	{
-		this.preyde = preyde;
+		this.preyDE = preyDE;
 	}
 
 
+	/**
+	 * Method getPredatorDE.
+	 * @return float
+	 */
 	public float getPredatorDE()
 	{
-		return predatorde;
+		return predatorDE;
 	}
 
 
-	public void setPredatorDE(float predatorde)
+	/**
+	 * Method setPredatorDE.
+	 * @param predatorDE float
+	 */
+	public void setPredatorDE(float predatorDE)
 	{
-		this.predatorde = predatorde;
+		this.predatorDE = predatorDE;
 	}
 
 
+	/**
+	 * Method getPreyREDiv.
+	 * @return float
+	 */
 	public float getPreyREDiv()
 	{
-		return preyrediv;
+		return preyREDiv;
 	}
 
 
-	public void setPreyREDiv(float preyrediv)
+	/**
+	 * Method setPreyREDiv.
+	 * @param preyREDiv float
+	 */
+	public void setPreyREDiv(float preyREDiv)
 	{
-		this.preyrediv = preyrediv;
+		this.preyREDiv = preyREDiv;
 	}
 
 
+	/**
+	 * Method getPredatorREDiv.
+	 * @return float
+	 */
 	public float getPredatorREDiv()
 	{
-		return predatorrediv;
+		return predatorREDiv;
 	}
 
 
-	public void setPredatorREDiv(float predatorrediv)
+	/**
+	 * Method setPredatorREDiv.
+	 * @param predatorREDiv float
+	 */
+	public void setPredatorREDiv(float predatorREDiv)
 	{
-		this.predatorrediv = predatorrediv;
+		this.predatorREDiv = predatorREDiv;
 	}
 
 
+	/**
+	 * Method getPreyMoveCost.
+	 * @return float
+	 */
 	public float getPreyMoveCost()
 	{
-		return preymovecost;
+		return preyMoveCost;
 	}
 
 
-	public void setPreyMoveCost(float preymovecost)
+	/**
+	 * Method setPreyMoveCost.
+	 * @param preyMoveCost float
+	 */
+	public void setPreyMoveCost(float preyMoveCost)
 	{
-		this.preymovecost = preymovecost;
+		this.preyMoveCost = preyMoveCost;
 	}
 
 
+	/**
+	 * Method getPredatorMoveCost.
+	 * @return float
+	 */
 	public float getPredatorMoveCost()
 	{
-		return predatormovecost;
+		return predatorMoveCost;
 	}
 
 
-	public void setPredatorMoveCost(float predatormovecost)
+	/**
+	 * Method setPredatorMoveCost.
+	 * @param predatorMoveCost float
+	 */
+	public void setPredatorMoveCost(float predatorMoveCost)
 	{
-		this.predatormovecost = predatormovecost;
+		this.predatorMoveCost = predatorMoveCost;
 	}
 
 
+	/**
+	 * Method getPreyHungerThres.
+	 * @return float
+	 */
 	public float getPreyHungerThres()
 	{
-		return preyhungerthres;
+		return preyHungerThres;
 	}
 
 
-	public void setPreyHungerThres(float preyhungerthres)
+	/**
+	 * Method setPreyHungerThres.
+	 * @param preyHungerThres float
+	 */
+	public void setPreyHungerThres(float preyHungerThres)
 	{
-		this.preyhungerthres = preyhungerthres;
+		this.preyHungerThres = preyHungerThres;
 	}
 
 
+	/**
+	 * Method getPredatorHungerThres.
+	 * @return float
+	 */
 	public float getPredatorHungerThres()
 	{
-		return predatorhungerthres;
+		return predatorHungerThres;
 	}
 
 
-	public void setPredatorHungerThres(float predatorhungerthres)
+	/**
+	 * Method setPredatorHungerThres.
+	 * @param predatorHungerThres float
+	 */
+	public void setPredatorHungerThres(float predatorHungerThres)
 	{
-		this.predatorhungerthres = predatorhungerthres;
+		this.predatorHungerThres = predatorHungerThres;
 	}
 
 
+	/**
+	 * Method getPredatorConsumptionRate.
+	 * @return float
+	 */
 	public float getPredatorConsumptionRate()
 	{
-		return predatorconsumptionrate;
+		return predatorConsumptionRate;
 	}
 
 
-	public void setPredatorConsumptionRate(float predatorconsumptionrate)
+	/**
+	 * Method setPredatorConsumptionRate.
+	 * @param predatorConsumptionRate float
+	 */
+	public void setPredatorConsumptionRate(float predatorConsumptionRate)
 	{
-		this.predatorconsumptionrate = predatorconsumptionrate;
+		this.predatorConsumptionRate = predatorConsumptionRate;
 	}
 	
+	/**
+	 * Method getPreyConsumptionRate.
+	 * @return float
+	 */
 	public float getPreyConsumptionRate()
 	{
-		return preyconsumptionrate;
+		return preyConsumptionRate;
 	}
 
 
-	public void setPreyConsumptionRate(float preyconsumptionrate)
+	/**
+	 * Method setPreyConsumptionRate.
+	 * @param preyConsumptionRate float
+	 */
+	public void setPreyConsumptionRate(float preyConsumptionRate)
 	{
-		this.preyconsumptionrate = preyconsumptionrate;
+		this.preyConsumptionRate = preyConsumptionRate;
 	}
 
 
+	/**
+	 * Method getPreyRepoCost.
+	 * @return float
+	 */
 	public float getPreyRepoCost()
 	{
-		return preyrepocost;
+		return preyRepoCost;
 	}
 
 
-	public void setPreyRepoCost(float preyrepocost)
+	/**
+	 * Method setPreyRepoCost.
+	 * @param preyRepoCost float
+	 */
+	public void setPreyRepoCost(float preyRepoCost)
 	{
-		this.preyrepocost = preyrepocost;
+		this.preyRepoCost = preyRepoCost;
 	}
 
 
+	/**
+	 * Method getPredRepoCost.
+	 * @return float
+	 */
 	public float getPredRepoCost()
 	{
-		return predrepocost;
+		return predRepoCost;
 	}
 
 
-	public void setPredRepoCost(float predrepocost)
+	/**
+	 * Method setPredRepoCost.
+	 * @param predRepoCost float
+	 */
+	public void setPredRepoCost(float predRepoCost)
 	{
-		this.predrepocost = predrepocost;
+		this.predRepoCost = predRepoCost;
 	}
 
 
+	/**
+	 * Method getPreyStartingEnergy.
+	 * @return float
+	 */
 	public float getPreyStartingEnergy()
 	{
-		return preystartingenergy;
+		return preyStartingEnergy;
 	}
 
 
-	public void setPreyStartingEnergy(float preystartingenergy)
+	/**
+	 * Method setPreyStartingEnergy.
+	 * @param preyStartingEnergy float
+	 */
+	public void setPreyStartingEnergy(float preyStartingEnergy)
 	{
-		this.preystartingenergy = preystartingenergy;
+		this.preyStartingEnergy = preyStartingEnergy;
 	}
 
 
+	/**
+	 * Method getPredStartingEnergy.
+	 * @return float
+	 */
 	public float getPredStartingEnergy()
 	{
-		return predstartingenergy;
+		return predStartingEnergy;
 	}
 
 
-	public void setPredStartingEnergy(float predstartingenergy)
+	/**
+	 * Method setPredStartingEnergy.
+	 * @param predStartingEnergy float
+	 */
+	public void setPredStartingEnergy(float predStartingEnergy)
 	{
-		this.predstartingenergy = predstartingenergy;
+		this.predStartingEnergy = predStartingEnergy;
 	}
 
 }
