@@ -10,8 +10,10 @@ import alife.SimpleAgentEnum.AgentType;
 
 /**
  * Agent Body Class
- * - This Class performs the world movement checks and contains the draw code of this visual representation of the body.
- * - This is the only agent class that other agents brains "should" interact with.
+ * This Class performs the world movement checks and contains the draw code of this visual representation of the body.
+ * 
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class SimpleAgentBody
 {
@@ -22,23 +24,23 @@ public class SimpleAgentBody
 	final SimpleAgentStats stats;
 		
 	/** The circular body and size */
-	private Circle true_body;
-	private float true_size;
+	private Circle trueBody;
+	private float trueSize;
 		
 	/** Color of this agent */
 	private Color color;
 	
 	/** Current Body Pos */
-	private Vector2f body_pos;
+	private Vector2f bodyPos;
 	
 	/** Calculated body pos */
-	private Vector2f new_body_pos = new Vector2f(0,0);
+	private Vector2f newBodyPos = new Vector2f(0,0);
 		
 	/** Forward Vector */
-	private Vector2f forward_vector;
+	private Vector2f forwardVector;
 	
 	/** Calculated forward vector */
-	private Vector2f new_forward_vector = new Vector2f(0,0);		  /* Latched 	  */
+	private Vector2f newForwardVector = new Vector2f(0,0);		  /* Latched 	  */
 
 	/** Direction of movement of the Agent */
 	private float direction;
@@ -53,26 +55,30 @@ public class SimpleAgentBody
 		
 		this.stats = stats;
 		
-		forward_vector = new Vector2f(0,-stats.getMaxSpeed()); 	  /* Forward 1 up */
+		forwardVector = new Vector2f(0,-stats.getMaxSpeed()); 	  /* Forward 1 up */
 			
 		initBody();
 		
 		setIntialPos(pos);
 	}
 	
-	/** Initializes the two body representations */
+	/** 
+	 * Initializes the two body representations 
+	 */
 	private void initBody()
 	{
 		body = new Rectangle(0,0,stats.getSize(),stats.getSize());
 
-		true_size = body.getBoundingCircleRadius();
+		trueSize = body.getBoundingCircleRadius();
 		
-		true_body = new Circle(0,0,true_size);
+		trueBody = new Circle(0,0,trueSize);
 					
 		setColor();
 	}
 	
-	/** Sets the Body Color */
+	/** 
+	 * Sets the Body Color
+	 */
 	private void setColor()
 	{
 		if(stats.getType().getType() == AgentType.PREY)
@@ -85,35 +91,45 @@ public class SimpleAgentBody
 		}
 	}
 	
-	/** Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement*/
-	public boolean move(float req_direction)
+	/** 
+	 * Polar Movement - Entry Move Statement - World Physics Will be Checked and Enforced, Physics can still deny the movement.
+	 * 
+	 * @param reqDirection float
+	 * 	
+	 * @return boolean   */
+	public boolean move(float reqDirection)
 	{		
-		Vector2f new_pos = newPosition(req_direction);
+		Vector2f newPos = newPosition(reqDirection);
 
 		/* If physics says yes then move the agent */
-		if( !World.isBoundaryWall(new_pos.getX(),new_pos.getY()) ) 
+		if( !World.isBoundaryWall(newPos.getX(),newPos.getY()) ) 
 		{
-			//System.out.println("Safe - new_pos : X | " + new_pos.getX() + " Y |" + new_pos.getY());
+			//System.out.println("Safe - newPos : X | " + newPos.getX() + " Y |" + newPos.getY());
 			
-			updateBodyPosition(new_pos);
+			updateBodyPosition(newPos);
 			
 			return true;
 		}
 		else
 		{
-			//System.out.println("Wall - new_pos : X | " + new_pos.getX() + " Y |" + new_pos.getY());
+			//System.out.println("Wall - newPos : X | " + newPos.getX() + " Y |" + newPos.getY());
 		}
 		
 		/* Agent is trying to move into a wall - move denied */
 		return false;		
 	}
 	
-	/** Like above but does't move - can be called by the agent brain to check if the move is valid */
-	public boolean move_possible(float req_direction)
+	/** 
+	 * Like above but does't move - can be called by the agent brain to check if the move is valid.
+	 * 
+	 * @param reqDirection float
+	 * 
+	 * @return boolean  */
+	public boolean movePossible(float reqDirection)
 	{
-		Vector2f new_pos = newPosition(req_direction);
+		Vector2f newPos = newPosition(reqDirection);
 
-		if( !World.isBoundaryWall(new_pos.getX(),new_pos.getY()) ) 
+		if( !World.isBoundaryWall(newPos.getX(),newPos.getY()) ) 
 		{					
 			return true;
 		}
@@ -123,56 +139,67 @@ public class SimpleAgentBody
 	
 	/**
 	 * Used to turn a direction of movement into a new XY coordinate.
-	 * @param req_direction
-	 * @return new_body_pos
-	 */
-	private Vector2f newPosition(float req_direction)
+	 * 
+	 * @param reqDirection	
+	 * 
+	 * @return newBodyPos  */
+	private Vector2f newPosition(float reqDirection)
 	{
-		//System.out.println("req_direction : " + req_direction);
+		//System.out.println("reqDirection : " + reqDirection);
 		
 		/* Get out current forward direction */
-		new_forward_vector.set(forward_vector);
+		newForwardVector.set(forwardVector);
 		
 		/* Change it by the new direction */
-		new_forward_vector.add(req_direction);
+		newForwardVector.add(reqDirection);
 		
 		/* Get our current Cartesian X and Y */
-		new_body_pos.set(body_pos);
+		newBodyPos.set(bodyPos);
 				
 		/* Add our new forward vector */
-		new_body_pos.add(new_forward_vector);
+		newBodyPos.add(newForwardVector);
 	
-		//req_pos.set(body_pos.getX()+req_pos.getX(),body_pos.getY()+req_pos.getY());
+		//req_pos.set(bodyPos.getX()+req_pos.getX(),bodyPos.getY()+req_pos.getY());
 		
-		//System.out.println("vector  : X | " + new_body_pos.getX() + " Y |" + new_body_pos.getY());
+		//System.out.println("vector  : X | " + newBodyPos.getX() + " Y |" + newBodyPos.getY());
 		
-		return new_body_pos;				
+		return newBodyPos;				
 	}
 	
-	/** Initial Cartesian X/Y Position */
+	/** 
+	 * Initial Cartesian X/Y Position 
+	 * @param pos Vector2f
+	 */
 	private void setIntialPos(Vector2f pos)
 	{	
-		body_pos = pos;
+		bodyPos = pos;
 	}
 	
-	/** Internal Movement - decrements move energy */
+	/** Internal Movement - decrements move energy
+	 *
+	 * @param pos Vector2f
+	 */
 	private void updateBodyPosition(Vector2f pos)
 	{
 			stats.decrementMoveEnergy();
-			body_pos.set(pos);					
+			bodyPos.set(pos);					
 	}
 
-	/** External Getter */
+	/** 
+	 * Returns the position of the body
+	
+	 * @return Vector2f  */
 	public Vector2f getBodyPos()
 	{
-		return body_pos;
+		return bodyPos;
 	}
 	
 	/**
 	 * The eat agent Action, attempts to eat the agent in view.
-	 * @param view
-	 * @return
-	 */
+	 * 
+	 * @param view	
+	 * 
+	 * @return boolean */
 	public boolean eatAgent(SimpleAgentView view)
 	{		
 		if(view.getOriginalAgentRef()!= null )
@@ -195,9 +222,10 @@ public class SimpleAgentBody
 	
 	/**
 	 * Checks if the agent in view is close enough to eat.
+	 * 
 	 * @param view
-	 * @return
-	 */
+	 * 	
+	 * @return boolean */
 	private boolean isAgentCloseEnoughToEat(SimpleAgentView view)
 	{
 		// If the distance between the position of the agent and other agent is less than the "true size" of the two bodies... ie are the agent and other agent touching
@@ -211,9 +239,10 @@ public class SimpleAgentBody
 	
 	/**
 	 * The eat plant Action, attempts to eat the plant in view.
-	 * @param view
-	 * @return
-	 */
+	 * 
+	 * @param view	
+	 * 
+	 * @return boolean */
 	public boolean eatPlant(SimpleAgentView view)
 	{		
 		if(view.getOriginalPlantRef()!= null )
@@ -236,9 +265,10 @@ public class SimpleAgentBody
 
 	/**
 	 * Checks if the plant in view is close enough to eat.
-	 * @param view
-	 * @return
-	 */	
+	 * 
+	 * @param view	
+	 * 
+	 * @return boolean */	
 	private boolean isPlantCloseEnoughToEat(SimpleAgentView view)
 	{
 		// If the distance between the position of the agent and plant is less than the size of the two bodies... ie are the agent and plant touching
@@ -250,40 +280,57 @@ public class SimpleAgentBody
 		return false;		
 	}
 		
-	/** Returns the agents direction of movement */
+	/** Returns the agents direction of movement.
+	 * 
+	
+	 * @return float */
 	public float getDirection()
 	{
 		return this.direction;
 	}
 
-	/** Fast Body Draw Method - rectangles */
+	/** Fast Body Draw Method - rectangles
+	 * 
+	 * @param g Graphics
+	 */
 	public void drawRectBody(Graphics g)
 	{
-		body.setLocation(body_pos.getX()-(stats.getSize()/2), body_pos.getY()-(stats.getSize()/2));
+		body.setLocation(bodyPos.getX()-(stats.getSize()/2), bodyPos.getY()-(stats.getSize()/2));
 
 		g.setColor(color);
 
 		g.fill(body);			
 	}
 	
-	/** Slow Draw method - circles */
+	/** 
+	 * Slow Draw method - circles
+	 *  
+	 * @param g Graphics
+	 */
 	public void drawTrueBody(Graphics g)
 	{
-		true_body.setLocation(body_pos.getX()-(true_size), body_pos.getY()-(true_size));
+		trueBody.setLocation(bodyPos.getX()-(trueSize), bodyPos.getY()-(trueSize));
 
 		g.setColor(color);
 		
-		g.fill(true_body);	
+		g.fill(trueBody);	
 		
 		drawRectBody(g);
 	}
 	
-	/** Returns the true size squared for use in collision detection */
+	/** 
+	 * Returns the true size squared for use in collision detection. 
+	 * 
+	 * @return float */
 	public float getTrueSizeSQRD()
 	{
-		return (true_size*true_size)*2;
+		return (trueSize*trueSize)*2;
 	}
 	
+	/**
+	 * Method getStatsDebugMethod.
+	 * 	
+	 * @return SimpleAgentStats  */
 	public SimpleAgentStats getStatsDebugMethod()
 	{
 		return stats;
