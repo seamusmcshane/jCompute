@@ -22,7 +22,9 @@ import org.newdawn.slick.geom.Vector2f;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 /**
- * Simulation class - Gui and Entry Point for starting a Simulation.
+ * Simulation View class - This class handles the drawing of the 2d representation of the simulation world..
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class SimulationView extends BasicGame implements MouseListener
 {
@@ -106,18 +108,38 @@ public class SimulationView extends BasicGame implements MouseListener
 		super("Simulation View");	
 	}
 
+	/**
+	 * Method init.
+	 * @param container GameContainer
+	 * @throws SlickException
+	 * @see org.newdawn.slick.Game#init(GameContainer)
+	 */
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
 		/* Creates the buffered graphic */		setUpImageBuffer();	
 	}
 	
+	/**
+	 * Method update.
+	 * @param container GameContainer
+	 * @param delta int
+	 * @throws SlickException
+	 * @see org.newdawn.slick.Game#update(GameContainer, int)
+	 */
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException
 	{
-		// Not Used
+		// Slick2d update function Not Used, see "Simulation Update Thread" in Simulation class for our update loop 
 	}
 
+	/**
+	 * Method render.
+	 * @param container GameContainer
+	 * @param g Graphics
+	 * @throws SlickException
+	 * @see org.newdawn.slick.Game#render(GameContainer, Graphics)
+	 */
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
@@ -147,7 +169,9 @@ public class SimulationView extends BasicGame implements MouseListener
 		}
 	}
 	
-	/** Draws the sim view on the image buffer */
+	/** Draws the sim view on the image buffer
+	 * @param g Graphics
+	 */
 	private void doDraw(Graphics g)
 	{
 		/* Blank the Image buffer */
@@ -166,6 +190,10 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * Makes sure valid mouse coordinates are used when the mouse leaves and
 	 * renters a window that has lost and regained focus. - Prevents view
 	 * snapping to strange locations
+	 * @param button int
+	 * @param x int
+	 * @param y int
+	 * @see org.newdawn.slick.MouseListener#mousePressed(int, int, int)
 	 */
 	@Override
 	public void mousePressed(int button, int x, int y)
@@ -178,7 +206,12 @@ public class SimulationView extends BasicGame implements MouseListener
 		
 	}
 	
-	/** Allows moving camera around large worlds via mouse dragging on the simulation view */
+	/** Allows moving camera around large worlds via mouse dragging on the simulation view * @param oldx int
+	 * @param oldy int
+	 * @param newx int
+	 * @param newy int
+	 * @see org.newdawn.slick.MouseListener#mouseDragged(int, int, int, int)
+	 */
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
@@ -186,9 +219,15 @@ public class SimulationView extends BasicGame implements MouseListener
 		float y = (newy) - mouse_pos.getY();
 
 		moveCamera(x, y);
-
 	}
 
+	/**
+	 * Method mouseReleased.
+	 * @param button int
+	 * @param x int
+	 * @param y int
+	 * @see org.newdawn.slick.MouseListener#mouseReleased(int, int, int)
+	 */
 	@Override
 	public void mouseReleased(int button, int x, int y)
 	{
@@ -198,13 +237,20 @@ public class SimulationView extends BasicGame implements MouseListener
 		
 	}	
 	
+	/**
+	 * Method mouseWheelMoved.
+	 * @param change int
+	 * @see org.newdawn.slick.MouseListener#mouseWheelMoved(int)
+	 */
 	@Override
 	public void mouseWheelMoved(int change)
 	{
 
 	}
 
-	/** Camera is moved by translating all the drawing */
+	/** Camera is moved by translating all the drawing * @param x float
+	 * @param y float
+	 */
 	private void moveCamera(float x, float y)
 	{
 		global_translate.set(x, y);
@@ -215,7 +261,12 @@ public class SimulationView extends BasicGame implements MouseListener
 		Display.destroy();
 	}
 	
-	/** Setup Window */
+	/** Setup Window
+	 * @param xin int
+	 * @param yin int
+	 * @param width int
+	 * @param height int
+	 */
 	private static void setUpWindowDimesions(int xin, int yin, int width, int height)
 	{
 		/* Position */
@@ -229,7 +280,11 @@ public class SimulationView extends BasicGame implements MouseListener
 		
 	/* Main Entry Point for View */
 	/**
-	 * @wbp.parser.entryPoint
+	 * @param simIn Simulation
+	 * @param x int
+	 * @param y int
+	 * @param width int
+	 * @param height int
 	 */
 	public static void displayView(Simulation simIn,int x, int y, int width, int height)
 	{
@@ -349,6 +404,10 @@ public class SimulationView extends BasicGame implements MouseListener
 		simView.getContainer().setTargetFrameRate(-1);
 	}	
 	
+	/**
+	 * Method setVerticalSync.
+	 * @param sync boolean
+	 */
 	public static void setVerticalSync(boolean sync)
 	{
 		vsync_toggle = sync;
@@ -365,6 +424,10 @@ public class SimulationView extends BasicGame implements MouseListener
 		
 	}
 	
+	/**
+	 * Method setViewOverLay.
+	 * @param ioverlay boolean
+	 */
 	public static void setViewOverLay(boolean ioverlay)
 	{
 		overlay = ioverlay;
@@ -400,6 +463,11 @@ public class SimulationView extends BasicGame implements MouseListener
 		}
 	}
 	
+	/**
+	 * Method setInitalViewTranslate.
+	 * @param x int
+	 * @param y int
+	 */
 	public static void setInitalViewTranslate(int x,int y)
 	{
 		global_translate.set( x,y );
@@ -424,16 +492,28 @@ public class SimulationView extends BasicGame implements MouseListener
 		frmSimulationView.setState(Frame.NORMAL);
 	}
 	
+	/**
+	 * Method setViewRangeDrawing.
+	 * @param in_view_range_drawing boolean
+	 */
 	public static void setViewRangeDrawing(boolean in_view_range_drawing)
 	{
 		view_range_drawing = in_view_range_drawing;
 	}
 	
+	/**
+	 * Method setTrueDrawing.
+	 * @param in_true_drawing boolean
+	 */
 	public static void setTrueDrawing(boolean in_true_drawing)
 	{
 		true_drawing = in_true_drawing;
 	}
 	
+	/**
+	 * Method setVisible.
+	 * @param visible boolean
+	 */
 	public static void setVisible(boolean visible)
 	{
 		if(frmSimulationView!=null)
