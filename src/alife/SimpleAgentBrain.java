@@ -5,6 +5,10 @@ import java.util.Random;
 import alife.SimpleAgentEnum.AgentEval;
 import alife.SimpleAgentEnum.AgentState;
 
+/**
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
+ */
 public class SimpleAgentBrain
 {
 
@@ -20,24 +24,24 @@ public class SimpleAgentBrain
 	/* Movement */
 	private float direction;
 	private Random r;	
-	private int moves=0;
 	
-	private int roam_moves=40; // Starts at the exit of roaming state
-	private int roam_max_moves=40;
-	
-	private int hunt_moves=0;
-	private int hunt_max_moves=30;
-	
-	private int hunt_exit_wait=0;
-	private int hunt_exit_max_wait=0;
-	
-	
-	private int learn_to_move_max = 20;
-	private int learn_to_move_count = 0;
-	
-	private boolean rest=false;
-		
 	/* Move counters */		
+	private int roamMoves=40; // Starts at the exit of roaming state
+	private int roamMaxMoves=40;
+	
+	private int huntMoves=0;
+	private int huntMaxMoves=30;
+	
+	private int huntExitWait=0;
+	private int huntExitMaxWait=0;
+		
+	private int learnToMoveMax = 20;
+	private int learnToMoveCount = 0;
+			
+	/**
+	 * Constructor for SimpleAgentBrain.
+	 * @param body SimpleAgentBody
+	 */
 	public SimpleAgentBrain(SimpleAgentBody body)
 	{
 		/* Agents own Body */
@@ -73,16 +77,17 @@ public class SimpleAgentBrain
 
 		myBody.move(direction);	
 
-		moves++;
-
 	}
 	
-	/* Simulates the time it would take to learn to move */
+	/**
+	 * Simulates the time it would take to learn to move.
+	 *
+	 * @return boolean */
 	public boolean learnToMoveCounterPassed()
 	{
-		if(learn_to_move_count < learn_to_move_max)
+		if(learnToMoveCount < learnToMoveMax)
 		{
-			learn_to_move_count++;
+			learnToMoveCount++;
 			return false;
 		}
 		else
@@ -91,7 +96,7 @@ public class SimpleAgentBrain
 		}
 	}
 	
-	/** Reevaluates the evaluated state to avoid some static behaviour */
+	/** Reevaluates the evaluated state to avoid some static behavior */
 	private void reEvaluateState()
 	{
 		switch(state)
@@ -119,7 +124,7 @@ public class SimpleAgentBrain
 		}		
 	}
 	
-	/** Evaluates the world state - ignores agent circumstance */
+	/** Evaluates the world state - ignores agent circumstance (no memory ) */
 	private void evaulateViewState()
 	{
 		// Agents take precedence over plants in the evaluation - so prey will run way first even if a food source is nearby
@@ -192,12 +197,12 @@ public class SimpleAgentBrain
 	/* Roam State */
 	private void roamState()
 	{	
-		roam_moves++;
+		roamMoves++;
 		
-		if(roam_moves>roam_max_moves) // Have i been roaming for a while...  change direction..
+		if(roamMoves>roamMaxMoves) // Have i been roaming for a while...  change direction..
 		{
 			direction = r.nextInt(360);
-			roam_moves=0;
+			roamMoves=0;
 		}
 		
 	}
@@ -205,9 +210,9 @@ public class SimpleAgentBrain
 	/* Hunt State */
 	private void huntState()
 	{
-		hunt_moves++;
+		huntMoves++;
 		
-		if(hunt_moves>hunt_max_moves) // have i been chasing for a while... maybe giveup as i dont seem to be catching this prey. -> Back to Roam mode
+		if(huntMoves>huntMaxMoves) // have i been chasing for a while... maybe giveup as i dont seem to be catching this prey. -> Back to Roam mode
 		{
 			huntExitSubState();	
 		}
@@ -224,26 +229,28 @@ public class SimpleAgentBrain
 						
 	}
 	
+	/* Simulates tiredness */
 	private void huntExitSubState()
 	{
 		
-		if(hunt_exit_wait>hunt_exit_max_wait)
+		if(huntExitWait>huntExitMaxWait)
 		{
 			direction = r.nextInt(360);
-			hunt_moves=0;
-			hunt_exit_wait=0;
-			
-			rest=false;
-			
+			huntMoves=0;
+			huntExitWait=0;
+						
 			state = AgentState.ROAM; // Back to roaming state
 		}
 		else
 		{
-			hunt_exit_wait++;
-			rest=true;
+			huntExitWait++;
 		}
 		
 	}	
+	/**
+	 * Method eatAgentSubState.
+	 *
+	 * @return boolean */
 	private boolean eatAgentSubState()
 	{
 		if(myBody.eatAgent(view))
@@ -256,6 +263,10 @@ public class SimpleAgentBrain
 		}		
 	}
 	
+	/**
+	 * Method eatPlantSubState.
+	 * 
+	 * @return boolean */
 	private boolean eatPlantSubState()
 	{
 		if(myBody.eatPlant(view))
@@ -268,6 +279,7 @@ public class SimpleAgentBrain
 		}
 	}
 
+	// -- No transition... view needs to be more complex.. is there more food around...
 	private void grazeState()
 	{
 		// -- No transition... view needs to be more complex.. is there more food around...
