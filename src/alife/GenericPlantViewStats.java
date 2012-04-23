@@ -2,8 +2,11 @@ package alife;
 
 import org.newdawn.slick.geom.Vector2f;
 
-/** Used to store the "visible" statistics of the inViewPlant  for agents.
- * */
+/** 
+ * Used to store the "visible" statistics of the inViewPlant  for agents.
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
+ */
 public class GenericPlantViewStats
 {
 	/** Energy Value of Plant in view */
@@ -13,7 +16,7 @@ public class GenericPlantViewStats
 	private Vector2f plantPos;
 	
 	/** Original plant that this view refers to */
-	private GenericPlant original_plant=null;
+	private GenericPlant originalPlant=null;
 	
 	/**
 	 * A class that represents the statistics on a view of a GenericPlant 
@@ -23,13 +26,14 @@ public class GenericPlantViewStats
 		initStats();
 	}
 	
-/**
- * Update Statistics
- * 
- */
+	/**
+	 * Update Statistics
+	 * 
+	 * @param plant GenericPlant
+	 */
 	public void updateStats(GenericPlant plant)
 	{
-		original_plant = plant;
+		originalPlant = plant;
 		
 		// Copies the Plant Position
 		plantPos.set(plant.body.getBodyPos());
@@ -37,14 +41,14 @@ public class GenericPlantViewStats
 		this.energy = plant.body.stats.getEnergy();	
 	}	
 	
-/**
- * 
- * Initialization 
- */
+	/**
+	 * 
+	 * Initialization 
+	 */
 	public void initStats()
 	{
 		
-		original_plant = null;
+		originalPlant = null;
 		
 		/** Energy of Plant in view */
 		this.energy=0;
@@ -54,13 +58,13 @@ public class GenericPlantViewStats
 		
 	}
 
-/**
- * Clear Statistics
- * 
- */
+	/**
+	 * Clear Statistics
+	 * 
+	 */
 	public void clearStats()
 	{
-		original_plant = null;
+		originalPlant = null;
 		
 		/** Energy of Plant in view */
 		this.energy=0;
@@ -70,25 +74,33 @@ public class GenericPlantViewStats
 
 	}
 	
-/**
- * Statistics Getters
- * 
- */
-	/** Position of the Plant in view (Cartesian) */
+	/**
+	 * Position of the Plant in view (Cartesian)
+	 * 
+	 * @return Vector2f
+	 */
 	public Vector2f getPlantPos()
 	{
 		return plantPos;
 	}
 
-	/** Size of Plant in view */
+	/** 
+	 * Size of Plant in view
+	 * @return float
+	 */
 	public float getEnergy()
 	{
 		return energy;
 	}
 	
+	/**
+	 * Returns a reference to the plant object.
+	 * 
+	 * @return GenericPlant
+	 */
 	public GenericPlant getOriginalPlantRef()
 	{
-		return original_plant;
+		return originalPlant;
 	}
 	
 }
