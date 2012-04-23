@@ -4,13 +4,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.concurrent.Semaphore;
 
-import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Vector2f;
 
-import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import alife.SimpleAgentEnum.AgentType;
 
 /**
@@ -20,6 +16,8 @@ import alife.SimpleAgentEnum.AgentType;
  * It handles movement , creation and destruction of Agents as well as 
  * multi-threaded field of view updates
  * and drawing of the agents.
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 
 public class SimpleAgentManager
@@ -162,8 +160,8 @@ public class SimpleAgentManager
 	/**
 	 * Draws all the agents.
 	 * @param g
-	 * @param true_drawing
-	 * @param view_range_drawing
+	 * @param trueDrawing boolean
+	 * @param viewRangeDrawing boolean
 	 */
 	public void drawAgent(Graphics g,boolean trueDrawing,boolean viewRangeDrawing)
 	{
@@ -284,8 +282,7 @@ public class SimpleAgentManager
 	
 	/**
 	 * Added for Unit tests
-	 * @return agentCount
-	 */
+	 * @return agentCount */
 	public int getAgentCount()
 	{
 		return agentCount;
@@ -293,8 +290,7 @@ public class SimpleAgentManager
 	
 	/**
 	 * Added for Unit tests
-	 * @return preyCount
-	 */
+	 * @return preyCount */
 	public int getPreyCount()
 	{
 		return preyCount;
@@ -302,8 +298,7 @@ public class SimpleAgentManager
 
 	/**
 	 * Added for Unit tests
-	 * @return predatorCount
-	 */
+	 * @return predatorCount */
 	public int getPredatorCount()
 	{
 		return predatorCount;
