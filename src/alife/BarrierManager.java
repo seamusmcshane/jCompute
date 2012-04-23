@@ -19,7 +19,7 @@ public class BarrierManager extends Thread
 	private int numThreads;
 	
 	/* The lock for the entire barrier */
-	private Semaphore barrierControlerSemaphore;
+	private Semaphore barrierControllerSemaphore;
 	
 	/** The start semaphores for the threads */
 	private Semaphore barrierManagerStartSemaphores[];
@@ -46,12 +46,12 @@ public class BarrierManager extends Thread
 
 	/**
 	 * Creates a new barrier manager.
-	 * @param barrierControlerSemaphore
+	 * @param barrierControllerSemaphore
 	 * @param numThreads
 	 */
-	public BarrierManager(Semaphore barrierControlerSemaphore, int numThreads)
+	public BarrierManager(Semaphore barrierControllerSemaphore, int numThreads)
 	{
-		this.barrierControlerSemaphore = barrierControlerSemaphore;
+		this.barrierControllerSemaphore = barrierControllerSemaphore;
 		
 		this.numThreads = numThreads;
 		
@@ -72,7 +72,7 @@ public class BarrierManager extends Thread
 		while(true)
 		{
 			
-			barrierControlerSemaphore.acquireUninterruptibly();		
+			barrierControllerSemaphore.acquireUninterruptibly();		
 						
 			//System.out.println("Start Barrier");
 			
@@ -93,7 +93,7 @@ public class BarrierManager extends Thread
 			
 			//System.out.println("End Barrier");
 			
-			barrierControlerSemaphore.release();
+			barrierControllerSemaphore.release();
 						
 		}		
 	}

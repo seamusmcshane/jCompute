@@ -1,68 +1,16 @@
 package alife;
 
-/* NOTE! The following two imports are for creating executable jar */
-import java.io.File;
-import org.lwjgl.LWJGLUtil;
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import org.lwjgl.opengl.Display;
-
-import java.util.Random;
 import java.util.concurrent.Semaphore;
-
-import org.newdawn.slick.BasicGame;
-import org.newdawn.slick.CanvasGameContainer;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.MouseListener;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JButton;
-import javax.swing.border.EtchedBorder;
-import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.SoftBevelBorder;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.UIManager;
-import javax.swing.JSlider;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-import javax.swing.JProgressBar;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.JSeparator;
-
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.factories.FormFactory;
-
-import net.miginfocom.swing.MigLayout;
-import javax.swing.JCheckBox;
 /**
- * Simulation class - GUI and Entry Point for starting a Simulation.
+ * Simulation class
+ * This class handles the Simulation activity of the program.
+ * It contains the main loop in the form of the asynchronous Simulation Update Thread.
+ * Apart from peforming a step, it is primarily concerned with timing the step and ensuring statistics are updated..
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class Simulation
 {
@@ -77,53 +25,46 @@ public class Simulation
 	private long step_end_time=0;
 	private long step_total_time=0; // Total Simulation run-time is the time taken per step for each step
 	
-	// Step Per Second Calculation
+	// Step Per Second Calculations
 	private long startTime;
 	private long previousTime;
 	private long currentTime;
 	private long diffTime;	
 
+	// Average Steps per second
 	private int num_samples = 150;
 	private double step_samples[];
 	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
 	private double sps;	 			// Average Steps Per Second as an int for display purposes
 	
-	// Fixed Step Calculations
+	// Inter-step delay Calculations
 	private long stepTimeNow;
 	private long stepTimeDiff;
 	private long stepTimeTotal;
 	private long stepTimePrev;
-	
-	/* Number of Agents */
-	int initial_num_agents=0;
-	
+
+	/* The Simulation manager */
 	SimulationManager simManager;
 	
 	/* The translation vector for the camera view */
 	public Vector2f global_translate = new Vector2f(0, 0);
 
-	/* For this many simulation updates for buffer update */
+	/* The default simulation update rate */
 	public int req_sps = 15;
 	
-	/* For increasing req steps by a factor of ten */
-	public int stepx10 = 1;
-
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
 		
-	private static boolean simPaused = true;
+	/* Simulation state */
+	private boolean simPaused = true;
 	private boolean simStarted = false;
-	private int latched_div = 0;
 
-	/** Simulation Update Thread */
+	/* Simulation Update Thread */
 	private Thread asyncUpdateThread;
 	
-	/** The Simulation World. */
+	/* The Simulation World. */
 	public World world;
 
-	/** need to sync graph updates with sim updates */
-	private StatsPanel stats;
-	
 	public Simulation()
 	{
 		setupThreads();
@@ -131,6 +72,18 @@ public class Simulation
 		newSim(null,256,0,0,0,0,0,0,null); // Never used - needed for successful startup
 	}
 
+	/**
+	 * Method newSim.
+	 * @param stats StatsPanel
+	 * @param world_size int
+	 * @param agent_prey_numbers int
+	 * @param agent_predator_numbers int
+	 * @param plant_numbers int
+	 * @param plant_regen_rate int
+	 * @param plantstartingenergy int
+	 * @param plant_energy_absorption_rate int
+	 * @param agentSettings SimpleAgentManagementSetupParam
+	 */
 	public void newSim(StatsPanel stats,int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers ,int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate, SimpleAgentManagementSetupParam agentSettings)
 	{
 		
@@ -138,32 +91,30 @@ public class Simulation
 		
 		this.step_num = 0;
 		
-		stats.setStepNo(step_num);
+		StatsPanel.setStepNo(step_num);
 				
 		this.step_total_time = 0;
 
-		stats.setTime(step_total_time);
+		StatsPanel.setTime(step_total_time);
 		
 		tasps = 0;
 		sps = 0;
 		StatsPanel.setASPS(averageStepsPerSecond());
-		
-		this.stats = stats;
-				
+						
 		world = new World(world_size);
 
 		simManager = new SimulationManager(world_size, agent_prey_numbers, agent_predator_numbers, plant_numbers, plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate, agentSettings);
 		
 		if(stats!=null)
 		{
-			stats.clearStats();
+			StatsPanel.clearStats();
 			
-			stats.updateGraph();
+			StatsPanel.updateGraphs();
 		}
 
 	}
 	
-	// Simulation Main Thread  
+	/* Simulation Main Thread - The step update loop */  
 	private void setupThreads()
 	{
 			pause = new Semaphore(0,true); // Starts Paused
@@ -188,6 +139,7 @@ public class Simulation
 							
 							step_start_time = System.currentTimeMillis();
 							
+							// This single method hides the rest of the sim
 							simManager.doSimulationUpdate();
 							
 							// Calculate the Steps per Second
@@ -198,31 +150,32 @@ public class Simulation
 							// Increment the Step counter
 							step_num++;
 							
-							stats.setStepNo(step_num);
+							StatsPanel.setStepNo(step_num);
 																					
 							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
 							while(timeTotal() < (1000000000/req_sps)) // Approximation of what the inter-step delay should be
 							{
 								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
+								// This will only wait if the step performance level is being exceeded
+								// Waiting between steps ensures smooth animiation on the view
 							}
 							
 							// resets the value calculated in timeTotal()
-							resetTotalTime();
-																				
+							resetTotalTime();																				
 							
 							step_end_time = System.currentTimeMillis();
 
 							step_total_time += step_end_time-step_start_time;
 							
-							stats.setTime(step_total_time);
+							StatsPanel.setTime(step_total_time);
 							
-							stats.updateGraph();
+							StatsPanel.updateGraphs();
 							
 							// Allow the simulation to be paused again
 							pause.release();
 					}
 				}
-			}
+			},"Simulation Update Thread"
 	
 			);
 	
@@ -230,6 +183,9 @@ public class Simulation
 
 	}
 	
+	/**
+	 * Initializes the average steps per second counters
+	 */
 	private void setUpStepsPerSecond()
 	{
 		startTime = System.nanoTime();
@@ -238,16 +194,16 @@ public class Simulation
 		diffTime = currentTime-previousTime;	// Diff time is initialized
 	}
 	
-	// Calculates the Average Steps Per Second
+	/**
+	 * Calculates the Average Steps Per Second
+	 */
 	private void calcStepsPerSecond()
 	{
 		currentTime = System.nanoTime();	// Current TIme
 		
-		diffTime = currentTime-previousTime;		// Time between this and the last call
+		diffTime = currentTime-previousTime;		// Time between this and the last call				
 				
-				
-		sps = 1000f/(diffTime/ 1000000f) ;			//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second
-		
+		sps = 1000f/(diffTime/ 1000000f) ;			//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second		
 		
 		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 		
@@ -263,18 +219,22 @@ public class Simulation
 		{
 			tasps+=step_samples[i];					// Total all the steps
 		}
-
-		//StatsPanel.setASPS((int)tasps);
 		
 	}
-	
-	// Average the steps thus giving an average steps per second count
+	 
+	/**
+	 * Average the steps thus giving an average steps per second count
+	 * @return int
+	 */
 	public int averageStepsPerSecond()
 	{
 		return (int)(tasps/num_samples);			
 	}
 
-	// Calculates the total taken between repeated call to this method - used for inter-step time wait
+	/**
+	 * Calculates the total taken between repeated call to this method - used for inter-step time wait
+	 * @return long
+	 */
 	private long timeTotal()
 	{
 		stepTimeNow = System.nanoTime();		 // Current Time
@@ -293,15 +253,18 @@ public class Simulation
 		stepTimeTotal=0;
 	}
 	
-	// Called by the start button
+	/**
+	 * Called by the start button
+	 */
 	public void startSim()
 	{
-		latched_div=1;
 		simStarted=true;
 		unPauseSim();		
 	}
 	
-	// UnPauses the Sim and sets the display frame rate to a less-interactive and less intensive update rate 
+	/**
+	 * UnPauses the Sim.
+	 */
 	public void unPauseSim()
 	{
 				
@@ -311,19 +274,29 @@ public class Simulation
 			 
 	}
 
-	public static boolean simPaused()
+	/**
+	 * Method simPaused.
+	 * @return boolean
+	 */
+	public boolean simPaused()
 	{
 		return simPaused;
 	}
 	
-	// Pauses the Sim and sets the display frame rate to a more-interactive and more intensive update rate for better mouse interaction 
+	/**
+	 * Pauses the Sim and sets the display frame rate to a more-interactive and more intensive update rate for better mouse interaction 
+	 */
 	public void pauseSim()
 	{
-			pause.acquireUninterruptibly();		// Pause the sim
-					
-			simPaused = true;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now paused.					
+		pause.acquireUninterruptibly();		// Pause the sim
+				
+		simPaused = true;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now paused.					
 	}
 		
+	/**
+	 * Method reqSimUpdateRate.
+	 * @param steps int
+	 */
 	public void reqSimUpdateRate(int steps)
 	{
 		if(steps>0)
@@ -332,6 +305,12 @@ public class Simulation
 		}
 	}
 	
+	/**
+	 * Method drawSim.
+	 * @param g Graphics
+	 * @param true_drawing boolean
+	 * @param view_range_drawing boolean
+	 */
 	public void drawSim(Graphics g,boolean true_drawing,boolean view_range_drawing)
 	{	
 		if(simStarted)

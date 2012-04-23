@@ -1,6 +1,6 @@
 package alife;
 /**
- * This class holds the stats for an individual plant.
+ * This class holds the statistics for an individual plant.
  * It manages the energy of the plant.
  * 	Including all variables acting on the energy.
  * It also manages reproduction energy.
@@ -68,7 +68,8 @@ public class GenericPlantStats
 		
 	}
 	
-	/** Increments the Energy for living plants 
+	/** 
+	 * Increments the Energy for living plants (Active)
 	 * Taking into account reproduction division. (DISABLED)
 	 * */
 	public void increment()
@@ -97,7 +98,6 @@ public class GenericPlantStats
 	 * Remove energy from living plants 
 	 * Happens when the plant is being ate.
 	 * @param num float
-	 * 	
 	 * @return float */
 	public float decrementEnergy(float num)
 	{		
@@ -123,7 +123,6 @@ public class GenericPlantStats
 	}
 	
 	/** Returns the total energy value of this plant
-	 * 	
 	 * @return float */
 	public float getEnergy()
 	{			
@@ -147,8 +146,7 @@ public class GenericPlantStats
 	}
 	
 	/** 
-	 * Returns the energy reproduction cost of this plant 
-	 * 
+	 * Returns the energy reproduction cost of this plant
 	 * @return float */
 	public float getBaseReproductionCost()
 	{			
@@ -157,7 +155,6 @@ public class GenericPlantStats
 	
 	/** 
 	 * Return true if the plan is dead 
-	 * 
 	 * @return boolean */
 	public boolean isDead()
 	{
@@ -166,7 +163,6 @@ public class GenericPlantStats
 
 	/** 
 	 * Returns this size of this plant
-	 *  
 	 * @return float */
 	public float getSize()
 	{
@@ -182,7 +178,6 @@ public class GenericPlantStats
 
 	/** 
 	 * Returns if this plant can reproduce 
-	 * 
 	 * @return boolean */
 	public boolean canReproduce()
 	{
