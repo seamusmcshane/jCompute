@@ -6,6 +6,9 @@ import alife.SimpleAgentEnum.AgentEval;
 import alife.SimpleAgentEnum.AgentState;
 
 /**
+ * Agent Brain Class.
+ * This class contains the main method "think()" for each agent.
+ * Through think() the finite state machine is processed.
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
