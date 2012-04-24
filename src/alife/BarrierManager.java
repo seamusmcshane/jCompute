@@ -9,7 +9,7 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
  * 
  * This class instantiates a barrier manager.
  * Its task is to generate plant and agent kd trees.
- * Then divide the lists of agents and trees in to smaller lists to be processed in threads.
+ * Then divide the lists of agents and plants in to smaller lists to be processed in threads.
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
