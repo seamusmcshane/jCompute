@@ -63,6 +63,8 @@ public class SimpleAgentTests
 	
 	/** Stats Object */
 	SimpleAgentStats stats;	
+	SimpleAgentStats stats_ref;	
+
 
 	/** Agent Object */
 	SimpleAgent testAgent;
@@ -73,7 +75,11 @@ public class SimpleAgentTests
 	{
 		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);		
 		
+		stats_ref=stats;
+		
 		testAgent = new SimpleAgent(0, x, y, stats);
+		
+		stats = null;
 	}
 
 	@Test
@@ -85,7 +91,12 @@ public class SimpleAgentTests
 	@Test
 	public void statsIsCorrectObject()
 	{
-		assertEquals(true,testAgent.body.getStatsDebugMethod().equals(stats));
+		// Matches the reference
+		assertEquals(true,testAgent.body.getStatsDebugMethod().equals(stats_ref));
+		
+		// Is not the null reference
+		assertEquals(false,testAgent.body.getStatsDebugMethod().equals(stats));
+
 	}
 	
 	@Test
