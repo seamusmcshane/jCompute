@@ -179,20 +179,6 @@ public class SimpleAgentView
 		return (float) Math.toDegrees(Math.atan2(dx, dy));
 	}
 
-	/** Reverses the angle of the direction  
-	 * @param direction float
-	 * @return float */
-	public float reverseDirection(float direction)
-	{
-		direction = direction - 180;
-
-		if (direction < 0)
-		{
-			direction = direction + 360;
-		}
-		return direction;
-	}
-
 	/** Returns the squared distances between two vectors
 	 * @param from Vector2f
 	 * @param posTo Vector2f

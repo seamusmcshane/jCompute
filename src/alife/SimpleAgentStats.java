@@ -148,6 +148,8 @@ public class SimpleAgentStats
 	{
 		energy = energy - (size*baseMoveCost);
 		
+		//energy = energy - (size*baseMoveCost);
+
 		if(energy <= 0 )
 		{
 			dead = true;

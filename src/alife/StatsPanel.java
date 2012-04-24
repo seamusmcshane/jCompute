@@ -855,7 +855,6 @@ public class StatsPanel extends JPanel
 		lineGraphPanel.drawGraph();
 		lorenzGraphPanel.drawGraph();
 		stackedGraphPanel.drawGraph();
-
 		
 		sampleLock.release();
 		
