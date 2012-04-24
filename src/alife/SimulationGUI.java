@@ -848,6 +848,10 @@ public class SimulationGUI
 		{
 			public void actionPerformed(ActionEvent e)
 			{
+				/* Locks the parameters */
+				parametersLock();	
+				
+				/* Create the new Simulation */
 				newSim();
 			}
 		});
@@ -1186,9 +1190,6 @@ public class SimulationGUI
 
 		// agentParamPanel.setVisible(false);
 		// plantParamPanel.setVisible(false);
-
-		/* Locks the paramters */
-		parametersLock();		
 		
 		StatsPanel.setPaused(false);
 
