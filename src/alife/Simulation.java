@@ -137,7 +137,9 @@ public class Simulation
 							// The pause semaphore (We do not pause half way through a step)
 							pause.acquireUninterruptibly();
 							
-							step_start_time = System.currentTimeMillis();
+							step_start_time = System.currentTimeMillis(); // For the average
+							
+							timeTotal();								  // record step start time for inter-step delay
 							
 							// This single method hides the rest of the sim
 							simManager.doSimulationUpdate();
@@ -245,7 +247,7 @@ public class Simulation
 		
 		stepTimePrev = stepTimeNow;				 // Set the current time as the previous to the next call
 		
-		return stepTimeTotal;					// Return the current total
+		return stepTimeTotal;					 // Return the current total
 	}
 	
 	private void resetTotalTime()
