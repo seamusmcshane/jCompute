@@ -18,56 +18,62 @@ public class SimpleAgentStatsTests
 	SimpleAgentStats agentPredatorStats;
 	
 	/** The movement cost of the agent */
-	float base_move_cost=0.025f;
+	float baseMoveCost=0.025f;
 		
 	/** Agent movement speed */
-	float max_speed=1f;
+	float maxSpeed=1f;
 	
 	/** Agent Size */
 	float size=5f;
 	
 	/** Max Energy of Agent */
-	float max_energy=100f;
+	float maxEnergy=100f;
 	
 	/** Starting Energy Energy of the agent */
 	float energy=50f;
 	
 	/** The ability of this agent to consume energy */
-	float digestive_efficency=0.50f;
+	float digestiveEfficency=0.50f;
 	
 	/** The threshold before this agent is hungry */
 	float hungryThreshold=50f;
 	
 	/** View Range */
-	float view_range=10f;
+	float viewRange=10f;
 		
 	/** Base cost of reproduction */
-	float base_reproduction_cost=0.50f;
+	float baseReproductionCost=0.50f;
 	
 	/** The consumption rate of energy from what every the agent is eating (Current only plants) */
-	float energy_consumption_rate=10f;
+	float energyConsumptionRate=10f;
 	
 	/** This agents type Predator/Prey */
 	SimpleAgentType predatorType = new SimpleAgentType(AgentType.PREDATOR);
 	SimpleAgentType preyType = new SimpleAgentType(AgentType.PREY);
 	
 	/** The starting energy level */
-	float starting_energy=50f;
+	float startingEnergy=50f;
 	
 	/** The ratio of energy to reproduction or survival */
-	float reproduction_energy_division=0.50f;
+	float reproductionEnergyDivision=0.50f;
 
 	@Before
 	public void setUp() throws Exception
 	{
-		agentPredatorStats = new SimpleAgentStats(predatorType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);		
-		agentPreyStats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);
+		agentPredatorStats = new SimpleAgentStats(predatorType,maxSpeed,size,energy,maxEnergy,hungryThreshold,viewRange,baseMoveCost,baseReproductionCost,energyConsumptionRate,digestiveEfficency,reproductionEnergyDivision);		
+		agentPreyStats = new SimpleAgentStats(preyType,maxSpeed,size,energy,maxEnergy,hungryThreshold,viewRange,baseMoveCost,baseReproductionCost,energyConsumptionRate,digestiveEfficency,reproductionEnergyDivision);
+		System.out.println("====================================================");				
+		System.out.println("----------------------------------------------------");	
 	}
 
 	
 	@Test
-	public void notDead()
+	public void agentNotDead()
 	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - agentNotDead");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("agentNotDead : " + agentPredatorStats.isDead() + " Should be : false");		
 		assertEquals(false,agentPredatorStats.isDead());
 	}
 	
@@ -77,12 +83,20 @@ public class SimpleAgentStatsTests
 	@Test
 	public void predatorIsPredator()
 	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorIsPredator");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorIsPredator : " + agentPredatorStats.getType().getType()+ " Should be : " + AgentType.PREDATOR);			
 		assertEquals(true,agentPredatorStats.getType().getType() == AgentType.PREDATOR);
 	}
 	
 	@Test
 	public void preyIsPrey()
 	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyIsPrey");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyIsPrey : " + agentPreyStats.getType().getType()+ " Should be : " + AgentType.PREY);				
 		assertEquals(true,agentPreyStats.getType().getType() == AgentType.PREY);
 	}
 
@@ -90,54 +104,93 @@ public class SimpleAgentStatsTests
 	public void agentHungerTest()
 	{	
 	
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - agentHungerTest");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("Hungry Threshold : " + hungryThreshold);		
+
+		
 		/* Hunger is updated when the agent moves */
 		agentPreyStats.decrementMoveEnergy();
+		System.out.println("Hungry : " + agentPreyStats.isHungry() + " Should be : true");		
 		assertEquals(true,agentPreyStats.isHungry());
 						
+		
+		System.out.println("Energy : " + agentPreyStats.getEnergy());
 		/* Eat some food - not Hungry */
 		agentPreyStats.addEnergy(10);		
+		System.out.println("Add Energy : " + agentPreyStats.getEnergy());
+		
 		agentPreyStats.decrementMoveEnergy();
+		System.out.println("Hungry : " + agentPreyStats.isHungry() + " Should be : false");			
 		assertEquals(false,agentPreyStats.isHungry());
 		
 	}
 	
 	@Test
 	public void agentReproductionTests()
-	{								
+	{			
+		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - agentReproductionTests");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("Energy : " + agentPreyStats.getEnergy());
+		System.out.println("REDiv  : " + agentPreyStats.getReproductionEnergyDivision());	
+		
 		/* Cannot Reproduce */
 		assertEquals(false,agentPreyStats.canReproduce());		
+		System.out.println("Can Reproduce : " + agentPreyStats.canReproduce() + " Should be : false");		
+		
 		agentPreyStats.addEnergy(200);
+		System.out.println("Energy : " + agentPreyStats.getEnergy());
 			
 		/* Still cannot */
+		System.out.println("Can Reproduce : " + agentPreyStats.canReproduce() + " Should be : false");			
 		assertEquals(false,agentPreyStats.canReproduce());
 		
 		/* Reproduction threshold */
 		agentPreyStats.addEnergy(1);
+		System.out.println("Reached Threshold");
 
 		/* Can Reproduce */
+		System.out.println("Can Reproduce : " + agentPreyStats.canReproduce() + " Should be : true");					
 		assertEquals(true,agentPreyStats.canReproduce());	
 		
 		/* Reproduce */
+		System.out.println("Reproduced");		
 		agentPreyStats.decrementReproductionCost();
 		
 		/* Cannot Reproduce */
+		System.out.println("Can Reproduce : " + agentPreyStats.canReproduce() + " Should be : false");							
 		assertEquals(false,agentPreyStats.canReproduce());			
 
 	}	
 
 	@Test
 	public void agentStarvationTest()
-	{			
+	{				
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - agentStarvationTest");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("Energy : " + agentPreyStats.getEnergy());
+
+		System.out.println("Moving");
+
 		/* 50 energy - (399*(5*0.025)) or (0.125*399) ~ 49.875*/
 		for(int i=0;i<399;i++)
 		{
 			// Make it run
 			agentPreyStats.decrementMoveEnergy();
+			System.out.println("Energy : " + agentPreyStats.getEnergy());			
 		}
+		System.out.println("agentNotDead : " + agentPreyStats.isDead() + " Should be : false");				
 		assertEquals(false,agentPreyStats.isDead());	
-		
+
+		System.out.println("Last Move");
 		agentPreyStats.decrementMoveEnergy();
-		
+		System.out.println("Energy : " + agentPreyStats.getEnergy());			
+
+		System.out.println("agentNotDead : " + agentPreyStats.isDead() + " Should be : true");						
 		assertEquals(true,agentPreyStats.isDead());
 		
 	}
@@ -145,76 +198,143 @@ public class SimpleAgentStatsTests
 	@Test
 	public void agentKilledTest()
 	{		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - agentKilledTest");
+		System.out.println("----------------------------------------------------");	
+		
+		System.out.println("agentNotDead : " + agentPreyStats.isDead() + " Should be : false");						
 		assertEquals(false,agentPreyStats.isDead());
+		
+		System.out.println("killAgent");						
 		agentPreyStats.killAgent();		
+		
+		System.out.println("agentNotDead : " + agentPreyStats.isDead() + " Should be : true");							
 		assertEquals(true,agentPreyStats.isDead());
 	}	
 	
 	@Test
-	public void speedSetCorrectly()
+	public void baseMoveCostSetCorrectly()
 	{
-		assertEquals(max_speed,max_speed,agentPreyStats.getBaseMoveCost());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - baseMoveCostSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("baseMoveCostSetCorrectly : " + agentPreyStats.getBaseMoveCost() + " Should be : " + baseMoveCost);
+
+		assertEquals(maxSpeed,maxSpeed,agentPreyStats.getBaseMoveCost());
+	}
+	
+	@Test
+	public void maxSpeedSetCorrectly()
+	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - maxSpeedSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("maxSpeed : " + agentPreyStats.getMaxSpeed() + " Should be : " + maxSpeed);
+
+		assertEquals(true,maxSpeed == agentPreyStats.getMaxSpeed());
 	}
 	
 	@Test
 	public void sizeSetCorrectly()
 	{
-		assertEquals(size,size,agentPreyStats.getSize());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - sizeSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("size : " + agentPreyStats.getSize() + " Should be : " + size);		
+		assertEquals(true,size == agentPreyStats.getSize());
 	}	
 	
 	@Test
 	public void startingEnergySetCorrectly()
 	{
-		assertEquals(energy,energy,agentPreyStats.getStartingEnergy());
+		System.out.println("Test - startingEnergySetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("energy : " + agentPreyStats.getStartingEnergy() + " Should be : " + energy);		
+		
+		assertEquals(true,energy == agentPreyStats.getStartingEnergy());
 	}	
 	
 	@Test
 	public void maxEnergySetCorrectly()
 	{
-		assertEquals(max_energy,max_energy,agentPreyStats.getEnergy());
+		System.out.println("Test - maxEnergySetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("max_energy : " + agentPreyStats.getMaxEnergy() + " Should be : " + maxEnergy);			
+		assertEquals(true,maxEnergy == agentPreyStats.getMaxEnergy());
 	}	
 		
 	@Test
 	public void hungryThresholdSetCorrectly()
 	{
-		assertEquals(hungryThreshold,hungryThreshold,agentPreyStats.getHungryThreshold());
+		System.out.println("Test - hungryThresholdSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("hungryThreshold : " + agentPreyStats.getHungryThreshold() + " Should be : " + hungryThreshold);			
+		assertEquals(true,hungryThreshold == agentPreyStats.getHungryThreshold());
 	}	
 	
 	@Test
 	public void baseViewRangeSetCorrectly()
 	{
-		assertEquals(view_range,view_range,agentPreyStats.getBaseViewRange());
+		System.out.println("Test - baseViewRangeSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("view_range : " + agentPreyStats.getBaseViewRange() + " Should be : " + viewRange);			
+		assertEquals(true,viewRange == agentPreyStats.getBaseViewRange());
 	}	
 	
 	@Test
 	public void viewRangeCalcCorrectly()
 	{
-		assertEquals(view_range-size,view_range-size,agentPreyStats.getViewRange());
+		float value;
+		System.out.println("Test - viewRangeCalcCorrectly");
+		System.out.println("----------------------------------------------------");
+		value = viewRange+size;
+		System.out.println("view_range : " + agentPreyStats.getViewRange() + " Should be : " + (viewRange+size));	
+		assertEquals(true,agentPreyStats.getViewRange() == value);
 		
-		assertEquals(view_range*view_range,view_range*view_range,agentPreyStats.getViewRangeSquared());
+		value = (viewRange+size) * (viewRange+size);
+		System.out.println("ViewRangeSquared : " + agentPreyStats.getViewRangeSquared() + " Should be : " + value);
+		assertEquals(true,agentPreyStats.getViewRangeSquared() == value);
+		
+		value = viewRange;
+		System.out.println("BaseViewRange : " + agentPreyStats.getBaseViewRange() + " Should be : " + value);
+		assertEquals(true,agentPreyStats.getBaseViewRange() == value);		
 	}
 	
 	@Test
 	public void baseReproductionCostSetCorrectly()
-	{
-		assertEquals(base_reproduction_cost,base_reproduction_cost,agentPreyStats.getHungryThreshold());
+	{		
+		System.out.println("Test - baseReproductionCostSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("base_reproduction_cost : " + agentPreyStats.getBaseReproductionCost() + " Should be : " + baseReproductionCost);	
+		assertEquals(true,baseReproductionCost == agentPreyStats.getBaseReproductionCost());
 	}	
 
 	@Test
 	public void energyConsumptionRateCostSetCorrectly()
-	{
-		assertEquals(energy_consumption_rate,energy_consumption_rate,agentPreyStats.getHungryThreshold());
+	{		
+		System.out.println("Test - energyConsumptionRateCostSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("energy_consumption_rate : " + agentPreyStats.getStartingEnergy() + " Should be : " + energyConsumptionRate);	
+		assertEquals(true,energyConsumptionRate == agentPreyStats.getEnergyConsumptionRate());
 	}	
 	
 	@Test
 	public void digestiveEfficencySetCorrectly()
-	{
-		assertEquals(digestive_efficency,digestive_efficency,agentPreyStats.getHungryThreshold());
+	{		
+		System.out.println("Test - digestiveEfficencySetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		System.out.println("digestive_efficency : " + agentPreyStats.getDigestiveEfficency() + " Should be : " + digestiveEfficency);	
+		assertEquals(true,digestiveEfficency == agentPreyStats.getDigestiveEfficency());
 	}	
 	
 	@Test
-	public void reproductionEnergyDivisionCostSetCorrectly()
-	{
-		assertEquals(reproduction_energy_division,reproduction_energy_division,agentPreyStats.getHungryThreshold());
+	public void reproductionEnergyDivisionSetCorrectly()
+	{		
+		System.out.println("Test - reproductionEnergyDivisionSetCorrectly");
+		System.out.println("----------------------------------------------------");	
+		
+		System.out.println("reproduction_energy_division : " + agentPreyStats.getReproductionEnergyDivision()+ " Should be : " + reproductionEnergyDivision);	
+		assertEquals(true,reproductionEnergyDivision == agentPreyStats.getReproductionEnergyDivision());
+		
 	}	
 }

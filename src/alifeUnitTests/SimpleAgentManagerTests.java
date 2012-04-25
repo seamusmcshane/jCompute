@@ -21,7 +21,7 @@ public class SimpleAgentManagerTests
 	SimpleAgentManager agentManger;
 	
 	BarrierManager barrierManager = null;;
-	int world_size = 1024;
+	int worldSize = 1024;
 
 	SimpleAgentManagementSetupParam agentSettings= new SimpleAgentManagementSetupParam();
 	
@@ -68,7 +68,7 @@ public class SimpleAgentManagerTests
 
 		agentSettings.setPreyStartingEnergy(value);
 		
-		agentManger = new SimpleAgentManager(barrierManager,world_size, agentPreyNumbers,agentPredatorNumbers,agentSettings);
+		agentManger = new SimpleAgentManager(barrierManager,worldSize, agentPreyNumbers,agentPredatorNumbers,agentSettings);
 
 	}
 
@@ -78,7 +78,12 @@ public class SimpleAgentManagerTests
 	@Test
 	public void initialPreyNumbers()
 	{
-		assertEquals(agentPreyNumbers,agentPreyNumbers,agentManger.getPreyCount());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - initialPreyNumbers");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("initialPreyNumbers : " + agentManger.getPreyCount() + " Should be : " + agentPreyNumbers);
+
+		assertEquals(true,agentPreyNumbers == agentManger.getPreyCount());
 	}
 	
 	/*
@@ -87,7 +92,11 @@ public class SimpleAgentManagerTests
 	@Test
 	public void initialPredatorNumbers()
 	{
-		assertEquals(agentPredatorNumbers,agentPredatorNumbers,agentManger.getPredatorCount());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - initialPredatorNumbers");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("initialPredatorNumbers : " + agentManger.getPredatorCount() + " Should be : " + agentPredatorNumbers);	
+		assertEquals(true,agentPredatorNumbers == agentManger.getPredatorCount());
 	}
 	
 	/*
@@ -96,7 +105,11 @@ public class SimpleAgentManagerTests
 	@Test
 	public void initialTotalAgentNumbers()
 	{
-		assertEquals(agentPreyNumbers+agentPredatorNumbers,agentPreyNumbers+agentPredatorNumbers,agentManger.getAgentCount());		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - initialTotalAgentNumbers");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("initialTotalAgentNumbers : " + agentManger.getAgentCount() + " Should be : " + (agentPreyNumbers+agentPredatorNumbers));	
+		assertEquals(true, agentPreyNumbers+agentPredatorNumbers == agentManger.getAgentCount());		
 	}
 
 }

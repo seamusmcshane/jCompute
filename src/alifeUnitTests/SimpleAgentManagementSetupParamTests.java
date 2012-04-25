@@ -18,8 +18,8 @@ public class SimpleAgentManagementSetupParamTests
 {
 
 	SimpleAgentManagementSetupParam params;
-	int max_value = 1000;
-	
+	int maxValue = 1000;
+	float value;
 	
 	/* Value Generator */
 	Random r;
@@ -28,15 +28,22 @@ public class SimpleAgentManagementSetupParamTests
 	public void setUp() throws Exception
 	{
 		params = new SimpleAgentManagementSetupParam();
-		r = new Random();
+		r = new Random();		
+		value = r.nextInt(maxValue)+1;
+		System.out.println("====================================================");				
+		System.out.println("----------------------------------------------------");			
+		System.out.println("Random Value For test : " +value);	
 	}
 
 	/* Setting and getting of speeds */
 	@Test
 	public void predatorSpeed()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorSpeed(value);
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorSpeed");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorSpeed : " + params.getPredatorSpeed() + " Should be : " + value);
 		
 		assertEquals(true,params.getPredatorSpeed() == value);	
 	}
@@ -44,8 +51,13 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void preySpeed()
 	{
-		float value = r.nextInt(max_value)+1;
+		
 		params.setPreySpeed(value);
+		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preySpeed");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preySpeed : " + params.getPreySpeed() + " Should be : " + value);
 		
 		assertEquals(true,params.getPreySpeed() == value);
 	
@@ -56,18 +68,24 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorViewRange()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorViewRange(value);
 		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorViewRange");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorViewRange : " + params.getPredatorViewRange() + " Should be : " + value);		
 		assertEquals(true,params.getPredatorViewRange() == value);
 	}
 	
 	@Test
 	public void preyViewRange()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyViewRange(value);
 		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyViewRange");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyViewRange : " + params.getPreyViewRange() + " Should be : " + value);				
 		assertEquals(true,params.getPreyViewRange() == value);
 	}	
 	
@@ -75,37 +93,51 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorDE()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorDE(value);
 		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorDE");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorDE : " + params.getPredatorDE() + " Should be : " + value);				
 		assertEquals(true,params.getPredatorDE() == value);
 	}
 	
 	@Test
 	public void preyDE()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyDE(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyDE");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyDE : " + params.getPreyDE() + " Should be : " + value);		
 		assertEquals(true,params.getPreyDE() == value);
+		System.out.println("----------------------------------------------------");
+
 	}
 	
 	/* Setting and getting of REDiv */
 	@Test
 	public void predatorREDiv()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorREDiv(value);
 		
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorREDiv");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorREDiv : " + params.getPredatorREDiv() + " Should be : " + value);				
 		assertEquals(true,params.getPredatorREDiv() == value);
 	}
 	
 	@Test
 	public void preyREDiv()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyREDiv(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyREDiv");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyREDiv : " + params.getPreyREDiv() + " Should be : " + value);		
 		assertEquals(true,params.getPreyREDiv() == value);
 	}
 	
@@ -113,18 +145,24 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorMoveCost()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorMoveCost(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorMoveCost");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorMoveCost : " + params.getPredatorMoveCost() + " Should be : " + value);		
 		assertEquals(true,params.getPredatorMoveCost() == value);
 	}
 	
 	@Test
 	public void preyMoveCost()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyMoveCost(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyMoveCost");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyMoveCost : " + params.getPreyMoveCost() + " Should be : " + value);		
 		assertEquals(true,params.getPreyMoveCost() == value);
 	}
 	
@@ -132,18 +170,24 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorHungerThres()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorHungerThres(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorHungerThres");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorHungerThres : " + params.getPredatorHungerThres() + " Should be : " + value);		
 		assertEquals(true,params.getPredatorHungerThres() == value);
 	}
 	
 	@Test
 	public void preyHungerThres()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyHungerThres(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyHungerThres");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyHungerThres : " + params.getPreyHungerThres() + " Should be : " + value);		
 		assertEquals(true,params.getPreyHungerThres() == value);
 	}
 	
@@ -151,18 +195,24 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorConsumptionRate()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredatorConsumptionRate(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorConsumptionRate");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorConsumptionRate : " + params.getPredatorConsumptionRate() + " Should be : " + value);		
 		assertEquals(true,params.getPredatorConsumptionRate() == value);
 	}
 	
 	@Test
 	public void preyConsumptionRate()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyConsumptionRate(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyConsumptionRate");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyConsumptionRate : " + params.getPreyConsumptionRate() + " Should be : " + value);		
 		assertEquals(true,params.getPreyConsumptionRate() == value);
 	}
 	
@@ -170,18 +220,24 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorRepoCost()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredRepoCost(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorRepoCost");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorRepoCost : " + params.getPredRepoCost() + " Should be : " + value);		
 		assertEquals(true,params.getPredRepoCost() == value);
 	}
 	
 	@Test
 	public void preyRepoCost()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyRepoCost(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyRepoCost");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyRepoCost : " + params.getPreyRepoCost() + " Should be : " + value);		
 		assertEquals(true,params.getPreyRepoCost() == value);
 	}
 	
@@ -189,18 +245,24 @@ public class SimpleAgentManagementSetupParamTests
 	@Test
 	public void predatorStartingEnergy()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPredStartingEnergy(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - predatorStartingEnergy");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("predatorStartingEnergy : " + params.getPredStartingEnergy() + " Should be : " + value);		
 		assertEquals(true,params.getPredStartingEnergy() == value);
 	}
 	
 	@Test
 	public void preyStartingEnergy()
 	{
-		float value = r.nextInt(max_value)+1;
 		params.setPreyStartingEnergy(value);
-		
+
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - preyStartingEnergy");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("preyStartingEnergy : " + params.getPreyStartingEnergy() + " Should be : " + value);		
 		assertEquals(true,params.getPreyStartingEnergy() == value);
 	}
 	

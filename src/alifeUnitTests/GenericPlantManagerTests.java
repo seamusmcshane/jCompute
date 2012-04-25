@@ -19,17 +19,18 @@ public class GenericPlantManagerTests
 	
 	BarrierManager barrierManager = null;
 	
-	int world_size = 1024;	
-	int plant_regen_rate = 8;
-	int plantstartingenergy = 100;
-	int plant_energy_absorption_rate = 10;
+	int worldSize = 1024;	
+	int plantRegenRate = 8;
+	int plantStartingEnergy = 100;
+	int plant_energyAbsorptionRate = 10;
 	
-	int inital_number = 100;
+	int initalNumber = 100;
 	
 	@Before
 	public void setUp() throws Exception
 	{
-		plantManager = new GenericPlantManager(barrierManager,world_size,inital_number, plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);
+		System.out.println("Create a plant manager.");
+		plantManager = new GenericPlantManager(barrierManager,worldSize,initalNumber, plantRegenRate, plantStartingEnergy, plant_energyAbsorptionRate);
 	}
 
 	/*
@@ -38,7 +39,8 @@ public class GenericPlantManagerTests
 	@Test
 	public void intialPlantNumbersTest()
 	{		
-		assertEquals(inital_number,inital_number,plantManager.getPlantNo());
+		System.out.println("Inital Plant No : " + plantManager.getPlantNo() + " Should be : " +initalNumber);
+		assertEquals(true,initalNumber == plantManager.getPlantNo());
 	}
 
 }

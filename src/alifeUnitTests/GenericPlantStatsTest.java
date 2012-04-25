@@ -12,25 +12,31 @@ import alife.SimpleAgentStats;
 
 public class GenericPlantStatsTest
 {
-	float starting_energy=50f;
-	float max_energy=100f;
-	float absorption_rate=10f;
-	float base_reproduction_cost=50f;
+	float startingEnergy=50f;
+	float maxEnergy=100f;
+	float absorptionRate=10f;
+	float baseReproductionCost=50f;
 	
 	GenericPlantStats plant1;
 	
 	@Before
 	public void setUp() throws Exception
 	{
-		plant1 = new GenericPlantStats(starting_energy, max_energy, absorption_rate, base_reproduction_cost);
+		plant1 = new GenericPlantStats(startingEnergy, maxEnergy, absorptionRate, baseReproductionCost);
 	}
 	
 	/*
 	 * Tests the plant is alive at object creation.
 	 */
 	@Test
-	public void notDead()
+	public void plantNotDead()
 	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - plantNotDead");
+		System.out.println("----------------------------------------------------");
+		
+		System.out.println("New Plant");
+		System.out.println("Plant is dead : " + plant1.isDead() + " Should be : false");
 		assertEquals(false,plant1.isDead());
 	}
 
@@ -38,21 +44,32 @@ public class GenericPlantStatsTest
 	 * Tests if the plants max energy is correctly being enforced.
 	 */
 	@Test 
-	public void plantMaxEnergyCorrect()
+	public void plantMaxEnergyOverFlowTest()
 	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - plantMaxEnergyOverFlowTest");
+		System.out.println("----------------------------------------------------");
+		
 		/* Not dead */
+		System.out.println("New Plant");
+		System.out.println("Plant is dead : " + plant1.isDead() + " Should be : false");
 		assertEquals(false,plant1.isDead());
 		
+		System.out.println("Plant Absorption Overflow Check");
 		/* Deliberate designed to test overflow energy*/
-		for(int i=0;i< (absorption_rate*max_energy) ;i++)
+		for(int i=0;i< (absorptionRate*maxEnergy) ;i++) // Will over flow by a good bit if not enforced
 		{
 			plant1.increment();
+			System.out.println("Plant Energy : " + plant1.getEnergy());
+			
 		}
 		
-		/* Energy should not over flow and must equal max_energy */
-		assertEquals(max_energy,max_energy,plant1.getEnergy());
+		/* Energy should not over flow and must equal maxEnergy */
+		System.out.println("Final Plant Energy : " + plant1.getEnergy() + " Should be :" + maxEnergy);
+		assertEquals(true,maxEnergy == plant1.getEnergy());
 		
 		/* Should also be alive */
+		System.out.println("Plant is dead : " + plant1.isDead() + " Should be : false");	
 		assertEquals(false,plant1.isDead());
 	}
 
@@ -63,19 +80,30 @@ public class GenericPlantStatsTest
 	@Test
 	public void plantDiesAfterBeingAte()
 	{
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - plantDiesAfterBeingAte");
+		System.out.println("----------------------------------------------------");		
 		/* Not Dead */
+		System.out.println("Plant is dead : " + plant1.isDead() + " Should be : false");	
 		assertEquals(false,plant1.isDead());
 		
 		/* Take almost all all the plants energy */
-		plant1.decrementEnergy(starting_energy-1);	
+		System.out.println("Plant Energy :" + plant1.getEnergy());		
+		plant1.decrementEnergy(startingEnergy-1);	
+		System.out.println("Plant Energy Removed :" + (startingEnergy-1));
+		
 		
 		/* Not dead yet */
+		System.out.println("Plant is dead : " + plant1.isDead() + " Should be : false");			
 		assertEquals(false,plant1.isDead());
 		
 		/* Take the reset of the plants energy */
+		System.out.println("Plant Energy :" + plant1.getEnergy());				
 		plant1.decrementEnergy(1);		
+		System.out.println("Plant Energy Removed :" + (1));		
 		
 		/* is Dead */
+		System.out.println("Plant is dead : " + plant1.isDead() + " Should be : true");					
 		assertEquals(true,plant1.isDead());
 	}
 	
@@ -84,27 +112,43 @@ public class GenericPlantStatsTest
 	 */
 	
 	@Test
-	public void energySetCorrect()
+	public void startingEnergySetCorrect()
 	{
-		assertEquals(starting_energy,starting_energy,plant1.getEnergy());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - startingEnergySetCorrect");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("startingEnergy :" + plant1.getEnergy() + " Should be : " + startingEnergy);						
+		assertEquals(true,startingEnergy == plant1.getEnergy());
 	}
 	
 	@Test
 	public void maxEnergySetCorrect()
 	{
-		assertEquals(max_energy,max_energy,plant1.getMaxEnergy());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - maxEnergySetCorrect");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("maxEnergy:" + plant1.getMaxEnergy() + " Should be : " + maxEnergy);			
+		assertEquals(true, maxEnergy == plant1.getMaxEnergy());
 	}
 	
 	@Test
 	public void absorptionRateSetCorrect()
 	{
-		assertEquals(absorption_rate,absorption_rate,plant1.getAbsorptionRate());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - absorptionRateSetCorrect");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("absorptionRate :" + plant1.getAbsorptionRate() + " Should be : " + absorptionRate);				
+		assertEquals(true,absorptionRate == plant1.getAbsorptionRate());
 	}
 
 	@Test
-	public void getBaseReproductionCost()
+	public void baseReproductionCostSetCorrect()
 	{
-		assertEquals(base_reproduction_cost,base_reproduction_cost,plant1.getBaseReproductionCost());
+		System.out.println("----------------------------------------------------");		
+		System.out.println("Test - baseReproductionCostSetCorrect");
+		System.out.println("----------------------------------------------------");		
+		System.out.println("baseReproductionCost :" + plant1.getBaseReproductionCost() + " Should be : " + baseReproductionCost);				
+		assertEquals(true,baseReproductionCost == plant1.getBaseReproductionCost());
 	}
 	
 }
