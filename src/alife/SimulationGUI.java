@@ -83,7 +83,7 @@ public class SimulationGUI
 	private static int plant_starting_numbers_selected = 8; // selects 3200
 
 	private static JComboBox comboBoxPlantRegenRate;
-	private static int plant_default_regenrate_selected = 7; // Selects	8	
+	private static int plant_default_regenrate_selected = 8; // Selects	8	
 
 	private static JComboBox comboBoxEnergyAbsorptionRate;
 	private static int plant_default_energyabsorptionrate_selected = 7; // Selects 8	
@@ -446,7 +446,7 @@ public class SimulationGUI
 		comboBoxPredNumbers.setToolTipText("Set the inital Predator numbers.");
 		mainSetupPanel.add(comboBoxPredNumbers);
 		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
 		comboBoxPredNumbers.setSelectedIndex(predatornumbers_selected);
 
 		JLabel lblPreyS = new JLabel("Prey");
@@ -457,7 +457,7 @@ public class SimulationGUI
 		comboBoxPreyNumbers.setToolTipText("Set the inital Prey numbers.");
 		mainSetupPanel.add(comboBoxPreyNumbers);
 		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
 		comboBoxPreyNumbers.setSelectedIndex(preynumbers_selected);
 
 		JLabel lblPlants = new JLabel("Plants");
@@ -468,7 +468,7 @@ public class SimulationGUI
 		comboBoxPlantNumbers.setToolTipText("Set the inital Plant numbers.");
 		mainSetupPanel.add(comboBoxPlantNumbers);
 		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400"}));
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
 		comboBoxPlantNumbers.setSelectedIndex(plant_starting_numbers_selected);
 
 		JLabel lblWorldSize = new JLabel("World Size");
@@ -737,8 +737,7 @@ public class SimulationGUI
 
 		comboBoxPlantRegenRate = new JComboBox();
 		comboBoxPlantRegenRate.setToolTipText("The number of new Plants that appear each simulation step.");
-		comboBoxPlantRegenRate.setModel(new DefaultComboBoxModel(new String[]
-		{"1", "2", "3", "4", "5", "6", "7", "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192"}));
+		comboBoxPlantRegenRate.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144", "524288", "1048576", "2097152", "4194304"}));
 		plantParamPanel.add(comboBoxPlantRegenRate);
 		comboBoxPlantRegenRate.setSelectedIndex(plant_default_regenrate_selected);
 
@@ -1141,7 +1140,8 @@ public class SimulationGUI
 
 		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
 
-		JDialog dialog = pane.createDialog(null, "Close Application");
+		// Center Dialog on the GUI
+		JDialog dialog = pane.createDialog(gui, "Close Application");
 
 		dialog.pack();
 		dialog.setVisible(true);
@@ -1284,7 +1284,8 @@ public class SimulationGUI
 
 		JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION);
 
-		JDialog dialog = pane.createDialog(null, "Unlock Parameters");
+		// Center Dialog on the gui window
+		JDialog dialog = pane.createDialog(gui, "Unlock Parameters");
 
 		dialog.pack();
 		dialog.setVisible(true);
