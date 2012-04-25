@@ -132,51 +132,53 @@ public class SimpleAgentView
 	 */
 
 	/** Returns the direction to move in to go away from the nearest agent
+	 * Y is inverted
 	* @param myBody SimpleAgentBody
 	* @return float */
 	public float awayfromAgentDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestAgentPos().getX() - myBody.getBodyPos().getX();
-
-		float dy = myBody.getBodyPos().getY() - getNearestAgentPos().getY();
-
-		return (float) Math.toDegrees(Math.atan2(dy, dx));
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY()-getNearestAgentPos().getY()));
+		
+		direction = direction - 180;
+		
+		if(direction < 0)
+		{
+			direction += 360;
+		}
+		
+		return direction%360;
 	}
 
 	/** Returns the direction to move in to go towards the nearest agent
+	 * Y is inverted
 	 * @param myBody SimpleAgentBody
 	 * @return float */
 	public float towardsAgentDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestAgentPos().getX() - myBody.getBodyPos().getX();
-
-		float dy = myBody.getBodyPos().getY() - getNearestAgentPos().getY();
-
-		return (float) Math.toDegrees(Math.atan2(dx, dy));
-	}
-
-	/** Returns the direction to move in to go away from the nearest plant
-	 * @param myBody SimpleAgentBody
-	 * @return float */
-	public float awayfromPlantDirection(SimpleAgentBody myBody)
-	{
-		float dx = getNearestPlantPos().getX() - myBody.getBodyPos().getX();
-
-		float dy = myBody.getBodyPos().getY() - getNearestPlantPos().getY();
-
-		return (float) Math.toDegrees(Math.atan2(dy, dx));
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY()-getNearestAgentPos().getY()));
+		
+		if(direction < 0)
+		{
+			direction += 360;
+		}
+		
+		return direction;
 	}
 
 	/** Returns the direction to move in to go towards the nearest plant
+	 * Y is inverted
 	 * @param myBody SimpleAgentBody
 	 * @return float */
 	public float towardsPlantDirection(SimpleAgentBody myBody)
 	{
-		float dx = getNearestPlantPos().getX() - myBody.getBodyPos().getX();
-
-		float dy = myBody.getBodyPos().getY() - getNearestPlantPos().getY();
-
-		return (float) Math.toDegrees(Math.atan2(dx, dy));
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestPlantPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY()-getNearestPlantPos().getY()));
+				
+		if(direction < 0)
+		{
+			direction += 360;
+		}
+		
+		return direction;
 	}
 
 	/** Returns the squared distances between two vectors

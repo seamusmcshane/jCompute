@@ -147,7 +147,7 @@ public class SimpleAgentBody
 	{
 		//System.out.println("reqDirection : " + reqDirection);
 		
-		/* Get out current forward direction */
+		/* Get our current forward direction */
 		newForwardVector.set(forwardVector);
 		
 		/* Change it by the new direction */

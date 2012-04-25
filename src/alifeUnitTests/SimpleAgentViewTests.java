@@ -122,51 +122,60 @@ public class SimpleAgentViewTests
 		
 	/*
 	 * Tests the retrieval of the direction towards the nearest agent
+	 * y inverted on screen, so left and right are inverted here.  
 	 * Nearest Agent is at 0,0
-	 * We start at 0,-1 
-	 * Should return 180 for straight up and so on.
 	 */
 	@Test
 	public void nearestAgentDirectionTowards()
 	{
 		float value = 0;
 		
-		/* The Current Agents Body - below 0,-1 */
+		/*
+		 *  Towards Above
+		 *  
+		 *  */
+		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
+		bodyPos = new Vector2f(0,1); 
+		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
+		view.setAgentView(nearestAgent);		
+		value = 0; // Up	
+		System.out.println(" Direction TU" + view.towardsAgentDirection(currentAgentBody));				
+		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);
+		
+		/*
+		 *  Towards Left
+		 *  
+		 * */
+		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
+		bodyPos = new Vector2f(-1,0); // Left
+		currentAgentBody = new SimpleAgentBody(bodyPos,stats);				
+		value = 90; // Left
+		view.setAgentView(nearestAgent);
+		System.out.println(" Direction TL" + view.towardsAgentDirection(currentAgentBody));		
+		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);
+
+		/*
+		 *  Towards Right
+		 *  
+		 *  */
+		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
+		bodyPos = new Vector2f(1,0); // Right
+		currentAgentBody = new SimpleAgentBody(bodyPos,stats);				
+		value = 270; // Right
+		view.setAgentView(nearestAgent);
+		System.out.println(" Direction TR" + view.towardsAgentDirection(currentAgentBody));				
+		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);	
+		
+		/*
+		 *  Towards below
+		 *  
+		 *  */
 		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
 		bodyPos = new Vector2f(0,-1); // Below
 		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-		
-		/* 180 Degrees is up as moving up on the screen is -y */
-		view.setAgentView(nearestAgent);		
-		value = 180; // Up	
-		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);
-		
-		/* The Current Agents Body - to the right at 1,0 */
-		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
-		bodyPos = new Vector2f(1,0); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-				
-		value = -90; // Left
+		value = 180; // Below
 		view.setAgentView(nearestAgent);
-		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);
-
-		/* The Current Agents Body - to the left at -1,0 */
-		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
-		bodyPos = new Vector2f(-1,0); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-				
-		value = 90; // Right
-		view.setAgentView(nearestAgent);
-		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);	
-		
-		/* The Current Agents Body - to above at 0,1 */
-		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
-		bodyPos = new Vector2f(0,1); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-		
-		value = 0; // Below
-		view.setAgentView(nearestAgent);
-
+		System.out.println(" Direction TD" + view.towardsAgentDirection(currentAgentBody));				
 		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);			
 		
 
@@ -174,52 +183,61 @@ public class SimpleAgentViewTests
 
 	/*
 	 * Tests the retrieval of the direction away from the nearest agent
+	 * y inverted on screen, so left and right are inverted here.  
 	 * Nearest Agent is at 0,0
-	 * We are start at 0,-1 
-	 * Should return 0 for straight down and so on
 	 */
 	@Test
 	public void nearestAgentDirectionAway()
 	{		
 		float value = 0;
 
-		/* The Current Agents Body - below 0,-1 */
+		/*
+		 *  Away from Above
+		 *  
+		 *  */
+		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
+		bodyPos = new Vector2f(0,-1); // Above (y inverted on screen)
+		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
+		view.setAgentView(nearestAgent);		
+		value = 0; // Up	
+		System.out.println(" Direction AU" + view.awayfromAgentDirection(currentAgentBody));				
+		assertEquals(true,view.awayfromAgentDirection(currentAgentBody) == value);
+		
+		/*
+		 *  Away from Left
+		 *  
+		 * */
+		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
+		bodyPos = new Vector2f(-1,0); // Left
+		currentAgentBody = new SimpleAgentBody(bodyPos,stats);				
+		value = 270; // Right
+		view.setAgentView(nearestAgent);
+		System.out.println(" Direction AL" + view.awayfromAgentDirection(currentAgentBody));		
+		assertEquals(true,view.awayfromAgentDirection(currentAgentBody) == value);
+
+		/*
+		 *  Away from Right
+		 *  
+		 *  */
+		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
+		bodyPos = new Vector2f(1,0); // Right
+		currentAgentBody = new SimpleAgentBody(bodyPos,stats);				
+		value = 90; // Left
+		view.setAgentView(nearestAgent);
+		System.out.println(" Direction AR" + view.awayfromAgentDirection(currentAgentBody));				
+		assertEquals(true,view.awayfromAgentDirection(currentAgentBody) == value);	
+		
+		/*
+		 *  Away from below
+		 *  
+		 *  */
 		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
 		bodyPos = new Vector2f(0,-1); // Below
 		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-		
-		/* 180 Degrees is up as moving up on the screen is -y */
-		view.setAgentView(nearestAgent);		
-		value = 180; // Up	
-		assertEquals(true,view.awayfromAgentDirection(currentAgentBody) == value);
-		
-		/* The Current Agents Body - to the right at 1,0 */
-		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
-		bodyPos = new Vector2f(1,0); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-				
-		value = -90; // Left
+		value = 0; // Up
 		view.setAgentView(nearestAgent);
-		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);
-
-		/* The Current Agents Body - to the left at -1,0 */
-		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
-		bodyPos = new Vector2f(-1,0); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-				
-		value = 90; // Right
-		view.setAgentView(nearestAgent);
-		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);	
-		
-		/* The Current Agents Body - to above at 0,1 */
-		stats = new SimpleAgentStats(preyType,max_speed,size,energy,max_energy,hungryThreshold,view_range,base_move_cost,base_reproduction_cost,energy_consumption_rate,digestive_efficency,reproduction_energy_division);				
-		bodyPos = new Vector2f(0,1); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos,stats);
-		
-		value = 0; // Below
-		view.setAgentView(nearestAgent);
-
-		assertEquals(true,view.towardsAgentDirection(currentAgentBody) == value);	
+		System.out.println(" Direction AD" + view.awayfromAgentDirection(currentAgentBody));				
+		assertEquals(true,view.awayfromAgentDirection(currentAgentBody) == value);	
 	}
 	
 	/*
