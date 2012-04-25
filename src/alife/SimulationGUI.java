@@ -154,13 +154,16 @@ public class SimulationGUI
 	/* retrieved screen sizes */
 	static int screen_width;
 	static int screen_height;
+	static int screen_height_min=900;
+
 
 	/* Window Size pad - certain operating systems like to add thick borders to windows then report the size with out telling you the border is not included. */
 	static int pad = 10;
 
 	/* GUI Size Hard-Coded - minimum size before cropping occurs */
 	static int control_gui_width = 375;
-	static int control_gui_height = 950;
+	static int control_gui_height_min = 806;
+	static int control_gui_height = 0;
 
 	/* Start up position - dynamically generated */
 	static int control_gui_x;
@@ -230,10 +233,10 @@ public class SimulationGUI
 	private static void screenSizeCheck()
 	{
 		
-		if(screen_height<control_gui_height)
+		if(screen_height<screen_height_min)
 		{	
 			String message;
-			message = "Your screen height is below the minimum recommended screen height of " + control_gui_height + ".";
+			message = "Your screen height is below the minimum recommended screen height of " + screen_height_min + ".";
 	
 			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
 	
@@ -356,6 +359,14 @@ public class SimulationGUI
 	{
 		view_width = screen_width - control_gui_width - (pad * 2);
 		view_height = screen_height - (48 * 2); // Task manager and Top borders on some os's
+		
+		control_gui_height = control_gui_height_min;
+		
+		if(control_gui_height<screen_height - (48 * 2))
+		{
+			control_gui_height = screen_height - (48 * 2);
+		}		
+		
 	}
 
 	private static void calculateWindowPositions()
