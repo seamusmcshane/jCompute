@@ -106,7 +106,7 @@ public class SimpleAgentTests
 		// Is not the null reference	
 		System.out.println("Removed Reference");		
 		assertEquals(false,testAgent.body.getStatsDebugMethod().equals(stats)); // Null ref
-		System.out.println("statsIsCorrectObject : " + testAgent.body.getStatsDebugMethod().equals(statsRef)+ " Should be : false");
+		System.out.println("statsIsCorrectObject : " + testAgent.body.getStatsDebugMethod().equals(stats)+ " Should be : false");
 	}
 	
 	@Test
