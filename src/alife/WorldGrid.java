@@ -31,7 +31,7 @@ public class WorldGrid
 	private int step;
 	
 	/** The division at which to draw major lines. */
-	private int major_div; /* TODO make Adjustable */
+	private int major_div; /* TODO make world grid Adjustable */
 	
 	/**
 	 * Instantiates a new world grid.

@@ -34,7 +34,6 @@ public class World
 	 * Checks if the Coordinate is a World Boundary - Called by agent body
 	 * @param x
 	 * @param y
-	 * @return
 	 */
 	public static boolean isBoundaryWall(float x,float y)
 	{		

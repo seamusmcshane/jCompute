@@ -35,11 +35,6 @@ public class StatsLineGraphPanel extends JPanel
 	
 	/**
 	 * A new Graph Panel
-	 * @param plantsSamples
-	 * @param preySamples
-	 * @param predSamples
-	 * @param sampleNum
-	 * @param samplePeriod
 	 */
 	public StatsLineGraphPanel()
 	{

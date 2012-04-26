@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="A:\eclipse\plugins\org.junit_4.8.2.v4_8_2_v20110321-1705\junit.jar;jar/slick-07-03-12-nightly/lib/slick.jar;jar/lwjgl-2.8.3/jar/lwjgl.jar;A:\eclipse\plugins\org.hamcrest.core_1.1.0.v20090501071000.jar" destdir="doc" doctitle="AlifeSim" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="alife" source="1.7" sourcepath="jar/datastruct;jar/kdtree;src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>

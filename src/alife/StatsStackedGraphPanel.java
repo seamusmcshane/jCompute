@@ -31,11 +31,6 @@ public class StatsStackedGraphPanel extends JPanel
 	
 	/**
 	 * A new Graph Panel
-	 * @param plantsSamples
-	 * @param preySamples
-	 * @param predSamples
-	 * @param sampleNum
-	 * @param samplePeriod
 	 */
 	public StatsStackedGraphPanel()
 	{
@@ -58,7 +53,6 @@ public class StatsStackedGraphPanel extends JPanel
 	 * @param plantMax
 	 * @param preyMax
 	 * @param predMax
-	 * @param scale_mode
 	 * @param currSampleNum
 	 */
 	public void updateGraph(float plantMax,float preyMax, float predMax,int currSampleNum)
