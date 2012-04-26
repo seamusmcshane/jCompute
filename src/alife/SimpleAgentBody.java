@@ -241,19 +241,20 @@ public class SimpleAgentBody
 		if(view.getOriginalPlantRef()!= null )
 		{
 
-			if(!view.getOriginalPlantRef().body.stats.isDead())
+			if(!view.getOriginalPlantRef().body.stats.isDead()) // Plant is alive?
 			{
 				if(isPlantCloseEnoughToEat(view))
 				{
 					// Remove plant energy (decrements the energy_consumption_rate amount from the plant each time)
 					stats.addEnergy(view.getOriginalPlantRef().body.stats.decrementEnergy(stats.getEnergyConsumptionRate()));
 					
-					return true;
+					return true; // Have ate a "bit" of the plant - could be the entire plant - we wont know until the next step updates the view
 				}
 			}
 			
 		}		
-		return false;		
+		
+		return false; // Did not eat plant - it died or someone ate the last bit		
 	}
 
 	/**
