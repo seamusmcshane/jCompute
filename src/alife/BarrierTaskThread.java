@@ -99,7 +99,8 @@ public class BarrierTaskThread extends Thread
 	
 	/**
 	 * Section 1 - Iterate over the plants.
-	 * Section 2 - Iterate over the agents.
+	 * Section 2 - Iterate over the agents - generate their  views.
+	 * Section 3 - Reiterate over the agents - allow them to think.
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run()
@@ -110,7 +111,7 @@ public class BarrierTaskThread extends Thread
 			
 			start.acquireUninterruptibly();
 			
-			/** Section 1 */
+			/** Section 1 - Process Plants*/
 			while(plantListItr.hasNext()) 
 			{
 								
@@ -151,11 +152,22 @@ public class BarrierTaskThread extends Thread
 					agentViewRangeKDSQPlants();
 				}
 
+			}			
+			
+			/* Reset the iterator reference to start form the start of the list */
+			agentListItr = agentList.listIterator();		
+			
+			/** Section 3 - Processing the Agent Step */
+			while(agentListItr.hasNext()) 
+			{
+								
+				currentAgent = agentListItr.next();				
+				
 				// Parallel Agent Thinking
 				currentAgent.brain.think();
 
-			}
-						
+			}		
+
 			end.release();		
 						
 		}
