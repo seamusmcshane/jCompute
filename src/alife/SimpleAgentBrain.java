@@ -221,21 +221,18 @@ public class SimpleAgentBrain
 		}
 		else
 		{
+			// Set the set the direction as towards the agent
 			direction = view.towardsAgentDirection(myBody);	
-			
-			// Check if ate agent...
-			if(eatAgentSubState())
-			{
-				state = AgentState.ROAM; // Back to roaming state
-			}
+					
+			// Try to eat the agent
+			myBody.eatAgent(view);
 		}
 						
 	}
 	
 	/* Simulates tiredness */
 	private void huntExitSubState()
-	{
-		
+	{		
 		if(huntExitWait>huntExitMaxWait)
 		{
 			direction = r.nextInt(360);
@@ -250,37 +247,6 @@ public class SimpleAgentBrain
 		}
 		
 	}	
-	/**
-	 * Method eatAgentSubState.
-	 *
-	 * @return boolean */
-	private boolean eatAgentSubState()
-	{
-		if(myBody.eatAgent(view))
-		{
-			return true;
-		}
-		else
-		{
-			return false;		
-		}		
-	}
-	
-	/**
-	 * Method eatPlantSubState.
-	 * 
-	 * @return boolean */
-	private boolean eatPlantSubState()
-	{
-		if(myBody.eatPlant(view))
-		{
-			return true;
-		}
-		else
-		{
-			return false;		
-		}
-	}
 
 	// -- No transition... view needs to be more complex.. is there more food around...
 	private void grazeState()
@@ -288,11 +254,9 @@ public class SimpleAgentBrain
 		// -- No transition... view needs to be more complex.. is there more food around...
 		direction = view.towardsPlantDirection(myBody);
 		
-		if(eatPlantSubState())
-		{
-			state = AgentState.ROAM; // Back to roaming state
-		}
-				
+		// Try to eat the plant
+		myBody.eatPlant(view);
+			
 	}
 	
 	// Evade State -- No transition... view needs to be more complex.. are there other prey i could hide with... etc
