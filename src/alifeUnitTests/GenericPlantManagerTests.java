@@ -16,21 +16,21 @@ import alife.GenericPlantManager;
 public class GenericPlantManagerTests
 {
 	GenericPlantManager plantManager;
-	
+
 	BarrierManager barrierManager = null;
-	
-	int worldSize = 1024;	
+
+	int worldSize = 1024;
 	int plantRegenRate = 8;
 	int plantStartingEnergy = 100;
 	int plant_energyAbsorptionRate = 10;
-	
+
 	int initalNumber = 100;
-	
+
 	@Before
 	public void setUp() throws Exception
 	{
 		System.out.println("Create a plant manager.");
-		plantManager = new GenericPlantManager(barrierManager,worldSize,initalNumber, plantRegenRate, plantStartingEnergy, plant_energyAbsorptionRate);
+		plantManager = new GenericPlantManager(barrierManager, worldSize, initalNumber, plantRegenRate, plantStartingEnergy, plant_energyAbsorptionRate);
 	}
 
 	/*
@@ -38,9 +38,9 @@ public class GenericPlantManagerTests
 	 */
 	@Test
 	public void intialPlantNumbersTest()
-	{		
-		System.out.println("Inital Plant No : " + plantManager.getPlantNo() + " Should be : " +initalNumber);
-		assertEquals(true,initalNumber == plantManager.getPlantNo());
+	{
+		System.out.println("Inital Plant No : " + plantManager.getPlantNo() + " Should be : " + initalNumber);
+		assertEquals(true, initalNumber == plantManager.getPlantNo());
 	}
 
 }
