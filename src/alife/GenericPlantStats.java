@@ -16,7 +16,8 @@ public class GenericPlantStats
 	@SuppressWarnings("unused")
 	private float maxSize; 		// TODO - Allow plants to increase in size, based on energy value?
 	
-	private float size;
+	/* hard coded sizes for now - planned is - plants size changes with growth */
+	private float size = 1;		
 	
 	private int sizeDiv=1;
 	
@@ -42,10 +43,7 @@ public class GenericPlantStats
 		dead = false;
 		
 		maxSize = maxEnergy / sizeDiv; // Not used size div = 1
-		
-		/* hard coded sizes for now - planned is - plants size changes with growth */
-		size = 1;		
-		
+				
 		if(startingEnergy>maxEnergy)
 		{
 			startingEnergy = maxEnergy;
