@@ -8,6 +8,8 @@ import org.newdawn.slick.geom.Rectangle;
  * World Class.
  * This class contains the generator and draw methods for the world.
  * It also contains boundary checks that are used to enforce world movement limits.
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class World
 {
@@ -22,7 +24,11 @@ public class World
 
 	/** The Grid Steps */
 	int gridSteps = 8;
-	
+
+	/**
+	 * Constructor for World.
+	 * @param size int
+	 */
 	@SuppressWarnings("static-access")
 	public World(int size)
 	{
@@ -37,7 +43,7 @@ public class World
 	 * Checks if the Coordinate is a World Boundary - Called by agent body
 	 * @param x
 	 * @param y
-	 */
+	 * @return boolean */
 	public static boolean isBoundaryWall(float x, float y)
 	{
 		/* Top */
@@ -71,8 +77,7 @@ public class World
 	/**
 	 * Is this the left or right of the world.
 	 * @param x
-	 * @return
-	 */
+	 * @return boolean */
 	private static boolean checkXBoundary(float x)
 	{
 		/* Left */
@@ -92,8 +97,7 @@ public class World
 	/**
 	 * Is this the top or bottom of this world.
 	 * @param y
-	 * @return
-	 */
+	 * @return boolean */
 	private static boolean checkYBoundary(float y)
 	{
 		/* Left */
@@ -119,7 +123,9 @@ public class World
 	}
 
 	/**
-	 *  Draw method for the world */
+	 *  Draw method for the world 
+	 * @param g Graphics
+	 */
 	public void drawWorld(Graphics g)
 	{
 		grid.drawGrid(g);

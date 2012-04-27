@@ -9,49 +9,45 @@ package alife;
 public class SimpleAgentManagementSetupParam
 {
 	private float predatorSpeed;
-	private float preySpeed;	
+	private float preySpeed;
 
 	private float preyViewRange;
 	private float predatorViewRange;
-	
+
 	private float preyDE;
 	private float predatorDE;
-	
+
 	private float preyREDiv;
 	private float predatorREDiv;
-	
+
 	private float preyMoveCost;
 	private float predatorMoveCost;
-	
+
 	private float preyHungerThres;
 	private float predatorHungerThres;
-	
+
 	private float preyConsumptionRate;
 	@SuppressWarnings("unused")
 	private float predatorConsumptionRate;
-	
+
 	private float preyRepoCost;
 	private float predRepoCost;
-	
+
 	private float preyStartingEnergy;
 	private float predStartingEnergy;
 
-	
 	public SimpleAgentManagementSetupParam()
 	{
 
-		
 	}
-	
+
 	/**
 	 * Method getPredatorSpeed.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorSpeed()
 	{
 		return predatorSpeed;
 	}
-
 
 	/**
 	 * Method setPredatorSpeed.
@@ -62,16 +58,13 @@ public class SimpleAgentManagementSetupParam
 		this.predatorSpeed = predatorSpeed;
 	}
 
-
 	/**
 	 * Method getPreySpeed.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreySpeed()
 	{
 		return preySpeed;
 	}
-
 
 	/**
 	 * Method setPreySpeed.
@@ -82,16 +75,13 @@ public class SimpleAgentManagementSetupParam
 		this.preySpeed = preySpeed;
 	}
 
-
 	/**
 	 * Method getPreyViewRange.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyViewRange()
 	{
 		return preyViewRange;
 	}
-
 
 	/**
 	 * Method setPreyViewRange.
@@ -102,16 +92,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyViewRange = preyViewRange;
 	}
 
-
 	/**
 	 * Method getPredatorViewRange.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorViewRange()
 	{
 		return predatorViewRange;
 	}
-
 
 	/**
 	 * Method setPredatorViewRange.
@@ -122,16 +109,13 @@ public class SimpleAgentManagementSetupParam
 		this.predatorViewRange = predatorViewRange;
 	}
 
-
 	/**
 	 * Method getPreyDE.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyDE()
 	{
 		return preyDE;
 	}
-
 
 	/**
 	 * Method setPreyDE.
@@ -142,16 +126,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyDE = preyDE;
 	}
 
-
 	/**
 	 * Method getPredatorDE.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorDE()
 	{
 		return predatorDE;
 	}
-
 
 	/**
 	 * Method setPredatorDE.
@@ -162,16 +143,13 @@ public class SimpleAgentManagementSetupParam
 		this.predatorDE = predatorDE;
 	}
 
-
 	/**
 	 * Method getPreyREDiv.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyREDiv()
 	{
 		return preyREDiv;
 	}
-
 
 	/**
 	 * Method setPreyREDiv.
@@ -182,16 +160,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyREDiv = preyREDiv;
 	}
 
-
 	/**
 	 * Method getPredatorREDiv.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorREDiv()
 	{
 		return predatorREDiv;
 	}
-
 
 	/**
 	 * Method setPredatorREDiv.
@@ -202,16 +177,13 @@ public class SimpleAgentManagementSetupParam
 		this.predatorREDiv = predatorREDiv;
 	}
 
-
 	/**
 	 * Method getPreyMoveCost.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyMoveCost()
 	{
 		return preyMoveCost;
 	}
-
 
 	/**
 	 * Method setPreyMoveCost.
@@ -222,16 +194,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyMoveCost = preyMoveCost;
 	}
 
-
 	/**
 	 * Method getPredatorMoveCost.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorMoveCost()
 	{
 		return predatorMoveCost;
 	}
-
 
 	/**
 	 * Method setPredatorMoveCost.
@@ -242,16 +211,13 @@ public class SimpleAgentManagementSetupParam
 		this.predatorMoveCost = predatorMoveCost;
 	}
 
-
 	/**
 	 * Method getPreyHungerThres.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyHungerThres()
 	{
 		return preyHungerThres;
 	}
-
 
 	/**
 	 * Method setPreyHungerThres.
@@ -262,16 +228,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyHungerThres = preyHungerThres;
 	}
 
-
 	/**
 	 * Method getPredatorHungerThres.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorHungerThres()
 	{
 		return predatorHungerThres;
 	}
-
 
 	/**
 	 * Method setPredatorHungerThres.
@@ -282,16 +245,13 @@ public class SimpleAgentManagementSetupParam
 		this.predatorHungerThres = predatorHungerThres;
 	}
 
-
 	/**
 	 * Method getPredatorConsumptionRate.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredatorConsumptionRate()
 	{
 		return predatorConsumptionRate;
 	}
-
 
 	/**
 	 * Method setPredatorConsumptionRate.
@@ -301,16 +261,14 @@ public class SimpleAgentManagementSetupParam
 	{
 		this.predatorConsumptionRate = predatorConsumptionRate;
 	}
-	
+
 	/**
 	 * Method getPreyConsumptionRate.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyConsumptionRate()
 	{
 		return preyConsumptionRate;
 	}
-
 
 	/**
 	 * Method setPreyConsumptionRate.
@@ -321,16 +279,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyConsumptionRate = preyConsumptionRate;
 	}
 
-
 	/**
 	 * Method getPreyRepoCost.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyRepoCost()
 	{
 		return preyRepoCost;
 	}
-
 
 	/**
 	 * Method setPreyRepoCost.
@@ -341,16 +296,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyRepoCost = preyRepoCost;
 	}
 
-
 	/**
 	 * Method getPredRepoCost.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredRepoCost()
 	{
 		return predRepoCost;
 	}
-
 
 	/**
 	 * Method setPredRepoCost.
@@ -361,16 +313,13 @@ public class SimpleAgentManagementSetupParam
 		this.predRepoCost = predRepoCost;
 	}
 
-
 	/**
 	 * Method getPreyStartingEnergy.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPreyStartingEnergy()
 	{
 		return preyStartingEnergy;
 	}
-
 
 	/**
 	 * Method setPreyStartingEnergy.
@@ -381,16 +330,13 @@ public class SimpleAgentManagementSetupParam
 		this.preyStartingEnergy = preyStartingEnergy;
 	}
 
-
 	/**
 	 * Method getPredStartingEnergy.
-	 * @return float
-	 */
+	 * @return float */
 	public float getPredStartingEnergy()
 	{
 		return predStartingEnergy;
 	}
-
 
 	/**
 	 * Method setPredStartingEnergy.

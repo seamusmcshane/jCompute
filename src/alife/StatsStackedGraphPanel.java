@@ -3,11 +3,12 @@ package alife;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
 /**
  * A Panel used for drawing a Stacked Graph.
+ * @author Seamus McShane
+ * @version $Revision: 1.0 $
  */
 public class StatsStackedGraphPanel extends JPanel
 {
@@ -17,7 +18,7 @@ public class StatsStackedGraphPanel extends JPanel
 	private int plantsSamples[];
 	private int preySamples[];
 	private int predSamples[];
-	
+
 	/** Graph Size */
 	private int graphX;
 	private int graphY;
@@ -26,9 +27,9 @@ public class StatsStackedGraphPanel extends JPanel
 
 	/* The total Samples Drawn */
 	private float maxSampleNum;
-	
+
 	/* Marks the end of the sample range so we dont drawn the unfilled slots */
-	private float graphSamples=1;
+	private float graphSamples = 1;
 
 	/* Max values used to scale graph */
 	private float plantMax = 0;
@@ -43,6 +44,13 @@ public class StatsStackedGraphPanel extends JPanel
 
 	}
 
+	/**
+	 * Method setSampleArrays.
+	 * @param plantsSamples int[]
+	 * @param preySamples int[]
+	 * @param predSamples int[]
+	 * @param maxSampleNum int
+	 */
 	public void setSampleArrays(int plantsSamples[], int preySamples[], int predSamples[], int maxSampleNum)
 	{
 		this.plantsSamples = plantsSamples;
@@ -100,7 +108,8 @@ public class StatsStackedGraphPanel extends JPanel
 
 	/**
 	 * Which of the agents has the greater max point in the graph 
-	 * max is tied to the greater, also returns max for further evaluation */
+	 * max is tied to the greater, also returns max for further evaluation 
+	 * @return float */
 	public float tiePredPreyMax()
 	{
 		float max;
@@ -116,7 +125,9 @@ public class StatsStackedGraphPanel extends JPanel
 		return max;
 	}
 
-	/** Draws the graph */
+	/** Draws the graph 
+	 * @param g Graphics
+	 */
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
@@ -131,7 +142,9 @@ public class StatsStackedGraphPanel extends JPanel
 		drawSamples(g2);
 	}
 
-	/** Draws the graph lines */
+	/** Draws the graph lines 
+	 * @param g2 Graphics2D
+	 */
 	public void drawSamples(Graphics2D g2)
 	{
 		if (plantsSamples == null || preySamples == null || predSamples == null)

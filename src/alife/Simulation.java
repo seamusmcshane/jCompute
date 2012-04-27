@@ -1,8 +1,8 @@
 package alife;
 
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Vector2f;
 
 /**
  * Simulation class
@@ -80,6 +80,9 @@ public class Simulation
 	{
 
 		stepSamples = new double[numSamples];
+
+		// Assume we are at 15 steps per second
+		Arrays.fill(stepSamples, 15);
 
 		this.step_num = 0;
 
@@ -218,8 +221,7 @@ public class Simulation
 
 	/**
 	 * Average the steps thus giving an average steps per second count
-	 * @return int
-	 */
+	 * @return int */
 	public int averageStepsPerSecond()
 	{
 		return (int) (tasps / numSamples);
@@ -227,8 +229,7 @@ public class Simulation
 
 	/**
 	 * Calculates the total taken between repeated call to this method - used for inter-step time wait
-	 * @return long
-	 */
+	 * @return long */
 	private long timeTotal()
 	{
 		stepTimeNow = System.nanoTime();		 // Current Time
@@ -261,17 +262,13 @@ public class Simulation
 	 */
 	public void unPauseSim()
 	{
-
 		simPaused = false;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now unpaused.
-
 		pause.release();					// Release the pause semaphore
-
 	}
 
 	/**
 	 * Method simPaused.
-	 * @return boolean
-	 */
+	 * @return boolean */
 	public boolean simPaused()
 	{
 		return simPaused;

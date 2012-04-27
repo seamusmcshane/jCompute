@@ -9,7 +9,7 @@ import org.newdawn.slick.geom.Vector2f;
 public class GenericPlant
 {
 	public GenericPlantBody body;
-	
+
 	/**
 	 * Constructor for GenericPlant.
 	 * @param x float
@@ -19,9 +19,9 @@ public class GenericPlant
 	 * @param absorptionRate float
 	 * @param basePlantReproductionCost float
 	 */
-	public GenericPlant(float x,float y,float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
+	public GenericPlant(float x, float y, float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
 	{
-		body = new GenericPlantBody(new Vector2f(x,y),startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
-	}	
-		
+		body = new GenericPlantBody(new Vector2f(x, y), startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
+	}
+
 }
