@@ -205,7 +205,9 @@ public class BarrierTaskThread extends Thread
 			return;
 		}
 
-		if ((currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) - (nearestAgent.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter())) < currentAgent.brain.view.getFovDiameterSquared())																	// Part 3			
+		if ( (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) 				  // Part 1
+				- (nearestAgent.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()) ) // Part 2
+				< currentAgent.brain.view.getFovDiameterSquared())											  // Part 3			
 		{
 			currentAgent.brain.view.setAgentView(nearestAgent);
 			// Highlight the View Type the state machines will react similarly to this. 
