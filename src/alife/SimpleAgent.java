@@ -4,6 +4,8 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Vector2f;
+
+import alife.SimpleAgentEnum.AgentEval;
 /**
  * This Class is an instantiation of an Agent.
  * @author Seamus McShane
@@ -22,6 +24,10 @@ public class SimpleAgent
 	
 	/** Agent View Range */
 	private Circle fov;	
+	
+	/** Agent in View Range mode */
+	private AgentEval inViewMode = null;
+	
 		
 	/**
 	 * Creates a new agent.
@@ -84,9 +90,34 @@ public class SimpleAgent
 	{	
 		upDateViewLocation();		
 
-		g.setColor(Color.white);
+		// Only use colors for views that are active
+		if(inViewMode!=null)
+		{
+			switch(inViewMode)
+			{
+				case SAME:
+						g.setColor(Color.white);	// Same is treated as inactive as Agents of same type ignore each other		
+					break;
+				case STRONGER:
+						g.setColor(Color.red);		// The current Agent is Stronger i.e Predator 		
+					break;
+				case WEAKER:
+						g.setColor(Color.blue);		// The current Agent is Weaker i.e Prey 	
+					break;			
+			}			
+		}
+		else
+		{
+			g.setColor(Color.white);	
+		}
+
 		
 		g.draw(fov);		
+	}
+	
+	public void setViewMode(AgentEval mode)
+	{
+		this.inViewMode = mode;
 	}
 	
 	/** 

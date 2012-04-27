@@ -200,14 +200,20 @@ public class BarrierTaskThread extends Thread
 		}
 		
 		if( (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) - 																// Part 1
-				( (currentAgent.body.stats.getSize()+currentAgent.body.stats.getSize()) * (nearestAgent.body.stats.getSize()+nearestAgent.body.stats.getSize()) ) ) // Part 2
+				( (currentAgent.body.stats.getSize()*currentAgent.body.stats.getSize()) + (nearestAgent.body.stats.getSize()*nearestAgent.body.stats.getSize()) ) ) // Part 2
 				<  ((currentAgent.body.stats.getViewRange()*currentAgent.body.stats.getViewRange())) )																	// Part 3			
 		{
 			currentAgent.brain.view.setAgentView(nearestAgent);
+			
+			// Highlight the View Type the state machines will react similarly to this. 
+			currentAgent.setViewMode(currentAgent.body.stats.getType().strongerThan(nearestAgent.body.stats.getType()));
+			
 		}
 		else // Clear the view 
 		{
 			currentAgent.brain.view.setAgentView(null);
+			
+			currentAgent.setViewMode(null); 
 		}
 	}	
 		
@@ -223,7 +229,7 @@ public class BarrierTaskThread extends Thread
 		}
 		
 		if( (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos()) - 																// Part 1
-				( (currentAgent.body.stats.getSize()+currentAgent.body.stats.getSize()) * (nearestPlant.body.stats.getSize()+nearestPlant.body.stats.getSize()) ) ) // Part 2
+				( (currentAgent.body.stats.getSize()*currentAgent.body.stats.getSize()) + (nearestPlant.body.stats.getSize()*nearestPlant.body.stats.getSize()) ) ) // Part 2
 				<  ((currentAgent.body.stats.getViewRange()*currentAgent.body.stats.getViewRange())) )																	// Part 3			
 		{
 			currentAgent.brain.view.setPlantView(nearestPlant);
