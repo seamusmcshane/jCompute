@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -62,16 +63,16 @@ public class SimulationGUI
 
 	/* The Combo boxes for setting parameters */
 	private static JComboBox comboBoxPreyNumbers;
-	private static int preyNumbersSelected = 8; // selects 1024	
+	private static int preyNumbersSelected = 6; // selects 800	
 
 	private static JComboBox comboBoxPredNumbers;
-	private static int predatorNumbersSelected = 2; // selects 1024	
+	private static int predatorNumbersSelected = 3; // selects 100	
 
 	private static JComboBox comboBoxWorldSize;
 	private static int worldSizeSelected = 3; // selects 1024
 
 	private static JComboBox comboBoxPlantNumbers;
-	private static int plantStartingNumbersSelected = 8; // selects 3200
+	private static int plantStartingNumbersSelected = 5; // selects 400
 
 	private static JComboBox comboBoxPlantRegenRate;
 	private static int plantDefaultRegenrateSelected = 8; // Selects	8	
@@ -199,6 +200,13 @@ public class SimulationGUI
 	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
 	private static JCheckBoxMenuItem chckbxmntmDisplayView;
 	private static JCheckBoxMenuItem chckbxmntmDrawTrueBodies;
+	private static JPanel row1;
+	private static JLabel lblStepRate;
+	private static JLabel lblASPSNo;
+	private static JLabel lblSteps;
+	private static JLabel lblStepNo;
+	private static JLabel label_4;
+	private static JLabel lblRunTimeNo;
 	/* Logic */
 
 	/**
@@ -206,7 +214,7 @@ public class SimulationGUI
 	 * @param args String[]
 	 */
 	public static void main(String args[])
-	{
+	{		
 		retrieveScreenSize();
 
 		calculateWindowSizes();
@@ -221,28 +229,10 @@ public class SimulationGUI
 		SimulationView.displayView(sim, viewX, viewY, viewWidth, viewHeight);
 
 		screenSizeCheck();
+		
+		setUpToolTips();
 	}
-
-	/*
-	 * Notify users they will have problems running with a small resolutions
-	 * screen
-	 */
-	private static void screenSizeCheck()
-	{
-		if (screenHeight < screenHeightMin)
-		{
-			String message;
-			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + ".";
-
-			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-
-			JDialog dialog = wariningPane.createDialog(null, "Screen Size Warning");
-
-			dialog.pack();
-			dialog.setVisible(true);
-		}
-	}
-
+	
 	private static void newSim()
 	{
 		/*
@@ -342,6 +332,8 @@ public class SimulationGUI
 
 		/* Clear the old stats */
 		StatsPanel.clearStats();
+		
+		clearGUIStats();
 
 	}
 
@@ -364,6 +356,35 @@ public class SimulationGUI
 
 	}
 
+	/*
+	 * Notify users they will have problems running with a small resolutions
+	 * screen
+	 */
+	private static void screenSizeCheck()
+	{
+		if (screenHeight < screenHeightMin)
+		{
+			String message;
+			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + ".";
+
+			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
+
+			JDialog dialog = wariningPane.createDialog(null, "Screen Size Warning");
+
+			dialog.pack();
+			dialog.setVisible(true);
+		}
+		else if(screenHeight >= 1024) // 1280*1024 minimum to be treated as a large screen 
+		{
+			guiOnLargeScreen();		 // Set the large set switch on
+		}
+	}
+
+	private static void guiOnLargeScreen()
+	{
+		StatsPanel.setLargeScreen(true);	// Set the panel large screen overrides
+	}
+	
 	private static void calculateWindowPositions()
 	{
 		controlGuiX = (screenWidth / 2) - ((controlGuiWidth + viewWidth) / 2);
@@ -784,19 +805,50 @@ public class SimulationGUI
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
 		controlPanelBottom.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanelBottom.setLayout(new GridLayout(2, 1, 5, 5));
-
-		JPanel row1 = new JPanel();
+		controlPanelBottom.setLayout(new GridLayout(3, 1, 5, 5));
+		
+		row1 = new JPanel();
 		controlPanelBottom.add(row1);
-		row1.setLayout(new GridLayout(0, 3, 10, 5));
+		row1.setLayout(new GridLayout(0, 6, 0, 0));
+		
+		lblStepRate = new JLabel("Step Rate");
+		lblStepRate.setHorizontalAlignment(SwingConstants.CENTER);
+		row1.add(lblStepRate);
+		
+		lblASPSNo = new JLabel("0");
+		lblASPSNo.setToolTipText("Average steps per second over the last 150 steps.");
+		lblASPSNo.setHorizontalAlignment(SwingConstants.CENTER);
+		row1.add(lblASPSNo);
+		
+		lblSteps = new JLabel("Steps");
+		lblSteps.setHorizontalAlignment(SwingConstants.CENTER);
+		row1.add(lblSteps);
+		
+		lblStepNo = new JLabel("0");
+		lblStepNo.setToolTipText("Total number of simulated steps.");
+		lblStepNo.setHorizontalAlignment(SwingConstants.CENTER);
+		row1.add(lblStepNo);
+		
+		label_4 = new JLabel("Time");
+		label_4.setHorizontalAlignment(SwingConstants.CENTER);
+		row1.add(label_4);
+		
+		lblRunTimeNo = new JLabel("0");
+		lblRunTimeNo.setToolTipText("Real-Time counter of how long the simualtion has run.");
+		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
+		row1.add(lblRunTimeNo);
+
+		JPanel row2 = new JPanel();
+		controlPanelBottom.add(row2);
+		row2.setLayout(new GridLayout(0, 3, 10, 5));
 
 		JLabel lblSimRate = new JLabel("Requested Step Rate");
-		row1.add(lblSimRate);
+		row2.add(lblSimRate);
 		lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
 
 		simRateInfoPanel = new JPanel();
 		simRateInfoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		row1.add(simRateInfoPanel);
+		row2.add(simRateInfoPanel);
 		simRateInfoPanel.setLayout(new BorderLayout(0, 0));
 		txtSimRateInfo = new JTextField()
 		{
@@ -819,7 +871,7 @@ public class SimulationGUI
 		simRateSlider.setMaximum(300);
 		simRateSlider.setValue(15);
 		simRateSlider.setSnapToTicks(true);
-		row1.add(simRateSlider);
+		row2.add(simRateSlider);
 		simRateSlider.setPaintTrack(false);
 		simRateSlider.setPaintTicks(true);
 		simRateSlider.setMinorTickSpacing(15);
@@ -844,9 +896,9 @@ public class SimulationGUI
 			}
 		});
 
-		JPanel row2 = new JPanel();
-		controlPanelBottom.add(row2);
-		row2.setLayout(new GridLayout(0, 3, 10, 5));
+		JPanel row3 = new JPanel();
+		controlPanelBottom.add(row3);
+		row3.setLayout(new GridLayout(0, 3, 10, 5));
 
 		btnGenerate = new JButton("Generate");
 		btnGenerate.setToolTipText("Generate a new simuation based on the values of the parameters.");
@@ -861,15 +913,15 @@ public class SimulationGUI
 				newSim();
 			}
 		});
-		row2.add(btnGenerate);
+		row3.add(btnGenerate);
 
 		btnStart = new JButton("Start");
 		btnStart.setToolTipText("Start the simulation.");
-		row2.add(btnStart);
+		row3.add(btnStart);
 
 		btnPause = new JButton("Pause");
 		btnPause.setToolTipText("Pause / Unpause the simulation.");
-		row2.add(btnPause);
+		row3.add(btnPause);
 
 		statsPanel = new StatsPanel();
 
@@ -1092,12 +1144,6 @@ public class SimulationGUI
 		overlayButtonGroup.add(rdbtnmntmOverlayDisabled);
 		mnOverlay.add(rdbtnmntmOverlayDisabled);
 
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-
-		JMenuItem mntmAbout = new JMenuItem("About");
-		mnHelp.add(mntmAbout);
-
 		gui.addWindowListener(new WindowAdapter()
 		{
 			public void windowClosing(WindowEvent e)
@@ -1178,7 +1224,15 @@ public class SimulationGUI
 			e1.printStackTrace();
 		}
 	}
-
+	
+	/* Sets up the timeout values for the tool-tips */
+	private static void setUpToolTips()
+	{
+		ToolTipManager.sharedInstance().setReshowDelay(5000);
+		ToolTipManager.sharedInstance().setDismissDelay(10000);
+		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(true);
+	}
+	
 	private static void simStartedState()
 	{
 
@@ -1344,7 +1398,7 @@ public class SimulationGUI
 
 			/* Clear the old stats */
 			StatsPanel.clearStats();
-
+			clearGUIStats();
 		}
 	}
 
@@ -1358,6 +1412,55 @@ public class SimulationGUI
 	public static void minimise()
 	{
 		gui.setState(Frame.ICONIFIED);
+	}
+	
+	/**
+	 * The Average Steps per second.
+	 * 
+	 * @param no
+	 */
+	public static void setASPS(int asps)
+	{
+		lblASPSNo.setText(Integer.toString(asps));
+	}
+
+	/**
+	 * The curernt step number.
+	 * 
+	 * @param no
+	 */
+	public static void setStepNo(int no)
+	{
+		lblStepNo.setText(Integer.toString(no));
+	}
+
+	/**
+	 * Called in the update sim loop - displays the current run time of the simulation.
+	 * 
+	 * @param time
+	 */
+	public static void setTime(long time)
+	{
+		time = time / 1000; // seconds
+		int days = (int) (time / 86400); // to days
+		int hrs = (int) (time / 3600) % 24; // to hrs
+		int mins = (int) ((time / 60) % 60);	// to seconds
+		int sec = (int) (time % 60);
+
+		lblRunTimeNo.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
+		
+	}
+	
+	public static void clearGUIStats()
+	{
+		// Average Steps per second
+		lblASPSNo.setText(Integer.toString(0));
+
+		/* Set Number */
+		lblStepNo.setText(Integer.toString(0));
+		
+		/* Reset the time */
+		setTime(0);
 	}
 
 }

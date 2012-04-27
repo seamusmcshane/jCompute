@@ -81,20 +81,17 @@ public class Simulation
 
 		stepSamples = new double[numSamples];
 
-		// Assume we are at 15 steps per second
-		Arrays.fill(stepSamples, 15);
-
 		this.step_num = 0;
 
-		StatsPanel.setStepNo(step_num);
+		SimulationGUI.setStepNo(step_num);
 
 		this.stepTotalTime = 0;
 
-		StatsPanel.setTime(stepTotalTime);
+		SimulationGUI.setTime(stepTotalTime);
 
 		tasps = 0;
 		sps = 0;
-		StatsPanel.setASPS(averageStepsPerSecond());
+		SimulationGUI.setASPS(averageStepsPerSecond());
 
 		world = new World(worldSize);
 
@@ -142,12 +139,12 @@ public class Simulation
 					// Calculate the Steps per Second
 					calcStepsPerSecond();
 
-					StatsPanel.setASPS(averageStepsPerSecond());
+					SimulationGUI.setASPS(averageStepsPerSecond());
 
 					// Increment the Step counter
 					step_num++;
 
-					StatsPanel.setStepNo(step_num);
+					SimulationGUI.setStepNo(step_num);
 
 					// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
 					while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
@@ -164,7 +161,7 @@ public class Simulation
 
 					stepTotalTime += stepEndTime - stepStartTime;
 
-					StatsPanel.setTime(stepTotalTime);
+					SimulationGUI.setTime(stepTotalTime);
 
 					StatsPanel.updateGraphs();
 

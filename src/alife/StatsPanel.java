@@ -50,12 +50,11 @@ public class StatsPanel extends JPanel
 	private static JLabel lblPredatorsNo = new JLabel("0");
 	private static JLabel lblPrey = new JLabel("Prey");
 	private static JLabel lblPreyNo = new JLabel("0");
-	private static JPanel simulationInfoRow = new JPanel();
-	private static JLabel lblASPS = new JLabel(" AS/Sec");
-	private static JLabel lblASPSNo = new JLabel("0");
-	private static JLabel lblRunTime = new JLabel("Time");
-	private static JLabel lblRunTimeNo = new JLabel("0");
-
+	private static JLabel lblPlantsMax = new JLabel("0");
+	private static JLabel lblPredatorsMax = new JLabel("0");
+	private static JLabel lblPreyMax = new JLabel("0");
+	
+	
 	/** The custom panel for drawing the graph */
 	private static StatsLineGraphPanel lineGraphPanel;
 	private static StatsLorenzGraphPanel lorenzGraphPanel;
@@ -96,6 +95,9 @@ public class StatsPanel extends JPanel
 
 	/* Graph State - default */
 	private static boolean graphsFull = false;
+	
+	/* Allows overriding the graph size checks on large screens */
+	private static boolean largeScreen=false;
 
 	/* Used to prevent showing sliders in a small area when paused */
 	private static boolean paused;
@@ -105,9 +107,6 @@ public class StatsPanel extends JPanel
 
 	/* Draw or do not draw the graphs */
 	private static boolean drawGraphs = true;
-
-	private final JLabel lblStep = new JLabel("Step No");
-	private final static JLabel lblStepNo = new JLabel("0");
 	private final JTabbedPane tabbedGraphs = new JTabbedPane(JTabbedPane.TOP);
 	private final JPanel lorenzContainerPanel = new JPanel();
 	private final static JPanel rightPanel = new JPanel();
@@ -142,6 +141,12 @@ public class StatsPanel extends JPanel
 	private final static JComboBox comboBoxGraphSamples = new JComboBox();
 	private final JPanel drawDivPanel = new JPanel();
 	private final JPanel samplesPanel = new JPanel();
+	private final JLabel label = new JLabel("");
+	private final JLabel lblCurrent = new JLabel("Current");
+	private final JLabel lblMax = new JLabel("Max");
+	private final JPanel plantMaxPanel = new JPanel();
+	private final JPanel predatorsMaxPanel = new JPanel();
+	private final JPanel preyMaxPanel = new JPanel();
 
 	public StatsPanel()
 	{
@@ -205,7 +210,7 @@ public class StatsPanel extends JPanel
 			@Override
 			public void mouseClicked(MouseEvent arg0)
 			{
-				if (graphsFull) // Only allow extra interface controls on the large view
+				if (graphsFull || largeScreen) // Only allow extra interface controls on the large view
 				{
 					if (lineGraphbottomPanel.isVisible())
 					{
@@ -244,7 +249,7 @@ public class StatsPanel extends JPanel
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				if (graphsFull) // Only allow extra interface controls on the large view
+				if (graphsFull || largeScreen) // Only allow extra interface controls on the large view
 				{
 					if (rightPanel.isVisible())
 					{
@@ -406,14 +411,25 @@ public class StatsPanel extends JPanel
 		statsBottomPanel.setLayout(new BorderLayout(0, 0));
 		statsBottomPanel.add(simStatCountPanel);
 
-		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Simulation Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		simStatCountPanel.setLayout(new GridLayout(2, 6, 0, 0));
+		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simStatCountPanel.setLayout(new GridLayout(1, 6, 0, 0));
 
 		simStatCountPanel.add(alifeInfoRow);
-		alifeInfoRow.setLayout(new GridLayout(0, 6, 0, 0));
+		alifeInfoRow.setLayout(new GridLayout(0, 4, 2, 2));
+		
+		alifeInfoRow.add(label);
 
 		lblPlants.setHorizontalAlignment(SwingConstants.CENTER);
 		alifeInfoRow.add(lblPlants);
+		
+				lblPredators.setHorizontalAlignment(SwingConstants.CENTER);
+				alifeInfoRow.add(lblPredators);
+		
+				lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
+				alifeInfoRow.add(lblPrey);
+		lblCurrent.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		alifeInfoRow.add(lblCurrent);
 		plantNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		plantNoPanel.setBackground(new Color(128, 128, 128));
 
@@ -425,9 +441,6 @@ public class StatsPanel extends JPanel
 		lblPlantNo.setForeground(new Color(0, 255, 0));
 
 		lblPlantNo.setHorizontalAlignment(SwingConstants.CENTER);
-
-		lblPredators.setHorizontalAlignment(SwingConstants.CENTER);
-		alifeInfoRow.add(lblPredators);
 		predatorsNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		predatorsNoPanel.setBackground(new Color(128, 128, 128));
 
@@ -439,9 +452,6 @@ public class StatsPanel extends JPanel
 		lblPredatorsNo.setForeground(Color.RED);
 
 		lblPredatorsNo.setHorizontalAlignment(SwingConstants.CENTER);
-
-		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
-		alifeInfoRow.add(lblPrey);
 		preyNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		preyNoPanel.setBackground(new Color(128, 128, 128));
 
@@ -453,30 +463,42 @@ public class StatsPanel extends JPanel
 		lblPreyNo.setForeground(Color.BLUE);
 
 		lblPreyNo.setHorizontalAlignment(SwingConstants.CENTER);
-
-		simStatCountPanel.add(simulationInfoRow);
-		simulationInfoRow.setLayout(new GridLayout(0, 6, 0, 0));
-
-		lblASPS.setHorizontalAlignment(SwingConstants.CENTER);
-		simulationInfoRow.add(lblASPS);
-		lblASPSNo.setToolTipText("Average steps per second over the last 150 steps.");
-
-		lblASPSNo.setHorizontalAlignment(SwingConstants.CENTER);
-		simulationInfoRow.add(lblASPSNo);
-		lblStep.setHorizontalAlignment(SwingConstants.CENTER);
-
-		simulationInfoRow.add(lblStep);
-		lblStepNo.setToolTipText("Total number of simulated steps.");
-		lblStepNo.setHorizontalAlignment(SwingConstants.CENTER);
-
-		simulationInfoRow.add(lblStepNo);
-
-		lblRunTime.setHorizontalAlignment(SwingConstants.CENTER);
-		simulationInfoRow.add(lblRunTime);
-		lblRunTimeNo.setToolTipText("Real-Time counter of how long the simualtion has run.");
-
-		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
-		simulationInfoRow.add(lblRunTimeNo);
+		lblMax.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		alifeInfoRow.add(lblMax);
+		plantMaxPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		plantMaxPanel.setBackground(Color.GRAY);
+		
+		alifeInfoRow.add(plantMaxPanel);
+		plantMaxPanel.setLayout(new BorderLayout(0, 0));
+		lblPlantsMax.setToolTipText("Max Plants in this Sample Period.");
+		lblPlantsMax.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPlantsMax.setForeground(Color.GREEN);
+		lblPlantsMax.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		plantMaxPanel.add(lblPlantsMax, BorderLayout.CENTER);
+		predatorsMaxPanel.setBackground(Color.GRAY);
+		predatorsMaxPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		
+		alifeInfoRow.add(predatorsMaxPanel);
+		predatorsMaxPanel.setLayout(new BorderLayout(0, 0));
+		lblPredatorsMax.setToolTipText("Max Predators in this Sample Period.");
+		lblPredatorsMax.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPredatorsMax.setForeground(Color.RED);
+		lblPredatorsMax.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		predatorsMaxPanel.add(lblPredatorsMax, BorderLayout.CENTER);
+		preyMaxPanel.setBackground(Color.GRAY);
+		preyMaxPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		
+		alifeInfoRow.add(preyMaxPanel);
+		preyMaxPanel.setLayout(new BorderLayout(0, 0));
+		lblPreyMax.setToolTipText("Max Prey in this Sample Period.");
+		lblPreyMax.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblPreyMax.setForeground(Color.BLUE);
+		lblPreyMax.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		preyMaxPanel.add(lblPreyMax, BorderLayout.CENTER);
 
 		statsBottomPanel.add(graphSettingsPanel, BorderLayout.NORTH);
 		graphSettingsPanel.setLayout(new GridLayout(0, 3, 0, 0));
@@ -516,7 +538,7 @@ public class StatsPanel extends JPanel
 		lblSamples.setToolTipText("");
 		lblSamples.setHorizontalAlignment(SwingConstants.CENTER);
 		samplesPanel.add(comboBoxGraphSamples);
-		comboBoxGraphSamples.setToolTipText("<html>\r\nAllows changing the length of the sample perioid covered by graphs.<br>\r\n<br>\r\nCalculation -:<br>\r\n 15 steps/sec * 60  * 5 = 4500 samples for five minutes)<br>\r\n<br>\r\nNote 1 : Large sample periods can negatively affect performance.<br>\r\nNote 2 : This will clear the samples in the current period, if change.<br>\r\n</html>");
+		comboBoxGraphSamples.setToolTipText("<html>\r\nAllows changing the length of the sample perioid covered by graphs.<br>\r\n<br>\r\nCalculation -:<br>\r\n 15 steps/sec * 60  * 5 = 4500 samples for five minutes)<br>\r\n<br>\r\nNote 1 : Large sample periods can negatively affect performance.<br>\r\nNote 2 : Changing this value will clear all samples from the current sample period.<br>\r\n</html>");
 
 		comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[]
 		{"1125", "2250", "4500", "9000", "18000", "36000", "72000", "144000", "288000", "576000"}));
@@ -611,6 +633,9 @@ public class StatsPanel extends JPanel
 
 			plantSamples[sampleNum - 1] = pSample;			// Store the new sps sample
 		}
+		
+		lblPlantsMax.setText(Integer.toString(plantsMax));
+
 	}
 
 	/**
@@ -655,6 +680,9 @@ public class StatsPanel extends JPanel
 
 			preySamples[sampleNum - 1] = pSample;			// Store the new sps sample
 		}
+		
+		lblPreyMax.setText(Integer.toString(preyMax));
+
 	}
 
 	/**
@@ -699,9 +727,13 @@ public class StatsPanel extends JPanel
 
 			predSamples[sampleNum - 1] = pSample;			// Store the new sps sample
 		}
+		
+		lblPredatorsMax.setText(Integer.toString(predMax));
+		
 	}
 
-	/** The total plant numbers * @param no int
+	/** The total plant numbers 
+	 * @param no int
 	 */
 	public static void setPlantNo(int no)
 	{
@@ -751,44 +783,6 @@ public class StatsPanel extends JPanel
 	}
 
 	/**
-	 * The Average Steps per second.
-	 * 
-	 * @param no
-	 */
-	public static void setASPS(int no)
-	{
-		ASPS = no;
-		lblASPSNo.setText(Integer.toString(ASPS));
-	}
-
-	/**
-	 * The curernt step number.
-	 * 
-	 * @param no
-	 */
-	public static void setStepNo(int no)
-	{
-		stepNo = no;
-		lblStepNo.setText(Integer.toString(no));
-	}
-
-	/**
-	 * Called in the update sim loop - displays the current run time of the simulation.
-	 * 
-	 * @param time
-	 */
-	public static void setTime(long time)
-	{
-		time = time / 1000; // seconds
-		int days = (int) (time / 86400); // to days
-		int hrs = (int) (time / 3600) % 24; // to hrs
-		int mins = (int) ((time / 60) % 60);	// to seconds
-		int sec = (int) (time % 60);
-
-		lblRunTimeNo.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
-	}
-
-	/**
 	 * The Graph update step.
 	 */
 	public static void updateGraphs()
@@ -822,13 +816,10 @@ public class StatsPanel extends JPanel
 	/** Clears the values in the Arrays of samples */
 	public static void clearStats()
 	{
-
-		ASPS = 0; // Average Steps per second
-		lblASPSNo.setText(Integer.toString(ASPS));
-
-		stepNo = 0;
-		lblStepNo.setText(Integer.toString(stepNo));
-
+		/* Lock the arrays as we are about to clear them */
+		sampleLock.acquireUninterruptibly();
+		
+		/* Current */
 		plantNo = 0;
 		lblPlantNo.setText(Integer.toString(plantNo));
 
@@ -838,12 +829,16 @@ public class StatsPanel extends JPanel
 		preyNo = 0;
 		lblPreyNo.setText(Integer.toString(preyNo));
 
-		/* Reset the time */
-		setTime(0);
+		/* Max */
+		plantsMax = 0;
+		lblPlantsMax.setText(Integer.toString(plantNo));
 
-		/* Lock the arrays as we are about to clear them */
-		sampleLock.acquireUninterruptibly();
+		predMax = 0;
+		lblPredatorsMax.setText(Integer.toString(predMax));
 
+		preyMax = 0;
+		lblPreyMax.setText(Integer.toString(preyMax));
+		
 		graphStartVal = 0; // Graph samples has been cleared start at 0 again.
 
 		plantSamples = new int[sampleNum];
@@ -916,6 +911,11 @@ public class StatsPanel extends JPanel
 		}
 	}
 
+	public static void setLargeScreen(boolean inLargeScreen)
+	{
+		largeScreen=inLargeScreen;
+	}
+	
 	private static void hideLinePanels()
 	{
 		lineGraphbottomPanel.setVisible(false);
@@ -936,5 +936,5 @@ public class StatsPanel extends JPanel
 		bottomPanel.setVisible(false);
 		lorenzGraphPanel.resetGraph(1);
 	}
-
+	
 }
