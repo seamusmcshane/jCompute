@@ -1009,10 +1009,10 @@ public class SimulationGUI
 		});
 
 		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
-		rdbtnmntm15FramesPerSecond.setSelected(true);
 		mnFrameRate.add(rdbtnmntm15FramesPerSecond);
 		
 		rdbtnmntm60FramesPerSecond = new JRadioButtonMenuItem("60 Frames Per Second");
+		rdbtnmntm60FramesPerSecond.setSelected(true);
 		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 

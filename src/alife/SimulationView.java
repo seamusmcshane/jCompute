@@ -42,11 +42,20 @@ public class SimulationView extends BasicGame implements MouseListener
 	static int worldViewWidth;
 	static int worldViewHeight;
 
-	/** Default Graphic frame rate control */
-	final static int defaultFrameRate = 15;
-	static int frameRate = defaultFrameRate; // Frame rate starts up set at this
-	final static int frameRateGuiInteraction = 60;
 
+		
+	final static int lowFrameRate = 15;	
+	final static int highFrameRate = 60;	
+
+	/** Default Graphic frame rate control */
+	final static int defaultFrameRate = highFrameRate; // Frame rate starts up set at this
+	
+	final static int frameRateGuiInteractionOff = lowFrameRate;	
+	final static int frameRateGuiInteractionOn = highFrameRate;
+
+	/** Allows fixing the update rate at the mouseInteraction rate **/
+	private static boolean highUpdateRate=true;
+	
 	/** Simulation Reference */
 	static Simulation sim;
 	
@@ -87,10 +96,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/** Camera View Size */
 	public static Rectangle cameraBound;
-	
-	/** Allows fixing the update rate at the mouseInteraction rate **/
-	private static boolean highUpdateRate=false;
-	
+		
 	/** Toggles the drawing of the text overlay */
 	private static boolean overlay=false;
 	
@@ -391,9 +397,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	public static void setUnlimitedUpdateRate()
 	{
 		highUpdateRate = true;
-		
-		frameRate = frameRateGuiInteraction;
-		
+				
 		simView.getContainer().setTargetFrameRate(-1);
 	}	
 	
@@ -410,10 +414,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	public static void setHighUpdateRate()
 	{
 		highUpdateRate = true;
-		
-		frameRate = frameRateGuiInteraction;
-		
-		simView.getContainer().setTargetFrameRate(frameRate);
+				
+		simView.getContainer().setTargetFrameRate(highFrameRate);
 		
 	}
 	
@@ -429,10 +431,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	public static void setStandardUpdateRate()
 	{
 		highUpdateRate = false;
-
-		frameRate = defaultFrameRate;	
 		
-		simView.getContainer().setTargetFrameRate(frameRate);		
+		simView.getContainer().setTargetFrameRate(lowFrameRate);		
 		
 	}
 	
@@ -442,9 +442,8 @@ public class SimulationView extends BasicGame implements MouseListener
 		{
 			if(!mouseButtonPressed) // Used so the we dont do this repeatedly only the first time
 			{
-				frameRate = frameRateGuiInteraction;
 				
-				simView.getContainer().setTargetFrameRate(frameRate);	
+				simView.getContainer().setTargetFrameRate(frameRateGuiInteractionOn);	
 				
 				mouseButtonPressed=true;
 			}
@@ -455,10 +454,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	private void mouseInteractionModeOff()
 	{
 		if(!highUpdateRate) // Only Toggle if allowed to
-		{		
-			frameRate = defaultFrameRate;	
-			
-			simView.getContainer().setTargetFrameRate(frameRate);
+		{					
+			simView.getContainer().setTargetFrameRate(frameRateGuiInteractionOff);
 			
 			mouseButtonPressed=false;	// To allow setting interaction on mode again.
 		}
