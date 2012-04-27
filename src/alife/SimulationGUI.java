@@ -1,7 +1,6 @@
 package alife;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -39,16 +38,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JCheckBoxMenuItem;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
-import javax.swing.JToggleButton;
-import javax.swing.JCheckBox;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.ButtonGroup;
 /**
@@ -77,7 +68,7 @@ public class SimulationGUI
 	private static int predatorNumbersSelected = 2; // selects 1024	
 
 	private static JComboBox comboBoxWorldSize;
-	private static int worldSizeSelected = 1; // selects 1024
+	private static int worldSizeSelected = 3; // selects 1024
 
 	private static JComboBox comboBoxPlantNumbers;
 	private static int plantStartingNumbersSelected = 8; // selects 3200
@@ -154,10 +145,13 @@ public class SimulationGUI
 	/* retrieved screen sizes */
 	static int screenWidth;
 	static int screenHeight;
-	static int screenHeightMin=900;
+	static int screenHeightMin = 900;
 
-
-	/* Window Size pad - certain operating systems like to add thick borders to windows then report the size with out telling you the border is not included. */
+	/*
+	 * Window Size pad - certain operating systems like to add thick borders to
+	 * windows then report the size with out telling you the border is not
+	 * included.
+	 */
 	static int pad = 10;
 
 	/* GUI Size Hard-Coded - minimum size before cropping occurs */
@@ -225,27 +219,30 @@ public class SimulationGUI
 
 		// Display the simulation view
 		SimulationView.displayView(sim, viewX, viewY, viewWidth, viewHeight);
-		
+
 		screenSizeCheck();
 	}
 
-	/* Notify users they will have problems running with a small resolutions screen */
+	/*
+	 * Notify users they will have problems running with a small resolutions
+	 * screen
+	 */
 	private static void screenSizeCheck()
-	{		
-		if(screenHeight<screenHeightMin)
-		{	
+	{
+		if (screenHeight < screenHeightMin)
+		{
 			String message;
 			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + ".";
-	
+
 			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-	
+
 			JDialog dialog = wariningPane.createDialog(null, "Screen Size Warning");
-	
+
 			dialog.pack();
-			dialog.setVisible(true);	
+			dialog.setVisible(true);
 		}
 	}
-	
+
 	private static void newSim()
 	{
 		/*
@@ -357,14 +354,14 @@ public class SimulationGUI
 	{
 		viewWidth = screenWidth - controlGuiWidth - (pad * 2);
 		viewHeight = screenHeight - (48 * 2); // Task manager and Top borders on some os's
-		
+
 		controlGuiHeight = controlGuiHeightMin;
-		
-		if(controlGuiHeight<screenHeight - (48 * 2))
+
+		if (controlGuiHeight < screenHeight - (48 * 2))
 		{
 			controlGuiHeight = screenHeight - (48 * 2);
-		}		
-		
+		}
+
 	}
 
 	private static void calculateWindowPositions()
@@ -386,7 +383,6 @@ public class SimulationGUI
 		screenHeight = (int) screenSize.getHeight();
 	}
 
-	
 	/** This method contains sections that are largely auto generated from the editor **/
 	private static void setUpFrame()
 	{
@@ -444,7 +440,7 @@ public class SimulationGUI
 		comboBoxPredNumbers.setToolTipText("Set the inital Predator numbers.");
 		mainSetupPanel.add(comboBoxPredNumbers);
 		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
 		comboBoxPredNumbers.setSelectedIndex(predatorNumbersSelected);
 
 		JLabel lblPreyS = new JLabel("Prey");
@@ -455,7 +451,7 @@ public class SimulationGUI
 		comboBoxPreyNumbers.setToolTipText("Set the inital Prey numbers.");
 		mainSetupPanel.add(comboBoxPreyNumbers);
 		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
 		comboBoxPreyNumbers.setSelectedIndex(preyNumbersSelected);
 
 		JLabel lblPlants = new JLabel("Plants");
@@ -466,7 +462,7 @@ public class SimulationGUI
 		comboBoxPlantNumbers.setToolTipText("Set the inital Plant numbers.");
 		mainSetupPanel.add(comboBoxPlantNumbers);
 		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
+		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
 		comboBoxPlantNumbers.setSelectedIndex(plantStartingNumbersSelected);
 
 		JLabel lblWorldSize = new JLabel("World Size");
@@ -477,7 +473,7 @@ public class SimulationGUI
 		comboBoxWorldSize.setToolTipText("Set the simulated world size.");
 		mainSetupPanel.add(comboBoxWorldSize);
 		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
-		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
+		{"128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768"}));
 		comboBoxWorldSize.setSelectedIndex(worldSizeSelected);
 
 		agentParamPanel = new JPanel();
@@ -641,19 +637,19 @@ public class SimulationGUI
 
 		comboBoxPreyHungerThres = new JComboBox();
 		comboBoxPreyHungerThres.setToolTipText("The energy level at which Prey become hungry.");
-		comboBoxPreyHungerThres
-				.setModel(new DefaultComboBoxModel(new String[]
-				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97",
-						"98", "99" , "100"}));
+		comboBoxPreyHungerThres.setModel(new DefaultComboBoxModel(
+				new String[]
+				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98",
+						"99", "100"}));
 		agentParamPanel.add(comboBoxPreyHungerThres);
 		comboBoxPreyHungerThres.setSelectedIndex(preyDefaultHungerThresSelected);
 
 		comboBoxPredatorHungerThres = new JComboBox();
 		comboBoxPredatorHungerThres.setToolTipText("The energy level at which Predators become hungry.");
-		comboBoxPredatorHungerThres
-				.setModel(new DefaultComboBoxModel(new String[]
-				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97",
-						"98", "99" , "100"}));
+		comboBoxPredatorHungerThres.setModel(new DefaultComboBoxModel(
+				new String[]
+				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98",
+						"99", "100"}));
 		agentParamPanel.add(comboBoxPredatorHungerThres);
 		comboBoxPredatorHungerThres.setSelectedIndex(predatorDefaultHungerThresSelected);
 
@@ -735,7 +731,8 @@ public class SimulationGUI
 
 		comboBoxPlantRegenRate = new JComboBox();
 		comboBoxPlantRegenRate.setToolTipText("The number of new Plants that appear each simulation step.");
-		comboBoxPlantRegenRate.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144", "524288", "1048576", "2097152", "4194304"}));
+		comboBoxPlantRegenRate.setModel(new DefaultComboBoxModel(new String[]
+		{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144", "524288", "1048576", "2097152", "4194304"}));
 		plantParamPanel.add(comboBoxPlantRegenRate);
 		comboBoxPlantRegenRate.setSelectedIndex(plantDefaultRegenrateSelected);
 
@@ -796,17 +793,18 @@ public class SimulationGUI
 		JLabel lblSimRate = new JLabel("Requested Step Rate");
 		row1.add(lblSimRate);
 		lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		simRateInfoPanel = new JPanel();
 		simRateInfoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		row1.add(simRateInfoPanel);
 		simRateInfoPanel.setLayout(new BorderLayout(0, 0));
 		txtSimRateInfo = new JTextField()
 		{
-		    @Override public void setBorder(Border border) 
-		    {
-		    	//Override the border setting of this text field to do nothing.
-		    }
+			@Override
+			public void setBorder(Border border)
+			{
+				//Override the border setting of this text field to do nothing.
+			}
 		};
 		txtSimRateInfo.setToolTipText("Requested step rate.");
 
@@ -857,8 +855,8 @@ public class SimulationGUI
 			public void actionPerformed(ActionEvent e)
 			{
 				/* Locks the parameters */
-				parametersLock();	
-				
+				parametersLock();
+
 				/* Create the new Simulation */
 				newSim();
 			}
@@ -916,13 +914,14 @@ public class SimulationGUI
 			}
 		});
 		mnFile.add(mntmQuit);
-		
+
 		mnParameters = new JMenu("Parameters");
 		menuBar.add(mnParameters);
-		
+
 		mntmUnlock = new JMenuItem("Unlock");
-		mntmUnlock.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) 
+		mntmUnlock.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
 			{
 				/* do the parameter unlocking sequence */
 				parametersUnlock();
@@ -994,14 +993,14 @@ public class SimulationGUI
 			}
 		});
 		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
-		
+
 		mnFrameRate = new JMenu("Frame Rate");
 		mnViewOptions.add(mnFrameRate);
-			
+
 		rdbtnmntm15FramesPerSecond = new JRadioButtonMenuItem("15 Frames Per Second");
-		rdbtnmntm15FramesPerSecond.addActionListener(new ActionListener() 
+		rdbtnmntm15FramesPerSecond.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent arg0) 
+			public void actionPerformed(ActionEvent arg0)
 			{
 				// Change the frame rate of the view to standard (15)
 				SimulationView.setStandardUpdateRate();
@@ -1010,12 +1009,12 @@ public class SimulationGUI
 
 		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
 		mnFrameRate.add(rdbtnmntm15FramesPerSecond);
-		
+
 		rdbtnmntm60FramesPerSecond = new JRadioButtonMenuItem("60 Frames Per Second");
 		rdbtnmntm60FramesPerSecond.setSelected(true);
-		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener() 
+		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				// Change the frame rate of the view to high (60)
 				SimulationView.setHighUpdateRate();
@@ -1023,55 +1022,55 @@ public class SimulationGUI
 		});
 		frameRateButtonGroup.add(rdbtnmntm60FramesPerSecond);
 		mnFrameRate.add(rdbtnmntm60FramesPerSecond);
-		
+
 		rdbtnmntmUnlimitedFrameRate = new JRadioButtonMenuItem("Unlimited");
-		rdbtnmntmUnlimitedFrameRate.addActionListener(new ActionListener() 
+		rdbtnmntmUnlimitedFrameRate.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				// Unlock the frame rate of the view - as fast as your computer can churn  them out.			
 				SimulationView.setUnlimitedUpdateRate();
 			}
 		});
-		
+
 		frameRateButtonGroup.add(rdbtnmntmUnlimitedFrameRate);
 		mnFrameRate.add(rdbtnmntmUnlimitedFrameRate);
-		
+
 		mnVerticalSync = new JMenu("Vertical Sync");
 		mnViewOptions.add(mnVerticalSync);
-		
+
 		rdbtnmntmVsyncOn = new JRadioButtonMenuItem("VSync On");
 		vSyncButtonGroup.add(rdbtnmntmVsyncOn);
-		rdbtnmntmVsyncOn.addActionListener(new ActionListener() 
+		rdbtnmntmVsyncOn.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				// Sync frames to the monitor refresh
 				SimulationView.setVerticalSync(true);
 			}
 		});
 		mnVerticalSync.add(rdbtnmntmVsyncOn);
-		
+
 		rdbtnmntmVsyncOff = new JRadioButtonMenuItem("VSync Off");
 		rdbtnmntmVsyncOff.setSelected(true);
 		vSyncButtonGroup.add(rdbtnmntmVsyncOff);
-		rdbtnmntmVsyncOff.addActionListener(new ActionListener() 
+		rdbtnmntmVsyncOff.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				// Dont Sync frames to the monitor refresh				
 				SimulationView.setVerticalSync(false);
 			}
-		});		
+		});
 		mnVerticalSync.add(rdbtnmntmVsyncOff);
-		
+
 		mnOverlay = new JMenu("Overlay");
 		mnViewOptions.add(mnOverlay);
-		
+
 		rdbtnmntmOverlayEnabled = new JRadioButtonMenuItem("Enabled");
-		rdbtnmntmOverlayEnabled.addActionListener(new ActionListener() 
+		rdbtnmntmOverlayEnabled.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				// Enable some view debug text which may be of interest							
 				SimulationView.setViewOverLay(true);
@@ -1079,11 +1078,11 @@ public class SimulationGUI
 		});
 		overlayButtonGroup.add(rdbtnmntmOverlayEnabled);
 		mnOverlay.add(rdbtnmntmOverlayEnabled);
-		
+
 		rdbtnmntmOverlayDisabled = new JRadioButtonMenuItem("Disabled");
-		rdbtnmntmOverlayDisabled.addActionListener(new ActionListener() 
+		rdbtnmntmOverlayDisabled.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
 				// Disable the view debug text						
 				SimulationView.setViewOverLay(false);
@@ -1092,7 +1091,7 @@ public class SimulationGUI
 		rdbtnmntmOverlayDisabled.setSelected(true);
 		overlayButtonGroup.add(rdbtnmntmOverlayDisabled);
 		mnOverlay.add(rdbtnmntmOverlayDisabled);
-		
+
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 
@@ -1195,7 +1194,7 @@ public class SimulationGUI
 
 		// agentParamPanel.setVisible(false);
 		// plantParamPanel.setVisible(false);
-		
+
 		StatsPanel.setPaused(false);
 
 		//SimulationView.setFocus();
@@ -1230,7 +1229,10 @@ public class SimulationGUI
 		sim.unPauseSim();
 	}
 
-	/* Lock the parameters so the user does not get confused, as changing them will have no effect anyway */
+	/*
+	 * Lock the parameters so the user does not get confused, as changing them
+	 * will have no effect anyway
+	 */
 	public static void parametersLock()
 	{
 		/* Main Setup panel */
@@ -1238,7 +1240,7 @@ public class SimulationGUI
 		comboBoxPredNumbers.setEnabled(false);
 		comboBoxWorldSize.setEnabled(false);
 		comboBoxPlantNumbers.setEnabled(false);
-		
+
 		/* Agent Param Panel */
 		comboBoxPreySpeed.setEnabled(false);
 		comboBoxPreyDE.setEnabled(false);
@@ -1249,7 +1251,7 @@ public class SimulationGUI
 		comboBoxPreyConsumptionRate.setEnabled(false);
 		comboBoxPreyRepoCost.setEnabled(false);
 		comboBoxPreyStartingEnergy.setEnabled(false);
-		
+
 		comboBoxPredatorViewRange.setEnabled(false);
 		comboBoxPredatorSpeed.setEnabled(false);
 		comboBoxPredatorDE.setEnabled(false);
@@ -1260,7 +1262,6 @@ public class SimulationGUI
 		comboBoxPredRepoCost.setEnabled(false);
 		comboBoxPredStartingEnergy.setEnabled(false);
 
-		
 		/* Plant Param Panel */
 		comboBoxPlantRegenRate.setEnabled(false);
 		comboBoxPlantStartingEnergy.setEnabled(false);
@@ -1268,11 +1269,11 @@ public class SimulationGUI
 		comboBoxEnergyAbsorptionRate.setEnabled(false);
 
 	}
-	
+
 	/* Warn the user of the consequences and then unlock the parameters */
 	public static void parametersUnlock()
 	{
-		
+
 		String message;
 		message = "Unlocking paramters will end this simulation!\nDo wish to unlock the parameters?";
 
@@ -1293,7 +1294,7 @@ public class SimulationGUI
 			comboBoxPredNumbers.setEnabled(true);
 			comboBoxWorldSize.setEnabled(true);
 			comboBoxPlantNumbers.setEnabled(true);
-			
+
 			/* Agent Param Panel */
 			comboBoxPreySpeed.setEnabled(true);
 			comboBoxPreyDE.setEnabled(true);
@@ -1304,47 +1305,49 @@ public class SimulationGUI
 			comboBoxPreyConsumptionRate.setEnabled(true);
 			comboBoxPreyRepoCost.setEnabled(true);
 			comboBoxPreyStartingEnergy.setEnabled(true);
-			
+
 			comboBoxPredatorViewRange.setEnabled(true);
 			comboBoxPredatorSpeed.setEnabled(true);
 			comboBoxPredatorDE.setEnabled(true);
 			comboBoxPredatorREDiv.setEnabled(true);
 			comboBoxPredatorMoveCost.setEnabled(true);
 			comboBoxPredatorHungerThres.setEnabled(true);
-			
-			/* comboBoxPredatorConsumptionRate is disabled due as feature not implemented */
+
+			/*
+			 * comboBoxPredatorConsumptionRate is disabled due as feature not
+			 * implemented
+			 */
 			// comboBoxPredatorConsumptionRate.setEnabled(true);
-			
+
 			comboBoxPredRepoCost.setEnabled(true);
 			comboBoxPredStartingEnergy.setEnabled(true);
 
-			
 			/* Plant Param Panel */
 			comboBoxPlantRegenRate.setEnabled(true);
 			comboBoxPlantStartingEnergy.setEnabled(true);
-			
+
 			/* comboBoxPlantRepoCost is disabled due as feature not implemented */
 			// comboBoxPlantRepoCost.setEnabled(true);			
-			
+
 			comboBoxEnergyAbsorptionRate.setEnabled(true);
-					
+
 			/* Check needed due to semaphores being used */
-			if(!sim.simPaused())
+			if (!sim.simPaused())
 			{
 				/* Pause the sim */
 				simPausedState();
-							
+
 			}
 
 			/* Disable resume */
-			btnPause.setEnabled(false);	
-			
+			btnPause.setEnabled(false);
+
 			/* Clear the old stats */
 			StatsPanel.clearStats();
 
-		}	
+		}
 	}
-	
+
 	/* Allow the view to change our window state to keep in sync with its state */
 	public static void maximise()
 	{
