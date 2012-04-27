@@ -38,7 +38,7 @@ public class GenericPlantBodyTests
 	@Test
 	public void plantTrueSizeTest()
 	{
-		int size = 1; // This is the default size
+		int size = 2; // This is the default size
 
 		Rectangle body = new Rectangle(0, 0, size, size);
 		float trueSize = body.getBoundingCircleRadius();
@@ -50,8 +50,8 @@ public class GenericPlantBodyTests
 		System.out.println("----------------------------------------------------");
 		System.out.println("Test - plantTrueSizeTest");
 		System.out.println("----------------------------------------------------");
-		System.out.println("Plant Bounding Circle Size Squared :" + plant.getTrueSizeSQRD() + " trueSize should be : " + trueSizeSQRD);
-		assertEquals(true, plant.getTrueSizeSQRD() == trueSizeSQRD);
+		System.out.println("Plant Bounding Circle Size Squared :" + plant.getTrueSizeSQRDiameter() + " trueSize should be : " + trueSizeSQRD);
+		assertEquals(true, plant.getTrueSizeSQRDiameter() == trueSizeSQRD);
 	}
 
 }

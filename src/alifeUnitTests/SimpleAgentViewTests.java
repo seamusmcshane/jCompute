@@ -81,8 +81,7 @@ public class SimpleAgentViewTests
 
 		nearestAgent = new SimpleAgent(0, x, y, stats);
 
-		/* The View of the current agent */
-		view = new SimpleAgentView();
+		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
 
 		System.out.println("====================================================");
 		System.out.println("----------------------------------------------------");
@@ -103,7 +102,10 @@ public class SimpleAgentViewTests
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, -1);
 		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
-
+		
+		/* The View of the current agent */
+		view = new SimpleAgentView(currentAgentBody);
+		
 		/* No agent in view */
 		System.out.println("hasAgentInView :" + view.hasAgentInView() + " should be : false");
 		assertEquals(false, view.hasAgentInView());
@@ -154,6 +156,10 @@ public class SimpleAgentViewTests
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, 1);
 		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		
+		/* The View of the current agent */
+		view = new SimpleAgentView(currentAgentBody);
+		
 		view.setAgentView(nearestAgent);
 		value = 0; // Up	
 		drawGrid(0, 0, 0, 1);
@@ -220,6 +226,10 @@ public class SimpleAgentViewTests
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, 1); // Below
 		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		
+		/* The View of the current agent */
+		view = new SimpleAgentView(currentAgentBody);
+		
 		view.setAgentView(nearestAgent);
 		value = 180; // away from Up is Down	
 		drawGrid(0, 0, 0, 1);
@@ -280,6 +290,9 @@ public class SimpleAgentViewTests
 		bodyPos = new Vector2f(0, -1); // Below
 		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
 
+		/* The View of the current agent */
+		view = new SimpleAgentView(currentAgentBody);
+		
 		view.setAgentView(nearestAgent);
 
 		/* -90 Degrees is down */

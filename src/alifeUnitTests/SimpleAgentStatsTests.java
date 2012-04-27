@@ -288,10 +288,6 @@ public class SimpleAgentStatsTests
 		System.out.println("view_range : " + agentPreyStats.getViewRange() + " Should be : " + (viewRange + size));
 		assertEquals(true, agentPreyStats.getViewRange() == value);
 
-		value = (viewRange + size) * (viewRange + size);
-		System.out.println("ViewRangeSquared : " + agentPreyStats.getViewRangeSquared() + " Should be : " + value);
-		assertEquals(true, agentPreyStats.getViewRangeSquared() == value);
-
 		value = viewRange;
 		System.out.println("BaseViewRange : " + agentPreyStats.getBaseViewRange() + " Should be : " + value);
 		assertEquals(true, agentPreyStats.getBaseViewRange() == value);
