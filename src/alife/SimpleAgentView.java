@@ -1,6 +1,12 @@
 package alife;
 
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
+
+import alife.SimpleAgentEnum.AgentEval;
 
 /**
  * This Class holds the representation of a view for the agent in the current simulation step.
@@ -9,6 +15,16 @@ import org.newdawn.slick.geom.Vector2f;
  */
 public class SimpleAgentView
 {
+	/** Reference to the body */
+	private SimpleAgentBody body;
+
+	/** Agent View Range */
+	private Circle fov;
+	private float fovRadius;
+	private float fovDiameter;
+
+	/** Agent in View Range mode */
+	private AgentEval inViewMode = null;
 
 	/** States of View */
 	private boolean agentInView = false;
@@ -20,13 +36,32 @@ public class SimpleAgentView
 
 	/**
 	 * Creates an agent view.
+	 * @param body SimpleAgentBody
 	 */
-	public SimpleAgentView()
+	public SimpleAgentView(SimpleAgentBody body)
 	{
+
+		this.body = body;
+
 		inViewAgentStats = new SimpleAgentViewStats();
 
 		inViewPlantStats = new GenericPlantViewStats();
 
+		setUpView();
+	}
+
+	/** 
+	 * Generates the agents View representation 
+	 */
+	private void setUpView()
+	{
+
+		Rectangle viewBox = new Rectangle(0, 0, body.stats.getViewRange(), body.stats.getBaseViewRange());
+
+		fovRadius = viewBox.getBoundingCircleRadius();
+		fovDiameter = fovRadius * 2;
+
+		fov = new Circle(body.getBodyPos().getX(), body.getBodyPos().getY(), fovDiameter);
 	}
 
 	/**
@@ -90,8 +125,7 @@ public class SimpleAgentView
 	}
 
 	/** Nearest Agent Position 
-	* @return Vector2f
-	*/
+	* @return Vector2f	*/
 	public Vector2f getNearestPlantPos()
 	{
 		if (!plantInView)
@@ -111,8 +145,7 @@ public class SimpleAgentView
 
 	/** 
 	* Status of View
-	* @return boolean
-	*/
+	* @return boolean	*/
 	public boolean hasPlantInView()
 	{
 		return plantInView;
@@ -137,16 +170,16 @@ public class SimpleAgentView
 	* @return float */
 	public float awayfromAgentDirection(SimpleAgentBody myBody)
 	{
-		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY()-getNearestAgentPos().getY()));
-		
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
+
 		direction = direction - 180;
-		
-		if(direction < 0)
+
+		if (direction < 0)
 		{
 			direction += 360;
 		}
-		
-		return direction%360;
+
+		return direction % 360;
 	}
 
 	/** Returns the direction to move in to go towards the nearest agent
@@ -155,13 +188,13 @@ public class SimpleAgentView
 	 * @return float */
 	public float towardsAgentDirection(SimpleAgentBody myBody)
 	{
-		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY()-getNearestAgentPos().getY()));
-		
-		if(direction < 0)
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
+
+		if (direction < 0)
 		{
 			direction += 360;
 		}
-		
+
 		return direction;
 	}
 
@@ -171,13 +204,13 @@ public class SimpleAgentView
 	 * @return float */
 	public float towardsPlantDirection(SimpleAgentBody myBody)
 	{
-		float direction = (float) Math.toDegrees(Math.atan2(getNearestPlantPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY()-getNearestPlantPos().getY()));
-				
-		if(direction < 0)
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestPlantPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestPlantPos().getY()));
+
+		if (direction < 0)
 		{
 			direction += 360;
 		}
-		
+
 		return direction;
 	}
 
@@ -191,8 +224,7 @@ public class SimpleAgentView
 	}
 
 	/** Not to be called by agents directly
-	 * @return GenericPlant
-	 */
+	 * @return GenericPlant */
 	public GenericPlant getOriginalPlantRef()
 	{
 		return inViewPlantStats.getOriginalPlantRef();
@@ -200,10 +232,77 @@ public class SimpleAgentView
 
 	/**
 	 * Method getOriginalAgentRef.
-	 * @return SimpleAgent
-	 */
+	 * @return SimpleAgent */
 	public SimpleAgent getOriginalAgentRef()
 	{
 		return inViewAgentStats.getOriginalAgentRef();
 	}
+
+	/** 
+	 * Updates the location of the representation of View position 
+	 */
+	private void upDateViewLocation()
+	{
+		fov.setLocation(body.getBodyPos().getX() - (fovDiameter), body.getBodyPos().getY() - (fovDiameter));
+	}
+
+	/**
+	 * Method getFovRadiusSquared.
+	 * @return float
+	 */
+	public float getFovRadiusSquared()
+	{
+		return fovRadius * fovRadius;
+	}
+
+	/**
+	 * Method getFovDiameterSquared.
+	 * @return float
+	 */
+	public float getFovDiameterSquared()
+	{
+		return fovDiameter * fovDiameter;
+	}
+
+	/**
+	 * Method setViewDrawMode.
+	 * @param mode AgentEval
+	 */
+	public void setViewDrawMode(AgentEval mode)
+	{
+		this.inViewMode = mode;
+	}
+
+	/**
+	 * Draws the agents field of view.
+	 * @param g
+	 */
+	public void drawViewRange(Graphics g)
+	{
+		upDateViewLocation();
+
+		// Only use colors for views that are active
+		if (inViewMode != null)
+		{
+			switch (inViewMode)
+			{
+				case SAME :
+					g.setColor(Color.white);	// Same is treated as inactive as Agents of same type ignore each other		
+					break;
+				case STRONGER :
+					g.setColor(Color.red);		// The current Agent is Stronger i.e Predator 		
+					break;
+				case WEAKER :
+					g.setColor(Color.blue);		// The current Agent is Weaker i.e Prey 	
+					break;
+			}
+		}
+		else
+		{
+			g.setColor(Color.white);
+		}
+
+		g.draw(fov);
+	}
+
 }

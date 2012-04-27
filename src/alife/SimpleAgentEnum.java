@@ -14,19 +14,28 @@ public class SimpleAgentEnum
 	 * @author Seamus McShane
 	 * @version $Revision: 1.0 $
 	 */
-	public enum AgentType{PREY,PREDATOR};
-	
+	public enum AgentType
+	{
+		PREY, PREDATOR
+	};
+
 	/** 
 	 * Agent State Enum 
 	 * @author Seamus McShane
 	 * @version $Revision: 1.0 $
 	 */
-	public enum AgentState{ROAM,HUNT,EVADE,GRAZE};
-	
+	public enum AgentState
+	{
+		ROAM, HUNT, EVADE, GRAZE
+	};
+
 	/** 
 	 * Agent Types Relative Strengths 
 	 * @author Seamus McShane
 	 * @version $Revision: 1.0 $
 	 */
-	public enum AgentEval{SAME,STRONGER,WEAKER};
+	public enum AgentEval
+	{
+		SAME, STRONGER, WEAKER
+	};
 }
