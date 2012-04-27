@@ -15,17 +15,20 @@ public class World
 	WorldGrid grid;
 
 	/** The world boundary */
-	Rectangle world_bound;
+	Rectangle worldBound;
 
 	/** The size of the world */
-	private static int world_size;
+	private static int worldSize;
 
+	/** The Grid Steps */
+	int gridSteps = 8;
+	
 	@SuppressWarnings("static-access")
 	public World(int size)
 	{
-		this.world_size = size;
+		this.worldSize = size;
 
-		world_bound = new Rectangle(0, 0, world_size + 1, world_size + 1);
+		worldBound = new Rectangle(0, 0, worldSize + 1, worldSize + 1);
 
 		createGrid();
 	}
@@ -44,7 +47,7 @@ public class World
 		}
 
 		/* Bottom */
-		if (y >= world_size)
+		if (y >= worldSize)
 		{
 			return true;
 		}
@@ -56,7 +59,7 @@ public class World
 		}
 
 		/* Right */
-		if (x >= world_size)
+		if (x >= worldSize)
 		{
 			return true;
 		}
@@ -79,7 +82,7 @@ public class World
 		}
 
 		/* Right */
-		if (x >= world_size)
+		if (x >= worldSize)
 		{
 			return true;
 		}
@@ -100,7 +103,7 @@ public class World
 		}
 
 		/* Right */
-		if (y >= world_size)
+		if (y >= worldSize)
 		{
 			return true;
 		}
@@ -112,8 +115,7 @@ public class World
 	 */
 	private void createGrid()
 	{
-		int grid_steps = 8;
-		grid = new WorldGrid(world_size, grid_steps);
+		grid = new WorldGrid(worldSize, gridSteps);
 	}
 
 	/**
@@ -124,7 +126,7 @@ public class World
 
 		g.setColor(Color.blue);
 
-		g.draw(world_bound);
+		g.draw(worldBound);
 
 	}
 }

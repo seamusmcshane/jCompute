@@ -28,7 +28,7 @@ public class SimulationManager
 	private GenericPlantManager genericPlantManager;
 		
 	/** Threads used for processing */
-	private int num_threads=0;
+	private int numThreads=0;
 	
 	/** The threaded/barrier manager */
 	private BarrierManager barrierManager;
@@ -38,47 +38,47 @@ public class SimulationManager
 	
 	/**
 	 * Constructor for SimulationManager.
-	 * @param world_size int
-	 * @param agent_prey_numbers int
-	 * @param agent_predator_numbers int
-	 * @param plant_numbers int
-	 * @param plant_regen_rate int
-	 * @param plantstartingenergy int
-	 * @param plant_energy_absorption_rate int
+	 * @param worldSize int
+	 * @param agentPreyNumbers int
+	 * @param agentPredatorNumbers int
+	 * @param plantNumbers int
+	 * @param plantRegenRate int
+	 * @param plantStartingEnergy int
+	 * @param plantEnergyAbsorptionRate int
 	 * @param agentSettings SimpleAgentManagementSetupParam
 	 */
-	public SimulationManager(int world_size,int agent_prey_numbers,int agent_predator_numbers, int plant_numbers, int plant_regen_rate , int plantstartingenergy, int plant_energy_absorption_rate, SimpleAgentManagementSetupParam agentSettings)
+	public SimulationManager(int worldSize,int agentPreyNumbers,int agentPredatorNumbers, int plantNumbers, int plantRegenRate , int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
 	{	
 		setUpBarrierManager();
 		
-		setUpPlantManager(world_size,plant_numbers,plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);
+		setUpPlantManager(worldSize,plantNumbers,plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);
 
-		setUpAgentManager(world_size,agent_prey_numbers,agent_predator_numbers,agentSettings);
+		setUpAgentManager(worldSize,agentPreyNumbers,agentPredatorNumbers,agentSettings);
 	}
 	
 	/**
 	 * Method setUpPlantManager.
-	 * @param world_size int
-	 * @param plant_numbers int
-	 * @param plant_regen_rate int
-	 * @param plantstartingenergy int
-	 * @param plant_energy_absorption_rate int
+	 * @param worldSize int
+	 * @param plantNumbers int
+	 * @param plantRegenRate int
+	 * @param plantStartingEnergy int
+	 * @param plantEnergyAbsorptionRate int
 	 */
-	private void setUpPlantManager(int world_size,int plant_numbers,int plant_regen_rate,int plantstartingenergy, int plant_energy_absorption_rate)
+	private void setUpPlantManager(int worldSize,int plantNumbers,int plantRegenRate,int plantStartingEnergy, int plantEnergyAbsorptionRate)
 	{
-		genericPlantManager = new GenericPlantManager(barrierManager,world_size,plant_numbers,plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate);		
+		genericPlantManager = new GenericPlantManager(barrierManager,worldSize,plantNumbers,plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);		
 	}
 	
 	/**
 	 * Method setUpAgentManager.
-	 * @param world_size int
-	 * @param agent_prey_numbers int
-	 * @param agent_predator_numbers int
+	 * @param worldSize int
+	 * @param agentPreyNumbers int
+	 * @param agentPredatorNumbers int
 	 * @param agentSettings SimpleAgentManagementSetupParam
 	 */
-	private void setUpAgentManager(int world_size,int agent_prey_numbers,int agent_predator_numbers,SimpleAgentManagementSetupParam agentSettings)
+	private void setUpAgentManager(int worldSize,int agentPreyNumbers,int agentPredatorNumbers,SimpleAgentManagementSetupParam agentSettings)
 	{
-		simpleAgentManager = new SimpleAgentManager(barrierManager,world_size,agent_prey_numbers,agent_predator_numbers, agentSettings);		
+		simpleAgentManager = new SimpleAgentManager(barrierManager,worldSize,agentPreyNumbers,agentPredatorNumbers, agentSettings);		
 	}
 	
 	/**
@@ -86,15 +86,15 @@ public class SimulationManager
 	 */
 	private void setUpBarrierManager()
 	{
-		this.num_threads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
+		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
 		
-		System.out.println("Threads used for View Generation : " + num_threads);
+		System.out.println("Threads used for View Generation : " + numThreads);
 		
 		barrierControllerSemaphore = new Semaphore(1,true);
 		
 		barrierControllerSemaphore.acquireUninterruptibly();
 		
-		barrierManager = new BarrierManager(barrierControllerSemaphore,num_threads);
+		barrierManager = new BarrierManager(barrierControllerSemaphore,numThreads);
 		
 		barrierManager.start();	
 	}
@@ -147,10 +147,10 @@ public class SimulationManager
 	/**
 	 * Method drawAgentsAndPlants.
 	 * @param g Graphics
-	 * @param true_drawing boolean
-	 * @param view_range_drawing boolean
+	 * @param trueDrawing boolean
+	 * @param viewRangeDrawing boolean
 	 */
-	public void drawAgentsAndPlants(Graphics g, boolean true_drawing,boolean view_range_drawing)
+	public void drawAgentsAndPlants(Graphics g, boolean trueDrawing,boolean viewRangeDrawing)
 	{		
 		// Get a lock on the done list, 
 		// but don't wait if we cant get a lock 
@@ -160,9 +160,9 @@ public class SimulationManager
 		{
 			lock.acquire();
 			
-			genericPlantManager.drawPlants(g,true_drawing);
+			genericPlantManager.drawPlants(g,trueDrawing);
 			
-			simpleAgentManager.drawAgent(g,true_drawing,view_range_drawing);	
+			simpleAgentManager.drawAgent(g,trueDrawing,viewRangeDrawing);	
 			
 			// Release the lock on the done list
 			lock.release();

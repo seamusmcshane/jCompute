@@ -7,28 +7,39 @@ import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
 /**
- * A Custom Panel used for drawing a graph.
+ * A Panel used for drawing a Line graph.
  */
 public class StatsLineGraphPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 8946884538574615118L;
+	
 	/** The references to the sample arrays */
 	private int plantsSamples[];
 	private int preySamples[];
 	private int predSamples[];
 	
+	/** Graph Size */
 	private int graphX;
 	private int graphY;
 	private int graphWidth;
 	private int graphHeight;
-	
+
+	/* The total Samples Drawn */
 	private float maxSampleNum;
-		
+	
+	/* Marks the end of the sample range so we dont drawn the unfilled slots */
 	private float graphSamples=1;
 		
-	private int scale_mode=2;
+	/* 
+	 * The Scale Mode 
+	 * 0 Individual Scale
+	 * 1 Predator + Prey tied to the same scale
+	 * 2 All on Same Scale
+	 * */
+	private int scaleMode=2;
 	
+	/* Max values used to scale graph */
 	private float plantMax = 0;
 	private float preyMax = 0;
 	private float predMax = 0;
@@ -68,7 +79,7 @@ public class StatsLineGraphPanel extends JPanel
 		
 		this.predMax = predMax;
 		
-		switch(scale_mode)
+		switch(scaleMode)
 		{
 			case 0:
 				// Do nothing. - All on there own scales
@@ -92,9 +103,9 @@ public class StatsLineGraphPanel extends JPanel
 			
 	}
 		
-	public void setScaleMode(int scale_mode)
+	public void setScaleMode(int scaleMode)
 	{
-		this.scale_mode = scale_mode;
+		this.scaleMode = scaleMode;
 	}
 	
 	/** 
@@ -102,16 +113,16 @@ public class StatsLineGraphPanel extends JPanel
 	 * Max is tied to the greater */
 	public void tieAllMax()
 	{
-		float agent_max = tiePredPreyMax();
+		float agentMax = tiePredPreyMax();
 		
-		if(plantMax > agent_max)
+		if(plantMax > agentMax)
 		{
 			predMax = plantMax;
 			preyMax = plantMax;
 		}
 		else
 		{
-			plantMax = agent_max;
+			plantMax = agentMax;
 		}	
 	}
 	

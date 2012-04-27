@@ -8,28 +8,35 @@ import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
 /**
- * A Custom Panel used for drawing a graph.
+ * A Panel used for drawing a Lorenze Attractor Graph.
  */
 public class StatsLorenzGraphPanel extends JPanel
 {
 	private static final long serialVersionUID = 3120518905315513311L;
+	
 	/** The references to the sample arrays */
 	private int plantsSamples[];
 	private int preySamples[];
 	private int predSamples[];
 	
+	/** Graph Size */
 	private int graphX;
 	private int graphY;
 	private int graphWidth;
 	private int graphHeight;
 	
+	/* Used to not attempt to start drawing if the max was changed - not critical so no need to use a Semaphore */
 	boolean drawing = false;
-	boolean mode_dynamic_based=false;
-	float mode_scale=0.15f;
+		
+	/* The Draw mode - between static and dynamic ratio based */
+	boolean modeDynamicBased=false;
+	float modeScale=0.15f;
 	
+	/* Lorenz Modifier Variable - Adjusts the pivot of the equation */
 	float lmod = 0;
-	float lmod_max=0;	
+	float lModMax=0;	
 	
+	/* Max values used to scale graph */
 	int plantsMax=0;
 	int preyMax=0;
 	int predMax=0;
@@ -38,19 +45,23 @@ public class StatsLorenzGraphPanel extends JPanel
 	 * Large numbers of Predators rarely appear except in an Ecosystem collapse event.
 	 * Thus red is rarely on the graph, for better visuals the color value for predator numbers are boosted by this factor.
 	 */
-	float predator_graph_boost = 1f; 
+	float predatorGraphBoost = 1f; 
 	
 	/* As above but plants always are in large numbers and get a negative boost */ 
-	float plant_graph_negative_factor = 1f;
+	float plantGraphNegativeFactor = 1f;
 		
-	float zoom = 0; 	// Graph Scale
+	// Graph Scale + Zoom
+	float zoom = 0; 	
 	float xScale=1;
 	float yScale=1;
 	
-	float max_graph_line_size=1f;
+	/* The line width */
+	float maxGraphLineSize=1f;
 		
-	private float sampleNum;
+	/* The total Samples Drawn */
+	private float maxSampleNum;
 	
+	/* Marks the end of the sample range so we dont drawn the unfilled slots */
 	private float graphSamples=1;
 
 	/** Graph Origin */
@@ -58,9 +69,9 @@ public class StatsLorenzGraphPanel extends JPanel
 	float originY=0;
 
 	/** Line Vectors */
-	float cx=originX;
+	float cx=originX; /* Current Point */
 	float cy=originY;
-	float nx=originX;
+	float nx=originX; /* Next Point */
 	float ny=originY;
 	
 	/** Mouse Coordinates */
@@ -84,7 +95,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 		graphSamples=1;
 		
-		this.sampleNum = sampleNum;		
+		this.maxSampleNum = sampleNum;		
 	}
 	
 	/**
@@ -97,13 +108,13 @@ public class StatsLorenzGraphPanel extends JPanel
 		this.preyMax=preyMax;
 		this.predMax=predMax;
 		
-		if(currSampleNum<sampleNum)
+		if(currSampleNum<maxSampleNum)
 		{
 			graphSamples=currSampleNum;
 		}
 		else
 		{
-			graphSamples=sampleNum;
+			graphSamples=maxSampleNum;
 		}
 						
 	}
@@ -136,58 +147,58 @@ public class StatsLorenzGraphPanel extends JPanel
 		
 		drawing = true;		
 		
-		if(mode_dynamic_based)
+		if(modeDynamicBased)
 		{
-			mode_scale=0.25f;
+			modeScale=0.25f;
 			
-			predator_graph_boost=(float)((float)preyMax/(float)predMax);
+			predatorGraphBoost=(float)((float)preyMax/(float)predMax);
 			
 			// Limit the ratios
-			if(predator_graph_boost>4)
+			if(predatorGraphBoost>4)
 			{
-				plant_graph_negative_factor=4;
+				plantGraphNegativeFactor=4;
 			}					
 			
-			plant_graph_negative_factor= 1f-((float)plantsMax/(float)(preyMax+predMax+plantsMax));
+			plantGraphNegativeFactor= 1f-((float)plantsMax/(float)(preyMax+predMax+plantsMax));
 			
 			// Limit the ratios
-			if(plant_graph_negative_factor<=0.65f)
+			if(plantGraphNegativeFactor<=0.65f)
 			{
-				plant_graph_negative_factor=0.65f;
+				plantGraphNegativeFactor=0.65f;
 			}			
 		
 		}
 		else // Dynamic mode drawing off
 		{
-			mode_scale=0.15f;
-			plant_graph_negative_factor=0.05f;
-			predator_graph_boost = 4; 
-			plant_graph_negative_factor = 1;				
+			modeScale=0.15f;
+			plantGraphNegativeFactor=0.05f;
+			predatorGraphBoost = 4; 
+			plantGraphNegativeFactor = 1;				
 		}
 
 		// Find the max
-		lmod_max=Math.max(1,plantsMax*plant_graph_negative_factor);					
-		lmod_max=Math.max(lmod_max, preyMax);
-		lmod_max=Math.max(lmod_max, predMax*predator_graph_boost);
+		lModMax=Math.max(1,plantsMax*plantGraphNegativeFactor);					
+		lModMax=Math.max(lModMax, preyMax);
+		lModMax=Math.max(lModMax, predMax*predatorGraphBoost);
 		
 		// half the max so lmod will cause the curve to phaze invert on a negative (ie x=50, max = 200, lmod = 100, drawing x = -50 etc)
-		lmod=lmod_max/2;	
+		lmod=lModMax/2;	
 		
 		/* Loops through all three sample arrays */
 		for(int i =0;i<graphSamples;i++)
 		{			
 			// The values we feed to the Lorenz equations.
-		    double x=(plantsSamples[i]*plant_graph_negative_factor)-lmod; 	    		
-		    double y=(predSamples[i]*predator_graph_boost)-lmod;
+		    double x=(plantsSamples[i]*plantGraphNegativeFactor)-lmod; 	    		
+		    double y=(predSamples[i]*predatorGraphBoost)-lmod;
 		    double z=(preySamples[i])-lmod;
 		    /* Lmod is half of the max value of all samples, meaning this can cause X,Y and Z to go negative.
 		     * By going negative the other half of the Lorenz system is drawn.	
 		     */
 		    		    
 		    // Modified Lorenz Equations
-		    int gx=(int) ( ((x+( (-10*x)    +(10*y))   ) )*(mode_scale));
-		    int gy=(int) (((y+( (28*x)     +(y-(x*z))) ) )*(mode_scale));
-		    int gz=(int) ((z+( (-8*(z/3)) +(x*y)   ) )*(mode_scale));
+		    int gx=(int) ( ((x+( (-10*x)    +(10*y))   ) )*(modeScale));
+		    int gy=(int) (((y+( (28*x)     +(y-(x*z))) ) )*(modeScale));
+		    int gz=(int) ((z+( (-8*(z/3)) +(x*y)   ) )*(modeScale));
 		    
 		    // Scale the point position by the graph scale.
 		    //gx=(int)(gx*scale);
@@ -205,11 +216,10 @@ public class StatsLorenzGraphPanel extends JPanel
 		    cy=gy;
 		     		    
 		    // Line Width
-		    g2.setStroke(new BasicStroke( (i*(max_graph_line_size/graphSamples))));
+		    g2.setStroke(new BasicStroke( (i*(maxGraphLineSize/graphSamples))));
 		    
 		    // R G B A
-		    //System.out.println("" +  (int)(predSamples[i]*(255/lmod_max))%255 + "" +  (int)(plantsSamples[i]*(255/lmod_max))%255 + "" +  (int)(preySamples[i]*(255/lmod_max))%255 + "" + (int) (i*(255/graphSamples))%255);
-		    g2.setColor(new Color( (int)((predSamples[i]*predator_graph_boost)*(255/lmod_max))%255, (int)((plantsSamples[i]*plant_graph_negative_factor)*(255/lmod_max))%255 , (int)(preySamples[i]*(255/lmod_max))%255 ,(int) (i*(255/graphSamples))%255));		    	
+		    g2.setColor(new Color( (int)((predSamples[i]*predatorGraphBoost)*(255/lModMax))%255, (int)((plantsSamples[i]*plantGraphNegativeFactor)*(255/lModMax))%255 , (int)(preySamples[i]*(255/lModMax))%255 ,(int) (i*(255/graphSamples))%255));		    	
 
 
 		    // Draws line based on where the origin is.
@@ -218,11 +228,6 @@ public class StatsLorenzGraphPanel extends JPanel
 		    // The next lines - next point		    
 		    nx=cx;
 		    ny=cy;
-
-		  /*  System.out.println("originX" + originX);
-		    System.out.println("originY "+ originY);
-		    System.out.println("cx" + cx);
-		    System.out.println("cy" + cy);*/
 		}
 
 		drawing = false;
@@ -285,7 +290,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	    originX=-(cx)+graphWidth/2;
 	    originY=-(cy)+graphHeight/2;    	    	
     	lmod=0;
-    	lmod_max=0;
+    	lModMax=0;
     	repaint();
     }
     
@@ -310,12 +315,12 @@ public class StatsLorenzGraphPanel extends JPanel
 	
 	public boolean getDynamicMode()
 	{
-		return mode_dynamic_based;
+		return modeDynamicBased;
 	}
 	
 	public void setDynamicMode(boolean mode)
 	{
-		mode_dynamic_based=mode;
+		modeDynamicBased=mode;
 		this.resetGraph(1);
 	}	
 

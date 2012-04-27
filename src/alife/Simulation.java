@@ -8,22 +8,17 @@ import org.newdawn.slick.geom.Vector2f;
  * Simulation class
  * This class handles the Simulation activity of the program.
  * It contains the main loop in the form of the asynchronous Simulation Update Thread.
- * Apart from peforming a step, it is primarily concerned with timing the step and ensuring statistics are updated..
+ * Apart from performing a step, it is primarily concerned with timing the step and ensuring statistics are updated..
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
 public class Simulation
 {
-	/* Default Graphic frame rate control */
-	final int default_frame_rate = 15;
-	int frame_rate = default_frame_rate; // Frame rate start up at this
-	final int frame_rate_gui_interaction = 60;
-
 	/** Simulation Performance Indicators */
 	int step_num = 0;
-	private long step_start_time = 0;
-	private long step_end_time = 0;
-	private long step_total_time = 0; // Total Simulation run-time is the time taken per step for each step
+	private long stepStartTime = 0;
+	private long stepEndTime = 0;
+	private long stepTotalTime = 0; // Total Simulation run-time is the time taken per step for each step
 
 	// Step Per Second Calculations
 	private long startTime;
@@ -32,8 +27,8 @@ public class Simulation
 	private long diffTime;
 
 	// Average Steps per second
-	private int num_samples = 150;
-	private double step_samples[];
+	private int numSamples = 150;
+	private double stepSamples[];
 	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
 	private double sps;	 			// Average Steps Per Second as an int for display purposes
 
@@ -46,11 +41,8 @@ public class Simulation
 	/* The Simulation manager */
 	SimulationManager simManager;
 
-	/* The translation vector for the camera view */
-	public Vector2f global_translate = new Vector2f(0, 0);
-
 	/* The default simulation update rate */
-	public int req_sps = 15;
+	public int reqSps = 15;
 
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
@@ -75,35 +67,35 @@ public class Simulation
 	/**
 	 * Method newSim.
 	 * @param stats StatsPanel
-	 * @param world_size int
-	 * @param agent_prey_numbers int
-	 * @param agent_predator_numbers int
-	 * @param plant_numbers int
-	 * @param plant_regen_rate int
-	 * @param plantstartingenergy int
-	 * @param plant_energy_absorption_rate int
+	 * @param worldSize int
+	 * @param agentPreyNumbers int
+	 * @param agentPredatorNumbers int
+	 * @param plantNumbers int
+	 * @param plantRegenRate int
+	 * @param plantStartingEnergy int
+	 * @param plantEnergyAbsorptionRate int
 	 * @param agentSettings SimpleAgentManagementSetupParam
 	 */
-	public void newSim(StatsPanel stats, int world_size, int agent_prey_numbers, int agent_predator_numbers, int plant_numbers, int plant_regen_rate, int plantstartingenergy, int plant_energy_absorption_rate, SimpleAgentManagementSetupParam agentSettings)
+	public void newSim(StatsPanel stats, int worldSize, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
 	{
 
-		step_samples = new double[num_samples];
+		stepSamples = new double[numSamples];
 
 		this.step_num = 0;
 
 		StatsPanel.setStepNo(step_num);
 
-		this.step_total_time = 0;
+		this.stepTotalTime = 0;
 
-		StatsPanel.setTime(step_total_time);
+		StatsPanel.setTime(stepTotalTime);
 
 		tasps = 0;
 		sps = 0;
 		StatsPanel.setASPS(averageStepsPerSecond());
 
-		world = new World(world_size);
+		world = new World(worldSize);
 
-		simManager = new SimulationManager(world_size, agent_prey_numbers, agent_predator_numbers, plant_numbers, plant_regen_rate, plantstartingenergy, plant_energy_absorption_rate, agentSettings);
+		simManager = new SimulationManager(worldSize, agentPreyNumbers, agentPredatorNumbers, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
 
 		if (stats != null)
 		{
@@ -137,7 +129,7 @@ public class Simulation
 					// The pause semaphore (We do not pause half way through a step)
 					pause.acquireUninterruptibly();
 
-					step_start_time = System.currentTimeMillis(); // For the average
+					stepStartTime = System.currentTimeMillis(); // For the average
 
 					timeTotal();								  // record step start time for inter-step delay
 
@@ -155,7 +147,7 @@ public class Simulation
 					StatsPanel.setStepNo(step_num);
 
 					// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
-					while (timeTotal() < (1000000000 / req_sps)) // Approximation of what the inter-step delay should be
+					while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
 					{
 						// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
 						// This will only wait if the step performance level is being exceeded
@@ -165,11 +157,11 @@ public class Simulation
 					// resets the value calculated in timeTotal()
 					resetTotalTime();
 
-					step_end_time = System.currentTimeMillis();
+					stepEndTime = System.currentTimeMillis();
 
-					step_total_time += step_end_time - step_start_time;
+					stepTotalTime += stepEndTime - stepStartTime;
 
-					StatsPanel.setTime(step_total_time);
+					StatsPanel.setTime(stepTotalTime);
 
 					StatsPanel.updateGraphs();
 
@@ -209,17 +201,17 @@ public class Simulation
 
 		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 
-		for (int i = 0; i < (num_samples - 1); i++)			// Moves the previous samples back by 1, leaves space for the new sps sample 
+		for (int i = 0; i < (numSamples - 1); i++)			// Moves the previous samples back by 1, leaves space for the new sps sample 
 		{
-			step_samples[i] = step_samples[(i + 1)];
+			stepSamples[i] = stepSamples[(i + 1)];
 		}
 
-		step_samples[num_samples - 1] = sps;			// Store the new sps sample
+		stepSamples[numSamples - 1] = sps;			// Store the new sps sample
 
 		tasps = 0;									// clear the old total average (or it will increment for ever)
-		for (int i = 0; i < num_samples; i++)
+		for (int i = 0; i < numSamples; i++)
 		{
-			tasps += step_samples[i];					// Total all the steps
+			tasps += stepSamples[i];					// Total all the steps
 		}
 
 	}
@@ -230,7 +222,7 @@ public class Simulation
 	 */
 	public int averageStepsPerSecond()
 	{
-		return (int) (tasps / num_samples);
+		return (int) (tasps / numSamples);
 	}
 
 	/**
@@ -303,7 +295,7 @@ public class Simulation
 	{
 		if (steps > 0)
 		{
-			req_sps = steps;
+			reqSps = steps;
 		}
 	}
 

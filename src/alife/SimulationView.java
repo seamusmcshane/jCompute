@@ -39,66 +39,63 @@ public class SimulationView extends BasicGame implements MouseListener
 	static CanvasGameContainer simView;
 	
 	/** OpenGL Canvas Size */
-	static int world_view_width;
-	static int world_view_height;
+	static int worldViewWidth;
+	static int worldViewHeight;
 
 	/** Default Graphic frame rate control */
-	final static int default_frame_rate = 15;
-	static int frame_rate = default_frame_rate; // Frame rate starts up set at this
-	final static int frame_rate_gui_interaction = 60;
+	final static int defaultFrameRate = 15;
+	static int frameRate = defaultFrameRate; // Frame rate starts up set at this
+	final static int frameRateGuiInteraction = 60;
 
 	/** Simulation Reference */
 	static Simulation sim;
 	
 	/** Is Simulation view drawing enabled */
-	static boolean draw_sim=true;
+	static boolean drawSim=true;
 	
 	/** Draw true circular bodies or faster rectangular ones */
-	static boolean true_drawing=false;
+	static boolean trueDrawing=false;
 	
 	/** Draw the View range of the agents */
-	static boolean view_range_drawing=false;
+	static boolean viewRangeDrawing=false;
 	
 	/**
 	 * This locks the frame rate to the following rate allowing more time
 	 * to be used for simulation threads.
 	 */
-	boolean frame_cap = true;
+	boolean frameCap = true;
 
 	/** Frame rate should be greater than or equal to refresh rate if used */
-	static boolean vsync_toggle = false;
+	static boolean vsyncToggle = false;
 
 	/** Simulation Performance Indicators */
-	private int frame_num = 0;
-
-	/* Draw slow but accurate circular bodies or faster rectangular ones */
-	private Boolean true_body_drawing = false;
-
-	/** Toggle for Drawing agent field of views */
-	private Boolean draw_field_of_views = false;
+	private int frameNum = 0;
 
 	/** The translation vector for the camera view */
-	public static Vector2f global_translate = new Vector2f(0, 0);
+	public static Vector2f globalTranslate = new Vector2f(0, 0);
 
 	/** Off screen buffer */
 	private Graphics bufferGraphics;
 	private Image buffer;
-	private int buffer_num = 0;
+	private int bufferDrawNum = 0;
 
 	/** Stores the mouse vector across updates */
-	public Vector2f mouse_pos = new Vector2f(0, 0);
+	public Vector2f mousePos = new Vector2f(0, 0);
 
 	/** Stores the camera margin */
-	static int camera_margin = 0;
+	static int cameraMargin = 0;
 
 	/** Camera View Size */
-	public static Rectangle camera_bound;
+	public static Rectangle cameraBound;
 	
 	/** Allows fixing the update rate at the mouseInteraction rate **/
 	private static boolean highUpdateRate=false;
 	
 	/** Toggles the drawing of the text overlay */
 	private static boolean overlay=false;
+	
+	/** Records status of mouse button */
+	private static boolean mouseButtonPressed=false;
 	
 	/**
 	 * The Simulation View.
@@ -143,10 +140,10 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		if(draw_sim)
+		if(drawSim)
 		{
 			/* AMD Opensource Linux Drivers have hardware clipping bugs (Update Drivers to Xorg 1.12 for fix) */			
-			g.setWorldClip(camera_bound);
+			g.setWorldClip(cameraBound);
 			
 			/* Draws on the buffer */
 			doDraw(bufferGraphics);
@@ -157,15 +154,15 @@ public class SimulationView extends BasicGame implements MouseListener
 			// View Overlay
 			if(overlay)
 			{
-				g.drawString("Frame Updates     :" + frame_num, camera_bound.getMinX()+10, camera_bound.getMinY() + 10);
+				g.drawString("Frame Updates     :" + frameNum, cameraBound.getMinX()+10, cameraBound.getMinY() + 10);
 
-				g.drawString("Buffer Updates    :" + buffer_num, camera_bound.getMinX()+10, camera_bound.getMinY() + 30);
+				g.drawString("Buffer Updates    :" + bufferDrawNum, cameraBound.getMinX()+10, cameraBound.getMinY() + 30);
 
-				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), camera_bound.getMinX()+10, camera_bound.getMinY() + 50);
+				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), cameraBound.getMinX()+10, cameraBound.getMinY() + 50);
 
-				g.draw(camera_bound);				
+				g.draw(cameraBound);				
 			}					
-			frame_num++;			
+			frameNum++;			
 		}
 	}
 	
@@ -178,12 +175,12 @@ public class SimulationView extends BasicGame implements MouseListener
 		g.clear();
 
 		/* Move the entire world to simulate a view moving around */
-		g.translate(global_translate.getX(), global_translate.getY());
+		g.translate(globalTranslate.getX(), globalTranslate.getY());
 		
-		sim.drawSim(g,true_drawing,view_range_drawing);
+		sim.drawSim(g,trueDrawing,viewRangeDrawing);
 
 		/* Performance Indicator */
-		buffer_num++;
+		bufferDrawNum++;
 	}
 	
 	/**
@@ -198,15 +195,13 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
+		mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
 				
-		mouseInteractionModeOn(); // Changes to a higher frame update rate
-		
-		//req_sps = 9999;
-		
+		mouseInteractionModeOn(); // Changes to a higher frame update rate				
 	}
 	
-	/** Allows moving camera around large worlds via mouse dragging on the simulation view * @param oldx int
+	/** Allows moving camera around large worlds via mouse dragging on the simulation view
+	 * @param oldx int
 	 * @param oldy int
 	 * @param newx int
 	 * @param newy int
@@ -215,8 +210,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
-		float x = (newx) - mouse_pos.getX();
-		float y = (newy) - mouse_pos.getY();
+		float x = (newx) - mousePos.getX();
+		float y = (newy) - mousePos.getY();
 
 		moveCamera(x, y);
 	}
@@ -231,7 +226,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void mouseReleased(int button, int x, int y)
 	{
-		mouse_pos.set(x - global_translate.getX(), y - global_translate.getY());
+		mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
 				
 		mouseInteractionModeOff(); // Changes to a lower frame update rate
 		
@@ -248,12 +243,13 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	}
 
-	/** Camera is moved by translating all the drawing * @param x float
+	/** Camera is moved by translating all the drawing 
+	 * @param x float
 	 * @param y float
 	 */
 	private void moveCamera(float x, float y)
 	{
-		global_translate.set(x, y);
+		globalTranslate.set(x, y);
 	}
 	
 	public static void exitDisplay()
@@ -274,8 +270,8 @@ public class SimulationView extends BasicGame implements MouseListener
 		y = yin;
 		
 		/* Size */
-		world_view_width = width;
-		world_view_height = height; 
+		worldViewWidth = width;
+		worldViewHeight = height; 
 	}
 		
 	/* Main Entry Point for View */
@@ -318,7 +314,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			//frame.setType(Type.UTILITY);
 			//frame.setUndecorated(true);
 			
-			frmSimulationView.setSize(world_view_width, world_view_height);
+			frmSimulationView.setSize(worldViewWidth, worldViewHeight);
 			
 			frmSimulationView.setLocation(x, y);
 			//frame.setAlwaysOnTop(true);
@@ -332,13 +328,10 @@ public class SimulationView extends BasicGame implements MouseListener
 			 */
 			simView = new CanvasGameContainer(new SimulationView());
 			
-			//sim.setDisplayMode(world_view_width,world_view_height, false);
+			//sim.setDisplayMode(worldViewWidth,worldViewHeight, false);
 			
 			/* Always update */
 			simView.getContainer().setUpdateOnlyWhenVisible(false);
-
-			/* Screen size / Window Size */
-			// app.setDisplayMode(screen_width, screen_height, false);
 
 			/* Not needed */
 			simView.getContainer().setShowFPS(false);
@@ -347,7 +340,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			simView.getContainer().setClearEachFrame(true);
 
 			/* Hardware vsync */
-			simView.getContainer().setVSync(vsync_toggle);
+			simView.getContainer().setVSync(vsyncToggle);
 
 			/* Always draw even if window not active */
 			simView.getContainer().setAlwaysRender(true);
@@ -359,7 +352,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			// app.setMultiSample(8);
 
 			// Set sim start up frame rate 
-			simView.getContainer().setTargetFrameRate(default_frame_rate);
+			simView.getContainer().setTargetFrameRate(defaultFrameRate);
 
 			frmSimulationView.getContentPane().add(simView, BorderLayout.CENTER);
 
@@ -371,7 +364,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			
 			simView.start();
 			
-			camera_bound = new Rectangle(camera_margin, camera_margin, world_view_width - (camera_margin * 2), world_view_height - (camera_margin * 2 ));
+			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2 ));
 			
 		}
 		catch (SlickException e)
@@ -385,7 +378,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		try
 		{
-			buffer = new Image(world_view_width + 1, world_view_height + 1);
+			buffer = new Image(worldViewWidth + 1, worldViewHeight + 1);
 			bufferGraphics = buffer.getGraphics();
 		}
 		catch (SlickException e)
@@ -399,7 +392,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		highUpdateRate = true;
 		
-		frame_rate = frame_rate_gui_interaction;
+		frameRate = frameRateGuiInteraction;
 		
 		simView.getContainer().setTargetFrameRate(-1);
 	}	
@@ -410,17 +403,17 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	public static void setVerticalSync(boolean sync)
 	{
-		vsync_toggle = sync;
-		simView.getContainer().setVSync(vsync_toggle);
+		vsyncToggle = sync;
+		simView.getContainer().setVSync(vsyncToggle);
 	}
 	
 	public static void setHighUpdateRate()
 	{
 		highUpdateRate = true;
 		
-		frame_rate = frame_rate_gui_interaction;
+		frameRate = frameRateGuiInteraction;
 		
-		simView.getContainer().setTargetFrameRate(frame_rate);
+		simView.getContainer().setTargetFrameRate(frameRate);
 		
 	}
 	
@@ -437,9 +430,9 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		highUpdateRate = false;
 
-		frame_rate = default_frame_rate;	
+		frameRate = defaultFrameRate;	
 		
-		simView.getContainer().setTargetFrameRate(frame_rate);		
+		simView.getContainer().setTargetFrameRate(frameRate);		
 		
 	}
 	
@@ -447,9 +440,15 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		if(!highUpdateRate) // Only Toggle if allowed to
 		{
-			frame_rate = frame_rate_gui_interaction;
-			
-			simView.getContainer().setTargetFrameRate(frame_rate);		
+			if(!mouseButtonPressed) // Used so the we dont do this repeatedly only the first time
+			{
+				frameRate = frameRateGuiInteraction;
+				
+				simView.getContainer().setTargetFrameRate(frameRate);	
+				
+				mouseButtonPressed=true;
+			}
+	
 		}
 	}
 
@@ -457,9 +456,11 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		if(!highUpdateRate) // Only Toggle if allowed to
 		{		
-			frame_rate = default_frame_rate;	
+			frameRate = defaultFrameRate;	
 			
-			simView.getContainer().setTargetFrameRate(frame_rate);
+			simView.getContainer().setTargetFrameRate(frameRate);
+			
+			mouseButtonPressed=false;	// To allow setting interaction on mode again.
 		}
 	}
 	
@@ -470,7 +471,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	public static void setInitalViewTranslate(int x,int y)
 	{
-		global_translate.set( x,y );
+		globalTranslate.set( x,y );
 	}
 	
 	public static void setFocus()
@@ -494,20 +495,20 @@ public class SimulationView extends BasicGame implements MouseListener
 	
 	/**
 	 * Method setViewRangeDrawing.
-	 * @param in_view_range_drawing boolean
+	 * @param inViewRangeDrawing boolean
 	 */
-	public static void setViewRangeDrawing(boolean in_view_range_drawing)
+	public static void setViewRangeDrawing(boolean inViewRangeDrawing)
 	{
-		view_range_drawing = in_view_range_drawing;
+		viewRangeDrawing = inViewRangeDrawing;
 	}
 	
 	/**
 	 * Method setTrueDrawing.
-	 * @param in_true_drawing boolean
+	 * @param inTrueDrawing boolean
 	 */
-	public static void setTrueDrawing(boolean in_true_drawing)
+	public static void setTrueDrawing(boolean inTrueDrawing)
 	{
-		true_drawing = in_true_drawing;
+		trueDrawing = inTrueDrawing;
 	}
 	
 	/**
@@ -519,7 +520,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		if(frmSimulationView!=null)
 		{
 			frmSimulationView.setVisible(visible);
-			draw_sim = visible; // draw if visible
+			drawSim = visible; // draw if visible
 		}
 	}
 	

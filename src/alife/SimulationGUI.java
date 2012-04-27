@@ -71,109 +71,109 @@ public class SimulationGUI
 
 	/* The Combo boxes for setting parameters */
 	private static JComboBox comboBoxPreyNumbers;
-	private static int preynumbers_selected = 8; // selects 1024	
+	private static int preyNumbersSelected = 8; // selects 1024	
 
 	private static JComboBox comboBoxPredNumbers;
-	private static int predatornumbers_selected = 2; // selects 1024	
+	private static int predatorNumbersSelected = 2; // selects 1024	
 
 	private static JComboBox comboBoxWorldSize;
-	private static int worldsize_selected = 1; // selects 1024
+	private static int worldSizeSelected = 1; // selects 1024
 
 	private static JComboBox comboBoxPlantNumbers;
-	private static int plant_starting_numbers_selected = 8; // selects 3200
+	private static int plantStartingNumbersSelected = 8; // selects 3200
 
 	private static JComboBox comboBoxPlantRegenRate;
-	private static int plant_default_regenrate_selected = 8; // Selects	8	
+	private static int plantDefaultRegenrateSelected = 8; // Selects	8	
 
 	private static JComboBox comboBoxEnergyAbsorptionRate;
-	private static int plant_default_energyabsorptionrate_selected = 7; // Selects 8	
+	private static int plantDefaultEnergyAbsorptionRateSelected = 7; // Selects 8	
 
 	private static JComboBox comboBoxPlantStartingEnergy;
-	private static int plant_starting_energy_selected = 49; // selects 50
+	private static int plantStartingEnergySelected = 49; // selects 50
 
 	private static JComboBox comboBoxPlantRepoCost;
-	private static int plant_default_plantrepocost_selected = 1; // not used DISABLED		
+	private static int plantDefaultPlantRepoCostSelected = 1; // not used DISABLED		
 
 	private static JComboBox comboBoxPreySpeed;
-	private static int prey_default_speed_selected = 89; // Selects 0.90
+	private static int preyDefaultSpeedSelected = 89; // Selects 0.90
 
 	private static JComboBox comboBoxPredatorSpeed;
-	private static int predator_default_speed_selected = 99; // Selects 1.00	
+	private static int predatorDefaultSpeedSelected = 99; // Selects 1.00	
 
 	private static JComboBox comboBoxPreyViewRange;
-	private static int prey_default_view_range_selected = 9; // Selects 10
+	private static int preyDefaultViewRangeSelected = 9; // Selects 10
 
 	private static JComboBox comboBoxPredatorViewRange;
-	private static int predator_default_view_range_selected = 9; // Selects 10
+	private static int predatorDefaultViewRangeSelected = 9; // Selects 10
 
 	private static JComboBox comboBoxPreyDE;
-	private static int prey_default_DE_selected = 39; // 0.40
+	private static int preyDefaultDESelected = 39; // 0.40
 
 	private static JComboBox comboBoxPredatorDE;
-	private static int predator_default_DE_selected = 49; // 0.50	
+	private static int predatorDefaultDESelected = 49; // 0.50	
 
 	private static JComboBox comboBoxPreyREDiv;
-	private static int prey_default_REDiv_selected = 1; // 0.50
+	private static int preyDefaultREDivSelected = 1; // 0.50
 
 	private static JComboBox comboBoxPredatorREDiv;
-	private static int predator_default_REDiv_selected = 1; // 0.50
+	private static int predatorDefaultREDivSelected = 1; // 0.50
 
 	private static JComboBox comboBoxPreyMoveCost;
-	private static int prey_default_movecost_selected = 24; // 0.025
+	private static int preyDefaultMovecostSelected = 24; // 0.025
 
 	private static JComboBox comboBoxPredatorMoveCost;
-	private static int predator_default_movecost_selected = 24; // 0.025
+	private static int predatorDefaultMovecostSelected = 24; // 0.025
 
 	private static JComboBox comboBoxPreyHungerThres;
-	private static int prey_default_hungerthres_selected = 49; // 50
+	private static int preyDefaultHungerThresSelected = 49; // 50
 
 	private static JComboBox comboBoxPredatorHungerThres;
-	private static int predator_default_hungerthres_selected = 49; // 50
+	private static int predatorDefaultHungerThresSelected = 49; // 50
 
 	private static JComboBox comboBoxPreyConsumptionRate;
-	private static int prey_default_consumptionrate_selected = 9; // Selects 9	
+	private static int preyDefaultConsumptionRateSelected = 9; // Selects 9	
 
 	private static JComboBox comboBoxPredatorConsumptionRate;
-	private static int predator_default_consumptionrate_selected = 9; // selects 100 (*Not* Enabled)	
+	private static int predatorDefaultConsumptionRateSelected = 9; // selects 100 (*Not* Enabled)	
 
 	private static JComboBox comboBoxPreyRepoCost;
-	private static int prey_default_repocost_selected = 49;		// Selects 50		
+	private static int preyDefaultRepoCostSelected = 49;		// Selects 50		
 
 	private static JComboBox comboBoxPredRepoCost;
-	private static int predator_default_repocost_selected = 54;		// // Selects 55			
+	private static int predatorDefaultRepoCostSelected = 54;		// // Selects 55			
 
 	private static JComboBox comboBoxPreyStartingEnergy;
-	private static int prey_default_startingenergy_selected = 24;	 // Selects 25		
+	private static int preyDefaultStartingEnergySelected = 24;	 // Selects 25		
 
 	private static JComboBox comboBoxPredStartingEnergy;
-	private static int predator_default_startingenergy_selected = 24;	// Selects 25			
+	private static int predatorDefaultStartingEnergySelected = 24;	// Selects 25			
 
 	/* The statistics panel */
 	private static StatsPanel statsPanel;
 
 	/* retrieved screen sizes */
-	static int screen_width;
-	static int screen_height;
-	static int screen_height_min=900;
+	static int screenWidth;
+	static int screenHeight;
+	static int screenHeightMin=900;
 
 
 	/* Window Size pad - certain operating systems like to add thick borders to windows then report the size with out telling you the border is not included. */
 	static int pad = 10;
 
 	/* GUI Size Hard-Coded - minimum size before cropping occurs */
-	static int control_gui_width = 375;
-	static int control_gui_height_min = 806;
-	static int control_gui_height = 0;
+	static int controlGuiWidth = 375;
+	static int controlGuiHeightMin = 806;
+	static int controlGuiHeight = 0;
 
 	/* Start up position - dynamically generated */
-	static int control_gui_x;
-	static int control_gui_y;
+	static int controlGuiX;
+	static int controlGuiY;
 
 	/* Auto sized simulation view */
-	static int view_width = 0;
-	static int view_height = 0;
-	static int view_x;
-	static int view_y;
+	static int viewWidth = 0;
+	static int viewHeight = 0;
+	static int viewX;
+	static int viewY;
 
 	/* Simulation Reference */
 	private static Simulation sim;
@@ -224,19 +224,18 @@ public class SimulationGUI
 		setUpSimulation();
 
 		// Display the simulation view
-		SimulationView.displayView(sim, view_x, view_y, view_width, view_height);
+		SimulationView.displayView(sim, viewX, viewY, viewWidth, viewHeight);
 		
 		screenSizeCheck();
 	}
 
 	/* Notify users they will have problems running with a small resolutions screen */
 	private static void screenSizeCheck()
-	{
-		
-		if(screen_height<screen_height_min)
+	{		
+		if(screenHeight<screenHeightMin)
 		{	
 			String message;
-			message = "Your screen height is below the minimum recommended screen height of " + screen_height_min + ".";
+			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + ".";
 	
 			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
 	
@@ -249,35 +248,34 @@ public class SimulationGUI
 	
 	private static void newSim()
 	{
-
 		/*
 		 * Main Setup
 		 */
 
 		/* World Size */
-		int word_size = Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString());
+		int worldSize = Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString());
 
 		/* Prey Numbers */
-		int prey_no = Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString());
+		int preyNo = Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString());
 
 		/* Pred Numbers */
-		int pred_no = Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString());
+		int predNo = Integer.parseInt(comboBoxPredNumbers.getSelectedItem().toString());
 
 		/* Plant Numbers */
-		int plant_no = Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString());
+		int plantNo = Integer.parseInt(comboBoxPlantNumbers.getSelectedItem().toString());
 
 		/*
 		 * Plants via direct variable passing
 		 */
 
 		/* Plant Regeneration Rate */
-		int plant_regen_rate = Integer.parseInt(comboBoxPlantRegenRate.getSelectedItem().toString());
+		int plantRegenRate = Integer.parseInt(comboBoxPlantRegenRate.getSelectedItem().toString());
 
 		/* Plant Energy Absorption Rate */
-		int plant_energy_absorption_rate = Integer.parseInt(comboBoxEnergyAbsorptionRate.getSelectedItem().toString());
+		int plantEnergyAbsorptionRate = Integer.parseInt(comboBoxEnergyAbsorptionRate.getSelectedItem().toString());
 
 		/* Plant Starting Energy */
-		int plant_starting_energy = Integer.parseInt(comboBoxPlantStartingEnergy.getSelectedItem().toString());
+		int plantStartingEnergy = Integer.parseInt(comboBoxPlantStartingEnergy.getSelectedItem().toString());
 
 		/*
 		 * Agents setup via agentSettings object
@@ -322,7 +320,7 @@ public class SimulationGUI
 		agentSettings.setPreyStartingEnergy(Integer.parseInt(comboBoxPreyStartingEnergy.getSelectedItem().toString()));
 		agentSettings.setPredStartingEnergy(Integer.parseInt(comboBoxPredStartingEnergy.getSelectedItem().toString()));
 
-		sim.newSim(statsPanel, word_size, prey_no, pred_no, plant_no, plant_regen_rate, plant_starting_energy, plant_energy_absorption_rate, agentSettings);
+		sim.newSim(statsPanel, worldSize, preyNo, predNo, plantNo, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
 
 		/*
 		 * If needed the GC can free old objects now, before the simulation
@@ -343,7 +341,7 @@ public class SimulationGUI
 		simRateSlider.setValue(15);
 
 		// Centers the simulated world in the view
-		SimulationView.setInitalViewTranslate((view_width / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2), (view_height / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2));
+		SimulationView.setInitalViewTranslate((viewWidth / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2), (viewHeight / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2));
 
 		/* Clear the old stats */
 		StatsPanel.clearStats();
@@ -357,25 +355,25 @@ public class SimulationGUI
 
 	private static void calculateWindowSizes()
 	{
-		view_width = screen_width - control_gui_width - (pad * 2);
-		view_height = screen_height - (48 * 2); // Task manager and Top borders on some os's
+		viewWidth = screenWidth - controlGuiWidth - (pad * 2);
+		viewHeight = screenHeight - (48 * 2); // Task manager and Top borders on some os's
 		
-		control_gui_height = control_gui_height_min;
+		controlGuiHeight = controlGuiHeightMin;
 		
-		if(control_gui_height<screen_height - (48 * 2))
+		if(controlGuiHeight<screenHeight - (48 * 2))
 		{
-			control_gui_height = screen_height - (48 * 2);
+			controlGuiHeight = screenHeight - (48 * 2);
 		}		
 		
 	}
 
 	private static void calculateWindowPositions()
 	{
-		control_gui_x = (screen_width / 2) - ((control_gui_width + view_width) / 2);
-		control_gui_y = (screen_height / 2) - (view_height / 2);
+		controlGuiX = (screenWidth / 2) - ((controlGuiWidth + viewWidth) / 2);
+		controlGuiY = (screenHeight / 2) - (viewHeight / 2);
 
-		view_x = control_gui_x + (control_gui_width) + pad;
-		view_y = control_gui_y;
+		viewX = controlGuiX + (controlGuiWidth) + pad;
+		viewY = controlGuiY;
 	}
 
 	private static void retrieveScreenSize()
@@ -384,8 +382,8 @@ public class SimulationGUI
 
 		Dimension screenSize = toolkit.getScreenSize();
 
-		screen_width = (int) screenSize.getWidth();
-		screen_height = (int) screenSize.getHeight();
+		screenWidth = (int) screenSize.getWidth();
+		screenHeight = (int) screenSize.getHeight();
 	}
 
 	
@@ -401,7 +399,7 @@ public class SimulationGUI
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // We control the exit
 
 		// GUI Size
-		gui.setBounds(control_gui_x, control_gui_y, control_gui_width, control_gui_height);
+		gui.setBounds(controlGuiX, controlGuiY, controlGuiWidth, controlGuiHeight);
 
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -415,27 +413,27 @@ public class SimulationGUI
 		JPanel controlPanelTop = new JPanel();
 
 		controlPanel.add(controlPanelTop, BorderLayout.NORTH);
-		GridBagLayout gbl_controlPanelTop = new GridBagLayout();
-		gbl_controlPanelTop.columnWidths = new int[]
+		GridBagLayout gblControlPanelTop = new GridBagLayout();
+		gblControlPanelTop.columnWidths = new int[]
 		{0};
-		gbl_controlPanelTop.rowHeights = new int[]
+		gblControlPanelTop.rowHeights = new int[]
 		{0, 0, 0};
-		gbl_controlPanelTop.columnWeights = new double[]
+		gblControlPanelTop.columnWeights = new double[]
 		{1.0, 1.0};
-		gbl_controlPanelTop.rowWeights = new double[]
+		gblControlPanelTop.rowWeights = new double[]
 		{Double.MIN_VALUE};
-		controlPanelTop.setLayout(gbl_controlPanelTop);
+		controlPanelTop.setLayout(gblControlPanelTop);
 
 		JPanel mainSetupPanel = new JPanel();
 		mainSetupPanel.setBorder(new TitledBorder(null, "Simulation Setup", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_mainSetupPanel = new GridBagConstraints();
-		gbc_mainSetupPanel.anchor = GridBagConstraints.NORTH;
-		gbc_mainSetupPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_mainSetupPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_mainSetupPanel.gridwidth = 2;
-		gbc_mainSetupPanel.gridx = 0;
-		gbc_mainSetupPanel.gridy = 0;
-		controlPanelTop.add(mainSetupPanel, gbc_mainSetupPanel);
+		GridBagConstraints gbcMainSetupPanel = new GridBagConstraints();
+		gbcMainSetupPanel.anchor = GridBagConstraints.NORTH;
+		gbcMainSetupPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbcMainSetupPanel.insets = new Insets(0, 0, 5, 0);
+		gbcMainSetupPanel.gridwidth = 2;
+		gbcMainSetupPanel.gridx = 0;
+		gbcMainSetupPanel.gridy = 0;
+		controlPanelTop.add(mainSetupPanel, gbcMainSetupPanel);
 		mainSetupPanel.setLayout(new GridLayout(2, 4, 5, 5));
 
 		JLabel lblPredS = new JLabel("Predators");
@@ -447,7 +445,7 @@ public class SimulationGUI
 		mainSetupPanel.add(comboBoxPredNumbers);
 		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
 		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
-		comboBoxPredNumbers.setSelectedIndex(predatornumbers_selected);
+		comboBoxPredNumbers.setSelectedIndex(predatorNumbersSelected);
 
 		JLabel lblPreyS = new JLabel("Prey");
 		lblPreyS.setHorizontalAlignment(SwingConstants.LEFT);
@@ -458,7 +456,7 @@ public class SimulationGUI
 		mainSetupPanel.add(comboBoxPreyNumbers);
 		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
 		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
-		comboBoxPreyNumbers.setSelectedIndex(preynumbers_selected);
+		comboBoxPreyNumbers.setSelectedIndex(preyNumbersSelected);
 
 		JLabel lblPlants = new JLabel("Plants");
 		lblPlants.setHorizontalAlignment(SwingConstants.LEFT);
@@ -469,7 +467,7 @@ public class SimulationGUI
 		mainSetupPanel.add(comboBoxPlantNumbers);
 		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
 		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400" , "204800"}));
-		comboBoxPlantNumbers.setSelectedIndex(plant_starting_numbers_selected);
+		comboBoxPlantNumbers.setSelectedIndex(plantStartingNumbersSelected);
 
 		JLabel lblWorldSize = new JLabel("World Size");
 		lblWorldSize.setHorizontalAlignment(SwingConstants.LEFT);
@@ -480,22 +478,22 @@ public class SimulationGUI
 		mainSetupPanel.add(comboBoxWorldSize);
 		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
 		{"512", "1024", "2048", "4096", "8192", "16384", "32768"}));
-		comboBoxWorldSize.setSelectedIndex(worldsize_selected);
+		comboBoxWorldSize.setSelectedIndex(worldSizeSelected);
 
 		agentParamPanel = new JPanel();
 		agentParamPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Agent Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_agentParamPanel = new GridBagConstraints();
-		gbc_agentParamPanel.anchor = GridBagConstraints.NORTH;
-		gbc_agentParamPanel.gridwidth = 2;
-		gbc_agentParamPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_agentParamPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_agentParamPanel.gridx = 0;
-		gbc_agentParamPanel.gridy = 1;
-		controlPanelTop.add(agentParamPanel, gbc_agentParamPanel);
+		GridBagConstraints gbcAgentParamPanel = new GridBagConstraints();
+		gbcAgentParamPanel.anchor = GridBagConstraints.NORTH;
+		gbcAgentParamPanel.gridwidth = 2;
+		gbcAgentParamPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbcAgentParamPanel.insets = new Insets(0, 0, 5, 0);
+		gbcAgentParamPanel.gridx = 0;
+		gbcAgentParamPanel.gridy = 1;
+		controlPanelTop.add(agentParamPanel, gbcAgentParamPanel);
 		agentParamPanel.setLayout(new GridLayout(0, 3, 5, 5));
 
-		JLabel lbl_spacer = new JLabel("");
-		agentParamPanel.add(lbl_spacer);
+		JLabel lblSpacer = new JLabel("");
+		agentParamPanel.add(lblSpacer);
 
 		JLabel lblPrey = new JLabel("Prey");
 		lblPrey.setHorizontalAlignment(SwingConstants.CENTER);
@@ -515,7 +513,7 @@ public class SimulationGUI
 		{" 0.01 ", " 0.02", " 0.03", " 0.04", " 0.05", " 0.06", " 0.07", " 0.08", " 0.09", " 0.10", " 0.11", " 0.12", " 0.13", " 0.14", " 0.15", " 0.16", " 0.17", " 0.18", " 0.19", " 0.20", " 0.21", " 0.22", " 0.23", " 0.24", " 0.25", " 0.26", " 0.27", " 0.28", " 0.29", " 0.30", " 0.31", " 0.32", " 0.33", " 0.34", " 0.35", " 0.36", " 0.37", " 0.38", " 0.39", " 0.40", " 0.41", " 0.42", " 0.43", " 0.44", " 0.45", " 0.46", " 0.47", " 0.48", " 0.49", " 0.50", " 0.51", " 0.52", " 0.53", " 0.54", " 0.55", " 0.56", " 0.57", " 0.58", " 0.59", " 0.60", " 0.61", " 0.62", " 0.63", " 0.64", " 0.65",
 				" 0.66", " 0.67", " 0.68", " 0.69", " 0.70", " 0.71", " 0.72", " 0.73", " 0.74", " 0.75", " 0.76", " 0.77", " 0.78", " 0.79", " 0.80", " 0.81", " 0.82", " 0.83", " 0.84", " 0.85", " 0.86", " 0.87", " 0.88", " 0.89", " 0.90", " 0.91", " 0.92", " 0.93", " 0.94", " 0.95", " 0.96", " 0.97", " 0.98", " 0.99", " 1.00"}));
 		agentParamPanel.add(comboBoxPreySpeed);
-		comboBoxPreySpeed.setSelectedIndex(prey_default_speed_selected);
+		comboBoxPreySpeed.setSelectedIndex(preyDefaultSpeedSelected);
 
 		comboBoxPredatorSpeed = new JComboBox();
 		comboBoxPredatorSpeed.setToolTipText("Speed of Predators.");
@@ -523,7 +521,7 @@ public class SimulationGUI
 		{" 0.01 ", " 0.02", " 0.03", " 0.04", " 0.05", " 0.06", " 0.07", " 0.08", " 0.09", " 0.10", " 0.11", " 0.12", " 0.13", " 0.14", " 0.15", " 0.16", " 0.17", " 0.18", " 0.19", " 0.20", " 0.21", " 0.22", " 0.23", " 0.24", " 0.25", " 0.26", " 0.27", " 0.28", " 0.29", " 0.30", " 0.31", " 0.32", " 0.33", " 0.34", " 0.35", " 0.36", " 0.37", " 0.38", " 0.39", " 0.40", " 0.41", " 0.42", " 0.43", " 0.44", " 0.45", " 0.46", " 0.47", " 0.48", " 0.49", " 0.50", " 0.51", " 0.52", " 0.53", " 0.54", " 0.55", " 0.56", " 0.57", " 0.58", " 0.59", " 0.60", " 0.61", " 0.62", " 0.63", " 0.64", " 0.65",
 				" 0.66", " 0.67", " 0.68", " 0.69", " 0.70", " 0.71", " 0.72", " 0.73", " 0.74", " 0.75", " 0.76", " 0.77", " 0.78", " 0.79", " 0.80", " 0.81", " 0.82", " 0.83", " 0.84", " 0.85", " 0.86", " 0.87", " 0.88", " 0.89", " 0.90", " 0.91", " 0.92", " 0.93", " 0.94", " 0.95", " 0.96", " 0.97", " 0.98", " 0.99", " 1.00"}));
 		agentParamPanel.add(comboBoxPredatorSpeed);
-		comboBoxPredatorSpeed.setSelectedIndex(predator_default_speed_selected);
+		comboBoxPredatorSpeed.setSelectedIndex(predatorDefaultSpeedSelected);
 
 		JLabel lblViewRange = new JLabel("View Range");
 		lblViewRange.setHorizontalAlignment(SwingConstants.LEFT);
@@ -536,7 +534,7 @@ public class SimulationGUI
 				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98",
 						"99", "100"}));
 		agentParamPanel.add(comboBoxPreyViewRange);
-		comboBoxPreyViewRange.setSelectedIndex(prey_default_view_range_selected);
+		comboBoxPreyViewRange.setSelectedIndex(preyDefaultViewRangeSelected);
 
 		comboBoxPredatorViewRange = new JComboBox();
 		comboBoxPredatorViewRange.setToolTipText("View range of Predators. ( Distance of R in front of the body of the agent, where R is a Radius value)");
@@ -545,7 +543,7 @@ public class SimulationGUI
 				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98",
 						"99", "100"}));
 		agentParamPanel.add(comboBoxPredatorViewRange);
-		comboBoxPredatorViewRange.setSelectedIndex(predator_default_view_range_selected);
+		comboBoxPredatorViewRange.setSelectedIndex(predatorDefaultViewRangeSelected);
 
 		JLabel lblDigestiveEfficn = new JLabel("Digestive Efficiency");
 		lblDigestiveEfficn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -557,7 +555,7 @@ public class SimulationGUI
 		{" 0.01 ", " 0.02", " 0.03", " 0.04", " 0.05", " 0.06", " 0.07", " 0.08", " 0.09", " 0.10", " 0.11", " 0.12", " 0.13", " 0.14", " 0.15", " 0.16", " 0.17", " 0.18", " 0.19", " 0.20", " 0.21", " 0.22", " 0.23", " 0.24", " 0.25", " 0.26", " 0.27", " 0.28", " 0.29", " 0.30", " 0.31", " 0.32", " 0.33", " 0.34", " 0.35", " 0.36", " 0.37", " 0.38", " 0.39", " 0.40", " 0.41", " 0.42", " 0.43", " 0.44", " 0.45", " 0.46", " 0.47", " 0.48", " 0.49", " 0.50", " 0.51", " 0.52", " 0.53", " 0.54", " 0.55", " 0.56", " 0.57", " 0.58", " 0.59", " 0.60", " 0.61", " 0.62", " 0.63", " 0.64", " 0.65",
 				" 0.66", " 0.67", " 0.68", " 0.69", " 0.70", " 0.71", " 0.72", " 0.73", " 0.74", " 0.75", " 0.76", " 0.77", " 0.78", " 0.79", " 0.80", " 0.81", " 0.82", " 0.83", " 0.84", " 0.85", " 0.86", " 0.87", " 0.88", " 0.89", " 0.90", " 0.91", " 0.92", " 0.93", " 0.94", " 0.95", " 0.96", " 0.97", " 0.98", " 0.99", " 1.00"}));
 		agentParamPanel.add(comboBoxPreyDE);
-		comboBoxPreyDE.setSelectedIndex(prey_default_DE_selected);
+		comboBoxPreyDE.setSelectedIndex(preyDefaultDESelected);
 
 		comboBoxPredatorDE = new JComboBox();
 		comboBoxPredatorDE.setToolTipText("How efficiently Predators gain energy from consumption.");
@@ -565,7 +563,7 @@ public class SimulationGUI
 		{" 0.01 ", " 0.02", " 0.03", " 0.04", " 0.05", " 0.06", " 0.07", " 0.08", " 0.09", " 0.10", " 0.11", " 0.12", " 0.13", " 0.14", " 0.15", " 0.16", " 0.17", " 0.18", " 0.19", " 0.20", " 0.21", " 0.22", " 0.23", " 0.24", " 0.25", " 0.26", " 0.27", " 0.28", " 0.29", " 0.30", " 0.31", " 0.32", " 0.33", " 0.34", " 0.35", " 0.36", " 0.37", " 0.38", " 0.39", " 0.40", " 0.41", " 0.42", " 0.43", " 0.44", " 0.45", " 0.46", " 0.47", " 0.48", " 0.49", " 0.50", " 0.51", " 0.52", " 0.53", " 0.54", " 0.55", " 0.56", " 0.57", " 0.58", " 0.59", " 0.60", " 0.61", " 0.62", " 0.63", " 0.64", " 0.65",
 				" 0.66", " 0.67", " 0.68", " 0.69", " 0.70", " 0.71", " 0.72", " 0.73", " 0.74", " 0.75", " 0.76", " 0.77", " 0.78", " 0.79", " 0.80", " 0.81", " 0.82", " 0.83", " 0.84", " 0.85", " 0.86", " 0.87", " 0.88", " 0.89", " 0.90", " 0.91", " 0.92", " 0.93", " 0.94", " 0.95", " 0.96", " 0.97", " 0.98", " 0.99", " 1.00"}));
 		agentParamPanel.add(comboBoxPredatorDE);
-		comboBoxPredatorDE.setSelectedIndex(predator_default_DE_selected);
+		comboBoxPredatorDE.setSelectedIndex(predatorDefaultDESelected);
 
 		JLabel lblReproductionDiv = new JLabel("R/S Energy Div");
 		lblReproductionDiv.setHorizontalAlignment(SwingConstants.LEFT);
@@ -576,14 +574,14 @@ public class SimulationGUI
 		comboBoxPreyREDiv.setModel(new DefaultComboBoxModel(new String[]
 		{"0.25", "0.50", "0.75"}));
 		agentParamPanel.add(comboBoxPreyREDiv);
-		comboBoxPreyREDiv.setSelectedIndex(prey_default_REDiv_selected);
+		comboBoxPreyREDiv.setSelectedIndex(preyDefaultREDivSelected);
 
 		comboBoxPredatorREDiv = new JComboBox();
 		comboBoxPredatorREDiv.setToolTipText("Sets the division between how much energy is used for survival and how much is used for reproduction of a new agent.");
 		comboBoxPredatorREDiv.setModel(new DefaultComboBoxModel(new String[]
 		{"0.25", "0.50", "0.75"}));
 		agentParamPanel.add(comboBoxPredatorREDiv);
-		comboBoxPredatorREDiv.setSelectedIndex(predator_default_REDiv_selected);
+		comboBoxPredatorREDiv.setSelectedIndex(predatorDefaultREDivSelected);
 
 		JLabel lblMovementCost = new JLabel("Movement Cost");
 		lblMovementCost.setHorizontalAlignment(SwingConstants.LEFT);
@@ -611,7 +609,7 @@ public class SimulationGUI
 				"0.0939", "0.0940", "0.0941", "0.0942", "0.0943", "0.0944", "0.0945", "0.0946", "0.0947", "0.0948", "0.0949", "0.0950", "0.0951", "0.0952", "0.0953", "0.0954", "0.0955", "0.0956", "0.0957", "0.0958", "0.0959", "0.0960", "0.0961", "0.0962", "0.0963", "0.0964", "0.0965", "0.0966", "0.0967", "0.0968", "0.0969", "0.0970", "0.0971", "0.0972", "0.0973", "0.0974", "0.0975", "0.0976", "0.0977", "0.0978", "0.0979", "0.0980", "0.0981", "0.0982", "0.0983", "0.0984", "0.0985", "0.0986", "0.0987", "0.0988", "0.0989", "0.0990", "0.0991", "0.0992", "0.0993", "0.0994", "0.0995", "0.0996",
 				"0.0997", "0.0998", "0.0999"}));
 		agentParamPanel.add(comboBoxPreyMoveCost);
-		comboBoxPreyMoveCost.setSelectedIndex(prey_default_movecost_selected);
+		comboBoxPreyMoveCost.setSelectedIndex(preyDefaultMovecostSelected);
 
 		comboBoxPredatorMoveCost = new JComboBox();
 		comboBoxPredatorMoveCost.setToolTipText("The cost in energy for Predators to move.");
@@ -635,7 +633,7 @@ public class SimulationGUI
 				"0.0939", "0.0940", "0.0941", "0.0942", "0.0943", "0.0944", "0.0945", "0.0946", "0.0947", "0.0948", "0.0949", "0.0950", "0.0951", "0.0952", "0.0953", "0.0954", "0.0955", "0.0956", "0.0957", "0.0958", "0.0959", "0.0960", "0.0961", "0.0962", "0.0963", "0.0964", "0.0965", "0.0966", "0.0967", "0.0968", "0.0969", "0.0970", "0.0971", "0.0972", "0.0973", "0.0974", "0.0975", "0.0976", "0.0977", "0.0978", "0.0979", "0.0980", "0.0981", "0.0982", "0.0983", "0.0984", "0.0985", "0.0986", "0.0987", "0.0988", "0.0989", "0.0990", "0.0991", "0.0992", "0.0993", "0.0994", "0.0995", "0.0996",
 				"0.0997", "0.0998", "0.0999"}));
 		agentParamPanel.add(comboBoxPredatorMoveCost);
-		comboBoxPredatorMoveCost.setSelectedIndex(predator_default_movecost_selected);
+		comboBoxPredatorMoveCost.setSelectedIndex(predatorDefaultMovecostSelected);
 
 		JLabel lblHungerThreshold = new JLabel("Hunger Threshold");
 		lblHungerThreshold.setHorizontalAlignment(SwingConstants.LEFT);
@@ -648,7 +646,7 @@ public class SimulationGUI
 				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97",
 						"98", "99" , "100"}));
 		agentParamPanel.add(comboBoxPreyHungerThres);
-		comboBoxPreyHungerThres.setSelectedIndex(prey_default_hungerthres_selected);
+		comboBoxPreyHungerThres.setSelectedIndex(preyDefaultHungerThresSelected);
 
 		comboBoxPredatorHungerThres = new JComboBox();
 		comboBoxPredatorHungerThres.setToolTipText("The energy level at which Predators become hungry.");
@@ -657,7 +655,7 @@ public class SimulationGUI
 				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97",
 						"98", "99" , "100"}));
 		agentParamPanel.add(comboBoxPredatorHungerThres);
-		comboBoxPredatorHungerThres.setSelectedIndex(predator_default_hungerthres_selected);
+		comboBoxPredatorHungerThres.setSelectedIndex(predatorDefaultHungerThresSelected);
 
 		JLabel lblConsumptionRate = new JLabel("E Consumption Rate");
 		lblConsumptionRate.setHorizontalAlignment(SwingConstants.LEFT);
@@ -670,7 +668,7 @@ public class SimulationGUI
 				{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98",
 						"99", "100"}));
 		agentParamPanel.add(comboBoxPreyConsumptionRate);
-		comboBoxPreyConsumptionRate.setSelectedIndex(prey_default_consumptionrate_selected);
+		comboBoxPreyConsumptionRate.setSelectedIndex(preyDefaultConsumptionRateSelected);
 
 		comboBoxPredatorConsumptionRate = new JComboBox();
 		comboBoxPredatorConsumptionRate.setToolTipText("The rate at which Predators consume Prey. ( Fixed at 100%)");
@@ -678,7 +676,7 @@ public class SimulationGUI
 		agentParamPanel.add(comboBoxPredatorConsumptionRate);
 		comboBoxPredatorConsumptionRate.setModel(new DefaultComboBoxModel(new String[]
 		{"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"}));
-		comboBoxPredatorConsumptionRate.setSelectedIndex(predator_default_consumptionrate_selected);
+		comboBoxPredatorConsumptionRate.setSelectedIndex(predatorDefaultConsumptionRateSelected);
 		comboBoxPredatorConsumptionRate.setEditable(false);
 
 		JLabel lblReproductionCost = new JLabel("Reproduction Cost");
@@ -691,7 +689,7 @@ public class SimulationGUI
 		{"0.01", "0.02", "0.03", "0.04", "0.05", "0.06", "0.07", "0.08", "0.09", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15", "0.16", "0.17", "0.18", "0.19", "0.20", "0.21", "0.22", "0.23", "0.24", "0.25", "0.26", "0.27", "0.28", "0.29", "0.30", "0.31", "0.32", "0.33", "0.34", "0.35", "0.36", "0.37", "0.38", "0.39", "0.40", "0.41", "0.42", "0.43", "0.44", "0.45", "0.46", "0.47", "0.48", "0.49", "0.50", "0.51", "0.52", "0.53", "0.54", "0.55", "0.56", "0.57", "0.58", "0.59", "0.60", "0.61", "0.62", "0.63", "0.64", "0.65", "0.66", "0.67", "0.68", "0.69", "0.70", "0.71", "0.72", "0.73",
 				"0.74", "0.75", "0.76", "0.77", "0.78", "0.79", "0.80", "0.81", "0.82", "0.83", "0.84", "0.85", "0.86", "0.87", "0.88", "0.89", "0.90", "0.91", "0.92", "0.93", "0.94", "0.95", "0.96", "0.97", "0.98", "0.99", "1"}));
 		agentParamPanel.add(comboBoxPreyRepoCost);
-		comboBoxPreyRepoCost.setSelectedIndex(prey_default_repocost_selected);
+		comboBoxPreyRepoCost.setSelectedIndex(preyDefaultRepoCostSelected);
 
 		comboBoxPredRepoCost = new JComboBox();
 		comboBoxPredRepoCost.setToolTipText("The cost of reproduction for Predators. ( 100 * Reproduction Cost)");
@@ -699,47 +697,47 @@ public class SimulationGUI
 		{"0.01", "0.02", "0.03", "0.04", "0.05", "0.06", "0.07", "0.08", "0.09", "0.10", "0.11", "0.12", "0.13", "0.14", "0.15", "0.16", "0.17", "0.18", "0.19", "0.20", "0.21", "0.22", "0.23", "0.24", "0.25", "0.26", "0.27", "0.28", "0.29", "0.30", "0.31", "0.32", "0.33", "0.34", "0.35", "0.36", "0.37", "0.38", "0.39", "0.40", "0.41", "0.42", "0.43", "0.44", "0.45", "0.46", "0.47", "0.48", "0.49", "0.50", "0.51", "0.52", "0.53", "0.54", "0.55", "0.56", "0.57", "0.58", "0.59", "0.60", "0.61", "0.62", "0.63", "0.64", "0.65", "0.66", "0.67", "0.68", "0.69", "0.70", "0.71", "0.72", "0.73",
 				"0.74", "0.75", "0.76", "0.77", "0.78", "0.79", "0.80", "0.81", "0.82", "0.83", "0.84", "0.85", "0.86", "0.87", "0.88", "0.89", "0.90", "0.91", "0.92", "0.93", "0.94", "0.95", "0.96", "0.97", "0.98", "0.99", "1"}));
 		agentParamPanel.add(comboBoxPredRepoCost);
-		comboBoxPredRepoCost.setSelectedIndex(predator_default_repocost_selected);
+		comboBoxPredRepoCost.setSelectedIndex(predatorDefaultRepoCostSelected);
 
-		JLabel lblStartingEnergy_1 = new JLabel("Starting Energy");
-		lblStartingEnergy_1.setHorizontalAlignment(SwingConstants.LEFT);
-		agentParamPanel.add(lblStartingEnergy_1);
+		JLabel lblStartingEnergy1 = new JLabel("Starting Energy");
+		lblStartingEnergy1.setHorizontalAlignment(SwingConstants.LEFT);
+		agentParamPanel.add(lblStartingEnergy1);
 
 		comboBoxPreyStartingEnergy = new JComboBox();
 		comboBoxPreyStartingEnergy.setToolTipText("The starting energy level for Prey.");
 		comboBoxPreyStartingEnergy.setModel(new DefaultComboBoxModel(new String[]
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		agentParamPanel.add(comboBoxPreyStartingEnergy);
-		comboBoxPreyStartingEnergy.setSelectedIndex(prey_default_startingenergy_selected);
+		comboBoxPreyStartingEnergy.setSelectedIndex(preyDefaultStartingEnergySelected);
 
 		comboBoxPredStartingEnergy = new JComboBox();
 		comboBoxPredStartingEnergy.setToolTipText("The starting energy level for Predators.");
 		comboBoxPredStartingEnergy.setModel(new DefaultComboBoxModel(new String[]
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		agentParamPanel.add(comboBoxPredStartingEnergy);
-		comboBoxPredStartingEnergy.setSelectedIndex(predator_default_startingenergy_selected);
+		comboBoxPredStartingEnergy.setSelectedIndex(predatorDefaultStartingEnergySelected);
 
 		plantParamPanel = new JPanel();
 		plantParamPanel.setBorder(new TitledBorder(null, "Plant Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_plantParamPanel = new GridBagConstraints();
-		gbc_plantParamPanel.gridwidth = 2;
-		gbc_plantParamPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_plantParamPanel.anchor = GridBagConstraints.NORTH;
-		gbc_plantParamPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_plantParamPanel.gridx = 0;
-		gbc_plantParamPanel.gridy = 2;
-		controlPanelTop.add(plantParamPanel, gbc_plantParamPanel);
+		GridBagConstraints gbcPlantParamPanel = new GridBagConstraints();
+		gbcPlantParamPanel.gridwidth = 2;
+		gbcPlantParamPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbcPlantParamPanel.anchor = GridBagConstraints.NORTH;
+		gbcPlantParamPanel.insets = new Insets(0, 0, 5, 0);
+		gbcPlantParamPanel.gridx = 0;
+		gbcPlantParamPanel.gridy = 2;
+		controlPanelTop.add(plantParamPanel, gbcPlantParamPanel);
 		plantParamPanel.setLayout(new GridLayout(0, 4, 5, 5));
 
-		JLabel lblPlant_regen_rate = new JLabel("Plant Regen Rate");
-		lblPlant_regen_rate.setHorizontalAlignment(SwingConstants.LEFT);
-		plantParamPanel.add(lblPlant_regen_rate);
+		JLabel lblPlantRegenRate = new JLabel("Plant Regen Rate");
+		lblPlantRegenRate.setHorizontalAlignment(SwingConstants.LEFT);
+		plantParamPanel.add(lblPlantRegenRate);
 
 		comboBoxPlantRegenRate = new JComboBox();
 		comboBoxPlantRegenRate.setToolTipText("The number of new Plants that appear each simulation step.");
 		comboBoxPlantRegenRate.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144", "524288", "1048576", "2097152", "4194304"}));
 		plantParamPanel.add(comboBoxPlantRegenRate);
-		comboBoxPlantRegenRate.setSelectedIndex(plant_default_regenrate_selected);
+		comboBoxPlantRegenRate.setSelectedIndex(plantDefaultRegenrateSelected);
 
 		JLabel lblEnergyAbso = new JLabel("Energy Ab Rate");
 		lblEnergyAbso.setHorizontalAlignment(SwingConstants.LEFT);
@@ -750,7 +748,7 @@ public class SimulationGUI
 		comboBoxEnergyAbsorptionRate.setModel(new DefaultComboBoxModel(new String[]
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		plantParamPanel.add(comboBoxEnergyAbsorptionRate);
-		comboBoxEnergyAbsorptionRate.setSelectedIndex(plant_default_energyabsorptionrate_selected);
+		comboBoxEnergyAbsorptionRate.setSelectedIndex(plantDefaultEnergyAbsorptionRateSelected);
 
 		JLabel lblREnergyDiv = new JLabel("R/S Energy Div");
 		lblREnergyDiv.setHorizontalAlignment(SwingConstants.LEFT);
@@ -772,7 +770,7 @@ public class SimulationGUI
 		comboBoxPlantStartingEnergy.setModel(new DefaultComboBoxModel(new String[]
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		plantParamPanel.add(comboBoxPlantStartingEnergy);
-		comboBoxPlantStartingEnergy.setSelectedIndex(plant_starting_energy_selected);
+		comboBoxPlantStartingEnergy.setSelectedIndex(plantStartingEnergySelected);
 
 		JLabel lblRepoCost = new JLabel("Repo Cost");
 		lblRepoCost.setHorizontalAlignment(SwingConstants.LEFT);
@@ -784,7 +782,7 @@ public class SimulationGUI
 		comboBoxPlantRepoCost.setModel(new DefaultComboBoxModel(new String[]
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		plantParamPanel.add(comboBoxPlantRepoCost);
-		comboBoxPlantRepoCost.setSelectedIndex(plant_default_plantrepocost_selected);
+		comboBoxPlantRepoCost.setSelectedIndex(plantDefaultPlantRepoCostSelected);
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);

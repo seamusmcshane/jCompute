@@ -6,7 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
-
+/**
+ * A Panel used for drawing a Stacked Graph.
+ */
 public class StatsStackedGraphPanel extends JPanel
 {
 	private static final long serialVersionUID = -8039820081105789703L;
@@ -15,16 +17,20 @@ public class StatsStackedGraphPanel extends JPanel
 	private int plantsSamples[];
 	private int preySamples[];
 	private int predSamples[];
-
+	
+	/** Graph Size */
 	private int graphX;
 	private int graphY;
 	private int graphWidth;
 	private int graphHeight;
 
-	private float sampleNum;
+	/* The total Samples Drawn */
+	private float maxSampleNum;
+	
+	/* Marks the end of the sample range so we dont drawn the unfilled slots */
+	private float graphSamples=1;
 
-	private float graphSamples = 1;
-
+	/* Max values used to scale graph */
 	private float plantMax = 0;
 	private float preyMax = 0;
 	private float predMax = 0;
@@ -37,7 +43,7 @@ public class StatsStackedGraphPanel extends JPanel
 
 	}
 
-	public void setSampleArrays(int plantsSamples[], int preySamples[], int predSamples[], int sampleNum)
+	public void setSampleArrays(int plantsSamples[], int preySamples[], int predSamples[], int maxSampleNum)
 	{
 		this.plantsSamples = plantsSamples;
 		this.preySamples = preySamples;
@@ -45,17 +51,17 @@ public class StatsStackedGraphPanel extends JPanel
 
 		graphSamples = 1;
 
-		this.sampleNum = sampleNum;
+		this.maxSampleNum = maxSampleNum;
 	}
 
 	/**
-	 * Updates the graph and draws it on an interval based on currSampleNum.
+	 * Updates the graph and draws it on an interval based on currmaxSampleNum.
 	 * @param plantMax
 	 * @param preyMax
 	 * @param predMax
-	 * @param currSampleNum
+	 * @param currmaxSampleNum
 	 */
-	public void updateGraph(float plantMax, float preyMax, float predMax, int currSampleNum)
+	public void updateGraph(float plantMax, float preyMax, float predMax, int currmaxSampleNum)
 	{
 		this.plantMax = plantMax;
 
@@ -63,13 +69,13 @@ public class StatsStackedGraphPanel extends JPanel
 
 		this.predMax = predMax;
 
-		if (currSampleNum < sampleNum)
+		if (currmaxSampleNum < maxSampleNum)
 		{
-			graphSamples = currSampleNum;
+			graphSamples = currmaxSampleNum;
 		}
 		else
 		{
-			graphSamples = sampleNum;
+			graphSamples = maxSampleNum;
 		}
 
 	}
@@ -133,7 +139,7 @@ public class StatsStackedGraphPanel extends JPanel
 			return;
 		}
 
-		float scaleWidthInterval = graphWidth / sampleNum;
+		float scaleWidthInterval = graphWidth / maxSampleNum;
 
 		float total_height_scale = 0;
 
@@ -149,7 +155,7 @@ public class StatsStackedGraphPanel extends JPanel
 		int preySampleYVal = 0;
 
 		/* Loops through all three sample arrays */
-		for (int i = 0; i < sampleNum; i++)
+		for (int i = 0; i < maxSampleNum; i++)
 		{
 
 			total_val = plantsSamples[i] + preySamples[i] + predSamples[i];

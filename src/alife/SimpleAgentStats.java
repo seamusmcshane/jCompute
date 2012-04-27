@@ -16,7 +16,7 @@ public class SimpleAgentStats
 	private boolean dead;
 		
 	/** Agent movement speed */
-	private final float max_speed;
+	private final float maxSpeed;
 	
 	/** Agent Size */
 	private final float size;
@@ -67,7 +67,7 @@ public class SimpleAgentStats
 	/**
 	 * Creates the stats for this agent.
 	 * @param type SimpleAgentType
-	 * @param max_speed float
+	 * @param maxSpeed float
 	 * @param size float
 	 * @param startingEnergy float
 	 * @param maxEnergy float
@@ -79,13 +79,13 @@ public class SimpleAgentStats
 	 * @param digestiveEfficency float
 	 * @param reproductionEnergyDivision float
 	 */
-	public SimpleAgentStats(SimpleAgentType type,float max_speed, float size, float startingEnergy,float maxEnergy, float hungryThreshold, float viewRange, float baseMoveCost,float baseReproductionCost, float energyConsumptionRate, float digestiveEfficency, float reproductionEnergyDivision)
+	public SimpleAgentStats(SimpleAgentType type,float maxSpeed, float size, float startingEnergy,float maxEnergy, float hungryThreshold, float viewRange, float baseMoveCost,float baseReproductionCost, float energyConsumptionRate, float digestiveEfficency, float reproductionEnergyDivision)
 	{
 		this.dead = false;
 		
 		this.type = type;
 		
-		this.max_speed = max_speed;
+		this.maxSpeed = maxSpeed;
 		
 		this.size = size;
 		
@@ -239,7 +239,7 @@ public class SimpleAgentStats
 	 * @return float */
 	public float getMaxSpeed()
 	{
-		return max_speed;
+		return maxSpeed;
 	}
 	
 	/** Agents dead tag 
