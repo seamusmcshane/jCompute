@@ -17,12 +17,12 @@ public class GenericPlantBodyTests
 	float startingEnergy = 50f;
 	float maxEnergy = 100f;
 	float absorptionRate = 10f;
-	float base_plantReproductionCost = 50f;
+	float basePlantReproductionCost = 50f;
 
 	@Before
 	public void setUp() throws Exception
 	{
-		plant = new GenericPlantBody(pos, startingEnergy, maxEnergy, absorptionRate, base_plantReproductionCost);
+		plant = new GenericPlantBody(pos, startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
 	}
 
 	@Test

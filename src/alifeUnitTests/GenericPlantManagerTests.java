@@ -22,7 +22,7 @@ public class GenericPlantManagerTests
 	int worldSize = 1024;
 	int plantRegenRate = 8;
 	int plantStartingEnergy = 100;
-	int plant_energyAbsorptionRate = 10;
+	int plantEnergyAbsorptionRate = 10;
 
 	int initalNumber = 100;
 
@@ -30,7 +30,7 @@ public class GenericPlantManagerTests
 	public void setUp() throws Exception
 	{
 		System.out.println("Create a plant manager.");
-		plantManager = new GenericPlantManager(barrierManager, worldSize, initalNumber, plantRegenRate, plantStartingEnergy, plant_energyAbsorptionRate);
+		plantManager = new GenericPlantManager(barrierManager, worldSize, initalNumber, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);
 	}
 
 	/*
