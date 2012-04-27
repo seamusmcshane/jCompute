@@ -4,11 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import javax.swing.JFrame;
 
- 
-// NOTE! The following three imports are need when creating executable jar 
-/*import org.lwjgl.LWJGLException;
-import org.lwjgl.LWJGLUtil; 
-import java.io.File; */
+// NOTE! The following three imports are need when creating executable jar
+/*
+ * import org.lwjgl.LWJGLException; import org.lwjgl.LWJGLUtil; import
+ * java.io.File;
+ */
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
@@ -30,44 +30,42 @@ public class SimulationView extends BasicGame implements MouseListener
 {
 	/** Window */
 	static JFrame frmSimulationView;
-	
+
 	/** Window Position */
 	static int x;
 	static int y;
-	
+
 	/** OpenGl Canvas */
 	static CanvasGameContainer simView;
-	
+
 	/** OpenGL Canvas Size */
 	static int worldViewWidth;
 	static int worldViewHeight;
 
-
-		
-	final static int lowFrameRate = 15;	
-	final static int highFrameRate = 60;	
+	final static int lowFrameRate = 15;
+	final static int highFrameRate = 60;
 
 	/** Default Graphic frame rate control */
 	final static int defaultFrameRate = highFrameRate; // Frame rate starts up set at this
-	
-	final static int frameRateGuiInteractionOff = lowFrameRate;	
+
+	final static int frameRateGuiInteractionOff = lowFrameRate;
 	final static int frameRateGuiInteractionOn = highFrameRate;
 
 	/** Allows fixing the update rate at the mouseInteraction rate **/
-	private static boolean highUpdateRate=true;
-	
+	private static boolean highUpdateRate = true;
+
 	/** Simulation Reference */
 	static Simulation sim;
-	
+
 	/** Is Simulation view drawing enabled */
-	static boolean drawSim=true;
-	
+	static boolean drawSim = true;
+
 	/** Draw true circular bodies or faster rectangular ones */
-	static boolean trueDrawing=false;
-	
+	static boolean trueDrawing = false;
+
 	/** Draw the View range of the agents */
-	static boolean viewRangeDrawing=false;
-	
+	static boolean viewRangeDrawing = false;
+
 	/**
 	 * This locks the frame rate to the following rate allowing more time
 	 * to be used for simulation threads.
@@ -96,40 +94,37 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/** Camera View Size */
 	public static Rectangle cameraBound;
-		
+
 	/** Toggles the drawing of the text overlay */
-	private static boolean overlay=false;
-	
+	private static boolean overlay = false;
+
 	/** Records status of mouse button */
-	private static boolean mouseButtonPressed=false;
-	
+	private static boolean mouseButtonPressed = false;
+
 	/**
 	 * The Simulation View.
 	 */
 	public SimulationView()
 	{
-		super("Simulation View");	
+		super("Simulation View");
 	}
 
 	/**
 	 * Method init.
 	 * @param container GameContainer
-	 * @throws SlickException
-	 * @see org.newdawn.slick.Game#init(GameContainer)
-	 */
+	 * @throws SlickException * @see org.newdawn.slick.Game#init(GameContainer) */
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
-		/* Creates the buffered graphic */		setUpImageBuffer();	
+		/* Creates the buffered graphic */
+		setUpImageBuffer();
 	}
-	
+
 	/**
 	 * Method update.
 	 * @param container GameContainer
 	 * @param delta int
-	 * @throws SlickException
-	 * @see org.newdawn.slick.Game#update(GameContainer, int)
-	 */
+	 * @throws SlickException * @see org.newdawn.slick.Game#update(GameContainer, int) */
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException
 	{
@@ -140,38 +135,39 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * Method render.
 	 * @param container GameContainer
 	 * @param g Graphics
-	 * @throws SlickException
-	 * @see org.newdawn.slick.Game#render(GameContainer, Graphics)
-	 */
+	 * @throws SlickException * @see org.newdawn.slick.Game#render(GameContainer, Graphics) */
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		if(drawSim)
+		if (drawSim)
 		{
-			/* AMD Opensource Linux Drivers have hardware clipping bugs (Update Drivers to Xorg 1.12 for fix) */			
+			/*
+			 * AMD Opensource Linux Drivers have hardware clipping bugs (Update
+			 * Drivers to Xorg 1.12 for fix)
+			 */
 			g.setWorldClip(cameraBound);
-			
+
 			/* Draws on the buffer */
 			doDraw(bufferGraphics);
 
 			/* Always draw the buffer even if it has not changed */
 			g.drawImage(buffer, 0, 0);
- 
+
 			// View Overlay
-			if(overlay)
+			if (overlay)
 			{
-				g.drawString("Frame Updates     :" + frameNum, cameraBound.getMinX()+10, cameraBound.getMinY() + 10);
+				g.drawString("Frame Updates     :" + frameNum, cameraBound.getMinX() + 10, cameraBound.getMinY() + 10);
 
-				g.drawString("Buffer Updates    :" + bufferDrawNum, cameraBound.getMinX()+10, cameraBound.getMinY() + 30);
+				g.drawString("Buffer Updates    :" + bufferDrawNum, cameraBound.getMinX() + 10, cameraBound.getMinY() + 30);
 
-				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), cameraBound.getMinX()+10, cameraBound.getMinY() + 50);
+				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), cameraBound.getMinX() + 10, cameraBound.getMinY() + 50);
 
-				g.draw(cameraBound);				
-			}					
-			frameNum++;			
+				g.draw(cameraBound);
+			}
+			frameNum++;
 		}
 	}
-	
+
 	/** Draws the sim view on the image buffer
 	 * @param g Graphics
 	 */
@@ -182,13 +178,13 @@ public class SimulationView extends BasicGame implements MouseListener
 
 		/* Move the entire world to simulate a view moving around */
 		g.translate(globalTranslate.getX(), globalTranslate.getY());
-		
-		sim.drawSim(g,trueDrawing,viewRangeDrawing);
+
+		sim.drawSim(g, trueDrawing, viewRangeDrawing);
 
 		/* Performance Indicator */
 		bufferDrawNum++;
 	}
-	
+
 	/**
 	 * Makes sure valid mouse coordinates are used when the mouse leaves and
 	 * renters a window that has lost and regained focus. - Prevents view
@@ -196,23 +192,21 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param button int
 	 * @param x int
 	 * @param y int
-	 * @see org.newdawn.slick.MouseListener#mousePressed(int, int, int)
-	 */
+	 * @see org.newdawn.slick.MouseListener#mousePressed(int, int, int) */
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
 		mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
-				
+
 		mouseInteractionModeOn(); // Changes to a higher frame update rate				
 	}
-	
+
 	/** Allows moving camera around large worlds via mouse dragging on the simulation view
 	 * @param oldx int
 	 * @param oldy int
 	 * @param newx int
 	 * @param newy int
-	 * @see org.newdawn.slick.MouseListener#mouseDragged(int, int, int, int)
-	 */
+	 * @see org.newdawn.slick.MouseListener#mouseDragged(int, int, int, int) */
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
@@ -227,22 +221,20 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param button int
 	 * @param x int
 	 * @param y int
-	 * @see org.newdawn.slick.MouseListener#mouseReleased(int, int, int)
-	 */
+	 * @see org.newdawn.slick.MouseListener#mouseReleased(int, int, int) */
 	@Override
 	public void mouseReleased(int button, int x, int y)
 	{
 		mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
-				
+
 		mouseInteractionModeOff(); // Changes to a lower frame update rate
-		
-	}	
-	
+
+	}
+
 	/**
 	 * Method mouseWheelMoved.
 	 * @param change int
-	 * @see org.newdawn.slick.MouseListener#mouseWheelMoved(int)
-	 */
+	 * @see org.newdawn.slick.MouseListener#mouseWheelMoved(int) */
 	@Override
 	public void mouseWheelMoved(int change)
 	{
@@ -257,12 +249,12 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		globalTranslate.set(x, y);
 	}
-	
+
 	public static void exitDisplay()
 	{
 		Display.destroy();
 	}
-	
+
 	/** Setup Window
 	 * @param xin int
 	 * @param yin int
@@ -274,12 +266,12 @@ public class SimulationView extends BasicGame implements MouseListener
 		/* Position */
 		x = xin;
 		y = yin;
-		
+
 		/* Size */
 		worldViewWidth = width;
-		worldViewHeight = height; 
+		worldViewHeight = height;
 	}
-		
+
 	/* Main Entry Point for View */
 	/**
 	 * @param simIn Simulation
@@ -288,20 +280,21 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static void displayView(Simulation simIn,int x, int y, int width, int height)
+	public static void displayView(Simulation simIn, int x, int y, int width, int height)
 	{
-		
+
 		sim = simIn;
-		
-		setUpWindowDimesions(x,y,width,height);
-		
+
+		setUpWindowDimesions(x, y, width, height);
+
 		try
 		{
 
 			frmSimulationView = new JFrame("Simulation");
 			frmSimulationView.setTitle("Simulation View");
-			frmSimulationView.addWindowListener(new WindowAdapter() {
-				
+			frmSimulationView.addWindowListener(new WindowAdapter()
+			{
+
 				public void windowIconified(WindowEvent e)
 				{
 					SimulationGUI.minimise();
@@ -319,23 +312,27 @@ public class SimulationView extends BasicGame implements MouseListener
 			borderLayout.setHgap(10);
 			//frame.setType(Type.UTILITY);
 			//frame.setUndecorated(true);
-			
+
 			frmSimulationView.setSize(worldViewWidth, worldViewHeight);
-			
+
 			frmSimulationView.setLocation(x, y);
 			//frame.setAlwaysOnTop(true);
-			
+
 			/*
 			 * - For stand alone builds un-comment these so the jar will look
 			 * for the native libraries correctly
 			 */
-			/* System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
-			 System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));
+			/*
+			 * System.setProperty("org.lwjgl.librarypath", new File(new
+			 * File(System.getProperty("user.dir"), "native"),
+			 * LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
+			 * System.setProperty("net.java.games.input.librarypath",
+			 * System.getProperty("org.lwjgl.librarypath"));
 			 */
 			simView = new CanvasGameContainer(new SimulationView());
-			
+
 			//sim.setDisplayMode(worldViewWidth,worldViewHeight, false);
-			
+
 			/* Always update */
 			simView.getContainer().setUpdateOnlyWhenVisible(false);
 
@@ -362,16 +359,16 @@ public class SimulationView extends BasicGame implements MouseListener
 
 			frmSimulationView.getContentPane().add(simView, BorderLayout.CENTER);
 
-			frmSimulationView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
+			frmSimulationView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 			frmSimulationView.setVisible(true);
-			
+
 			frmSimulationView.setResizable(false);
-			
+
 			simView.start();
-			
-			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2 ));
-			
+
+			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
+
 		}
 		catch (SlickException e)
 		{
@@ -393,14 +390,14 @@ public class SimulationView extends BasicGame implements MouseListener
 		}
 
 	}
-	
+
 	public static void setUnlimitedUpdateRate()
 	{
 		highUpdateRate = true;
-				
+
 		simView.getContainer().setTargetFrameRate(-1);
-	}	
-	
+	}
+
 	/**
 	 * Method setVerticalSync.
 	 * @param sync boolean
@@ -410,15 +407,15 @@ public class SimulationView extends BasicGame implements MouseListener
 		vsyncToggle = sync;
 		simView.getContainer().setVSync(vsyncToggle);
 	}
-	
+
 	public static void setHighUpdateRate()
 	{
 		highUpdateRate = true;
-				
+
 		simView.getContainer().setTargetFrameRate(highFrameRate);
-		
+
 	}
-	
+
 	/**
 	 * Method setViewOverLay.
 	 * @param ioverlay boolean
@@ -427,53 +424,53 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		overlay = ioverlay;
 	}
-	
+
 	public static void setStandardUpdateRate()
 	{
 		highUpdateRate = false;
-		
-		simView.getContainer().setTargetFrameRate(lowFrameRate);		
-		
+
+		simView.getContainer().setTargetFrameRate(lowFrameRate);
+
 	}
-	
+
 	private void mouseInteractionModeOn()
 	{
-		if(!highUpdateRate) // Only Toggle if allowed to
+		if (!highUpdateRate) // Only Toggle if allowed to
 		{
-			if(!mouseButtonPressed) // Used so the we dont do this repeatedly only the first time
+			if (!mouseButtonPressed) // Used so the we dont do this repeatedly only the first time
 			{
-				
-				simView.getContainer().setTargetFrameRate(frameRateGuiInteractionOn);	
-				
-				mouseButtonPressed=true;
+
+				simView.getContainer().setTargetFrameRate(frameRateGuiInteractionOn);
+
+				mouseButtonPressed = true;
 			}
-	
+
 		}
 	}
 
 	private void mouseInteractionModeOff()
 	{
-		if(!highUpdateRate) // Only Toggle if allowed to
-		{					
+		if (!highUpdateRate) // Only Toggle if allowed to
+		{
 			simView.getContainer().setTargetFrameRate(frameRateGuiInteractionOff);
-			
-			mouseButtonPressed=false;	// To allow setting interaction on mode again.
+
+			mouseButtonPressed = false;	// To allow setting interaction on mode again.
 		}
 	}
-	
+
 	/**
 	 * Method setInitalViewTranslate.
 	 * @param x int
 	 * @param y int
 	 */
-	public static void setInitalViewTranslate(int x,int y)
+	public static void setInitalViewTranslate(int x, int y)
 	{
-		globalTranslate.set( x,y );
+		globalTranslate.set(x, y);
 	}
-	
+
 	public static void setFocus()
 	{
-		if(simView!=null)
+		if (simView != null)
 		{
 			simView.setFocusable(true);
 			simView.requestFocus();
@@ -483,13 +480,13 @@ public class SimulationView extends BasicGame implements MouseListener
 			//simView.transferFocus();			
 		}
 	}
-	
+
 	public static void maximise()
 	{
 		frmSimulationView.setVisible(true);
 		frmSimulationView.setState(Frame.NORMAL);
 	}
-	
+
 	/**
 	 * Method setViewRangeDrawing.
 	 * @param inViewRangeDrawing boolean
@@ -498,7 +495,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		viewRangeDrawing = inViewRangeDrawing;
 	}
-	
+
 	/**
 	 * Method setTrueDrawing.
 	 * @param inTrueDrawing boolean
@@ -507,23 +504,23 @@ public class SimulationView extends BasicGame implements MouseListener
 	{
 		trueDrawing = inTrueDrawing;
 	}
-	
+
 	/**
 	 * Method setVisible.
 	 * @param visible boolean
 	 */
 	public static void setVisible(boolean visible)
 	{
-		if(frmSimulationView!=null)
+		if (frmSimulationView != null)
 		{
 			frmSimulationView.setVisible(visible);
 			drawSim = visible; // draw if visible
 		}
 	}
-	
+
 	public static void minimise()
 	{
 		frmSimulationView.setVisible(false);
-	}	
+	}
 
 }
