@@ -43,6 +43,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.ButtonGroup;
+import java.awt.Color;
 /**
  * This class manages user interaction in setting up and controlling the simulation.
  * The GUI was designed in WindowBuilder.
@@ -59,7 +60,7 @@ public class SimulationGUI
 	private static JButton btnGenerate;
 	private static JButton btnPause;
 	private static JButton btnStart;
-	private static JTextField txtSimRateInfo;
+	private static JLabel lblSimRateInfo;
 
 	/* The Combo boxes for setting parameters */
 	private static JComboBox comboBoxPreyNumbers;
@@ -83,8 +84,8 @@ public class SimulationGUI
 	private static JComboBox comboBoxPlantStartingEnergy;
 	private static int plantStartingEnergySelected = 49; // selects 50
 
-	private static JComboBox comboBoxPlantRepoCost;
-	private static int plantDefaultPlantRepoCostSelected = 1; // not used DISABLED		
+	//private static JComboBox comboBoxPlantRepoCost;
+	//private static int plantDefaultPlantRepoCostSelected = 1; // not used DISABLED		
 
 	private static JComboBox comboBoxPreySpeed;
 	private static int preyDefaultSpeedSelected = 89; // Selects 0.90
@@ -207,6 +208,9 @@ public class SimulationGUI
 	private static JLabel lblStepNo;
 	private static JLabel label_4;
 	private static JLabel lblRunTimeNo;
+	private static JPanel ASPSNoPanel;
+	private static JPanel stepNoPanel;
+	private static JPanel lblRunTimeNoPanel;
 	/* Logic */
 
 	/**
@@ -365,7 +369,7 @@ public class SimulationGUI
 		if (screenHeight < screenHeightMin)
 		{
 			String message;
-			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + ".";
+			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + " pixels.";
 
 			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
 
@@ -790,165 +794,173 @@ public class SimulationGUI
 		plantParamPanel.add(comboBoxPlantStartingEnergy);
 		comboBoxPlantStartingEnergy.setSelectedIndex(plantStartingEnergySelected);
 
-		JLabel lblRepoCost = new JLabel("Repo Cost");
+		/*JLabel lblRepoCost = new JLabel("Repo Cost");
 		lblRepoCost.setHorizontalAlignment(SwingConstants.LEFT);
-		plantParamPanel.add(lblRepoCost);
+		plantParamPanel.add(lblRepoCost);*/
 
-		comboBoxPlantRepoCost = new JComboBox();
+		/*comboBoxPlantRepoCost = new JComboBox();
 		comboBoxPlantRepoCost.setToolTipText("The cost of reproduction for Plants. ( Disabled)");
 		comboBoxPlantRepoCost.setEnabled(false);
 		comboBoxPlantRepoCost.setModel(new DefaultComboBoxModel(new String[]
 		{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"}));
 		plantParamPanel.add(comboBoxPlantRepoCost);
-		comboBoxPlantRepoCost.setSelectedIndex(plantDefaultPlantRepoCostSelected);
+		comboBoxPlantRepoCost.setSelectedIndex(plantDefaultPlantRepoCostSelected);*/
 
 		JPanel controlPanelBottom = new JPanel();
 		controlPanel.add(controlPanelBottom, BorderLayout.SOUTH);
 		controlPanelBottom.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanelBottom.setLayout(new GridLayout(3, 1, 5, 5));
+		controlPanelBottom.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		row1 = new JPanel();
 		controlPanelBottom.add(row1);
-		row1.setLayout(new GridLayout(0, 6, 0, 0));
+		row1.setLayout(new GridLayout(0, 3, 2, 2));
 		
 		lblStepRate = new JLabel("Step Rate");
 		lblStepRate.setHorizontalAlignment(SwingConstants.CENTER);
 		row1.add(lblStepRate);
 		
-		lblASPSNo = new JLabel("0");
-		lblASPSNo.setToolTipText("Average steps per second over the last 150 steps.");
-		lblASPSNo.setHorizontalAlignment(SwingConstants.CENTER);
-		row1.add(lblASPSNo);
-		
 		lblSteps = new JLabel("Steps");
 		lblSteps.setHorizontalAlignment(SwingConstants.CENTER);
 		row1.add(lblSteps);
 		
+				JLabel lblSimRate = new JLabel("Requested Step Rate");
+				row1.add(lblSimRate);
+				lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		ASPSNoPanel = new JPanel();
+		ASPSNoPanel.setBackground(Color.WHITE);
+		ASPSNoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		row1.add(ASPSNoPanel);
+		ASPSNoPanel.setLayout(new BorderLayout(0, 0));
+		
+		lblASPSNo = new JLabel("0");
+		ASPSNoPanel.add(lblASPSNo);
+		lblASPSNo.setToolTipText("Average steps per second over the last 150 steps.");
+		lblASPSNo.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		stepNoPanel = new JPanel();
+		stepNoPanel.setBackground(Color.WHITE);
+		stepNoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		row1.add(stepNoPanel);
+		stepNoPanel.setLayout(new BorderLayout(0, 0));
+		
 		lblStepNo = new JLabel("0");
+		stepNoPanel.add(lblStepNo);
 		lblStepNo.setToolTipText("Total number of simulated steps.");
 		lblStepNo.setHorizontalAlignment(SwingConstants.CENTER);
-		row1.add(lblStepNo);
-		
-		label_4 = new JLabel("Time");
-		label_4.setHorizontalAlignment(SwingConstants.CENTER);
-		row1.add(label_4);
-		
-		lblRunTimeNo = new JLabel("0");
-		lblRunTimeNo.setToolTipText("Real-Time counter of how long the simualtion has run.");
-		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
-		row1.add(lblRunTimeNo);
+						
+								simRateInfoPanel = new JPanel();
+								simRateInfoPanel.setBackground(Color.WHITE);
+								row1.add(simRateInfoPanel);
+								simRateInfoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+								simRateInfoPanel.setLayout(new BorderLayout(0, 0));
+								lblSimRateInfo = new JLabel()
+														{
+															@Override
+															public void setBorder(Border border)
+															{
+																//Override the border setting of this text field to do nothing.
+															}
+														};
+								lblSimRateInfo.setToolTipText("Requested step rate.");
+								
+										simRateInfoPanel.add(lblSimRateInfo, BorderLayout.CENTER);
+										lblSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
+										lblSimRateInfo.setText("15");
+						
+						label_4 = new JLabel("Time");
+						label_4.setHorizontalAlignment(SwingConstants.CENTER);
+						row1.add(label_4);
+						
+						lblRunTimeNoPanel = new JPanel();
+						lblRunTimeNoPanel.setBackground(Color.WHITE);
+						lblRunTimeNoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+						row1.add(lblRunTimeNoPanel);
+						lblRunTimeNoPanel.setLayout(new BorderLayout(0, 0));
+						
+						lblRunTimeNo = new JLabel("0");
+						lblRunTimeNoPanel.add(lblRunTimeNo);
+						lblRunTimeNo.setToolTipText("Real-Time counter of how long the simualtion has run.");
+						lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
+								simRateSlider = new JSlider();
+								simRateSlider.setPaintTicks(true);
+								row1.add(simRateSlider);
+								simRateSlider.setToolTipText("Adjust requested step rate.");
+								simRateSlider.setMinimum(15);
+								simRateSlider.setMaximum(300);
+								simRateSlider.setValue(15);
+								simRateSlider.setSnapToTicks(true);
+								simRateSlider.setMinorTickSpacing(15);
+								simRateSlider.setMajorTickSpacing(30);
+								
+										btnGenerate = new JButton("Generate");
+										row1.add(btnGenerate);
+										btnGenerate.setToolTipText("Generate a new simuation based on the values of the parameters.");
+										
+												btnStart = new JButton("Start");
+												row1.add(btnStart);
+												btnStart.setToolTipText("Start the simulation.");
+												
+														btnPause = new JButton("Pause");
+														row1.add(btnPause);
+														btnPause.setToolTipText("Pause / Unpause the simulation.");
+														btnPause.addActionListener(new ActionListener()
+														{
+															public void actionPerformed(ActionEvent arg0)
+															{
+																// Pause Toggle
+																if (sim.simPaused())
+																{
+																	simUnPausedState();
+																}
+																else
+																{
+																	simPausedState();
+																}
+															}
+														});
+												btnStart.addActionListener(new ActionListener()
+												{
+													public void actionPerformed(ActionEvent arg0)
+													{
+														// Change to the start state
+														simStartedState();
+													}
+												});
+										btnGenerate.addActionListener(new ActionListener()
+										{
+											public void actionPerformed(ActionEvent e)
+											{
+												/* Locks the parameters */
+												parametersLock();
 
-		JPanel row2 = new JPanel();
-		controlPanelBottom.add(row2);
-		row2.setLayout(new GridLayout(0, 3, 10, 5));
+												/* Create the new Simulation */
+												newSim();
+											}
+										});
+								simRateSlider.addChangeListener(new ChangeListener()
+								{
+									public void stateChanged(ChangeEvent e)
+									{
+										// Prevent a 0 value being set
+										if (simRateSlider.getValue() == 0)
+										{
+											lblSimRateInfo.setText("1");
+										}
+										else
+										{
+											lblSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
+										}
 
-		JLabel lblSimRate = new JLabel("Requested Step Rate");
-		row2.add(lblSimRate);
-		lblSimRate.setHorizontalAlignment(SwingConstants.CENTER);
+										// Set the requested update rate
+										sim.reqSimUpdateRate(simRateSlider.getValue());
 
-		simRateInfoPanel = new JPanel();
-		simRateInfoPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		row2.add(simRateInfoPanel);
-		simRateInfoPanel.setLayout(new BorderLayout(0, 0));
-		txtSimRateInfo = new JTextField()
-		{
-			@Override
-			public void setBorder(Border border)
-			{
-				//Override the border setting of this text field to do nothing.
-			}
-		};
-		txtSimRateInfo.setToolTipText("Requested step rate.");
-
-		simRateInfoPanel.add(txtSimRateInfo, BorderLayout.CENTER);
-		txtSimRateInfo.setHorizontalAlignment(SwingConstants.CENTER);
-		txtSimRateInfo.setEditable(false);
-		txtSimRateInfo.setText("15");
-		txtSimRateInfo.setColumns(10);
-		simRateSlider = new JSlider();
-		simRateSlider.setToolTipText("Adjust requested step rate.");
-		simRateSlider.setMinimum(15);
-		simRateSlider.setMaximum(300);
-		simRateSlider.setValue(15);
-		simRateSlider.setSnapToTicks(true);
-		row2.add(simRateSlider);
-		simRateSlider.setPaintTrack(false);
-		simRateSlider.setPaintTicks(true);
-		simRateSlider.setMinorTickSpacing(15);
-		simRateSlider.setMajorTickSpacing(30);
-		simRateSlider.addChangeListener(new ChangeListener()
-		{
-			public void stateChanged(ChangeEvent e)
-			{
-				// Prevent a 0 value being set
-				if (simRateSlider.getValue() == 0)
-				{
-					txtSimRateInfo.setText("1");
-				}
-				else
-				{
-					txtSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
-				}
-
-				// Set the requested update rate
-				sim.reqSimUpdateRate(simRateSlider.getValue());
-
-			}
-		});
-
-		JPanel row3 = new JPanel();
-		controlPanelBottom.add(row3);
-		row3.setLayout(new GridLayout(0, 3, 10, 5));
-
-		btnGenerate = new JButton("Generate");
-		btnGenerate.setToolTipText("Generate a new simuation based on the values of the parameters.");
-		btnGenerate.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				/* Locks the parameters */
-				parametersLock();
-
-				/* Create the new Simulation */
-				newSim();
-			}
-		});
-		row3.add(btnGenerate);
-
-		btnStart = new JButton("Start");
-		btnStart.setToolTipText("Start the simulation.");
-		row3.add(btnStart);
-
-		btnPause = new JButton("Pause");
-		btnPause.setToolTipText("Pause / Unpause the simulation.");
-		row3.add(btnPause);
+									}
+								});
 
 		statsPanel = new StatsPanel();
 
 		controlPanel.add(statsPanel, BorderLayout.CENTER);
-		btnPause.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				// Pause Toggle
-				if (sim.simPaused())
-				{
-					simUnPausedState();
-				}
-				else
-				{
-					simPausedState();
-				}
-			}
-		});
-		btnStart.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				// Change to the start state
-				simStartedState();
-			}
-		});
 
 		JMenuBar menuBar = new JMenuBar();
 		gui.setJMenuBar(menuBar);
@@ -1230,6 +1242,7 @@ public class SimulationGUI
 	{
 		ToolTipManager.sharedInstance().setReshowDelay(5000);
 		ToolTipManager.sharedInstance().setDismissDelay(10000);
+		ToolTipManager.sharedInstance().setInitialDelay(2000);
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(true);
 	}
 	
@@ -1319,7 +1332,7 @@ public class SimulationGUI
 		/* Plant Param Panel */
 		comboBoxPlantRegenRate.setEnabled(false);
 		comboBoxPlantStartingEnergy.setEnabled(false);
-		comboBoxPlantRepoCost.setEnabled(false);
+		//comboBoxPlantRepoCost.setEnabled(false);
 		comboBoxEnergyAbsorptionRate.setEnabled(false);
 
 	}
@@ -1417,7 +1430,7 @@ public class SimulationGUI
 	/**
 	 * The Average Steps per second.
 	 * 
-	 * @param no
+	 * @param asps int
 	 */
 	public static void setASPS(int asps)
 	{
