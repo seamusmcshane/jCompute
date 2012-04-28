@@ -5,10 +5,8 @@ import java.awt.Frame;
 import javax.swing.JFrame;
 
 // NOTE! The following three imports are need when creating executable jar
-/*
- * import org.lwjgl.LWJGLException; import org.lwjgl.LWJGLUtil; import
- * java.io.File;
- */
+import org.lwjgl.LWJGLException; import org.lwjgl.LWJGLUtil; 
+import java.io.File; 
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
@@ -107,8 +105,38 @@ public class SimulationView extends BasicGame implements MouseListener
 	public SimulationView()
 	{
 		super("Simulation View");
+		
+		// Set to true when building the executable jar for that platform 
+		// buildStandAlone(true,"windows");
+		// buildStandAlone(true,"macosx");
+		// buildStandAlone(true,"linux");
 	}
 
+	public static void buildStandAlone(boolean setPath,String platform)
+	{
+
+		if(platform.equalsIgnoreCase("windows"))
+		{
+			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
+		}
+		else if (platform.equalsIgnoreCase("linux"))
+		{
+			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_LINUX_NAME).getAbsolutePath());
+		}
+		else
+		{
+			System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_MACOSX_NAME).getAbsolutePath());
+		}
+
+		
+		if(setPath)
+		{
+			System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));			
+		}
+		 
+	}
+	
+	
 	/**
 	 * Method init.
 	 * @param container GameContainer
@@ -318,17 +346,6 @@ public class SimulationView extends BasicGame implements MouseListener
 			frmSimulationView.setLocation(x, y);
 			//frame.setAlwaysOnTop(true);
 
-			/*
-			 * - For stand alone builds un-comment these so the jar will look
-			 * for the native libraries correctly
-			 */
-			/*
-			 * System.setProperty("org.lwjgl.librarypath", new File(new
-			 * File(System.getProperty("user.dir"), "native"),
-			 * LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
-			 * System.setProperty("net.java.games.input.librarypath",
-			 * System.getProperty("org.lwjgl.librarypath"));
-			 */
 			simView = new CanvasGameContainer(new SimulationView());
 
 			//sim.setDisplayMode(worldViewWidth,worldViewHeight, false);
@@ -352,8 +369,8 @@ public class SimulationView extends BasicGame implements MouseListener
 			simView.getContainer().setForceExit(false);
 
 			/* Hardware Anti-Aliasing */
-			// app.setMultiSample(8);
-
+			//simView.getContainer().setMultiSample(-1);
+			
 			// Set sim start up frame rate 
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
 
