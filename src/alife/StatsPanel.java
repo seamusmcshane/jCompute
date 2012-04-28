@@ -395,6 +395,7 @@ public class StatsPanel extends JPanel
 		yScaleslider.setOrientation(SwingConstants.VERTICAL);
 
 		leftPanel.add(yScaleslider);
+		lblYscale.setHorizontalAlignment(SwingConstants.CENTER);
 
 		leftPanel.add(lblYscale, BorderLayout.NORTH);
 
@@ -911,6 +912,10 @@ public class StatsPanel extends JPanel
 		}
 	}
 
+	/**
+	 * Method setLargeScreen.
+	 * @param inLargeScreen boolean
+	 */
 	public static void setLargeScreen(boolean inLargeScreen)
 	{
 		largeScreen=inLargeScreen;
