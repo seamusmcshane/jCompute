@@ -112,6 +112,11 @@ public class SimulationView extends BasicGame implements MouseListener
 		// buildStandAlone(true,"linux");
 	}
 
+	/**
+	 * Method buildStandAlone.
+	 * @param setPath boolean
+	 * @param platform String
+	 */
 	public static void buildStandAlone(boolean setPath,String platform)
 	{
 		if(setPath)
@@ -140,7 +145,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	/**
 	 * Method init.
 	 * @param container GameContainer
-	 * @throws SlickException * @see org.newdawn.slick.Game#init(GameContainer) */
+	 * @throws SlickException * @see org.newdawn.slick.Game#init(GameContainer)
+	 */
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
@@ -152,7 +158,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * Method update.
 	 * @param container GameContainer
 	 * @param delta int
-	 * @throws SlickException * @see org.newdawn.slick.Game#update(GameContainer, int) */
+	 * @throws SlickException * @see org.newdawn.slick.Game#update(GameContainer, int)
+	 */
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException
 	{
@@ -163,7 +170,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * Method render.
 	 * @param container GameContainer
 	 * @param g Graphics
-	 * @throws SlickException * @see org.newdawn.slick.Game#render(GameContainer, Graphics) */
+	 * @throws SlickException * @see org.newdawn.slick.Game#render(GameContainer, Graphics) * @see org.newdawn.slick.Game#render(GameContainer, Graphics)
+	 */
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{

@@ -96,6 +96,12 @@ public class SimpleAgentManager
 
 			x = xr.nextInt(worldSize) + 1;
 			y = yr.nextInt(worldSize) + 1;
+			
+			while(World.isBoundaryWall(x, y))
+			{
+				x = xr.nextInt(worldSize) + 1;
+				y = yr.nextInt(worldSize) + 1;				
+			}
 
 			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY), agentSettings.getPreySpeed(), agentSize, agentSettings.getPreyStartingEnergy(), 100f, agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(), agentSettings.getPreyRepoCost(), agentSettings.getPreyConsumptionRate(), agentSettings.getPreyDE(), agentSettings.getPreyREDiv())));
 
@@ -107,6 +113,12 @@ public class SimpleAgentManager
 			x = xr.nextInt(worldSize) + 1;
 			y = yr.nextInt(worldSize) + 1;
 
+			while(World.isBoundaryWall(x, y))
+			{
+				x = xr.nextInt(worldSize) + 1;
+				y = yr.nextInt(worldSize) + 1;				
+			}			
+			
 			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR), agentSettings.getPredatorSpeed(), agentSize, agentSettings.getPredStartingEnergy(), 100f, agentSettings.getPredatorHungerThres(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(), agentSettings.getPredRepoCost(), agentSettings.getPredatorConsumptionRate(), agentSettings.getPredatorDE(), agentSettings.getPredatorREDiv())));
 
 		}

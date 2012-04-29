@@ -61,7 +61,7 @@ public class Simulation
 	{
 		setupThreads();
 
-		newSim(null, 256, 0, 0, 0, 0, 0, 0, null); // Never used - needed for successful startup
+		newSim(null, 256, 0, 0, 0, 0, 0, 0, 0, 0, null); // Never used - needed for successful startup
 	}
 
 	/**
@@ -75,8 +75,10 @@ public class Simulation
 	 * @param plantStartingEnergy int
 	 * @param plantEnergyAbsorptionRate int
 	 * @param agentSettings SimpleAgentManagementSetupParam
+	 * @param barrierMode int
+	 * @param barrierScenario int
 	 */
-	public void newSim(StatsPanel stats, int worldSize, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
+	public void newSim(StatsPanel stats, int worldSize,int barrierMode,int barrierScenario, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
 	{
 
 		stepSamples = new double[numSamples];
@@ -93,7 +95,7 @@ public class Simulation
 		sps = 0;
 		SimulationGUI.setASPS(averageStepsPerSecond());
 
-		world = new World(worldSize);
+		world = new World(worldSize,barrierMode,barrierScenario);
 
 		simManager = new SimulationManager(worldSize, agentPreyNumbers, agentPredatorNumbers, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
 

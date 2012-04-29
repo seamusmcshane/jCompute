@@ -25,7 +25,6 @@ public class WorldBoundaryTests
 	@Before
 	public void setUp() throws Exception
 	{
-		world = new World(worldSize);
 		System.out.println("=====================================================");
 
 	}
@@ -33,6 +32,7 @@ public class WorldBoundaryTests
 	@Test
 	public void topLeftCornerBoundary()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - topLeftCornerBoundary");
 		System.out.println("----------------------------------------------------");
 		System.out.println("topLeftCornerBoundary : " + world.isBoundaryWall(0, 0) + " should be: true");
@@ -42,6 +42,7 @@ public class WorldBoundaryTests
 	@Test
 	public void topRightCornerBoundary()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - topRightCornerBoundary");
 		System.out.println("----------------------------------------------------");
 		System.out.println("topRightCornerBoundary : " + world.isBoundaryWall(worldSize, 0) + " should be: true");
@@ -53,6 +54,7 @@ public class WorldBoundaryTests
 	@Test
 	public void bottomLeftCornerBoundary()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - bottomLeftCornerBoundary");
 		System.out.println("----------------------------------------------------");
 		System.out.println("bottomLeftCornerBoundary : " + world.isBoundaryWall(0, worldSize) + " should be: true");
@@ -62,6 +64,7 @@ public class WorldBoundaryTests
 	@Test
 	public void bottomRightCornerBoundary()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - bottomRightCornerBoundary");
 		System.out.println("----------------------------------------------------");
 		System.out.println("bottomRightCornerBoundary : " + world.isBoundaryWall(worldSize, worldSize) + " should be: true");
@@ -71,6 +74,7 @@ public class WorldBoundaryTests
 	@Test
 	public void middleOfWorld()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - middleOfWorld");
 		System.out.println("----------------------------------------------------");
 		System.out.println("middleOfWorld : " + world.isBoundaryWall(worldSize / 2, worldSize / 2) + " should be: false");
@@ -80,6 +84,7 @@ public class WorldBoundaryTests
 	@Test
 	public void outSideLowestBoundary()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - outSideLowestBoundary");
 		System.out.println("----------------------------------------------------");
 		System.out.println("outSideLowestBoundary : " + world.isBoundaryWall(-1, -1) + " should be: true");
@@ -89,6 +94,7 @@ public class WorldBoundaryTests
 	@Test
 	public void outSideHighestBoundary()
 	{
+		world = new World(worldSize,0,0);
 		System.out.println("Test - outSideHighestBoundary");
 		System.out.println("----------------------------------------------------");
 		System.out.println("outSideHighestBoundary : " + world.isBoundaryWall(worldSize + 1, worldSize + 1) + " should be: true");

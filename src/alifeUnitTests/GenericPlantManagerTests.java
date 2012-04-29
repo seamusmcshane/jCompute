@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import alife.BarrierManager;
 import alife.GenericPlantManager;
+import alife.World;
+
 /**
  * 
  * Generic Plant Manager Tests
@@ -29,6 +31,7 @@ public class GenericPlantManagerTests
 	@Before
 	public void setUp() throws Exception
 	{
+		World world = new World(worldSize,0,0);
 		System.out.println("Create a plant manager.");
 		plantManager = new GenericPlantManager(barrierManager, worldSize, initalNumber, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);
 	}

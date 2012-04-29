@@ -224,6 +224,12 @@ public class GenericPlantManager
 			x = xr.nextInt(worldSize) + 1;
 			y = yr.nextInt(worldSize) + 1;
 
+			while(World.isBoundaryWall(x, y))
+			{
+				x = xr.nextInt(worldSize) + 1;
+				y = yr.nextInt(worldSize) + 1;				
+			}
+			
 			addNewPlant(new GenericPlant(x, y, plantStartingEnergy, 100f, basePlantEnergyAbsorptionRate, basePlantReproductionCost));
 		}
 	}

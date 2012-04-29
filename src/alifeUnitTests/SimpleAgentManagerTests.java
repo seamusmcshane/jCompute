@@ -8,6 +8,7 @@ import org.junit.Test;
 import alife.BarrierManager;
 import alife.SimpleAgentManagementSetupParam;
 import alife.SimpleAgentManager;
+import alife.World;
 /**
  * 
  * Simple Agent Manager Tests
@@ -29,6 +30,8 @@ public class SimpleAgentManagerTests
 	@Before
 	public void setUp() throws Exception
 	{
+
+		World world = new World(worldSize,0,0);
 
 		int value = 100;
 

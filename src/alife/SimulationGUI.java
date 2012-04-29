@@ -71,6 +71,12 @@ public class SimulationGUI
 
 	private static JComboBox comboBoxWorldSize;
 	private static int worldSizeSelected = 3; // selects 1024
+	
+	private static JComboBox comboBoxBarrierMode;
+	private static int barrierModeSelected = 0; // selects off
+
+	private static JComboBox comboBoxBarrierScenario;
+	private static int barrierScenarioSelected = 0; // selects Single Barrier
 
 	private static JComboBox comboBoxPlantNumbers;
 	private static int plantStartingNumbersSelected = 5; // selects 400
@@ -211,6 +217,10 @@ public class SimulationGUI
 	private static JPanel ASPSNoPanel;
 	private static JPanel stepNoPanel;
 	private static JPanel lblRunTimeNoPanel;
+	private static JLabel lblBarriers;	
+	private static JLabel lblBScenario;
+
+	
 	/* Logic */
 
 	/**
@@ -245,6 +255,25 @@ public class SimulationGUI
 
 		/* World Size */
 		int worldSize = Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString());
+		
+		/* Barrier Mode */
+		int barrierMode;
+		
+		if(comboBoxBarrierMode.getSelectedItem().toString().equalsIgnoreCase("Off"))
+		{
+			barrierMode = 0;
+		}
+		else if(comboBoxBarrierMode.getSelectedItem().toString().equalsIgnoreCase("Open"))
+		{
+			barrierMode = 1;
+		}
+		else // comboBoxBarrierMode.getSelectedItem().toString().equalsIgnoreCase("Closed")
+		{
+			barrierMode = 2;
+		}
+		
+		/* Barrier Scenario */
+		int barrierScenario = (Integer.parseInt(comboBoxBarrierScenario.getSelectedItem().toString())-1);
 
 		/* Prey Numbers */
 		int preyNo = Integer.parseInt(comboBoxPreyNumbers.getSelectedItem().toString());
@@ -311,7 +340,7 @@ public class SimulationGUI
 		agentSettings.setPreyStartingEnergy(Integer.parseInt(comboBoxPreyStartingEnergy.getSelectedItem().toString()));
 		agentSettings.setPredStartingEnergy(Integer.parseInt(comboBoxPredStartingEnergy.getSelectedItem().toString()));
 
-		sim.newSim(statsPanel, worldSize, preyNo, predNo, plantNo, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
+		sim.newSim(statsPanel, worldSize,barrierMode,barrierScenario, preyNo, predNo, plantNo, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
 
 		/*
 		 * If needed the GC can free old objects now, before the simulation
@@ -455,7 +484,7 @@ public class SimulationGUI
 		gbcMainSetupPanel.gridx = 0;
 		gbcMainSetupPanel.gridy = 0;
 		controlPanelTop.add(mainSetupPanel, gbcMainSetupPanel);
-		mainSetupPanel.setLayout(new GridLayout(2, 4, 5, 5));
+		mainSetupPanel.setLayout(new GridLayout(0, 6, 5, 5));
 
 		JLabel lblPredS = new JLabel("Predators");
 		lblPredS.setHorizontalAlignment(SwingConstants.LEFT);
@@ -500,6 +529,24 @@ public class SimulationGUI
 		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
 		{"128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768"}));
 		comboBoxWorldSize.setSelectedIndex(worldSizeSelected);
+		
+		lblBarriers = new JLabel("Barriers");
+		mainSetupPanel.add(lblBarriers);
+		
+		comboBoxBarrierMode = new JComboBox();
+		comboBoxBarrierMode.setToolTipText("<html>\r\nSelects World Barrier Mode\r\n<br>\r\nOff - No barriers\r\n<br>\r\nOpen - Barriers with open sides\r\n<br>\r\nClosed - Barriers with a single side joining with the world edge.\r\n</html>");
+		comboBoxBarrierMode.setModel(new DefaultComboBoxModel(new String[] {"Off", "Open", "Closed"}));
+		comboBoxBarrierMode.setSelectedIndex(barrierModeSelected);
+		mainSetupPanel.add(comboBoxBarrierMode);
+		
+		lblBScenario = new JLabel("B Scenario");
+		mainSetupPanel.add(lblBScenario);
+		
+		comboBoxBarrierScenario = new JComboBox();
+		comboBoxBarrierScenario.setToolTipText("<html>\r\nSelects Barrier Scenario\r\n<br>\r\n1\t- A single barrier in the midle of the world.\r\n<br>\r\n2 \t- Two barriers dispersed equally.\r\n<br>\r\n3 \t- Three barriers dispersed equally.\r\n<html>");
+		comboBoxBarrierScenario.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3"}));
+		comboBoxBarrierScenario.setSelectedIndex(barrierScenarioSelected);
+		mainSetupPanel.add(comboBoxBarrierScenario);
 
 		agentParamPanel = new JPanel();
 		agentParamPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Agent Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -1242,8 +1289,8 @@ public class SimulationGUI
 	{
 		ToolTipManager.sharedInstance().setReshowDelay(5000);
 		ToolTipManager.sharedInstance().setDismissDelay(10000);
-		ToolTipManager.sharedInstance().setInitialDelay(2000);
-		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(true);
+		ToolTipManager.sharedInstance().setInitialDelay(1000);
+		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 	}
 	
 	private static void simStartedState()
@@ -1307,6 +1354,9 @@ public class SimulationGUI
 		comboBoxPredNumbers.setEnabled(false);
 		comboBoxWorldSize.setEnabled(false);
 		comboBoxPlantNumbers.setEnabled(false);
+		comboBoxBarrierScenario.setEnabled(false);
+		comboBoxBarrierMode.setEnabled(false);
+
 
 		/* Agent Param Panel */
 		comboBoxPreySpeed.setEnabled(false);
@@ -1361,6 +1411,8 @@ public class SimulationGUI
 			comboBoxPredNumbers.setEnabled(true);
 			comboBoxWorldSize.setEnabled(true);
 			comboBoxPlantNumbers.setEnabled(true);
+			comboBoxBarrierScenario.setEnabled(true);
+			comboBoxBarrierMode.setEnabled(true);
 
 			/* Agent Param Panel */
 			comboBoxPreySpeed.setEnabled(true);
