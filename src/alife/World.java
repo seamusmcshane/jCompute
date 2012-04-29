@@ -79,13 +79,13 @@ public class World
 			case 1:				
 				if(barrierMode==1)
 				{
-					barriers[0] = new Rectangle(worldSize*0.25f,worldSize*0.15f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[1] = new Rectangle(worldSize*0.25f,worldSize*0.65f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[0] = new Rectangle(worldSize*0.25f,worldSize*0.20f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[1] = new Rectangle(worldSize*0.25f,worldSize*0.70f,worldSize*0.50f,worldSize*barrierThickness);
 				}
 				else
 				{
-					barriers[0] = new Rectangle(0,worldSize*0.15f,worldSize*0.90f,worldSize*barrierThickness);
-					barriers[1] = new Rectangle(0,worldSize*0.65f,worldSize*0.90f,worldSize*barrierThickness);				
+					barriers[0] = new Rectangle(0,worldSize*0.20f,worldSize*0.90f,worldSize*barrierThickness);
+					barriers[1] = new Rectangle(0,worldSize*0.70f,worldSize*0.90f,worldSize*barrierThickness);				
 				}				
 			break;
 			case 2:
