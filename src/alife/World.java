@@ -93,7 +93,7 @@ public class World
 				{
 					barriers[0] = new Rectangle(worldSize*0.25f,worldSize*0.15f,worldSize*0.50f,worldSize*barrierThickness);
 					barriers[1] = new Rectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[2] = new Rectangle(worldSize*0.25f,worldSize*0.70f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[2] = new Rectangle(worldSize*0.25f,worldSize*0.75f,worldSize*0.50f,worldSize*barrierThickness);
 				}
 				else
 				{
