@@ -166,11 +166,11 @@ public class SimulationGUI
 	/* GUI Size Hard-Coded - minimum size before cropping occurs */
 	static int controlGuiWidth = 375;
 	static int controlGuiHeightMin = 806;
-	static int controlGuiHeight = 0;
+	static int controlGuiHeight = controlGuiHeightMin;
 
 	/* Start up position - dynamically generated */
-	static int controlGuiX;
-	static int controlGuiY;
+	static int controlGuiX=0;
+	static int controlGuiY=0;
 
 	/* Auto sized simulation view */
 	static int viewWidth = 0;
@@ -378,9 +378,9 @@ public class SimulationGUI
 
 	private static void calculateWindowSizes()
 	{
-		String os= System.getProperty("os.name");
+		String hostPlatform = System.getProperty("os.name");
 		
-		if(os.contains("Windows"))
+		if(hostPlatform.contains("Windows"))
 		{
 			viewWidth = screenWidth - controlGuiWidth - (windowPad * 2);
 
@@ -392,8 +392,6 @@ public class SimulationGUI
 				
 				viewHeight = controlGuiHeight;
 			}			
-
-			System.out.println("Detected : " + os);
 
 		}
 		else // remove the title pad size on mac and linux
@@ -408,6 +406,7 @@ public class SimulationGUI
 				controlGuiHeight = screenHeight - (titlePad * 2);
 			}			
 		}
+		System.out.println("Detected : " + hostPlatform);
 
 		
 	}
@@ -530,8 +529,7 @@ public class SimulationGUI
 		comboBoxPredNumbers = new JComboBox();
 		comboBoxPredNumbers.setToolTipText("Set the inital Predator numbers.");
 		mainSetupPanel.add(comboBoxPredNumbers);
-		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
+		comboBoxPredNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200"}));
 		comboBoxPredNumbers.setSelectedIndex(predatorNumbersSelected);
 
 		JLabel lblPreyS = new JLabel("Prey");
@@ -541,8 +539,7 @@ public class SimulationGUI
 		comboBoxPreyNumbers = new JComboBox();
 		comboBoxPreyNumbers.setToolTipText("Set the inital Prey numbers.");
 		mainSetupPanel.add(comboBoxPreyNumbers);
-		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
+		comboBoxPreyNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200"}));
 		comboBoxPreyNumbers.setSelectedIndex(preyNumbersSelected);
 
 		JLabel lblPlants = new JLabel("Plants");
@@ -552,8 +549,7 @@ public class SimulationGUI
 		comboBoxPlantNumbers = new JComboBox();
 		comboBoxPlantNumbers.setToolTipText("Set the inital Plant numbers.");
 		mainSetupPanel.add(comboBoxPlantNumbers);
-		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[]
-		{"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200", "102400", "204800"}));
+		comboBoxPlantNumbers.setModel(new DefaultComboBoxModel(new String[] {"0", "1", "10", "100", "200", "400", "800", "1600", "3200", "6400", "12800", "25600", "51200"}));
 		comboBoxPlantNumbers.setSelectedIndex(plantStartingNumbersSelected);
 
 		JLabel lblWorldSize = new JLabel("World Size");
@@ -563,8 +559,7 @@ public class SimulationGUI
 		comboBoxWorldSize = new JComboBox();
 		comboBoxWorldSize.setToolTipText("Set the simulated world size.");
 		mainSetupPanel.add(comboBoxWorldSize);
-		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[]
-		{"128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768"}));
+		comboBoxWorldSize.setModel(new DefaultComboBoxModel(new String[] {"128", "256", "512", "1024", "2048", "4096", "8192"}));
 		comboBoxWorldSize.setSelectedIndex(worldSizeSelected);
 		
 		lblBarriers = new JLabel("Barriers");
