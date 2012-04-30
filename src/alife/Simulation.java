@@ -15,7 +15,7 @@ import org.newdawn.slick.Graphics;
 public class Simulation
 {
 	/** Simulation Performance Indicators */
-	int step_num = 0;
+	int stepNo = 0;
 	private long stepStartTime = 0;
 	private long stepEndTime = 0;
 	private long stepTotalTime = 0; // Total Simulation run-time is the time taken per step for each step
@@ -83,9 +83,9 @@ public class Simulation
 
 		stepSamples = new double[numSamples];
 
-		this.step_num = 0;
+		this.stepNo = 0;
 
-		SimulationGUI.setStepNo(step_num);
+		SimulationGUI.setStepNo(stepNo);
 
 		this.stepTotalTime = 0;
 
@@ -103,7 +103,7 @@ public class Simulation
 		{
 			StatsPanel.clearStats();
 
-			StatsPanel.updateGraphs();
+			StatsPanel.updateGraphs(1);
 		}
 
 	}
@@ -144,9 +144,9 @@ public class Simulation
 					SimulationGUI.setASPS(averageStepsPerSecond());
 
 					// Increment the Step counter
-					step_num++;
+					stepNo++;
 
-					SimulationGUI.setStepNo(step_num);
+					SimulationGUI.setStepNo(stepNo);
 
 					// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
 					while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
@@ -165,7 +165,7 @@ public class Simulation
 
 					SimulationGUI.setTime(stepTotalTime);
 
-					StatsPanel.updateGraphs();
+					StatsPanel.updateGraphs(stepNo);
 
 					// Allow the simulation to be paused again
 					pause.release();

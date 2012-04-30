@@ -61,8 +61,6 @@ public class StatsPanel extends JPanel
 	private static StatsStackedGraphPanel stackedGraphPanel;
 
 	/* Counters */
-	private static int ASPS = 0; // Average Steps per second
-	private static int stepNo = 0;
 	private static int plantNo = 0;
 	private static int preyNo = 0;
 	private static int predNo = 0;
@@ -578,7 +576,7 @@ public class StatsPanel extends JPanel
 				{
 					drawGraphs = true;
 
-					graphDrawDiv = (Integer.parseInt(drawDivString));
+					graphDrawDiv = Integer.parseInt(drawDivString);
 				}
 			}
 		});
@@ -786,7 +784,7 @@ public class StatsPanel extends JPanel
 	/**
 	 * The Graph update step.
 	 */
-	public static void updateGraphs()
+	public static void updateGraphs(int stepNo)
 	{
 		/* These could be threaded - TODO threads for graphs */
 		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, graphStartVal);
