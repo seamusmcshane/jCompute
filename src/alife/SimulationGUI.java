@@ -484,7 +484,7 @@ public class SimulationGUI
 		gbcMainSetupPanel.gridx = 0;
 		gbcMainSetupPanel.gridy = 0;
 		controlPanelTop.add(mainSetupPanel, gbcMainSetupPanel);
-		mainSetupPanel.setLayout(new GridLayout(0, 6, 5, 5));
+		mainSetupPanel.setLayout(new GridLayout(0, 6, 4, 3));
 
 		JLabel lblPredS = new JLabel("Predators");
 		lblPredS.setHorizontalAlignment(SwingConstants.LEFT);
@@ -558,7 +558,7 @@ public class SimulationGUI
 		gbcAgentParamPanel.gridx = 0;
 		gbcAgentParamPanel.gridy = 1;
 		controlPanelTop.add(agentParamPanel, gbcAgentParamPanel);
-		agentParamPanel.setLayout(new GridLayout(0, 3, 5, 5));
+		agentParamPanel.setLayout(new GridLayout(0, 3, 4, 3));
 
 		JLabel lblSpacer = new JLabel("");
 		agentParamPanel.add(lblSpacer);
@@ -795,7 +795,7 @@ public class SimulationGUI
 		gbcPlantParamPanel.gridx = 0;
 		gbcPlantParamPanel.gridy = 2;
 		controlPanelTop.add(plantParamPanel, gbcPlantParamPanel);
-		plantParamPanel.setLayout(new GridLayout(0, 4, 5, 5));
+		plantParamPanel.setLayout(new GridLayout(0, 4, 4, 3));
 
 		JLabel lblPlantRegenRate = new JLabel("Plant Regen Rate");
 		lblPlantRegenRate.setHorizontalAlignment(SwingConstants.LEFT);

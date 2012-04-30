@@ -150,7 +150,7 @@ public class StatsPanel extends JPanel
 
 	public StatsPanel()
 	{
-		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Graphs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setLayout(new BorderLayout(0, 0));
 		tabbedGraphs.addChangeListener(new ChangeListener()
 		{
@@ -412,7 +412,7 @@ public class StatsPanel extends JPanel
 		statsBottomPanel.setLayout(new BorderLayout(0, 0));
 		statsBottomPanel.add(simStatCountPanel);
 
-		simStatCountPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Statistics", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simStatCountPanel.setBorder(null);
 		simStatCountPanel.setLayout(new GridLayout(1, 6, 0, 0));
 
 		simStatCountPanel.add(alifeInfoRow);
