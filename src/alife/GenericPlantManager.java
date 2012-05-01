@@ -48,7 +48,7 @@ public class GenericPlantManager
 	private int plantRegenRate;
 
 	/** Reference for setting task in the */
-	BarrierManager barrierManager;
+	private BarrierManager barrierManager;
 
 	/**
 	 * Creates a plant manager.
@@ -167,11 +167,14 @@ public class GenericPlantManager
 
 		ListIterator<GenericPlant> itr = doList.listIterator();
 
+		/* temp var */
+		GenericPlant temp;
+		
 		while (itr.hasNext())
 		{
 
 			/* Remove this Plant from the List */
-			GenericPlant temp = itr.next();
+			temp = itr.next();
 
 			/* remove from the doList */
 			itr.remove();

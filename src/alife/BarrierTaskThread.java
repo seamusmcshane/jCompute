@@ -22,23 +22,23 @@ public class BarrierTaskThread extends Thread
 {
 
 	/** The Agent list. */
-	LinkedList<SimpleAgent> agentList;
+	private LinkedList<SimpleAgent> agentList;
 
 	/** The Plant list. */
-	LinkedList<GenericPlant> plantList;
+	private LinkedList<GenericPlant> plantList;
 
 	/** The Entire World View. (Both Trees) */
-	KdTree<SimpleAgent> agentKDTree;
-	KdTree<GenericPlant> plantKDTree;
+	private KdTree<SimpleAgent> agentKDTree;
+	private KdTree<GenericPlant> plantKDTree;
 
 	/** The Agent List Iterator. */
-	ListIterator<SimpleAgent> agentListItr;
+	private ListIterator<SimpleAgent> agentListItr;
 
 	/** The Plant List Iterator. */
-	ListIterator<GenericPlant> plantListItr;
+	private ListIterator<GenericPlant> plantListItr;
 
 	/** The distance function object. */
-	SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
+	private final SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
 
 	/** The agents and plants neighbor list. */
 	private MaxHeap<SimpleAgent> agentNeighborList;
@@ -72,9 +72,9 @@ public class BarrierTaskThread extends Thread
 	public BarrierTaskThread(int id, Semaphore startSem, Semaphore endSem)
 	{
 		//	this.myId =id;
-		start = startSem;
-		end = endSem;
-		pos = new double[2];
+		this.start = startSem;
+		this.end = endSem;
+		this.pos = new double[2];
 	}
 
 	/**
@@ -89,8 +89,8 @@ public class BarrierTaskThread extends Thread
 		this.agentList = agentList;
 		this.plantList = plantList;
 
-		agentListItr = agentList.listIterator();
-		plantListItr = plantList.listIterator();
+		this.agentListItr = agentList.listIterator();
+		this.plantListItr = plantList.listIterator();
 
 		/* KD Trees */
 		this.agentKDTree = agentKDTree;

@@ -170,7 +170,7 @@ public class SimpleAgentView
 	* @return float */
 	public float awayfromAgentDirection(SimpleAgentBody myBody)
 	{
-		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
+		double direction = Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
 
 		direction = direction - 180;
 
@@ -179,7 +179,7 @@ public class SimpleAgentView
 			direction += 360;
 		}
 
-		return direction % 360;
+		return (float)direction % 360;
 	}
 
 	/** Returns the direction to move in to go towards the nearest agent
@@ -188,14 +188,14 @@ public class SimpleAgentView
 	 * @return float */
 	public float towardsAgentDirection(SimpleAgentBody myBody)
 	{
-		float direction = (float) Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
+		double direction = Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
 
 		if (direction < 0)
 		{
 			direction += 360;
 		}
 
-		return direction;
+		return (float)direction;
 	}
 
 	/** Returns the direction to move in to go towards the nearest plant

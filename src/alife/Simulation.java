@@ -126,7 +126,6 @@ public class Simulation
 
 				while (true)
 				{
-					Thread.yield(); // Allow other threads to run				
 
 					// The pause semaphore (We do not pause half way through a step)
 					pause.acquireUninterruptibly();

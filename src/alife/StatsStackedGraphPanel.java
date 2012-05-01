@@ -165,7 +165,7 @@ public class StatsStackedGraphPanel extends JPanel
 		int plantsSampleYVal = 0;
 
 		int preySampleXVal = 0;
-		int preySampleYVal = 0;
+		//int preySampleYVal = 0;
 
 		/* Loops through all three sample arrays */
 		for (int i = 0; i < maxSampleNum; i++)
@@ -181,7 +181,7 @@ public class StatsStackedGraphPanel extends JPanel
 
 			/* Prey */
 			preySampleXVal = (int) (i * scaleWidthInterval);
-			preySampleYVal = ((int) (preySamples[i] * total_height_scale));
+			//preySampleYVal = ((int) (preySamples[i] * total_height_scale));
 
 			/* Predator */
 			predSampleXVal = (int) (i * scaleWidthInterval);

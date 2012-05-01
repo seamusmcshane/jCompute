@@ -430,18 +430,18 @@ public class StatsPanel extends JPanel
 		
 		alifeInfoRow.add(lblCurrent);
 		plantNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		plantNoPanel.setBackground(new Color(128, 128, 128));
+		plantNoPanel.setBackground(Color.gray);
 
 		alifeInfoRow.add(plantNoPanel);
 		plantNoPanel.setLayout(new BorderLayout(0, 0));
 		lblPlantNo.setToolTipText("Plant Numbers.");
 		lblPlantNo.setFont(lblPlantNo.getFont().deriveFont(lblPlantNo.getFont().getStyle() | Font.BOLD));
 		plantNoPanel.add(lblPlantNo, BorderLayout.CENTER);
-		lblPlantNo.setForeground(new Color(0, 255, 0));
+		lblPlantNo.setForeground(Color.green);
 
 		lblPlantNo.setHorizontalAlignment(SwingConstants.CENTER);
 		predatorsNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		predatorsNoPanel.setBackground(new Color(128, 128, 128));
+		predatorsNoPanel.setBackground(Color.gray);
 
 		alifeInfoRow.add(predatorsNoPanel);
 		predatorsNoPanel.setLayout(new BorderLayout(0, 0));
@@ -452,7 +452,7 @@ public class StatsPanel extends JPanel
 
 		lblPredatorsNo.setHorizontalAlignment(SwingConstants.CENTER);
 		preyNoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		preyNoPanel.setBackground(new Color(128, 128, 128));
+		preyNoPanel.setBackground(Color.gray);
 
 		alifeInfoRow.add(preyNoPanel);
 		preyNoPanel.setLayout(new BorderLayout(0, 0));

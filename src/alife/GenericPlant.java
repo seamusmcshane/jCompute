@@ -8,7 +8,7 @@ import org.newdawn.slick.geom.Vector2f;
  */
 public class GenericPlant
 {
-	public GenericPlantBody body;
+	public final GenericPlantBody body;
 
 	/**
 	 * Constructor for GenericPlant.

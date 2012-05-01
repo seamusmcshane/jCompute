@@ -322,7 +322,7 @@ public class SimpleAgentBody
 	 * @return float */
 	public float getTrueSizeSQRRadius()
 	{
-		return (trueSize * trueSize);
+		return trueSize * trueSize;
 	}
 
 	/**

@@ -204,13 +204,19 @@ public class StatsLorenzGraphPanel extends JPanel
 		// half the max so lmod will cause the curve to phaze invert on a negative (ie x=50, max = 200, lmod = 100, drawing x = -50 etc)
 		lmod = lModMax / 2;
 
+		/* Sim Values */
+		double x,y,z;
+		
+		/* lorenz plot values*/
+		int gx,gy,gz;
+		
 		/* Loops through all three sample arrays */
 		for (int i = 0; i < graphSamples; i++)
 		{
 			// The values we feed to the Lorenz equations.
-			double x = (plantsSamples[i] * plantGraphNegativeFactor) - lmod;
-			double y = (predSamples[i] * predatorGraphBoost) - lmod;
-			double z = (preySamples[i]) - lmod;
+			x = (plantsSamples[i] * plantGraphNegativeFactor) - lmod;
+			y = (predSamples[i] * predatorGraphBoost) - lmod;
+			z = (preySamples[i]) - lmod;
 			/*
 			 * Lmod is half of the max value of all samples, meaning this can
 			 * cause X,Y and Z to go negative. By going negative the other half
@@ -218,9 +224,9 @@ public class StatsLorenzGraphPanel extends JPanel
 			 */
 
 			// Modified Lorenz Equations
-			int gx = (int) (((x + ((-10 * x) + (10 * y)))) * (modeScale));
-			int gy = (int) (((y + ((28 * x) + (y - (x * z))))) * (modeScale));
-			int gz = (int) ((z + ((-8 * (z / 3)) + (x * y))) * (modeScale));
+			//gx = (int) (((x + ((-10 * x) + (10 * y)))) * (modeScale));
+			gy = (int) (((y + ((28 * x) + (y - (x * z))))) * (modeScale));
+			gz = (int) ((z + ((-8 * (z / 3)) + (x * y))) * (modeScale));
 
 			// Scale the point position by the graph scale.
 			//gx=(int)(gx*scale);
@@ -285,7 +291,7 @@ public class StatsLorenzGraphPanel extends JPanel
 	 */
 	public void setZoom(float inZoom)
 	{
-		inZoom = (inZoom / 1000000f);
+		inZoom = (inZoom / 2000000f);
 
 		if (inZoom > 0)
 		{
@@ -293,7 +299,7 @@ public class StatsLorenzGraphPanel extends JPanel
 		}
 		else
 		{
-			zoom = 1 / 1000000f;
+			zoom = inZoom / 2000000f;
 		}
 
 		repaint();

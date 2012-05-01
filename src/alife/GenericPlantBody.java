@@ -14,7 +14,7 @@ import org.newdawn.slick.geom.Vector2f;
  */
 public class GenericPlantBody
 {
-	public GenericPlantStats stats;
+	public final GenericPlantStats stats;
 
 	private Rectangle body;
 

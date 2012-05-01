@@ -16,7 +16,7 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 public class BarrierManager extends Thread
 {
 	/** Number of threads used in this barrier */
-	private int numThreads;
+	private final int numThreads;
 
 	/* The lock for the entire barrier */
 	private Semaphore barrierControllerSemaphore;
@@ -43,6 +43,9 @@ public class BarrierManager extends Thread
 	/** Counts used in list division */
 	private int agentCount;
 	private int plantCount;
+	
+	/** List Split iterator */
+	ListIterator<GenericPlant> splitItr;
 
 	/**
 	 * Creates a new barrier manager.
@@ -217,7 +220,7 @@ public class BarrierManager extends Thread
 			plantTaskLists[i] = new LinkedList<GenericPlant>();
 		}
 
-		ListIterator<GenericPlant> itr = plantList.listIterator();
+		splitItr = plantList.listIterator();
 
 		/* Calculate the Splits */
 		int div = plantCount / numThreads;
@@ -226,15 +229,21 @@ public class BarrierManager extends Thread
 		int thread_num = 0;
 		int tPlantCount = 0;
 
+		/* Temp Variable */
+		GenericPlant temp;
+		
+		/* Vector */
+		double[] pos;
+		
 		/* Split the lists */
-		while (itr.hasNext())
+		while (splitItr.hasNext())
 		{
 			/* Get an agent */
-			GenericPlant temp = itr.next();
+			temp = splitItr.next();
 
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
-				double[] pos = new double[2];
+				pos = new double[2];
 				pos[0] = temp.body.getBodyPos().getX();
 				pos[1] = temp.body.getBodyPos().getY();
 				plantKDTree.addPoint(pos, temp);
@@ -285,15 +294,21 @@ public class BarrierManager extends Thread
 		int thread_num = 0;
 		int tAgentCount = 0;
 
+		/* Temp Var */
+		SimpleAgent temp;
+		
+		/* Vector*/
+		double[] pos;
+		
 		/* Split the lists */
 		while (itr.hasNext())
 		{
 			/* Get an agent */
-			SimpleAgent temp = itr.next();
+			temp = itr.next();
 
 			/* This Section adds each agent and its coordinates to the kd tree */
 			{
-				double[] pos = new double[2];
+				pos = new double[2];
 				pos[0] = temp.body.getBodyPos().getX();
 				pos[1] = temp.body.getBodyPos().getY();
 				agentKDTree.addPoint(pos, temp);

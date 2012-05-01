@@ -255,11 +255,14 @@ public class SimpleAgentManager
 		preyCount = 0;
 		predatorCount = 0;
 
+		/* Temp var */
+		SimpleAgent temp;
+		
 		while (itr.hasNext())
 		{
 
 			/* Get a reference to the current agent */
-			SimpleAgent temp = itr.next();
+			temp = itr.next();
 
 			/* remove from the doList */
 			itr.remove();
