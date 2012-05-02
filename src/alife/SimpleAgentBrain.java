@@ -29,18 +29,18 @@ public class SimpleAgentBrain
 	private Random r;
 
 	/* Move counters */
-	private int roamMoves = 40; // Starts at the exit of roaming state
-	private int roamMaxMoves = 40;
+	private int roamMoves = 0; // Starts at the exit of roaming state
+	private int roamMaxMoves = 20;
 
 	private int huntMoves = 0;
-	private int huntMaxMoves = 30;
+	private int huntMaxMoves = 50;
 
 	private int huntExitWait = 0;
-	private int huntExitMaxWait = 0;
+	private int huntExitMaxWait = 10;
 
-	private int learnToMoveMax = 20;
 	private int learnToMoveCount = 0;
-
+	private int learnToMoveMax = 15;
+	
 	/**
 	 * Constructor for SimpleAgentBrain.
 	 * @param body SimpleAgentBody
