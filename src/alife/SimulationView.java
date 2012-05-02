@@ -508,8 +508,11 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	public static void maximise()
 	{
-		frmSimulationView.setVisible(true);
-		frmSimulationView.setState(Frame.NORMAL);
+		if(drawSim)
+		{
+			frmSimulationView.setVisible(true);
+			frmSimulationView.setState(Frame.NORMAL);		
+		}
 	}
 
 	/**
@@ -540,6 +543,11 @@ public class SimulationView extends BasicGame implements MouseListener
 		{
 			frmSimulationView.setVisible(visible);
 			drawSim = visible; // draw if visible
+			/* Set full screen */
+			if(visible)
+			{
+				frmSimulationView.setState(Frame.NORMAL);
+			}
 		}
 	}
 
