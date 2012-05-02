@@ -221,6 +221,8 @@ public class SimulationGUI
 	private static JLabel lblBarriers;	
 	private static JLabel lblBScenario;
 
+	/* The popup for first time users */
+	private static boolean simUnlockNotifcationShown=false;
 	
 	/* Logic */
 
@@ -1045,6 +1047,9 @@ public class SimulationGUI
 				/* Locks the parameters */
 				parametersLock();
 
+				/* Do notice for first lock */
+				doSimUnlockNotify();
+
 				/* Create the new Simulation */
 				newSim();
 			}
@@ -1344,6 +1349,29 @@ public class SimulationGUI
 
 	}
 
+	/* Ensure the user wants to exit then exit the program */
+	private static void doSimUnlockNotify()
+	{
+		if(!simUnlockNotifcationShown)
+		{
+			String message;
+			message = "The simulation paramaters are now locked.\nThey can be unlocked via the Parameters menu.";
+
+			JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
+
+			// Center Dialog on the GUI
+			JDialog dialog = pane.createDialog(gui, "Parameters Locked");
+
+			dialog.pack();
+			dialog.setVisible(true);
+
+			int value = ((Integer) pane.getValue()).intValue();
+			
+			/* Prevent popup from showing again */
+			simUnlockNotifcationShown=true;
+		}
+	}
+	
 	/* Use the java provided system look and feel */
 	private static void lookandFeel()
 	{
