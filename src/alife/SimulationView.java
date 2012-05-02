@@ -4,8 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import javax.swing.JFrame;
 
-// NOTE! The following three imports are need when creating executable jar
-import org.lwjgl.LWJGLException; import org.lwjgl.LWJGLUtil; 
+import org.lwjgl.LWJGLUtil; 
 import java.io.File; 
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
@@ -170,7 +169,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * Method render.
 	 * @param container GameContainer
 	 * @param g Graphics
-	 * @throws SlickException * @see org.newdawn.slick.Game#render(GameContainer, Graphics) * @see org.newdawn.slick.Game#render(GameContainer, Graphics)
+	 * @throws SlickException * @see org.newdawn.slick.Game#render(GameContainer, Graphics) 
+	 * @see org.newdawn.slick.Game#render(GameContainer, Graphics)
 	 */
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
