@@ -44,6 +44,7 @@ import java.awt.event.ItemEvent;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.ButtonGroup;
 import java.awt.Color;
+import javax.swing.ImageIcon;
 /**
  * This class manages user interaction in setting up and controlling the simulation.
  * The GUI was designed in WindowBuilder.
@@ -367,7 +368,7 @@ public class SimulationGUI
 
 		btnPause.setEnabled(false);
 
-		btnPause.setText("Pause");
+		btnPause.setText("   Pause");
 
 		simRateSlider.setEnabled(false);
 
@@ -1043,6 +1044,7 @@ public class SimulationGUI
 		});
 						
 		btnGenerate = new JButton("Generate");
+		btnGenerate.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alife/icons/grid.png")));
 		GridBagConstraints gbc_btnGenerate = new GridBagConstraints();
 		gbc_btnGenerate.fill = GridBagConstraints.BOTH;
 		gbc_btnGenerate.insets = new Insets(0, 0, 0, 5);
@@ -1076,6 +1078,7 @@ public class SimulationGUI
 		});
 				
 		btnStart = new JButton("Start");
+		btnStart.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alife/icons/play.png")));
 		GridBagConstraints gbc_btnStart = new GridBagConstraints();
 		gbc_btnStart.fill = GridBagConstraints.BOTH;
 		gbc_btnStart.insets = new Insets(0, 0, 0, 5);
@@ -1093,6 +1096,7 @@ public class SimulationGUI
 		});
 		
 		btnPause = new JButton("Pause");
+		btnPause.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alife/icons/pause.png")));
 		GridBagConstraints gbc_btnPause = new GridBagConstraints();
 		gbc_btnPause.fill = GridBagConstraints.BOTH;
 		gbc_btnPause.gridx = 2;
@@ -1464,16 +1468,21 @@ public class SimulationGUI
 		StatsPanel.setPaused(true);
 
 		sim.pauseSim();
+		
+		btnPause.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alife/icons/resume.png")));	
+		
 	}
 
 	private static void simUnPausedState()
 	{
-		btnPause.setText("Pause");
+		btnPause.setText("   Pause");
 		btnGenerate.setEnabled(false);
 
 		StatsPanel.setPaused(false);
 
 		sim.unPauseSim();
+		
+		btnPause.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alife/icons/pause.png")));
 	}
 
 	/*
