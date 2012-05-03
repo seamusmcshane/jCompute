@@ -370,6 +370,8 @@ public class SimulationGUI
 
 		btnPause.setText("   Pause");
 
+		btnPause.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alife/icons/pause.png")));
+		
 		simRateSlider.setEnabled(false);
 
 		simRateSlider.setValue(15);
