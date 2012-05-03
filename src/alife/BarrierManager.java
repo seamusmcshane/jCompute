@@ -44,6 +44,8 @@ public class BarrierManager extends Thread
 	private int agentCount;
 	private int plantCount;
 	
+	private boolean running=true;
+	
 	/** List Split iterator */
 	ListIterator<GenericPlant> splitItr;
 
@@ -72,35 +74,66 @@ public class BarrierManager extends Thread
 	 */
 	public void run()
 	{
-		while (true)
+		System.out.println("Barrier Manager Started");
+		
+		while (running)
 		{
 
 			barrierControllerSemaphore.acquireUninterruptibly();
-
-			//System.out.println("Start Barrier");
-
-			// Creates the plant kd tree and divides plant list in to sub lists
-			splitPlantList();
-
-			// Creates the agent kd tree and divides plant list in to sub lists
-			splitAgentList();
-
-			// set the tasks
-			setbarrierThreadsTasks();
-
-			// Pull down the barrier / Release the threads
-			releaseThreadBarrier();
-
-			/* Prepare the barrier */
-			waitThreadsEnd();
-
-			//System.out.println("End Barrier");
+			
+			if(running)
+			{
+				//System.out.println("Start Barrier");
+				
+				// Creates the plant kd tree and divides plant list in to sub lists
+				splitPlantList();
+	
+				// Creates the agent kd tree and divides plant list in to sub lists
+				splitAgentList();
+	
+				// set the tasks
+				setbarrierThreadsTasks();
+	
+				// Pull down the barrier / Release the threads
+				releaseThreadBarrier();
+	
+				/* Prepare the barrier */
+				waitThreadsEnd();
+	
+				//System.out.println("End Barrier");			
+			}			
 
 			barrierControllerSemaphore.release();
 
 		}
+		System.out.println("Exited Barrier");			
+
 	}
 
+	/**
+	 * Initates the thread clean up and exits the barrier.
+	 */
+	public void cleanUp()
+	{
+
+		
+		for(int i=0;i<barrierThreads.length;i++)
+		{
+			/* Exit the threads */
+			barrierThreads[i].exitThread();
+			
+			/* Set them to null so the garbage collector can get to work */
+			barrierThreads[i]=null;
+		}		
+		
+		/* Trigger the barrier exit flag */
+		running=false;
+		
+		/* Let the thread run for the final time */
+		barrierControllerSemaphore.release();
+
+	}
+	
 	/**
 	 * Updates the barrier with a new list of agents to process.
 	 * @param inList

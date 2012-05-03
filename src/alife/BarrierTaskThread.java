@@ -59,7 +59,9 @@ public class BarrierTaskThread extends Thread
 	private Semaphore start;
 	private Semaphore end;
 
-	//private int myId; // Debug
+	private boolean running=true;
+	
+	private int myId; // Debug
 
 	/**
 	 * Instantiates a new barrier task thread.
@@ -71,7 +73,7 @@ public class BarrierTaskThread extends Thread
 	 */
 	public BarrierTaskThread(int id, Semaphore startSem, Semaphore endSem)
 	{
-		//	this.myId =id;
+		this.myId =id;
 		this.start = startSem;
 		this.end = endSem;
 		this.pos = new double[2];
@@ -97,6 +99,18 @@ public class BarrierTaskThread extends Thread
 		this.plantKDTree = plantKDTree;
 	}
 
+	/** 
+	 * Initiates a thread shutdown.
+	 */
+	public void exitThread()
+	{
+		/* Trigger the exit flag */
+		running=false;
+		
+		/* Let the thread run so it exits */
+		start.release();
+	}
+	
 	/**
 	 * Section 1 - Iterate over the plants.
 	 * Section 2 - Iterate over the agents - generate their  views.
@@ -105,79 +119,83 @@ public class BarrierTaskThread extends Thread
 	 */
 	public void run()
 	{
+		System.out.println("Created Task Thread : " + myId);
 
-		while (true)
+		while (running)
 		{
 
 			start.acquireUninterruptibly();
 
-			/** Section 1 - Process Plants*/
-			while (plantListItr.hasNext())
-			{
-
-				currentPlant = plantListItr.next();
-
-				if (!currentPlant.body.stats.isDead())
+			if(running)
+			{							
+				/** Section 1 - Process Plants*/
+				while (plantListItr.hasNext())
 				{
-					// Parallel plant calculations
-					currentPlant.body.stats.increment();
+	
+					currentPlant = plantListItr.next();
+	
+					if (!currentPlant.body.stats.isDead())
+					{
+						// Parallel plant calculations
+						currentPlant.body.stats.increment();
+					}
+	
 				}
-
-			}
-
-			/** Section 2 */
-			while (agentListItr.hasNext())
-			{
-
-				currentAgent = agentListItr.next();
-
-				// Convert our vector to the format for the tree
-				pos[0] = currentAgent.body.getBodyPos().getX();
-				pos[1] = currentAgent.body.getBodyPos().getY();
-
-				// Get two agents - due to the closest agent to its self being its self, but one plant
-				agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
-
-				// Max is the next closest - Self is 0
-				nearestAgent = agentNeighborList.getMax();
-
-				/*
-				 * calculate if the Nearest Agents are in the view Range of the
-				 * current agent
-				 */
-				agentViewRangeKDSQAgents();
-
-				if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
+	
+				/** Section 2 */
+				while (agentListItr.hasNext())
 				{
-					plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
-					nearestPlant = plantNeighborList.getMax();
+	
+					currentAgent = agentListItr.next();
+	
+					// Convert our vector to the format for the tree
+					pos[0] = currentAgent.body.getBodyPos().getX();
+					pos[1] = currentAgent.body.getBodyPos().getY();
+	
+					// Get two agents - due to the closest agent to its self being its self, but one plant
+					agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
+	
+					// Max is the next closest - Self is 0
+					nearestAgent = agentNeighborList.getMax();
+	
 					/*
-					 * calculate if the Nearest Plants are in the view Range of
-					 * the current agent
+					 * calculate if the Nearest Agents are in the view Range of the
+					 * current agent
 					 */
-					agentViewRangeKDSQPlants();
+					agentViewRangeKDSQAgents();
+	
+					if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
+					{
+						plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
+						nearestPlant = plantNeighborList.getMax();
+						/*
+						 * calculate if the Nearest Plants are in the view Range of
+						 * the current agent
+						 */
+						agentViewRangeKDSQPlants();
+					}
+	
 				}
-
-			}
-
-			/* Reset the iterator reference to start form the start of the list */
-			agentListItr = agentList.listIterator();
-
-			/** Section 3 - Processing the Agent Step */
-			while (agentListItr.hasNext())
-			{
-
-				currentAgent = agentListItr.next();
-
-				// Parallel Agent Thinking
-				currentAgent.brain.think();
-
+	
+				/* Reset the iterator reference to start form the start of the list */
+				agentListItr = agentList.listIterator();
+	
+				/** Section 3 - Processing the Agent Step */
+				while (agentListItr.hasNext())
+				{
+	
+					currentAgent = agentListItr.next();
+	
+					// Parallel Agent Thinking
+					currentAgent.brain.think();
+	
+				}
 			}
 
 			end.release();
 
 		}
-
+		System.out.println("Exited Thread : " + myId);
 	}
 
 	/** 

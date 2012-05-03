@@ -99,6 +99,23 @@ public class SimulationManager
 		barrierManager.start();
 	}
 
+	/**
+	 * Initiates the barrier thread shutdown.
+	 */
+	public void cleanUp()
+	{
+		lock.acquireUninterruptibly();
+		
+		/* Clean up */
+		barrierManager.cleanUp();
+		
+		/* Set to null so garbage collector can get to work */
+		barrierManager=null;
+		
+		lock.release();
+		
+	}
+	
 	// stage1 and stage3 could be run in parallel - stage 2 is already threaded 
 	public void doSimulationUpdate()
 	{

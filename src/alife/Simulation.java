@@ -53,6 +53,7 @@ public class Simulation
 
 	/* Simulation Update Thread */
 	private Thread asyncUpdateThread;
+	private boolean running=true;
 
 	/* The Simulation World. */
 	public World world;
@@ -108,6 +109,21 @@ public class Simulation
 
 	}
 
+	/**
+	 * This method initiates the thread shutdown sequence in the Simulation Manager
+	 */
+	public void destroySim()
+	{
+		if(simManager!=null)
+		{
+			/* Initiate clean up */
+			simManager.cleanUp();
+			
+			/* Set it to null so the garbage collector can get to work */
+			simManager=null;
+		}			
+	}
+	
 	/* Simulation Main Thread - The step update loop */
 	private void setupThreads()
 	{
@@ -124,7 +140,7 @@ public class Simulation
 
 				setUpStepsPerSecond();
 
-				while (true)
+				while (running)
 				{
 
 					// The pause semaphore (We do not pause half way through a step)

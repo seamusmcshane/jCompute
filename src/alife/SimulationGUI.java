@@ -223,6 +223,9 @@ public class SimulationGUI
 
 	/* The popup for first time users */
 	private static boolean simUnlockNotifcationShown=false;
+
+	/* Prevent over clicking the generate button */
+	private static boolean generatingSim=false;
 	
 	/* Logic */
 
@@ -232,6 +235,8 @@ public class SimulationGUI
 	 */
 	public static void main(String args[])
 	{		
+		System.out.println("Artificial Life Simulation Started.");
+		
 		retrieveScreenSize();
 
 		calculateWindowSizes();
@@ -343,6 +348,11 @@ public class SimulationGUI
 		agentSettings.setPreyStartingEnergy(Integer.parseInt(comboBoxPreyStartingEnergy.getSelectedItem().toString()));
 		agentSettings.setPredStartingEnergy(Integer.parseInt(comboBoxPredStartingEnergy.getSelectedItem().toString()));
 
+		System.out.println("New Simulation");
+		
+		/* Cleans up the old simulation threads */
+		sim.destroySim();
+		
 		sim.newSim(statsPanel, worldSize,barrierMode,barrierScenario, preyNo, predNo, plantNo, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
 
 		/*
@@ -1044,14 +1054,24 @@ public class SimulationGUI
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				/* Locks the parameters */
-				parametersLock();
+				/* Not already generating Sim */
+				if(!generatingSim)
+				{
+					generatingSim=true;
+					
+					/* Locks the parameters */
+					parametersLock();
 
-				/* Do notice for first lock */
-				doSimUnlockNotify();
+					/* Do notice for first lock */
+					doSimUnlockNotify();
 
-				/* Create the new Simulation */
-				newSim();
+					/* Create the new Simulation */
+					newSim();	
+					
+					generatingSim=false;
+
+				}
+
 			}
 		});
 				
