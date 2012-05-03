@@ -86,9 +86,9 @@ public class SimulationManager
 	 */
 	private void setUpBarrierManager()
 	{
-		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU we can use
+		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU threads we can run in parallel
 
-		System.out.println("Threads used for View Generation : " + numThreads);
+		System.out.println("Threads to use for Barrier Tasks : " + numThreads);
 
 		barrierControllerSemaphore = new Semaphore(1, true);
 
