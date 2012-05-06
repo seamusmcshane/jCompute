@@ -409,6 +409,20 @@ public class SimulationGUI
 			}			
 
 		}
+		else if(hostPlatform.contains("Linux"))
+		{
+			viewWidth = screenWidth - controlGuiWidth - (windowPad * 2);
+
+			controlGuiHeight = controlGuiHeightMin;
+
+			if (controlGuiHeight < screenHeight )
+			{
+				controlGuiHeight = screenHeight - titlePad;
+				
+				viewHeight = controlGuiHeight;
+			}			
+			
+		}
 		else // remove the title pad size on mac and linux
 		{
 			viewWidth = screenWidth - controlGuiWidth - (windowPad * 2);
@@ -486,6 +500,8 @@ public class SimulationGUI
 
 		screenWidth = (int) screenSize.getWidth();
 		screenHeight = (int) screenSize.getHeight();
+		
+		System.out.println("Screen Size :" + screenWidth + "x" + screenHeight);
 	}
 
 	/** This method contains sections that are largely auto generated from the editor **/
