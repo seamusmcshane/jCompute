@@ -18,6 +18,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 /**
  * Simulation View class - This class handles the drawing of the 2d representation of the simulation world..
  * @author Seamus McShane
@@ -106,34 +107,32 @@ public class SimulationView extends BasicGame implements MouseListener
 		super("Simulation View");
 		
 		// Uncomment when building the executable jar for that platform 
-		// buildStandAlone(true,"windows");
-		// buildStandAlone(true,"macosx");
-		// buildStandAlone(true,"linux");
+		// buildStandAlone(true);
 	}
 
 	/**
 	 * Method buildStandAlone.
 	 * @param setPath boolean
-	 * @param platform String
 	 */
-	public static void buildStandAlone(boolean setPath,String platform)
+	public static void buildStandAlone(boolean setPath)
 	{
+		String hostPlatform = System.getProperty("os.name");
+				
 		if(setPath)
 		{
 			/* Work out the platform */
-			if(platform.equalsIgnoreCase("windows"))
+			if(hostPlatform.contains("Windows"))
 			{
 				System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_WINDOWS_NAME).getAbsolutePath());
 			}
-			else if (platform.equalsIgnoreCase("linux"))
+			else if (hostPlatform.contains("Linux"))
 			{
 				System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_LINUX_NAME).getAbsolutePath());
 			}
 			else
 			{
 				System.setProperty("org.lwjgl.librarypath", new File(new File(System.getProperty("user.dir"), "native"), LWJGLUtil.PLATFORM_MACOSX_NAME).getAbsolutePath());
-			}
-		
+			}		
 			/* Set the correct path */
 			System.setProperty("net.java.games.input.librarypath", System.getProperty("org.lwjgl.librarypath"));			
 		}
