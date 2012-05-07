@@ -1397,7 +1397,7 @@ public class SimulationGUI
 		if(!simUnlockNotifcationShown)
 		{
 			String message;
-			message = "The simulation paramaters are now locked.\nThey can be unlocked via the Parameters menu.";
+			message = "The simulation parameters are now locked.\nThey can be unlocked via the Parameters menu.";
 
 			JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
 
