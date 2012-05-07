@@ -475,6 +475,9 @@ public class SimulationGUI
 
 		if(os.contains("Windows"))
 		{
+			/* OS look for Window */
+			lookandFeel();
+			
 			controlGuiX = (screenWidth / 2) - ((controlGuiWidth + viewWidth) / 2)-(windowPad/2);
 			controlGuiY = 1;
 
@@ -507,9 +510,6 @@ public class SimulationGUI
 	/** This method contains sections that are largely auto generated from the editor **/
 	private static void setUpFrame()
 	{
-		/* OS look */
-		lookandFeel();
-
 		gui = new JFrame();
 		gui.setResizable(false);
 		gui.setTitle("Alife Simulation");
