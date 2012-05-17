@@ -248,10 +248,12 @@ public class SimulationGUI
 
 		setUpSimulation();
 
+		screenSizeCheck();
+
 		// Display the simulation view
 		SimulationView.displayView(sim, viewX, viewY, viewWidth, viewHeight);
-
-		screenSizeCheck();
+		
+		SimulationView.setInitalViewTranslate((viewWidth / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2), (viewHeight / 2) - ((Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString())) / 2));
 		
 		setUpToolTips();
 	}
@@ -388,7 +390,7 @@ public class SimulationGUI
 
 	private static void setUpSimulation()
 	{
-		sim = new Simulation();
+		sim = new Simulation(Integer.parseInt(comboBoxWorldSize.getSelectedItem().toString()));
 	}
 
 	private static void calculateWindowSizes()
@@ -406,7 +408,12 @@ public class SimulationGUI
 				controlGuiHeight = screenHeight - titlePad;
 				
 				viewHeight = controlGuiHeight;
-			}			
+			}	
+			else
+			{
+				controlGuiHeight = screenHeight;			
+				viewHeight = controlGuiHeight;
+			}
 
 		}
 		else if(hostPlatform.contains("Linux"))
@@ -420,7 +427,12 @@ public class SimulationGUI
 				controlGuiHeight = screenHeight - titlePad;
 				
 				viewHeight = controlGuiHeight;
-			}			
+			}	
+			else
+			{
+				controlGuiHeight = screenHeight;			
+				viewHeight = controlGuiHeight;
+			}
 			
 		}
 		else // remove the title pad size on mac and linux
@@ -433,7 +445,12 @@ public class SimulationGUI
 			if (controlGuiHeight < screenHeight - (titlePad * 2))
 			{
 				controlGuiHeight = screenHeight - (titlePad * 2);
-			}			
+			}	
+			else
+			{
+				controlGuiHeight = screenHeight;			
+				viewHeight = controlGuiHeight;
+			}
 		}
 		System.out.println("Detected : " + hostPlatform);
 

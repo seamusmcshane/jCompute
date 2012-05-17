@@ -58,11 +58,11 @@ public class Simulation
 	/* The Simulation World. */
 	public World world;
 
-	public Simulation()
+	public Simulation(int worldSize)
 	{
 		setupThreads();
 
-		newSim(null, 256, 0, 0, 0, 0, 0, 0, 0, 0, null); // Never used - needed for successful startup
+		newSim(null, worldSize, 0, 0, 0, 0, 0, 0, 0, 0, null); // Never used - needed for successful startup
 	}
 
 	/**
@@ -318,7 +318,7 @@ public class Simulation
 	 */
 	public void drawSim(Graphics g, boolean true_drawing, boolean view_range_drawing)
 	{
-		if (simStarted)
+		//if (simStarted)
 		{
 			if (world != null)
 			{
