@@ -411,8 +411,8 @@ public class SimulationGUI
 			}	
 			else
 			{
-				controlGuiHeight = screenHeight;			
-				viewHeight = controlGuiHeight;
+				controlGuiHeight = controlGuiHeightMin;			
+				viewHeight = screenHeight;
 			}
 
 		}
@@ -430,8 +430,8 @@ public class SimulationGUI
 			}	
 			else
 			{
-				controlGuiHeight = screenHeight;			
-				viewHeight = controlGuiHeight;
+				controlGuiHeight = controlGuiHeightMin;			
+				viewHeight = screenHeight;
 			}
 			
 		}
@@ -448,8 +448,8 @@ public class SimulationGUI
 			}	
 			else
 			{
-				controlGuiHeight = screenHeight;			
-				viewHeight = controlGuiHeight;
+				controlGuiHeight = controlGuiHeightMin;			
+				viewHeight = screenHeight;
 			}
 		}
 		System.out.println("Detected : " + hostPlatform);
