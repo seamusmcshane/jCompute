@@ -55,6 +55,8 @@ public class Simulation
 	private Thread asyncUpdateThread;
 	private boolean running=true;
 
+	private boolean realtime=true;
+	
 	/* The Simulation World. */
 	public World world;
 
@@ -142,48 +144,7 @@ public class Simulation
 
 				while (running)
 				{
-
-					// The pause semaphore (We do not pause half way through a step)
-					pause.acquireUninterruptibly();
-
-					stepStartTime = System.currentTimeMillis(); // For the average
-
-					timeTotal();								  // record step start time for inter-step delay
-
-					// This single method hides the rest of the sim
-					simManager.doSimulationUpdate();
-
-					// Calculate the Steps per Second
-					calcStepsPerSecond();
-
-					SimulationGUI.setASPS(averageStepsPerSecond());
-
-					// Increment the Step counter
-					stepNo++;
-
-					SimulationGUI.setStepNo(stepNo);
-
-					// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
-					while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
-					{
-						// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
-						// This will only wait if the step performance level is being exceeded
-						// Waiting between steps ensures smooth animiation on the view
-					}
-
-					// resets the value calculated in timeTotal()
-					resetTotalTime();
-
-					stepEndTime = System.currentTimeMillis();
-
-					stepTotalTime += stepEndTime - stepStartTime;
-
-					SimulationGUI.setTime(stepTotalTime);
-
-					StatsPanel.updateGraphs(stepNo);
-
-					// Allow the simulation to be paused again
-					pause.release();
+						simUpdate();
 				}
 			}
 		}, "Simulation Update Thread"
@@ -194,6 +155,55 @@ public class Simulation
 
 	}
 
+	private void simUpdate()
+	{
+
+		// The pause semaphore (We do not pause half way through a step)
+		pause.acquireUninterruptibly();
+
+		stepStartTime = System.currentTimeMillis(); // For the average
+
+		timeTotal();								  // record step start time for inter-step delay
+
+		// This single method hides the rest of the sim
+		simManager.doSimulationUpdate();
+
+		// Calculate the Steps per Second
+		calcStepsPerSecond();
+
+		SimulationGUI.setASPS(averageStepsPerSecond());
+
+		// Increment the Step counter
+		stepNo++;
+
+		SimulationGUI.setStepNo(stepNo);
+
+		if(realtime)
+		{
+			// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
+			while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
+			{
+			// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
+			// This will only wait if the step performance level is being exceeded
+			// Waiting between steps ensures smooth animiation on the view
+			}
+		}
+		// resets the value calculated in timeTotal()
+		resetTotalTime();
+
+		stepEndTime = System.currentTimeMillis();
+
+		stepTotalTime += stepEndTime - stepStartTime;
+
+		SimulationGUI.setTime(stepTotalTime);
+
+		StatsPanel.updateGraphs(stepNo);
+
+		// Allow the simulation to be paused again
+		pause.release();
+	
+	}
+	
 	/**
 	 * Initializes the average steps per second counters
 	 */
@@ -210,15 +220,15 @@ public class Simulation
 	 */
 	private void calcStepsPerSecond()
 	{
-		currentTime = System.nanoTime();	// Current TIme
+		currentTime = System.nanoTime();			// Current TIme
 
 		diffTime = currentTime - previousTime;		// Time between this and the last call				
 
-		sps = 1000f / (diffTime / 1000000f);			//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second		
+		sps = 1000f / (diffTime / 1000000f);		//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second		
 
 		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
 
-		for (int i = 0; i < (numSamples - 1); i++)			// Moves the previous samples back by 1, leaves space for the new sps sample 
+		for (int i = 0; i < (numSamples - 1); i++)	// Moves the previous samples back by 1, leaves space for the new sps sample 
 		{
 			stepSamples[i] = stepSamples[(i + 1)];
 		}
@@ -228,7 +238,7 @@ public class Simulation
 		tasps = 0;									// clear the old total average (or it will increment for ever)
 		for (int i = 0; i < numSamples; i++)
 		{
-			tasps += stepSamples[i];					// Total all the steps
+			tasps += stepSamples[i];				// Total all the steps
 		}
 
 	}
@@ -307,6 +317,15 @@ public class Simulation
 		if (steps > 0)
 		{
 			reqSps = steps;
+			
+			realtime=true;
+		}
+		else
+		{
+			reqSps = 0;	
+					
+			realtime=false;
+			
 		}
 	}
 

@@ -1066,14 +1066,30 @@ public class SimulationGUI
 				if (simRateSlider.getValue() == 0)
 				{
 					lblSimRateInfo.setText("1");
+					
+					// Set the requested update rate
+					sim.reqSimUpdateRate(simRateSlider.getValue());
 				}
 				else
 				{
-					lblSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));
+					if(simRateSlider.getValue() < 300)
+					{
+						lblSimRateInfo.setText(Integer.toString(simRateSlider.getValue()));	
+						
+						// Set the requested update rate
+						sim.reqSimUpdateRate(simRateSlider.getValue());
+					}
+					else
+					{
+						lblSimRateInfo.setText("Unli");
+						
+						// Set the requested update rate
+						sim.reqSimUpdateRate(-1);
+					}
+					
 				}
 	
-				// Set the requested update rate
-				sim.reqSimUpdateRate(simRateSlider.getValue());
+
 	
 			}
 		});
