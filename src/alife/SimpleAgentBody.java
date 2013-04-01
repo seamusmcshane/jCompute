@@ -15,24 +15,11 @@ import alife.SimpleAgentEnum.AgentType;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class SimpleAgentBody
+public class SimpleAgentBody extends AlifeBody
 {
-	/** Agent Body */
-	private Rectangle body;
 
-	/** The stats of this agent body */
-	final SimpleAgentStats stats;
-
-	/** The circular body and size */
-	private Circle trueBody;
-	private float trueSize;
-
-	/** Color of this agent */
-	private Color color;
-
-	/** Current Body Pos */
-	private Vector2f bodyPos;
-
+	public final SimpleAgentStats stats;
+	
 	/** Calculated body pos */
 	private Vector2f newBodyPos = new Vector2f(0, 0);
 
@@ -63,7 +50,7 @@ public class SimpleAgentBody
 	}
 
 	/** 
-	 * Initializes the two body representations 
+	 * Initialises the two body representations 
 	 */
 	private void initBody()
 	{
@@ -73,23 +60,7 @@ public class SimpleAgentBody
 
 		trueBody = new Circle(0, 0, trueSize);
 
-		setColor();
-	}
-
-	/** 
-	 * Sets the Body Color
-	 */
-	private void setColor()
-	{
-		if (stats.getType().getType() == AgentType.PREY)
-		{
-			color = Color.blue;
-		}
-		else
-		// Predator
-		{
-			color = Color.red;
-		}
+		setAgentColor();
 	}
 
 	/** 
@@ -167,14 +138,6 @@ public class SimpleAgentBody
 		return newBodyPos;
 	}
 
-	/** 
-	 * Initial Cartesian X/Y Position 
-	 * @param pos Vector2f
-	 */
-	private void setIntialPos(Vector2f pos)
-	{
-		bodyPos = pos;
-	}
 
 	/** 
 	 * Internal Movement - decrements move energy
@@ -186,13 +149,6 @@ public class SimpleAgentBody
 		bodyPos.set(pos);
 	}
 
-	/** 
-	 * Returns the position of the body
-	 * @return Vector2f  */
-	public Vector2f getBodyPos()
-	{
-		return bodyPos;
-	}
 
 	/**
 	 * The eat agent Action, attempts to eat the agent in view.
@@ -208,7 +164,7 @@ public class SimpleAgentBody
 				if (isAgentCloseEnoughToEat(view))
 				{
 					// Kill Agent
-					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAgent()); // 100% energy
+					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAlife()); // 100% energy
 
 					return true;
 				}
@@ -282,48 +238,20 @@ public class SimpleAgentBody
 	}
 
 	/** 
-	 * Fast Body Draw Method - rectangles
-	 * @param g Graphics
+	 * Sets the Body Color
 	 */
-	public void drawRectBody(Graphics g)
+	private void setAgentColor()
 	{
-		body.setLocation(bodyPos.getX() - (stats.getSize() / 2), bodyPos.getY() - (stats.getSize() / 2));
-
-		g.setColor(color);
-
-		g.fill(body);
+		if (stats.getType().getType() == AgentType.PREY)
+		{
+			super.setColor(Color.blue);
+		}
+		else // Predator
+		{
+			super.setColor(Color.red);
+		}
 	}
 
-	/** 
-	 * Slow Draw method - circles
-	 * @param g Graphics
-	 */
-	public void drawTrueBody(Graphics g)
-	{
-		trueBody.setLocation(bodyPos.getX() - (trueSize), bodyPos.getY() - (trueSize));
-
-		g.setColor(color);
-
-		g.fill(trueBody);
-
-		drawRectBody(g);
-	}
-
-	/** 
-	 * Returns the true size squared as a diameter for use in collision detection. 
-	 * @return float */
-	public float getTrueSizeSQRDiameter()
-	{
-		return (trueSize * trueSize) * 2;
-	}
-
-	/** 
-	 * Returns the true size squared as a radius for use in KNN. 
-	 * @return float */
-	public float getTrueSizeSQRRadius()
-	{
-		return trueSize * trueSize;
-	}
 
 	/**
 	 * Method getStatsDebugMethod.
