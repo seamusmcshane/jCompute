@@ -22,12 +22,13 @@ public class AlifeBody
 	/** Current Body Pos */
 	protected Vector2f bodyPos;	
 
-	/** The stats of this agent body */
-	protected AlifeStats stats;	
+	/** The size of this body */
+	private float size;
 	
 	public AlifeBody()
 	{
 		super();
+				
 		bodyPos = new Vector2f(0,0);
 	}
 
@@ -37,6 +38,15 @@ public class AlifeBody
  *  position 
  *  
  */	
+	private void initBody(float size)
+	{
+		body = new Rectangle(0, 0, getSize(), getSize());
+
+		trueSize = body.getBoundingCircleRadius();
+
+		trueBody = new Circle(0, 0, trueSize);
+	}
+	
 	
 	/** 
 	 * Initial Cartesian X/Y Position 
@@ -55,19 +65,18 @@ public class AlifeBody
 		return bodyPos;
 	}
 	
-/*
- * 
- * Movement
- * 	
- */
+	public void setSize(float size)
+	{
+		this.size = size;
+		
+		initBody(size);		
+	}
 	
-	
-/*
- * 
- * Size
- * 
- * 	
- */
+	public float getSize()
+	{
+		return size;
+	}
+
 	
 	/** 
 	 * Returns the true size squared as a radius for use in KNN. 
@@ -119,7 +128,7 @@ public class AlifeBody
 	 */
 	public void drawRectBody(Graphics g)
 	{
-		body.setLocation(bodyPos.getX() - (stats.getSize() / 2), bodyPos.getY() - (stats.getSize() / 2));
+		body.setLocation(bodyPos.getX() - (getSize() / 2), bodyPos.getY() - (getSize() / 2));
 
 		g.setColor(color);
 

@@ -29,8 +29,8 @@ public class GenericPlantBody extends AlifeBody
 	public GenericPlantBody(Vector2f pos, float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
 	{
 		stats = new GenericPlantStats(startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
-
-		initBody();
+		
+		initPlantBody(stats.getSize());
 
 		setIntialPos(pos);
 	}
@@ -38,14 +38,10 @@ public class GenericPlantBody extends AlifeBody
 	/** 
 	 * Initializes The body. 
 	 */
-	private void initBody()
+	private void initPlantBody(float size)
 	{
-		body = new Rectangle(0, 0, stats.getSize(), stats.getSize());
-
-		trueSize = body.getBoundingCircleRadius();
-
-		trueBody = new Circle(0, 0, trueSize);
-
+		setSize(size);
+		
 		setColor(Color.green);
 	}
 

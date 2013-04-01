@@ -46,6 +46,8 @@ public class GenericPlantBodyTests
 		// *2 for Diameter
 		float trueSizeSQRD = (trueSize * trueSize) * 2;
 
+		plant.setSize(2);
+		
 		/* ASSUMES size is 1 as its hardcoded for now */
 		System.out.println("----------------------------------------------------");
 		System.out.println("Test - plantTrueSizeTest");

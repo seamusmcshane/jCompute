@@ -39,12 +39,12 @@ public class SimpleAgentBody extends AlifeBody
 	 */
 	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
 	{
-
+			
 		this.stats = stats;
 
 		forwardVector = new Vector2f(0, -stats.getMaxSpeed()); /* Forward 1 up */
 
-		initBody();
+		initAgentBody(stats.getSize());
 
 		setIntialPos(pos);
 	}
@@ -52,14 +52,10 @@ public class SimpleAgentBody extends AlifeBody
 	/** 
 	 * Initialises the two body representations 
 	 */
-	private void initBody()
+	private void initAgentBody(float size)
 	{
-		body = new Rectangle(0, 0, stats.getSize(), stats.getSize());
-
-		trueSize = body.getBoundingCircleRadius();
-
-		trueBody = new Circle(0, 0, trueSize);
-
+		setSize(size);
+		
 		setAgentColor();
 	}
 
@@ -164,7 +160,7 @@ public class SimpleAgentBody extends AlifeBody
 				if (isAgentCloseEnoughToEat(view))
 				{
 					// Kill Agent
-					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAlife()); // 100% energy
+					stats.addEnergy(view.getOriginalAgentRef().body.stats.killAgent()); // 100% energy
 
 					return true;
 				}
@@ -244,11 +240,11 @@ public class SimpleAgentBody extends AlifeBody
 	{
 		if (stats.getType().getType() == AgentType.PREY)
 		{
-			super.setColor(Color.blue);
+			setColor(Color.blue);
 		}
 		else // Predator
 		{
-			super.setColor(Color.red);
+			setColor(Color.red);
 		}
 	}
 
