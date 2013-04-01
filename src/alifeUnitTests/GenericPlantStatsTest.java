@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import alife.GenericPlantStats;
+import alifeSim.Alife.GenericPlant.GenericPlantStats;
 
 public class GenericPlantStatsTest
 {

@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import alife.World;
+import alifeSim.World.World;
 /**
  * This is the JUnit Test for the world class.
  */

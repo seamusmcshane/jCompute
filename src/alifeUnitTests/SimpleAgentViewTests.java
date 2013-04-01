@@ -6,12 +6,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.newdawn.slick.geom.Vector2f;
 
-import alife.SimpleAgent;
-import alife.SimpleAgentBody;
-import alife.SimpleAgentEnum.AgentType;
-import alife.SimpleAgentStats;
-import alife.SimpleAgentType;
-import alife.SimpleAgentView;
+import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.Alife.SimpleAgent.SimpleAgentBody;
+import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
+import alifeSim.Alife.SimpleAgent.SimpleAgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentView;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 
 public class SimpleAgentViewTests
 {

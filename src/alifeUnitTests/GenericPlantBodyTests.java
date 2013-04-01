@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
-import alife.GenericPlantBody;
+import alifeSim.Alife.GenericPlant.GenericPlantBody;
 
 public class GenericPlantBodyTests
 {

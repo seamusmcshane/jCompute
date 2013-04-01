@@ -5,10 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import alife.BarrierManager;
-import alife.SimpleAgentManagementSetupParam;
-import alife.SimpleAgentManager;
-import alife.World;
+import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
+import alifeSim.Simulation.BarrierManager;
+import alifeSim.World.World;
 /**
  * 
  * Simple Agent Manager Tests

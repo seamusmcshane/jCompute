@@ -8,9 +8,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import alife.SimpleAgentEnum.AgentType;
-import alife.SimpleAgentStats;
-import alife.SimpleAgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
+import alifeSim.Alife.SimpleAgent.SimpleAgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 
 public class SimpleAgentStatsTests
 {

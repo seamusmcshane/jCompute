@@ -6,9 +6,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import alife.SimpleAgentEnum.AgentEval;
-import alife.SimpleAgentEnum.AgentType;
-import alife.SimpleAgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentEval;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 /**
  * 
  * Simple Agent Type Evaluation Tests

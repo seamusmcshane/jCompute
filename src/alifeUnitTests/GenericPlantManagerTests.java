@@ -5,9 +5,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import alife.BarrierManager;
-import alife.GenericPlantManager;
-import alife.World;
+import alifeSim.Alife.GenericPlant.GenericPlantManager;
+import alifeSim.Simulation.BarrierManager;
+import alifeSim.World.World;
 
 /**
  * 

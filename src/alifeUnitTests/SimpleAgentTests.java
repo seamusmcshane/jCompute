@@ -5,10 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import alife.SimpleAgent;
-import alife.SimpleAgentStats;
-import alife.SimpleAgentType;
-import alife.SimpleAgentEnum.AgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
+import alifeSim.Alife.SimpleAgent.SimpleAgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 
 public class SimpleAgentTests
 {
