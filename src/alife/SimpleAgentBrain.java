@@ -124,6 +124,10 @@ public class SimpleAgentBrain
 				grazeState();
 
 				break;
+			default:
+				System.out.println("Invalid State");
+				System.exit(1);
+				break;
 		}
 	}
 
@@ -149,7 +153,8 @@ public class SimpleAgentBrain
 
 			}
 			else
-				if (myBody.stats.getType().strongerThan(view.agentType()) == AgentEval.SAME) // This agent is equal in strength to me (same type)
+			{
+				if (myBody.stats.getType().strongerThan(view.agentType()) == AgentEval.SAME) // This agent is equal in strength to me (same type)			
 				{
 					if (view.hasPlantInView() && myBody.stats.getType().eatsPlants()) // Do we eat plants?
 					{
@@ -169,10 +174,9 @@ public class SimpleAgentBrain
 					// Evade - this agent will hunt me down
 					state = AgentState.EVADE;
 				}
-
+			}
 		}
-		else
-		// No Agents in View
+		else // No Agents in View
 		{
 
 			if (view.hasPlantInView() && myBody.stats.getType().eatsPlants()) // Do we eat plants?

@@ -62,9 +62,6 @@ public class BarrierTaskThread extends Thread
 	private boolean running=true;
 	
 	private int myId; // Debug
-
-	int list_starts;
-	int list_ends;
 	
 	/**
 	 * Instantiates a new barrier task thread.
@@ -89,13 +86,13 @@ public class BarrierTaskThread extends Thread
 	 * @param plantList
 	 * @param plantKDTree
 	 */
-	public void setTask(LinkedList<SimpleAgent> agentList,int starts,int ends, KdTree<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
+	public void setTask(LinkedList<SimpleAgent> agentList, KdTree<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;
 		this.plantList = plantList;
-
-		this.list_starts = starts;
-		this.list_ends = ends;
+		
+		System.out.println("Thread" + myId + " List Size" + agentList.size());
+		
 		
 		this.agentListItr = agentList.listIterator();
 		this.plantListItr = plantList.listIterator();
@@ -145,18 +142,13 @@ public class BarrierTaskThread extends Thread
 					}
 	
 				}
-	
-				int i=0;
-				while(i!=list_starts)
-				{
-					agentListItr.next();
-					i++;
-				}
+				
+				/* Reset the iterator reference to start form the start of the list */
+				agentListItr = agentList.listIterator();				
 				
 				/** Section 2 */
-				while (i<list_ends)
+				while (agentListItr.hasNext())
 				{
-	
 					currentAgent = agentListItr.next();
 	
 					// Convert our vector to the format for the tree
@@ -185,28 +177,18 @@ public class BarrierTaskThread extends Thread
 						 */
 						agentViewRangeKDSQPlants();
 					}
-					i++;
 				}
 	
 				/* Reset the iterator reference to start form the start of the list */
 				agentListItr = agentList.listIterator();
-	
-				i=0;
-				while(i!=list_starts)
-				{
-					agentListItr.next();
-					i++;
-				}				
-				
+
 				/** Section 3 - Processing the Agent Step */
-				while (i<list_ends)
+				while (agentListItr.hasNext())
 				{
-	
 					currentAgent = agentListItr.next();
 	
 					// Parallel Agent Thinking
 					currentAgent.brain.think();
-					i++;
 				}
 			}
 

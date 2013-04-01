@@ -39,9 +39,6 @@ public class BarrierManager extends Thread
 	private KdTree<GenericPlant> plantKDTree;
 	private LinkedList<GenericPlant> plantList;
 	private LinkedList<GenericPlant>[] plantTaskLists;
-
-	private int[] agentStarts;
-	private int[] agentEnds;
 	
 	/** Counts used in list division */
 	private int agentCount;
@@ -195,7 +192,7 @@ public class BarrierManager extends Thread
 	{
 		for (int i = 0; i < numThreads; i++)
 		{
-			barrierThreads[i].setTask(agentList,agentStarts[i],agentEnds[i], agentKDTree, plantTaskLists[i], plantKDTree);
+			barrierThreads[i].setTask(agentTaskLists[i], agentKDTree, plantTaskLists[i], plantKDTree);
 		}
 	}
 
@@ -207,9 +204,7 @@ public class BarrierManager extends Thread
 	{
 		agentTaskLists = new LinkedList[numThreads];
 		plantTaskLists = new LinkedList[numThreads];
-		
-		agentStarts = new int[numThreads];
-		agentEnds = new int[numThreads];
+
 	}
 
 	/** 
@@ -299,7 +294,7 @@ public class BarrierManager extends Thread
 			}
 
 			/* Add the plant to the smaller list */
-			//plantTaskLists[thread_num].add(temp);
+			plantTaskLists[thread_num].add(temp);
 
 			tPlantCount++;
 		}
@@ -364,12 +359,7 @@ public class BarrierManager extends Thread
 			if (tAgentCount == split)
 			{
 				if (thread_num < (numThreads - 1))
-				{
-					agentStarts[thread_num] = start;
-					agentEnds[thread_num] = split;
-					start = split + 1;
-					//System.out.println("Start " + agentStarts[thread_num] + " End " +agentEnds[thread_num]);
-					
+				{				
 					split = split + div;
 					thread_num++;
 					
@@ -377,7 +367,7 @@ public class BarrierManager extends Thread
 			}
 
 			/* Add the agent to the smaller list */
-			//agentTaskLists[thread_num].add(temp);
+			agentTaskLists[thread_num].add(temp);
 
 			tAgentCount++;
 		}
