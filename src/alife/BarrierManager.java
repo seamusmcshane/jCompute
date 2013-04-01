@@ -31,7 +31,9 @@ public class BarrierManager extends Thread
 	private BarrierTaskThread barrierThreads[];
 
 	/** References for Agent Tasks */
-	private KdTree<SimpleAgent> agentKDTree;
+	//private KdTree<SimpleAgent> agentKDTree;
+	private KNNInf<SimpleAgent> agentKDTree;
+	
 	private LinkedList<SimpleAgent> agentList;
 	private LinkedList<SimpleAgent>[] agentTaskLists;
 
@@ -59,6 +61,8 @@ public class BarrierManager extends Thread
 		this.barrierControllerSemaphore = barrierControllerSemaphore;
 
 		this.numThreads = numThreads;
+		
+		agentKDTree = new thirdGenKDWrapper<SimpleAgent>();
 
 		setUpTaskLists();
 
@@ -309,7 +313,7 @@ public class BarrierManager extends Thread
 	private void splitAgentList()
 	{
 		/* 2d - KD-Tree */
-		agentKDTree = new KdTree<SimpleAgent>(2);
+		agentKDTree.init(2);
 
 		int i = 0;
 
@@ -349,10 +353,10 @@ public class BarrierManager extends Thread
 
 			/* This Section adds each agent and its coordinates to the kd tree */
 			{
-				pos = new double[2];
-				pos[0] = temp.body.getBodyPos().getX();
-				pos[1] = temp.body.getBodyPos().getY();
-				agentKDTree.addPoint(pos, temp);
+				//pos = new double[2];
+				//pos[0] = temp.body.getBodyPos().getX();
+				//pos[1] = temp.body.getBodyPos().getY();
+				agentKDTree.add(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp);
 			}
 
 			/* This section does the decision boundaries for splitting the list */

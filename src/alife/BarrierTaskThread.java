@@ -28,7 +28,7 @@ public class BarrierTaskThread extends Thread
 	private LinkedList<GenericPlant> plantList;
 
 	/** The Entire World View. (Both Trees) */
-	private KdTree<SimpleAgent> agentKDTree;
+	private KNNInf<SimpleAgent> agentKDTree;
 	private KdTree<GenericPlant> plantKDTree;
 
 	/** The Agent List Iterator. */
@@ -41,7 +41,6 @@ public class BarrierTaskThread extends Thread
 	private final SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
 
 	/** The agents and plants neighbor list. */
-	private MaxHeap<SimpleAgent> agentNeighborList;
 	private MaxHeap<GenericPlant> plantNeighborList;
 
 	/** Reference to the current agent. */
@@ -86,7 +85,7 @@ public class BarrierTaskThread extends Thread
 	 * @param plantList
 	 * @param plantKDTree
 	 */
-	public void setTask(LinkedList<SimpleAgent> agentList, KdTree<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
+	public void setTask(LinkedList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;
 		this.plantList = plantList;
@@ -152,14 +151,13 @@ public class BarrierTaskThread extends Thread
 					currentAgent = agentListItr.next();
 	
 					// Convert our vector to the format for the tree
-					pos[0] = currentAgent.body.getBodyPos().getX();
-					pos[1] = currentAgent.body.getBodyPos().getY();
+					//pos[0] = currentAgent.body.getBodyPos().getX();
+					//pos[1] = currentAgent.body.getBodyPos().getY();
 	
 					// Get two agents - due to the closest agent to its self being its self, but one plant
-					agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
-	
-					// Max is the next closest - Self is 0
-					nearestAgent = agentNeighborList.getMax();
+					//agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
+					
+					nearestAgent = agentKDTree.nearestNeighbor(currentAgent.body.getBodyPos().getX(),currentAgent.body.getBodyPos().getY());
 	
 					/*
 					 * calculate if the Nearest Agents are in the view Range of the
