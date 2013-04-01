@@ -334,16 +334,7 @@ public class BarrierManager extends Thread
 
 		/* Temp Var */
 		SimpleAgent temp;
-		
-		/* Vector*/
-		double[] pos;
-		
-		//plantStarts[0] = 0;
-		//plantEnds[0] = 0;
-		
-		int start = 0;
-		int end = 0;
-		
+				
 		/* Split the lists */
 			
 		while (itr.hasNext())

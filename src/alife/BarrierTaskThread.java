@@ -90,8 +90,8 @@ public class BarrierTaskThread extends Thread
 		this.agentList = agentList;
 		this.plantList = plantList;
 		
-		System.out.println("Thread" + myId + " List Size" + agentList.size());
-		
+		/*System.out.println("plantList " + plantList.size());
+		System.out.println("plantKDTree " + plantKDTree.size());*/
 		
 		this.agentListItr = agentList.listIterator();
 		this.plantListItr = plantList.listIterator();
@@ -149,14 +149,7 @@ public class BarrierTaskThread extends Thread
 				while (agentListItr.hasNext())
 				{
 					currentAgent = agentListItr.next();
-	
-					// Convert our vector to the format for the tree
-					//pos[0] = currentAgent.body.getBodyPos().getX();
-					//pos[1] = currentAgent.body.getBodyPos().getY();
-	
-					// Get two agents - due to the closest agent to its self being its self, but one plant
-					//agentNeighborList = agentKDTree.findNearestNeighbors(pos, 2, distanceKD);
-					
+						
 					nearestAgent = agentKDTree.nearestNeighbor(currentAgent.body.getBodyPos().getX(),currentAgent.body.getBodyPos().getY());
 	
 					/*
@@ -167,6 +160,8 @@ public class BarrierTaskThread extends Thread
 	
 					if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
 					{
+						pos[0] = currentAgent.body.getBodyPos().getX();
+						pos[1] = currentAgent.body.getBodyPos().getY();
 						plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
 						nearestPlant = plantNeighborList.getMax();
 						/*
@@ -221,6 +216,14 @@ public class BarrierTaskThread extends Thread
 			return;
 		}
 
+		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
+		System.out.print(":");
+		System.out.print("Nx "+ nearestAgent.body.getBodyPos().getX()+ " Ny " +nearestAgent.body.getBodyPos().getY());
+		System.out.println("");
+		System.out.println("Distance SQ " + (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos())));
+		System.out.println("Body Sizes" + (nearestAgent.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()));
+		System.out.println("FOV " + currentAgent.brain.view.getFovDiameterSquared());*/		
+		
 		if ( (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) 				  // Part 1
 				- (nearestAgent.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()) ) // Part 2
 				< currentAgent.brain.view.getFovDiameterSquared())											  // Part 3			
@@ -249,15 +252,25 @@ public class BarrierTaskThread extends Thread
 			return;
 		}
 
-		if ((currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos()) - (nearestPlant.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter())) < currentAgent.brain.view.getFovDiameterSquared())
+		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
+		System.out.print(":");
+		System.out.print("Px "+ nearestPlant.body.getBodyPos().getX()+ " Py " +nearestPlant.body.getBodyPos().getY());
+		System.out.println("");
+		System.out.println("Distance SQ " + (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos())));
+		System.out.println("Body Sizes" + (nearestPlant.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()));
+		System.out.println("FOV " + currentAgent.brain.view.getFovDiameterSquared());*/
+		
+		if ( (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos()) 				  // Part 1
+				- (nearestPlant.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()) ) // Part 2
+				< currentAgent.brain.view.getFovDiameterSquared())											  // Part 3			
 		{
 			currentAgent.brain.view.setPlantView(nearestPlant);
 		}
-		else
-		// Clear the view 
+		else // Clear the view 
 		{
 			currentAgent.brain.view.setPlantView(null); // not in range
-		}
+		}		
+		
 	}
 
 }
