@@ -3,7 +3,7 @@ package alifeSim.datastruct;
 public class ArrayList<Datatype> implements ListInf<Datatype>
 {
 	private ArrayListNode<Datatype>[] arrayList;
-	
+	private ArrayListNode<Datatype>[] tArrayList;
 	private int position;
 		
 	private int nodeCount;
@@ -37,14 +37,15 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		
 		nodeCount = 0;
 		
-		System.out.println("Size " + size);
+		//System.out.println("Size " + size);
 	}
 
 	@Override
 	public void add(Datatype data)
 	{
+		//System.out.println("Size " + size + " Pos " + position);
 		// Arrays....
-		if( (position+1) == size )
+		if( (position) == size-1 )
 		{
 			increaseListSize();
 		}
@@ -59,17 +60,24 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	{
 		System.out.println("List Size too small....");
 		int newSize = size*sizeAdj;
-		ArrayListNode<Datatype>[] newArrayList = new ArrayListNode[newSize];
+		tArrayList = new ArrayListNode[newSize];
 		
 		int tPos = 0;
 		
 		while(arrayList[tPos].getData()!=null)
 		{
-			newArrayList[tPos] = new ArrayListNode<Datatype>();	
-			newArrayList[tPos].setData(arrayList[tPos].getData());
+			tArrayList[tPos] = new ArrayListNode<Datatype>();	
+			tArrayList[tPos].setData(arrayList[tPos].getData());
+			tPos++;
 		}
 		
-		arrayList = newArrayList;
+		while(tPos<newSize)
+		{
+			tArrayList[tPos] = new ArrayListNode<Datatype>();
+			tPos++;
+		}
+		
+		arrayList = tArrayList;
 		size = newSize;
 		
 	}

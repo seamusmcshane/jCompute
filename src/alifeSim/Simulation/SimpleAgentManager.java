@@ -297,10 +297,10 @@ public class SimpleAgentManager
 					 */
 					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), agentSize, temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
 				}
-				else
+				/*else
 				{
 					System.out.println("Agent Dead");
-				}
+				}*/
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
 			}
