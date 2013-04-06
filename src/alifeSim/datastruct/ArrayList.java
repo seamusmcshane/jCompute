@@ -110,6 +110,23 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		
 		return temp;
 	}
+	
+	/* Get a particular position */
+	public Datatype getPos(int pos)
+	{		
+		Datatype temp;
+
+		if(pos>size)
+		{
+			temp = null;
+		}		
+		else
+		{
+			temp = arrayList[position].getData();	
+		}
+		
+		return temp;	
+	}
 
 	@Override
 	public boolean hasNext()
