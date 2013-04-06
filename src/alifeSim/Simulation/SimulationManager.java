@@ -4,9 +4,6 @@ import java.util.concurrent.Semaphore;
 
 import org.newdawn.slick.Graphics;
 
-import alifeSim.Alife.GenericPlant.GenericPlantManager;
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
-import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 
 /**
  * This class is the top level manager for the processing sequence a step in the simulation.
@@ -27,7 +24,7 @@ public class SimulationManager
 
 	/** Simulation Agent Manager */
 	private SimpleAgentManager simpleAgentManager;
-
+	
 	/** Simulation Plant Manager */
 	private GenericPlantManager genericPlantManager;
 

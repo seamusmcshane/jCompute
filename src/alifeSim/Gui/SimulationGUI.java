@@ -46,7 +46,7 @@ import javax.swing.ButtonGroup;
 import java.awt.Color;
 import javax.swing.ImageIcon;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Simulation.SimpleAgentManagementSetupParam;
 import alifeSim.Simulation.Simulation;
 /**
  * This class manages user interaction in setting up and controlling the simulation.

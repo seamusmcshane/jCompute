@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
 import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.World.World;

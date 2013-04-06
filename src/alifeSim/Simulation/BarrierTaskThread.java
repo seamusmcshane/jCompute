@@ -10,6 +10,7 @@ import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.KNN.KNNInf;
+import alifeSim.datastruct.ArrayList;
 
 /**
  *  This thread object will iterate through a linked list of agents passed to it, 
@@ -25,7 +26,7 @@ public class BarrierTaskThread extends Thread
 {
 
 	/** The Agent list. */
-	private LinkedList<SimpleAgent> agentList;
+	private ArrayList<SimpleAgent> agentList;
 
 	/** The Plant list. */
 	private LinkedList<GenericPlant> plantList;
@@ -88,7 +89,7 @@ public class BarrierTaskThread extends Thread
 	 * @param plantList
 	 * @param plantKDTree
 	 */
-	public void setTask(LinkedList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
+	public void setTask(ArrayList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;
 		this.plantList = plantList;
@@ -96,7 +97,7 @@ public class BarrierTaskThread extends Thread
 		/*System.out.println("plantList " + plantList.size());
 		System.out.println("plantKDTree " + plantKDTree.size());*/
 		
-		this.agentListItr = agentList.listIterator();
+		//this.agentListItr = agentList.listIterator();
 		this.plantListItr = plantList.listIterator();
 
 		/* KD Trees */
@@ -146,12 +147,14 @@ public class BarrierTaskThread extends Thread
 				}
 				
 				/* Reset the iterator reference to start form the start of the list */
-				agentListItr = agentList.listIterator();				
+				//agentListItr = agentList.listIterator();				
+				
+				agentList.resetHead();
 				
 				/** Section 2 */
-				while (agentListItr.hasNext())
+				while (agentList.hasNext())
 				{
-					currentAgent = agentListItr.next();
+					currentAgent = agentList.getNext();
 						
 					nearestAgent = agentKDTree.nearestNeighbor(currentAgent.body.getBodyPos().getX(),currentAgent.body.getBodyPos().getY());
 	
@@ -176,12 +179,14 @@ public class BarrierTaskThread extends Thread
 				}
 	
 				/* Reset the iterator reference to start form the start of the list */
-				agentListItr = agentList.listIterator();
+				//agentListItr = agentList.listIterator();
+				
+				agentList.resetHead();
 
 				/** Section 3 - Processing the Agent Step */
-				while (agentListItr.hasNext())
+				while (agentList.hasNext())
 				{
-					currentAgent = agentListItr.next();
+					currentAgent = agentList.getNext();
 	
 					// Parallel Agent Thinking
 					currentAgent.brain.think();

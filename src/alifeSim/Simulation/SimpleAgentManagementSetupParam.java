@@ -1,4 +1,4 @@
-package alifeSim.Alife.SimpleAgent;
+package alifeSim.Simulation;
 /**
  * This class is used for transferring many parameters into the simulation from the GUI in bulk
  * avoiding the need to pass them in singular.

@@ -1,4 +1,4 @@
-package alifeSim.Alife.SimpleAgent;
+package alifeSim.Simulation;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -7,11 +7,14 @@ import java.util.Random;
 
 import org.newdawn.slick.Graphics;
 
+import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
+import alifeSim.Alife.SimpleAgent.SimpleAgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
-import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
+import alifeSim.datastruct.ArrayList;
 
 /**
  * 
@@ -28,11 +31,14 @@ public class SimpleAgentManager
 {
 
 	/** The agent Actions Linked Lists */
-	LinkedList<SimpleAgent> doList;
-	LinkedList<SimpleAgent> doneList;
-
+	//LinkedList<SimpleAgent> doList;
+	//LinkedList<SimpleAgent> doneList;
+	ArrayList<SimpleAgent> doList;
+	ArrayList<SimpleAgent> doneList;	
+	
 	/** The draw agent references */
-	ListIterator<SimpleAgent> itrDrawAI;
+	//ListIterator<SimpleAgent> itrDrawAI;
+	
 	SimpleAgent tAgentDrawAI;
 
 	/** Holds Unique Id position agent id */
@@ -185,12 +191,14 @@ public class SimpleAgentManager
 	public void drawAgent(Graphics g, boolean trueDrawing, boolean viewRangeDrawing)
 	{
 
-		itrDrawAI = doneList.listIterator();
+		//itrDrawAI = doneList.listIterator();
+		
+		doneList.resetHead();
 
-		while (itrDrawAI.hasNext())
+		while (doneList.hasNext())
 		{
 
-			tAgentDrawAI = itrDrawAI.next();
+			tAgentDrawAI = doneList.getNext();
 
 			// Optimization - Only draw visible agents that are inside the cameraBoundarie
 			if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
@@ -253,7 +261,7 @@ public class SimpleAgentManager
 	 * Agents that are dead stay in the do list which gets nullified at the start next step. */
 	private void updateDoneList()
 	{
-		ListIterator<SimpleAgent> itr = doList.listIterator();
+		//ListIterator<SimpleAgent> itr = doList.listIterator();
 
 		agentCount = 0;
 		preyCount = 0;
@@ -262,14 +270,16 @@ public class SimpleAgentManager
 		/* Temp var */
 		SimpleAgent temp;
 		
-		while (itr.hasNext())
+		doList.resetHead();
+		
+		while (doList.get()!=null)
 		{
 
 			/* Get a reference to the current agent */
-			temp = itr.next();
+			temp = doList.getNext();
 
 			/* remove from the doList */
-			itr.remove();
+			//doList.remove();
 
 			// If agent not dead ..	
 			if (!temp.body.stats.isDead())
@@ -287,7 +297,10 @@ public class SimpleAgentManager
 					 */
 					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), agentSize, temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
 				}
-
+				else
+				{
+					System.out.println("Agent Dead");
+				}
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
 			}
@@ -298,13 +311,14 @@ public class SimpleAgentManager
 	private void setUpLists()
 	{
 		doList = doneList;
-		doneList = new LinkedList<SimpleAgent>();
+		doneList = new ArrayList<SimpleAgent>();
 	}
 
 	/** Randomize the doList */
 	private void randomizeListOrder()
 	{
-		Collections.shuffle(doList);
+		// TODO randomizeListOrder
+		//Collections.shuffle(doList);
 	}
 
 	/**

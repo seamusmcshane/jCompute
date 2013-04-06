@@ -9,6 +9,7 @@ import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.KNN.KNNInf;
 import alifeSim.KNN.thirdGenKDWrapper;
+import alifeSim.datastruct.ArrayList;
 /**
  * 
  * This class instantiates a barrier manager.
@@ -38,8 +39,8 @@ public class BarrierManager extends Thread
 	//private KdTree<SimpleAgent> agentKDTree;
 	private KNNInf<SimpleAgent> agentKDTree;
 	
-	private LinkedList<SimpleAgent> agentList;
-	private LinkedList<SimpleAgent>[] agentTaskLists;
+	private ArrayList<SimpleAgent>agentList;
+	private ArrayList<SimpleAgent>[] agentTaskLists;
 
 	/** References for Plant Tasks */
 	private KdTree<GenericPlant> plantKDTree;
@@ -147,7 +148,7 @@ public class BarrierManager extends Thread
 	 * @param inList
 	 * @param numAgents int
 	 */
-	public void setBarrierAgentTask(LinkedList<SimpleAgent> inList, int numAgents)
+	public void setBarrierAgentTask(ArrayList<SimpleAgent> inList, int numAgents)
 	{
 		agentList = inList;
 		agentCount = numAgents;
@@ -210,7 +211,7 @@ public class BarrierManager extends Thread
 	@SuppressWarnings("unchecked")
 	private void setUpTaskLists()
 	{
-		agentTaskLists = new LinkedList[numThreads];
+		agentTaskLists = new ArrayList[numThreads];
 		plantTaskLists = new LinkedList[numThreads];
 
 	}
@@ -324,10 +325,10 @@ public class BarrierManager extends Thread
 		/* Create a list for each thread and the thread */
 		for (i = 0; i < numThreads; i++)
 		{
-			agentTaskLists[i] = new LinkedList<SimpleAgent>();
+			agentTaskLists[i] = new ArrayList<SimpleAgent>();
 		}
 
-		ListIterator<SimpleAgent> itr = agentList.listIterator();
+		//ListIterator<SimpleAgent> itr = agentList.listIterator();
 
 		/* Calculate the Splits */
 		int div = agentCount / numThreads;
@@ -341,10 +342,12 @@ public class BarrierManager extends Thread
 				
 		/* Split the lists */
 			
-		while (itr.hasNext())
+		agentList.resetHead();
+		
+		while (agentList.hasNext())
 		{
 			/* Get an agent */
-			temp = itr.next();
+			temp = agentList.getNext();
 
 			/* This Section adds each agent and its coordinates to the kd tree */
 			{
