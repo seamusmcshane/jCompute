@@ -46,7 +46,8 @@ public class SimpleAgentManager
 
 	/** The agent count */
 	int agentCount;
-
+	int agentCountMax;
+	
 	/** Predator and prey counts */
 	int preyCount;
 	int predatorCount;
@@ -73,6 +74,7 @@ public class SimpleAgentManager
 		this.agentSettings = agentSettings;  // All the intial agent settings are contained in this struct
 
 		agentCount = 0;
+		agentCountMax = 0;
 		preyCount = 0;
 		predatorCount = 0;
 		agentIdCount = 0;
@@ -154,6 +156,11 @@ public class SimpleAgentManager
 
 		agentCount++;
 
+		if(agentCount > agentCountMax)
+		{
+			agentCountMax = agentCount;
+		}
+		
 	}
 
 	/**
@@ -272,7 +279,7 @@ public class SimpleAgentManager
 		
 		doList.resetHead();
 		
-		while (doList.get()!=null)
+		while (doList.hasNext())
 		{
 
 			/* Get a reference to the current agent */
@@ -311,7 +318,7 @@ public class SimpleAgentManager
 	private void setUpLists()
 	{
 		doList = doneList;
-		doneList = new ArrayList<SimpleAgent>();
+		doneList = new ArrayList<SimpleAgent>(agentCountMax);
 	}
 
 	/** Randomize the doList */

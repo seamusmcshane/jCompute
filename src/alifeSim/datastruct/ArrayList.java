@@ -11,16 +11,21 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	private int size;
 
 	private int sizeAdj;
-	
+		
 	/* Default Constructor */
 	public ArrayList()
 	{
-		this(10000);		// default size
+		this(100);		// default size
 	}
 	
 	/* Size based constructor */
 	public ArrayList(int size)
 	{
+		if(size<10)
+		{
+			size = 10;
+		}
+		
 		this.size = size;
 		
 		sizeAdj = 2; // x2 double list size on reach capacity
@@ -58,7 +63,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 
 	private void increaseListSize()
 	{
-		System.out.println("List Size too small....");
+		System.out.println(size + " List Size too small....");
 		int newSize = size*sizeAdj;
 		tArrayList = new ArrayListNode[newSize];
 		
@@ -79,6 +84,9 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		
 		arrayList = tArrayList;
 		size = newSize;
+
+		System.out.println(size + " new Size");
+
 		
 	}
 	
@@ -103,7 +111,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 
 	@Override
 	public Datatype getNext()
-	{				
+	{
 		Datatype temp = arrayList[position].getData();
 		
 		position++;
@@ -116,7 +124,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	{		
 		Datatype temp;
 
-		if(pos>size)
+		if(pos >=nodeCount)
 		{
 			temp = null;
 		}		
@@ -131,11 +139,14 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	@Override
 	public boolean hasNext()
 	{
-		boolean status = true;
+		boolean status = false;
 		
-		if(arrayList[position+1].getData()== null)
+		if(position < nodeCount)
 		{
-			status = false;
+			if(arrayList[position].getData() != null)
+			{
+				status = true;
+			}
 		}
 		
 		return status;

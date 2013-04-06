@@ -152,7 +152,7 @@ public class BarrierTaskThread extends Thread
 				agentList.resetHead();
 				
 				/** Section 2 */
-				while (agentList.hasNext())
+				while (agentList.get()!=null)
 				{
 					currentAgent = agentList.getNext();
 						
@@ -184,7 +184,7 @@ public class BarrierTaskThread extends Thread
 				agentList.resetHead();
 
 				/** Section 3 - Processing the Agent Step */
-				while (agentList.hasNext())
+				while (agentList.get()!=null)
 				{
 					currentAgent = agentList.getNext();
 	

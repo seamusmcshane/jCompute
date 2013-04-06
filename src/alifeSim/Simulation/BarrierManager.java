@@ -322,17 +322,20 @@ public class BarrierManager extends Thread
 
 		int i = 0;
 
+		/* Calculate the Splits */
+		int div = agentCount / numThreads;
+		int rem = agentCount % numThreads;
+		int split = div;		
+		
 		/* Create a list for each thread and the thread */
 		for (i = 0; i < numThreads; i++)
 		{
-			agentTaskLists[i] = new ArrayList<SimpleAgent>();
+			agentTaskLists[i] = new ArrayList<SimpleAgent>( (split+rem)+1);
 		}
 
 		//ListIterator<SimpleAgent> itr = agentList.listIterator();
 
-		/* Calculate the Splits */
-		int div = agentCount / numThreads;
-		int split = div;
+
 
 		int thread_num = 0;
 		int tAgentCount = 0;
