@@ -1,0 +1,50 @@
+[Config]
+
+Version	= 0.001
+
+[Simulation]
+
+WorldSize=1024
+Barriers = 0
+BarrierScenario = 1
+
+[SimpleAgentPredators]
+
+InitialNumbers = 100
+
+Speed = 1.00
+ViewRange = 10
+MovementCost = 0.025
+StartingEnergy = 25
+
+DigestiveEfficiency = 0.5
+HungerThreshold = 50
+EnergyConsumptionRate = 100
+ReproductionAndSurvivalDivisor = 0.5
+ReproductionCost 0.50
+
+[SimpleAgentPrey]
+
+InitialNumbers = 800
+
+Speed = 0.90
+ViewRange = 10
+MovementCost = 0.025
+StartingEnergy = 25
+
+DigestiveEfficiency = 0.4
+ReproductionAndSurvivalDivisor = 0.5
+HungerThreshold = 50
+EnergyConsumptionRate = 100
+ReproductionCost 0.55
+
+[GenericPlant]
+
+InitialNumbers = 400
+
+StartingEnergy = 50
+
+PlantRegeratonRate = 8
+EnergyAbsorptionRate = 8
+ReproductionAndSurvivalDivisor = 0.25
+StartingEnergy = 50
