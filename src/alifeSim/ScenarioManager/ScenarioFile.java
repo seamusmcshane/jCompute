@@ -12,7 +12,7 @@ public class ScenarioFile
 {
 	Ini scenario;
 
-	public ScenarioFile(String file) throws FileNotFoundException, InvalidFileFormatException
+	public ScenarioFile(String file)
 	{
 		try
 		{
