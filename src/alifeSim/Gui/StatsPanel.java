@@ -120,7 +120,6 @@ public class StatsPanel extends JPanel
 
 	private final JButton btnMode = new JButton("Static Mode");
 	private final JPanel rightButtonsPanel = new JPanel();
-	private final static JCheckBox chckbxFullSizeGraphCheckBox = new JCheckBox("Full Graphs");
 	private final JPanel statsBottomPanel = new JPanel();
 	private final JPanel graphSettingsPanel = new JPanel();
 	private final JLabel lblGraphDrawDiv = new JLabel("Draw Div");
@@ -501,35 +500,6 @@ public class StatsPanel extends JPanel
 
 		statsBottomPanel.add(graphSettingsPanel, BorderLayout.NORTH);
 		graphSettingsPanel.setLayout(new GridLayout(0, 3, 0, 0));
-		chckbxFullSizeGraphCheckBox.setToolTipText("Toggle the viewing size of the graph.");
-		chckbxFullSizeGraphCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
-		graphSettingsPanel.add(chckbxFullSizeGraphCheckBox);
-
-		chckbxFullSizeGraphCheckBox.setEnabled(true);
-
-		/* Set to value of graphs full */
-		chckbxFullSizeGraphCheckBox.setSelected(graphsFull);
-
-		chckbxFullSizeGraphCheckBox.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent arg0)
-			{
-				/* Paused not used anymore */
-				//if (Simulation.simPaused())
-				{
-					if (graphsFull) // Toggle graph size
-					{
-						setGraphsFull(false);
-					}
-					else
-					{
-						setGraphsFull(true);
-					}
-				}
-			}
-
-		});
-		chckbxFullSizeGraphCheckBox.setVerticalAlignment(SwingConstants.BOTTOM);
 
 		graphSettingsPanel.add(samplesPanel);
 		samplesPanel.setLayout(new GridLayout(0, 2, 0, 0));
@@ -885,28 +855,6 @@ public class StatsPanel extends JPanel
 			//setGraphsFull(true);	
 		}
 
-	}
-
-	/**
-	 * Method setGraphsFull.
-	 * @param status boolean
-	 */
-	private static void setGraphsFull(boolean status)
-	{
-		graphsFull = status;
-
-		if (status) // Hide the panels/show graphs 
-		{
-			SimulationGUI.agentParamPanel.setVisible(false);
-			SimulationGUI.plantParamPanel.setVisible(false);
-		}
-		else
-		{
-			hideLorenzPanels();
-			hideLinePanels();
-			SimulationGUI.agentParamPanel.setVisible(true);
-			SimulationGUI.plantParamPanel.setVisible(true);
-		}
 	}
 
 	/**
