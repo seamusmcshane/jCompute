@@ -1,4 +1,4 @@
-package alifeSim.KNN;
+package alifeSim.datastruct.knn;
 
 import java.util.LinkedList;
 

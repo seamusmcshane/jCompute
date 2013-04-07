@@ -9,8 +9,8 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
-import alifeSim.KNN.KNNInf;
-import alifeSim.datastruct.ArrayList;
+import alifeSim.datastruct.knn.KNNInf;
+import alifeSim.datastruct.list.ArrayList;
 
 /**
  *  This thread object will iterate through a linked list of agents passed to it, 

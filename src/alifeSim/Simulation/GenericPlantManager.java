@@ -10,7 +10,7 @@ import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.World.World;
-import alifeSim.datastruct.ArrayList;
+import alifeSim.datastruct.list.ArrayList;
 /**
  * This class manages the plants in the simulation.
  * Drawing, adding, removing and regeneration.

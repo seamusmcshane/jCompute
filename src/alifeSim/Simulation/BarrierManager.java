@@ -7,9 +7,9 @@ import java.util.concurrent.Semaphore;
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
-import alifeSim.KNN.KNNInf;
-import alifeSim.KNN.thirdGenKDWrapper;
-import alifeSim.datastruct.ArrayList;
+import alifeSim.datastruct.knn.KNNInf;
+import alifeSim.datastruct.knn.thirdGenKDWrapper;
+import alifeSim.datastruct.list.ArrayList;
 /**
  * 
  * This class instantiates a barrier manager.

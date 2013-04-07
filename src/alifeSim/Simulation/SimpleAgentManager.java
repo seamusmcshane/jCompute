@@ -14,7 +14,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.World.World;
-import alifeSim.datastruct.ArrayList;
+import alifeSim.datastruct.list.ArrayList;
 
 /**
  * 

@@ -1,4 +1,4 @@
-package alifeSim.datastruct;
+package alifeSim.datastruct.list;
 
 public abstract interface NodeInf<Nodetype,Datatype>
 {

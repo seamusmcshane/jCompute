@@ -1,4 +1,4 @@
-package alifeSim.datastruct;
+package alifeSim.datastruct.list;
 
 public class ArrayListNode<Datatype> implements  NodeInf<ArrayListNode,Datatype>
 {
