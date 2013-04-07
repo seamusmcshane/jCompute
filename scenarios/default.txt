@@ -1,6 +1,9 @@
 [Config]
 
 Version	= 0.001
+ScenarioType = SAPP
+AgentTypes = SimpleAgent
+PLantTypes = GenericPlant
 
 [Simulation]
 
@@ -8,7 +11,7 @@ WorldSize=1024
 Barriers = 0
 BarrierScenario = 1
 
-[SimpleAgentPredators]
+[Predators]
 
 InitialNumbers = 100
 
@@ -23,7 +26,7 @@ EnergyConsumptionRate = 100
 ReproductionAndSurvivalDivisor = 0.5
 ReproductionCost 0.50
 
-[SimpleAgentPrey]
+[Prey]
 
 InitialNumbers = 800
 
@@ -38,7 +41,7 @@ HungerThreshold = 50
 EnergyConsumptionRate = 100
 ReproductionCost 0.55
 
-[GenericPlant]
+[Plant]
 
 InitialNumbers = 400
 
