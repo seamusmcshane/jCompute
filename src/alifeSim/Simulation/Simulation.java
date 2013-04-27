@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
+import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
 import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
+import alifeSim.ScenarioManager.ScenarioInf;
 import alifeSim.World.World;
 
 /**
@@ -43,7 +45,7 @@ public class Simulation
 	private long stepTimePrev;
 
 	/* The Simulation manager */
-	SimulationManager simManager;
+	SAPPSimulationManager simManager;
 
 	/* The default simulation update rate */
 	public int reqSps = 15;
@@ -64,11 +66,11 @@ public class Simulation
 	/* The Simulation World. */
 	public World world;
 
-	public Simulation(int worldSize)
+	public Simulation()
 	{
 		setupThreads();
 
-		newSim(null, worldSize, 0, 0, 0, 0, 0, 0, 0, 0, null); // Never used - needed for successful startup
+		newSim(null, null); // Never used - needed for successful startup
 	}
 
 	/**
@@ -85,9 +87,10 @@ public class Simulation
 	 * @param barrierMode int
 	 * @param barrierScenario int
 	 */
-	public void newSim(StatsPanel stats, int worldSize,int barrierMode,int barrierScenario, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
+	//public void newSim(StatsPanel stats, int worldSize,int barrierMode,int barrierScenario, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
+	public void newSim(StatsPanel stats, ScenarioInf scenario)
 	{
-
+/*
 		stepSamples = new double[numSamples];
 
 		this.stepNo = 0;
@@ -104,14 +107,14 @@ public class Simulation
 
 		world = new World(worldSize,barrierMode,barrierScenario);
 
-		simManager = new SimulationManager(worldSize, agentPreyNumbers, agentPredatorNumbers, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
+		simManager = new SAPPSimulationManager(worldSize, agentPreyNumbers, agentPredatorNumbers, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
 
 		if (stats != null)
 		{
 			StatsPanel.clearStats();
 
 			StatsPanel.updateGraphs(1);
-		}
+		}*/
 
 	}
 
@@ -341,7 +344,7 @@ public class Simulation
 	 */
 	public void drawSim(Graphics g, boolean true_drawing, boolean view_range_drawing)
 	{
-		//if (simStarted)
+		if (simStarted)
 		{
 			if (world != null)
 			{
