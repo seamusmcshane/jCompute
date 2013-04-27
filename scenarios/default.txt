@@ -1,9 +1,8 @@
 [Config]
 
-Version	= 0.001
+ConfigVersion = 0.001
+
 ScenarioType = SAPP
-AgentTypes = SimpleAgent
-PLantTypes = GenericPlant
 
 [Simulation]
 
@@ -12,6 +11,8 @@ Barriers = 0
 BarrierScenario = 1
 
 [Predators]
+
+AgentType = SimpleAgent
 
 InitialNumbers = 100
 
@@ -28,6 +29,8 @@ ReproductionCost 0.50
 
 [Prey]
 
+AgentType = SimpleAgent
+
 InitialNumbers = 800
 
 Speed = 0.90
@@ -42,6 +45,8 @@ EnergyConsumptionRate = 100
 ReproductionCost 0.55
 
 [Plant]
+
+PLantType = GenericPlant
 
 InitialNumbers = 400
 
