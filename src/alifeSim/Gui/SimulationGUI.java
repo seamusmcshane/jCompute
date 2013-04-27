@@ -160,11 +160,12 @@ public class SimulationGUI
 		setUpSimulation();
 
 		screenSizeCheck();
-
+		
 		// Display the simulation view
 		SimulationView.displayView(sim, viewX, viewY, viewWidth, viewHeight);
 
 		setUpToolTips();
+		
 	}
 
 	private static void setUpSimulation()
@@ -183,7 +184,6 @@ public class SimulationGUI
 		if(simScenario==null)
 		{			
 			determinScenarios(new File("scenarios/default.txt"));
-
 		}
 		
 		sim.createSim(statsPanel, simScenario);
@@ -849,16 +849,10 @@ public class SimulationGUI
 			File file = filechooser.getSelectedFile();
 			determinScenarios(file);	
 			
-			// Pause Toggle
-			if (sim.simPaused())
-			{
-				simUnPausedState();
-			}
-			else
+			if(!sim.simPaused())
 			{
 				simPausedState();
 			}
-			
 			/* Not already generating Sim */
 			if (!generatingSim)
 			{
