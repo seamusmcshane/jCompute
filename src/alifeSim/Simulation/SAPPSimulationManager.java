@@ -4,6 +4,10 @@ import java.util.concurrent.Semaphore;
 
 import org.newdawn.slick.Graphics;
 
+import alifeSim.Alife.GenericPlant.GenericPlantManager;
+import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
+
 
 /**
  * This class is the top level manager for the processing sequence a step in the simulation.
@@ -13,7 +17,7 @@ import org.newdawn.slick.Graphics;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class SimulationManager
+public class SAPPSimulationManager
 {
 	/** Used to prevent dual Access to the lists - which would cause an exception.
 	 * This semaphore is unfair.
@@ -48,7 +52,7 @@ public class SimulationManager
 	 * @param plantEnergyAbsorptionRate int
 	 * @param agentSettings SimpleAgentManagementSetupParam
 	 */
-	public SimulationManager(int worldSize, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
+	public SAPPSimulationManager(int worldSize, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
 	{
 		setUpBarrierManager();
 
