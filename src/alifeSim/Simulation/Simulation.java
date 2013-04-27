@@ -1,14 +1,13 @@
 package alifeSim.Simulation;
 
-import java.io.File;
 import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
 import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Scenario.SAPP.SAPPSimulationManager;
-import alifeSim.World.World;
 
 /**
  * Simulation class
@@ -45,7 +44,7 @@ public class Simulation
 	private long stepTimePrev;
 
 	/* The Simulation manager */
-	SimulationManagerInf simManager;
+	public SimulationManagerInf simManager;
 
 	/* The default simulation update rate */
 	public int reqSps = 15;
@@ -113,7 +112,7 @@ public class Simulation
 		System.out.println("Create Scenario");
 		
 		/* Switch Scenarios */
-		simManager = new SAPPSimulationManager(scenario);
+		simManager = new SAPPSimulationManager((SAPPScenario) scenario);
 				
 	}
 	

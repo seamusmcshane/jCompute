@@ -2,8 +2,6 @@ package alifeSim.Scenario.SAPP;
 
 import java.io.File;
 
-import org.ini4j.Wini;
-
 import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;

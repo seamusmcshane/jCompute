@@ -1,9 +1,6 @@
 package alifeSim.Alife.GenericPlant;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
 import alifeSim.Alife.AlifeBody;
@@ -17,8 +14,6 @@ import alifeSim.Alife.AlifeBody;
 public class GenericPlantBody extends AlifeBody
 {
 	public final GenericPlantStats stats;
-
-	private Rectangle body;
 
 	/**
 	 * Constructor for GenericPlantBody.

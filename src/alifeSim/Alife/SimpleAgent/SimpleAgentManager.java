@@ -1,8 +1,5 @@
 package alifeSim.Alife.SimpleAgent;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Random;
 
 import org.newdawn.slick.Graphics;
@@ -89,6 +86,8 @@ public class SimpleAgentManager
 
 		addAgents(worldSettings.getWorldSize(), predatorAgentSettings.getInitalNumbers(), preyAgentSettings.getInitalNumbers());
 
+		System.out.println("SimpleAgent Manger Setup Complete");
+		
 	}
 
 	/**
@@ -98,8 +97,7 @@ public class SimpleAgentManager
 	 * @param agentPredatorNumbers
 	 */
 	private void addAgents(int worldSize, int agentPredatorNumbers,  int agentPreyNumbers)
-	{
-
+	{	
 		/* Random Starting Position */
 		Random xr = new Random();
 		Random yr = new Random();
@@ -117,7 +115,7 @@ public class SimpleAgentManager
 				x = xr.nextInt(worldSize) + 1;
 				y = yr.nextInt(worldSize) + 1;				
 			}			
-			
+											//public SimpleAgentStats(SimpleAgentType type,                  , float maxSpeed,                 float size, float startingEnergy,                      float maxEnergy, float hungryThreshold,              float viewRange,                float baseMoveCost,                   float baseReproductionCost,                 float energyConsumptionRate,               float digestiveEfficency,                       float reproductionEnergyDivision)
 			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR), predatorAgentSettings.getSpeed(), agentSize, predatorAgentSettings.getStartingEnergy(), 100f, predatorAgentSettings.getHungerThres(), predatorAgentSettings.getViewRange(), predatorAgentSettings.getMoveCost(), predatorAgentSettings.getReproductionCost(), predatorAgentSettings.getConsumptionRate(), predatorAgentSettings.getDigestiveEfficiency(), predatorAgentSettings.getREDiv())));
 
 		}
@@ -298,6 +296,7 @@ public class SimpleAgentManager
 				// can this agent reproduce...
 				if (temp.body.stats.canReproduce())
 				{
+					System.out.println("Agent temp.body.stats.canReproduce()" + temp.body.stats.canReproduce() );
 					temp.body.stats.decrementReproductionCost();
 
 					/*
@@ -308,13 +307,15 @@ public class SimpleAgentManager
 					 */
 					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), agentSize, temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
 				}
-				/*else
-				{
-					System.out.println("Agent Dead");
-				}*/
+
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
 			}
+			//else
+			//{
+			//	
+			//}
+			
 		}
 	}
 

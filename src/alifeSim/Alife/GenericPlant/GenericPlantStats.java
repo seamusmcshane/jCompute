@@ -27,7 +27,6 @@ public class GenericPlantStats
 	private float reproductionBank;
 	private float reproductionCost;
 
-	@SuppressWarnings("unused")
 	private float baseReproductionCost;
 
 	/**

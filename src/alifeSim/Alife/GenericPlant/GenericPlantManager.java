@@ -21,6 +21,7 @@ import alifeSim.datastruct.list.ArrayList;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
+@SuppressWarnings("unused")
 public class GenericPlantManager
 {
 
@@ -41,7 +42,6 @@ public class GenericPlantManager
 	private int worldSize;
 
 	/** The initial Number of plants */
-	@SuppressWarnings("unused")
 	private int initalNumber;
 
 	/** The reproduction cost for plants */
@@ -85,8 +85,9 @@ public class GenericPlantManager
 		this.basePlantEnergyAbsorptionRate = plantSettings.getPlantEnergyAbsorptionRate();
 
 		setUpLists();
-
+		
 		addPlants(worldSize, initalNumber);
+
 	}
 
 	/** Draws all the plants with a toggle for body type

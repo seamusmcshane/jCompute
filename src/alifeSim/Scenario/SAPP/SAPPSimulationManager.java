@@ -6,7 +6,6 @@ import org.newdawn.slick.Graphics;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
-import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.World.World;
@@ -43,23 +42,26 @@ public class SAPPSimulationManager implements SimulationManagerInf
 
 	/** Controls when the barrier is released **/
 	private Semaphore barrierControllerSemaphore;
-	
-	
+		
 	/* The Simulation World. */
 	public World world;
 
+	private SAPPScenario scenario;
+	
 	/**
 	 * Constructor for SimulationManager.
 	*/
-	public SAPPSimulationManager(ScenarioInf scenario)
+	public SAPPSimulationManager(SAPPScenario scenario)
 	{
+		this.scenario = scenario;
+		
 		setUpBarrierManager();
 
-		setUpWorld((SAPPScenario) scenario);
+		setUpWorld();
 		
-		setUpPlantManager(scenario);
+		setUpPlantManager();
 
-		setUpAgentManager(scenario);
+		setUpAgentManager();
 	}
 	
 	/**
@@ -70,9 +72,9 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 * @param plantStartingEnergy int
 	 * @param plantEnergyAbsorptionRate int
 	 */
-	private void setUpPlantManager(ScenarioInf scenario)
+	private void setUpPlantManager()
 	{
-		genericPlantManager = new GenericPlantManager(barrierManager, ((SAPPScenario) scenario).plantSettings, ((SAPPScenario) scenario).worldSettings );
+		genericPlantManager = new GenericPlantManager(barrierManager, scenario.plantSettings, scenario.worldSettings );
 	}
 
 	/**
@@ -82,9 +84,9 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 * @param agentPredatorNumbers int
 	 * @param agentSettings SimpleAgentManagementSetupParam
 	 */
-	private void setUpAgentManager(ScenarioInf scenario)
+	private void setUpAgentManager()
 	{
-		simpleAgentManager = new SimpleAgentManager(barrierManager, ((SAPPScenario) scenario).predatorAgentSettings,((SAPPScenario) scenario).preyAgentSettings, ((SAPPScenario) scenario).worldSettings );
+		simpleAgentManager = new SimpleAgentManager(barrierManager, scenario.predatorAgentSettings,scenario.preyAgentSettings, scenario.worldSettings );
 	}
 
 	/**
@@ -106,7 +108,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	}
 
 
-	public void setUpWorld(SAPPScenario scenario)
+	public void setUpWorld()
 	{
 		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierMode(), scenario.worldSettings.getBarrierScenario());
 	}
@@ -203,6 +205,12 @@ public class SAPPSimulationManager implements SimulationManagerInf
 			// Debug System.out.println("Never Got Lock");
 		}
 
+	}
+
+	@Override
+	public int getWorldSize()
+	{
+		return World.getWorldSize();
 	}
 
 }

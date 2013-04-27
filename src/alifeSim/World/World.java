@@ -240,4 +240,10 @@ public class World
 		}
 
 	}
+	
+	public static int getWorldSize()
+	{
+		return worldSize;
+	}
+	
 }

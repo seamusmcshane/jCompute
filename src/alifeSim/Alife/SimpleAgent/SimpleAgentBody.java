@@ -84,7 +84,7 @@ public class SimpleAgentBody extends AlifeBody
 		{
 			//System.out.println("Wall - newPos : X | " + newPos.getX() + " Y |" + newPos.getY());
 		}
-
+		
 		/* Agent is trying to move into a wall - move denied */
 		return false;
 	}

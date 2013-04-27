@@ -16,7 +16,7 @@ BarrierScenario = 1
 
 AgentType = SimpleAgent
 
-InitialNumbers = 0
+InitialNumbers = 100
 
 Speed = 1.00
 ViewRange = 10
@@ -26,14 +26,14 @@ StartingEnergy = 25
 DigestiveEfficiency = 0.5
 HungerThreshold = 50
 EnergyConsumptionRate = 100
-ReproductionAndSurvivalDivisor = 0.5
+ReproductionAndSurvivalDivisor = 50
 ReproductionCost 0.50
 
 [Prey]
 
 AgentType = SimpleAgent
 
-InitialNumbers = 1
+InitialNumbers = 800
 
 Speed = 0.90
 ViewRange = 10
@@ -41,9 +41,9 @@ MovementCost = 0.025
 StartingEnergy = 25
 
 DigestiveEfficiency = 0.4
-ReproductionAndSurvivalDivisor = 0.5
+ReproductionAndSurvivalDivisor = 50
 HungerThreshold = 50
-EnergyConsumptionRate = 100
+EnergyConsumptionRate = 10
 ReproductionCost 0.55
 
 [Plants]

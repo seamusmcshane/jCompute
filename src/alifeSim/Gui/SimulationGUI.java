@@ -2,12 +2,9 @@ package alifeSim.Gui;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -18,7 +15,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -30,7 +26,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -49,7 +44,6 @@ import java.io.File;
 
 import javax.swing.ImageIcon;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.SAPP.SAPPScenario;
@@ -189,9 +183,13 @@ public class SimulationGUI
 		if(simScenario==null)
 		{			
 			determinScenarios(new File("scenarios/default.txt"));
+
 		}
 		
 		sim.createSim(statsPanel, simScenario);
+		
+		// Centers the simulated world in the view
+		SimulationView.setInitalViewTranslate(viewWidth, viewHeight);
 		
 		/*
 		 * If needed the GC can free old objects now, before the simulation
@@ -212,9 +210,6 @@ public class SimulationGUI
 		simRateSlider.setEnabled(false);
 
 		simRateSlider.setValue(15);
-
-		// Centers the simulated world in the view
-		//SimulationView.setInitalViewTranslate((viewWidth / 2) - ((worldSize) / 2), (viewHeight / 2) - ((worldSize) / 2));
 
 		/* Clear the old stats */
 		StatsPanel.clearStats();

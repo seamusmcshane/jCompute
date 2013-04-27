@@ -490,9 +490,10 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param x int
 	 * @param y int
 	 */
-	public static void setInitalViewTranslate(int x, int y)
+	public static void setInitalViewTranslate(int viewWidth, int viewHeight)
 	{
-		globalTranslate.set(x, y);
+		int worldSize = sim.simManager.getWorldSize();		
+		globalTranslate.set((viewWidth / 2) - ((worldSize) / 2), (viewHeight / 2) - ((worldSize) / 2));		
 	}
 
 	public static void setFocus()

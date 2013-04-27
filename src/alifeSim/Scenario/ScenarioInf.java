@@ -1,10 +1,6 @@
 package alifeSim.Scenario;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.ini4j.Ini;
-import org.ini4j.Wini;
 
 public interface ScenarioInf
 {

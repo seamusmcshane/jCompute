@@ -189,7 +189,7 @@ public class SimpleAgentStats
 		{
 			this.reproductionBank = maxEnergy;
 		}
-
+		
 	}
 
 	/** Sets the agent as dead 
@@ -303,7 +303,7 @@ public class SimpleAgentStats
 	public boolean canReproduce()
 	{
 		if (reproductionBank > reproductionCost)
-		{
+		{			
 			return true;
 		}
 		return false;

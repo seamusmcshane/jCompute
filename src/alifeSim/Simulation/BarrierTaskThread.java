@@ -35,9 +35,6 @@ public class BarrierTaskThread extends Thread
 	private KNNInf<SimpleAgent> agentKDTree;
 	private KdTree<GenericPlant> plantKDTree;
 
-	/** The Agent List Iterator. */
-	private ListIterator<SimpleAgent> agentListItr;
-
 	/** The Plant List Iterator. */
 	private ListIterator<GenericPlant> plantListItr;
 
