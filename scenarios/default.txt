@@ -26,8 +26,8 @@ StartingEnergy = 25
 DigestiveEfficiency = 0.5
 HungerThreshold = 50
 EnergyConsumptionRate = 100
-ReproductionAndSurvivalDivisor = 50
-ReproductionCost 0.50
+ReproductionAndSurvivalDivisor = 0.50
+ReproductionCost = 0.55
 
 [Prey]
 
@@ -41,10 +41,10 @@ MovementCost = 0.025
 StartingEnergy = 25
 
 DigestiveEfficiency = 0.4
-ReproductionAndSurvivalDivisor = 50
+ReproductionAndSurvivalDivisor = 0.50
 HungerThreshold = 50
 EnergyConsumptionRate = 10
-ReproductionCost 0.55
+ReproductionCost = 0.50
 
 [Plants]
 

@@ -296,7 +296,7 @@ public class SimpleAgentManager
 				// can this agent reproduce...
 				if (temp.body.stats.canReproduce())
 				{
-					System.out.println("Agent temp.body.stats.canReproduce()" + temp.body.stats.canReproduce() );
+					//System.out.println("Agent temp.body.stats.canReproduce()" + temp.body.stats.canReproduce() );
 					temp.body.stats.decrementReproductionCost();
 
 					/*

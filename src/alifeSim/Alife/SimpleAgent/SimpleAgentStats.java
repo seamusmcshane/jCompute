@@ -107,7 +107,7 @@ public class SimpleAgentStats
 		this.baseReproductionCost = baseReproductionCost;
 
 		this.reproductionCost = maxEnergy * baseReproductionCost;
-
+		
 		this.energyConsumptionRate = energyConsumptionRate;
 
 		this.digestiveEfficency = digestiveEfficency;
@@ -145,7 +145,7 @@ public class SimpleAgentStats
 	public void decrementMoveEnergy()
 	{
 		energy = energy - (size * baseMoveCost);
-
+		
 		//Debug
 		//energy = energy - (baseMoveCost);
 
@@ -301,7 +301,7 @@ public class SimpleAgentStats
 	/** Returns if this agent can reproduce 
 	 * @return boolean */
 	public boolean canReproduce()
-	{
+	{	
 		if (reproductionBank > reproductionCost)
 		{			
 			return true;
