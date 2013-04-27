@@ -6,8 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
+import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
+import alifeSim.World.WorldSetupSettings;
 
 /**
  * 
@@ -21,7 +23,13 @@ public class GenericPlantManagerTests
 
 	BarrierManager barrierManager = null;
 
+	GenericPlantSetupSettings plantSettings;
+	
+	World world;
+	WorldSetupSettings worldSettings;
+	
 	int worldSize = 1024;
+	
 	int plantRegenRate = 8;
 	int plantStartingEnergy = 100;
 	int plantEnergyAbsorptionRate = 10;
@@ -31,9 +39,20 @@ public class GenericPlantManagerTests
 	@Before
 	public void setUp() throws Exception
 	{
-		World world = new World(worldSize,0,0);
+		worldSettings = new WorldSetupSettings();
+		worldSettings.setWorldSize(worldSize);
+		
+		world = new World(worldSettings.getWorldSize(), worldSettings.getBarrierMode(), worldSettings.getBarrierScenario());
+		
+		plantSettings= new GenericPlantSetupSettings();
+		
+		plantSettings.setInitialPlantNumbers(initalNumber);
+		plantSettings.setPlantEnergyAbsorptionRate(plantEnergyAbsorptionRate);
+		plantSettings.setPlantRegenRate(plantRegenRate);
+		plantSettings.setPlantStartingEnergy(plantStartingEnergy);
+				
 		System.out.println("Create a plant manager.");
-		plantManager = new GenericPlantManager(barrierManager, worldSize, initalNumber, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);
+		plantManager = new GenericPlantManager(barrierManager, plantSettings, worldSettings);
 	}
 
 	/*

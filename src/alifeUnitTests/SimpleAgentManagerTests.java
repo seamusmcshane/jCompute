@@ -9,6 +9,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
+import alifeSim.World.WorldSetupSettings;
 /**
  * 
  * Simple Agent Manager Tests
@@ -22,8 +23,10 @@ public class SimpleAgentManagerTests
 	BarrierManager barrierManager = null;;
 	int worldSize = 1024;
 
-	SimpleAgentSetupSettings agentSettings = new SimpleAgentSetupSettings();
-
+	WorldSetupSettings worldSettings = new WorldSetupSettings();
+	SimpleAgentSetupSettings predatorAgentSettings = new SimpleAgentSetupSettings();
+	SimpleAgentSetupSettings preyAgentSettings = new SimpleAgentSetupSettings();
+	
 	int agentPreyNumbers = 512;
 	int agentPredatorNumbers = 256;
 
@@ -34,42 +37,50 @@ public class SimpleAgentManagerTests
 		World world = new World(worldSize,0,0);
 
 		int value = 100;
+		
+		worldSettings.setWorldSize(1024);
+		
+		predatorAgentSettings.setInitalNumbers(agentPredatorNumbers);
+		
+		predatorAgentSettings.setSpeed(1);
 
-		agentSettings.setPredatorSpeed(value);
+		predatorAgentSettings.setViewRange(2);
 
-		agentSettings.setPreySpeed(value);
+		predatorAgentSettings.setDigestiveEfficiency(3);
 
-		agentSettings.setPredatorViewRange(value);
+		predatorAgentSettings.setREDiv(4);
 
-		agentSettings.setPreyViewRange(value);
+		predatorAgentSettings.setMoveCost(5);
 
-		agentSettings.setPredatorDE(value);
+		predatorAgentSettings.setHungerThres(6);
 
-		agentSettings.setPreyDE(value);
+		predatorAgentSettings.setConsumptionRate(7);
 
-		agentSettings.setPredatorREDiv(value);
+		predatorAgentSettings.setReproductionCost(8);
 
-		agentSettings.setPreyREDiv(value);
+		predatorAgentSettings.setStartingEnergy(9);
+		
+		preyAgentSettings.setInitalNumbers(agentPreyNumbers);
+		
+		preyAgentSettings.setSpeed(1);
 
-		agentSettings.setPredatorMoveCost(value);
+		preyAgentSettings.setViewRange(2);
 
-		agentSettings.setPreyMoveCost(value);
+		preyAgentSettings.setDigestiveEfficiency(3);
 
-		agentSettings.setPredatorHungerThres(value);
+		preyAgentSettings.setREDiv(4);
 
-		agentSettings.setPreyHungerThres(value);
+		preyAgentSettings.setMoveCost(5);
 
-		agentSettings.setPredatorConsumptionRate(value);
+		preyAgentSettings.setHungerThres(6);
 
-		agentSettings.setPreyConsumptionRate(value);
+		preyAgentSettings.setConsumptionRate(7);
 
-		agentSettings.setPredRepoCost(value);
+		preyAgentSettings.setReproductionCost(8);
 
-		agentSettings.setPreyRepoCost(value);
+		preyAgentSettings.setStartingEnergy(9);		
 
-		agentSettings.setPreyStartingEnergy(value);
-
-		agentManger = new SimpleAgentManager(barrierManager, worldSize, agentPreyNumbers, agentPredatorNumbers, agentSettings);
+		agentManger = new SimpleAgentManager(barrierManager, predatorAgentSettings, preyAgentSettings, worldSettings);
 
 	}
 
