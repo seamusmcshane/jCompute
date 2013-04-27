@@ -62,7 +62,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	static boolean drawSim = true;
 
 	/** Draw true circular bodies or faster rectangular ones */
-	static boolean trueDrawing = false;
+	static boolean simpleDrawing = true;
 
 	/** Draw the View range of the agents */
 	static boolean viewRangeDrawing = false;
@@ -217,7 +217,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		/* Move the entire world to simulate a view moving around */
 		g.translate(globalTranslate.getX(), globalTranslate.getY());
 
-		sim.drawSim(g, trueDrawing, viewRangeDrawing);
+		sim.drawSim(g, simpleDrawing, viewRangeDrawing);
 
 		/* Performance Indicator */
 		bufferDrawNum++;
@@ -527,12 +527,12 @@ public class SimulationView extends BasicGame implements MouseListener
 	}
 
 	/**
-	 * Method setTrueDrawing.
-	 * @param inTrueDrawing boolean
+	 * Method setSimpleDrawing.
+	 * @param inSimpleDrawing boolean
 	 */
-	public static void setTrueDrawing(boolean inTrueDrawing)
+	public static void setSimpleDrawing(boolean inSimpleDrawing)
 	{
-		trueDrawing = inTrueDrawing;
+		simpleDrawing = inSimpleDrawing;
 	}
 
 	/**

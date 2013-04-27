@@ -8,5 +8,5 @@ public interface SimulationManagerInf
 
 	public void doSimulationUpdate();
 
-	public void drawAgentsAndPlants(Graphics g);
+	public void drawSim(Graphics g, boolean trueDrawing, boolean viewRangeDrawing);
 }

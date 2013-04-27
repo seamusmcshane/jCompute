@@ -90,7 +90,7 @@ public class GenericPlantManager
 	 * @param g Graphics	
 	 * @param trueDrawing boolean
 	 */
-	public void drawPlants(Graphics g, boolean trueDrawing)
+	public void drawPlants(Graphics g, boolean simpleDrawing)
 	{
 
 		itrDrawPlant = doneList.listIterator();
@@ -110,7 +110,7 @@ public class GenericPlantManager
 				 * Optimization - draw correct circular bodies or faster
 				 * rectangular bodies
 				 */
-				if (trueDrawing)
+				if (simpleDrawing)
 				{
 					tPlantDraw.body.drawTrueBody(g);
 				}

@@ -1,13 +1,12 @@
 package alifeSim.Simulation;
 
-import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
 import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
-import alifeSim.ScenarioManager.ScenarioInf;
+import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.SAPP.SAPPSimulationManager;
 import alifeSim.World.World;
 
 /**
@@ -75,22 +74,11 @@ public class Simulation
 
 	/**
 	 * Method newSim.
-	 * @param stats StatsPanel
-	 * @param worldSize int
-	 * @param agentPreyNumbers int
-	 * @param agentPredatorNumbers int
-	 * @param plantNumbers int
-	 * @param plantRegenRate int
-	 * @param plantStartingEnergy int
-	 * @param plantEnergyAbsorptionRate int
-	 * @param agentSettings SimpleAgentManagementSetupParam
-	 * @param barrierMode int
-	 * @param barrierScenario int
 	 */
 	//public void newSim(StatsPanel stats, int worldSize,int barrierMode,int barrierScenario, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
 	public void newSim(StatsPanel stats, ScenarioInf scenario)
 	{
-/*
+
 		stepSamples = new double[numSamples];
 
 		this.stepNo = 0;
@@ -105,6 +93,7 @@ public class Simulation
 		sps = 0;
 		SimulationGUI.setASPS(averageStepsPerSecond());
 
+		/*
 		world = new World(worldSize,barrierMode,barrierScenario);
 
 		simManager = new SAPPSimulationManager(worldSize, agentPreyNumbers, agentPredatorNumbers, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
@@ -350,7 +339,7 @@ public class Simulation
 			{
 				world.drawWorld(g);
 			}
-			simManager.drawAgentsAndPlants(g, true_drawing, view_range_drawing);
+			simManager.drawSim(g, true_drawing, view_range_drawing);
 		}
 	}
 }

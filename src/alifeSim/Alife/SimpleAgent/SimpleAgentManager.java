@@ -193,7 +193,7 @@ public class SimpleAgentManager
 	 * @param trueDrawing boolean
 	 * @param viewRangeDrawing boolean
 	 */
-	public void drawAgent(Graphics g, boolean trueDrawing, boolean viewRangeDrawing)
+	public void drawAgent(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing)
 	{
 
 		//itrDrawAI = doneList.listIterator();
@@ -212,7 +212,7 @@ public class SimpleAgentManager
 				 * Optimization - draw correct circular bodies or faster
 				 * rectangular bodies
 				 */
-				if (trueDrawing)
+				if (simpleDrawing)
 				{
 					tAgentDrawAI.body.drawTrueBody(g);
 				}
@@ -221,7 +221,7 @@ public class SimpleAgentManager
 					tAgentDrawAI.body.drawRectBody(g);
 				}
 
-				if (viewRangeDrawing)
+				if (simpleDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
 					tAgentDrawAI.brain.view.drawViewRange(g);
