@@ -225,7 +225,7 @@ public class SimpleAgentManager
 					tAgentDrawAI.body.drawRectBody(g);
 				}
 
-				if (simpleDrawing)
+				if (viewRangeDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
 					tAgentDrawAI.brain.view.drawViewRange(g);
