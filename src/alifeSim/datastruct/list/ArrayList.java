@@ -63,7 +63,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 
 	private void increaseListSize()
 	{
-		System.out.println(size + " List Size too small....");
+		//System.out.println(size + " List Size too small....");
 		int newSize = size*sizeAdj;
 		tArrayList = new ArrayListNode[newSize];
 		
@@ -85,7 +85,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		arrayList = tArrayList;
 		size = newSize;
 
-		System.out.println(size + " new Size");
+		//System.out.println(size + " new Size");
 
 		
 	}
