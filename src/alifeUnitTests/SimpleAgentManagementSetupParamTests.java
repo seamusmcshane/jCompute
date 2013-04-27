@@ -7,7 +7,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 /**
  * 
  * Simple Agent Management Setup Param Tests
@@ -17,7 +17,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
 public class SimpleAgentManagementSetupParamTests
 {
 
-	SimpleAgentManagementSetupParam params;
+	SimpleAgentSetupSettings params;
 	int maxValue = 1000;
 	float value;
 
@@ -27,7 +27,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Before
 	public void setUp() throws Exception
 	{
-		params = new SimpleAgentManagementSetupParam();
+		params = new SimpleAgentSetupSettings();
 		r = new Random();
 		value = r.nextInt(maxValue) + 1;
 		System.out.println("====================================================");

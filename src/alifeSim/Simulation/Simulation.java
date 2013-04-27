@@ -1,5 +1,6 @@
 package alifeSim.Simulation;
 
+import java.io.File;
 import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
@@ -44,7 +45,7 @@ public class Simulation
 	private long stepTimePrev;
 
 	/* The Simulation manager */
-	SAPPSimulationManager simManager;
+	SimulationManagerInf simManager;
 
 	/* The default simulation update rate */
 	public int reqSps = 15;
@@ -61,22 +62,19 @@ public class Simulation
 	private boolean running=true;
 
 	private boolean realtime=true;
-	
-	/* The Simulation World. */
-	public World world;
 
 	public Simulation()
 	{
 		setupThreads();
 
-		newSim(null, null); // Never used - needed for successful startup
+		createSim(null, null); // Never used - needed for successful startup
 	}
 
 	/**
 	 * Method newSim.
 	 */
 	//public void newSim(StatsPanel stats, int worldSize,int barrierMode,int barrierScenario, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
-	public void newSim(StatsPanel stats, ScenarioInf scenario)
+	public void createSim(StatsPanel stats, ScenarioInf scenario)
 	{
 
 		stepSamples = new double[numSamples];
@@ -93,20 +91,32 @@ public class Simulation
 		sps = 0;
 		SimulationGUI.setASPS(averageStepsPerSecond());
 
-		/*
-		world = new World(worldSize,barrierMode,barrierScenario);
-
-		simManager = new SAPPSimulationManager(worldSize, agentPreyNumbers, agentPredatorNumbers, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate, agentSettings);
-
+		if(scenario!=null)
+		{
+			createScenario(scenario);	
+		}		
+		
 		if (stats != null)
 		{
 			StatsPanel.clearStats();
 
 			StatsPanel.updateGraphs(1);
-		}*/
+		}
 
 	}
-
+	
+	/*
+	 * Master Scenario Hander
+	 */
+	private void createScenario(ScenarioInf scenario)
+	{
+		System.out.println("Create Scenario");
+		
+		/* Switch Scenarios */
+		simManager = new SAPPSimulationManager(scenario);
+				
+	}
+	
 	/**
 	 * This method initiates the thread shutdown sequence in the Simulation Manager
 	 */
@@ -335,10 +345,6 @@ public class Simulation
 	{
 		if (simStarted)
 		{
-			if (world != null)
-			{
-				world.drawWorld(g);
-			}
 			simManager.drawSim(g, true_drawing, view_range_drawing);
 		}
 	}

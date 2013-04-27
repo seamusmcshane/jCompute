@@ -4,7 +4,9 @@ ConfigVersion = 0.001
 
 ScenarioType = SAPP
 
-[Simulation]
+[World]
+
+Type = 0
 
 WorldSize=1024
 Barriers = 0
@@ -14,7 +16,7 @@ BarrierScenario = 1
 
 AgentType = SimpleAgent
 
-InitialNumbers = 100
+InitialNumbers = 0
 
 Speed = 1.00
 ViewRange = 10
@@ -31,7 +33,7 @@ ReproductionCost 0.50
 
 AgentType = SimpleAgent
 
-InitialNumbers = 800
+InitialNumbers = 1
 
 Speed = 0.90
 ViewRange = 10
@@ -44,7 +46,7 @@ HungerThreshold = 50
 EnergyConsumptionRate = 100
 ReproductionCost 0.55
 
-[Plant]
+[Plants]
 
 PLantType = GenericPlant
 

@@ -6,6 +6,10 @@ import java.io.IOException;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 
+/**
+ * Base Scenario File reader.
+ */
+
 public class ScenarioVT implements ScenarioInf
 {
 	Ini scenario;
@@ -32,6 +36,11 @@ public class ScenarioVT implements ScenarioInf
 	public int getIntValue(String section,String value)
 	{
 		return scenario.get(section,value,int.class);		
+	}
+	
+	public float getFloatValue(String section,String value)
+	{
+		return scenario.get(section,value,float.class);		
 	}
 	
 	public double getDoubleValue(String section,String value)

@@ -5,10 +5,11 @@ import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
+import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.World.World;
 
 
 /**
@@ -42,27 +43,25 @@ public class SAPPSimulationManager implements SimulationManagerInf
 
 	/** Controls when the barrier is released **/
 	private Semaphore barrierControllerSemaphore;
+	
+	
+	/* The Simulation World. */
+	public World world;
 
 	/**
 	 * Constructor for SimulationManager.
-	 * @param worldSize int
-	 * @param agentPreyNumbers int
-	 * @param agentPredatorNumbers int
-	 * @param plantNumbers int
-	 * @param plantRegenRate int
-	 * @param plantStartingEnergy int
-	 * @param plantEnergyAbsorptionRate int
-	 * @param agentSettings SimpleAgentManagementSetupParam
-	 */
-	public SAPPSimulationManager(int worldSize, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
+	*/
+	public SAPPSimulationManager(ScenarioInf scenario)
 	{
 		setUpBarrierManager();
 
-		setUpPlantManager(worldSize, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);
+		setUpWorld((SAPPScenario) scenario);
+		
+		setUpPlantManager(scenario);
 
-		setUpAgentManager(worldSize, agentPreyNumbers, agentPredatorNumbers, agentSettings);
+		setUpAgentManager(scenario);
 	}
-
+	
 	/**
 	 * Method setUpPlantManager.
 	 * @param worldSize int
@@ -71,9 +70,9 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 * @param plantStartingEnergy int
 	 * @param plantEnergyAbsorptionRate int
 	 */
-	private void setUpPlantManager(int worldSize, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate)
+	private void setUpPlantManager(ScenarioInf scenario)
 	{
-		genericPlantManager = new GenericPlantManager(barrierManager, worldSize, plantNumbers, plantRegenRate, plantStartingEnergy, plantEnergyAbsorptionRate);
+		genericPlantManager = new GenericPlantManager(barrierManager, ((SAPPScenario) scenario).plantSettings, ((SAPPScenario) scenario).worldSettings );
 	}
 
 	/**
@@ -83,9 +82,9 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 * @param agentPredatorNumbers int
 	 * @param agentSettings SimpleAgentManagementSetupParam
 	 */
-	private void setUpAgentManager(int worldSize, int agentPreyNumbers, int agentPredatorNumbers, SimpleAgentManagementSetupParam agentSettings)
+	private void setUpAgentManager(ScenarioInf scenario)
 	{
-		simpleAgentManager = new SimpleAgentManager(barrierManager, worldSize, agentPreyNumbers, agentPredatorNumbers, agentSettings);
+		simpleAgentManager = new SimpleAgentManager(barrierManager, ((SAPPScenario) scenario).predatorAgentSettings,((SAPPScenario) scenario).preyAgentSettings, ((SAPPScenario) scenario).worldSettings );
 	}
 
 	/**
@@ -106,6 +105,12 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		barrierManager.start();
 	}
 
+
+	public void setUpWorld(SAPPScenario scenario)
+	{
+		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierMode(), scenario.worldSettings.getBarrierScenario());
+	}
+	
 	/**
 	 * Initiates the barrier thread shutdown.
 	 */
@@ -184,6 +189,8 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		{
 			lock.acquire();
 
+			world.drawWorld(g);
+			
 			genericPlantManager.drawPlants(g, simpleDrawing);
 
 			simpleAgentManager.drawAgent(g, simpleDrawing, viewRangeDrawing);

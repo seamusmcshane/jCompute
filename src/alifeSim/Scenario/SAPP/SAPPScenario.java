@@ -4,25 +4,116 @@ import java.io.File;
 
 import org.ini4j.Wini;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
+import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Scenario.ScenarioVT;
+import alifeSim.World.WorldSetupSettings;
 
 public class SAPPScenario extends ScenarioVT
 {	
-	// A reused parameter object to carry variables though the classes.
-	private static SimpleAgentManagementSetupParam agentSettings = new SimpleAgentManagementSetupParam();
+	
+	public SAPPSimulationManager simManager;
+	
+	/** World Settings */
+	public WorldSetupSettings worldSettings;
+	
+	/** Plant Settings */
+	public GenericPlantSetupSettings plantSettings;
+	
+	/** Agent Settings */
+	public SimpleAgentSetupSettings predatorAgentSettings;
+	public SimpleAgentSetupSettings preyAgentSettings;
 	
 	public SAPPScenario(File file)
 	{		
-		super(file);		
+		super(file);
+				
+		readScenarioSettings (file);
+		
+		simManager = new SAPPSimulationManager(this);
+		
 	}	
 	
-	public void setUp()
+	public void readScenarioSettings(File file)
 	{	
 		
-		/*
-		 * Main Setup
-		 */
+		readWorldSettings(file);
+		
+		readAgentsSettings(file);
+
+		readPlantSettings(file);
+		
+	}
+	
+	public void readPlantSettings(File file)
+	{			
+		
+		String section = "Plants";
+		
+		plantSettings = new GenericPlantSetupSettings();
+		
+		plantSettings.setInitialPlantNumbers(super.getIntValue(section,"InitialNumbers"));
+		
+		plantSettings.setPlantStartingEnergy(super.getIntValue(section,"StartingEnergy"));
+		
+		plantSettings.setPlantEnergyAbsorptionRate(super.getIntValue(section,"EnergyAbsorptionRate"));
+		
+		plantSettings.setPlantRegenRate(super.getIntValue(section,"PlantRegeratonRate"));
+				
+	}
+	
+	private void readAgentsSettings(File file)
+	{
+		readAgentSettings(file, AgentType.PREDATOR);
+		readAgentSettings(file, AgentType.PREY);
+	}
+	
+	private void readAgentSettings(File file,AgentType type)
+	{
+		SimpleAgentSetupSettings agentSettings = new SimpleAgentSetupSettings();
+		
+		String section = "Invalid";
+		
+		/* Decide on Agent Type */
+		if(type == AgentType.PREDATOR)
+		{
+			section = "Predators";			
+			predatorAgentSettings = agentSettings;
+		}
+		else
+		{
+			section = "Prey";
+			preyAgentSettings = agentSettings;
+		}
+		
+		/* Now read the settings */
+		
+		agentSettings.setInitalNumbers(super.getIntValue(section,"InitialNumbers"));
+				
+		agentSettings.setSpeed(super.getFloatValue(section,"Speed"));
+		
+		agentSettings.setViewRange(super.getFloatValue(section,"ViewRange"));
+		
+		agentSettings.setMoveCost(super.getFloatValue(section,"MovementCost"));
+		
+		agentSettings.setStartingEnergy(super.getFloatValue(section,"StartingEnergy"));
+		
+		agentSettings.setDigestiveEfficiency(super.getFloatValue(section,"DigestiveEfficiency"));
+		
+		agentSettings.setHungerThres(super.getFloatValue(section,"HungerThreshold"));
+		
+		agentSettings.setConsumptionRate(super.getFloatValue(section,"EnergyConsumptionRate"));
+
+		agentSettings.setREDiv(super.getFloatValue(section,"ReproductionAndSurvivalDivisor"));
+		
+		agentSettings.setReproductionCost(super.getFloatValue(section,"ReproductionCost"));
+		
+	}
+	
+	private void readWorldSettings(File file)
+	{
+		worldSettings = new WorldSetupSettings();
 
 		/* World Size */
 		int worldSize = 1024;
@@ -32,70 +123,12 @@ public class SAPPScenario extends ScenarioVT
 
 		/* Barrier Scenario */
 		int barrierScenario = 0;
-
-		/* Prey Numbers */
-		int preyNo = 800;
-
-		/* Pred Numbers */
-		int predNo = 0;
-
-		/* Plant Numbers */
-		int plantNo = 400;
-
-		/*
-		 * Plants via direct variable passing
-		 */
-
-		/* Plant Regeneration Rate */
-		int plantRegenRate = 1;
-
-		/* Plant Energy Absorption Rate */
-		int plantEnergyAbsorptionRate = 8;
-
-		/* Plant Starting Energy */
-		int plantStartingEnergy = 25;
 		
-		/*
-		 * Agents setup via agentSettings object
-		 */
-
-		/* Speeds */
-		agentSettings.setPreySpeed(0.9f);
-		agentSettings.setPredatorSpeed(1.0f);
-
-		/* View Ranges */
-		agentSettings.setPreyViewRange(25);
-		agentSettings.setPredatorViewRange(25);
-
-		/*
-		 * Digestive Efficiency - how much energy consumed is converted to
-		 * usable...
-		 */
-		agentSettings.setPreyDE(0.5f);
-		agentSettings.setPredatorDE(0.5f);
-
-		/* Reproduction Energy Divider */
-		agentSettings.setPreyREDiv(0.5f);
-		agentSettings.setPredatorREDiv(0.5f);
-
-		/* Energy Movement Cost */
-		agentSettings.setPreyMoveCost(0.025f);
-		agentSettings.setPredatorMoveCost(0.025f);
-
-		/* Hunger Threshold */
-		agentSettings.setPreyHungerThres(50);
-		agentSettings.setPredatorHungerThres(50);
-
-		/* Energy Consumption Rate */
-		agentSettings.setPreyConsumptionRate(10);
-		agentSettings.setPredatorConsumptionRate(100); // Not Used 100%
-
-		/* Reproduction Cost */
-		agentSettings.setPreyRepoCost(0.50f);
-		agentSettings.setPredRepoCost(0.50f);
-
-		/* Starting Energy */
-		agentSettings.setPreyStartingEnergy(25);
-		agentSettings.setPredStartingEnergy(25);
+		worldSettings.setWorldSize(worldSize);
+		
+		worldSettings.setBarrierMode(barrierMode);
+		
+		worldSettings.setBarrierScenario(barrierScenario);
 	}
+	
 }

@@ -12,6 +12,7 @@ import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
+import alifeSim.World.WorldSetupSettings;
 import alifeSim.datastruct.list.ArrayList;
 
 /**
@@ -54,7 +55,8 @@ public class SimpleAgentManager
 	BarrierManager barrierManager;
 
 	/** Agent Settings */
-	SimpleAgentManagementSetupParam agentSettings;
+	SimpleAgentSetupSettings predatorAgentSettings;
+	SimpleAgentSetupSettings preyAgentSettings;
 
 	/** Hard coded Agent Size */
 	float agentSize = 5f;
@@ -62,15 +64,19 @@ public class SimpleAgentManager
 	/**
 	 * Creates am Agent manager.
 	 * @param barrierManager
+	 * @param worldSettings 
 	 * @param worldSize
 	 * @param agentPreyNumbers
 	 * @param agentPredatorNumbers
 	 * @param agentSettings
 	 */
-	public SimpleAgentManager(BarrierManager barrierManager, int worldSize, int agentPreyNumbers, int agentPredatorNumbers, SimpleAgentManagementSetupParam agentSettings)
+	public SimpleAgentManager(BarrierManager barrierManager, SimpleAgentSetupSettings predatorAgentSettings,SimpleAgentSetupSettings preyAgentSettings, WorldSetupSettings worldSettings)
 	{
-		this.agentSettings = agentSettings;  // All the intial agent settings are contained in this struct
-
+		
+		/* All the intial agent settings are contained in this struct */
+		this.predatorAgentSettings =predatorAgentSettings;
+		this.preyAgentSettings = preyAgentSettings;
+		
 		agentCount = 0;
 		agentCountMax = 0;
 		preyCount = 0;
@@ -81,7 +87,7 @@ public class SimpleAgentManager
 
 		setUpLists();
 
-		addAgents(worldSize, agentPreyNumbers, agentPredatorNumbers);
+		addAgents(worldSettings.getWorldSize(), predatorAgentSettings.getInitalNumbers(), preyAgentSettings.getInitalNumbers());
 
 	}
 
@@ -91,7 +97,7 @@ public class SimpleAgentManager
 	 * @param agentPreyNumbers
 	 * @param agentPredatorNumbers
 	 */
-	private void addAgents(int worldSize, int agentPreyNumbers, int agentPredatorNumbers)
+	private void addAgents(int worldSize, int agentPredatorNumbers,  int agentPreyNumbers)
 	{
 
 		/* Random Starting Position */
@@ -99,23 +105,6 @@ public class SimpleAgentManager
 		Random yr = new Random();
 
 		int x, y;
-
-		// Prey
-		for (int i = 0; i < agentPreyNumbers; i++)
-		{
-
-			x = xr.nextInt(worldSize) + 1;
-			y = yr.nextInt(worldSize) + 1;
-			
-			while(World.isBoundaryWall(x, y))
-			{
-				x = xr.nextInt(worldSize) + 1;
-				y = yr.nextInt(worldSize) + 1;				
-			}
-
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY), agentSettings.getPreySpeed(), agentSize, agentSettings.getPreyStartingEnergy(), 100f, agentSettings.getPreyHungerThres(), agentSettings.getPreyViewRange(), agentSettings.getPreyMoveCost(), agentSettings.getPreyRepoCost(), agentSettings.getPreyConsumptionRate(), agentSettings.getPreyDE(), agentSettings.getPreyREDiv())));
-
-		}
 
 		// Predator
 		for (int i = 0; i < agentPredatorNumbers; i++)
@@ -129,9 +118,26 @@ public class SimpleAgentManager
 				y = yr.nextInt(worldSize) + 1;				
 			}			
 			
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR), agentSettings.getPredatorSpeed(), agentSize, agentSettings.getPredStartingEnergy(), 100f, agentSettings.getPredatorHungerThres(), agentSettings.getPredatorViewRange(), agentSettings.getPredatorMoveCost(), agentSettings.getPredRepoCost(), agentSettings.getPredatorConsumptionRate(), agentSettings.getPredatorDE(), agentSettings.getPredatorREDiv())));
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR), predatorAgentSettings.getSpeed(), agentSize, predatorAgentSettings.getStartingEnergy(), 100f, predatorAgentSettings.getHungerThres(), predatorAgentSettings.getViewRange(), predatorAgentSettings.getMoveCost(), predatorAgentSettings.getReproductionCost(), predatorAgentSettings.getConsumptionRate(), predatorAgentSettings.getDigestiveEfficiency(), predatorAgentSettings.getREDiv())));
 
 		}
+		
+		// Prey
+		for (int i = 0; i < agentPreyNumbers; i++)
+		{
+
+			x = xr.nextInt(worldSize) + 1;
+			y = yr.nextInt(worldSize) + 1;
+			
+			while(World.isBoundaryWall(x, y))
+			{
+				x = xr.nextInt(worldSize) + 1;
+				y = yr.nextInt(worldSize) + 1;				
+			}
+
+			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY), preyAgentSettings.getSpeed(), agentSize, preyAgentSettings.getStartingEnergy(), 100f, preyAgentSettings.getHungerThres(), preyAgentSettings.getViewRange(), preyAgentSettings.getMoveCost(), preyAgentSettings.getReproductionCost(), preyAgentSettings.getConsumptionRate(), preyAgentSettings.getDigestiveEfficiency(), preyAgentSettings.getREDiv())));
+
+		}		
 	}
 
 	/**

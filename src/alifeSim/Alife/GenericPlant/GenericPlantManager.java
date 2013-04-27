@@ -8,8 +8,11 @@ import org.newdawn.slick.Graphics;
 
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
+import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
+import alifeSim.World.WorldSetupSettings;
 import alifeSim.datastruct.list.ArrayList;
 /**
  * This class manages the plants in the simulation.
@@ -65,20 +68,21 @@ public class GenericPlantManager
 	 * @param plantStartingEnergy
 	 * @param plantEnergyAbsorptionRate
 	 * @param barrierManager BarrierManager
+	 * @param worldSettings 
 	 */
-	public GenericPlantManager(BarrierManager barrierManager, int worldSize, int initalNumber, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate)
+	public GenericPlantManager(BarrierManager barrierManager, GenericPlantSetupSettings plantSettings, WorldSetupSettings worldSettings)
 	{
-		this.initalNumber = initalNumber;
+		this.initalNumber = plantSettings.getInitialPlantNumbers();
 
 		this.barrierManager = barrierManager;
 
-		this.worldSize = worldSize;
+		this.worldSize = worldSettings.getWorldSize();
 
-		this.plantRegenRate = plantRegenRate;
+		this.plantRegenRate = plantSettings.getPlantRegenRate();
 
-		this.plantStartingEnergy = plantStartingEnergy;
+		this.plantStartingEnergy = plantSettings.getPlantStartingEnergy();
 
-		this.basePlantEnergyAbsorptionRate = plantEnergyAbsorptionRate;
+		this.basePlantEnergyAbsorptionRate = plantSettings.getPlantEnergyAbsorptionRate();
 
 		setUpLists();
 

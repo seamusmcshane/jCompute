@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
@@ -22,7 +22,7 @@ public class SimpleAgentManagerTests
 	BarrierManager barrierManager = null;;
 	int worldSize = 1024;
 
-	SimpleAgentManagementSetupParam agentSettings = new SimpleAgentManagementSetupParam();
+	SimpleAgentSetupSettings agentSettings = new SimpleAgentSetupSettings();
 
 	int agentPreyNumbers = 512;
 	int agentPredatorNumbers = 256;
