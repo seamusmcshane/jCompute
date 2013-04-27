@@ -752,7 +752,7 @@ public class StatsPanel extends JPanel
 	/**
 	 * The Graph update step.
 	 */
-	public static void updateGraphs(int stepNo)
+	public static void updateGraphs(long stepNo)
 	{
 		/* These could be threaded - TODO threads for graphs */
 		lineGraphPanel.updateGraph(plantsMax, preyMax, predMax, graphStartVal);

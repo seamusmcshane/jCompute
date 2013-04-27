@@ -1034,11 +1034,11 @@ public class SimulationGUI
 	/**
 	 * The curernt step number.
 	 * 
-	 * @param no
+	 * @param stepNo
 	 */
-	public static void setStepNo(int no)
+	public static void setStepNo(long stepNo)
 	{
-		lblStepNo.setText(Integer.toString(no));
+		lblStepNo.setText(Long.toString(stepNo));
 	}
 
 	/**

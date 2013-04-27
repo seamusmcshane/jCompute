@@ -19,23 +19,9 @@ import alifeSim.Scenario.SAPP.SAPPSimulationManager;
  */
 public class Simulation
 {
-	/** Simulation Performance Indicators */
-	int stepNo = 0;
-	private long stepStartTime = 0;
-	private long stepEndTime = 0;
-	private long stepTotalTime = 0; // Total Simulation run-time is the time taken per step for each step
-
-	// Step Per Second Calculations
-	private long startTime;
-	private long previousTime;
-	private long currentTime;
-	private long diffTime;
-
-	// Average Steps per second
-	private int numSamples = 150;
-	private double stepSamples[];
-	private double tasps; 			// To avoid a cumulative rounding error when calculating the average, a double is use
-	private double sps;	 			// Average Steps Per Second as an int for display purposes
+	/* Stats */
+	SimulationStats simStats;
+	
 
 	// Inter-step delay Calculations
 	private long stepTimeNow;
@@ -63,33 +49,20 @@ public class Simulation
 	private boolean realtime=true;
 
 	public Simulation()
-	{
+	{		
+		simStats = new SimulationStats();
+		simStats.simStatsDisplay();
+		
 		setupThreads();
 
-		createSim(null, null); // Never used - needed for successful startup
+		createSim(null, null); // Never used - needed for successful startup		
 	}
 
 	/**
-	 * Method newSim.
+	 * Method createSim.
 	 */
-	//public void newSim(StatsPanel stats, int worldSize,int barrierMode,int barrierScenario, int agentPreyNumbers, int agentPredatorNumbers, int plantNumbers, int plantRegenRate, int plantStartingEnergy, int plantEnergyAbsorptionRate, SimpleAgentManagementSetupParam agentSettings)
 	public void createSim(StatsPanel stats, ScenarioInf scenario)
 	{
-
-		stepSamples = new double[numSamples];
-
-		this.stepNo = 0;
-
-		SimulationGUI.setStepNo(stepNo);
-
-		this.stepTotalTime = 0;
-
-		SimulationGUI.setTime(stepTotalTime);
-
-		tasps = 0;
-		sps = 0;
-		SimulationGUI.setASPS(averageStepsPerSecond());
-
 		if(scenario!=null)
 		{
 			createScenario(scenario);	
@@ -100,8 +73,7 @@ public class Simulation
 			StatsPanel.clearStats();
 
 			StatsPanel.updateGraphs(1);
-		}
-
+		}		
 	}
 	
 	/*
@@ -140,13 +112,13 @@ public class Simulation
 		{
 			public void run()
 			{
-				Thread thisThread = Thread.currentThread();
+				//Thread thisThread = Thread.currentThread();
 
 				/* Top Priority to the simulation thread */
-				thisThread.setPriority(Thread.MAX_PRIORITY);
-
-				setUpStepsPerSecond();
-
+				//thisThread.setPriority(Thread.MAX_PRIORITY);
+				
+				simStats.setUpStepsPerSecond();
+				
 				while (running)
 				{
 						simUpdate();
@@ -162,27 +134,24 @@ public class Simulation
 
 	private void simUpdate()
 	{
-
 		// The pause semaphore (We do not pause half way through a step)
 		pause.acquireUninterruptibly();
 
-		stepStartTime = System.currentTimeMillis(); // For the average
+		simStats.setStepStartTime();
 
-		timeTotal();								  // record step start time for inter-step delay
+		// record step start time for inter-step delay
+		timeTotal();
 
 		// This single method hides the rest of the sim
 		simManager.doSimulationUpdate();
 
-		// Calculate the Steps per Second
-		calcStepsPerSecond();
-
-		SimulationGUI.setASPS(averageStepsPerSecond());
-
 		// Increment the Step counter
-		stepNo++;
+		simStats.incrementSimulationSteps();
+		
+		// Calculate the Steps per Second
+		simStats.calcStepsPerSecond();
 
-		SimulationGUI.setStepNo(stepNo);
-
+		// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
 		if(realtime)
 		{
 			// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
@@ -196,64 +165,13 @@ public class Simulation
 		// resets the value calculated in timeTotal()
 		resetTotalTime();
 
-		stepEndTime = System.currentTimeMillis();
-
-		stepTotalTime += stepEndTime - stepStartTime;
-
-		SimulationGUI.setTime(stepTotalTime);
-
-		StatsPanel.updateGraphs(stepNo);
+		simStats.setStepEndTime();
+		
+		simStats.simStatsDisplay();
 
 		// Allow the simulation to be paused again
 		pause.release();
 	
-	}
-	
-	/**
-	 * Initializes the average steps per second counters
-	 */
-	private void setUpStepsPerSecond()
-	{
-		startTime = System.nanoTime();
-		previousTime = startTime;				// At Start up this is true
-		currentTime = System.nanoTime();
-		diffTime = currentTime - previousTime;	// Diff time is initialized
-	}
-
-	/**
-	 * Calculates the Average Steps Per Second
-	 */
-	private void calcStepsPerSecond()
-	{
-		currentTime = System.nanoTime();			// Current TIme
-
-		diffTime = currentTime - previousTime;		// Time between this and the last call				
-
-		sps = 1000f / (diffTime / 1000000f);		//  converts diff time to milliseconds then gives a instantaneous performance indicator of steps per second		
-
-		previousTime = currentTime;		 			// Stores the current diff for the diff in the next iteration
-
-		for (int i = 0; i < (numSamples - 1); i++)	// Moves the previous samples back by 1, leaves space for the new sps sample 
-		{
-			stepSamples[i] = stepSamples[(i + 1)];
-		}
-
-		stepSamples[numSamples - 1] = sps;			// Store the new sps sample
-
-		tasps = 0;									// clear the old total average (or it will increment for ever)
-		for (int i = 0; i < numSamples; i++)
-		{
-			tasps += stepSamples[i];				// Total all the steps
-		}
-
-	}
-
-	/**
-	 * Average the steps thus giving an average steps per second count
-	 * @return int */
-	public int averageStepsPerSecond()
-	{
-		return (int) (tasps / numSamples);
 	}
 
 	/**
