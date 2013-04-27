@@ -1,4 +1,4 @@
-package alifeSim.ScenarioManager;
+package alifeSim.Scenario;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,11 +1,11 @@
-package alifeSim.ScenarioManager.SAPP;
+package alifeSim.Scenario.SAPP;
 
 import java.io.File;
 
 import org.ini4j.Wini;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
-import alifeSim.ScenarioManager.ScenarioVT;
+import alifeSim.Scenario.ScenarioVT;
 
 public class SAPPScenario extends ScenarioVT
 {	
@@ -18,7 +18,43 @@ public class SAPPScenario extends ScenarioVT
 	}	
 	
 	public void setUp()
-	{		
+	{	
+		
+		/*
+		 * Main Setup
+		 */
+
+		/* World Size */
+		int worldSize = 1024;
+
+		/* Barrier Mode */
+		int barrierMode = 0;
+
+		/* Barrier Scenario */
+		int barrierScenario = 0;
+
+		/* Prey Numbers */
+		int preyNo = 800;
+
+		/* Pred Numbers */
+		int predNo = 0;
+
+		/* Plant Numbers */
+		int plantNo = 400;
+
+		/*
+		 * Plants via direct variable passing
+		 */
+
+		/* Plant Regeneration Rate */
+		int plantRegenRate = 1;
+
+		/* Plant Energy Absorption Rate */
+		int plantEnergyAbsorptionRate = 8;
+
+		/* Plant Starting Energy */
+		int plantStartingEnergy = 25;
+		
 		/*
 		 * Agents setup via agentSettings object
 		 */
