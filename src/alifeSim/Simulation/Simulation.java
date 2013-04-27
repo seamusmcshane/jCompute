@@ -47,7 +47,7 @@ public class Simulation
 	private boolean running=true;
 
 	private boolean realtime=true;
-
+	
 	public Simulation()
 	{		
 		simStats = new SimulationStats();
@@ -85,7 +85,7 @@ public class Simulation
 		
 		/* Switch Scenarios */
 		simManager = new SAPPSimulationManager((SAPPScenario) scenario);
-				
+
 	}
 	
 	/**
@@ -260,10 +260,7 @@ public class Simulation
 	 */
 	public void drawSim(Graphics g, boolean true_drawing, boolean view_range_drawing)
 	{
-		if (simStarted)
-		{
 			simManager.drawSim(g, true_drawing, view_range_drawing);
-		}
 	}	
 	
 }

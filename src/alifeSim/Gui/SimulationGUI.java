@@ -166,6 +166,8 @@ public class SimulationGUI
 
 		setUpToolTips();
 		
+		// have a simulation ready to go...
+		newSim();
 	}
 
 	private static void setUpSimulation()
@@ -995,7 +997,6 @@ public class SimulationGUI
 		btnStart.setEnabled(false);
 		simRateSlider.setEnabled(false);
 		btnPause.setEnabled(false);
-
 	}
 
 	private static void simPausedState()
