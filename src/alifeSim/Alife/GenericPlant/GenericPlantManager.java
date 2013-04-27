@@ -1,4 +1,4 @@
-package alifeSim.Simulation;
+package alifeSim.Alife.GenericPlant;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -6,9 +6,9 @@ import java.util.ListIterator;
 import java.util.Random;
 import org.newdawn.slick.Graphics;
 
-import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
+import alifeSim.Simulation.BarrierManager;
 import alifeSim.World.World;
 import alifeSim.datastruct.list.ArrayList;
 /**

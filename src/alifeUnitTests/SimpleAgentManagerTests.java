@@ -5,9 +5,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Simulation.BarrierManager;
-import alifeSim.Simulation.SimpleAgentManagementSetupParam;
-import alifeSim.Simulation.SimpleAgentManager;
 import alifeSim.World.World;
 /**
  * 

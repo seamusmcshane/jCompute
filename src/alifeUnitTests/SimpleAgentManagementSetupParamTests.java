@@ -7,7 +7,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
-import alifeSim.Simulation.SimpleAgentManagementSetupParam;
+import alifeSim.Alife.SimpleAgent.SimpleAgentManagementSetupParam;
 /**
  * 
  * Simple Agent Management Setup Param Tests
