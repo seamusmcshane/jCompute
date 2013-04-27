@@ -113,20 +113,13 @@ public class SAPPScenario extends ScenarioVT
 	{
 		worldSettings = new WorldSetupSettings();
 
-		/* World Size */
-		int worldSize = 1024;
-
-		/* Barrier Mode */
-		int barrierMode = 0;
-
-		/* Barrier Scenario */
-		int barrierScenario = 0;
+		String section = "World";
 		
-		worldSettings.setWorldSize(worldSize);
+		worldSettings.setWorldSize(super.getIntValue(section,"WorldSize"));
 		
-		worldSettings.setBarrierMode(barrierMode);
+		worldSettings.setBarrierMode(super.getIntValue(section,"Barriers"));
 		
-		worldSettings.setBarrierScenario(barrierScenario);
+		worldSettings.setBarrierScenario(super.getIntValue(section,"BarrierScenario"));
 	}
 	
 }

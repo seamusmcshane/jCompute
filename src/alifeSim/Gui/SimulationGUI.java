@@ -565,7 +565,6 @@ public class SimulationGUI
 					generatingSim = false;
 
 				}
-
 			}
 		});
 
@@ -848,7 +847,30 @@ public class SimulationGUI
 		{
 			System.out.println("Get File");
 			File file = filechooser.getSelectedFile();
-			determinScenarios(file);					
+			determinScenarios(file);	
+			
+			// Pause Toggle
+			if (sim.simPaused())
+			{
+				simUnPausedState();
+			}
+			else
+			{
+				simPausedState();
+			}
+			
+			/* Not already generating Sim */
+			if (!generatingSim)
+			{
+				generatingSim = true;
+
+				/* Create the new Simulation */
+				newSim();
+
+				generatingSim = false;
+
+			}
+			
 		}
 		
 	}
@@ -864,7 +886,6 @@ public class SimulationGUI
 			System.out.println("SAPP File");			
 			simScenario = new SAPPScenario(file);			
 		}
-		
 	}
 	
 	/* Ensure the user wants to exit then exit the program */

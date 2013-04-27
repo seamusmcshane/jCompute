@@ -8,9 +8,9 @@ ScenarioType = SAPP
 
 Type = 0
 
-WorldSize=1024
+WorldSize = 2048
 Barriers = 1
-BarrierScenario = 0
+BarrierScenario = 2
 
 [Predators]
 
@@ -54,7 +54,7 @@ InitialNumbers = 400
 
 StartingEnergy = 50
 
-PlantRegeratonRate = 8
+PlantRegeratonRate = 16
 EnergyAbsorptionRate = 8
 ReproductionAndSurvivalDivisor = 0.25
 StartingEnergy = 50

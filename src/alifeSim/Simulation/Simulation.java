@@ -264,5 +264,6 @@ public class Simulation
 		{
 			simManager.drawSim(g, true_drawing, view_range_drawing);
 		}
-	}
+	}	
+	
 }
