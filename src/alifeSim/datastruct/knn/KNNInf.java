@@ -11,25 +11,25 @@ import alifeSim.Alife.SimpleAgent.SimpleAgent;
  * @author Seamie
  *
  */
-public interface KNNInf <T>
+public interface KNNInf <Datatype>
 {
 	
 	/* Init the Tree */
 	void init(int dim);
 	
 	/* Add Item to Tree */
-	void add(int kd[], SimpleAgent agent);
-	void add(float kd[], SimpleAgent agent);
-	void add(double kd[], SimpleAgent agent);	
+	void add(int kd[], Datatype data);
+	void add(float kd[],Datatype data);
+	void add(double kd[],Datatype data);
 	
 	/* Find Nearest Item */
-	SimpleAgent nearestNeighbor(int kd[]);
-	SimpleAgent nearestNeighbor(float kd[]);
-	SimpleAgent nearestNeighbor(double kd[]);
+	Datatype nearestNeighbor(int kd[]);
+	Datatype nearestNeighbor(float kd[]);
+	Datatype nearestNeighbor(double kd[]);
 	
 	/* Find Nearest Items */
-	LinkedList<SimpleAgent>	nearestNeighbors(int kd[]);
-	LinkedList<SimpleAgent>	nearestNeighbors(float kd[]);
-	LinkedList<SimpleAgent>	nearestNeighbors(double kd[]);
+	LinkedList<Datatype>	nearestNeighbors(int kd[]);
+	LinkedList<Datatype>	nearestNeighbors(float kd[]);
+	LinkedList<Datatype>	nearestNeighbors(double kd[]);
 	
 }

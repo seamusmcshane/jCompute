@@ -7,15 +7,13 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 
-public class thirdGenKDWrapper<T> implements KNNInf<T>
+public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 {
 
 	private int treenodes;
 	
 	/** References for Agent Tasks */
-	private KdTree<SimpleAgent> tree;
-	
-	private MaxHeap<SimpleAgent> agentNeighborList;
+	private KdTree<Datatype> tree;
 	
 	/** The distance function object. */
 	private final SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
@@ -30,51 +28,49 @@ public class thirdGenKDWrapper<T> implements KNNInf<T>
 	{		
 		tree = null;
 		treenodes = 0;
-		tree = new KdTree<SimpleAgent>(dim);
+		tree = new KdTree<Datatype>(dim);
 	}
 	
 	@Override
-	public SimpleAgent nearestNeighbor(int kd[])
+	public Datatype nearestNeighbor(int kd[])
 	{
 		return nearestNeighbor(kd);
 	}
 	
 	@Override
-	public SimpleAgent nearestNeighbor(float kd[])
+	public Datatype nearestNeighbor(float kd[])
 	{	
 		return nearestNeighbor(kd);
 	}
 
 	@Override
-	public SimpleAgent nearestNeighbor(double kd[])
+	public Datatype nearestNeighbor(double kd[])
 	{		
 		// Get two agents - due to the closest agent to its self being its self, but one plant
-		agentNeighborList = tree.findNearestNeighbors(kd, 2, distanceKD);
-
 		// Max is the next closest - Self is 0			
-		return agentNeighborList.getMax();
+		return (Datatype) tree.findNearestNeighbors(kd, 2, distanceKD).getMax();
 	}	
 	
 	@Override
-	public LinkedList<SimpleAgent> nearestNeighbors(double kd[])
+	public LinkedList<Datatype> nearestNeighbors(double kd[])
 	{
 		return null;
 	}
 
 	@Override
-	public void add(int kd[], SimpleAgent agent)
+	public void add(int kd[], Datatype agent)
 	{
 		add(kd,agent);
 	}
 
 	@Override
-	public void add(float kd[], SimpleAgent agent)
+	public void add(float kd[], Datatype agent)
 	{
 		add(kd,agent);		
 	}
 	
 	@Override
-	public void add(double kd[],SimpleAgent agent)
+	public void add(double kd[],Datatype agent)
 	{	
 		tree.addPoint(kd, agent);		
 		treenodes++;		
@@ -86,14 +82,14 @@ public class thirdGenKDWrapper<T> implements KNNInf<T>
 	}
 
 	@Override
-	public LinkedList<SimpleAgent> nearestNeighbors(int kd[])
+	public LinkedList<Datatype> nearestNeighbors(int kd[])
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LinkedList<SimpleAgent> nearestNeighbors(float kd[])
+	public LinkedList<Datatype> nearestNeighbors(float kd[])
 	{
 		// TODO Auto-generated method stub
 		return null;
