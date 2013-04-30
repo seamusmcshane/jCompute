@@ -34,61 +34,49 @@ public class thirdGenKDWrapper<T> implements KNNInf<T>
 	}
 	
 	@Override
-	public SimpleAgent nearestNeighbor(int x, int y)
+	public SimpleAgent nearestNeighbor(int kd[])
 	{
-		return nearestNeighbor((float)x,(float)y);
+		return nearestNeighbor(kd);
 	}
 	
 	@Override
-	public SimpleAgent nearestNeighbor(float x, float y)
+	public SimpleAgent nearestNeighbor(float kd[])
 	{	
-		return nearestNeighbor((double)x,(double)y);
+		return nearestNeighbor(kd);
 	}
 
 	@Override
-	public SimpleAgent nearestNeighbor(double x, double y)
-	{
-		// Convert our vector to the format for the tree
-		double[] pos = new double[2];
-		pos[0] = x;
-		pos[1] = y;
-		
+	public SimpleAgent nearestNeighbor(double kd[])
+	{		
 		// Get two agents - due to the closest agent to its self being its self, but one plant
-		agentNeighborList = tree.findNearestNeighbors(pos, 2, distanceKD);
+		agentNeighborList = tree.findNearestNeighbors(kd, 2, distanceKD);
 
 		// Max is the next closest - Self is 0			
 		return agentNeighborList.getMax();
 	}	
 	
 	@Override
-	public LinkedList<SimpleAgent> nearestNeighbors(double x, double y)
+	public LinkedList<SimpleAgent> nearestNeighbors(double kd[])
 	{
 		return null;
 	}
 
 	@Override
-	public void add(int x, int y, SimpleAgent agent)
+	public void add(int kd[], SimpleAgent agent)
 	{
-		add((float)x,(float)y,agent);
+		add(kd,agent);
 	}
 
 	@Override
-	public void add(float x, float y, SimpleAgent agent)
+	public void add(float kd[], SimpleAgent agent)
 	{
-		add((double)x,(double)y,agent);		
+		add(kd,agent);		
 	}
 	
 	@Override
-	public void add(double x, double y,SimpleAgent agent)
-	{
-		double[] pos = new double[2];
-		pos[0] = x;
-		pos[1] = y;
-		
-		//System.out.println("B) X " + x + " Y " + y);
-		
-		tree.addPoint(pos, agent);
-		
+	public void add(double kd[],SimpleAgent agent)
+	{	
+		tree.addPoint(kd, agent);		
 		treenodes++;		
 	}
 	
@@ -98,14 +86,14 @@ public class thirdGenKDWrapper<T> implements KNNInf<T>
 	}
 
 	@Override
-	public LinkedList<SimpleAgent> nearestNeighbors(int x, int y)
+	public LinkedList<SimpleAgent> nearestNeighbors(int kd[])
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LinkedList<SimpleAgent> nearestNeighbors(float x, float y)
+	public LinkedList<SimpleAgent> nearestNeighbors(float kd[])
 	{
 		// TODO Auto-generated method stub
 		return null;

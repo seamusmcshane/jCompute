@@ -52,9 +52,6 @@ public class BarrierTaskThread extends Thread
 	private SimpleAgent nearestAgent;
 	private GenericPlant nearestPlant;
 
-	/** Reused Position Vector */
-	private double[] pos;
-
 	/** The start and end semaphores for this thread */
 	private Semaphore start;
 	private Semaphore end;
@@ -76,7 +73,6 @@ public class BarrierTaskThread extends Thread
 		this.myId =id;
 		this.start = startSem;
 		this.end = endSem;
-		this.pos = new double[2];
 	}
 
 	/**
@@ -153,7 +149,7 @@ public class BarrierTaskThread extends Thread
 				{
 					currentAgent = agentList.getNext();
 						
-					nearestAgent = agentKDTree.nearestNeighbor(currentAgent.body.getBodyPos().getX(),currentAgent.body.getBodyPos().getY());
+					nearestAgent = agentKDTree.nearestNeighbor(currentAgent.body.getBodyPosKD());
 	
 					/*
 					 * calculate if the Nearest Agents are in the view Range of the
@@ -163,9 +159,7 @@ public class BarrierTaskThread extends Thread
 	
 					if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
 					{
-						pos[0] = currentAgent.body.getBodyPos().getX();
-						pos[1] = currentAgent.body.getBodyPos().getY();
-						plantNeighborList = plantKDTree.findNearestNeighbors(pos, 1, distanceKD);
+						plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
 						nearestPlant = plantNeighborList.getMax();
 						/*
 						 * calculate if the Nearest Plants are in the view Range of

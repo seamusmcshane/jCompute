@@ -357,7 +357,7 @@ public class BarrierManager extends Thread
 				//pos = new double[2];
 				//pos[0] = temp.body.getBodyPos().getX();
 				//pos[1] = temp.body.getBodyPos().getY();
-				agentKDTree.add(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp);
+				agentKDTree.add(temp.body.getBodyPosKD(),temp);
 			}
 
 			/* This section does the decision boundaries for splitting the list */

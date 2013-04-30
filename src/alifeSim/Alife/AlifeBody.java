@@ -65,6 +65,14 @@ public class AlifeBody
 		return bodyPos;
 	}
 	
+	/** 
+	 * Returns the position of the body
+	 * */
+	public double[] getBodyPosKD()
+	{		
+		return new double[] {(double) bodyPos.getX(),(double) bodyPos.getY()};
+	}	
+	
 	public void setSize(float size)
 	{
 		this.size = size;
