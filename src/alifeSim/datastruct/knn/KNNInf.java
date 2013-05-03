@@ -18,18 +18,17 @@ public interface KNNInf <Datatype>
 	void init(int dim);
 	
 	/* Add Item to Tree */
-	void add(int kd[], Datatype data);
-	void add(float kd[],Datatype data);
-	void add(double kd[],Datatype data);
+	void add(double pos[],Datatype data);
 	
 	/* Find Nearest Item */
-	Datatype nearestNeighbor(int kd[]);
-	Datatype nearestNeighbor(float kd[]);
-	Datatype nearestNeighbor(double kd[]);
+	Datatype nearestNeighbour(double pos[]);
+		
+	/* Find the nth nearest */
+	Datatype nearestNNeighbour(double pos[], int n);
 	
 	/* Find Nearest Items */
-	LinkedList<Datatype>	nearestNeighbors(int kd[]);
-	LinkedList<Datatype>	nearestNeighbors(float kd[]);
-	LinkedList<Datatype>	nearestNeighbors(double kd[]);
+	LinkedList<Datatype>nearestNeighbours(double pos[]);
+
+	public int size();
 	
 }
