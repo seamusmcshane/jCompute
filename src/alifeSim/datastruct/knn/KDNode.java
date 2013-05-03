@@ -2,22 +2,24 @@ package alifeSim.datastruct.knn;
 
 public class KDNode<Datatype>
 {
-
+	int dim;
+	int nodeDepth;
 	double pos[];
 	Datatype data;
 
-	KDNode<Datatype> left;
-	KDNode<Datatype> right;
+	KDNode<Datatype> branch[];
 	
-	public KDNode(double kd[], Datatype data)
+	public KDNode(int kd,int depth,double pos[], Datatype data)
 	{
-		pos = kd;
+		this.pos = pos;
+		this.nodeDepth = depth;
 		this.data = data;
+		this.branch = new KDNode[kd]; // Create kd leaf branches
 	}
 
-	public boolean isValueGreater(int k,double kd[])
+	public boolean isValueGreater(int k,double pos[])
 	{
-		if( pos[k] > kd[k])
+		if( this.pos[k] > pos[k])
 		{
 			return true;
 		}
@@ -31,25 +33,16 @@ public class KDNode<Datatype>
 	{
 		return data;
 	}
-	
-	public KDNode<Datatype> getLeft()
+		
+	public double[] getPos()
 	{
-		return left;
-	}
-
-	public void setLeft(KDNode<Datatype> left)
-	{
-		this.left = left;
-	}
-
-	public KDNode<Datatype>getRight()
-	{
-		return right;
-	}
-
-	public void setRight(KDNode<Datatype> right)
-	{
-		this.right = right;
+		return pos;
 	}
 	
+	public KDNode<Datatype> getLeaf(int k)
+	{
+		//System.out.println("get leaf k : " + k);
+
+		return branch[k];
+	}
 }

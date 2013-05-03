@@ -2,122 +2,152 @@ package alifeSim.datastruct.knn;
 
 import java.util.LinkedList;
 
-public class KDTree<Datatype,Positon> implements KNNInf<Datatype>
+/**
+ * Basic KD-Tree that supports K+ Dimensions
+ */
+public class KDTree<Datatype> implements KNNInf<Datatype>
 {
 
 	int dim;
+	int nodeCount;
 	KDNode<Datatype> root;	
 	
 	@Override
 	public void init(int dim)
 	{
 		this.root = null;
-		this.dim = dim;		
+		nodeCount=0;
+		this.dim = dim;	
+		System.out.println("Init : Node Count : " + nodeCount);
 	}
 
 	@Override
-	public void add(double kd[], Datatype data)
+	public void add(double[] pos, Datatype data)
 	{		
-		int l=0;
 		if(root == null)
-		{			
-			this.root = new KDNode<Datatype>(kd, data);			
-			return;			
+		{
+			root = new KDNode<Datatype>(dim,0,pos, data);
+			//System.out.println("add ROOT NULL");
+		}
+		else
+		{
+			insert(0,root,pos,data);	// start from the root node/ level 0	
+		}
+
+	}
+	
+	// Dynamic Insert
+	private void insert(int depth, KDNode<Datatype> node ,double[] pos, Datatype data)
+	{
+		if(node == null)
+		{
+			node = new KDNode<Datatype>(dim,depth,pos, data);
+			nodeCount++;
+			//System.out.println("Node null Insert : Node Count : " + nodeCount);
+			return;
 		}
 		
-		KDNode node = root;
-		boolean done = false;
-		l=0;
-		
-		while(!done)
-		{			
-			if(node.isValueGreater( (l%dim), kd)) // Left
-			{							
-				if(node.getLeft() == null)
-				{
-					node.setLeft(new KDNode(kd,data));
-					done = true;
-				}
-				else
-				{   
-					// Move left
-					node = node.getLeft();		
-				}				
-				
-			}
-			else // We are greater value
+		for(int k=0;k<dim;k++)
+		{
+			if(node.isValueGreater(k, pos) == true)
 			{
 				
-				if(node.getRight() == null)
-				{
-					node.setRight(new KDNode(kd,data));					
-				}
-				else
-				{   
-					// Move Right
-					node = node.getRight();
-				}				
-			}
-			
-			l++;
+				insert(depth+1,node.getLeaf(k),pos,data);
+				
+				return;
+			} // else loop to the next kdim...
+						
 		}
 
 	}
 
 	@Override
-	public void add(int[] kd, Datatype data)
+	public Datatype nearestNeighbour(double[] pos)
 	{
-		// TODO Auto-generated method stub
+		if(root == null)
+		{
+			System.out.println("ROOT NULL");
+		}
+		
+		return findNearest(0,root,pos); // start search from the root
+	}
+
+	private Datatype findNearest(int depth,KDNode<Datatype> node,double pos[])
+	{
+		
+		KDNode<Datatype> branchCheck = null;
+		for(int i=0;i<dim;i++)
+		{
+			branchCheck = node.getLeaf(i);
+			
+			if(branchCheck!=null) // we have a branch
+			{
+				break;
+			}
+			
+		}
+		
+		if(branchCheck == null) // no more branch .... end of tree -- search end
+		{
+			return node.getData();
+		}
+		
+		double current_value = node.getPos()[depth%dim]; // Get the nodes value of the dim for this level
+		double compare_value = pos[depth%dim]; 			 // The value of the dim for this level
+				
+		int sk = depth%dim; // start at the correct K
+		
+		if(compare_value < current_value)
+		{
+			return findNearest(depth+1,node.getLeaf(sk),pos); // current dim
+		}
+		else if(compare_value == current_value)
+		{
+			return node.getData();
+		}			
+		else
+		{
+			return findNearest(depth+1,node.getLeaf( (sk+1) % dim ),pos); // next dim
+		}	
 		
 	}
 	
-	@Override
-	public void add(float[] kd, Datatype data)
+	public int size()
 	{
-		// TODO Auto-generated method stub
-		
+		return nodeCount;
 	}
+	
+	/** tuple function search_kd_tree(int depth, tuple tree, tuple point):
+	    if tree is a single point:
+	        return the point
 
-	@Override
-	public Datatype nearestNeighbor(int[] kd)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	    meanValue = the value of the root node of tree
 
-	@Override
-	public Datatype nearestNeighbor(float[] kd)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	    if depth is even:
+	        comparisonValue = the x-value of the point
+	    else:
+	        comparisonValue = the y-value of the point
 
-	@Override
-	public Datatype nearestNeighbor(double[] kd)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	    if comparisonValue < meanValue :
+	        subtree = left-hand subtree of tree
+	    else:
+	        subtree = right-hand subtree of tree
 
+	    return search_kd_tree(depth + 1, subtree, point)
+	*/
 	@Override
-	public LinkedList<Datatype> nearestNeighbors(int[] kd)
+	public LinkedList<Datatype> nearestNeighbours(double[] pos)
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LinkedList<Datatype> nearestNeighbors(float[] kd)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LinkedList<Datatype> nearestNeighbors(double[] kd)
+	public Datatype nearestNNeighbour(double[] pos, int n)
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
+
 }
