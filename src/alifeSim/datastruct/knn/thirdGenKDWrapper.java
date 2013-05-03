@@ -23,50 +23,11 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 		treenodes = 0;
 	}
 
-	@Override
 	public void init(int dim)
 	{		
 		tree = null;
 		treenodes = 0;
 		tree = new KdTree<Datatype>(dim);
-	}
-	
-	@Override
-	public Datatype nearestNeighbor(int kd[])
-	{
-		return nearestNeighbor(kd);
-	}
-	
-	@Override
-	public Datatype nearestNeighbor(float kd[])
-	{	
-		return nearestNeighbor(kd);
-	}
-
-	@Override
-	public Datatype nearestNeighbor(double kd[])
-	{		
-		// Get two agents - due to the closest agent to its self being its self, but one plant
-		// Max is the next closest - Self is 0			
-		return (Datatype) tree.findNearestNeighbors(kd, 2, distanceKD).getMax();
-	}	
-	
-	@Override
-	public LinkedList<Datatype> nearestNeighbors(double kd[])
-	{
-		return null;
-	}
-
-	@Override
-	public void add(int kd[], Datatype agent)
-	{
-		add(kd,agent);
-	}
-
-	@Override
-	public void add(float kd[], Datatype agent)
-	{
-		add(kd,agent);		
 	}
 	
 	@Override
@@ -82,17 +43,24 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	}
 
 	@Override
-	public LinkedList<Datatype> nearestNeighbors(int kd[])
+	public Datatype nearestNeighbour(double kd[])
+	{		
+		// Max is the next closest - Self is 0 (if same tree)	
+		return (Datatype) tree.findNearestNeighbors(kd, 1, distanceKD).getMax();
+	}	
+	
+	@Override
+	public LinkedList<Datatype> nearestNeighbours(double kd[])
 	{
-		// TODO Auto-generated method stub
+		/* NOT IMPLEMENTED */
 		return null;
 	}
-
+	
 	@Override
-	public LinkedList<Datatype> nearestNeighbors(float kd[])
+	public Datatype nearestNNeighbour(double[] pos, int n)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		// Get nth nearest neighbours	
+		return (Datatype) tree.findNearestNeighbors(pos, n, distanceKD).getMax();
 	}
 
 }

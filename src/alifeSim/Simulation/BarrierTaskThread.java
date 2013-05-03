@@ -33,7 +33,7 @@ public class BarrierTaskThread extends Thread
 
 	/** The Entire World View. (Both Trees) */
 	private KNNInf<SimpleAgent> agentKDTree;
-	private KdTree<GenericPlant> plantKDTree;
+	private KNNInf<GenericPlant> plantKDTree;
 
 	/** The Plant List Iterator. */
 	private ListIterator<GenericPlant> plantListItr;
@@ -82,7 +82,7 @@ public class BarrierTaskThread extends Thread
 	 * @param plantList
 	 * @param plantKDTree
 	 */
-	public void setTask(ArrayList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KdTree<GenericPlant> plantKDTree)
+	public void setTask(ArrayList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KNNInf<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;
 		this.plantList = plantList;
@@ -149,7 +149,7 @@ public class BarrierTaskThread extends Thread
 				{
 					currentAgent = agentList.getNext();
 						
-					nearestAgent = agentKDTree.nearestNeighbor(currentAgent.body.getBodyPosKD());
+					nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
 	
 					/*
 					 * calculate if the Nearest Agents are in the view Range of the
@@ -159,8 +159,9 @@ public class BarrierTaskThread extends Thread
 	
 					if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
 					{
-						plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
-						nearestPlant = plantNeighborList.getMax();
+						//plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
+						//nearestPlant = plantNeighborList.getMax();
+						nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
 						/*
 						 * calculate if the Nearest Plants are in the view Range of
 						 * the current agent
@@ -214,7 +215,7 @@ public class BarrierTaskThread extends Thread
 
 			return;
 		}
-
+				
 		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
 		System.out.print(":");
 		System.out.print("Nx "+ nearestAgent.body.getBodyPos().getX()+ " Ny " +nearestAgent.body.getBodyPos().getY());

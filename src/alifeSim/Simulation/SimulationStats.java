@@ -48,6 +48,7 @@ public class SimulationStats
 	public void incrementSimulationSteps()
 	{
 		simulationSteps++;
+		//System.out.println("Step " + simulationSteps);
 	}
 
 	public long getSimulationRuntime()

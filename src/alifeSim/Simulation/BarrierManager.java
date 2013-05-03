@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
 
-import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.datastruct.knn.KDTree;
 import alifeSim.datastruct.knn.KNNInf;
 import alifeSim.datastruct.knn.thirdGenKDWrapper;
 import alifeSim.datastruct.list.ArrayList;
@@ -43,7 +43,7 @@ public class BarrierManager extends Thread
 	private ArrayList<SimpleAgent>[] agentTaskLists;
 
 	/** References for Plant Tasks */
-	private KdTree<GenericPlant> plantKDTree;
+	private KNNInf<GenericPlant> plantKDTree;
 	private LinkedList<GenericPlant> plantList;
 	private LinkedList<GenericPlant>[] plantTaskLists;
 	
@@ -67,8 +67,12 @@ public class BarrierManager extends Thread
 
 		this.numThreads = numThreads;
 		
+		//agentKDTree = new KDTree<SimpleAgent>();
+		//plantKDTree = new KDTree<GenericPlant>();
 		agentKDTree = new thirdGenKDWrapper<SimpleAgent>();
-
+		plantKDTree = new thirdGenKDWrapper<GenericPlant>();
+		
+		
 		setUpTaskLists();
 
 		setUpSemaphores();
@@ -253,7 +257,7 @@ public class BarrierManager extends Thread
 	private void splitPlantList()
 	{
 		/* 2d - KD-Tree */
-		plantKDTree = new KdTree<GenericPlant>(2);
+		plantKDTree.init(2);
 
 		int i = 0;
 
@@ -289,7 +293,7 @@ public class BarrierManager extends Thread
 				pos = new double[2];
 				pos[0] = temp.body.getBodyPos().getX();
 				pos[1] = temp.body.getBodyPos().getY();
-				plantKDTree.addPoint(pos, temp);
+				plantKDTree.add(pos, temp);
 			}
 
 			/* This section does the decision boundaries for splitting the list */
