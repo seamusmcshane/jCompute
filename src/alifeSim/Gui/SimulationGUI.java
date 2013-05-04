@@ -46,6 +46,7 @@ import javax.swing.ImageIcon;
 
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
+import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 /**
@@ -901,7 +902,12 @@ public class SimulationGUI
 		
 		System.out.println(scenario.getScenarioType());
 		
-		if(scenario.getScenarioType().equals("SAPP"))
+		if(scenario.getScenarioType().equals("DEBUG"))
+		{
+			System.out.println("Debug File");
+			simScenario = new DebugScenario(file);
+		}
+		else if(scenario.getScenarioType().equals("SAPP"))
 		{			
 			System.out.println("SAPP File");			
 			simScenario = new SAPPScenario(file);			
