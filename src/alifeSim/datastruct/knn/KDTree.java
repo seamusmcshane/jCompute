@@ -12,8 +12,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 	int nodeCount;
 	KDNode<Datatype> root;	
 	
-	@Override
-	public void init(int dim)
+	public KDTree(int dim)
 	{
 		this.root = null;
 		nodeCount=0;
@@ -26,8 +25,10 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 	{		
 		if(root == null)
 		{
+			//System.out.println("ROOT " + root);
 			root = new KDNode<Datatype>(dim,0,pos, data);
-			//System.out.println("add ROOT NULL");
+			nodeCount++;
+			//System.out.println("ROOT " + root);
 		}
 		else
 		{
@@ -39,24 +40,35 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 	// Dynamic Insert
 	private void insert(int depth, KDNode<Datatype> node ,double[] pos, Datatype data)
 	{
-		if(node == null)
-		{
-			node = new KDNode<Datatype>(dim,depth,pos, data);
-			nodeCount++;
-			//System.out.println("Node null Insert : Node Count : " + nodeCount);
-			return;
-		}
+		int k=(depth % dim);
 		
-		for(int k=0;k<dim;k++)
+		if(node.isValueGreater(k, pos)) // Parent is higher on the Dim
 		{
-			if(node.isValueGreater(k, pos) == true)
+		
+			if(node.getLeftChild() != null)
 			{
-				
-				insert(depth+1,node.getLeaf(k),pos,data);
-				
-				return;
-			} // else loop to the next kdim...
-						
+				insert(depth+1,node.getLeftChild(),pos,data);
+			}
+			else
+			{
+				node.setLeftChild(new KDNode<Datatype>(dim,depth+1,pos, data));
+				//System.out.println("Node " + node +" set left node " + node.getLeftChild());
+				nodeCount++;
+			}
+			
+		}
+		else // Child is higher on the dim
+		{
+			if(node.getRightChild() != null)
+			{
+				insert(depth+1,node.getRightChild(),pos,data);
+			}
+			else
+			{
+				node.setRightChild(new KDNode<Datatype>(dim,depth+1,pos, data));
+				//System.out.println("Node " + node +" set right node " + node.getRightChild());
+				nodeCount++;
+			}
 		}
 
 	}
@@ -64,52 +76,80 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 	@Override
 	public Datatype nearestNeighbour(double[] pos)
 	{
+		System.out.println("Search Start Node Count : " + nodeCount);
+		
 		if(root == null)
 		{
-			System.out.println("ROOT NULL");
+			System.out.println("<<<<<<<<<<<Search found ROOT NULL>>>>>>>>>>>>>>>>>");
 		}
-		
 		return findNearest(0,root,pos); // start search from the root
 	}
 
 	private Datatype findNearest(int depth,KDNode<Datatype> node,double pos[])
 	{
 		
-		KDNode<Datatype> branchCheck = null;
-		for(int i=0;i<dim;i++)
+		//int k=(depth % dim);
+		Datatype nearestNodeData = null;
+
+		double currentNode = DistanceFunctions.SquaredEuclidienDistance2D(pos,node.pos);	
+		
+		double leftNode = Double.MAX_VALUE;
+		double rightNode = Double.MAX_VALUE;
+		
+		if( (node.getLeftChild() == null) &&  (node.getRightChild() == null) )
 		{
-			branchCheck = node.getLeaf(i);
-			
-			if(branchCheck!=null) // we have a branch
+			nearestNodeData =  node.getData();
+		}
+				
+		if(node.getLeftChild() != null)
+		{
+			leftNode =  DistanceFunctions.SquaredEuclidienDistance2D(node.getLeftChild().getPos(), pos);
+		}
+
+		if(node.getRightChild() != null)
+		{
+			rightNode =  DistanceFunctions.SquaredEuclidienDistance2D(node.getRightChild().getPos(), pos);
+		}
+		
+		System.out.println("Compare dis to C Node " + currentNode);
+		System.out.println("Compare dis to L Node " + leftNode);
+		System.out.println("Compare dis to R Node " + rightNode);			
+
+		if(leftNode < currentNode)
+		{
+
+			if(leftNode<rightNode)
 			{
-				break;
+				System.out.println("left is closer (nodeCount " + nodeCount + ")");
+				nearestNodeData = findNearest(depth+1,node.getLeftChild(),pos);	
+			}
+			else
+			{
+				System.out.println("right is closer (nodeCount " + nodeCount + ")");
+				nearestNodeData = findNearest(depth+1,node.getRightChild(),pos);
 			}
 			
 		}
-		
-		if(branchCheck == null) // no more branch .... end of tree -- search end
+		else if(rightNode < currentNode)
 		{
-			return node.getData();
+			if(leftNode<rightNode)
+			{
+				System.out.println("left is closer (nodeCount " + nodeCount + ")");
+				nearestNodeData = findNearest(depth+1,node.getLeftChild(),pos);	
+			}
+			else
+			{
+				System.out.println("right is closer (nodeCount " + nodeCount + ")");
+				nearestNodeData = findNearest(depth+1,node.getRightChild(),pos);
+			}
 		}
-		
-		double current_value = node.getPos()[depth%dim]; // Get the nodes value of the dim for this level
-		double compare_value = pos[depth%dim]; 			 // The value of the dim for this level
-				
-		int sk = depth%dim; // start at the correct K
-		
-		if(compare_value < current_value)
-		{
-			return findNearest(depth+1,node.getLeaf(sk),pos); // current dim
-		}
-		else if(compare_value == current_value)
-		{
-			return node.getData();
-		}			
 		else
 		{
-			return findNearest(depth+1,node.getLeaf( (sk+1) % dim ),pos); // next dim
-		}	
+			System.out.println("currentNode is closer (nodeCount " + nodeCount + ")");
+			nearestNodeData = node.getData();
+		}
 		
+		return nearestNodeData;
 	}
 	
 	public int size()
@@ -117,24 +157,6 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 		return nodeCount;
 	}
 	
-	/** tuple function search_kd_tree(int depth, tuple tree, tuple point):
-	    if tree is a single point:
-	        return the point
-
-	    meanValue = the value of the root node of tree
-
-	    if depth is even:
-	        comparisonValue = the x-value of the point
-	    else:
-	        comparisonValue = the y-value of the point
-
-	    if comparisonValue < meanValue :
-	        subtree = left-hand subtree of tree
-	    else:
-	        subtree = right-hand subtree of tree
-
-	    return search_kd_tree(depth + 1, subtree, point)
-	*/
 	@Override
 	public LinkedList<Datatype> nearestNeighbours(double[] pos)
 	{
@@ -145,7 +167,8 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 	@Override
 	public Datatype nearestNNeighbour(double[] pos, int n)
 	{
-		// TODO Auto-generated method stub
+		System.out.println("Search Start");
+
 		return null;
 	}
 	

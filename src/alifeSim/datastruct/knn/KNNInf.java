@@ -15,7 +15,7 @@ public interface KNNInf <Datatype>
 {
 	
 	/* Init the Tree */
-	void init(int dim);
+	//void KNNInf(int dim);
 	
 	/* Add Item to Tree */
 	void add(double pos[],Datatype data);

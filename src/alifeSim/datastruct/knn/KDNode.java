@@ -7,14 +7,19 @@ public class KDNode<Datatype>
 	double pos[];
 	Datatype data;
 
-	KDNode<Datatype> branch[];
+	KDNode<Datatype> parentNode;
+	KDNode<Datatype> leftChild;
+	KDNode<Datatype> rightChild;
 	
 	public KDNode(int kd,int depth,double pos[], Datatype data)
 	{
 		this.pos = pos;
 		this.nodeDepth = depth;
 		this.data = data;
-		this.branch = new KDNode[kd]; // Create kd leaf branches
+		
+		parentNode = null;
+		leftChild = null;
+		rightChild = null;
 	}
 
 	public boolean isValueGreater(int k,double pos[])
@@ -26,7 +31,7 @@ public class KDNode<Datatype>
 		else
 		{
 			return false;
-		}		
+		}
 	}
 	
 	public Datatype getData()
@@ -38,11 +43,35 @@ public class KDNode<Datatype>
 	{
 		return pos;
 	}
-	
-	public KDNode<Datatype> getLeaf(int k)
-	{
-		//System.out.println("get leaf k : " + k);
 
-		return branch[k];
+	public KDNode<Datatype> getParentNode()
+	{
+		return parentNode;
 	}
+
+	public void setParentNode(KDNode<Datatype> parentNode)
+	{
+		this.parentNode = parentNode;
+	}
+
+	public KDNode<Datatype> getLeftChild()
+	{
+		return leftChild;
+	}
+
+	public void setLeftChild(KDNode<Datatype> leftChild)
+	{
+		this.leftChild = leftChild;
+	}
+
+	public KDNode<Datatype> getRightChild()
+	{
+		return rightChild;
+	}
+
+	public void setRightChild(KDNode<Datatype> rightChild)
+	{
+		this.rightChild = rightChild;
+	}
+	
 }

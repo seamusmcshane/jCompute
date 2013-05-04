@@ -68,10 +68,9 @@ public class BarrierManager extends Thread
 		this.numThreads = numThreads;
 		
 		//agentKDTree = new KDTree<SimpleAgent>();
-		//plantKDTree = new KDTree<GenericPlant>();
-		agentKDTree = new thirdGenKDWrapper<SimpleAgent>();
-		plantKDTree = new thirdGenKDWrapper<GenericPlant>();
-		
+		plantKDTree = new KDTree<GenericPlant>(2);
+		agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
+		//plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
 		
 		setUpTaskLists();
 
@@ -257,7 +256,8 @@ public class BarrierManager extends Thread
 	private void splitPlantList()
 	{
 		/* 2d - KD-Tree */
-		plantKDTree.init(2);
+		//plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
+		plantKDTree = new KDTree<GenericPlant>(2);
 
 		int i = 0;
 
@@ -322,7 +322,7 @@ public class BarrierManager extends Thread
 	private void splitAgentList()
 	{
 		/* 2d - KD-Tree */
-		agentKDTree.init(2);
+		agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
 
 		int i = 0;
 

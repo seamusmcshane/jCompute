@@ -18,12 +18,7 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	/** The distance function object. */
 	private final SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
 	
-	public thirdGenKDWrapper()
-	{
-		treenodes = 0;
-	}
-
-	public void init(int dim)
+	public thirdGenKDWrapper(int dim)
 	{		
 		tree = null;
 		treenodes = 0;
