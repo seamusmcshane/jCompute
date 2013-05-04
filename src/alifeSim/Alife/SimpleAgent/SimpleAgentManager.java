@@ -3,6 +3,7 @@ package alifeSim.Alife.SimpleAgent;
 import java.util.Random;
 
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Line;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
@@ -197,7 +198,7 @@ public class SimpleAgentManager
 	 * @param trueDrawing boolean
 	 * @param viewRangeDrawing boolean
 	 */
-	public void drawAgent(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing)
+	public void drawAgent(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing, boolean viewsDrawing)
 	{
 
 		//itrDrawAI = doneList.listIterator();
@@ -224,11 +225,17 @@ public class SimpleAgentManager
 				{
 					tAgentDrawAI.body.drawRectBody(g);
 				}
-
+				
 				if (viewRangeDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
 					tAgentDrawAI.brain.view.drawViewRange(g);
+				}
+				
+				if(viewsDrawing)
+				{
+					/* Draw the agent views */
+					tAgentDrawAI.brain.view.drawViews(g);
 				}
 			}
 

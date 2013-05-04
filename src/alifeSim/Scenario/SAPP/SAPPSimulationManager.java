@@ -181,7 +181,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 * @param trueDrawing boolean
 	 * @param viewRangeDrawing boolean
 	 */
-	public void drawSim(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing)
+	public void drawSim(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 		// Get a lock on the done list, 
 		// but don't wait if we cant get a lock 
@@ -195,7 +195,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 			
 			genericPlantManager.drawPlants(g, simpleDrawing);
 
-			simpleAgentManager.drawAgent(g, simpleDrawing, viewRangeDrawing);
+			simpleAgentManager.drawAgent(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
 
 			// Release the lock on the done list
 			lock.release();

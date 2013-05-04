@@ -258,9 +258,9 @@ public class Simulation
 	 * @param true_drawing boolean
 	 * @param view_range_drawing boolean
 	 */
-	public void drawSim(Graphics g, boolean true_drawing, boolean view_range_drawing)
+	public void drawSim(Graphics g, boolean true_drawing, boolean view_range_drawing,boolean viewsDrawing)
 	{
-			simManager.drawSim(g, true_drawing, view_range_drawing);
+			simManager.drawSim(g, true_drawing, view_range_drawing,viewsDrawing);
 	}	
 	
 }

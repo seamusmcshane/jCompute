@@ -9,6 +9,7 @@ import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.datastruct.knn.DistanceFunctions;
 import alifeSim.datastruct.knn.KNNInf;
 import alifeSim.datastruct.list.ArrayList;
 
@@ -162,6 +163,7 @@ public class BarrierTaskThread extends Thread
 						//plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
 						//nearestPlant = plantNeighborList.getMax();
 						nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
+												
 						/*
 						 * calculate if the Nearest Plants are in the view Range of
 						 * the current agent

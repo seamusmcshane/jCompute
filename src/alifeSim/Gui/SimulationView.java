@@ -67,6 +67,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	/** Draw the View range of the agents */
 	static boolean viewRangeDrawing = false;
 
+	/** Draw Views */
+	static boolean viewsDrawing = false;
 	/**
 	 * This locks the frame rate to the following rate allowing more time
 	 * to be used for simulation threads.
@@ -217,7 +219,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		/* Move the entire world to simulate a view moving around */
 		g.translate(globalTranslate.getX(), globalTranslate.getY());
 
-		sim.drawSim(g, simpleDrawing, viewRangeDrawing);
+		sim.drawSim(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
 
 		/* Performance Indicator */
 		bufferDrawNum++;
@@ -527,6 +529,15 @@ public class SimulationView extends BasicGame implements MouseListener
 		viewRangeDrawing = inViewRangeDrawing;
 	}
 
+	/**
+	 * Method setViewRangeDrawing.
+	 * @param inViewRangeDrawing boolean
+	 */
+	public static void setViewsDrawing(boolean inViewsDrawing)
+	{
+		viewsDrawing = inViewsDrawing;
+	}
+	
 	/**
 	 * Method setSimpleDrawing.
 	 * @param inSimpleDrawing boolean

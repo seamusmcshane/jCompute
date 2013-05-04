@@ -121,6 +121,8 @@ public class SimulationGUI
 	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
 	private static JCheckBoxMenuItem chckbxmntmDisplayView;
 	private static JCheckBoxMenuItem chckbxmntmDrawSimpleBodies;
+	private static JCheckBoxMenuItem chckbxmntDrawAgentViews;
+
 	private static JPanel controlPanelBottom;
 	private static JLabel lblStepRate;
 	private static JLabel lblASPSNo;
@@ -217,6 +219,9 @@ public class SimulationGUI
 		StatsPanel.clearStats();
 
 		clearGUIStats();
+		
+		chckbxmntDrawAgentViews.setSelected(true);
+		chckbxmntmDrawFieldOf.setSelected(true);
 
 	}
 
@@ -709,7 +714,26 @@ public class SimulationGUI
 			}
 		});
 		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
-
+		
+		chckbxmntDrawAgentViews = new JCheckBoxMenuItem("Draw Agent Views");
+		chckbxmntDrawAgentViews.addItemListener(new ItemListener() 
+		{
+			public void itemStateChanged(ItemEvent arg0) 
+			{
+				if (chckbxmntDrawAgentViews.isSelected())
+				{
+					// have been checked
+					SimulationView.setViewsDrawing(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setViewsDrawing(false);
+				}				
+			}
+		});
+		mnAgentDrawing.add(chckbxmntDrawAgentViews);
+		
 		mnFrameRate = new JMenu("Frame Rate");
 		mnViewOptions.add(mnFrameRate);
 

@@ -3,6 +3,7 @@ package alifeSim.Alife.SimpleAgent;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 import fastMath.fastMath;
@@ -304,8 +305,28 @@ public class SimpleAgentView
 		{
 			g.setColor(Color.white);
 		}
-
+	
 		g.draw(fov);
+		
+		
+
+		
 	}
 
+	public void drawViews(Graphics g)
+	{
+		if(getNearestAgentPos() != null)
+		{
+			Line line = new Line(body.getBodyPos(), getNearestAgentPos());
+			g.draw(line);
+		}
+		
+		if(getNearestPlantPos() != null)
+		{
+			g.setColor(Color.green);
+			Line line = new Line(body.getBodyPos(), getNearestPlantPos());
+			g.draw(line);
+		}
+	}
+	
 }
