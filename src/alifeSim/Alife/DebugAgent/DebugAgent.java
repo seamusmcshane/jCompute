@@ -8,6 +8,7 @@ import org.newdawn.slick.geom.Vector2f;
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
+import alifeSim.World.World;
 
 public class DebugAgent
 {
@@ -17,6 +18,8 @@ public class DebugAgent
 	private AlifeBody body;
 	
 	private int worldSize;
+	
+	private boolean dirUp = true;
 	
 	public DebugAgent(int auto, int corner,int worldSize)
 	{
@@ -58,8 +61,8 @@ public class DebugAgent
 				break;
 			case -1:
 
-					pos[0] = worldSize; // MIDDLE
-					pos[1] = worldSize;		
+					pos[0] = worldSize*0.50; // MIDDLE
+					pos[1] = worldSize*0.50;		
 					body.setColor(Color.yellow);
 
 			break;
@@ -76,8 +79,30 @@ public class DebugAgent
 	{
 		if(auto == 0)
 		{
-			pos[0] = ((double)Mouse.getX()) * 0.5;
-			pos[1] = -(((double)Mouse.getY()) * 0.5);
+			if( dirUp)
+			{
+				if(World.isBoundaryWall((float)pos[0],(float) pos[1]))
+				{
+					dirUp=false;
+				}
+			}
+			else
+			{
+				if(World.isBoundaryWall((float)pos[0],(float) pos[1]))
+				{
+					dirUp=true;
+				}
+			}
+			
+			if(dirUp)
+			{
+				pos[1]--;
+			}
+			else
+			{
+				pos[1]++;				
+			}
+			
 			body.setIntialPos(pos);
 		}
 	}
