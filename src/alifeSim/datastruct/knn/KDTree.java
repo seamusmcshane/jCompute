@@ -17,7 +17,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 		this.root = null;
 		nodeCount=0;
 		this.dim = dim;	
-		System.out.println("Init : Node Count : " + nodeCount);
+		//System.out.println("Init : Node Count : " + nodeCount);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 	@Override
 	public Datatype nearestNeighbour(double[] pos)
 	{
-		System.out.println("Search Start Node Count : " + nodeCount);
+		//System.out.println("Search Start Node Count : " + nodeCount);
 		
 		if(root == null)
 		{
@@ -91,7 +91,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 		//int k=(depth % dim);
 		Datatype nearestNodeData = null;
 
-		double currentNode = DistanceFunctions.SquaredEuclidienDistance2D(pos,node.pos);	
+		double currentNode = DistanceFunctions.SquaredEuclidienDistance2D(pos,node.getPos());	
 		
 		double leftNode = Double.MAX_VALUE;
 		double rightNode = Double.MAX_VALUE;
@@ -111,21 +111,21 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 			rightNode =  DistanceFunctions.SquaredEuclidienDistance2D(node.getRightChild().getPos(), pos);
 		}
 		
-		System.out.println("Compare dis to C Node " + currentNode);
+		/*System.out.println("Compare dis to C Node " + currentNode);
 		System.out.println("Compare dis to L Node " + leftNode);
-		System.out.println("Compare dis to R Node " + rightNode);			
+		System.out.println("Compare dis to R Node " + rightNode);		*/	
 
 		if(leftNode < currentNode)
 		{
 
 			if(leftNode<rightNode)
 			{
-				System.out.println("left is closer (nodeCount " + nodeCount + ")");
+				//System.out.println("left is closer (nodeCount " + nodeCount + ")");
 				nearestNodeData = findNearest(depth+1,node.getLeftChild(),pos);	
 			}
 			else
 			{
-				System.out.println("right is closer (nodeCount " + nodeCount + ")");
+				//System.out.println("right is closer (nodeCount " + nodeCount + ")");
 				nearestNodeData = findNearest(depth+1,node.getRightChild(),pos);
 			}
 			
@@ -134,18 +134,18 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 		{
 			if(leftNode<rightNode)
 			{
-				System.out.println("left is closer (nodeCount " + nodeCount + ")");
+				//System.out.println("left is closer (nodeCount " + nodeCount + ")");
 				nearestNodeData = findNearest(depth+1,node.getLeftChild(),pos);	
 			}
 			else
 			{
-				System.out.println("right is closer (nodeCount " + nodeCount + ")");
+				//System.out.println("right is closer (nodeCount " + nodeCount + ")");
 				nearestNodeData = findNearest(depth+1,node.getRightChild(),pos);
 			}
 		}
 		else
 		{
-			System.out.println("currentNode is closer (nodeCount " + nodeCount + ")");
+			//System.out.println("currentNode is closer (nodeCount " + nodeCount + ")");
 			nearestNodeData = node.getData();
 		}
 		

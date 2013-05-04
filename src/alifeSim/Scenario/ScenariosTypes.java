@@ -6,7 +6,7 @@ public class ScenariosTypes
 	private String supportedScenarios[] = { "INVALID", "SAPP" };	
 	public enum Scenario
 	{
-		INVALID,SAPP,
+		INVALID,DEBUG,SAPP,
 	};
 	
 	public String scenarioEnumToString(Scenario type)
@@ -26,12 +26,10 @@ public class ScenariosTypes
 			if(supportedScenarios[i].equals(name))
 			{
 				return list[i];
-			}
-			
+			}			
 		}
 		
-		return Scenario.INVALID;
-		
+		return Scenario.INVALID;		
 	}
 	
 }

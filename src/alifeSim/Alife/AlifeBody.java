@@ -47,12 +47,16 @@ public class AlifeBody
 		trueBody = new Circle(0, 0, trueSize);
 	}
 	
+	public void setIntialPos(double pos[])
+	{
+		bodyPos = new Vector2f((float)pos[0], (float)pos[1]);
+	}
 	
 	/** 
 	 * Initial Cartesian X/Y Position 
 	 * @param pos Vector2f
 	 */
-	protected void setIntialPos(Vector2f pos)
+	public void setIntialPos(Vector2f pos)
 	{
 		bodyPos = pos;
 	}	
@@ -110,7 +114,7 @@ public class AlifeBody
 	 * Set Color
 	 * 
 	 */
-	protected void setColor(Color color)
+	public void setColor(Color color)
 	{
 		this.color = color;
 	}
