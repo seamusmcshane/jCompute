@@ -2,9 +2,8 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="libs/kdtree/rednaxela-knn-benchmark"/>
 	<classpathentry kind="src" path="libs/ini4j/ini4j-0.5.2/src/main/java"/>
-	<classpathentry kind="src" path="libs/kdtree"/>
-	<classpathentry kind="src" path="libs/datastruct"/>
 	<classpathentry kind="src" path="libs/fastMath"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="libs/slick/slick-31-03-2013.jar"/>
