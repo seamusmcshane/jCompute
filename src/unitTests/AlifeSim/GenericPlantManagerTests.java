@@ -1,4 +1,4 @@
-package alifeUnitTests;
+package unitTests.AlifeSim;
 
 import static org.junit.Assert.*;
 

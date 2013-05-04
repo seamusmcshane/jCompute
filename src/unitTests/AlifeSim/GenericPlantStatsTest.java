@@ -1,4 +1,4 @@
-package alifeUnitTests;
+package unitTests.AlifeSim;
 /**
  * Tests the GenericPlantStats class
  */
