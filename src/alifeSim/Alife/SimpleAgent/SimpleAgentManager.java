@@ -145,7 +145,7 @@ public class SimpleAgentManager
 	 */
 	private void addAgent(SimpleAgent agent)
 	{
-		doneList.add(agent);
+		doneList.add(agent,agent.body.getBodyPos().getX());
 
 		if (agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
@@ -189,7 +189,7 @@ public class SimpleAgentManager
 
 		agent.setId(agentIdCount);
 
-		doneList.add(agent);
+		doneList.add(agent,agent.body.getBodyPos().getX());
 	}
 
 	/**

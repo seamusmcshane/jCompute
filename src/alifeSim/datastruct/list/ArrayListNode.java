@@ -4,23 +4,18 @@ public class ArrayListNode<Datatype> implements  NodeInf<ArrayListNode,Datatype>
 {
 
 	Datatype data;
-	
+	double val;
 	public ArrayListNode()
 	{
 		data = null;		
 	}
 	
-	public ArrayListNode(Datatype data)
+	public void setNode(Datatype data,double val)
 	{
+		this.val = val;
 		this.data = data;
 	}
-
-	@Override
-	public void setData(Datatype data)
-	{
-		this.data = data;		
-	}
-
+	
 	@Override
 	public Datatype getData()
 	{		
@@ -28,30 +23,10 @@ public class ArrayListNode<Datatype> implements  NodeInf<ArrayListNode,Datatype>
 	}
 
 	@Override
-	public ArrayListNode getNext()
+	public double getVal()
 	{
 		// TODO Auto-generated method stub
-		return null;
+		return val;
 	}
 
-	@Override
-	public ArrayListNode getPrev()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setNext(ArrayListNode node)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setPrev(ArrayListNode node)
-	{
-		// TODO Auto-generated method stub
-		
-	}
 }

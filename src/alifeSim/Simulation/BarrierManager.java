@@ -44,8 +44,8 @@ public class BarrierManager extends Thread
 
 	/** References for Plant Tasks */
 	private KNNInf<GenericPlant> plantKDTree;
-	private LinkedList<GenericPlant> plantList;
-	private LinkedList<GenericPlant>[] plantTaskLists;
+	private ArrayList<GenericPlant> plantList;
+	private ArrayList<GenericPlant>[] plantTaskLists;
 	
 	/** Counts used in list division */
 	private int agentCount;
@@ -68,8 +68,8 @@ public class BarrierManager extends Thread
 		this.numThreads = numThreads;
 		
 		//agentKDTree = new KDTree<SimpleAgent>();
-		plantKDTree = new KDTree<GenericPlant>(2);
-		agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
+		//plantKDTree = new KDTree<GenericPlant>(2);
+		//agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
 		//plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
 		
 		setUpTaskLists();
@@ -162,7 +162,7 @@ public class BarrierManager extends Thread
 	 * @param inList
 	 * @param numPlants int
 	 */
-	public void setBarrierPlantTask(LinkedList<GenericPlant> inList, int numPlants)
+	public void setBarrierPlantTask(ArrayList<GenericPlant> inList, int numPlants)
 	{
 		plantList = inList;
 		plantCount = numPlants;
@@ -215,7 +215,7 @@ public class BarrierManager extends Thread
 	private void setUpTaskLists()
 	{
 		agentTaskLists = new ArrayList[numThreads];
-		plantTaskLists = new LinkedList[numThreads];
+		plantTaskLists = new ArrayList[numThreads];
 
 	}
 
@@ -264,10 +264,14 @@ public class BarrierManager extends Thread
 		/* Create a list for each thread and the thread */
 		for (i = 0; i < numThreads; i++)
 		{
-			plantTaskLists[i] = new LinkedList<GenericPlant>();
+			plantTaskLists[i] = new ArrayList<GenericPlant>();
 		}
 
-		splitItr = plantList.listIterator();
+		//splitItr = plantList.listIterator();
+		
+		plantList.resetHead();
+		
+
 
 		/* Calculate the Splits */
 		int div = plantCount / numThreads;
@@ -283,10 +287,10 @@ public class BarrierManager extends Thread
 		double[] pos;
 		
 		/* Split the lists */
-		while (splitItr.hasNext())
+		while (plantList.hasNext())
 		{
-			/* Get an agent */
-			temp = splitItr.next();
+			/* Get a plant */
+			temp = plantList.getNext();
 
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
@@ -307,7 +311,7 @@ public class BarrierManager extends Thread
 			}
 
 			/* Add the plant to the smaller list */
-			plantTaskLists[thread_num].add(temp);
+			plantTaskLists[thread_num].add(temp,temp.body.getBodyPos().getX());
 
 			tPlantCount++;
 		}
@@ -376,7 +380,7 @@ public class BarrierManager extends Thread
 			}
 
 			/* Add the agent to the smaller list */
-			agentTaskLists[thread_num].add(temp);
+			agentTaskLists[thread_num].add(temp,temp.body.getBodyPos().getX());
 
 			tAgentCount++;
 		}

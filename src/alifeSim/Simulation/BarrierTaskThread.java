@@ -30,7 +30,7 @@ public class BarrierTaskThread extends Thread
 	private ArrayList<SimpleAgent> agentList;
 
 	/** The Plant list. */
-	private LinkedList<GenericPlant> plantList;
+	private ArrayList<GenericPlant> plantList;
 
 	/** The Entire World View. (Both Trees) */
 	private KNNInf<SimpleAgent> agentKDTree;
@@ -83,7 +83,7 @@ public class BarrierTaskThread extends Thread
 	 * @param plantList
 	 * @param plantKDTree
 	 */
-	public void setTask(ArrayList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, LinkedList<GenericPlant> plantList, KNNInf<GenericPlant> plantKDTree)
+	public void setTask(ArrayList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, ArrayList<GenericPlant> plantList, KNNInf<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;
 		this.plantList = plantList;
@@ -92,7 +92,7 @@ public class BarrierTaskThread extends Thread
 		System.out.println("plantKDTree " + plantKDTree.size());*/
 		
 		//this.agentListItr = agentList.listIterator();
-		this.plantListItr = plantList.listIterator();
+		//this.plantListItr = plantList.listIterator();
 
 		/* KD Trees */
 		this.agentKDTree = agentKDTree;
@@ -128,9 +128,13 @@ public class BarrierTaskThread extends Thread
 			if(running)
 			{
 				/** Section 1 - Process Plants*/
-				while (plantListItr.hasNext())
+				
+				plantList.resetHead();
+				
+				/** Section 2 */
+				while (plantList.get()!=null)
 				{
-					currentPlant = plantListItr.next();
+					currentPlant = plantList.getNext();
 	
 					if (!currentPlant.body.stats.isDead())
 					{

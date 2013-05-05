@@ -1,5 +1,7 @@
 package alifeSim.datastruct.list;
 
+import java.util.Collections;
+
 public class ArrayList<Datatype> implements ListInf<Datatype>
 {
 	private ArrayListNode<Datatype>[] arrayList;
@@ -12,6 +14,13 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 
 	private int sizeAdj;
 		
+	private double min = Double.POSITIVE_INFINITY;
+	private double max = 0;
+	
+	private double medianVal = min + (max/2);
+	private double bestMedian = 0;
+	private int medianPos = 0;
+	
 	/* Default Constructor */
 	public ArrayList()
 	{
@@ -46,7 +55,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	}
 
 	@Override
-	public void add(Datatype data)
+	public void add(Datatype data, double val)
 	{
 		//System.out.println("Size " + size + " Pos " + position);
 		// Arrays....
@@ -54,13 +63,39 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		{
 			increaseListSize();
 		}
-		
-		arrayList[position].setData(data);	
+				
+		arrayList[position].setNode(data, val);
 		
 		nodeCount++;
 		position++;
 	}
-
+	
+	private void updateMedian()
+	{
+		
+		for(int i = 0;i<arrayList.length;i++)
+		{
+			if(arrayList[i].getVal()<min)
+			{
+				min = arrayList[i].getVal();
+			}
+			
+			if(arrayList[i].getVal()>max)
+			{
+				max = arrayList[i].getVal();
+			}
+			
+			medianVal = (min/2) + (max/2);
+			
+			if( Math.abs(arrayList[i].getVal() - medianVal) < Math.abs(bestMedian - medianVal))
+			{
+				bestMedian = arrayList[i].getVal();
+				medianPos = i;
+			}
+		}
+		
+	}
+	
 	private void increaseListSize()
 	{
 		//System.out.println(size + " List Size too small....");
@@ -71,8 +106,8 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		
 		while(arrayList[tPos].getData()!=null)
 		{
-			tArrayList[tPos] = new ArrayListNode<Datatype>();	
-			tArrayList[tPos].setData(arrayList[tPos].getData());
+			//tArrayList[tPos] = new ArrayListNode<Datatype>();	
+			tArrayList[tPos] = arrayList[tPos];
 			tPos++;
 		}
 		
@@ -112,6 +147,11 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	@Override
 	public Datatype getNext()
 	{
+		if(position == medianPos)
+		{
+			position++;
+		}
+		
 		Datatype temp = arrayList[position].getData();
 		
 		position++;
@@ -151,7 +191,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		
 		return status;
 	}
-
+	
 	@Override
 	public void resetHead()
 	{
@@ -161,6 +201,15 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	public int getNodeCount()
 	{
 		return nodeCount;
+	}
+
+	@Override
+	public Datatype getMedianNode()
+	{
+		updateMedian();
+		
+		// TODO Auto-generated method stub
+		return arrayList[medianPos].getData();
 	}
 
 }

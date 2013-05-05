@@ -26,14 +26,14 @@ public class GenericPlantManager
 {
 
 	/** Plant Action Linked Lists */
-	private LinkedList<GenericPlant> doList;
-	private LinkedList<GenericPlant> doneList;
+	private ArrayList<GenericPlant> doList;
+	private ArrayList<GenericPlant> doneList;
 	
 	/** The Total number of plants managed by this class */
 	private int plantCount = 0;
 
 	/** The iterator used to draw the plants */
-	private ListIterator<GenericPlant> itrDrawPlant;
+	//private ListIterator<GenericPlant> itrDrawPlant;
 
 	/** A re-used reference in the draw method */
 	private GenericPlant tPlantDraw;
@@ -98,12 +98,12 @@ public class GenericPlantManager
 	public void drawPlants(Graphics g, boolean simpleDrawing)
 	{
 
-		itrDrawPlant = doneList.listIterator();
+		doneList.resetHead();
 
-		while (itrDrawPlant.hasNext())
+		while (doneList.hasNext())
 		{
 
-			tPlantDraw = itrDrawPlant.next();
+			tPlantDraw = doneList.getNext();
 
 			/*
 			 * Optimization - Only draw visible plants that are inside the
@@ -136,8 +136,6 @@ public class GenericPlantManager
 	public void stage1()
 	{
 		setUpLists();
-
-		randomizeListOrder();
 	}
 
 	/** Sets the barrier task for plants */
@@ -160,14 +158,6 @@ public class GenericPlantManager
 
 	}
 
-	/** 
-	 * Randomize the doList - to reduce list position bias
-	 */
-	private void randomizeListOrder()
-	{
-		Collections.shuffle(doList);
-	}
-
 	/** Updates the Done list. 
 	 * This is effectively handling the death of plants in the simulation and if later implemented the reproduction of plants. 
 	 */
@@ -176,19 +166,17 @@ public class GenericPlantManager
 		/* Recount all the plants - since some will have died... */
 		plantCount = 0;
 
-		ListIterator<GenericPlant> itr = doList.listIterator();
+		doList.resetHead();
+		
 
 		/* temp var */
 		GenericPlant temp;
 		
-		while (itr.hasNext())
+		while (doList.hasNext())
 		{
 
 			/* Remove this Plant from the List */
-			temp = itr.next();
-
-			/* remove from the doList */
-			itr.remove();
+			temp = doList.getNext();
 
 			/** Is plant dead? */
 			if (!temp.body.stats.isDead())
@@ -210,7 +198,7 @@ public class GenericPlantManager
 				//
 
 				/** Plant is not dead add it to the done list */
-				doneList.add(temp);
+				doneList.add(temp,temp.body.getBodyPos().getX());
 				plantCount++;
 
 			}
@@ -255,7 +243,7 @@ public class GenericPlantManager
 	 */
 	private void addNewPlant(GenericPlant plant)
 	{
-		doneList.add(plant);
+		doneList.add(plant,plant.body.getBodyPos().getX());
 		plantCount++;
 	}
 
@@ -266,7 +254,7 @@ public class GenericPlantManager
 	private void setUpLists()
 	{
 		doList = doneList;
-		doneList = new LinkedList<GenericPlant>();		
+		doneList = new ArrayList<GenericPlant>();		
 	}
 
 	/**

@@ -2,9 +2,9 @@ package alifeSim.datastruct.list;
 
 public interface ListInf<Datatype>
 {
-	/* Add Item */
-	public void add(Datatype data);
-	
+	/*  Add Item with sort dim to find the median in */
+	public void add(Datatype data, double sortDim);
+		
 	/* Returns data and Removes Node */
 	public Datatype remove();
 	
@@ -22,4 +22,6 @@ public interface ListInf<Datatype>
 	
 	/* Resets to first Node of data structure */
 	public void resetHead();
+	
+	public Datatype getMedianNode();
 }
