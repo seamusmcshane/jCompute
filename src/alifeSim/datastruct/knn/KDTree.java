@@ -141,7 +141,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 			double kdis = DistanceFunctions.SquaredEuclidienDistance1D(nearestNode.getPos()[altk], pos[altk]);
 			
 			/* If yes check the left tree*/
-			//if(kdis < nearestNodeDis)
+			if(kdis < nearestNodeDis)
 			{
 				KDNode<Datatype> nearestNodeAlt = null;
 				double nearestNodeDisAlt;
@@ -192,7 +192,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 			double kdis = DistanceFunctions.SquaredEuclidienDistance1D(nearestNode.getPos()[altk], pos[altk]);
 			
 			/* If yes check the left tree*/
-			//if(kdis < nearestNodeDis)
+			if(kdis < nearestNodeDis)
 			{
 				KDNode<Datatype> nearestNodeAlt = null;
 				double nearestNodeDisAlt;

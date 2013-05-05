@@ -16,7 +16,7 @@ BarrierScenario = 0
 
 AgentType = SimpleAgent
 
-InitialNumbers = 0
+InitialNumbers = 20
 
 Speed = 1.00
 ViewRange = 100
@@ -33,7 +33,7 @@ ReproductionCost = 0.55
 
 AgentType = SimpleAgent
 
-InitialNumbers = 1
+InitialNumbers = 200
 
 Speed = 0.90
 ViewRange = 100
@@ -50,7 +50,7 @@ ReproductionCost = 0.50
 
 PLantType = GenericPlant
 
-InitialNumbers = 10
+InitialNumbers = 100
 
 StartingEnergy = 50
 

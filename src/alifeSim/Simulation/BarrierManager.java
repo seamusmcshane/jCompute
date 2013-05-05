@@ -256,8 +256,8 @@ public class BarrierManager extends Thread
 	private void splitPlantList()
 	{
 		/* 2d - KD-Tree */
-		//plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
-		plantKDTree = new KDTree<GenericPlant>(2);
+		plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
+		//plantKDTree = new KDTree<GenericPlant>(2);
 
 		int i = 0;
 
@@ -282,9 +282,17 @@ public class BarrierManager extends Thread
 
 		/* Temp Variable */
 		GenericPlant temp;
-		
+						
 		/* Vector */
 		double[] pos;
+		
+		/*GenericPlant median = plantList.getMedianNode();
+		
+		// Add Median to Tree
+		pos = new double[2];
+		pos[0] = median.body.getBodyPos().getX();
+		pos[1] = median.body.getBodyPos().getY();
+		plantKDTree.add(pos, median);		*/
 		
 		/* Split the lists */
 		while (plantList.hasNext())
@@ -292,6 +300,11 @@ public class BarrierManager extends Thread
 			/* Get a plant */
 			temp = plantList.getNext();
 
+			/*if(temp == median)
+			{ // dont do this iteration
+				continue;
+			}*/
+			
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
 				pos = new double[2];

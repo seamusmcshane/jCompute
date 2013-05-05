@@ -73,6 +73,13 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 	private void updateMedian()
 	{
 		
+		min = Double.POSITIVE_INFINITY;
+		max = 0;
+		
+		medianVal = min + (max/2);
+		bestMedian = 0;
+		medianPos = 0;
+		
 		for(int i = 0;i<arrayList.length;i++)
 		{
 			if(arrayList[i].getVal()<min)
@@ -146,12 +153,7 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 
 	@Override
 	public Datatype getNext()
-	{
-		if(position == medianPos)
-		{
-			position++;
-		}
-		
+	{		
 		Datatype temp = arrayList[position].getData();
 		
 		position++;
