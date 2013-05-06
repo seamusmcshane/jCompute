@@ -7,6 +7,9 @@ public class GenericPlantSetupSettings
 
 	/* Plant Regeneration Rate */
 	private int plantRegenRate;
+	
+	/* Plant Regeneration ever N step[s */
+	private int plantRegenerationNSteps;
 
 	/* Plant Energy Absorption Rate */
 	private int plantEnergyAbsorptionRate;
@@ -33,7 +36,7 @@ public class GenericPlantSetupSettings
 	{
 		this.plantRegenRate = plantRegenRate;
 	}
-
+	
 	public int getPlantEnergyAbsorptionRate()
 	{
 		return plantEnergyAbsorptionRate;
@@ -52,5 +55,15 @@ public class GenericPlantSetupSettings
 	public void setPlantStartingEnergy(int plantStartingEnergy)
 	{
 		this.plantStartingEnergy = plantStartingEnergy;
+	}
+
+	public int getPlantRegenerationNSteps()
+	{
+		return plantRegenerationNSteps;
+	}
+
+	public void setPlantRegenerationNSteps(int plantRegenerationNSteps)
+	{
+		this.plantRegenerationNSteps = plantRegenerationNSteps;
 	}
 }

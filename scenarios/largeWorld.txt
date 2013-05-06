@@ -55,6 +55,7 @@ InitialNumbers = 400
 StartingEnergy = 50
 
 PlantRegeratonRate = 16
+plantRegenerationNSteps = 1
 EnergyAbsorptionRate = 8
 ReproductionAndSurvivalDivisor = 0.25
 StartingEnergy = 50

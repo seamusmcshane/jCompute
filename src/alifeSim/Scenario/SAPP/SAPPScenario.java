@@ -58,6 +58,8 @@ public class SAPPScenario extends ScenarioVT
 		plantSettings.setPlantEnergyAbsorptionRate(super.getIntValue(section,"EnergyAbsorptionRate"));
 		
 		plantSettings.setPlantRegenRate(super.getIntValue(section,"PlantRegeratonRate"));
+		
+		plantSettings.setPlantRegenerationNSteps(super.getIntValue(section,"plantRegenerationNSteps"));
 				
 	}
 	

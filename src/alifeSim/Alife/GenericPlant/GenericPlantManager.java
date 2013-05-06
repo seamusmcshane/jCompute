@@ -11,6 +11,7 @@ import alifeSim.Gui.StatsPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
+import alifeSim.Simulation.SimulationStats;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 import alifeSim.datastruct.list.ArrayList;
@@ -53,12 +54,22 @@ public class GenericPlantManager
 	/** The default value for the plants starting energy */
 	private float plantStartingEnergy;
 
-	/** The amount of plants that are to be regenerated each step */
+	/** The amount of plants that are to be regenerated */
 	private int plantRegenRate;
+	
+	/** Regern plants every n step */
+	private int plantRegenerationNSteps;
 
 	/** Reference for setting task in the */
 	private BarrierManager barrierManager;
 
+	
+	/*
+	 * Internal
+	 */
+	private int add_calls = 0;
+	
+	
 	/**
 	 * Creates a plant manager.
 	 * 	
@@ -80,13 +91,15 @@ public class GenericPlantManager
 
 		this.plantRegenRate = plantSettings.getPlantRegenRate();
 
+		this.plantRegenerationNSteps = plantSettings.getPlantRegenerationNSteps();
+		
 		this.plantStartingEnergy = plantSettings.getPlantStartingEnergy();
 
 		this.basePlantEnergyAbsorptionRate = plantSettings.getPlantEnergyAbsorptionRate();
 
 		setUpLists();
 		
-		addPlants(worldSize, initalNumber);
+		addPlants(worldSize, initalNumber,true);
 
 	}
 
@@ -151,7 +164,7 @@ public class GenericPlantManager
 		updateDoneList();
 
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(worldSize, plantRegenRate);	// log2(512) - +9... log2(1024)+10...
+		addPlants(worldSize, plantRegenRate,false);	// log2(512) - +9... log2(1024)+10...
 
 		// Stats Counter
 		StatsPanel.setPlantNo(plantCount);
@@ -213,26 +226,33 @@ public class GenericPlantManager
 	 * @param worldSize int
 	 * @param plantNumber int
 	 */
-	private void addPlants(int worldSize, int plantNumber)
+	private void addPlants(int worldSize, int plantNumber, boolean initial)
 	{
-		/* Random Starting Position */
-		Random xr = new Random();
-		Random yr = new Random();
+		add_calls++;
 
-		int x, y;
-
-		for (int i = 0; i < plantNumber; i++)
+		if( (add_calls%plantRegenerationNSteps) == 0 || initial)
 		{
-			x = xr.nextInt(worldSize) + 1;
-			y = yr.nextInt(worldSize) + 1;
+			
+			/* Random Starting Position */
+			Random xr = new Random();
+			Random yr = new Random();
 
-			while(World.isBoundaryWall(x, y))
+			int x, y;
+
+			for (int i = 0; i < plantNumber; i++)
 			{
 				x = xr.nextInt(worldSize) + 1;
-				y = yr.nextInt(worldSize) + 1;				
+				y = yr.nextInt(worldSize) + 1;
+
+				while(World.isBoundaryWall(x, y))
+				{
+					x = xr.nextInt(worldSize) + 1;
+					y = yr.nextInt(worldSize) + 1;				
+				}
+				
+				addNewPlant(new GenericPlant(x, y, plantStartingEnergy, 100f, basePlantEnergyAbsorptionRate, basePlantReproductionCost));
 			}
-			
-			addNewPlant(new GenericPlant(x, y, plantStartingEnergy, 100f, basePlantEnergyAbsorptionRate, basePlantReproductionCost));
+						
 		}
 	}
 

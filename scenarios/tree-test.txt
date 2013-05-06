@@ -35,16 +35,16 @@ AgentType = SimpleAgent
 
 InitialNumbers = 1
 
-Speed = 0.90
+Speed = 1
 ViewRange = 100
-MovementCost = 0.025
+MovementCost = 0.0
 StartingEnergy = 25
 
 DigestiveEfficiency = 0.4
-ReproductionAndSurvivalDivisor = 0.50
-HungerThreshold = 100
+ReproductionAndSurvivalDivisor = 0.9
+HungerThreshold = 1000
 EnergyConsumptionRate = 100
-ReproductionCost = 0.50
+ReproductionCost = 1000
 
 [Plants]
 
@@ -52,9 +52,11 @@ PLantType = GenericPlant
 
 InitialNumbers = 10
 
-StartingEnergy = 50
+StartingEnergy = 1
 
 PlantRegeratonRate = 1
-EnergyAbsorptionRate = 8
+plantRegenerationNSteps = 100
+ 
+EnergyAbsorptionRate = 1
 ReproductionAndSurvivalDivisor = 0.25
-StartingEnergy = 50
+StartingEnergy = 1
