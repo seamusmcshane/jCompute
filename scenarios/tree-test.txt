@@ -33,7 +33,7 @@ ReproductionCost = 0.55
 
 AgentType = SimpleAgent
 
-InitialNumbers = 1
+InitialNumbers = 2
 
 Speed = 1
 ViewRange = 100
