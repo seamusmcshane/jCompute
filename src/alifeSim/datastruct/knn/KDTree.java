@@ -138,7 +138,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 
 			int altk=( (depth+1) % dim);
 			/* Is it possible a node on the other side tree is closer */					
-			double kdis = DistanceFunctions.SquaredEuclidienDistance1D(nearestNode.getPos()[altk], pos[altk]);
+			double kdis = DistanceFunctions.SquaredEuclidienDistance1D(node.getPos()[altk], pos[altk]);
 			
 			/* If yes check the left tree*/
 			if(kdis < nearestNodeDis)
@@ -189,7 +189,7 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 			
 			int altk=( (depth+1) % dim);
 			/* Is it possible a node on the other side tree is closer */					
-			double kdis = DistanceFunctions.SquaredEuclidienDistance1D(nearestNode.getPos()[altk], pos[altk]);
+			double kdis = DistanceFunctions.SquaredEuclidienDistance1D(node.getPos()[altk], pos[altk]);
 			
 			/* If yes check the left tree*/
 			if(kdis < nearestNodeDis)
@@ -216,79 +216,10 @@ public class KDTree<Datatype> implements KNNInf<Datatype>
 
 			}
 		}
-
 		//System.out.println("^^^^ Depth : Returning" + depth);
-
 		return nearestNode;
 	}
-	
-/*private Datatype wfindNearest(int depth,KDNode<Datatype> node,double pos[])
-	{
 		
-		//int k=(depth % dim);
-		Datatype nearestNodeData = null;
-
-		double currentNode = DistanceFunctions.SquaredEuclidienDistance2D(pos,node.getPos());	
-		
-		double leftNode = Double.MAX_VALUE;
-		double rightNode = Double.MAX_VALUE;
-		
-		if( (node.getLeftChild() == null) &&  (node.getRightChild() == null) )
-		{
-			nearestNodeData =  node.getData();
-		}
-				
-		if(node.getLeftChild() != null)
-		{
-			leftNode =  DistanceFunctions.SquaredEuclidienDistance2D(node.getLeftChild().getPos(), pos);
-		}
-
-		if(node.getRightChild() != null)
-		{
-			rightNode =  DistanceFunctions.SquaredEuclidienDistance2D(node.getRightChild().getPos(), pos);
-		}
-		
-		//System.out.println("Compare dis to C Node " + currentNode);
-		//System.out.println("Compare dis to L Node " + leftNode);
-		//System.out.println("Compare dis to R Node " + rightNode);		
-
-		if(leftNode < currentNode)
-		{
-
-			if(leftNode<rightNode)
-			{
-				//System.out.println("left is closer (nodeCount " + nodeCount + ")");
-				nearestNodeData = findNearest(depth+1,node.getLeftChild(),pos);	
-			}
-			else
-			{
-				//System.out.println("right is closer (nodeCount " + nodeCount + ")");
-				nearestNodeData = findNearest(depth+1,node.getRightChild(),pos);
-			}
-			
-		}
-		else if(rightNode < currentNode)
-		{
-			if(leftNode<rightNode)
-			{
-				//System.out.println("left is closer (nodeCount " + nodeCount + ")");
-				nearestNodeData = findNearest(depth+1,node.getLeftChild(),pos);	
-			}
-			else
-			{
-				//System.out.println("right is closer (nodeCount " + nodeCount + ")");
-				nearestNodeData = findNearest(depth+1,node.getRightChild(),pos);
-			}
-		}
-		else
-		{
-			//System.out.println("currentNode is closer (nodeCount " + nodeCount + ")");
-			nearestNodeData = node.getData();
-		}
-		
-		return nearestNodeData;
-	}*/
-	
 	public int size()
 	{
 		return nodeCount;

@@ -12,7 +12,7 @@ public class DistanceFunctions
 	/** Return the Squared Euclidien Distance in two dimensions */
 	public static double SquaredEuclidienDistance1D(double from,double to)
 	{
-		return (from*from) - (to*to);
+		return (from*to) - (from*to);
 	}
 
 
