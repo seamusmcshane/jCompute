@@ -76,7 +76,8 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 		min = Double.POSITIVE_INFINITY;
 		max = 0;
 		
-		medianVal = min + (max/2);
+		medianVal = 0;
+
 		bestMedian = 0;
 		medianPos = 0;
 		
@@ -92,8 +93,9 @@ public class ArrayList<Datatype> implements ListInf<Datatype>
 				max = arrayList[i].getVal();
 			}
 			
-			medianVal = (min/2) + (max/2);
+			medianVal = ((min - max) /2);
 			
+			/* Is the calulated new calulated median closer than the best found median */
 			if( Math.abs(arrayList[i].getVal() - medianVal) < Math.abs(bestMedian - medianVal))
 			{
 				bestMedian = arrayList[i].getVal();
