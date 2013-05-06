@@ -24,6 +24,8 @@ public class SimpleAgentView
 
 	/** Agent View Range */
 	private Circle fov;
+	private float aDis = 0;
+	private float pDis = 0;
 	private float fovRadius;
 	private float fovDiameter;
 
@@ -245,9 +247,10 @@ public class SimpleAgentView
 	/** 
 	 * Updates the location of the representation of View position 
 	 */
-	private void upDateViewLocation()
+	private void upDateViewLocation(float fovDiam)
 	{
-		fov.setLocation(body.getBodyPos().getX() - (fovDiameter), body.getBodyPos().getY() - (fovDiameter));
+		fov.setLocation(body.getBodyPos().getX() - (fovDiam), body.getBodyPos().getY() - (fovDiam));
+		fov.setRadius(fovDiam);
 	}
 
 	/**
@@ -283,33 +286,47 @@ public class SimpleAgentView
 	 */
 	public void drawViewRange(Graphics g)
 	{
-		upDateViewLocation();
-
-		// Only use colors for views that are active
-		if (inViewMode != null)
-		{
-			switch (inViewMode)
-			{
-				case SAME :
-					g.setColor(Color.white);	// Same is treated as inactive as Agents of same type ignore each other		
-					break;
-				case STRONGER :
-					g.setColor(Color.red);		// The current Agent is Stronger i.e Predator 		
-					break;
-				case WEAKER :
-					g.setColor(Color.blue);		// The current Agent is Weaker i.e Prey 	
-					break;
-			}
-		}
-		else
-		{
-			g.setColor(Color.white);
-		}
-	
+		/* Edge */
+		g.setColor(new Color(255,255,255));	
+		upDateViewLocation(fovDiameter);
 		g.draw(fov);
 		
+		float fovd;
 		
+		float rings = (fovDiameter/20);
+		
+		float spacing = fovDiameter/rings;
+		
+		for(int i=1; i<=rings; i++)
+		{
+			fovd = spacing*i;
+						
+			upDateViewLocation(fovd);
 
+			// Only use colors for views that are active
+			if (inViewMode != null)
+			{
+				switch (inViewMode)
+				{
+					case SAME :
+						g.setColor(new Color(255/i,255/i,255/i));	// Same is treated as inactive as Agents of same type ignore each other		
+						break;
+					case STRONGER :
+						g.setColor(new Color(255/i,0,0));		// The current Agent is Stronger i.e Predator 		
+						break;
+					case WEAKER :
+						g.setColor(new Color(0,0,255/i));		// The current Agent is Weaker i.e Prey 	
+						break;
+				}
+			}
+			else
+			{
+				g.setColor(new Color(255/i,255/i,255/i));			
+			}
+			
+			g.draw(fov);
+			
+		}
 		
 	}
 
@@ -318,14 +335,28 @@ public class SimpleAgentView
 		if(getNearestAgentPos() != null)
 		{
 			Line line = new Line(body.getBodyPos(), getNearestAgentPos());
+			aDis = line.length();
 			g.draw(line);
+		}
+		else
+		{
+			aDis=0;
 		}
 		
 		if(getNearestPlantPos() != null)
 		{
 			g.setColor(Color.green);
 			Line line = new Line(body.getBodyPos(), getNearestPlantPos());
+			pDis = line.length();
+			
+			upDateViewLocation(pDis);
+			g.draw(fov);
+			
 			g.draw(line);
+		}
+		else
+		{
+			pDis=0;
 		}
 	}
 	
