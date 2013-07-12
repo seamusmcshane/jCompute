@@ -1,0 +1,61 @@
+[Config]
+
+ConfigVersion = 0.001
+
+ScenarioType = SAPP
+
+[World]
+
+Type = 0
+
+WorldSize=4096
+Barriers = 1
+BarrierScenario = 2
+
+[Predators]
+
+AgentType = SimpleAgent
+
+InitialNumbers = 0
+
+Speed = 1.00
+ViewRange = 50
+MovementCost = 0.025
+StartingEnergy = 25
+
+DigestiveEfficiency = 0.5
+HungerThreshold = 50
+EnergyConsumptionRate = 100
+ReproductionAndSurvivalDivisor = 0.50
+ReproductionCost = 0.55
+
+[Prey]
+
+AgentType = SimpleAgent
+
+InitialNumbers = 16000
+
+Speed = 0.90
+ViewRange = 50
+MovementCost = 0.025
+StartingEnergy = 25
+
+DigestiveEfficiency = 0.4
+ReproductionAndSurvivalDivisor = 0.50
+HungerThreshold = 50
+EnergyConsumptionRate = 10
+ReproductionCost = 0.50
+
+[Plants]
+
+PLantType = GenericPlant
+
+InitialNumbers = 400
+
+StartingEnergy = 50
+
+PlantRegeratonRate = 64
+plantRegenerationNSteps = 1
+EnergyAbsorptionRate = 8
+ReproductionAndSurvivalDivisor = 0.25
+StartingEnergy = 50

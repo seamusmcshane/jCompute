@@ -22,7 +22,7 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	{		
 		tree = null;
 		treenodes = 0;
-		tree = new KdTree<Datatype>(dim);
+		tree = new KdTree<Datatype>(dim,24);
 	}
 	
 	@Override

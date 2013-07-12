@@ -256,8 +256,8 @@ public class BarrierManager extends Thread
 	private void splitPlantList()
 	{
 		/* 2d - KD-Tree */
-		//plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
-		plantKDTree = new KDTree<GenericPlant>(2);
+		plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
+		//plantKDTree = new KDTree<GenericPlant>(2);
 
 		int i = 0;
 
