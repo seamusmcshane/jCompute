@@ -2,10 +2,16 @@ package alifeSim.Gui;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.lwjgl.LWJGLUtil; 
+
 import java.io.File; 
+
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
@@ -106,6 +112,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/**
 	 * The Simulation View.
+	 * @wbp.parser.entryPoint
 	 */
 	public SimulationView()
 	{
@@ -319,19 +326,20 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static void displayView(Simulation simIn, int x, int y, int width, int height)
+	public static void displayView(JFrame frame,Simulation simIn, int x, int y, int width, int height)
 	{
+		Boolean inFrame = false;
 
 		sim = simIn;
-
-		setUpWindowDimesions(x, y, width, height);
-
-		try
+		
+		if(frame == null)
 		{
-
+			inFrame = false;
+			
 			frmSimulationView = new JFrame("Simulation");
-			frmSimulationView.setTitle("Simulation View");
-			frmSimulationView.addWindowListener(new WindowAdapter()
+			frame = frmSimulationView;
+			frame.setTitle("Simulation View");
+			frame.addWindowListener(new WindowAdapter()
 			{
 
 				public void windowIconified(WindowEvent e)
@@ -345,17 +353,30 @@ public class SimulationView extends BasicGame implements MouseListener
 					SimulationView.maximise();
 				}
 			});
+			
 
-			BorderLayout borderLayout = (BorderLayout) frmSimulationView.getContentPane().getLayout();
-			borderLayout.setVgap(10);
-			borderLayout.setHgap(10);
-			//frame.setType(Type.UTILITY);
-			//frame.setUndecorated(true);
+			
+		}
+		else
+		{
+			inFrame = true;
+		}
+		
+		
+		setUpWindowDimesions(x, y, width, height);
+		
+		BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
+		borderLayout.setVgap(10);
+		borderLayout.setHgap(10);
+		//frame.setType(Type.UTILITY);
+		//frame.setUndecorated(true);
+		
+		frame.setSize(worldViewWidth, worldViewHeight);
+		frame.setLocation(x, y);
+		//frame.setAlwaysOnTop(true);
 
-			frmSimulationView.setSize(worldViewWidth, worldViewHeight);
-
-			frmSimulationView.setLocation(x, y);
-			//frame.setAlwaysOnTop(true);
+		try
+		{
 
 			simView = new CanvasGameContainer(new SimulationView());
 
@@ -385,13 +406,23 @@ public class SimulationView extends BasicGame implements MouseListener
 			// Set sim start up frame rate 
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
 
-			frmSimulationView.getContentPane().add(simView, BorderLayout.CENTER);
+			if(inFrame == false)
+			{
+				frame.getContentPane().add(simView, BorderLayout.CENTER);
 
-			frmSimulationView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-			frmSimulationView.setVisible(true);
+				frame.setVisible(true);
 
-			frmSimulationView.setResizable(true);
+				frame.setResizable(true);			
+			}
+			else
+			{			
+				
+				frame.getContentPane().add(simView, BorderLayout.CENTER);		
+				
+			}
+
 
 			simView.start();
 
@@ -552,16 +583,9 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	public static void setVisible(boolean visible)
 	{
-		if (frmSimulationView != null)
-		{
-			frmSimulationView.setVisible(visible);
+
 			drawSim = visible; // draw if visible
-			/* Set full screen */
-			if(visible)
-			{
-				frmSimulationView.setState(Frame.NORMAL);
-			}
-		}
+
 	}
 
 	public static void minimise()
