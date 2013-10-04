@@ -110,9 +110,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	public SimulationView()
 	{
 		super("Simulation View");
-		
 		// Uncomment when building the executable jar for that platform 
-		// buildStandAlone(true);
+		 //buildStandAlone(true);
 	}
 
 	/**
@@ -392,7 +391,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 			frmSimulationView.setVisible(true);
 
-			frmSimulationView.setResizable(false);
+			frmSimulationView.setResizable(true);
 
 			simView.start();
 

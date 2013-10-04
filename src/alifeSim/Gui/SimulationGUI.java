@@ -369,7 +369,7 @@ public class SimulationGUI
 	private static void setUpFrame()
 	{
 		gui = new JFrame();
-		gui.setResizable(false);
+		gui.setResizable(true);
 		gui.setTitle("Alife Simulation");
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // We control
 																	// the exit
