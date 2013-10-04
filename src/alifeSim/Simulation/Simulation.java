@@ -76,7 +76,9 @@ public class Simulation
 			StatsPanel.clearStats();
 
 			StatsPanel.updateGraphs(1);
-		}		
+		}	
+		simStats.clearSimulationStats();
+		simStats.simStatsDisplay();
 	}
 	
 	/*

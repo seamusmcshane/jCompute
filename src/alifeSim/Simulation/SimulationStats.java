@@ -30,14 +30,7 @@ public class SimulationStats
 	
 	public SimulationStats()
 	{
-		stepTotalTime = 0;
-		simulationSteps = 0;
-		simulationRuntime = 0;
-		averageStepsPerSecond = 0;
-		tasps = 0;
-		sps = 0;
-		
-		stepSamples = new float[numSamples];
+		clearSimulationStats();
 	}
 	
 	public long getSimulationSteps()
@@ -147,5 +140,19 @@ public class SimulationStats
 
 		stepTotalTime += stepEndTime - stepStartTime;	
 	}
+	
+	public void clearSimulationStats()
+	{
+		stepTotalTime = 0;
+		simulationSteps = 0;
+		simulationRuntime = 0;
+		averageStepsPerSecond = 0;
+		tasps = 0;
+		sps = 0;
+		
+		stepSamples = new float[numSamples];
+	}
+	
+	
 		
 }
