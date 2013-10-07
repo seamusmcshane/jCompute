@@ -1,16 +1,13 @@
 package alifeSim.Gui;
 
 import java.awt.BorderLayout;
-import java.awt.Frame;
 
 import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.lwjgl.LWJGLUtil; 
 
 import java.io.File; 
+import java.util.concurrent.Semaphore;
 
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
@@ -25,8 +22,6 @@ import org.newdawn.slick.geom.Vector2f;
 
 import alifeSim.Simulation.Simulation;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 /**
  * Simulation View class - This class handles the drawing of the 2d representation of the simulation world..
@@ -38,17 +33,13 @@ public class SimulationView extends BasicGame implements MouseListener
 	/** Window */
 	static JFrame frmSimulationView;
 
-	/** Window Position */
-	static int x;
-	static int y;
-
 	/** OpenGl Canvas */
 	static CanvasGameContainer simView;
 
 	/** OpenGL Canvas Size */
 	static int worldViewWidth;
 	static int worldViewHeight;
-
+	
 	final static int lowFrameRate = 15;
 	final static int highFrameRate = 60;
 
@@ -91,8 +82,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	public static Vector2f globalTranslate = new Vector2f(0, 0);
 
 	/** Off screen buffer */
-	private Graphics bufferGraphics;
-	private Image buffer;
+	private static Graphics bufferGraphics;
+	private static Image buffer;
 	private int bufferDrawNum = 0;
 
 	/** Stores the mouse vector across updates */
@@ -160,6 +151,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	public void init(GameContainer container) throws SlickException
 	{
 		/* Creates the buffered graphic */
+		//setSize(1024,1024);
 		setUpImageBuffer();
 	}
 
@@ -185,6 +177,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
+			
 		if (drawSim)
 		{
 			/*
@@ -212,6 +205,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			}
 			frameNum++;
 		}
+		
 	}
 
 	/** Draws the sim view on the image buffer
@@ -219,6 +213,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	private void doDraw(Graphics g)
 	{
+
 		/* Blank the Image buffer */
 		g.clear();
 
@@ -229,6 +224,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 		/* Performance Indicator */
 		bufferDrawNum++;
+		
 	}
 
 	/**
@@ -307,12 +303,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	private static void setUpWindowDimesions(int xin, int yin, int width, int height)
+	private static void setViewDimesions(int width, int height)
 	{
-		/* Position */
-		x = xin;
-		y = yin;
-
 		/* Size */
 		worldViewWidth = width;
 		worldViewHeight = height;
@@ -326,44 +318,11 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static void displayView(JFrame frame,Simulation simIn, int x, int y, int width, int height)
+	public static void displayView(JFrame frame,Simulation simIn)
 	{
-		Boolean inFrame = false;
-
 		sim = simIn;
-		
-		if(frame == null)
-		{
-			inFrame = false;
-			
-			frmSimulationView = new JFrame("Simulation");
-			frame = frmSimulationView;
-			frame.setTitle("Simulation View");
-			frame.addWindowListener(new WindowAdapter()
-			{
 
-				public void windowIconified(WindowEvent e)
-				{
-					SimulationGUI.minimise();
-				}
-
-				public void windowDeiconified(WindowEvent e)
-				{
-					SimulationGUI.maximise();
-					SimulationView.maximise();
-				}
-			});
-			
-
-			
-		}
-		else
-		{
-			inFrame = true;
-		}
-		
-		
-		setUpWindowDimesions(x, y, width, height);
+		//setUpWindowDimesions(1920, 600);
 		
 		BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
 		borderLayout.setVgap(10);
@@ -371,8 +330,8 @@ public class SimulationView extends BasicGame implements MouseListener
 		//frame.setType(Type.UTILITY);
 		//frame.setUndecorated(true);
 		
-		frame.setSize(worldViewWidth, worldViewHeight);
-		frame.setLocation(x, y);
+		//frame.setSize(worldViewWidth, worldViewHeight);
+		//frame.setLocation(x, y);
 		//frame.setAlwaysOnTop(true);
 
 		try
@@ -406,24 +365,8 @@ public class SimulationView extends BasicGame implements MouseListener
 			// Set sim start up frame rate 
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
 
-			if(inFrame == false)
-			{
-				frame.getContentPane().add(simView, BorderLayout.CENTER);
-
-				frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-				frame.setVisible(true);
-
-				frame.setResizable(true);			
-			}
-			else
-			{			
-				
-				frame.getContentPane().add(simView, BorderLayout.CENTER);		
-				
-			}
-
-
+			frame.getContentPane().add(simView, BorderLayout.CENTER);		
+			
 			simView.start();
 
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
@@ -436,7 +379,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	}
 
 	/** Sets up the off-screen buffer image */
-	private void setUpImageBuffer()
+	private static void setUpImageBuffer()
 	{
 		try
 		{
@@ -528,27 +471,6 @@ public class SimulationView extends BasicGame implements MouseListener
 		globalTranslate.set((viewWidth / 2) - ((worldSize) / 2), (viewHeight / 2) - ((worldSize) / 2));		
 	}
 
-	public static void setFocus()
-	{
-		if (simView != null)
-		{
-			simView.setFocusable(true);
-			simView.requestFocus();
-			System.out.println("Got Focus");
-			simView.setFocusable(false);
-
-			//simView.transferFocus();			
-		}
-	}
-
-	public static void maximise()
-	{
-		if(drawSim)
-		{
-			frmSimulationView.setVisible(true);
-			frmSimulationView.setState(Frame.NORMAL);		
-		}
-	}
 
 	/**
 	 * Method setViewRangeDrawing.
@@ -583,14 +505,24 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	public static void setVisible(boolean visible)
 	{
-
 			drawSim = visible; // draw if visible
-
 	}
 
-	public static void minimise()
+	/* Parent Frame Size Change */
+	public static void setSize(int width,int height)
 	{
-		frmSimulationView.setVisible(false);
+			if( (width|height) < 512 )
+			{
+				width=1024;
+				height=1024;
+			}
+		
+		
+			System.out.println("width " + width + "height " + worldViewHeight);
+			setInitalViewTranslate(width,height);
+			setViewDimesions(width,height);	
+			
+			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
 	}
-
+	
 }

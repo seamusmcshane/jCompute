@@ -23,22 +23,28 @@ import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import javax.swing.border.TitledBorder;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+
 import javax.swing.JCheckBoxMenuItem;
+
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.ButtonGroup;
+
 import java.awt.Color;
 import java.io.File;
 
@@ -49,6 +55,7 @@ import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
+
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 /**
@@ -94,12 +101,6 @@ public class SimulationGUI
 	/* Start up position - dynamically generated */
 	static int controlGuiX = 0;
 	static int controlGuiY = 0;
-
-	/* Auto sized simulation view */
-	static int viewWidth = 0;
-	static int viewHeight = 0;
-	static int viewX;
-	static int viewY;
 
 	/* Simulation Reference */
 	private static Simulation sim;
@@ -156,18 +157,12 @@ public class SimulationGUI
 
 		retrieveScreenSize();
 
-		calculateWindowSizes();
-
-		calculateWindowPositions();
-
 		setUpFrame();
 
 		setUpSimulation();
 
-		screenSizeCheck();
-
 		// Display the simulation view
-		SimulationView.displayView(gui,sim, viewX, viewY, viewWidth, viewHeight);
+		SimulationView.displayView(gui,sim);
 
 		setUpToolTips();
 
@@ -196,7 +191,7 @@ public class SimulationGUI
 		sim.createSim(statsPanel, simScenario);
 
 		// Centers the simulated world in the view
-		SimulationView.setInitalViewTranslate(viewWidth, viewHeight);
+		SimulationView.setInitalViewTranslate(800, 600);
 
 		/*
 		 * If needed the GC can free old objects now, before the simulation
@@ -228,130 +223,6 @@ public class SimulationGUI
 
 	}
 
-	private static void calculateWindowSizes()
-	{
-		String hostPlatform = System.getProperty("os.name");
-
-		if (hostPlatform.contains("Windows"))
-		{
-			viewWidth = screenWidth - controlGuiWidth - (windowPad * 2);
-
-			controlGuiHeight = controlGuiHeightMin;
-
-			if (controlGuiHeight < screenHeight)
-			{
-				controlGuiHeight = screenHeight - titlePad;
-
-				viewHeight = controlGuiHeight;
-			}
-			else
-			{
-				controlGuiHeight = controlGuiHeightMin;
-				viewHeight = screenHeight;
-			}
-
-		}
-		else
-			if (hostPlatform.contains("Linux"))
-			{
-				viewWidth = screenWidth - controlGuiWidth - (windowPad * 2);
-
-				controlGuiHeight = controlGuiHeightMin;
-
-				if (controlGuiHeight < screenHeight)
-				{
-					controlGuiHeight = screenHeight - titlePad;
-
-					viewHeight = controlGuiHeight;
-				}
-				else
-				{
-					controlGuiHeight = controlGuiHeightMin;
-					viewHeight = screenHeight;
-				}
-
-			}
-			else
-			// remove the title pad size on mac and linux
-			{
-				viewWidth = screenWidth - controlGuiWidth - (windowPad * 2);
-				viewHeight = screenHeight - (titlePad); // Task manager and Top
-														// borders on some os's
-
-				controlGuiHeight = controlGuiHeightMin;
-
-				if (controlGuiHeight < screenHeight - (titlePad * 2))
-				{
-					controlGuiHeight = screenHeight - (titlePad * 2);
-				}
-				else
-				{
-					controlGuiHeight = controlGuiHeightMin;
-					viewHeight = screenHeight;
-				}
-			}
-		System.out.println("Detected : " + hostPlatform);
-
-	}
-
-	/*
-	 * Notify users they will have problems running with a small resolutions
-	 * screen
-	 */
-	private static void screenSizeCheck()
-	{
-		if (screenHeight < screenHeightMin)
-		{
-			String message;
-			message = "Your screen height is below the minimum recommended screen height of " + screenHeightMin + " pixels.";
-
-			JOptionPane wariningPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-
-			JDialog dialog = wariningPane.createDialog(null, "Screen Size Warning");
-
-			dialog.pack();
-			dialog.setVisible(true);
-		}
-		else
-			if (screenHeight >= 1024) // 1280*1024 minimum to be treated as a
-										// large screen
-			{
-				guiOnLargeScreen();		 // Set the large set switch on
-			}
-	}
-
-	private static void guiOnLargeScreen()
-	{
-		StatsPanel.setLargeScreen(true);	// Set the panel large screen overrides
-	}
-
-	private static void calculateWindowPositions()
-	{
-		String os = System.getProperty("os.name");
-
-		if (os.contains("Windows"))
-		{
-			/* OS look for Window */
-			lookandFeel();
-
-			controlGuiX = (screenWidth / 2) - ((controlGuiWidth + viewWidth) / 2) - (windowPad / 2);
-			controlGuiY = 1;
-
-			viewX = controlGuiX + (controlGuiWidth) + windowPad;
-			viewY = controlGuiY;
-		}
-		else
-		// mac / linux
-		{
-			controlGuiX = (screenWidth / 2) - ((controlGuiWidth + viewWidth) / 2) - (windowPad / 2);
-			controlGuiY = (screenHeight / 2) - (viewHeight / 2);
-
-			viewX = controlGuiX + (controlGuiWidth) + windowPad;
-			viewY = controlGuiY;
-		}
-
-	}
-
 	private static void retrieveScreenSize()
 	{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -371,10 +242,10 @@ public class SimulationGUI
 	private static void setUpFrame()
 	{
 		gui = new JFrame();
+		lookandFeel();
 		gui.setResizable(true);
 		gui.setTitle("Alife Simulation");
-		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // We control
-																	// the exit
+		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // We control														// the exit
 
 		// GUI Size
 		gui.setBounds(controlGuiX, controlGuiY, controlGuiWidth, controlGuiHeight);
@@ -836,26 +707,34 @@ public class SimulationGUI
 				doSimExit();
 			}
 
-			public void windowIconified(WindowEvent e)
+			/*public void windowIconified(WindowEvent e)
 			{
 				// keep the view in the same window state as this frame
-				SimulationView.minimise();
+				SimulationView.setSize(viewWidth, viewHeight);
 			}
 
 			public void windowDeiconified(WindowEvent e)
 			{
 				// keep the view in the same window state as this frame
-				SimulationView.maximise();
-			}
+				SimulationView.setSize(viewWidth, viewHeight);
+			}*/
 
 		});
 
+        gui.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+            	SimulationView.setSize(gui.getWidth()-controlGuiWidth, gui.getHeight());
+
+            }
+        });
+
 		gui.setVisible(true);
+		gui.setExtendedState(Frame.MAXIMIZED_BOTH);
 		// gui.setAlwaysOnTop(true);
 
 		// We are now in the start up state
-		startUpState();
-
+		startUpState();	
 	}
 
 	private static void doFileOpen()
@@ -1016,8 +895,6 @@ public class SimulationGUI
 		// plantParamPanel.setVisible(false);
 
 		StatsPanel.setPaused(false);
-
-		// SimulationView.setFocus();
 
 	}
 

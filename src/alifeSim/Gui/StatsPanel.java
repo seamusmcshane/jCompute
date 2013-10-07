@@ -206,19 +206,14 @@ public class StatsPanel extends JPanel
 			@Override
 			public void mouseClicked(MouseEvent arg0)
 			{
-				if (graphsFull || largeScreen) // Only allow extra interface controls on the large view
+				if (lineGraphbottomPanel.isVisible())
 				{
-					if (lineGraphbottomPanel.isVisible())
-					{
-						lineGraphbottomPanel.setVisible(false);
-					}
-					else
-					{
-						lineGraphbottomPanel.setVisible(true);
-					}
-
+					lineGraphbottomPanel.setVisible(false);
 				}
-
+				else
+				{
+					lineGraphbottomPanel.setVisible(true);
+				}
 			}
 		});
 
