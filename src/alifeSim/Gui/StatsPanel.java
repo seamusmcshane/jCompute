@@ -90,12 +90,6 @@ public class StatsPanel extends JPanel
 	/* Graph can be seen */
 	private static int graphVisible = 0;
 
-	/* Graph State - default */
-	private static boolean graphsFull = false;
-	
-	/* Allows overriding the graph size checks on large screens */
-	private static boolean largeScreen=false;
-
 	/* Used to prevent showing sliders in a small area when paused */
 	private static boolean paused;
 
@@ -240,8 +234,6 @@ public class StatsPanel extends JPanel
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				if (graphsFull || largeScreen) // Only allow extra interface controls on the large view
-				{
 					if (rightPanel.isVisible())
 					{
 						rightPanel.setVisible(false);
@@ -254,7 +246,6 @@ public class StatsPanel extends JPanel
 						leftPanel.setVisible(true);
 						bottomPanel.setVisible(true);
 					}
-				}
 
 				e.consume();
 			}
@@ -849,15 +840,6 @@ public class StatsPanel extends JPanel
 			//setGraphsFull(true);	
 		}
 
-	}
-
-	/**
-	 * Method setLargeScreen.
-	 * @param inLargeScreen boolean
-	 */
-	public static void setLargeScreen(boolean inLargeScreen)
-	{
-		largeScreen=inLargeScreen;
 	}
 	
 	private static void hideLinePanels()
