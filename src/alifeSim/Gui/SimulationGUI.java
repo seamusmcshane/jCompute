@@ -83,7 +83,9 @@ public class SimulationGUI
 	/* retrieved screen sizes */
 	static int screenWidth;
 	static int screenHeight;
-	static int screenHeightMin = 900;
+	
+	static int screenWidthMin  = 800;
+	static int screenHeightMin = 600;
 
 	/*
 	 * Window Size pad - certain operating systems like to add thick borders to
@@ -191,7 +193,8 @@ public class SimulationGUI
 		sim.createSim(statsPanel, simScenario);
 
 		// Centers the simulated world in the view
-		SimulationView.setInitalViewTranslate(800, 600);
+		SimulationView.setSize(gui.getWidth()-controlGuiWidth, gui.getHeight());
+		SimulationView.setInitalViewTranslate(gui.getWidth()-controlGuiWidth, gui.getHeight());
 
 		/*
 		 * If needed the GC can free old objects now, before the simulation
@@ -248,7 +251,7 @@ public class SimulationGUI
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // We control														// the exit
 
 		// GUI Size
-		gui.setBounds(controlGuiX, controlGuiY, controlGuiWidth, controlGuiHeight);
+		gui.setBounds(controlGuiX, controlGuiY, screenWidthMin, screenHeightMin);
 
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
 

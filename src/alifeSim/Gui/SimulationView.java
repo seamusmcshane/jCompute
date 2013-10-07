@@ -521,7 +521,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			System.out.println("width " + width + "height " + worldViewHeight);
 			setInitalViewTranslate(width,height);
 			setViewDimesions(width,height);	
-			
+			setUpImageBuffer();
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
 	}
 	
