@@ -145,6 +145,7 @@ public class SimulationGUI
 
 	/* Prevent over clicking the generate button */
 	private static boolean generatingSim = false;
+	private static JSplitPane splitPane;
 
 	/* Logic */
 
@@ -164,7 +165,7 @@ public class SimulationGUI
 		setUpSimulation();
 
 		// Display the simulation view
-		SimulationView.displayView(gui,sim,gui.getWidth()-controlGuiWidth, gui.getHeight());
+		SimulationView.displayView(splitPane,sim,gui.getWidth()-controlGuiWidth, gui.getHeight());
 
 		setUpToolTips();
 
@@ -472,8 +473,16 @@ public class SimulationGUI
 		controlPanelBottom.add(btnPause, gbc_btnPause);
 		btnPause.setToolTipText("Pause / Unpause the simulation.");
 		
+		splitPane = new JSplitPane();
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setBackground(Color.BLACK);
+		splitPane.setContinuousLayout(true);
+		splitPane.setDividerSize(10);
+		splitPane.setBorder(null);
+		gui.getContentPane().add(splitPane, BorderLayout.CENTER);
+		
 		statsPanel = new StatsPanel();
-		gui.getContentPane().add(statsPanel, BorderLayout.WEST);
+		splitPane.setLeftComponent(statsPanel);
 		btnPause.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)

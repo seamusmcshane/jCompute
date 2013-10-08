@@ -1,8 +1,10 @@
 package alifeSim.Gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JFrame;
+import javax.swing.JSplitPane;
 
 import org.lwjgl.LWJGLUtil; 
 
@@ -310,15 +312,15 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static void displayView(JFrame frame,Simulation simIn,int width,int height)
+	public static void displayView(JSplitPane pane,Simulation simIn,int width,int height)
 	{
 		sim = simIn;
 
 		//setUpWindowDimesions(1920, 600);
 		
-		BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
+		/*BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
 		borderLayout.setVgap(10);
-		borderLayout.setHgap(10);
+		borderLayout.setHgap(10);*/
 		//frame.setType(Type.UTILITY);
 		//frame.setUndecorated(true);
 		
@@ -356,8 +358,11 @@ public class SimulationView extends BasicGame implements MouseListener
 			
 			// Set sim start up frame rate 
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
+			
+			simView.setMinimumSize(new Dimension(320,240));
 
-			frame.getContentPane().add(simView, BorderLayout.CENTER);		
+			//frame.getContentPane().add(simView, BorderLayout.CENTER);	
+			pane.setRightComponent(simView);
 			
 			simView.start();
 

@@ -494,7 +494,7 @@ public class StatsPanel extends JPanel
 		samplesPanel.add(comboBoxGraphSamples);
 		comboBoxGraphSamples.setToolTipText("<html>\r\nAllows changing the length of the sample perioid covered by graphs.<br>\r\n<br>\r\nCalculation -:<br>\r\n 15 steps/sec * 60  * 5 = 4500 samples for five minutes)<br>\r\n<br>\r\nNote 1 : Large sample periods can negatively affect performance.<br>\r\nNote 2 : Changing this value will clear all samples from the current sample period.<br>\r\n</html>");
 
-		comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[] {"1125", "2250", "4500", "9000", "18000", "36000"}));
+		comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[] {"1125", "2250", "4500", "9000", "18000", "36000","72000"}));
 
 		comboBoxGraphSamples.addItemListener(new ItemListener()
 		{
