@@ -164,7 +164,7 @@ public class SimulationGUI
 		setUpSimulation();
 
 		// Display the simulation view
-		SimulationView.displayView(gui,sim);
+		SimulationView.displayView(gui,sim,gui.getWidth()-controlGuiWidth, gui.getHeight());
 
 		setUpToolTips();
 
@@ -728,7 +728,6 @@ public class SimulationGUI
             @Override
             public void componentResized(ComponentEvent e) {
             	SimulationView.setSize(gui.getWidth()-controlGuiWidth, gui.getHeight());
-
             }
         });
 

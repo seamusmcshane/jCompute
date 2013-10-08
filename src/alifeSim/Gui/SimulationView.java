@@ -37,8 +37,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	static CanvasGameContainer simView;
 
 	/** OpenGL Canvas Size */
-	static int worldViewWidth;
-	static int worldViewHeight;
+	static int worldViewWidth=1024;
+	static int worldViewHeight=1024;
 	
 	final static int lowFrameRate = 15;
 	final static int highFrameRate = 60;
@@ -81,11 +81,6 @@ public class SimulationView extends BasicGame implements MouseListener
 	/** The translation vector for the camera view */
 	public static Vector2f globalTranslate = new Vector2f(0, 0);
 
-	/** Off screen buffer */
-	private static Graphics bufferGraphics;
-	private static Image buffer;
-	private int bufferDrawNum = 0;
-
 	/** Stores the mouse vector across updates */
 	public Vector2f mousePos = new Vector2f(0, 0);
 
@@ -105,9 +100,13 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * The Simulation View.
 	 * @wbp.parser.entryPoint
 	 */
-	public SimulationView()
+	public SimulationView(int pannelWidth,int pannelHeight)
 	{
 		super("Simulation View");
+		this.worldViewWidth = pannelWidth;
+		this.worldViewHeight = pannelHeight;
+		
+		
 		// Uncomment when building the executable jar for that platform 
 		 //buildStandAlone(true);
 	}
@@ -150,9 +149,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
-		/* Creates the buffered graphic */
-		//setSize(1024,1024);
-		setUpImageBuffer();
+		// Not Needed
 	}
 
 	/**
@@ -187,17 +184,15 @@ public class SimulationView extends BasicGame implements MouseListener
 			g.setWorldClip(cameraBound);
 
 			/* Draws on the buffer */
-			doDraw(bufferGraphics);
+			doDraw(g);
 
 			/* Always draw the buffer even if it has not changed */
-			g.drawImage(buffer, 0, 0);
+			//g.drawImage(buffer, 0, 0);
 
 			// View Overlay
 			if (overlay)
 			{
 				g.drawString("Frame Updates     :" + frameNum, cameraBound.getMinX() + 10, cameraBound.getMinY() + 10);
-
-				g.drawString("Buffer Updates    :" + bufferDrawNum, cameraBound.getMinX() + 10, cameraBound.getMinY() + 30);
 
 				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), cameraBound.getMinX() + 10, cameraBound.getMinY() + 50);
 
@@ -221,9 +216,6 @@ public class SimulationView extends BasicGame implements MouseListener
 		g.translate(globalTranslate.getX(), globalTranslate.getY());
 
 		sim.drawSim(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
-
-		/* Performance Indicator */
-		bufferDrawNum++;
 		
 	}
 
@@ -318,7 +310,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static void displayView(JFrame frame,Simulation simIn)
+	public static void displayView(JFrame frame,Simulation simIn,int width,int height)
 	{
 		sim = simIn;
 
@@ -337,7 +329,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		try
 		{
 
-			simView = new CanvasGameContainer(new SimulationView());
+			simView = new CanvasGameContainer(new SimulationView(width,height));
 
 			//sim.setDisplayMode(worldViewWidth,worldViewHeight, false);
 
@@ -376,21 +368,6 @@ public class SimulationView extends BasicGame implements MouseListener
 		{
 			e.printStackTrace();
 		}
-	}
-
-	/** Sets up the off-screen buffer image */
-	private static void setUpImageBuffer()
-	{
-		try
-		{
-			buffer = new Image(worldViewWidth + 1, worldViewHeight + 1);
-			bufferGraphics = buffer.getGraphics();
-		}
-		catch (SlickException e)
-		{
-			e.printStackTrace();
-		}
-
 	}
 
 	public static void setUnlimitedUpdateRate()
@@ -515,13 +492,12 @@ public class SimulationView extends BasicGame implements MouseListener
 			{
 				width=1024;
 				height=1024;
-			}
-		
+			}		
 		
 			System.out.println("width " + width + "height " + worldViewHeight);
-			setInitalViewTranslate(width,height);
+			//setInitalViewTranslate(width,height);
 			setViewDimesions(width,height);	
-			setUpImageBuffer();
+
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
 	}
 	
