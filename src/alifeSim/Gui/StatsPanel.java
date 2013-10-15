@@ -58,6 +58,7 @@ public class StatsPanel extends JPanel
 	private static StatsLineGraphPanel lineGraphPanel;
 	private static StatsLorenzGraphPanel lorenzGraphPanel;
 	private static StatsStackedGraphPanel stackedGraphPanel;
+	public static StatsDensityPanel statsDensityPanel;
 
 	/* Counters */
 	private static int plantNo = 0;
@@ -389,6 +390,10 @@ public class StatsPanel extends JPanel
 
 		stackGraphContainerPanel.setLayout(new BorderLayout(0, 0));
 		stackGraphContainerPanel.add(stackedGraphPanel, BorderLayout.CENTER);
+		
+		statsDensityPanel = new StatsDensityPanel(16,1024);
+		statsDensityPanel.setBackground(Color.gray);
+		tabbedGraphs.addTab("Density", null, statsDensityPanel, null);
 
 		add(statsBottomPanel, BorderLayout.SOUTH);
 		statsBottomPanel.setLayout(new BorderLayout(0, 0));
@@ -635,7 +640,7 @@ public class StatsPanel extends JPanel
 		}
 		
 		lblPreyMax.setText(Integer.toString(preyMax));
-
+		statsDensityPanel.setPreyMax(pSample);
 	}
 
 	/**
@@ -682,6 +687,8 @@ public class StatsPanel extends JPanel
 		}
 		
 		lblPredatorsMax.setText(Integer.toString(predMax));
+		statsDensityPanel.setPredMax(pSample);
+
 		
 	}
 
@@ -759,6 +766,8 @@ public class StatsPanel extends JPanel
 				case 2 :
 					stackedGraphPanel.drawGraph();
 					break;
+				case 3:
+					statsDensityPanel.drawGraph();
 			}
 		}
 
@@ -807,6 +816,8 @@ public class StatsPanel extends JPanel
 		lineGraphPanel.drawGraph();
 		lorenzGraphPanel.drawGraph();
 		stackedGraphPanel.drawGraph();
+		statsDensityPanel.drawGraph();
+		
 
 		sampleLock.release();
 

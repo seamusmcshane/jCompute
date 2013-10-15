@@ -107,4 +107,11 @@ public class DebugSimulationManager implements SimulationManagerInf
 	{
 		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierMode(), scenario.worldSettings.getBarrierScenario());
 	}
+
+	@Override
+	public void displayDebug()
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

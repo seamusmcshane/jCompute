@@ -400,4 +400,13 @@ public class BarrierManager extends Thread
 		/* Lists are now Split */
 
 	}
+	
+	
+	public void displayBarrierTaskDebugStats()
+	{
+		for (int i = 0; i < numThreads; i++)
+		{
+			barrierThreads[i].printDebugStats();
+		}
+	}
 }

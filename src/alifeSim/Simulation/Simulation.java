@@ -164,6 +164,13 @@ public class Simulation
 		// Increment the Step counter
 		simStats.incrementSimulationSteps();
 		
+		
+		/*if( (simStats.getSimulationSteps() % 100 ) == 0)
+		{
+			System.out.println("Step : " + simStats.getSimulationSteps());
+			simManager.displayDebug();
+		}*/
+		
 		// Calculate the Steps per Second
 		simStats.calcStepsPerSecond();
 

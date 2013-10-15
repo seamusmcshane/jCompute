@@ -96,6 +96,8 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	{
 		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU threads we can run in parallel
 
+		this.numThreads = 8;
+		
 		System.out.println("Threads to use for Barrier Tasks : " + numThreads);
 
 		barrierControllerSemaphore = new Semaphore(1, true);
@@ -211,6 +213,11 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	public int getWorldSize()
 	{
 		return World.getWorldSize();
+	}
+	
+	public void displayDebug()
+	{
+		barrierManager.displayBarrierTaskDebugStats();
 	}
 
 }

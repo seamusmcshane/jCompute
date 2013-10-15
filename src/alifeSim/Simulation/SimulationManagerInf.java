@@ -11,4 +11,6 @@ public interface SimulationManagerInf
 	public void drawSim(Graphics g, boolean trueDrawing, boolean viewRangeDrawing, boolean viewsDrawing);
 
 	public int getWorldSize();
+
+	public void displayDebug();
 }

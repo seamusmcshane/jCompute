@@ -187,7 +187,6 @@ public class GenericPlantManager
 		
 		while (doList.hasNext())
 		{
-
 			/* Remove this Plant from the List */
 			temp = doList.getNext();
 
@@ -213,7 +212,6 @@ public class GenericPlantManager
 				/** Plant is not dead add it to the done list */
 				doneList.add(temp,temp.body.getBodyPos().getX());
 				plantCount++;
-
 			}
 
 		}
@@ -251,8 +249,7 @@ public class GenericPlantManager
 				}
 				
 				addNewPlant(new GenericPlant(x, y, plantStartingEnergy, 100f, basePlantEnergyAbsorptionRate, basePlantReproductionCost));
-			}
-						
+			}						
 		}
 	}
 

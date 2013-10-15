@@ -59,6 +59,15 @@ public class BarrierTaskThread extends Thread
 
 	private boolean running=true;
 	
+	// benchmark
+	private boolean debugtasks=false;
+	private long taskStartTime = 0;
+	private long taskEndTime = 0;
+	private long taskTime = 0;
+	private long taskTotalTime = 0;
+	private long taskAvgTime = 0;
+	private long taskCount = 0;
+	
 	private int myId; // Debug
 	
 	/**
@@ -124,9 +133,15 @@ public class BarrierTaskThread extends Thread
 		while (running)
 		{
 			start.acquireUninterruptibly();
-
+			
 			if(running)
 			{
+				/* benchmarking */
+				if(debugtasks)
+				{
+					taskStartTime = System.currentTimeMillis(); // Start time for the average step	
+				}
+				
 				/** Section 1 - Process Plants*/
 				
 				plantList.resetHead();
@@ -189,6 +204,17 @@ public class BarrierTaskThread extends Thread
 					// Parallel Agent Thinking
 					currentAgent.brain.think();
 				}
+				
+				/* benchmarking */
+				if(debugtasks)
+				{
+					taskEndTime = System.currentTimeMillis(); // Start time for the average step	
+					taskTime = taskEndTime - taskStartTime;
+					taskTotalTime +=taskTime;
+					taskCount++;
+					taskAvgTime = taskTotalTime/taskCount;
+				}				
+				
 			}
 
 			end.release();
@@ -277,6 +303,18 @@ public class BarrierTaskThread extends Thread
 			currentAgent.brain.view.setPlantView(null); // not in range
 		}		
 		
+	}
+	
+	public void printDebugStats()
+	{		
+		if(debugtasks)
+		{
+			System.out.println("Task ID " + myId + " Total Time :" + taskTotalTime);
+			System.out.println("Task ID " + myId + " Task Count :" + taskCount);
+			System.out.println("Task ID " + myId + " Avg Time   :" + taskAvgTime);
+		}
+
+
 	}
 
 }
