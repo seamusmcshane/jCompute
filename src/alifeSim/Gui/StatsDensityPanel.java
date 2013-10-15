@@ -51,11 +51,11 @@ public class StatsDensityPanel extends JPanel
 	{
 		divisorStep = worldSize/resolution;
 		
-		System.out.println("worldSize : " + worldSize);
+		/*System.out.println("worldSize : " + worldSize);
 
 		System.out.println("resolution : " + resolution);
 
-		System.out.println("divisorStep : " + divisorStep);
+		System.out.println("divisorStep : " + divisorStep);*/
 
 	}
 	
@@ -125,28 +125,34 @@ public class StatsDensityPanel extends JPanel
 			for(x=0;x<resolution;x++)
 			{
 
-				if ( (grid[y][x][0] > 0 ))
+				if ( (grid[y][x][0] > 0 ) || (grid[y][x][1] > 0 ))
 				{
-					int preyalpha = ((grid[y][x][0])*(255/ ((preyMax/100)+1) ));
-					if(preyalpha>255)
-					{
-						preyalpha = 255;
-					}
-					g.setColor(new Color(0,0, 255,preyalpha));
 
-					g.fillRect(y*cellWidth, x*cellHeight, (1+y)*cellWidth, (1+x)*cellHeight);
-
-				}
-				else if((grid[y][x][1] > 0 ))
-				{
-					int predalpha = ((grid[y][x][1])*(255/ ((predMax/100)+1)) );
-					if(predalpha>255)
+					if((grid[y][x][0] > 0 ))
 					{
-						predalpha = 255;
+						int preyalpha = ((grid[y][x][0])*(255/ ((preyMax/100)+1) ));
+						if(preyalpha>255)
+						{
+							preyalpha = 255;
+						}
+						g.setColor(new Color(0,0, 255,preyalpha));
+
+						g.fillRect(y*cellWidth, x*cellHeight, (1+y)*cellWidth, (1+x)*cellHeight);					
 					}
-					g.setColor(new Color( 255,0,0,predalpha));
-				
-					g.fillRect(y*cellWidth, x*cellHeight, (1+y)*cellWidth, (1+x)*cellHeight);
+					
+					if((grid[y][x][1] > 0 ))
+					{
+						int predalpha = ((grid[y][x][1])*(255/ ((predMax/100)+1)) );
+						if(predalpha>255)
+						{
+							predalpha = 255;
+						}
+						g.setColor(new Color( 255,0,0,predalpha));
+					
+						g.fillRect(y*cellWidth, x*cellHeight, (1+y)*cellWidth, (1+x)*cellHeight);
+					}
+					
+					
 				}
 				else
 				{
@@ -190,24 +196,6 @@ public class StatsDensityPanel extends JPanel
 	{
 		this.repaint();		
 	}
-
-	public void resetAgentStats()
-	{
-		int y=0;
-		int x=0;
-		
-		for(y=0;y<resolution;y++)
-		{
-			for(x=0;x<resolution;x++)
-			{
-				//grid[y][x][0] = 0;	// Plant no
-				grid[y][x][0] = 0;  // Prey
-				grid[y][x][1] = 0;  // Predators	
-			}
-		}
-		
-	}
-	
 	
 	public void setPredMax(int pred)
 	{
