@@ -58,7 +58,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	static Simulation sim;
 
 	/** Is Simulation view drawing enabled */
-	static boolean drawSim = true;
+	static boolean drawSim = false;
 
 	/** Draw true circular bodies or faster rectangular ones */
 	static boolean simpleDrawing = true;
