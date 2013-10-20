@@ -130,7 +130,7 @@ public class StatsDensityPanel extends JPanel
 
 					if((grid[y][x][0] > 0 ))
 					{
-						int preyalpha = ((grid[y][x][0])*(255/ ((preyMax/100)+1) ));
+						int preyalpha = ((grid[y][x][0])*(255/ ((preyMax/50)+1) ));
 						if(preyalpha>255)
 						{
 							preyalpha = 255;
@@ -142,7 +142,7 @@ public class StatsDensityPanel extends JPanel
 					
 					if((grid[y][x][1] > 0 ))
 					{
-						int predalpha = ((grid[y][x][1])*(255/ ((predMax/100)+1)) );
+						int predalpha = ((grid[y][x][1])*(255/ ((predMax/50)+1)) );
 						if(predalpha>255)
 						{
 							predalpha = 255;

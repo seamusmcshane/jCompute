@@ -282,7 +282,7 @@ public class SimpleAgentManager
 		agentCount = 0;
 		preyCount = 0;
 		predatorCount = 0;
-		StatsPanel.statsDensityPanel.resetAgentStats();
+		StatsPanel.statsDensityPanel.resetStats();
 		
 		/* Temp var */
 		SimpleAgent temp;
