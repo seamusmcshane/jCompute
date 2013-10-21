@@ -171,6 +171,12 @@ public class SimulationGUI
 
 		// have a simulation ready to go...
 		newSim();
+		
+		/* Allow view to start */
+		SimulationView.startView();
+		
+		/* Enable Drawing */
+		chckbxmntmDisplayView.setSelected(true);
 	}
 
 	private static void setUpControlPanelBottom()
@@ -607,7 +613,7 @@ public class SimulationGUI
 
 			}
 		});
-		chckbxmntmDisplayView.setSelected(true);
+		
 		mnViewOptions.add(chckbxmntmDisplayView);
 
 		JMenu mnAgentDrawing = new JMenu("Agent Drawing");

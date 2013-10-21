@@ -1,23 +1,16 @@
 package alifeSim.Gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-
-import javax.swing.JFrame;
-import javax.swing.JSplitPane;
 
 import org.lwjgl.LWJGLUtil; 
 
 import java.io.File; 
-import java.util.concurrent.Semaphore;
-
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
@@ -33,9 +26,6 @@ import alifeSim.Simulation.Simulation;
  */
 public class SimulationView extends BasicGame implements MouseListener
 {
-	/** Window */
-	static JFrame frmSimulationView;
-
 	/** OpenGl Canvas */
 	static CanvasGameContainer simView;
 
@@ -350,8 +340,6 @@ public class SimulationView extends BasicGame implements MouseListener
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
 			
 			simView.setMinimumSize(new Dimension(320,240));
-			
-			simView.start();
 
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
 			
@@ -365,6 +353,19 @@ public class SimulationView extends BasicGame implements MouseListener
 		return null;
 	}
 
+	public static void startView()
+	{
+		try
+		{
+			simView.start();
+		}
+		catch (SlickException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void setUnlimitedUpdateRate()
 	{
 		highUpdateRate = true;
@@ -488,7 +489,8 @@ public class SimulationView extends BasicGame implements MouseListener
 				height=1024;
 			}		
 		
-			System.out.println("View Width :" + width + " View Height :" + worldViewHeight);
+			System.out.println("View Width  :" + worldViewWidth);
+			System.out.println("View Height :" + worldViewHeight);
 			//setInitalViewTranslate(width,height);
 			setViewDimesions(width,height);	
 
