@@ -1,6 +1,7 @@
 package alifeSim.Gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
@@ -313,21 +314,9 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static void displayView(JSplitPane pane,Simulation simIn,int width,int height)
+	public static Component displayView(Simulation simIn,int width,int height)
 	{
 		sim = simIn;
-
-		//setUpWindowDimesions(1920, 600);
-		
-		/*BorderLayout borderLayout = (BorderLayout) frame.getContentPane().getLayout();
-		borderLayout.setVgap(10);
-		borderLayout.setHgap(10);*/
-		//frame.setType(Type.UTILITY);
-		//frame.setUndecorated(true);
-		
-		//frame.setSize(worldViewWidth, worldViewHeight);
-		//frame.setLocation(x, y);
-		//frame.setAlwaysOnTop(true);
 
 		try
 		{
@@ -361,19 +350,19 @@ public class SimulationView extends BasicGame implements MouseListener
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
 			
 			simView.setMinimumSize(new Dimension(320,240));
-
-			//frame.getContentPane().add(simView, BorderLayout.CENTER);	
-			pane.setRightComponent(simView);
 			
 			simView.start();
 
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
+			
+			return simView;
 
 		}
 		catch (SlickException e)
 		{
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 	public static void setUnlimitedUpdateRate()
