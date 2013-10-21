@@ -52,7 +52,7 @@ public class Simulation
 	private boolean realtime=true;
 	
 	public Simulation()
-	{		
+	{
 		simStats = new SimulationPerformanceStats();
 		simStats.simStatsDisplay();
 		
