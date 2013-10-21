@@ -11,7 +11,7 @@ import alifeSim.Gui.StatsPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
-import alifeSim.Simulation.SimulationStats;
+import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 import alifeSim.datastruct.list.ArrayList;

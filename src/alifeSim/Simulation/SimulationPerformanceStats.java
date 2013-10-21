@@ -3,7 +3,7 @@ package alifeSim.Simulation;
 import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
 
-public class SimulationStats
+public class SimulationPerformanceStats
 {
 	/** Simulation Performance Indicators */
 	//long stepNo = 0;
@@ -28,7 +28,7 @@ public class SimulationStats
 	private long currentTime;
 	private long diffTime;
 	
-	public SimulationStats()
+	public SimulationPerformanceStats()
 	{
 		clearSimulationStats();
 	}

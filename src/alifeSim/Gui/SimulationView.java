@@ -108,6 +108,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		this.worldViewWidth = pannelWidth;
 		this.worldViewHeight = pannelHeight;
 		
+		globalTranslate.set(25,25);
 		
 		// Uncomment when building the executable jar for that platform 
 		 //buildStandAlone(true);
@@ -198,7 +199,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), cameraBound.getMinX() + 10, cameraBound.getMinY() + 50);
 
-				g.draw(cameraBound);
+				//g.draw(cameraBound);
 			}
 			frameNum++;
 		}
@@ -443,18 +444,6 @@ public class SimulationView extends BasicGame implements MouseListener
 	}
 
 	/**
-	 * Method setInitalViewTranslate.
-	 * @param x int
-	 * @param y int
-	 */
-	public static void setInitalViewTranslate(int viewWidth, int viewHeight)
-	{
-		int worldSize = sim.simManager.getWorldSize();		
-		globalTranslate.set((viewWidth / 2) - ((worldSize) / 2), (viewHeight / 2) - ((worldSize) / 2));		
-	}
-
-
-	/**
 	 * Method setViewRangeDrawing.
 	 * @param inViewRangeDrawing boolean
 	 */
@@ -490,6 +479,17 @@ public class SimulationView extends BasicGame implements MouseListener
 			drawSim = visible; // draw if visible
 	}
 
+ 	/**
+ 	 * Method setInitalViewTranslate.
+	 * @param x int
+	 * @param y int
+	 */
+	public static void setInitalViewTranslate(int viewWidth, int viewHeight)
+	{
+		int worldSize = sim.simManager.getWorldSize();		
+		globalTranslate.set((viewWidth / 2) - ((worldSize) / 2), (viewHeight / 2) - ((worldSize) / 2));		
+	}
+	
 	/* Parent Frame Size Change */
 	public static void setSize(int width,int height)
 	{
@@ -499,7 +499,7 @@ public class SimulationView extends BasicGame implements MouseListener
 				height=1024;
 			}		
 		
-			System.out.println("width " + width + "height " + worldViewHeight);
+			System.out.println("View Width :" + width + " View Height :" + worldViewHeight);
 			//setInitalViewTranslate(width,height);
 			setViewDimesions(width,height);	
 

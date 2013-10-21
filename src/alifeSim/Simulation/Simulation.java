@@ -23,7 +23,7 @@ import alifeSim.Scenario.SAPP.SAPPSimulationManager;
 public class Simulation
 {
 	/* Stats */
-	SimulationStats simStats;
+	SimulationPerformanceStats simStats;
 	
 
 	// Inter-step delay Calculations
@@ -53,7 +53,7 @@ public class Simulation
 	
 	public Simulation()
 	{		
-		simStats = new SimulationStats();
+		simStats = new SimulationPerformanceStats();
 		simStats.simStatsDisplay();
 		
 		setupThreads();

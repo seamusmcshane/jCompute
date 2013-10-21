@@ -1,8 +1,12 @@
 [Config]
 
 ConfigVersion = 0.001
-
 ScenarioType = SAPP
+
+[GlobalStats]
+Predators = PredatorCurrent,PredatorMax
+Prey = PreyCurrent,PreyMax
+Plant = PlantCurrent,PlantMax
 
 [World]
 
