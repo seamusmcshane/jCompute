@@ -66,7 +66,7 @@ public class StatsPanel extends JPanel
 	private static int predNo = 0;
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
-	private static int samplePeriod = 60;
+	//private static int samplePeriod = 60;
 	private static int sampleNum = 9000; // 9000 = 10 mins real-time (15sps) - Set by combox default
 
 	/* Prevents access to the arrays when being regenerated */
@@ -91,11 +91,8 @@ public class StatsPanel extends JPanel
 	/* Graph can be seen */
 	private static int graphVisible = 0;
 
-	/* Used to prevent showing sliders in a small area when paused */
-	private static boolean paused;
-
 	/* Update the graphs based on ratio of steps */
-	private static int graphDrawDiv = 1;
+	private static int graphDrawDiv = 15;
 
 	/* Draw or do not draw the graphs */
 	private static boolean drawGraphs = true;

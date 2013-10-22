@@ -190,10 +190,8 @@ public class Simulation
 
 		simStats.setStepEndTime();
 		
-		if(simStats.getSimulationSteps() % 15 == 0 )
-		{
-			simStats.simStatsDisplay();
-		}
+
+		simStats.simStatsDisplay();
 
 		// Allow the simulation to be paused again
 		pause.release();

@@ -82,10 +82,13 @@ public class SimulationPerformanceStats
 
 	public void simStatsDisplay()
 	{
-		SimulationGUI.setASPS(averageStepsPerSecond());
-		SimulationGUI.setStepNo(simulationSteps);
-		SimulationGUI.setTime(stepTotalTime);
-		SimulationGUI.setTime(stepTotalTime);
+		if(simulationSteps%15 == 0)
+		{
+			SimulationGUI.setASPS(averageStepsPerSecond());
+			SimulationGUI.setStepNo(simulationSteps);
+			SimulationGUI.setTime(stepTotalTime);
+			SimulationGUI.setTime(stepTotalTime);
+		}
 		StatsPanel.updateGraphs(simulationSteps);
 	}
 	
