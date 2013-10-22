@@ -67,7 +67,7 @@ public class StatsPanel extends JPanel
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
 	private static int samplePeriod = 60;
-	private static int sampleNum = 0; // 9000 = 10 mins real-time (15sps) - Set by combox default
+	private static int sampleNum = 9000; // 9000 = 10 mins real-time (15sps) - Set by combox default
 
 	/* Prevents access to the arrays when being regenerated */
 	private static Semaphore sampleLock = new Semaphore(1);
@@ -128,9 +128,7 @@ public class StatsPanel extends JPanel
 	private final JPanel plantNoPanel = new JPanel();
 	private final JPanel predatorsNoPanel = new JPanel();
 	private final JPanel preyNoPanel = new JPanel();
-	private final JLabel lblSamples = new JLabel("Samples");
-	private final static JComboBox comboBoxGraphSamples = new JComboBox();
-	private final JPanel drawDivPanel = new JPanel();
+
 	private final JPanel samplesPanel = new JPanel();
 	private final JLabel label = new JLabel("");
 	private final JLabel lblCurrent = new JLabel("Current");
@@ -493,55 +491,6 @@ public class StatsPanel extends JPanel
 
 		graphSettingsPanel.add(samplesPanel);
 		samplesPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		samplesPanel.add(lblSamples);
-		lblSamples.setToolTipText("");
-		lblSamples.setHorizontalAlignment(SwingConstants.CENTER);
-		samplesPanel.add(comboBoxGraphSamples);
-		comboBoxGraphSamples.setToolTipText("<html>\r\nAllows changing the length of the sample perioid covered by graphs.<br>\r\n<br>\r\nCalculation -:<br>\r\n 15 steps/sec * 60  * 5 = 4500 samples for five minutes)<br>\r\n<br>\r\nNote 1 : Large sample periods can negatively affect performance.<br>\r\nNote 2 : Changing this value will clear all samples from the current sample period.<br>\r\n</html>");
-
-		comboBoxGraphSamples.setModel(new DefaultComboBoxModel(new String[] {"1125", "2250", "4500", "9000", "18000", "36000","72000"}));
-
-		comboBoxGraphSamples.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				sampleNum = Integer.parseInt(comboBoxGraphSamples.getSelectedItem().toString());
-
-				/* Clear the graph */
-				clearStats();
-			}
-		});
-		comboBoxGraphSamples.setSelectedIndex(4);
-
-		graphSettingsPanel.add(drawDivPanel);
-		drawDivPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		drawDivPanel.add(lblGraphDrawDiv);
-		lblGraphDrawDiv.setToolTipText("");
-		lblGraphDrawDiv.setHorizontalAlignment(SwingConstants.CENTER);
-		drawDivPanel.add(comboBoxGraphDrawDiv);
-		comboBoxGraphDrawDiv.setToolTipText("<html>\r\nChanges the drawing rate of the graphs vs step rate of the simulation. <br>\r\n\r\nCalculation :\r\nAverage step rate/draw div = graph update rate~\r\n\r\n</html>");
-		comboBoxGraphDrawDiv.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent arg0)
-			{
-				String drawDivString = comboBoxGraphDrawDiv.getSelectedItem().toString();
-
-				// Enable / Drawing or set the draw div
-				if (drawDivString.equalsIgnoreCase("Off"))
-				{
-					drawGraphs = false;
-				}
-				else
-				{
-					drawGraphs = true;
-
-					graphDrawDiv = Integer.parseInt(drawDivString);
-				}
-			}
-		});
-		comboBoxGraphDrawDiv.setModel(new DefaultComboBoxModel(new String[]
-		{"Off", "1", "3", "5", "15", "30", "60", "120", "240", "300"}));
-		comboBoxGraphDrawDiv.setSelectedIndex(1);
 
 		leftPanel.setVisible(false);
 
@@ -820,36 +769,6 @@ public class StatsPanel extends JPanel
 		
 
 		sampleLock.release();
-
-	}
-
-	/**
-	 * Method setPaused.
-	 * @param ipaused boolean
-	 */
-	public static void setPaused(boolean ipaused)
-	{
-		paused = ipaused;
-
-		if (paused)
-		{
-			//chckbxFullSizeGraphCheckBox.setSelected(false);		
-			//chckbxFullSizeGraphCheckBox.setEnabled(true);
-
-			comboBoxGraphSamples.setEnabled(true);
-
-			//setGraphsFull(false);				
-
-		}
-		else
-		{
-			//chckbxFullSizeGraphCheckBox.setSelected(true);			
-			//chckbxFullSizeGraphCheckBox.setEnabled(false);
-
-			comboBoxGraphSamples.setEnabled(false);
-
-			//setGraphsFull(true);	
-		}
 
 	}
 	

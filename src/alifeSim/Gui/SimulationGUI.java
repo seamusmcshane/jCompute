@@ -309,8 +309,8 @@ public class SimulationGUI
 		simRateSlider.setMaximum(300);
 		simRateSlider.setValue(15);
 		simRateSlider.setSnapToTicks(true);
-		simRateSlider.setMinorTickSpacing(15);
-		simRateSlider.setMajorTickSpacing(30);
+		simRateSlider.setMinorTickSpacing(30);
+		simRateSlider.setMajorTickSpacing(150);
 		simRateSlider.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)
@@ -935,8 +935,6 @@ public class SimulationGUI
 		// agentParamPanel.setVisible(false);
 		// plantParamPanel.setVisible(false);
 
-		StatsPanel.setPaused(false);
-
 	}
 
 	private static void startUpState()
@@ -951,8 +949,6 @@ public class SimulationGUI
 		btnPause.setText("Resume");
 		btnGenerate.setEnabled(true);
 
-		StatsPanel.setPaused(true);
-
 		sim.pauseSim();
 
 		btnPause.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alifeSim/icons/resume.png")));
@@ -963,8 +959,6 @@ public class SimulationGUI
 	{
 		btnPause.setText("   Pause");
 		btnGenerate.setEnabled(false);
-
-		StatsPanel.setPaused(false);
 
 		sim.unPauseSim();
 
