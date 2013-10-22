@@ -8,30 +8,34 @@ import java.util.List;
 public class Stats
 {
 
-	int numTypes = 0;
+	private int numTypes = 0;
 	
-	String[] listNames;
+	private String[] listNames;
 	/* Raw Samples - count always == num of steps */
-	List[] allSamples;
+	private List[] allSamples;
 	
-	/* Last 1000 samples */
-	Deque[] last1000samples;
+	/* Last n samples */
+	private Deque[] drawWindow;
+	private int drawWindowLength = 1000;
 	
-	/* Runnning Average of last 1000 samples */
-	int[] runningAvg;	
+	/* Runnning total for average of last 1000 samples */
+	private int[] runningTotal;	
 	
 	/* FILO of 1000avg sample averages */
-	Deque[] avg1000;	
+	private Deque[] avgWindow;
+	private int avgWindowLenght = 1000;
 	
-	int[] max;
-	int[] min;
-	int[] avg;
-
 	public Stats(int numTypes)
 	{
 		
+		if(numTypes <=0)
+		{
+			numTypes = 0;
+		}
+		
 		this.numTypes = numTypes;
 		
+		resetListNames();
 		resetStats();
 		
 	}
@@ -77,30 +81,33 @@ public class Stats
 			return false;
 		}	
 		
+		// Add the new sample 
 		allSamples[listNum].add(value);
 		
-		if(last1000samples[listNum].size() == 1000)
+		// Add the new sample
+		drawWindow[listNum].add(value);
+		
+		// Update the Running Average
+		runningTotal[listNum] +=value;		
+		
+		if(drawWindow[listNum].size() == drawWindowLength)
 		{
 			// Remove the last sample
-			int temp = (int) last1000samples[listNum].removeLast();
-			runningAvg[listNum] +=temp;	// This corrects the averages after 1000 samples and avoids looping over the sample window
+			int temp = (int) drawWindow[listNum].removeLast();
+			runningTotal[listNum] -=temp;	 // This corrects the averages after 1000 samples and avoids looping over the sample window		
 			
-			if(avg1000[listNum].size() == 1000)
+			if(avgWindow[listNum].size() == avgWindowLenght)
 			{
-				// Just remove the last sample
-				avg1000[listNum].removeLast();
+				// Just remove the last 1000 sample average
+				avgWindow[listNum].removeLast();
 			}
 			
-			// Add the new sample
-			avg1000[listNum].add(value);
+			// Add the new 1000 sample average
+			avgWindow[listNum].add( runningTotal[listNum] / 1000 );
 
 		}
 		
-		// Add the new sample
-		last1000samples[listNum].add(value);
-		
-		// Update the Running Average
-		runningAvg[listNum] +=value;
+
 		
 		
 		
@@ -108,7 +115,7 @@ public class Stats
 		
 	}
 	
-	public void resetStats()
+	public void resetListNames()
 	{
 		/* Names of the Lists */
 		listNames = new String[numTypes];
@@ -116,7 +123,10 @@ public class Stats
 		{
 			listNames[i] = new String();
 		}
-		
+	}
+	
+	public void resetStats()
+	{		
 		/* All Samples */
 		allSamples = new ArrayList[numTypes];
 		for(int i=0;i<numTypes;i++)
@@ -125,22 +135,73 @@ public class Stats
 		}
 		
 		/* Last 1000 samples (for drawing) */
-		last1000samples = new Deque[numTypes];
+		drawWindow = new Deque[numTypes];
 		for(int i=0;i<numTypes;i++)
 		{
 			allSamples[i] = new LinkedList<Integer>();
 		}
 		
-		/* Running Averages for each list */
-		runningAvg = new int[numTypes];
+		/* Running Total for each list */
+		runningTotal = new int[numTypes];
 		
 		/* FILO 1000avg (for Drawing) */
-		avg1000 = new Deque[numTypes];
+		avgWindow = new Deque[numTypes];
 		for(int i=0;i<numTypes;i++)
 		{
-			avg1000[i] = new LinkedList<Integer>();
+			avgWindow[i] = new LinkedList<Integer>();
 		}
 		
+	}
+	
+	public Deque getDrawWindow(int listNum)
+	{
+		if(numTypes == 0)
+		{
+			return null;
+		}
+		
+		if( listNum >=numTypes )
+		{
+			return null;
+		}
+		
+		if( listNum < 0 )
+		{
+			return null;
+		}	
+		
+		return drawWindow[listNum];
+		
+	}
+	
+	public Deque getAvgWindow(int listNum)
+	{
+		if(numTypes == 0)
+		{
+			return null;
+		}
+		
+		if( listNum >=numTypes )
+		{
+			return null;
+		}
+		
+		if( listNum < 0 )
+		{
+			return null;
+		}	
+		
+		return avgWindow[listNum];		
+	}
+	
+	public int DrawWindowMax()
+	{
+		return drawWindowLength;
+	}
+	
+	public int AvgWindowMax()
+	{
+		return avgWindowLenght;
 	}
 	
 	
