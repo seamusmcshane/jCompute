@@ -9,6 +9,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.Simulation.BarrierManager;
+import alifeSim.Stats.Stats;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 import alifeSim.datastruct.list.ArrayList;
@@ -40,7 +41,7 @@ public class SimpleAgentManager
 
 	/** Holds Unique Id position agent id */
 	int agentIdCount;
-
+	
 	/** The agent count */
 	int agentCount;
 	int agentCountMax;
@@ -282,7 +283,7 @@ public class SimpleAgentManager
 		agentCount = 0;
 		preyCount = 0;
 		predatorCount = 0;
-		//StatsPanel.statsDensityPanel.resetStats();
+		StatsPanel.statsDensityPanel.resetStats();
 		
 		/* Temp var */
 		SimpleAgent temp;
@@ -318,7 +319,7 @@ public class SimpleAgentManager
 
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
-				//StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
+				StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
 
 			}
 			//else
