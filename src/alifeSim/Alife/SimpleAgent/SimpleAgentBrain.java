@@ -41,6 +41,9 @@ public class SimpleAgentBrain
 	private int learnToMoveCount = 0;
 	private int learnToMoveMax = 15;
 	
+	private int twiddleFactor = 50;
+	private boolean twiddle = true;
+	
 	/**
 	 * Constructor for SimpleAgentBrain.
 	 * @param body SimpleAgentBody
@@ -232,6 +235,11 @@ public class SimpleAgentBrain
 			// Set the set the direction as towards the agent
 			direction = view.towardsAgentDirection(myBody);
 
+			if(twiddle)
+			{
+				direction+=randomNumber(twiddleFactor);
+			}
+			
 			// Try to eat the agent
 			myBody.eatAgent(view);
 		}
@@ -271,6 +279,16 @@ public class SimpleAgentBrain
 	private void evadeState()
 	{
 		direction = view.awayfromAgentDirection(myBody);
+		if(twiddle)
+		{
+			direction+=randomNumber(twiddleFactor);
+		}
+	}
+	
+	private int randomNumber(int range)
+	{
+	    Random r = new Random();
+	    return  r.nextInt(range) - (range/2);
 	}
 
 }
