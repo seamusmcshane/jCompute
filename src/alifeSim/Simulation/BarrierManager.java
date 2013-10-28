@@ -1,13 +1,12 @@
 package alifeSim.Simulation;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
-import alifeSim.datastruct.knn.KDTree;
 import alifeSim.datastruct.knn.KNNInf;
 import alifeSim.datastruct.knn.thirdGenKDWrapper;
 /**
@@ -40,12 +39,12 @@ public class BarrierManager extends Thread
 	private KNNInf<SimpleAgent> agentKDTree;
 	
 	private ArrayList<SimpleAgent>agentList;
-	private ArrayList<SimpleAgent>[] agentTaskLists;
+	private List<SimpleAgent>[] agentTaskLists;
 
 	/** References for Plant Tasks */
 	private KNNInf<GenericPlant> plantKDTree;
 	private ArrayList<GenericPlant> plantList;
-	private ArrayList<GenericPlant>[] plantTaskLists;
+	private List<GenericPlant>[] plantTaskLists;
 	
 	/** Counts used in list division */
 	private int agentCount;
@@ -214,8 +213,8 @@ public class BarrierManager extends Thread
 	@SuppressWarnings("unchecked")
 	private void setUpTaskLists()
 	{
-		agentTaskLists = new ArrayList[numThreads];
-		plantTaskLists = new ArrayList[numThreads];
+		agentTaskLists = new List[numThreads];
+		plantTaskLists = new List[numThreads];
 
 	}
 
@@ -259,118 +258,97 @@ public class BarrierManager extends Thread
 		plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
 		//plantKDTree = new KDTree<GenericPlant>(2);
 
-		int i = 0;
-
-		/* Create a list for each thread and the thread */
-		for (i = 0; i < numThreads; i++)
-		{
-			plantTaskLists[i] = new ArrayList<GenericPlant>();
-		}
-
-		/* Calculate the Splits */
-		int div = plantCount / numThreads;
-		int split = div;
-
-		int thread_num = 0;
-		int tPlantCount = 0;
-						
-		/* Vector */
-		double[] pos;
-		
-		// Add Median to Tree
-		pos = new double[2];
-
-		/* Split the lists */
 		for (GenericPlant temp : plantList) 
-		{
-			
+		{	
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
-				pos = new double[2];
+				double[] pos = new double[2];
 				pos[0] = temp.body.getBodyPos().getX();
 				pos[1] = temp.body.getBodyPos().getY();
 				plantKDTree.add(pos, temp);
 			}
-
-			/* This section does the decision boundaries for splitting the list */
-			if (tPlantCount == split)
-			{
-				if (thread_num < (numThreads - 1))
-				{
-					split = split + div;
-					thread_num++;
-				}
-			}
-
-			/* Add the plant to the smaller list */
-			plantTaskLists[thread_num].add(temp);
-
-			tPlantCount++;
 		}
-		/* Lists are now Split */
+		
+		int i = 0;
 
+		/* Create a list for each thread and the thread */
+		int start=0;
+		int div = plantList.size() / numThreads;
+		int end=0;		
+		
+		if(div>numThreads)
+		{
+			for (i = 0; i < numThreads; i++)
+			{
+				end=(div*i)+div-1;
+				start=(div*i);
+				
+				//System.out.println("Start : " + start);
+				//System.out.println("End : " + end);
+				plantTaskLists[i] = plantList.subList(start,end);
+			}
+		}
+		else // Drop to single threaded if the list is small
+		{
+			plantTaskLists[0] = plantList.subList(0,plantList.size());
+			
+			for (i = 1; i < numThreads; i++)
+			{
+				plantTaskLists[i]=null;
+			}
+		}		
+		
+		
+		
 	}
 
-	/**
-	 * 1) Generates the agent KD tree using the list.
-	 * 2) Splits the large linked list into (n) smaller linked list.
-	 */
 	private void splitAgentList()
 	{
 		/* 2d - KD-Tree */
 		agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
+		//plantKDTree = new KDTree<GenericPlant>(2);
 
-		int i = 0;
-
-		/* Calculate the Splits */
-		int div = agentCount / numThreads;
-		int rem = agentCount % numThreads;
-		int split = div;		
-		
-		/* Create a list for each thread and the thread */
-		for (i = 0; i < numThreads; i++)
-		{
-			agentTaskLists[i] = new ArrayList<SimpleAgent>( (split+rem)+1);
-		}
-
-		//ListIterator<SimpleAgent> itr = agentList.listIterator();
-
-
-
-		int thread_num = 0;
-		int tAgentCount = 0;
-				
-		/* Split the lists */
 		for (SimpleAgent temp : agentList) 
-		{
-			/* This Section adds each agent and its coordinates to the kd tree */
+		{				
+			/* This Section adds each plant and its coordinates to the kd tree */
 			{
-				//pos = new double[2];
-				//pos[0] = temp.body.getBodyPos().getX();
-				//pos[1] = temp.body.getBodyPos().getY();
+				double[] pos = new double[2];
+				pos[0] = temp.body.getBodyPos().getX();
+				pos[1] = temp.body.getBodyPos().getY();
 				agentKDTree.add(temp.body.getBodyPosKD(),temp);
 			}
-
-			/* This section does the decision boundaries for splitting the list */
-			if (tAgentCount == split)
-			{
-				if (thread_num < (numThreads - 1))
-				{				
-					split = split + div;
-					thread_num++;
-					
-				}
-			}
-
-			/* Add the agent to the smaller list */
-			agentTaskLists[thread_num].add(temp);
-
-			tAgentCount++;
 		}
-		/* Lists are now Split */
+		
+		int i = 0;
+
+		/* Create a list for each thread and the thread */
+		int start=0;
+		int div = agentList.size() / numThreads;
+		int end=0;		
+		
+		if(div>numThreads)
+		{
+			for (i = 0; i < numThreads; i++)
+			{
+				end=(div*i)+div-1;
+				start=(div*i);
+				
+				//System.out.println("Start : " + start);
+				//System.out.println("End : " + end);
+				agentTaskLists[i] = agentList.subList(start,end);
+			}
+		}
+		else // Drop to single threaded if the list is small
+		{
+			agentTaskLists[0] = agentList.subList(0,agentList.size());
+			
+			for (i = 1; i < numThreads; i++)
+			{
+				agentTaskLists[i]=null;
+			}
+		}
 
 	}
-	
 	
 	public void displayBarrierTaskDebugStats()
 	{

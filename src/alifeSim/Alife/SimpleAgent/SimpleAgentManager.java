@@ -273,8 +273,6 @@ public class SimpleAgentManager
 	 * Agents that are dead stay in the do list which gets nullified at the start next step. */
 	private void updateDoneList()
 	{
-		//ListIterator<SimpleAgent> itr = doList.listIterator();
-
 		agentCount = 0;
 		preyCount = 0;
 		predatorCount = 0;

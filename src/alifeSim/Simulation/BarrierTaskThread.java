@@ -1,16 +1,13 @@
 package alifeSim.Simulation;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
 
 import ags.utils.dataStructures.MaxHeap;
-import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
-import alifeSim.datastruct.knn.DistanceFunctions;
 import alifeSim.datastruct.knn.KNNInf;
 
 /**
@@ -27,10 +24,10 @@ public class BarrierTaskThread extends Thread
 {
 
 	/** The Agent list. */
-	private ArrayList<SimpleAgent> agentList;
+	private List<SimpleAgent> agentList;
 
 	/** The Plant list. */
-	private ArrayList<GenericPlant> plantList;
+	private List<GenericPlant> plantList;
 
 	/** The Entire World View. (Both Trees) */
 	private KNNInf<SimpleAgent> agentKDTree;
@@ -84,7 +81,7 @@ public class BarrierTaskThread extends Thread
 	 * @param plantList
 	 * @param plantKDTree
 	 */
-	public void setTask(ArrayList<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, ArrayList<GenericPlant> plantList, KNNInf<GenericPlant> plantKDTree)
+	public void setTask(List<SimpleAgent> agentList, KNNInf<SimpleAgent> agentKDTree, List<GenericPlant> plantList, KNNInf<GenericPlant> plantKDTree)
 	{
 		this.agentList = agentList;
 		this.plantList = plantList;
@@ -134,54 +131,58 @@ public class BarrierTaskThread extends Thread
 					taskStartTime = System.currentTimeMillis(); // Start time for the average step	
 				}
 				
-				/** Section 1 - Process Plants*/
-				for (GenericPlant currentPlant : plantList) 
-				{	
-					if (!currentPlant.body.stats.isDead())
-					{
-						// Parallel plant calculations
-						currentPlant.body.stats.increment();
-					}	
+				if(plantList!=null)
+				{
+					/** Section 1 - Process Plants*/
+					for (GenericPlant currentPlant : plantList) 
+					{	
+						if (!currentPlant.body.stats.isDead())
+						{
+							// Parallel plant calculations
+							currentPlant.body.stats.increment();
+						}	
+					}
 				}
-				
 				/* Reset the iterator reference to start form the start of the list */
 				//agentListItr = agentList.listIterator();				
 				/** Section 2 */
-				for (SimpleAgent currentAgent : agentList) 
+				if(agentList!=null)
 				{
-						
-					SimpleAgent nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
-	
-					/*
-					 * calculate if the Nearest Agents are in the view Range of the
-					 * current agent
-					 */
-					agentViewRangeKDSQAgents(currentAgent,nearestAgent);
-	
-					if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
+					for (SimpleAgent currentAgent : agentList) 
 					{
-						//plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
-						//nearestPlant = plantNeighborList.getMax();
-						GenericPlant nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
-												
+							
+						SimpleAgent nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
+		
 						/*
-						 * calculate if the Nearest Plants are in the view Range of
-						 * the current agent
+						 * calculate if the Nearest Agents are in the view Range of the
+						 * current agent
 						 */
-						agentViewRangeKDSQPlants(currentAgent,nearestPlant);
+						agentViewRangeKDSQAgents(currentAgent,nearestAgent);
+		
+						if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
+						{
+							//plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
+							//nearestPlant = plantNeighborList.getMax();
+							GenericPlant nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
+													
+							/*
+							 * calculate if the Nearest Plants are in the view Range of
+							 * the current agent
+							 */
+							agentViewRangeKDSQPlants(currentAgent,nearestPlant);
+						}
+					}
+	
+					/* Reset the iterator reference to start form the start of the list */
+					//agentListItr = agentList.listIterator();
+					
+					for (SimpleAgent currentAgent : agentList) 
+					{
+		
+						// Parallel Agent Thinking
+						currentAgent.brain.think();
 					}
 				}
-	
-				/* Reset the iterator reference to start form the start of the list */
-				//agentListItr = agentList.listIterator();
-				
-				for (SimpleAgent currentAgent : agentList) 
-				{
-	
-					// Parallel Agent Thinking
-					currentAgent.brain.think();
-				}
-				
 				/* benchmarking */
 				if(debugtasks)
 				{
