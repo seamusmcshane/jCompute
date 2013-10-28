@@ -1,5 +1,6 @@
 package alifeSim.Simulation;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
@@ -11,7 +12,6 @@ import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.datastruct.knn.DistanceFunctions;
 import alifeSim.datastruct.knn.KNNInf;
-import alifeSim.datastruct.list.ArrayList;
 
 /**
  *  This thread object will iterate through a linked list of agents passed to it, 
@@ -44,14 +44,6 @@ public class BarrierTaskThread extends Thread
 
 	/** The agents and plants neighbor list. */
 	private MaxHeap<GenericPlant> plantNeighborList;
-
-	/** Reference to the current agent. */
-	private SimpleAgent currentAgent;
-	private GenericPlant currentPlant;
-
-	/** Reference to the nearest agent. */
-	private SimpleAgent nearestAgent;
-	private GenericPlant nearestPlant;
 
 	/** The start and end semaphores for this thread */
 	private Semaphore start;
@@ -143,63 +135,48 @@ public class BarrierTaskThread extends Thread
 				}
 				
 				/** Section 1 - Process Plants*/
-				
-				plantList.resetHead();
-				
-				/** Section 2 */
-				while (plantList.get()!=null)
-				{
-					currentPlant = plantList.getNext();
-	
+				for (GenericPlant currentPlant : plantList) 
+				{	
 					if (!currentPlant.body.stats.isDead())
 					{
 						// Parallel plant calculations
 						currentPlant.body.stats.increment();
-					}
-	
+					}	
 				}
 				
 				/* Reset the iterator reference to start form the start of the list */
 				//agentListItr = agentList.listIterator();				
-				
-				agentList.resetHead();
-				
 				/** Section 2 */
-				while (agentList.get()!=null)
+				for (SimpleAgent currentAgent : agentList) 
 				{
-					currentAgent = agentList.getNext();
 						
-					nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
+					SimpleAgent nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
 	
 					/*
 					 * calculate if the Nearest Agents are in the view Range of the
 					 * current agent
 					 */
-					agentViewRangeKDSQAgents();
+					agentViewRangeKDSQAgents(currentAgent,nearestAgent);
 	
 					if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
 					{
 						//plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
 						//nearestPlant = plantNeighborList.getMax();
-						nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
+						GenericPlant nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
 												
 						/*
 						 * calculate if the Nearest Plants are in the view Range of
 						 * the current agent
 						 */
-						agentViewRangeKDSQPlants();
+						agentViewRangeKDSQPlants(currentAgent,nearestPlant);
 					}
 				}
 	
 				/* Reset the iterator reference to start form the start of the list */
 				//agentListItr = agentList.listIterator();
 				
-				agentList.resetHead();
-
-				/** Section 3 - Processing the Agent Step */
-				while (agentList.get()!=null)
+				for (SimpleAgent currentAgent : agentList) 
 				{
-					currentAgent = agentList.getNext();
 	
 					// Parallel Agent Thinking
 					currentAgent.brain.think();
@@ -238,8 +215,13 @@ public class BarrierTaskThread extends Thread
 	 * True - add it to the Agent to the current agents view.
 	 * False- clear the view.
 	 */
-	private void agentViewRangeKDSQAgents()
+	private void agentViewRangeKDSQAgents(SimpleAgent currentAgent,SimpleAgent nearestAgent)
 	{
+		
+		/*System.out.println("Current Agent :" + currentAgent );
+
+		System.out.println("Nearest Agent :" + nearestAgent );*/
+
 		/* Agent alone in the world */
 		if (currentAgent.equals(nearestAgent))
 		{
@@ -276,7 +258,7 @@ public class BarrierTaskThread extends Thread
 	/** 
 	 * As above but for plants - with the logical exception that plants can be extinct and thus the list empty.
 	 */
-	private void agentViewRangeKDSQPlants()
+	private void agentViewRangeKDSQPlants(SimpleAgent currentAgent,GenericPlant nearestPlant)
 	{
 		if (nearestPlant == null) // All plants are extinct..
 		{

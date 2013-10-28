@@ -1,10 +1,12 @@
 package alifeSim.Alife.SimpleAgent;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Line;
 
+import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
@@ -12,7 +14,6 @@ import alifeSim.Simulation.BarrierManager;
 import alifeSim.Stats.Stats;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
-import alifeSim.datastruct.list.ArrayList;
 
 /**
  * 
@@ -146,7 +147,7 @@ public class SimpleAgentManager
 	 */
 	private void addAgent(SimpleAgent agent)
 	{
-		doneList.add(agent,agent.body.getBodyPos().getX());
+		doneList.add(agent);
 
 		if (agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
@@ -190,7 +191,7 @@ public class SimpleAgentManager
 
 		agent.setId(agentIdCount);
 
-		doneList.add(agent,agent.body.getBodyPos().getX());
+		doneList.add(agent);
 	}
 
 	/**
@@ -202,14 +203,8 @@ public class SimpleAgentManager
 	public void drawAgent(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing, boolean viewsDrawing)
 	{
 
-		//itrDrawAI = doneList.listIterator();
-		
-		doneList.resetHead();
-
-		while (doneList.hasNext())
+		for (SimpleAgent tAgentDrawAI : doneList) 
 		{
-
-			tAgentDrawAI = doneList.getNext();
 
 			// Optimization - Only draw visible agents that are inside the cameraBoundarie
 			if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
@@ -285,20 +280,8 @@ public class SimpleAgentManager
 		predatorCount = 0;
 		//StatsPanel.statsDensityPanel.resetStats();
 		
-		/* Temp var */
-		SimpleAgent temp;
-		
-		doList.resetHead();
-		
-		while (doList.hasNext())
+		for (SimpleAgent temp : doList) 
 		{
-
-			/* Get a reference to the current agent */
-			temp = doList.getNext();
-
-			/* remove from the doList */
-			//doList.remove();
-
 			// If agent not dead ..	
 			if (!temp.body.stats.isDead())
 			{

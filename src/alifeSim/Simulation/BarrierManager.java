@@ -1,5 +1,6 @@
 package alifeSim.Simulation;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
@@ -9,7 +10,6 @@ import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.datastruct.knn.KDTree;
 import alifeSim.datastruct.knn.KNNInf;
 import alifeSim.datastruct.knn.thirdGenKDWrapper;
-import alifeSim.datastruct.list.ArrayList;
 /**
  * 
  * This class instantiates a barrier manager.
@@ -267,43 +267,22 @@ public class BarrierManager extends Thread
 			plantTaskLists[i] = new ArrayList<GenericPlant>();
 		}
 
-		//splitItr = plantList.listIterator();
-		
-		plantList.resetHead();
-		
-
-
 		/* Calculate the Splits */
 		int div = plantCount / numThreads;
 		int split = div;
 
 		int thread_num = 0;
 		int tPlantCount = 0;
-
-		/* Temp Variable */
-		GenericPlant temp;
 						
 		/* Vector */
 		double[] pos;
 		
-		GenericPlant median = plantList.getMedianNode();
-		
 		// Add Median to Tree
 		pos = new double[2];
-		pos[0] = median.body.getBodyPos().getX();
-		pos[1] = median.body.getBodyPos().getY();
-		plantKDTree.add(pos, median);		
-		
-		/* Split the lists */
-		while (plantList.hasNext())
-		{
-			/* Get a plant */
-			temp = plantList.getNext();
 
-			if(temp == median)
-			{ // dont do this iteration
-				continue;
-			}
+		/* Split the lists */
+		for (GenericPlant temp : plantList) 
+		{
 			
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
@@ -324,7 +303,7 @@ public class BarrierManager extends Thread
 			}
 
 			/* Add the plant to the smaller list */
-			plantTaskLists[thread_num].add(temp,temp.body.getBodyPos().getX());
+			plantTaskLists[thread_num].add(temp);
 
 			tPlantCount++;
 		}
@@ -360,19 +339,10 @@ public class BarrierManager extends Thread
 
 		int thread_num = 0;
 		int tAgentCount = 0;
-
-		/* Temp Var */
-		SimpleAgent temp;
 				
 		/* Split the lists */
-			
-		agentList.resetHead();
-		
-		while (agentList.hasNext())
+		for (SimpleAgent temp : agentList) 
 		{
-			/* Get an agent */
-			temp = agentList.getNext();
-
 			/* This Section adds each agent and its coordinates to the kd tree */
 			{
 				//pos = new double[2];
@@ -393,7 +363,7 @@ public class BarrierManager extends Thread
 			}
 
 			/* Add the agent to the smaller list */
-			agentTaskLists[thread_num].add(temp,temp.body.getBodyPos().getX());
+			agentTaskLists[thread_num].add(temp);
 
 			tAgentCount++;
 		}

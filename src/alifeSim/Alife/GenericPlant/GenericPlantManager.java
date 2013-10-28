@@ -1,9 +1,11 @@
 package alifeSim.Alife.GenericPlant;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
+
 import org.newdawn.slick.Graphics;
 
 import alifeSim.Gui.SimulationView;
@@ -14,7 +16,6 @@ import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
-import alifeSim.datastruct.list.ArrayList;
 /**
  * This class manages the plants in the simulation.
  * Drawing, adding, removing and regeneration.
@@ -35,9 +36,6 @@ public class GenericPlantManager
 
 	/** The iterator used to draw the plants */
 	//private ListIterator<GenericPlant> itrDrawPlant;
-
-	/** A re-used reference in the draw method */
-	private GenericPlant tPlantDraw;
 
 	/** The size of the world, needed for correctly placing new plants */
 	private int worldSize;
@@ -110,14 +108,8 @@ public class GenericPlantManager
 	 */
 	public void drawPlants(Graphics g, boolean simpleDrawing)
 	{
-
-		doneList.resetHead();
-
-		while (doneList.hasNext())
+		for (GenericPlant tPlantDraw : doneList) 
 		{
-
-			tPlantDraw = doneList.getNext();
-
 			/*
 			 * Optimization - Only draw visible plants that are inside the
 			 * cameraBoundaries
@@ -137,8 +129,7 @@ public class GenericPlantManager
 					tPlantDraw.body.drawRectBody(g);
 				}
 
-			}
-
+			}		
 		}
 
 	}
@@ -178,18 +169,9 @@ public class GenericPlantManager
 	{
 		/* Recount all the plants - since some will have died... */
 		plantCount = 0;
-
-		doList.resetHead();
 		
-
-		/* temp var */
-		GenericPlant temp;
-		
-		while (doList.hasNext())
+		for (GenericPlant temp : doList) 
 		{
-			/* Remove this Plant from the List */
-			temp = doList.getNext();
-
 			/** Is plant dead? */
 			if (!temp.body.stats.isDead())
 			{
@@ -210,12 +192,10 @@ public class GenericPlantManager
 				//
 
 				/** Plant is not dead add it to the done list */
-				doneList.add(temp,temp.body.getBodyPos().getX());
+				doneList.add(temp);
 				plantCount++;
 			}
-
 		}
-
 	}
 
 	/** 
@@ -260,7 +240,7 @@ public class GenericPlantManager
 	 */
 	private void addNewPlant(GenericPlant plant)
 	{
-		doneList.add(plant,plant.body.getBodyPos().getX());
+		doneList.add(plant);
 		plantCount++;
 	}
 
