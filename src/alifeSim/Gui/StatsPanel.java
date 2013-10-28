@@ -386,7 +386,7 @@ public class StatsPanel extends JPanel
 		stackGraphContainerPanel.setLayout(new BorderLayout(0, 0));
 		stackGraphContainerPanel.add(stackedGraphPanel, BorderLayout.CENTER);
 		
-		statsDensityPanel = new StatsDensityPanel(16,1024);
+		statsDensityPanel = new StatsDensityPanel();
 		statsDensityPanel.setBackground(Color.gray);
 		tabbedGraphs.addTab("Density", null, statsDensityPanel, null);
 
@@ -713,7 +713,7 @@ public class StatsPanel extends JPanel
 					stackedGraphPanel.drawGraph();
 					break;
 				case 3:
-					statsDensityPanel.drawGraph();
+					//statsDensityPanel.drawGraph();
 			}
 		}
 

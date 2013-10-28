@@ -23,10 +23,10 @@ public class StatsDensityPanel extends JPanel
 	private int preyMax;
 	private int ColorBoost = 128;
 	
-	public StatsDensityPanel(int resolution,int worldSize)
+	public StatsDensityPanel()
 	{
 		this.setDoubleBuffered(true);
-		setUpDensityPanel(resolution,worldSize);
+		setUpDensityPanel(16,1024);
 	}
 	
 	public void setUpDensityPanel(int resolution,int worldSize)

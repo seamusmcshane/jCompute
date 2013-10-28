@@ -283,7 +283,7 @@ public class SimpleAgentManager
 		agentCount = 0;
 		preyCount = 0;
 		predatorCount = 0;
-		StatsPanel.statsDensityPanel.resetStats();
+		//StatsPanel.statsDensityPanel.resetStats();
 		
 		/* Temp var */
 		SimpleAgent temp;
@@ -319,7 +319,7 @@ public class SimpleAgentManager
 
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
-				StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
+				//StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
 
 			}
 			//else
