@@ -489,8 +489,8 @@ public class SimulationView extends BasicGame implements MouseListener
 				height=1024;
 			}		
 		
-			System.out.println("View Width  :" + worldViewWidth);
-			System.out.println("View Height :" + worldViewHeight);
+			/*System.out.println("View Width  :" + worldViewWidth);
+			System.out.println("View Height :" + worldViewHeight);*/
 			//setInitalViewTranslate(width,height);
 			setViewDimesions(width,height);	
 
