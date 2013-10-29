@@ -278,14 +278,24 @@ public class BarrierManager extends Thread
 		
 		if(div>numThreads)
 		{
-			for (i = 0; i < numThreads; i++)
+			for (i = 0; i < numThreads-1; i++)
 			{
 				end=(div*i)+div-1;
 				start=(div*i);
 				
 				//System.out.println("Start : " + start);
 				//System.out.println("End : " + end);
-				plantTaskLists[i] = plantList.subList(start,end);
+				
+				if(i != (numThreads -1))
+				{
+					plantTaskLists[i] = plantList.subList(start,end);
+				}
+				else	// To account for rounding error which can leave us one short of the list length
+				{
+					plantTaskLists[i] = plantList.subList(start,plantList.size());
+				}
+				
+				
 			}
 		}
 		else // Drop to single threaded if the list is small
@@ -335,7 +345,14 @@ public class BarrierManager extends Thread
 				
 				//System.out.println("Start : " + start);
 				//System.out.println("End : " + end);
-				agentTaskLists[i] = agentList.subList(start,end);
+				if(i != (numThreads -1))
+				{
+					agentTaskLists[i] = agentList.subList(start,end);
+				}
+				else	// To account for rounding error which can leave us one short of the list length
+				{
+					agentTaskLists[i] = agentList.subList(start,agentList.size());
+				}
 			}
 		}
 		else // Drop to single threaded if the list is small
