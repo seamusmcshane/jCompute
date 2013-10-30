@@ -67,7 +67,7 @@ public class StatsPanel extends JPanel
 
 	/* Graph Samples - 15 sps * 60 seconds = 900 samples for a minute etc.. */
 	//private static int samplePeriod = 60;
-	private static int sampleNum = 10000; // 9000 = 10 mins real-time (15sps) - Set by combox default
+	private static int sampleNum = 6000; // 9000 = 10 mins real-time (15sps) - Set by combox default
 
 	/* Prevents access to the arrays when being regenerated */
 	private static Semaphore sampleLock = new Semaphore(1);
