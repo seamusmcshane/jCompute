@@ -296,6 +296,7 @@ public class SimulationGUI
 		lblRunTimeNo.setHorizontalAlignment(SwingConstants.CENTER);
 		simRateSlider = new JSlider();
 		simRateSlider.setPaintTicks(true);
+		simRateSlider.setPreferredSize(new Dimension(25,20));  
 		GridBagConstraints gbc_simRateSlider = new GridBagConstraints();
 		gbc_simRateSlider.fill = GridBagConstraints.BOTH;
 		gbc_simRateSlider.insets = new Insets(0, 0, 5, 0);
