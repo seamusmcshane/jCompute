@@ -56,7 +56,6 @@ import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import java.beans.PropertyChangeListener;
@@ -142,7 +141,6 @@ public class SimulationGUI
 
 	/* Prevent over clicking the generate button */
 	private static boolean generatingSim = false;
-	private static JSplitPane splitPane;
 	private static JPanel controlPanel;
 
 	/* Logic */
@@ -165,8 +163,8 @@ public class SimulationGUI
 		setUpSimulation();
 
 		/* Need sim ready before we can add the view */
-		splitPane.setRightComponent(SimulationView.displayView(sim, gui.getWidth() - statsPanelWidth, gui.getHeight()));
-
+		gui.getContentPane().add(SimulationView.displayView(sim, gui.getWidth() - statsPanelWidth, gui.getHeight()), BorderLayout.CENTER);
+		
 		setUpToolTips();
 
 		// have a simulation ready to go...
@@ -496,20 +494,8 @@ public class SimulationGUI
 		gui.setBounds(0, 0, screenWidthMin, screenHeightMin);
 
 		gui.getContentPane().setLayout(new BorderLayout(0, 0));
-		
-		/* Add the Split Pane */
-		splitPane = new JSplitPane();
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setBackground(Color.BLACK);
-		splitPane.setContinuousLayout(true);
-		splitPane.setDividerSize(10);
-		splitPane.setBorder(null);
-		
-		gui.getContentPane().add(splitPane, BorderLayout.CENTER);
-
-		splitPane.setLeftComponent(controlPanel);
-
-		/* Add the Stats Panel */
+				
+		gui.getContentPane().add(controlPanel, BorderLayout.WEST);		/* Add the Stats Panel */
 		statsPanel = new StatsPanel();
 		controlPanel.add(statsPanel, BorderLayout.CENTER);
 
@@ -551,16 +537,7 @@ public class SimulationGUI
 				SimulationView.setSize(gui.getWidth() - statsPanel.getWidth(), gui.getHeight());
 			}
 		});
-		
-		/* Split pane division changed */
-		splitPane.addPropertyChangeListener(new PropertyChangeListener()
-		{
-			public void propertyChange(PropertyChangeEvent changeEvent)
-			{
-				SimulationView.setSize(gui.getWidth() - statsPanel.getWidth(), gui.getHeight());
 			}
-		});
-	}
 	
 	private static void setUpMenu()
 	{
