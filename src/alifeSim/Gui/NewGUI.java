@@ -53,8 +53,13 @@ public class NewGUI
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmOpenScenario = new JMenuItem("OpenScenario");
-		mnFile.add(mntmOpenScenario);
+		JMenuItem mntmAddSimulation = new JMenuItem("Add Simulation");
+		mntmAddSimulation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				simTabs.addTab();
+			}
+		});
+		mnFile.add(mntmAddSimulation);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
@@ -81,19 +86,6 @@ public class NewGUI
 		splitPane.setLeftComponent(simTabs);
 		
 		splitPane.setRightComponent(SimulationView.displayView(null, guiFrame.getWidth() , guiFrame.getHeight()));
-		
-		JToolBar mainToolBar = new JToolBar();
-		mainToolBar.setFloatable(false);
-		containerPanel.add(mainToolBar, BorderLayout.NORTH);
-		
-		JButton btnNewButton = new JButton("Open Scenario");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) 
-			{
-				simTabs.addTab();
-			}
-		});
-		mainToolBar.add(btnNewButton);
 		//guiFrame.getContentPane().add(SimulationView.displayView(null, guiFrame.getWidth() , guiFrame.getHeight()),BorderLayout.CENTER);
 		
 		//guiFrame.getContentPane().add(SimulationView.displayView(sim, gui.getWidth() - statsPanelWidth, gui.getHeight()), BorderLayout.CENTER);
