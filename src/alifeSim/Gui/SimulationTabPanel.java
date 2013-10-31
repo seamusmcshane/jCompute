@@ -47,7 +47,6 @@ public class SimulationTabPanel extends JPanel
 	public SimulationTabPanel()
 	{
 		setLayout(new BorderLayout(0, 0));
-
 		JTabbedPane simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
 		add(simulationTabPane, BorderLayout.CENTER);
 
@@ -201,7 +200,7 @@ public class SimulationTabPanel extends JPanel
 		scenarioPanel.setLayout(new BorderLayout(0, 0));
 
 		JPanel scenarioOpenPanel = new JPanel();
-		scenarioPanel.add(scenarioOpenPanel, BorderLayout.NORTH);
+		scenarioPanel.add(scenarioOpenPanel, BorderLayout.SOUTH);
 		GridBagLayout gbl_scenarioOpenPanel = new GridBagLayout();
 		gbl_scenarioOpenPanel.rowHeights = new int[]
 		{0};
@@ -294,9 +293,6 @@ public class SimulationTabPanel extends JPanel
 		JPanel scenarioFilePanel = new JPanel();
 		scenarioPanel.add(scenarioFilePanel, BorderLayout.CENTER);
 		scenarioFilePanel.setLayout(new BorderLayout(0, 0));
-
-		JCheckBox chckbxEditMode = new JCheckBox("EditMode");
-		scenarioFilePanel.add(chckbxEditMode, BorderLayout.NORTH);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -310,12 +306,15 @@ public class SimulationTabPanel extends JPanel
 		scenarioEditor.setEditable(false);
 		scrollPane.setViewportView(scenarioEditor);
 		
-		JPanel filePath = new JPanel();
-		scrollPane.setColumnHeaderView(filePath);
-		filePath.setLayout(new BorderLayout(0, 0));
+		JPanel filePanel = new JPanel();
+		scrollPane.setColumnHeaderView(filePanel);
+		filePanel.setLayout(new BorderLayout(0, 0));
 		
 		lblFilePath = new JLabel("No File");
-		filePath.add(lblFilePath);
+		filePanel.add(lblFilePath);
+		
+				JCheckBox chckbxEditMode = new JCheckBox("EditMode");
+				filePanel.add(chckbxEditMode, BorderLayout.EAST);
 
 		JTabbedPane simulationGraph = new JTabbedPane(JTabbedPane.TOP);
 		simulationTabPane.addTab("Graph", null, simulationGraph, null);

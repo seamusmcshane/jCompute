@@ -44,7 +44,7 @@ public class NewGUI
 	{
 		/* Frame */
 		guiFrame = new JFrame();
-		guiFrame.setMinimumSize(new Dimension(1300,800));
+		guiFrame.setMinimumSize(new Dimension(800,600));
 		
 		/* Menu Bar */
 		JMenuBar menuBar = new JMenuBar();
