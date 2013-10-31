@@ -209,7 +209,11 @@ public class SimulationView extends BasicGame implements MouseListener
 		/* Move the entire world to simulate a view moving around */
 		g.translate(globalTranslate.getX(), globalTranslate.getY());
 
-		sim.drawSim(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
+		// to allow switching the Simulation to draw, this will need to be locked
+		if(sim!=null)
+		{
+			sim.drawSim(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
+		}
 		
 	}
 
@@ -353,6 +357,11 @@ public class SimulationView extends BasicGame implements MouseListener
 		return null;
 	}
 
+	public static void setSim(Simulation simIn)
+	{
+		sim = simIn;
+	}
+	
 	public static void startView()
 	{
 		try

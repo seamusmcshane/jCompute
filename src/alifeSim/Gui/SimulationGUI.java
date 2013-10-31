@@ -160,10 +160,8 @@ public class SimulationGUI
 
 		setUpFrame();
 
-		setUpSimulation();
-
 		/* Need sim ready before we can add the view */
-		gui.getContentPane().add(SimulationView.displayView(sim, gui.getWidth() - statsPanelWidth, gui.getHeight()), BorderLayout.CENTER);
+		gui.getContentPane().add(SimulationView.displayView(null, gui.getWidth() - statsPanelWidth, gui.getHeight()), BorderLayout.CENTER);
 		
 		setUpToolTips();
 
@@ -415,19 +413,22 @@ public class SimulationGUI
 		});
 	}
 
-	private static void setUpSimulation()
-	{
-		sim = new Simulation();
-	}
-
 	private static void newSim()
 	{
 
 		System.out.println("New Simulation");
 
 		/* Cleans up the old simulation threads */
-		sim.destroySim();
+		if(sim !=null)
+		{
+			sim.destroySim();
+		}
 
+		sim = new Simulation();
+		
+		/* Set the sim ref for the view to draw the correct simulation */
+		SimulationView.setSim(sim);
+		
 		if (simScenario == null)
 		{
 			determinScenarios(new File("scenarios/default.txt"));
@@ -509,7 +510,7 @@ public class SimulationGUI
 		gui.setVisible(true);
 		gui.setExtendedState(Frame.MAXIMIZED_BOTH);
 
-		/* Add the listenrers */
+		/* Add the listeners */
 		addGUIListeners();
 
 		// We are now in the start up state
