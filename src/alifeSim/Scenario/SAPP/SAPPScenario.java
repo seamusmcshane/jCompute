@@ -6,12 +6,13 @@ import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Scenario.ScenarioVT;
+import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.World.WorldSetupSettings;
 
 public class SAPPScenario extends ScenarioVT
 {	
 	
-	public SAPPSimulationManager simManager;
+	public SimulationManagerInf simManager;
 	
 	/** World Settings */
 	public WorldSetupSettings worldSettings;
@@ -122,6 +123,12 @@ public class SAPPScenario extends ScenarioVT
 		worldSettings.setBarrierMode(super.getIntValue(section,"Barriers"));
 		
 		worldSettings.setBarrierScenario(super.getIntValue(section,"BarrierScenario"));
+	}
+	
+	public SimulationManagerInf getSimManager()
+	{
+		return simManager;
+		
 	}
 	
 }
