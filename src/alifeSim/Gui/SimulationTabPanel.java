@@ -32,17 +32,34 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
+
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
+
 import java.awt.Font;
+
 import javax.swing.UIManager;
 
-public class SimulationTabPanel extends JPanel
+import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.ScenarioVT;
+import alifeSim.Scenario.Debug.DebugScenario;
+import alifeSim.Scenario.SAPP.SAPPScenario;
+
+public class SimulationTabPanel extends JPanel implements ActionListener
 {
+	private static final long serialVersionUID = 5391587818992199457L;
+	
 	JEditorPane scenarioEditor;
 	JLabel lblFilePath;
+	JButton btnOpen;
+	JButton btnSave;
+	JButton btnClose;
+	JButton btnGenerate;
+	File scenarioFile;
+	boolean scenarioSelected=false;
 	
 	public SimulationTabPanel()
 	{
@@ -166,15 +183,16 @@ public class SimulationTabPanel extends JPanel
 		gbc_slider.gridy = 2;
 		controlPanel.add(slider, gbc_slider);
 
-		JButton button = new JButton("Generate");
-		button.setToolTipText("Generate a new simuation based on the values of the parameters.");
-		button.setEnabled(true);
-		GridBagConstraints gbc_button = new GridBagConstraints();
-		gbc_button.fill = GridBagConstraints.BOTH;
-		gbc_button.insets = new Insets(0, 0, 0, 5);
-		gbc_button.gridx = 0;
-		gbc_button.gridy = 3;
-		controlPanel.add(button, gbc_button);
+		btnGenerate = new JButton("Generate");
+		btnGenerate.addActionListener(this);
+		btnGenerate.setToolTipText("Generate a new simuation based on the values of the parameters.");
+		btnGenerate.setEnabled(true);
+		GridBagConstraints gbc_btnGenerate = new GridBagConstraints();
+		gbc_btnGenerate.fill = GridBagConstraints.BOTH;
+		gbc_btnGenerate.insets = new Insets(0, 0, 0, 5);
+		gbc_btnGenerate.gridx = 0;
+		gbc_btnGenerate.gridy = 3;
+		controlPanel.add(btnGenerate, gbc_btnGenerate);
 
 		JButton button_1 = new JButton("Start");
 		button_1.setToolTipText("Start the simulation.");
@@ -212,62 +230,8 @@ public class SimulationTabPanel extends JPanel
 		{1.0};
 		scenarioOpenPanel.setLayout(gbl_scenarioOpenPanel);
 
-		JButton btnOpen = new JButton("Open");
-		btnOpen.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-
-				final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
-
-				int val = filechooser.showOpenDialog(filechooser);
-
-				if (val == JFileChooser.APPROVE_OPTION)
-				{
-					// System.out.println("Get File");
-					File file = filechooser.getSelectedFile();
-					// determinScenarios(file);
-
-					/*
-					 * if (!sim.simPaused()) { simPausedState(); } // Not
-					 * already generating Sim if (!generatingSim) {
-					 * generatingSim = true;
-					 * 
-					 * // Create the new Simulation newSim();
-					 * 
-					 * generatingSim = false;
-					 * 
-					 * }
-					 */
-
-					StringBuilder text = new StringBuilder();
-					String NL = System.getProperty("line.separator");
-					Scanner scanner;
-					try
-					{
-						scanner = new Scanner(new FileInputStream(file));
-
-						while (scanner.hasNextLine())
-						{
-							text.append(scanner.nextLine() + NL);
-						}
-
-						scanner.close();
-					}
-					catch (FileNotFoundException e1)
-					{
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-
-					lblFilePath.setText(file.getAbsolutePath());
-					scenarioEditor.setText(text.toString());
-
-				}
-
-			}
-
-		});
+		btnOpen = new JButton("Open");
+		btnOpen.addActionListener(this);
 		GridBagConstraints gbc_btnOpen = new GridBagConstraints();
 		gbc_btnOpen.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnOpen.insets = new Insets(0, 0, 0, 5);
@@ -275,7 +239,8 @@ public class SimulationTabPanel extends JPanel
 		gbc_btnOpen.gridy = 0;
 		scenarioOpenPanel.add(btnOpen, gbc_btnOpen);
 
-		JButton btnSave = new JButton("Save");
+		btnSave = new JButton("Save");
+		btnSave.addActionListener(this);
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnSave.insets = new Insets(0, 0, 0, 5);
@@ -283,7 +248,8 @@ public class SimulationTabPanel extends JPanel
 		gbc_btnSave.gridy = 0;
 		scenarioOpenPanel.add(btnSave, gbc_btnSave);
 
-		JButton btnClose = new JButton("Close");
+		btnClose = new JButton("Close");
+		btnClose.addActionListener(this);
 		GridBagConstraints gbc_btnClose = new GridBagConstraints();
 		gbc_btnClose.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnClose.gridx = 2;
@@ -319,6 +285,89 @@ public class SimulationTabPanel extends JPanel
 		JTabbedPane simulationGraph = new JTabbedPane(JTabbedPane.TOP);
 		simulationTabPane.addTab("Graph", null, simulationGraph, null);
 	}
-	private static final long serialVersionUID = 5391587818992199457L;
+	
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		// Open Scenario
+		if(e.getSource() == btnOpen )
+		{
+			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+
+			int val = filechooser.showOpenDialog(filechooser);
+
+			if (val == JFileChooser.APPROVE_OPTION)
+			{
+				scenarioFile = filechooser.getSelectedFile();
+				try
+				{
+					/*
+					 * if (!sim.simPaused()) { simPausedState(); } // Not
+					 * already generating Sim if (!generatingSim) {
+					 * generatingSim = true;
+					 * 
+					 * // Create the new Simulation newSim();
+					 * 
+					 * generatingSim = false;
+					 * 
+					 * }
+					 */
+					
+					lblFilePath.setText(scenarioFile.getAbsolutePath());
+					scenarioEditor.setPage(scenarioFile.toURI().toURL());
+					
+					scenarioSelected = true;
+					
+				}
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+
+		}
+		else if(e.getSource() == btnGenerate)
+		{
+			if(scenarioSelected)
+			{
+				determinScenarios(scenarioFile);
+			}
+		}
+		else
+		{
+			System.out.println("Button " + ((JButton)e.getSource()).getText() + " Not Implemented");
+		}
+		
+	}
+	
+	private ScenarioInf determinScenarios(File file)
+	{
+		ScenarioVT scenarioParser = new ScenarioVT(file);
+		ScenarioInf simScenario = null;
+		
+		System.out.println(scenarioParser.getScenarioType());
+
+		if (scenarioParser.getScenarioType().equals("DEBUG"))
+		{
+			System.out.println("Debug File");
+			simScenario = new DebugScenario(file);
+		}
+		else
+		{
+			if (scenarioParser.getScenarioType().equals("SAPP"))
+			{
+				System.out.println("SAPP File");
+				simScenario = new SAPPScenario(file);
+			}
+			else
+			{
+				System.out.println("UKNOWN");
+			}
+		}
+	
+		return simScenario;
+	}
 
 }
