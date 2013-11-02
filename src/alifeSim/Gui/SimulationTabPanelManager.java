@@ -3,6 +3,8 @@ package alifeSim.Gui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -12,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class SimulationTabPanelManager extends JTabbedPane implements MouseListener, ActionListener
 {
@@ -43,6 +47,22 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 		this.add(addPanel);
 		this.setTitleAt(this.getTabCount()-1, " + ");
 		
+		// This makes the last tab act as a button, that adds tabs.
+		this.addChangeListener(new ChangeListener(){
+
+			@Override
+			public void stateChanged(ChangeEvent e)
+			{
+				if( getSelectedComponent() == addPanel)
+				{
+					// Unselect us asap or we will get called again.
+					setSelectedIndex(0);
+					// call the add tab functionality and we are done.
+					addTab();
+				}
+			}
+		});
+
 		tabPopUpMenu  = new JPopupMenu();
 		this.addMouseListener(this);
 	}	
@@ -57,16 +77,10 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			{
 				if(simulationTabs[i] == null)
 				{
-					
-					this.remove(addPanel);
-					
 					simulationTabs[i] = new SimulationTabPanel();	
-					this.add(simulationTabs[i]);
-					
-					this.setTitleAt(this.getTabCount()-1, "Simulation " + (launchCount+1));
+					this.add(simulationTabs[i],this.getTabCount()-1);
+					this.setTitleAt(this.getTabCount()-2, "Simulation " + (launchCount+1));
 
-					this.add(addPanel);
-					this.setTitleAt(this.getTabCount()-1, " + ");
 					
 					this.setSelectedComponent(simulationTabs[i]);
 					
@@ -76,6 +90,10 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					break;
 				}
 			}
+		}
+		else
+		{
+			System.out.println("Cannot Add more Simulations - Max Concurrent Simulation Limit Reached");
 		}
 
 		return added;
@@ -124,6 +142,9 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 	@Override
 	public void mouseClicked(MouseEvent e)
 	{		
+		
+		//System.out.println("Clicked");
+		
 		if((e.getButton() == 3))
 		{
 			for(int i=0;i<maxTabs;i++)
@@ -135,15 +156,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					System.out.println(" " + selectedTabIndex);
 					showPopUP(e);
 				}
-			}
-		}
-		
-		if((e.getButton() == 1))
-		{
-			if(this.getSelectedComponent() == addPanel)
-			{
-				//System.out.println("Add");
-				this.addTab();
 			}
 		}
 		
@@ -180,8 +192,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		removeTab();
-		
+		removeTab();		
 	}
 
 }
