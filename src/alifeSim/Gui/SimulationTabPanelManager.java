@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
@@ -21,6 +22,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 	private int launchCount = 0;
 	
 	private SimulationInfoTabPanel simulationInfoTab;	
+	private JPanel addPanel = new JPanel();
 	private SimulationTabPanel simulationTabs[];
 	private JPopupMenu tabPopUpMenu;
 	private JMenuItem menuItem;
@@ -38,6 +40,9 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 		this.add(simulationInfoTab);
 		this.setTitleAt(this.getTabCount()-1, "Status Info");
 		
+		this.add(addPanel);
+		this.setTitleAt(this.getTabCount()-1, " + ");
+		
 		tabPopUpMenu  = new JPopupMenu();
 		this.addMouseListener(this);
 	}	
@@ -52,10 +57,19 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			{
 				if(simulationTabs[i] == null)
 				{
+					
+					this.remove(addPanel);
+					
 					simulationTabs[i] = new SimulationTabPanel();	
 					this.add(simulationTabs[i]);
 					
 					this.setTitleAt(this.getTabCount()-1, "Simulation " + (launchCount+1));
+
+					this.add(addPanel);
+					this.setTitleAt(this.getTabCount()-1, " + ");
+					
+					this.setSelectedComponent(simulationTabs[i]);
+					
 					added =true;
 					launchCount++;
 					tabCount++;
@@ -121,6 +135,15 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					System.out.println(" " + selectedTabIndex);
 					showPopUP(e);
 				}
+			}
+		}
+		
+		if((e.getButton() == 1))
+		{
+			if(this.getSelectedComponent() == addPanel)
+			{
+				//System.out.println("Add");
+				this.addTab();
 			}
 		}
 		
