@@ -53,13 +53,13 @@ public class NewGUI
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmAddSimulation = new JMenuItem("Add Simulation");
-		mntmAddSimulation.addActionListener(new ActionListener() {
+		JMenuItem mntmQuit = new JMenuItem("Quit");
+		mntmQuit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				simTabs.addTab();
+				doProgramExit();
 			}
 		});
-		mnFile.add(mntmAddSimulation);
+		mnFile.add(mntmQuit);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
