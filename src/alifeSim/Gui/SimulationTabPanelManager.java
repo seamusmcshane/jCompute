@@ -62,6 +62,12 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				}
 				else
 				{
+					if(simulationInfoTab == getSelectedComponent())
+					{
+						SimulationView.setSim(null);
+						
+					}
+					
 					for(int i=0;i<maxTabs;i++)
 					{
 						if(simulationTabs[i] == getSelectedComponent())
@@ -69,9 +75,9 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 							SimulationView.setSim(simulationTabs[i].getSimualtion());
 							
 							SimulationView.setVisible(true);
-							
-							System.out.println("Simualtion View Changed");
-						}
+														
+							break;
+						}					
 					}
 					
 					
@@ -133,10 +139,11 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 
 		if (value == JOptionPane.YES_OPTION)
 		{
+			this.setSelectedIndex(0);
 			this.remove(simulationTabs[selectedTabIndex]);
 			simulationTabs[selectedTabIndex] = null;	
 			tabCount--;
-			this.setSelectedIndex(0);
+			
 		}
 		
 	}
