@@ -220,13 +220,13 @@ public class SimpleAgentManager
 				 * Optimization - draw correct circular bodies or faster
 				 * rectangular bodies
 				 */
-				if (simpleDrawing)
+				if(simpleDrawing)
 				{
-					tAgentDrawAI.body.drawTrueBody(g);
+					tAgentDrawAI.body.drawRectBody(g);
 				}
 				else
 				{
-					tAgentDrawAI.body.drawRectBody(g);
+					tAgentDrawAI.body.drawTrueBody(g);
 				}
 				
 				if (viewRangeDrawing)
