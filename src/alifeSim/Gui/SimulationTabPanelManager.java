@@ -60,6 +60,22 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					// call the add tab functionality and we are done.
 					addTab();
 				}
+				else
+				{
+					for(int i=0;i<maxTabs;i++)
+					{
+						if(simulationTabs[i] == getSelectedComponent())
+						{
+							SimulationView.setSim(simulationTabs[i].getSimualtion());
+							
+							SimulationView.setVisible(true);
+							
+							System.out.println("Simualtion View Changed");
+						}
+					}
+					
+					
+				}
 			}
 		});
 
@@ -81,7 +97,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					this.add(simulationTabs[i],this.getTabCount()-1);
 					this.setTitleAt(this.getTabCount()-2, "Simulation " + (launchCount+1));
 
-					
 					this.setSelectedComponent(simulationTabs[i]);
 					
 					added =true;
