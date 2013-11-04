@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import org.lwjgl.LWJGLUtil; 
 
 import java.io.File; 
+import java.util.concurrent.Semaphore;
+
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
@@ -27,46 +29,47 @@ import alifeSim.Simulation.Simulation;
 public class SimulationView extends BasicGame implements MouseListener
 {
 	/** OpenGl Canvas */
-	static CanvasGameContainer simView;
+	private static CanvasGameContainer simView;
 
 	/** OpenGL Canvas Size */
-	static int worldViewWidth=1024;
-	static int worldViewHeight=1024;
+	private static int worldViewWidth=1024;
+	private static int worldViewHeight=1024;
 	
-	final static int lowFrameRate = 15;
-	final static int highFrameRate = 60;
+	private final static int lowFrameRate = 15;
+	private final static int highFrameRate = 60;
 
 	/** Default Graphic frame rate control */
-	final static int defaultFrameRate = highFrameRate; // Frame rate starts up set at this
+	private final static int defaultFrameRate = highFrameRate; // Frame rate starts up set at this
 
-	final static int frameRateGuiInteractionOff = lowFrameRate;
-	final static int frameRateGuiInteractionOn = highFrameRate;
+	private final static int frameRateGuiInteractionOff = lowFrameRate;
+	private final static int frameRateGuiInteractionOn = highFrameRate;
 
 	/** Allows fixing the update rate at the mouseInteraction rate **/
 	private static boolean highUpdateRate = true;
 
 	/** Simulation Reference */
-	static Simulation sim;
+	private static Simulation sim;
+	private static Semaphore viewLock = new Semaphore(1);
 
 	/** Is Simulation view drawing enabled */
-	static boolean drawSim = false;
+	private static boolean drawSim = false;
 
 	/** Draw true circular bodies or faster rectangular ones */
-	static boolean simpleDrawing = true;
+	private static boolean simpleDrawing = true;
 
 	/** Draw the View range of the agents */
-	static boolean viewRangeDrawing = false;
+	private static boolean viewRangeDrawing = false;
 
 	/** Draw Views */
-	static boolean viewsDrawing = false;
+	private static boolean viewsDrawing = false;
 	/**
 	 * This locks the frame rate to the following rate allowing more time
 	 * to be used for simulation threads.
 	 */
-	boolean frameCap = true;
+	private boolean frameCap = true;
 
 	/** Frame rate should be greater than or equal to refresh rate if used */
-	static boolean vsyncToggle = false;
+	private static boolean vsyncToggle = false;
 
 	/** Simulation Performance Indicators */
 	private int frameNum = 0;
@@ -78,7 +81,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	public Vector2f mousePos = new Vector2f(0, 0);
 
 	/** Stores the camera margin */
-	static int cameraMargin = 0;
+	private static int cameraMargin = 0;
 
 	/** Camera View Size */
 	public static Rectangle cameraBound;
@@ -168,7 +171,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-			
+		
 		if (drawSim)
 		{
 			/*
@@ -212,7 +215,9 @@ public class SimulationView extends BasicGame implements MouseListener
 		// to allow switching the Simulation to draw, this will need to be locked
 		if(sim!=null)
 		{
+			viewLock.acquireUninterruptibly();
 			sim.drawSim(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
+			viewLock.release();
 		}
 		
 	}
@@ -310,7 +315,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	public static Component displayView(Simulation simIn,int width,int height)
 	{
-		sim = simIn;
+		setSim(simIn);
 
 		try
 		{
@@ -359,7 +364,9 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	public static void setSim(Simulation simIn)
 	{
+		viewLock.acquireUninterruptibly();
 		sim = simIn;
+		viewLock.release();
 	}
 	
 	public static void startView()
@@ -483,11 +490,11 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param x int
 	 * @param y int
 	 */
-	public static void setInitalViewTranslate(int viewWidth, int viewHeight)
+	/*public static void setInitalViewTranslate(int viewWidth, int viewHeight)
 	{
 		int worldSize = sim.simManager.getWorldSize();		
 		globalTranslate.set((viewWidth / 2) - ((worldSize) / 2), (viewHeight / 2) - ((worldSize) / 2));		
-	}
+	}*/
 	
 	/* Parent Frame Size Change */
 	public static void setSize(int width,int height)
