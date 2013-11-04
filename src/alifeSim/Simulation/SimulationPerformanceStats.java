@@ -80,7 +80,7 @@ public class SimulationPerformanceStats
 		}
 	}
 
-	public void simStatsDisplay()
+	/*public void simStatsDisplay()
 	{
 		if(simulationSteps%15 == 0)
 		{
@@ -90,7 +90,7 @@ public class SimulationPerformanceStats
 			SimulationGUI.setTime(stepTotalTime);
 		}
 		StatsPanel.updateGraphs(simulationSteps);
-	}
+	}*/
 	
 	/**
 	 * Initializes the average steps per second counters
