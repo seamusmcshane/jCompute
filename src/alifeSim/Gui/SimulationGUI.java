@@ -537,10 +537,10 @@ public class SimulationGUI
 			@Override
 			public void componentResized(ComponentEvent e)
 			{
-				SimulationView.setSize(gui.getWidth() - statsPanel.getWidth(), gui.getHeight());
+				SimulationView. updateCameraBound();
 			}
 		});
-			}
+	}
 	
 	private static void setUpMenu()
 	{

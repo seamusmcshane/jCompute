@@ -14,22 +14,28 @@ import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
-
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 public class NewGUI 
 {
 	private static JFrame guiFrame;
 	private static SimulationTabPanelManager simTabs;
+	private static JSplitPane splitPane;
 	
 	public static void main(String args[])
 	{
@@ -73,7 +79,7 @@ public class NewGUI
 		containerPanel.setLayout(new BorderLayout(0, 0));
 		
 		/* Split Pane */
-		JSplitPane splitPane = new JSplitPane();
+		splitPane = new JSplitPane();
 		containerPanel.add(splitPane);
 		splitPane.setDividerSize(10);
 		splitPane.setDoubleBuffered(true);
@@ -110,6 +116,22 @@ public class NewGUI
 			}
 
 		});
+		
+		guiFrame.addComponentListener(new ComponentAdapter()
+		{
+			@Override
+			public void componentResized(ComponentEvent e)
+			{
+				SimulationView.updateCameraBound();
+			}
+		});
+		
+		splitPane.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				SimulationView.updateCameraBound();
+			}
+		});
+		
 	}
 	
 	/* Ensure the user wants to exit then exit the program */

@@ -32,8 +32,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	private static CanvasGameContainer simView;
 
 	/** OpenGL Canvas Size */
-	private static int worldViewWidth=1024;
-	private static int worldViewHeight=1024;
+	private static int panelWidth=1024;
+	private static int panelHeight=1024;
 	
 	private final static int lowFrameRate = 15;
 	private final static int highFrameRate = 60;
@@ -99,8 +99,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	public SimulationView(int pannelWidth,int pannelHeight)
 	{
 		super("Simulation View");
-		this.worldViewWidth = pannelWidth;
-		this.worldViewHeight = pannelHeight;
+		this.panelWidth = pannelWidth;
+		this.panelHeight = pannelHeight;
 		
 		globalTranslate.set(25,25);
 		
@@ -292,19 +292,6 @@ public class SimulationView extends BasicGame implements MouseListener
 		Display.destroy();
 	}
 
-	/** Setup Window
-	 * @param xin int
-	 * @param yin int
-	 * @param width int
-	 * @param height int
-	 */
-	private static void setViewDimesions(int width, int height)
-	{
-		/* Size */
-		worldViewWidth = width;
-		worldViewHeight = height;
-	}
-
 	/* Main Entry Point for View */
 	/**
 	 * @param simIn Simulation
@@ -350,7 +337,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			
 			simView.setMinimumSize(new Dimension(320,240));
 
-			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
+			cameraBound = new Rectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
 			
 			return simView;
 
@@ -497,20 +484,13 @@ public class SimulationView extends BasicGame implements MouseListener
 	}*/
 	
 	/* Parent Frame Size Change */
-	public static void setSize(int width,int height)
-	{
-			if( (width|height) < 512 )
-			{
-				width=1024;
-				height=1024;
-			}		
-		
-			/*System.out.println("View Width  :" + worldViewWidth);
-			System.out.println("View Height :" + worldViewHeight);*/
-			//setInitalViewTranslate(width,height);
-			setViewDimesions(width,height);	
+	public static void updateCameraBound()
+	{	
 
-			cameraBound = new Rectangle(cameraMargin, cameraMargin, worldViewWidth - (cameraMargin * 2), worldViewHeight - (cameraMargin * 2));
+			panelWidth = simView.getContainer().getWidth();
+			panelHeight = simView.getContainer().getHeight();
+			
+			cameraBound = new Rectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
 	}
 	
 }
