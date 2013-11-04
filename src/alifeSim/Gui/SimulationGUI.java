@@ -170,6 +170,7 @@ public class SimulationGUI
 		
 		/* Allow view to start */
 		SimulationView.startView();
+		SimulationView.setVisible(true);
 		
 		/* Enable Drawing */
 		chckbxmntmDisplayView.setSelected(true);
@@ -434,7 +435,7 @@ public class SimulationGUI
 			determinScenarios(new File("scenarios/default.txt"));
 		}
 
-		sim.createSim(statsPanel, simScenario);
+		sim.createSim(simScenario);
 
 		/*
 		 * If needed the GC can free old objects now, before the simulation
