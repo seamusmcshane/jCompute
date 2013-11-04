@@ -11,25 +11,25 @@ import org.newdawn.slick.geom.Rectangle;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class World
+public class World implements WorldInf
 {
 	/* The world grid background */
-	WorldGrid grid;
+	private WorldGrid grid;
 
 	/** The world boundary */
-	Rectangle worldBound;
+	private Rectangle worldBound;
 
 	/** The size of the world */
-	private static int worldSize;
+	private int worldSize;
 
 	/** The Grid Steps */
-	int gridSteps = 8;
+	private int gridSteps = 8;
 	
-	private static Rectangle[] barriers;
+	private Rectangle[] barriers;
 	
-	private static int barrierMode=0;
+	private int barrierMode=0;
 	
-	private static int barrierScenario=0;
+	private int barrierScenario=0;
 	
 	private float barrierThickness = 0.10f;
 
@@ -39,7 +39,6 @@ public class World
 	 * @param barrierMode int
 	 * @param barrierScenario int
 	 */
-	@SuppressWarnings("static-access")
 	public World(int size, int barrierMode,int barrierScenario)
 	{
 		this.worldSize = size;
@@ -106,11 +105,11 @@ public class World
 	}
 	
 	/**
-	 * Checks if the Coordinate is a World Boundary - Called by agent body
+	 * Checks if the Coordinate is a World Boundary
 	 * @param x
 	 * @param y
 	 * @return boolean */
-	public static boolean isBoundaryWall(float x, float y)
+	private boolean isPointOutSideWorldBoundary(float x, float y)
 	{
 		/* Top */
 		if (y <= 0)
@@ -135,7 +134,14 @@ public class World
 		{
 			return true;
 		}
+		
+		return false;
 
+	}
+	
+	/* Does any of the barriers contain the point */
+	private boolean doBarriersContain(float x,float y)
+	{
 		/* if Barriers are enabled */
 		if(barrierMode>0)
 		{
@@ -147,16 +153,28 @@ public class World
 		}
 		
 		return false;
-
+	}
+	
+	/* Is this positon a valid location */
+	@Override
+	public boolean isInvalidPosition(float x, float y)
+	{
+		return (isPointOutSideWorldBoundary(x,y) ||  doBarriersContain(x,y));
 	}
 
+	@Override
+	public boolean isValidPosition(float x, float y)
+	{
+		return !isInvalidPosition(x,y);
+	}
+	
 	/**
 	 * Method isBarrierWall.
 	 * @param x float
 	 * @param y float
 	 * @return boolean
 	 */
-	private static boolean isBarrierWall(float x, float y)
+	private boolean isBarrierWall(float x, float y)
 	{
 		
 		for(int i=0;i<(barrierScenario+1);i++)
@@ -174,7 +192,7 @@ public class World
 	 * Is this the left or right of the world.
 	 * @param x
 	 * @return boolean */
-	private static boolean checkXBoundary(float x)
+	private boolean checkXBoundary(float x)
 	{
 		/* Left */
 		if (x <= 0)
@@ -194,7 +212,7 @@ public class World
 	 * Is this the top or bottom of this world.
 	 * @param y
 	 * @return boolean */
-	private static boolean checkYBoundary(float y)
+	private boolean checkYBoundary(float y)
 	{
 		/* Left */
 		if (y <= 0)
@@ -241,7 +259,8 @@ public class World
 
 	}
 	
-	public static int getWorldSize()
+	@Override
+	public int getWorldBoundingSquareSize()
 	{
 		return worldSize;
 	}
