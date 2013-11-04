@@ -23,7 +23,7 @@ import alifeSim.Scenario.SAPP.SAPPSimulationManager;
 public class Simulation
 {
 	/* Stats */
-	SimulationPerformanceStats simStats;
+	private SimulationPerformanceStats simStats;
 	
 
 	// Inter-step delay Calculations
@@ -33,10 +33,10 @@ public class Simulation
 	private long stepTimePrev;
 
 	/* The Simulation manager */
-	public SimulationManagerInf simManager;
+	private SimulationManagerInf simManager;
 
 	/* The default simulation update rate */
-	public int reqSps = 15;
+	private int reqSps = 15;
 
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
@@ -53,32 +53,23 @@ public class Simulation
 	
 	public Simulation()
 	{
-		simStats = new SimulationPerformanceStats();
-		simStats.simStatsDisplay();
-		
+		simStats = new SimulationPerformanceStats();		
 		setupThreads();
 
-		createSim(null, null); // Never used - needed for successful startup		
+		createSim(null); // Never used - needed for successful startup		
 	}
 
 	/**
 	 * Method createSim.
 	 */
-	public void createSim(StatsPanel stats, ScenarioInf scenario)
+	public void createSim(ScenarioInf scenario)
 	{
 		if(scenario!=null)
 		{
 			createScenario(scenario);	
 		}		
 		
-		if (stats != null)
-		{
-			StatsPanel.clearStats();
-
-			StatsPanel.updateGraphs(1);
-		}	
 		simStats.clearSimulationStats();
-		simStats.simStatsDisplay();
 	}
 	
 	/*
@@ -190,9 +181,6 @@ public class Simulation
 
 		simStats.setStepEndTime();
 		
-
-		simStats.simStatsDisplay();
-
 		// Allow the simulation to be paused again
 		pause.release();
 	
