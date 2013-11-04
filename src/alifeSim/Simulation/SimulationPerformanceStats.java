@@ -129,7 +129,7 @@ public class SimulationPerformanceStats
 		{
 			tasps += stepSamples[i];				// Total all the steps
 		}
-
+		
 	}
 
 	public void setStepStartTime()

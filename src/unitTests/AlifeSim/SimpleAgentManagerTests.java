@@ -80,7 +80,7 @@ public class SimpleAgentManagerTests
 
 		preyAgentSettings.setStartingEnergy(9);		
 
-		agentManger = new SimpleAgentManager(barrierManager, predatorAgentSettings, preyAgentSettings, worldSettings);
+		agentManger = new SimpleAgentManager(world,barrierManager, predatorAgentSettings, preyAgentSettings);
 
 	}
 

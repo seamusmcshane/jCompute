@@ -33,7 +33,7 @@ public class GenericPlantManagerTests
 	int plantRegenRate = 8;
 	int plantStartingEnergy = 100;
 	int plantEnergyAbsorptionRate = 10;
-
+	int plantRegenerationNSteps = 1;
 	int initalNumber = 100;
 
 	@Before
@@ -47,12 +47,13 @@ public class GenericPlantManagerTests
 		plantSettings= new GenericPlantSetupSettings();
 		
 		plantSettings.setInitialPlantNumbers(initalNumber);
+		plantSettings.setPlantRegenerationNSteps(plantRegenerationNSteps);
 		plantSettings.setPlantEnergyAbsorptionRate(plantEnergyAbsorptionRate);
 		plantSettings.setPlantRegenRate(plantRegenRate);
 		plantSettings.setPlantStartingEnergy(plantStartingEnergy);
 				
 		System.out.println("Create a plant manager.");
-		plantManager = new GenericPlantManager(barrierManager, plantSettings, worldSettings);
+		plantManager = new GenericPlantManager(world,barrierManager, plantSettings);
 	}
 
 	/*

@@ -81,7 +81,7 @@ public class GenericPlantManager
 	 * @param barrierManager BarrierManager
 	 * @param scenario 
 	 */
-	public GenericPlantManager(WorldInf world, BarrierManager barrierManager, GenericPlantSetupSettings plantSettings, SAPPScenario scenario)
+	public GenericPlantManager(WorldInf world, BarrierManager barrierManager, GenericPlantSetupSettings plantSettings)
 	{
 		this.world = world;
 		

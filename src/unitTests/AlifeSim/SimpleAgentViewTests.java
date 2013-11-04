@@ -79,9 +79,9 @@ public class SimpleAgentViewTests
 		/* The Nearest Agent */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 
-		nearestAgent = new SimpleAgent(0, x, y, stats);
+		nearestAgent = new SimpleAgent(null,0, x, y, stats);
 
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 
 		System.out.println("====================================================");
 		System.out.println("----------------------------------------------------");
@@ -101,7 +101,7 @@ public class SimpleAgentViewTests
 		/* The Current Agents Body */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, -1);
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		
 		/* The View of the current agent */
 		view = new SimpleAgentView(currentAgentBody);
@@ -155,7 +155,7 @@ public class SimpleAgentViewTests
 
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, 1);
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		
 		/* The View of the current agent */
 		view = new SimpleAgentView(currentAgentBody);
@@ -172,7 +172,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(-1, 0); // Left
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 90; // Left
 		view.setAgentView(nearestAgent);
 		drawGrid(0, 0, -1, 0);
@@ -185,7 +185,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(1, 0); // Right
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 270; // Right
 		view.setAgentView(nearestAgent);
 		drawGrid(0, 0, 1, 0);
@@ -197,7 +197,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, -1); // we are above
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 180; // Below
 		view.setAgentView(nearestAgent);
 		drawGrid(0, 0, 0, -1);
@@ -225,7 +225,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, 1); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		
 		/* The View of the current agent */
 		view = new SimpleAgentView(currentAgentBody);
@@ -242,7 +242,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(-1, 0); // we are Left
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 270; // away from Right is left
 		view.setAgentView(nearestAgent);
 		drawGrid(0, 0, -1, 0);
@@ -255,7 +255,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(1, 0); // we are Right
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 90; // away from left is right
 		view.setAgentView(nearestAgent);
 		drawGrid(0, 0, 1, 0);
@@ -268,7 +268,7 @@ public class SimpleAgentViewTests
 		 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, 1); // we are Below
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 180; // away from up is down	
 		view.setAgentView(nearestAgent);
 		drawGrid(0, 0, 0, 1);
@@ -288,7 +288,7 @@ public class SimpleAgentViewTests
 		/* The Current Agents Body - below 0,0 */
 		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new Vector2f(0, -1); // Below
-		currentAgentBody = new SimpleAgentBody(bodyPos, stats);
+		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 
 		/* The View of the current agent */
 		view = new SimpleAgentView(currentAgentBody);

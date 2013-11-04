@@ -75,7 +75,7 @@ public class SimpleAgentManager
 	 * @param agentPredatorNumbers
 	 * @param agentSettings
 	 */
-	public SimpleAgentManager(WorldInf world, BarrierManager barrierManager, SimpleAgentSetupSettings predatorAgentSettings,SimpleAgentSetupSettings preyAgentSettings, SAPPScenario scenario)
+	public SimpleAgentManager(WorldInf world, BarrierManager barrierManager, SimpleAgentSetupSettings predatorAgentSettings,SimpleAgentSetupSettings preyAgentSettings)
 	{
 		
 		/* All the intial agent settings are contained in this struct */
@@ -96,7 +96,7 @@ public class SimpleAgentManager
 
 		addAgents(world, predatorAgentSettings.getInitalNumbers(), preyAgentSettings.getInitalNumbers());
 
-		System.out.println("SimpleAgent Manger Setup Complete");
+		System.out.println("SimpleAgent Manager Setup Complete");
 		
 	}
 

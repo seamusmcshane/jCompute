@@ -75,7 +75,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 */
 	private void setUpPlantManager()
 	{
-		genericPlantManager = new GenericPlantManager(world,barrierManager, scenario.plantSettings, scenario);
+		genericPlantManager = new GenericPlantManager(world,barrierManager, scenario.plantSettings);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 */
 	private void setUpAgentManager()
 	{
-		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.predatorAgentSettings,scenario.preyAgentSettings, scenario);
+		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.predatorAgentSettings,scenario.preyAgentSettings);
 	}
 
 	/**

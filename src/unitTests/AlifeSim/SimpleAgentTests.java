@@ -72,7 +72,7 @@ public class SimpleAgentTests
 
 		statsRef = stats;
 
-		testAgent = new SimpleAgent(agentId, x, y, stats);
+		testAgent = new SimpleAgent(null,agentId, x, y, stats);
 
 		stats = null;
 		System.out.println("====================================================");
