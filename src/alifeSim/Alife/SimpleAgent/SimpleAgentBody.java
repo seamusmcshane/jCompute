@@ -9,6 +9,7 @@ import org.newdawn.slick.geom.Vector2f;
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.World.World;
+import alifeSim.World.WorldInf;
 
 /**
  * Agent Body Class
@@ -34,14 +35,17 @@ public class SimpleAgentBody extends AlifeBody
 	/** Direction of movement of the Agent */
 	private float direction;
 
+	private WorldInf world;
+	
 	/**
 	 * Creates a new agents body centered on the pos with the set stats.
 	 * @param pos
 	 * @param stats
 	 */
-	public SimpleAgentBody(Vector2f pos, SimpleAgentStats stats)
+	public SimpleAgentBody(WorldInf world, Vector2f pos, SimpleAgentStats stats)
 	{
-			
+		this.world = world;	
+		
 		this.stats = stats;
 
 		forwardVector = new Vector2f(0, -stats.getMaxSpeed()); /* Forward 1 up */
@@ -72,7 +76,7 @@ public class SimpleAgentBody extends AlifeBody
 		Vector2f newPos = newPosition(requestedDirection);
 
 		/* If physics says yes then move the agent */
-		if (!World.isBoundaryWall(newPos.getX(), newPos.getY()))
+		if (world.isValidPosition(newPos.getX(), newPos.getY()))
 		{
 			//System.out.println("Safe - newPos : X | " + newPos.getX() + " Y |" + newPos.getY());
 
@@ -99,7 +103,7 @@ public class SimpleAgentBody extends AlifeBody
 	{
 		Vector2f newPos = newPosition(reqDirection);
 
-		if (!World.isBoundaryWall(newPos.getX(), newPos.getY()))
+		if (world.isValidPosition(newPos.getX(), newPos.getY()))
 		{
 			return true;
 		}

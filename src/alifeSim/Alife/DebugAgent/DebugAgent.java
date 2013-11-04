@@ -9,6 +9,7 @@ import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
 import alifeSim.World.World;
+import alifeSim.World.WorldInf;
 
 public class DebugAgent
 {
@@ -21,8 +22,12 @@ public class DebugAgent
 	
 	private boolean dirUp = true;
 	
-	public DebugAgent(int auto, int corner,int worldSize)
+	private WorldInf world;
+	
+	public DebugAgent(WorldInf world,int auto, int corner,int worldSize)
 	{
+		this.world = world;
+		
 		this.setAuto(auto);
 		
 		body = new AlifeBody();
@@ -81,14 +86,14 @@ public class DebugAgent
 		{
 			if( dirUp)
 			{
-				if(World.isBoundaryWall((float)pos[0],(float) pos[1]))
+				if(world.isInvalidPosition((float)pos[0],(float) pos[1]))
 				{
 					dirUp=false;
 				}
 			}
 			else
 			{
-				if(World.isBoundaryWall((float)pos[0],(float) pos[1]))
+				if(world.isInvalidPosition((float)pos[0],(float) pos[1]))
 				{
 					dirUp=true;
 				}

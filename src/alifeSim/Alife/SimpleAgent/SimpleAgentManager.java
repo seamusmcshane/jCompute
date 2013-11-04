@@ -10,9 +10,11 @@ import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Gui.StatsPanel;
+import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Stats.Stats;
 import alifeSim.World.World;
+import alifeSim.World.WorldInf;
 import alifeSim.World.WorldSetupSettings;
 
 /**
@@ -61,21 +63,26 @@ public class SimpleAgentManager
 	/** Hard coded Agent Size */
 	float agentSize = 5f;
 
+	private WorldInf world;
+	
 	/**
 	 * Creates am Agent manager.
+	 * @param world 
 	 * @param barrierManager
-	 * @param worldSettings 
+	 * @param scenario 
 	 * @param worldSize
 	 * @param agentPreyNumbers
 	 * @param agentPredatorNumbers
 	 * @param agentSettings
 	 */
-	public SimpleAgentManager(BarrierManager barrierManager, SimpleAgentSetupSettings predatorAgentSettings,SimpleAgentSetupSettings preyAgentSettings, WorldSetupSettings worldSettings)
+	public SimpleAgentManager(WorldInf world, BarrierManager barrierManager, SimpleAgentSetupSettings predatorAgentSettings,SimpleAgentSetupSettings preyAgentSettings, SAPPScenario scenario)
 	{
 		
 		/* All the intial agent settings are contained in this struct */
 		this.predatorAgentSettings =predatorAgentSettings;
 		this.preyAgentSettings = preyAgentSettings;
+		
+		this.world = world;
 		
 		agentCount = 0;
 		agentCountMax = 0;
@@ -87,7 +94,7 @@ public class SimpleAgentManager
 
 		setUpLists();
 
-		addAgents(worldSettings.getWorldSize(), predatorAgentSettings.getInitalNumbers(), preyAgentSettings.getInitalNumbers());
+		addAgents(world, predatorAgentSettings.getInitalNumbers(), preyAgentSettings.getInitalNumbers());
 
 		System.out.println("SimpleAgent Manger Setup Complete");
 		
@@ -99,7 +106,7 @@ public class SimpleAgentManager
 	 * @param agentPreyNumbers
 	 * @param agentPredatorNumbers
 	 */
-	private void addAgents(int worldSize, int agentPredatorNumbers,  int agentPreyNumbers)
+	private void addAgents(WorldInf world, int agentPredatorNumbers,  int agentPreyNumbers)
 	{	
 		/* Random Starting Position */
 		Random xr = new Random();
@@ -110,16 +117,16 @@ public class SimpleAgentManager
 		// Predator
 		for (int i = 0; i < agentPredatorNumbers; i++)
 		{
-			x = xr.nextInt(worldSize) + 1;
-			y = yr.nextInt(worldSize) + 1;
+			x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
+			y = yr.nextInt(world.getWorldBoundingSquareSize()) + 1;
 
-			while(World.isBoundaryWall(x, y))
+			while(world.isInvalidPosition(x, y))
 			{
-				x = xr.nextInt(worldSize) + 1;
-				y = yr.nextInt(worldSize) + 1;				
+				x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
+				y = yr.nextInt(world.getWorldBoundingSquareSize()) + 1;				
 			}			
 											//public SimpleAgentStats(SimpleAgentType type,                  , float maxSpeed,                 float size, float startingEnergy,                      float maxEnergy, float hungryThreshold,              float viewRange,                float baseMoveCost,                   float baseReproductionCost,                 float energyConsumptionRate,               float digestiveEfficency,                       float reproductionEnergyDivision)
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR), predatorAgentSettings.getSpeed(), agentSize, predatorAgentSettings.getStartingEnergy(), 100f, predatorAgentSettings.getHungerThres(), predatorAgentSettings.getViewRange(), predatorAgentSettings.getMoveCost(), predatorAgentSettings.getReproductionCost(), predatorAgentSettings.getConsumptionRate(), predatorAgentSettings.getDigestiveEfficiency(), predatorAgentSettings.getREDiv())));
+			addNewAgent(new SimpleAgent(world,0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREDATOR), predatorAgentSettings.getSpeed(), agentSize, predatorAgentSettings.getStartingEnergy(), 100f, predatorAgentSettings.getHungerThres(), predatorAgentSettings.getViewRange(), predatorAgentSettings.getMoveCost(), predatorAgentSettings.getReproductionCost(), predatorAgentSettings.getConsumptionRate(), predatorAgentSettings.getDigestiveEfficiency(), predatorAgentSettings.getREDiv())));
 
 		}
 		
@@ -127,16 +134,16 @@ public class SimpleAgentManager
 		for (int i = 0; i < agentPreyNumbers; i++)
 		{
 
-			x = xr.nextInt(worldSize) + 1;
-			y = yr.nextInt(worldSize) + 1;
+			x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
+			y = yr.nextInt(world.getWorldBoundingSquareSize()) + 1;
 			
-			while(World.isBoundaryWall(x, y))
+			while(world.isInvalidPosition(x, y))
 			{
-				x = xr.nextInt(worldSize) + 1;
-				y = yr.nextInt(worldSize) + 1;				
+				x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
+				y = yr.nextInt(world.getWorldBoundingSquareSize()) + 1;				
 			}
 
-			addNewAgent(new SimpleAgent(0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY), preyAgentSettings.getSpeed(), agentSize, preyAgentSettings.getStartingEnergy(), 100f, preyAgentSettings.getHungerThres(), preyAgentSettings.getViewRange(), preyAgentSettings.getMoveCost(), preyAgentSettings.getReproductionCost(), preyAgentSettings.getConsumptionRate(), preyAgentSettings.getDigestiveEfficiency(), preyAgentSettings.getREDiv())));
+			addNewAgent(new SimpleAgent(world,0, x, y, new SimpleAgentStats(new SimpleAgentType(AgentType.PREY), preyAgentSettings.getSpeed(), agentSize, preyAgentSettings.getStartingEnergy(), 100f, preyAgentSettings.getHungerThres(), preyAgentSettings.getViewRange(), preyAgentSettings.getMoveCost(), preyAgentSettings.getReproductionCost(), preyAgentSettings.getConsumptionRate(), preyAgentSettings.getDigestiveEfficiency(), preyAgentSettings.getREDiv())));
 
 		}		
 	}
@@ -259,11 +266,6 @@ public class SimpleAgentManager
 	public void stage3()
 	{
 		updateDoneList();
-
-		/* Stats Panel */
-		StatsPanel.setPredNo(predatorCount);
-
-		StatsPanel.setPreyNo(preyCount);
 	}
 
 	/**
@@ -295,7 +297,7 @@ public class SimpleAgentManager
 					 * way of Calculating/Mutating the next generation agent
 					 * stats here.
 					 */
-					addNewAgent(new SimpleAgent(0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), agentSize, temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
+					addNewAgent(new SimpleAgent(world,0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), agentSize, temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
 				}
 
 				// Add to donelist  - agents not added get removed by java.

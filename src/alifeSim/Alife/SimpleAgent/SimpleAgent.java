@@ -1,6 +1,8 @@
 package alifeSim.Alife.SimpleAgent;
 
 import org.newdawn.slick.geom.Vector2f;
+
+import alifeSim.World.WorldInf;
 /**
  * This Class is an instantiation of an Agent.
  * @author Seamus McShane
@@ -24,11 +26,11 @@ public class SimpleAgent
 	 * @param y
 	 * @param stats
 	 */
-	public SimpleAgent(int uid, float x, float y, SimpleAgentStats stats)
+	public SimpleAgent(WorldInf world,int uid, float x, float y,SimpleAgentStats stats)
 	{
 		this.uid = uid;
 
-		addAgentBody(new Vector2f(x, y), stats);
+		addAgentBody(world,new Vector2f(x, y), stats);
 
 		addAgentBrain();
 
@@ -39,9 +41,9 @@ public class SimpleAgent
 	 * @param pos Vector2f
 	 * @param stats SimpleAgentStats
 	 */
-	private void addAgentBody(Vector2f pos, SimpleAgentStats stats)
+	private void addAgentBody(WorldInf world, Vector2f pos, SimpleAgentStats stats)
 	{
-		body = new SimpleAgentBody(pos, stats);
+		body = new SimpleAgentBody(world,pos, stats);
 	}
 
 	/** 

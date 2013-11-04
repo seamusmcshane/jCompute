@@ -9,12 +9,12 @@ import java.util.Random;
 import org.newdawn.slick.Graphics;
 
 import alifeSim.Gui.SimulationView;
-import alifeSim.Gui.StatsPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.World.World;
+import alifeSim.World.WorldInf;
 import alifeSim.World.WorldSetupSettings;
 /**
  * This class manages the plants in the simulation.
@@ -39,7 +39,8 @@ public class GenericPlantManager
 
 	/** The size of the world, needed for correctly placing new plants */
 	private int worldSize;
-
+	private WorldInf world;
+		
 	/** The initial Number of plants */
 	private int initalNumber;
 
@@ -70,6 +71,7 @@ public class GenericPlantManager
 	
 	/**
 	 * Creates a plant manager.
+	 * @param world 
 	 * 	
 	 * @param worldSize
 	 * @param initalNumber
@@ -77,15 +79,17 @@ public class GenericPlantManager
 	 * @param plantStartingEnergy
 	 * @param plantEnergyAbsorptionRate
 	 * @param barrierManager BarrierManager
-	 * @param worldSettings 
+	 * @param scenario 
 	 */
-	public GenericPlantManager(BarrierManager barrierManager, GenericPlantSetupSettings plantSettings, WorldSetupSettings worldSettings)
+	public GenericPlantManager(WorldInf world, BarrierManager barrierManager, GenericPlantSetupSettings plantSettings, SAPPScenario scenario)
 	{
+		this.world = world;
+		
 		this.initalNumber = plantSettings.getInitialPlantNumbers();
 
 		this.barrierManager = barrierManager;
 
-		this.worldSize = worldSettings.getWorldSize();
+		this.worldSize = world.getWorldBoundingSquareSize();
 
 		this.plantRegenRate = plantSettings.getPlantRegenRate();
 
@@ -97,7 +101,7 @@ public class GenericPlantManager
 
 		setUpLists();
 		
-		addPlants(worldSize, initalNumber,true);
+		addPlants(initalNumber,true);
 
 	}
 
@@ -155,11 +159,7 @@ public class GenericPlantManager
 		updateDoneList();
 
 		/* Plant Growth per Step - adds this many plants per step */
-		addPlants(worldSize, plantRegenRate,false);	// log2(512) - +9... log2(1024)+10...
-
-		// Stats Counter
-		StatsPanel.setPlantNo(plantCount);
-
+		addPlants(plantRegenRate,false);	// log2(512) - +9... log2(1024)+10...
 	}
 
 	/** Updates the Done list. 
@@ -204,7 +204,7 @@ public class GenericPlantManager
 	 * @param worldSize int
 	 * @param plantNumber int
 	 */
-	private void addPlants(int worldSize, int plantNumber, boolean initial)
+	private void addPlants(int plantNumber, boolean initial)
 	{
 		add_calls++;
 
@@ -222,7 +222,7 @@ public class GenericPlantManager
 				x = xr.nextInt(worldSize) + 1;
 				y = yr.nextInt(worldSize) + 1;
 
-				while(World.isBoundaryWall(x, y))
+				while(world.isInvalidPosition(x, y))
 				{
 					x = xr.nextInt(worldSize) + 1;
 					y = yr.nextInt(worldSize) + 1;				
