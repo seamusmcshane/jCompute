@@ -410,15 +410,17 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 	private void newSim(File scenario)
 	{
 
-		System.out.println("New Simulation");
+		System.out.println("New Simulation : " + scenario.getAbsolutePath());
 
-		
-		
 		/* Cleans up the old simulation threads */
 		if(sim !=null)
 		{
 			// Pause will get the simulation threads to a safe position, i.e not inside a list.
-			sim.pauseSim();
+			if(!sim.simPaused())
+			{
+				sim.pauseSim();
+			}
+			
 			sim.destroySim();
 		}
 
