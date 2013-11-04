@@ -486,10 +486,11 @@ public class SimulationView extends BasicGame implements MouseListener
 	/* Parent Frame Size Change */
 	public static void updateCameraBound()
 	{	
-
-			panelWidth = simView.getContainer().getWidth();
-			panelHeight = simView.getContainer().getHeight();
-			
+			if(simView!=null)
+			{
+				panelWidth = simView.getContainer().getWidth();
+				panelHeight = simView.getContainer().getHeight();
+			}
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
 	}
 	
