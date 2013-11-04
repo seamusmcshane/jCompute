@@ -227,6 +227,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		btnStartSim.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{
+				sim.reqSimUpdateRate(15);
 				sim.startSim();
 			}
 		});
@@ -423,13 +424,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 
 		sim = new Simulation();
 		
-		
-		//SimulationView.setVisible(true);
-		
 		sim.createSim(determinScenarios(scenario));
-		sim.reqSimUpdateRate(15);
 		SimulationView.setSim(sim);
-		sim.startSim();
 
 		/*
 		 * If needed the GC can free old objects now, before the simulation
