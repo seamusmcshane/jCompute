@@ -81,7 +81,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	public Vector2f mousePos = new Vector2f(0, 0);
 
 	/** Stores the camera margin */
-	private static int cameraMargin = 0;
+	private static int cameraMargin = 1;
 
 	/** Camera View Size */
 	public static Rectangle cameraBound;
