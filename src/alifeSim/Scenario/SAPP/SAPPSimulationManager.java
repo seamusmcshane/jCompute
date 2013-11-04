@@ -9,6 +9,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.World.World;
+import alifeSim.World.WorldInf;
 
 
 /**
@@ -44,7 +45,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	private Semaphore barrierControllerSemaphore;
 		
 	/* The Simulation World. */
-	public World world;
+	private WorldInf world;
 
 	private SAPPScenario scenario;
 	
@@ -74,7 +75,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 */
 	private void setUpPlantManager()
 	{
-		genericPlantManager = new GenericPlantManager(barrierManager, scenario.plantSettings, scenario.worldSettings );
+		genericPlantManager = new GenericPlantManager(world,barrierManager, scenario.plantSettings, scenario);
 	}
 
 	/**
@@ -86,7 +87,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 */
 	private void setUpAgentManager()
 	{
-		simpleAgentManager = new SimpleAgentManager(barrierManager, scenario.predatorAgentSettings,scenario.preyAgentSettings, scenario.worldSettings );
+		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.predatorAgentSettings,scenario.preyAgentSettings, scenario);
 	}
 
 	/**
@@ -110,7 +111,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	}
 
 
-	public void setUpWorld()
+	private void setUpWorld()
 	{
 		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierMode(), scenario.worldSettings.getBarrierScenario());
 	}
@@ -212,7 +213,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	@Override
 	public int getWorldSize()
 	{
-		return World.getWorldSize();
+		return world.getWorldBoundingSquareSize();
 	}
 	
 	public void displayDebug()

@@ -6,6 +6,7 @@ import alifeSim.Alife.DebugAgent.DebugAgent;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.World.World;
+import alifeSim.World.WorldInf;
 import alifeSim.datastruct.knn.KDTree;
 import alifeSim.datastruct.knn.KNNInf;
 
@@ -15,15 +16,15 @@ public class DebugSimulationManager implements SimulationManagerInf
 	private DebugScenario scenario;
 	
 	/* The Simulation World. */
-	public World world;
+	private WorldInf world;
 	
-	KNNInf<DebugAgent> agentTree;
+	private KNNInf<DebugAgent> agentTree;
 	
-	int noAgents;
+	private int noAgents;
 	
-	DebugAgent[] testAgents;
+	private DebugAgent[] testAgents;
 	
-	DebugAgent debugAgent;
+	private DebugAgent debugAgent;
 	
 	public DebugSimulationManager(DebugScenario debugScenario)
 	{
@@ -42,10 +43,10 @@ public class DebugSimulationManager implements SimulationManagerInf
 		
 		for(int i=0;i<noAgents;i++)
 		{
-			testAgents[i] = new DebugAgent(1,i, World.getWorldSize());
+			testAgents[i] = new DebugAgent(world,1,i, world.getWorldBoundingSquareSize());
 		}
 		
-		debugAgent = new DebugAgent(0,-1,world.getWorldSize());
+		debugAgent = new DebugAgent(world,0,-1,world.getWorldBoundingSquareSize());
 		
 	}
 
@@ -100,7 +101,7 @@ public class DebugSimulationManager implements SimulationManagerInf
 	@Override
 	public int getWorldSize()
 	{
-		return World.getWorldSize();
+		return world.getWorldBoundingSquareSize();
 	}
 
 	private void setUpWorld()
