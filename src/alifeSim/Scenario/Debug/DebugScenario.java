@@ -17,23 +17,23 @@ public class DebugScenario extends ScenarioVT
 	private int testAgentNum;
 	private int randomTestArrangement;
 	
-	public DebugScenario(File file)
+	public DebugScenario(String text)
 	{
-		super(file);
+		super(text);
 		
-		readScenarioSettings (file);
+		readScenarioSettings();
 		
 		simManager = new DebugSimulationManager(this);
 	}
 
-	private void readScenarioSettings(File file)
+	private void readScenarioSettings()
 	{
-		readDebugSettings(file);
+		readDebugSettings();
 		
-		readWorldSettings(file);	
+		readWorldSettings();	
 	}
 	
-	private void readDebugSettings(File file)
+	private void readDebugSettings()
 	{
 		String section = "Debug Agent";
 		debugAgentMouseCTRL = super.getIntValue(section,"MouseCtrl");
@@ -65,7 +65,7 @@ public class DebugScenario extends ScenarioVT
 		return randomTestArrangement;
 	}
 
-	private void readWorldSettings(File file)
+	private void readWorldSettings()
 	{
 		worldSettings = new WorldSetupSettings();
 

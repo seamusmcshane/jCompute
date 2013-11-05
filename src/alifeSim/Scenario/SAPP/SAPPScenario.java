@@ -24,28 +24,28 @@ public class SAPPScenario extends ScenarioVT
 	public SimpleAgentSetupSettings predatorAgentSettings;
 	public SimpleAgentSetupSettings preyAgentSettings;
 	
-	public SAPPScenario(File file)
+	public SAPPScenario(String text)
 	{		
-		super(file);
+		super(text);
 				
-		readScenarioSettings (file);
+		readScenarioSettings();
 		
 		simManager = new SAPPSimulationManager(this);
 		
 	}	
 	
-	public void readScenarioSettings(File file)
+	public void readScenarioSettings()
 	{	
 		
-		readWorldSettings(file);
+		readWorldSettings();
 		
-		readAgentsSettings(file);
+		readAgentsSettings();
 
-		readPlantSettings(file);
+		readPlantSettings();
 		
 	}
 	
-	public void readPlantSettings(File file)
+	public void readPlantSettings()
 	{			
 		
 		String section = "Plants";
@@ -64,13 +64,13 @@ public class SAPPScenario extends ScenarioVT
 				
 	}
 	
-	private void readAgentsSettings(File file)
+	private void readAgentsSettings()
 	{
-		readAgentSettings(file, AgentType.PREDATOR);
-		readAgentSettings(file, AgentType.PREY);
+		readAgentSettings(AgentType.PREDATOR);
+		readAgentSettings(AgentType.PREY);
 	}
 	
-	private void readAgentSettings(File file,AgentType type)
+	private void readAgentSettings(AgentType type)
 	{
 		SimpleAgentSetupSettings agentSettings = new SimpleAgentSetupSettings();
 		
@@ -112,7 +112,7 @@ public class SAPPScenario extends ScenarioVT
 		
 	}
 	
-	private void readWorldSettings(File file)
+	private void readWorldSettings()
 	{
 		worldSettings = new WorldSetupSettings();
 
