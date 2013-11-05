@@ -351,6 +351,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	public static void setSim(Simulation simIn)
 	{
+		System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();
 		sim = simIn;
 		viewLock.release();
