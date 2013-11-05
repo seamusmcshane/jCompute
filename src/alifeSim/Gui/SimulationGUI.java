@@ -55,6 +55,8 @@ import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
+import alifeSim.Simulation.SimulationPerformanceStats;
+import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
 
 import javax.swing.JTabbedPane;
 
@@ -67,7 +69,7 @@ import java.beans.PropertyChangeEvent;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class SimulationGUI
+public class SimulationGUI implements SimulationPerformanceStatsOutputInf
 {
 	/* The GUI frame */
 	private static JFrame gui;
@@ -424,8 +426,8 @@ public class SimulationGUI
 		{
 			sim.destroySim();
 		}
-
-		sim = new Simulation();
+		
+		sim = new Simulation(new SimulationPerformanceStats(null));
 		
 		/* Set the sim ref for the view to draw the correct simulation */
 		SimulationView.setSim(sim);
@@ -460,7 +462,7 @@ public class SimulationGUI
 		/* Clear the old stats */
 		StatsPanel.clearStats();
 
-		clearGUIStats();
+		clearPerformanceStats();
 
 	}
 
@@ -963,7 +965,7 @@ public class SimulationGUI
 	 * @param asps
 	 *            int
 	 */
-	public static void setASPS(int asps)
+	public void setASPS(int asps)
 	{
 		lblASPSNo.setText(Integer.toString(asps));
 	}
@@ -973,7 +975,7 @@ public class SimulationGUI
 	 * 
 	 * @param stepNo
 	 */
-	public static void setStepNo(long stepNo)
+	public void setStepNo(long stepNo)
 	{
 		lblStepNo.setText(Long.toString(stepNo));
 	}
@@ -984,7 +986,7 @@ public class SimulationGUI
 	 * 
 	 * @param time
 	 */
-	public static void setTime(long time)
+	public void setTime(long time)
 	{
 		time = time / 1000; // seconds
 		int days = (int) (time / 86400); // to days
@@ -996,7 +998,7 @@ public class SimulationGUI
 
 	}
 
-	public static void clearGUIStats()
+	public static void clearPerformanceStats()
 	{
 		// Average Steps per second
 		lblASPSNo.setText(Integer.toString(0));
@@ -1005,7 +1007,7 @@ public class SimulationGUI
 		lblStepNo.setText(Integer.toString(0));
 
 		/* Reset the time */
-		setTime(0);
+		lblRunTimeNo.setText(Integer.toString(0));
 	}
 
 }
