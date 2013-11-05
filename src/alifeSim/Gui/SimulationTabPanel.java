@@ -67,6 +67,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JButton btnClose;
 	private JCheckBox chckbxEditMode;
 	private boolean scenarioLoaded= false;
+	private Color normalMode = new Color(0, 0, 64);
+	private Color editMode = new Color(64, 0, 0);
 
 	// Sim Control 
 	private JButton btnGenerateSim;
@@ -614,10 +616,13 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			if(chckbxEditMode.isSelected())
 			{
 				scenarioEditor.setEditable(true);
+				scenarioEditor.setBackground(editMode);
+
 			}
 			else
 			{
 				scenarioEditor.setEditable(false);
+				scenarioEditor.setBackground(normalMode);
 
 			}
 		}
