@@ -65,8 +65,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JButton btnOpen;
 	private JButton btnSave;
 	private JButton btnClose;
-	private File scenarioFile;
-	private boolean scenarioSelected = false;
+	private JCheckBox chckbxEditMode;
+	private boolean scenarioLoaded= false;
 
 	// Sim Control 
 	private JButton btnGenerateSim;
@@ -313,6 +313,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioEditor.setForeground(new Color(255, 255, 255));
 		scenarioEditor.setBackground(new Color(0, 0, 64));
 		scenarioEditor.setEditable(false);
+		scenarioEditor.setCaretColor(Color.white);
 		scrollPane.setViewportView(scenarioEditor);
 
 		JPanel filePanel = new JPanel();
@@ -322,7 +323,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		lblFilePath = new JLabel("No File");
 		filePanel.add(lblFilePath);
 
-		JCheckBox chckbxEditMode = new JCheckBox("EditMode");
+		chckbxEditMode = new JCheckBox("EditMode");
+		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 
 		JTabbedPane simulationGraph = new JTabbedPane(JTabbedPane.TOP);
@@ -341,14 +343,14 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 			if (val == JFileChooser.APPROVE_OPTION)
 			{
-				scenarioFile = filechooser.getSelectedFile();
+				File scenarioFile = filechooser.getSelectedFile();
 				try
 				{					 					
 					
 					lblFilePath.setText(scenarioFile.getAbsolutePath());
 					scenarioEditor.setPage(scenarioFile.toURI().toURL());
-					
-					scenarioSelected = true;
+
+					scenarioLoaded = true;
 					
 					// Set the Startup State
 					startUpState();
@@ -364,22 +366,21 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		}
 		else if(e.getSource() == btnGenerateSim)
 		{
-			if(scenarioSelected)
-			{
-				determinScenarios(scenarioFile);
-				
+			if(scenarioLoaded)
+			{				
 				/* Not already generating Sim */
 				if (!generatingSim)
 				{
 					generatingSim = true;
 
 					/* Create the new Simulation */
-					newSim(scenarioFile);
+					newSim(scenarioEditor.getText());
 
 					generatingSim = false;
 
 				}
 			}
+
 		}
 		else if(e.getSource() == btnPauseSim)
 		{
@@ -404,24 +405,24 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 	}
 	
-	private ScenarioInf determinScenarios(File file)
-	{
-		ScenarioVT scenarioParser = new ScenarioVT(file);
+	private ScenarioInf determinScenarios(String text)
+	{		
+		ScenarioVT scenarioParser = new ScenarioVT(text);
 		ScenarioInf simScenario = null;
 
-		System.out.println(scenarioParser.getScenarioType());
+		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
 
 		if (scenarioParser.getScenarioType().equals("DEBUG"))
 		{
 			System.out.println("Debug File");
-			simScenario = new DebugScenario(file);
+			simScenario = new DebugScenario(text);
 		}
 		else
 		{
 			if (scenarioParser.getScenarioType().equals("SAPP"))
 			{
 				System.out.println("SAPP File");
-				simScenario = new SAPPScenario(file);
+				simScenario = new SAPPScenario(text);
 			}
 			else
 			{
@@ -456,12 +457,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 	}
 	
-	private void newSim(File scenario)
+	private void newSim(String scenario)
 	{
 		destroySimulation();
-		
-		System.out.println("New Simulation : " + scenario.getAbsolutePath());
-		
+				
 		sim = new Simulation(new SimulationPerformanceStats(this));
 		
 		sim.createSim(determinScenarios(scenario));
@@ -609,7 +608,23 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 				}
 			}
-		}	
+		}
+		else if(e.getSource() == chckbxEditMode)
+		{
+			if(chckbxEditMode.isSelected())
+			{
+				scenarioEditor.setEditable(true);
+			}
+			else
+			{
+				scenarioEditor.setEditable(false);
+
+			}
+		}
+		else
+		{
+			System.out.println("stateChanged : " + e.getSource().toString());
+		}
 
 	}
 	
