@@ -28,8 +28,21 @@ public class SimulationPerformanceStats
 	private long currentTime;
 	private long diffTime;
 	
-	public SimulationPerformanceStats()
+	private SimulationPerformanceStatsOutputInf outputTarget;
+	
+	public SimulationPerformanceStats(SimulationPerformanceStatsOutputInf output)
 	{
+		if(output == null)
+		{
+			System.out.println("SimulationPerformanceStats is now using SimulationPerformanceStatsNullOutput");
+			outputTarget = new SimulationPerformanceStatsNullOutput();
+		}
+		else
+		{
+			System.out.println("SimulationPerformanceStats is now set");
+			outputTarget = output;
+		}
+		
 		clearSimulationStats();
 	}
 	
@@ -80,17 +93,16 @@ public class SimulationPerformanceStats
 		}
 	}
 
-	/*public void simStatsDisplay()
+	public void updateStatsOutput()
 	{
 		if(simulationSteps%15 == 0)
 		{
-			SimulationGUI.setASPS(averageStepsPerSecond());
-			SimulationGUI.setStepNo(simulationSteps);
-			SimulationGUI.setTime(stepTotalTime);
-			SimulationGUI.setTime(stepTotalTime);
+			outputTarget.setASPS(averageStepsPerSecond());
+			outputTarget.setStepNo(simulationSteps);
+			outputTarget.setTime(stepTotalTime);
 		}
-		StatsPanel.updateGraphs(simulationSteps);
-	}*/
+		//StatsPanel.updateGraphs(simulationSteps);
+	}
 	
 	/**
 	 * Initializes the average steps per second counters
@@ -155,7 +167,5 @@ public class SimulationPerformanceStats
 		
 		stepSamples = new float[numSamples];
 	}
-	
-	
-		
+
 }
