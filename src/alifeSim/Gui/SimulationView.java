@@ -39,7 +39,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	private final static int highFrameRate = 60;
 
 	/** Default Graphic frame rate control */
-	private final static int defaultFrameRate = highFrameRate; // Frame rate starts up set at this
+	private final static int defaultFrameRate = lowFrameRate; // Frame rate starts up set at this
 
 	private final static int frameRateGuiInteractionOff = lowFrameRate;
 	private final static int frameRateGuiInteractionOn = highFrameRate;
@@ -64,7 +64,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	private static boolean viewsDrawing = false;
 
 	/** Frame rate should be greater than or equal to refresh rate if used */
-	private static boolean vsyncToggle = false;
+	private static boolean vsyncToggle = true;
 
 	/** Simulation Performance Indicators */
 	private int frameNum = 0;

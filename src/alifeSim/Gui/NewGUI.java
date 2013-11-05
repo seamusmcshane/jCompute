@@ -190,12 +190,12 @@ public class NewGUI
 				SimulationView.setStandardUpdateRate();
 			}
 		});
-
 		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
 		mnFrameRate.add(rdbtnmntm15FramesPerSecond);
+		rdbtnmntm15FramesPerSecond.setSelected(true);
 
 		rdbtnmntm60FramesPerSecond = new JRadioButtonMenuItem("60 Frames Per Second");
-		rdbtnmntm60FramesPerSecond.setSelected(true);
+		
 		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -234,10 +234,11 @@ public class NewGUI
 				SimulationView.setVerticalSync(true);
 			}
 		});
+		rdbtnmntmVsyncOn.setSelected(true);
 		mnVerticalSync.add(rdbtnmntmVsyncOn);
 
 		rdbtnmntmVsyncOff = new JRadioButtonMenuItem("VSync Off");
-		rdbtnmntmVsyncOff.setSelected(true);
+		
 		vSyncButtonGroup.add(rdbtnmntmVsyncOff);
 		rdbtnmntmVsyncOff.addActionListener(new ActionListener()
 		{
