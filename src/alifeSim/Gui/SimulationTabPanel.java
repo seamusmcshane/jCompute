@@ -52,8 +52,10 @@ import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
+import alifeSim.Simulation.SimulationPerformanceStats;
+import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
 
-public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener
+public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener,SimulationPerformanceStatsOutputInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 
@@ -460,7 +462,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 		System.out.println("New Simulation : " + scenario.getAbsolutePath());
 		
-		sim = new Simulation();
+		sim = new Simulation(new SimulationPerformanceStats(this));
 		
 		sim.createSim(determinScenarios(scenario));
 		SimulationView.setSim(sim);
