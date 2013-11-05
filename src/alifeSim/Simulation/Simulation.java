@@ -129,6 +129,7 @@ public class Simulation
 				while (running)
 				{
 						simUpdate();
+						asyncUpdateThread.yield();
 				}
 			}
 		}, "Simulation Update Thread"
@@ -143,7 +144,7 @@ public class Simulation
 	{
 		// The pause semaphore (We do not pause half way through a step)
 		pause.acquireUninterruptibly();
-
+		
 		simStats.setStepStartTime();
 
 		// record step start time for inter-step delay
