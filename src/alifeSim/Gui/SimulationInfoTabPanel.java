@@ -15,7 +15,7 @@ public class SimulationInfoTabPanel extends JPanel
 	{
 		super();
 		setLayout(new BorderLayout(0, 0));
-		this.setMinimumSize(new Dimension(350,200));
+		this.setMinimumSize(new Dimension(350,250));
 
 		JPanel panel = new JPanel();
 		panel.setPreferredSize(new Dimension(400,300));
