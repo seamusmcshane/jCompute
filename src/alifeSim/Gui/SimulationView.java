@@ -32,8 +32,8 @@ public class SimulationView extends BasicGame implements MouseListener
 	private static CanvasGameContainer simView;
 
 	/** OpenGL Canvas Size */
-	private static int panelWidth=1024;
-	private static int panelHeight=1024;
+	private static int panelWidth=256;
+	private static int panelHeight=256;
 	
 	private final static int lowFrameRate = 15;
 	private final static int highFrameRate = 60;
@@ -62,11 +62,6 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/** Draw Views */
 	private static boolean viewsDrawing = false;
-	/**
-	 * This locks the frame rate to the following rate allowing more time
-	 * to be used for simulation threads.
-	 */
-	private boolean frameCap = true;
 
 	/** Frame rate should be greater than or equal to refresh rate if used */
 	private static boolean vsyncToggle = false;
@@ -334,6 +329,10 @@ public class SimulationView extends BasicGame implements MouseListener
 			
 			// Set sim start up frame rate 
 			simView.getContainer().setTargetFrameRate(defaultFrameRate);
+			
+			simView.getContainer().setMusicOn(false);
+			
+			simView.getContainer().setSoundOn(false);
 			
 			simView.setMinimumSize(new Dimension(320,240));
 
