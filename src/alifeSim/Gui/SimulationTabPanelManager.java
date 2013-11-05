@@ -21,7 +21,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 {
 	private static final long serialVersionUID = 1L;
 	
-	private final int maxTabs = 5;
+	private final int maxTabs = 8;
 	private int tabCount = 0;
 	private int launchCount = 0;
 	
