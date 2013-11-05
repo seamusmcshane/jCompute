@@ -21,8 +21,8 @@ public class SimulationInfoTabPanel extends JPanel
 		panel.setPreferredSize(new Dimension(400,300));
 		add(panel, BorderLayout.NORTH);
 		
-		JLabel lblTest = new JLabel("TEST");
-		panel.add(lblTest);
+		JLabel lblTitle = new JLabel("Information Status");
+		panel.add(lblTitle);
 	}
 	
 }
