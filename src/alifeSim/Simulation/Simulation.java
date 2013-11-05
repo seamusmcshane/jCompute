@@ -25,7 +25,6 @@ public class Simulation
 	/* Stats */
 	private SimulationPerformanceStats simStats;
 	
-
 	// Inter-step delay Calculations
 	private long stepTimeNow;
 	private long stepTimeDiff;
@@ -51,9 +50,9 @@ public class Simulation
 
 	private boolean realtime=true;
 	
-	public Simulation()
+	public Simulation(SimulationPerformanceStats stats)
 	{
-		simStats = new SimulationPerformanceStats();		
+		simStats = stats;	
 		setupThreads();
 
 		createSim(null); // Never used - needed for successful startup		
@@ -181,6 +180,8 @@ public class Simulation
 		resetTotalTime();
 
 		simStats.setStepEndTime();
+		
+		simStats.updateStatsOutput();
 		
 		// Allow the simulation to be paused again
 		pause.release();
