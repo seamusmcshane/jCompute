@@ -3,10 +3,13 @@ package alifeSim.Gui;
 import java.awt.Dimension;
 import java.awt.Frame;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -20,6 +23,8 @@ import javax.swing.JMenuItem;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -30,13 +35,21 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class NewGUI 
 {
 	private static JFrame guiFrame;
 	private static SimulationTabPanelManager simTabs;
 	private static JSplitPane splitPane;
-	
+	private static JCheckBoxMenuItem chckbxmntmDisplayView,chckbxmntmDrawSimpleBodies,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
+	private static JMenu mnFrameRate,mnVerticalSync,mnOverlay;
+	private static JRadioButtonMenuItem rdbtnmntm15FramesPerSecond,rdbtnmntm60FramesPerSecond,rdbtnmntmUnlimitedFrameRate,rdbtnmntmVsyncOn,rdbtnmntmVsyncOff,rdbtnmntmOverlayDisabled,rdbtnmntmOverlayEnabled;
+	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
+	private static final ButtonGroup vSyncButtonGroup = new ButtonGroup();
+	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
+		
 	public static void main(String args[])
 	{
 		lookandFeel();
@@ -46,6 +59,226 @@ public class NewGUI
 		registerGUIListeners();
 	}
 	
+	private static void setUpMenu()
+	{
+		JMenuBar menuBar = new JMenuBar();
+		guiFrame.setJMenuBar(menuBar);
+
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		JMenu mnView = new JMenu("View");
+		menuBar.add(mnView);
+		JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+
+		JMenuItem mntmQuit = new JMenuItem("Quit");
+		mntmQuit.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				// Exit the sim
+				doProgramExit();
+			}
+		});
+		mnFile.add(mntmQuit);
+		
+		JMenuItem mntmAbout = new JMenuItem("About");
+		mntmAbout.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				// Exit the sim
+				System.out.println("About");
+			}
+		});
+		mnHelp.add(mntmAbout);
+
+
+
+		chckbxmntmDisplayView = new JCheckBoxMenuItem("Display View");
+		chckbxmntmDisplayView.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent arg0)
+			{
+				if (chckbxmntmDisplayView.isSelected())
+				{
+					// have been checked
+					SimulationView.setVisible(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setVisible(false);
+				}
+
+			}
+		});
+		
+		mnView.add(chckbxmntmDisplayView);
+		chckbxmntmDisplayView.setSelected(true);
+
+		JMenu mnAgentDrawing = new JMenu("Agent Drawing");
+		mnView.add(mnAgentDrawing);
+
+		chckbxmntmDrawSimpleBodies = new JCheckBoxMenuItem("Draw Simple Bodies");
+		chckbxmntmDrawSimpleBodies.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent arg0)
+			{
+				if (chckbxmntmDrawSimpleBodies.isSelected())
+				{
+					// have been checked
+					SimulationView.setSimpleDrawing(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setSimpleDrawing(false);
+				}
+			}
+		});
+		mnAgentDrawing.add(chckbxmntmDrawSimpleBodies);
+		chckbxmntmDrawSimpleBodies.setSelected(true);
+
+		chckbxmntmDrawFieldOf = new JCheckBoxMenuItem("Draw Field of Views");
+		chckbxmntmDrawFieldOf.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent arg0)
+			{
+				if (chckbxmntmDrawFieldOf.isSelected())
+				{
+					// have been checked
+					SimulationView.setViewRangeDrawing(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setViewRangeDrawing(false);
+				}
+			}
+		});
+		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
+
+		chckbxmntDrawAgentViews = new JCheckBoxMenuItem("Draw Agent Views");
+		chckbxmntDrawAgentViews.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent arg0)
+			{
+				if (chckbxmntDrawAgentViews.isSelected())
+				{
+					// have been checked
+					SimulationView.setViewsDrawing(true);
+				}
+				else
+				{
+					// have been unchecked
+					SimulationView.setViewsDrawing(false);
+				}
+			}
+		});
+		mnAgentDrawing.add(chckbxmntDrawAgentViews);
+
+		mnFrameRate = new JMenu("Frame Rate");
+		mnView.add(mnFrameRate);
+
+		rdbtnmntm15FramesPerSecond = new JRadioButtonMenuItem("15 Frames Per Second");
+		rdbtnmntm15FramesPerSecond.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				// Change the frame rate of the view to standard (15)
+				SimulationView.setStandardUpdateRate();
+			}
+		});
+
+		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
+		mnFrameRate.add(rdbtnmntm15FramesPerSecond);
+
+		rdbtnmntm60FramesPerSecond = new JRadioButtonMenuItem("60 Frames Per Second");
+		rdbtnmntm60FramesPerSecond.setSelected(true);
+		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Change the frame rate of the view to high (60)
+				SimulationView.setHighUpdateRate();
+			}
+		});
+		frameRateButtonGroup.add(rdbtnmntm60FramesPerSecond);
+		mnFrameRate.add(rdbtnmntm60FramesPerSecond);
+
+		rdbtnmntmUnlimitedFrameRate = new JRadioButtonMenuItem("Unlimited");
+		rdbtnmntmUnlimitedFrameRate.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Unlock the frame rate of the view - as fast as your computer
+				// can churn them out.
+				SimulationView.setUnlimitedUpdateRate();
+			}
+		});
+
+		frameRateButtonGroup.add(rdbtnmntmUnlimitedFrameRate);
+		mnFrameRate.add(rdbtnmntmUnlimitedFrameRate);
+
+		mnVerticalSync = new JMenu("Vertical Sync");
+		mnView.add(mnVerticalSync);
+
+		rdbtnmntmVsyncOn = new JRadioButtonMenuItem("VSync On");
+		vSyncButtonGroup.add(rdbtnmntmVsyncOn);
+		rdbtnmntmVsyncOn.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Sync frames to the monitor refresh
+				SimulationView.setVerticalSync(true);
+			}
+		});
+		mnVerticalSync.add(rdbtnmntmVsyncOn);
+
+		rdbtnmntmVsyncOff = new JRadioButtonMenuItem("VSync Off");
+		rdbtnmntmVsyncOff.setSelected(true);
+		vSyncButtonGroup.add(rdbtnmntmVsyncOff);
+		rdbtnmntmVsyncOff.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Dont Sync frames to the monitor refresh
+				SimulationView.setVerticalSync(false);
+			}
+		});
+		mnVerticalSync.add(rdbtnmntmVsyncOff);
+
+		mnOverlay = new JMenu("Overlay");
+		mnView.add(mnOverlay);
+
+		rdbtnmntmOverlayEnabled = new JRadioButtonMenuItem("Enabled");
+		rdbtnmntmOverlayEnabled.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Enable some view debug text which may be of interest
+				SimulationView.setViewOverLay(true);
+			}
+		});
+		overlayButtonGroup.add(rdbtnmntmOverlayEnabled);
+		mnOverlay.add(rdbtnmntmOverlayEnabled);
+
+		rdbtnmntmOverlayDisabled = new JRadioButtonMenuItem("Disabled");
+		rdbtnmntmOverlayDisabled.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Disable the view debug text
+				SimulationView.setViewOverLay(false);
+			}
+		});
+		rdbtnmntmOverlayDisabled.setSelected(true);
+		overlayButtonGroup.add(rdbtnmntmOverlayDisabled);
+		mnOverlay.add(rdbtnmntmOverlayDisabled);
+
+	}
+	
 	private static void setUpGUI()
 	{
 		/* Frame */
@@ -53,25 +286,7 @@ public class NewGUI
 		guiFrame.setMinimumSize(new Dimension(800,600));
 		
 		/* Menu Bar */
-		JMenuBar menuBar = new JMenuBar();
-		guiFrame.getContentPane().add(menuBar, BorderLayout.NORTH);
-		
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-		
-		JMenuItem mntmQuit = new JMenuItem("Quit");
-		mntmQuit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				doProgramExit();
-			}
-		});
-		mnFile.add(mntmQuit);
-		
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-		
-		JMenuItem mntmAbout = new JMenuItem("About");
-		mnHelp.add(mntmAbout);
+		setUpMenu();
 		
 		/* Container for Split Pane */		
 		JPanel containerPanel = new JPanel();
@@ -90,12 +305,9 @@ public class NewGUI
 		simTabs = new SimulationTabPanelManager(JTabbedPane.LEFT);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
-		
+
 		splitPane.setRightComponent(SimulationView.displayView(null, guiFrame.getWidth() , guiFrame.getHeight()));
-		//guiFrame.getContentPane().add(SimulationView.displayView(null, guiFrame.getWidth() , guiFrame.getHeight()),BorderLayout.CENTER);
-		
-		//guiFrame.getContentPane().add(SimulationView.displayView(sim, gui.getWidth() - statsPanelWidth, gui.getHeight()), BorderLayout.CENTER);
-		
+	
 		/* We control the exit */
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 		
