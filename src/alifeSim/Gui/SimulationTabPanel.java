@@ -40,6 +40,8 @@ import java.util.Scanner;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import java.awt.Font;
 
@@ -51,7 +53,7 @@ import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 
-public class SimulationTabPanel extends JPanel implements ActionListener
+public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 
@@ -69,6 +71,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 	private JButton btnStartSim;
 	private JButton btnPauseSim;
 	private JSlider sliderSimStepRate;
+	
+	// Sim RT Performance Display
+	private JLabel lblAvgStepRate;
+	private JLabel lblStepCount;
+	private JLabel lblSimRunTime;
+	private JLabel lblRequestedStepRate;
 	
 	// Sim Related
 	private Simulation sim;
@@ -98,14 +106,14 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		{0.0, 0.0, 0.0, 0.0};
 		controlPanel.setLayout(gbl_controlPanel);
 
-		JLabel label = new JLabel("Step Rate");
-		label.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_label = new GridBagConstraints();
-		gbc_label.fill = GridBagConstraints.BOTH;
-		gbc_label.insets = new Insets(0, 0, 5, 5);
-		gbc_label.gridx = 0;
-		gbc_label.gridy = 0;
-		controlPanel.add(label, gbc_label);
+		JLabel lblAverageStepRate = new JLabel("Average Step Rate");
+		lblAverageStepRate.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_lblAverageStepRate = new GridBagConstraints();
+		gbc_lblAverageStepRate.fill = GridBagConstraints.BOTH;
+		gbc_lblAverageStepRate.insets = new Insets(0, 0, 5, 5);
+		gbc_lblAverageStepRate.gridx = 0;
+		gbc_lblAverageStepRate.gridy = 0;
+		controlPanel.add(lblAverageStepRate, gbc_lblAverageStepRate);
 
 		JLabel label_1 = new JLabel("Steps");
 		label_1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -136,7 +144,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		controlPanel.add(simAverageStepRate, gbc_simAverageStepRate);
 		simAverageStepRate.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblAvgStepRate = new JLabel("0");
+		lblAvgStepRate = new JLabel("0");
 		lblAvgStepRate.setHorizontalAlignment(SwingConstants.CENTER);
 		simAverageStepRate.add(lblAvgStepRate, BorderLayout.CENTER);
 
@@ -151,7 +159,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		controlPanel.add(simStepTotal, gbc_simStepTotal);
 		simStepTotal.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblStepCount = new JLabel("0");
+		lblStepCount = new JLabel("0");
 		lblStepCount.setHorizontalAlignment(SwingConstants.CENTER);
 		simStepTotal.add(lblStepCount, BorderLayout.CENTER);
 
@@ -166,7 +174,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		controlPanel.add(simRequestedStepRate, gbc_simRequestedStepRate);
 		simRequestedStepRate.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblRequestedStepRate = new JLabel("0");
+		lblRequestedStepRate = new JLabel("0");
 		lblRequestedStepRate.setHorizontalAlignment(SwingConstants.CENTER);
 		simRequestedStepRate.add(lblRequestedStepRate, BorderLayout.CENTER);
 
@@ -190,11 +198,13 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		controlPanel.add(simRunTime, gbc_simRunTime);
 		simRunTime.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblSimRunTime = new JLabel("0");
+		lblSimRunTime = new JLabel("0");
 		lblSimRunTime.setHorizontalAlignment(SwingConstants.CENTER);
 		simRunTime.add(lblSimRunTime, BorderLayout.CENTER);
 
 		sliderSimStepRate = new JSlider();
+		sliderSimStepRate.addChangeListener(this);
+
 		sliderSimStepRate.setValue(15);
 		sliderSimStepRate.setToolTipText("Adjust requested step rate.");
 		sliderSimStepRate.setSnapToTicks(true);
@@ -215,7 +225,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		btnGenerateSim = new JButton("Generate");
 		btnGenerateSim.addActionListener(this);
 		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
-		btnGenerateSim.setEnabled(true);
+		btnGenerateSim.setEnabled(false);
 		GridBagConstraints gbc_btnGenerateSim = new GridBagConstraints();
 		gbc_btnGenerateSim.fill = GridBagConstraints.BOTH;
 		gbc_btnGenerateSim.insets = new Insets(0, 0, 0, 5);
@@ -224,13 +234,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		controlPanel.add(btnGenerateSim, gbc_btnGenerateSim);
 
 		btnStartSim = new JButton("Start");
-		btnStartSim.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) 
-			{
-				sim.reqSimUpdateRate(15);
-				sim.startSim();
-			}
-		});
+		btnStartSim.addActionListener(this);
 		btnStartSim.setToolTipText("Start the simulation.");
 		btnStartSim.setEnabled(false);
 		GridBagConstraints gbc_btnStartSim = new GridBagConstraints();
@@ -241,6 +245,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		controlPanel.add(btnStartSim, gbc_btnStartSim);
 
 		btnPauseSim = new JButton("   Pause");
+		btnPauseSim.addActionListener(this);
 		btnPauseSim.setToolTipText("Pause / Unpause the simulation.");
 		btnPauseSim.setEnabled(false);
 		GridBagConstraints gbc_btnPauseSim = new GridBagConstraints();
@@ -336,25 +341,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 			{
 				scenarioFile = filechooser.getSelectedFile();
 				try
-				{
-					
-					/* Not already generating Sim */
-					if (!generatingSim)
-					{
-						generatingSim = true;
-
-						/* Create the new Simulation */
-						newSim(scenarioFile);
-
-						generatingSim = false;
-
-					}
-					 
+				{					 					
 					
 					lblFilePath.setText(scenarioFile.getAbsolutePath());
 					scenarioEditor.setPage(scenarioFile.toURI().toURL());
 					
 					scenarioSelected = true;
+					
+					// Set the Startup State
+					startUpState();
 					
 				}
 				catch (IOException e1)
@@ -370,7 +365,35 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 			if(scenarioSelected)
 			{
 				determinScenarios(scenarioFile);
+				
+				/* Not already generating Sim */
+				if (!generatingSim)
+				{
+					generatingSim = true;
+
+					/* Create the new Simulation */
+					newSim(scenarioFile);
+
+					generatingSim = false;
+
+				}
 			}
+		}
+		else if(e.getSource() == btnPauseSim)
+		{
+			// Pause Toggle
+			if (sim.simPaused())
+			{
+				simUnPausedState();
+			}
+			else
+			{
+				simPausedState();
+			}
+		}
+		else if(e.getSource() == btnStartSim)
+		{
+			simStartedState();
 		}
 		else
 		{
@@ -407,11 +430,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		return simScenario;
 	}
 
-	private void newSim(File scenario)
+	private void destroySimulation()
 	{
-
-		System.out.println("New Simulation : " + scenario.getAbsolutePath());
-
+		System.out.println("Request to Destroy Old Simulation");
+		
 		/* Cleans up the old simulation threads */
 		if(sim !=null)
 		{
@@ -422,8 +444,22 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 			}
 			
 			sim.destroySim();
+			
+			System.out.println("Simulation Destroyed");
 		}
-
+		else
+		{
+			System.out.println("A Previous Simulation was not created");
+		}
+		
+	}
+	
+	private void newSim(File scenario)
+	{
+		destroySimulation();
+		
+		System.out.println("New Simulation : " + scenario.getAbsolutePath());
+		
 		sim = new Simulation();
 		
 		sim.createSim(determinScenarios(scenario));
@@ -450,10 +486,129 @@ public class SimulationTabPanel extends JPanel implements ActionListener
 		sliderSimStepRate.setValue(15);
 
 	}
-	public Simulation getSimualtion()
+	public Simulation getSimulation()
 	{
 		return sim;
 	}
 	
+	/**
+	 * The Average Steps per second.
+	 * 
+	 * @param asps
+	 *            int
+	 */
+	public void setASPS(int asps)
+	{
+		lblAvgStepRate.setText(Integer.toString(asps));
+	}
+
+	/**
+	 * The current step number.
+	 * 
+	 * @param stepNo
+	 */
+	public void setStepNo(long stepNo)
+	{
+		lblStepCount.setText(Long.toString(stepNo));
+	}
+
+	/**
+	 * Displays the current run time of the simulation from a long count in milliseconds
+	 * @param time
+	 */
+	public void setTime(long time)
+	{
+		time = time / 1000; // seconds
+		int days = (int) (time / 86400); // to days
+		int hrs = (int) (time / 3600) % 24; // to hrs
+		int mins = (int) ((time / 60) % 60);	// to seconds
+		int sec = (int) (time % 60);
+
+		lblSimRunTime.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
+
+	}
+	
+	private void simStartedState()
+	{
+
+		sim.startSim();
+
+		btnGenerateSim.setEnabled(false);
+
+		btnStartSim.setEnabled(false);
+
+		btnPauseSim.setEnabled(true);
+
+		sliderSimStepRate.setEnabled(true);
+
+	}
+
+	private void startUpState()
+	{
+		btnStartSim.setEnabled(false);
+		sliderSimStepRate.setEnabled(false);
+		btnPauseSim.setEnabled(false);
+		btnGenerateSim.setEnabled(true);
+		SimulationView.setSim(null);
+	}
+
+	private void simPausedState()
+	{
+		btnPauseSim.setText("Resume");
+		btnGenerateSim.setEnabled(true);
+
+		sim.pauseSim();
+
+		btnPauseSim.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alifeSim/icons/resume.png")));
+
+	}
+
+	private void simUnPausedState()
+	{
+		btnPauseSim.setText("   Pause");
+		btnGenerateSim.setEnabled(false);
+
+		sim.unPauseSim();
+
+		btnPauseSim.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alifeSim/icons/pause.png")));
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e)
+	{
+		if(e.getSource() == sliderSimStepRate)
+		{
+			if(sim!=null)
+			{
+				// Prevent a 0 value being set
+				if (sliderSimStepRate.getValue() == 0)
+				{
+					lblRequestedStepRate.setText("1");
+
+					// Set the requested update rate
+					sim.reqSimUpdateRate(sliderSimStepRate.getValue());
+				}
+				else
+				{
+					if (sliderSimStepRate.getValue() < 300)
+					{
+						lblRequestedStepRate.setText(Integer.toString(sliderSimStepRate.getValue()));
+
+						// Set the requested update rate
+						sim.reqSimUpdateRate(sliderSimStepRate.getValue());
+					}
+					else
+					{
+						lblRequestedStepRate.setText("Unli");
+
+						// Set the requested update rate
+						sim.reqSimUpdateRate(-1);
+					}
+
+				}
+			}
+		}	
+
+	}
 	
 }

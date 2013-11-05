@@ -72,7 +72,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					{
 						if(simulationTabs[i] == getSelectedComponent())
 						{
-							SimulationView.setSim(simulationTabs[i].getSimualtion());
+							SimulationView.setSim(simulationTabs[i].getSimulation());
 							
 							SimulationView.setVisible(true);
 														
