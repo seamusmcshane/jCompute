@@ -139,6 +139,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 
 		if (value == JOptionPane.YES_OPTION)
 		{
+			simulationTabs[selectedTabIndex].destroy();
 			this.setSelectedIndex(0);
 			this.remove(simulationTabs[selectedTabIndex]);
 			simulationTabs[selectedTabIndex] = null;	

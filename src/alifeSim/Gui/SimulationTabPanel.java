@@ -633,4 +633,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 	
+	public void destroy()
+	{
+		destroySimulation();
+	}
+	
 }
