@@ -208,6 +208,12 @@ public class SimulationView extends BasicGame implements MouseListener
 			}
 			frameNum++;
 		}
+		else
+		{
+			g.translate(globalTranslate.getX(), globalTranslate.getY());
+			g.setColor(Color.white);
+			titleTTFont.drawString(20-globalTranslate.getX(),20-globalTranslate.getY(),"View Disabled");
+		}
 		
 	}
 
