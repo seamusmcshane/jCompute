@@ -76,9 +76,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 							SimulationView.setSim(simulationTabs[i].getSimulation());
 							SimulationView.setSimulationTitle(getTitleAt(getSelectedIndex()));
 							
-							
-							SimulationView.setVisible(true);
-														
 							break;
 						}					
 					}
