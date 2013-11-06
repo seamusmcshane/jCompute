@@ -2,6 +2,7 @@ package alifeSim.Gui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 
 import org.lwjgl.LWJGLUtil; 
 
@@ -11,10 +12,12 @@ import java.util.concurrent.Semaphore;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.CanvasGameContainer;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
 
@@ -87,6 +90,13 @@ public class SimulationView extends BasicGame implements MouseListener
 	/** Records status of mouse button */
 	private static boolean mouseButtonPressed = false;
 
+	private static String simulationTitle = "";
+	
+	private static Font titleFont;
+	private static Font overlayFont;
+	private static TrueTypeFont titleTTFont;
+	private static TrueTypeFont overlayTTFont;
+	
 	/**
 	 * The Simulation View.
 	 * @wbp.parser.entryPoint
@@ -141,7 +151,10 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void init(GameContainer container) throws SlickException
 	{
-		// Not Needed
+		titleFont = new Font("Sans", Font.BOLD, 20);
+		titleTTFont = new TrueTypeFont(titleFont, true);
+		overlayFont = new Font("Monospaced", Font.BOLD, 10);
+		overlayTTFont = new TrueTypeFont(overlayFont, true);
 	}
 
 	/**
@@ -182,11 +195,14 @@ public class SimulationView extends BasicGame implements MouseListener
 			//g.drawImage(buffer, 0, 0);
 
 			// View Overlay
+			g.setColor(Color.white);
+			titleTTFont.drawString((cameraBound.getWidth()/2-simulationTitle.length())-globalTranslate.getX(),20-globalTranslate.getY(),simulationTitle);
+			
 			if (overlay)
 			{
-				g.drawString("Frame Updates     :" + frameNum, cameraBound.getMinX() + 10, cameraBound.getMinY() + 10);
+				overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() - 30)-globalTranslate.getY(),"Frame Updates     :" + frameNum);
 
-				g.drawString("Frames Per Second :" + simView.getContainer().getFPS(), cameraBound.getMinX() + 10, cameraBound.getMinY() + 50);
+				overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() -20)-globalTranslate.getY(),"Frames Per Second :" + simView.getContainer().getFPS());
 
 				//g.draw(cameraBound);
 			}
@@ -492,6 +508,11 @@ public class SimulationView extends BasicGame implements MouseListener
 				panelHeight = simView.getContainer().getHeight();
 			}
 			cameraBound = new Rectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
+	}
+	
+	public static void setSimulationTitle(String text)
+	{
+		simulationTitle = text;
 	}
 	
 }
