@@ -165,6 +165,8 @@ public class SimulationPerformanceStats
 		tasps = 0;
 		sps = 0;
 		
+		outputTarget.clearStats();
+		
 		stepSamples = new float[numSamples];
 	}
 

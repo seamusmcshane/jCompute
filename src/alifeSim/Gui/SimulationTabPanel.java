@@ -341,6 +341,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
 
+			System.out.println("Scenario Open Dialog");
+			
 			int val = filechooser.showOpenDialog(filechooser);
 
 			if (val == JFileChooser.APPROVE_OPTION)
@@ -348,6 +350,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				File scenarioFile = filechooser.getSelectedFile();
 				try
 				{					 					
+					System.out.println("New Scenario Choosen");
+
+					destroySimulation();
 					
 					lblFilePath.setText(scenarioFile.getAbsolutePath());
 					scenarioEditor.setPage(scenarioFile.toURI().toURL());
@@ -548,6 +553,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void startUpState()
 	{
+		System.out.println("Simulation now in Startup State");
+
+		clearStats();
+		
 		btnStartSim.setEnabled(false);
 		sliderSimStepRate.setEnabled(false);
 		btnPauseSim.setEnabled(false);
@@ -636,6 +645,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public void destroy()
 	{
 		destroySimulation();
+	}
+
+	@Override
+	public void clearStats()
+	{
+		System.out.println("Simulation Stats Cleared");
+		setASPS(0);
+		setStepNo(0);
+		setTime(0);	
 	}
 	
 }

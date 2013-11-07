@@ -24,4 +24,11 @@ public class SimulationPerformanceStatsNullOutput implements SimulationPerforman
 		
 	}
 
+	@Override
+	public void clearStats()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }
