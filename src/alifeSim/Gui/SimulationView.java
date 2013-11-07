@@ -74,6 +74,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 	/** The translation vector for the camera view */
 	public static Vector2f globalTranslate = new Vector2f(0, 0);
+	public static Vector2f globalTranslateDefault = new Vector2f(50, 50);
 
 	/** Stores the mouse vector across updates */
 	public Vector2f mousePos = new Vector2f(0, 0);
@@ -97,6 +98,9 @@ public class SimulationView extends BasicGame implements MouseListener
 	private static TrueTypeFont titleTTFont;
 	private static TrueTypeFont overlayTTFont;
 	
+	private static boolean button0Pressed=false;
+	private static boolean button1Pressed=false;
+	
 	/**
 	 * The Simulation View.
 	 * @wbp.parser.entryPoint
@@ -107,8 +111,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		this.panelWidth = pannelWidth;
 		this.panelHeight = pannelHeight;
 		
-		globalTranslate.set(25,25);
-		
+		globalTranslate.set(globalTranslateDefault);
 		// Uncomment when building the executable jar for that platform 
 		 //buildStandAlone(true);
 	}
@@ -196,7 +199,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 			// View Overlay
 			g.setColor(Color.white);
-			titleTTFont.drawString((cameraBound.getWidth()/2-simulationTitle.length())-globalTranslate.getX(),20-globalTranslate.getY(),simulationTitle);
+			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),simulationTitle);
 			
 			if (overlay)
 			{
@@ -212,7 +215,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		{
 			g.translate(globalTranslate.getX(), globalTranslate.getY());
 			g.setColor(Color.white);
-			titleTTFont.drawString(20-globalTranslate.getX(),20-globalTranslate.getY(),"View Disabled");
+			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),"View Disabled");
 		}
 		
 	}
@@ -250,9 +253,17 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void mousePressed(int button, int x, int y)
 	{
-		mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
-
-		mouseInteractionModeOn(); // Changes to a higher frame update rate				
+		if(button == 0)
+		{
+			button0Pressed = true;
+			mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
+			mouseInteractionModeOn(); // Changes to a higher frame update rate				
+		}
+		else
+		{
+			globalTranslate.set(globalTranslateDefault);
+		}
+		
 	}
 
 	/** Allows moving camera around large worlds via mouse dragging on the simulation view
@@ -264,10 +275,17 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy)
 	{
-		float x = (newx) - mousePos.getX();
-		float y = (newy) - mousePos.getY();
-
-		moveCamera(x, y);
+		if(button0Pressed)
+		{
+			float x = (newx) - mousePos.getX();
+			float y = (newy) - mousePos.getY();
+	
+			moveCamera(x, y);
+		}
+		else
+		{
+			
+		}
 	}
 
 	/**
@@ -279,6 +297,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void mouseReleased(int button, int x, int y)
 	{
+		button0Pressed = false;
 		mousePos.set(x - globalTranslate.getX(), y - globalTranslate.getY());
 
 		mouseInteractionModeOff(); // Changes to a lower frame update rate
