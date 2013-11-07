@@ -43,7 +43,7 @@ public class NewGUI
 	private static JFrame guiFrame;
 	private static SimulationTabPanelManager simTabs;
 	private static JSplitPane splitPane;
-	private static JCheckBoxMenuItem chckbxmntmDisplayView,chckbxmntmDrawSimpleBodies,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
+	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawSimpleBodies,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
 	private static JMenu mnFrameRate,mnVerticalSync,mnOverlay;
 	private static JRadioButtonMenuItem rdbtnmntm15FramesPerSecond,rdbtnmntm60FramesPerSecond,rdbtnmntmUnlimitedFrameRate,rdbtnmntmVsyncOn,rdbtnmntmVsyncOff,rdbtnmntmOverlayDisabled,rdbtnmntmOverlayEnabled;
 	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
@@ -95,12 +95,12 @@ public class NewGUI
 
 
 
-		chckbxmntmDisplayView = new JCheckBoxMenuItem("Display View");
-		chckbxmntmDisplayView.addItemListener(new ItemListener()
+		chckbxmntmDisplaySimulation = new JCheckBoxMenuItem("Display Simulation");
+		chckbxmntmDisplaySimulation.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent arg0)
 			{
-				if (chckbxmntmDisplayView.isSelected())
+				if (chckbxmntmDisplaySimulation.isSelected())
 				{
 					// have been checked
 					SimulationView.setVisible(true);
@@ -114,8 +114,8 @@ public class NewGUI
 			}
 		});
 		
-		mnView.add(chckbxmntmDisplayView);
-		chckbxmntmDisplayView.setSelected(true);
+		mnView.add(chckbxmntmDisplaySimulation);
+		chckbxmntmDisplaySimulation.setSelected(true);
 
 		JMenu mnAgentDrawing = new JMenu("Agent Drawing");
 		mnView.add(mnAgentDrawing);
@@ -307,7 +307,7 @@ public class NewGUI
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
 
-		splitPane.setRightComponent(SimulationView.displayView(null, guiFrame.getWidth() , guiFrame.getHeight()));
+		splitPane.setRightComponent(SimulationView.getView(null, guiFrame.getWidth() , guiFrame.getHeight()));
 	
 		/* We control the exit */
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 

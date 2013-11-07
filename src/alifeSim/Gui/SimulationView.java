@@ -201,21 +201,24 @@ public class SimulationView extends BasicGame implements MouseListener
 			g.setColor(Color.white);
 			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),simulationTitle);
 			
-			if (overlay)
-			{
-				overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() - 30)-globalTranslate.getY(),"Frame Updates     :" + frameNum);
 
-				overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() -20)-globalTranslate.getY(),"Frames Per Second :" + simView.getContainer().getFPS());
-
-				//g.draw(cameraBound);
-			}
-			frameNum++;
+			
 		}
 		else
 		{
 			g.translate(globalTranslate.getX(), globalTranslate.getY());
 			g.setColor(Color.white);
-			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),"View Disabled");
+			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),"Simulation Display Disabled");
+		}
+		
+		frameNum++;
+		if (overlay)
+		{
+			overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() - 30)-globalTranslate.getY(),"Frame Updates     :" + frameNum);
+
+			overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() -20)-globalTranslate.getY(),"Frames Per Second :" + simView.getContainer().getFPS());
+
+			//g.draw(cameraBound);
 		}
 		
 	}
@@ -336,7 +339,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	 * @param width int
 	 * @param height int
 	 */
-	public static Component displayView(Simulation simIn,int width,int height)
+	public static Component getView(Simulation simIn,int width,int height)
 	{
 		setSim(simIn);
 
@@ -510,7 +513,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	 */
 	public static void setVisible(boolean visible)
 	{
-			drawSim = visible; // draw if visible
+		drawSim = visible;
 	}
 
  	/**
