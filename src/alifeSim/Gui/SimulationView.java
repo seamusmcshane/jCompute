@@ -211,7 +211,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),"Simulation Display Disabled");
 		}
 		
-		frameNum++;
+		
 		if (overlay)
 		{
 			overlayTTFont.drawString((cameraBound.getMinX() + 10)-globalTranslate.getX(), (cameraBound.getMaxY() - 30)-globalTranslate.getY(),"Frame Updates     :" + frameNum);
@@ -220,7 +220,7 @@ public class SimulationView extends BasicGame implements MouseListener
 
 			//g.draw(cameraBound);
 		}
-		
+		frameNum++;
 	}
 
 	/** Draws the sim view on the image buffer
