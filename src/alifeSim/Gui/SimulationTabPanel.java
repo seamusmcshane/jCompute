@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 import javax.swing.JScrollPane;
@@ -47,6 +48,17 @@ import java.awt.Font;
 
 import javax.swing.UIManager;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
+import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.ChartPanels.PopulationPanel;
+import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
@@ -59,6 +71,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 
+	// Graphs
+	JTabbedPane simulationTabPane;
+	LinkedList<StatPanelAbs> charts;
+	
 	// Editor Releated
 	private JEditorPane scenarioEditor;
 	private JLabel lblFilePath;
@@ -89,7 +105,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public SimulationTabPanel()
 	{		
 		setLayout(new BorderLayout(0, 0));
-		JTabbedPane simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
+		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
 		add(simulationTabPane, BorderLayout.CENTER);
 
 		JPanel simulationInfoTab = new JPanel();
@@ -329,8 +345,20 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 
-		JTabbedPane simulationGraph = new JTabbedPane(JTabbedPane.TOP);
-		simulationTabPane.addTab("Graph", null, simulationGraph, null);
+		/*JTabbedPane simulationGraph = new JTabbedPane(JTabbedPane.TOP);
+		
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		dataset.addValue(1500, "S1", "Population");
+		dataset.addValue(500, "S2", "Population");
+		dataset.addValue(43, "S3", "Population");
+		
+		JFreeChart chart = ChartFactory.createBarChart("Simulation Population", "Species", "Population", dataset, PlotOrientation.VERTICAL, true, false, false);
+		Plot p = chart.getPlot();
+		//p.setRangeGridlinePaint(Color.BLACK);
+		ChartPanel panel = new ChartPanel(chart);
+		
+		simulationTabPane.addTab("Graph", null, panel, null);
+		//simulationGraph.add(panel);*/
 	}
 
 	@Override
@@ -464,6 +492,33 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 	}
 	
+	private void setUpPanels()
+	{
+		
+		// Setup the chart/panel list
+		if(charts == null)
+		{
+			charts = new LinkedList<StatPanelAbs>();
+		}
+		else // Remove Panels
+		{
+			for (StatPanelAbs panel : charts) 
+			{
+				simulationTabPane.remove(panel);
+				charts.remove(panel);
+				panel.destroy();
+			}
+
+		}
+		
+		// Add the default Panels
+		StatPanelAbs temp = new PopulationPanel(sim.getSimManager().getStatmanger());
+		charts.add(temp);
+		simulationTabPane.addTab(temp.getName(),null,temp);
+		
+		sim.setOutPutCharts(charts);
+	}
+	
 	private void newSim(String scenario)
 	{
 		destroySimulation();
@@ -473,6 +528,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sim.createSim(determinScenarios(scenario));
 		SimulationView.setSim(sim);
 
+		
+		setUpPanels();		
 		/*
 		 * If needed the GC can free old objects now, before the simulation
 		 * starts
