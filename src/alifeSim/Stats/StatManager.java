@@ -1,33 +1,58 @@
 package alifeSim.Stats;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 public class StatManager
 {
-	HashMap<String, Stat> map;
+	private String managerName;
+	HashMap<String, StatGroup> map;
 	Semaphore statsManagerLock = new Semaphore(1);
 	
-	public StatManager()
+	public StatManager(String managerName)
 	{
-		map = new HashMap<String, Stat>();
+		this.managerName = managerName;
+		map = new HashMap<String, StatGroup>();
 	}
 	
-	// Stat name is the key
-	public void addStat(Stat stat)
+	// Add a new stat to the stat manager
+	public void registerGroup(StatGroup group)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			map.put(stat.getStatName(), stat);
+			map.put(group.getName(), group);
 		statsManagerLock.release();
 	}
 	
-	public Stat getStat(String statName)
+	// Add a list of group to the stat manager
+	public void registerGroups(List<StatGroup> groupList)
+	{
+		for (StatGroup group : groupList) 
+		{
+			registerGroup(group);
+		}			
+	}
+	
+	// returns a group based on the group name requested
+	public StatGroup getStatGroup(String groupName)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			Stat stat = map.get(statName);
+			StatGroup group = map.get(groupName);
 		statsManagerLock.release();
 		
-		return stat;
+		return group;
+	}
+	
+	// An unsorted list of the Stat names in the manager
+	public Set<String> getStatList()
+	{
+		return map.keySet();
+	}
+
+	public String getname()
+	{
+		return managerName;
 	}
 	
 }

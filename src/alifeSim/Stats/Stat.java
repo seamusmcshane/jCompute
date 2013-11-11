@@ -45,7 +45,7 @@ public class Stat
 		return name;
 	}
 	
-	public void addSample(int listNum,int value)
+	public void addSample(int value)
 	{		
 		// Add the new sample 
 		allSamples.add(value);
@@ -60,21 +60,27 @@ public class Stat
 		{
 			// Remove the last sample
 			int temp = (int) drawWindow.removeLast();
-			runningTotal -=temp;	 // This corrects the averages after 1000 samples and avoids looping over the sample window		
+			runningTotal -=temp;	 // This corrects the averages after avgWindowLenght samples
 			
 			if(avgWindow.size() == avgWindowLenght)
 			{
-				// Just remove the last 1000 sample average
+				// Just remove the last avgWindowLenght sample average
 				avgWindow.removeLast();
 			}
 			
 			// Add the new 1000 sample average
-			avgWindow.add( runningTotal / 1000 );
+			avgWindow.add( runningTotal / avgWindowLenght );
 
 		}
 		
 	}
+	
+	public int getLastSample()
+	{
+		return allSamples.get(allSamples.size()-1);
 		
+	}
+	
 	public void resetStats()
 	{		
 		/* All Samples */
@@ -88,6 +94,11 @@ public class Stat
 		
 		/* FILO 1000avg (for Drawing) */
 		avgWindow = new LinkedList<Integer>();		
+	}
+	
+	public int sampleCount()
+	{
+		return allSamples.size();
 	}
 	
 	public Deque<Integer> getDrawWindow()
