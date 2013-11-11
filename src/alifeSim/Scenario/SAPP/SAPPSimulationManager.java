@@ -8,6 +8,7 @@ import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
@@ -58,22 +59,32 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	public SAPPSimulationManager(SAPPScenario scenario)
 	{
 		this.scenario = scenario;
-		
-		setUpStatManager();
-		
+
 		setUpBarrierManager();
 
 		setUpWorld();
 		
 		setUpPlantManager();
 
-		setUpAgentManager();		
+		setUpAgentManager();	
+		
+		setUpStatManager();
 		
 	}
 	
 	private void setUpStatManager()
 	{
-		statManager = new StatManager();
+		statManager = new StatManager("SAPP");
+		
+		statManager.registerGroup(new StatGroup("Population"));
+		
+		statManager.getStatGroup("Population").registerStats(genericPlantManager.getPopulationStats());
+		
+	}
+	
+	public StatManager getStatmanger()
+	{
+		return statManager;
 	}
 	
 	/**

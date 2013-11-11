@@ -5,6 +5,7 @@ import org.newdawn.slick.Graphics;
 import alifeSim.Alife.DebugAgent.DebugAgent;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSim.datastruct.knn.KDTree;
@@ -114,5 +115,12 @@ public class DebugSimulationManager implements SimulationManagerInf
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public StatManager getStatmanger()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
