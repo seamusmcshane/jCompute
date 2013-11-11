@@ -112,7 +112,7 @@ public class GenericPlantManager
 
 	private void setUpStats()
 	{
-		statPlantTotal = new Stat("Current Plants");
+		statPlantTotal = new Stat("Plants");
 		plantTotal = 0;
 	}
 	

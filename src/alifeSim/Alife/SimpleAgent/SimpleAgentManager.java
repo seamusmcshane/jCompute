@@ -1,12 +1,16 @@
 package alifeSim.Alife.SimpleAgent;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import org.newdawn.slick.Graphics;
+
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Simulation.BarrierManager;
+import alifeSim.Stats.Stat;
 import alifeSim.World.WorldInf;
 
 /**
@@ -37,13 +41,17 @@ public class SimpleAgentManager
 	/** Holds Unique Id position agent id */
 	int agentIdCount;
 	
-	/** The agent count */
-	int agentCount;
-	int agentCountMax;
+	/** The agent count - used in array list size allocation*/
+	int agentCountMax;	
+	
+	private Stat statAgentTotal;	
+	private int agentTotal;
 	
 	/** Predator and prey counts */
-	int preyCount;
-	int predatorCount;
+	private int preyTotal;
+	private Stat statPreyTotal;
+	private int predatorTotal;
+	private Stat statPredatorTotal;
 
 	/** Reference for setting barrier tasks */
 	BarrierManager barrierManager;
@@ -76,12 +84,8 @@ public class SimpleAgentManager
 		
 		this.world = world;
 		
-		agentCount = 0;
-		agentCountMax = 0;
-		preyCount = 0;
-		predatorCount = 0;
-		agentIdCount = 0;
-
+		setUpStats();
+			
 		this.barrierManager = barrierManager;
 
 		setUpLists();
@@ -92,6 +96,18 @@ public class SimpleAgentManager
 		
 	}
 
+	private void setUpStats()
+	{
+		statAgentTotal = new Stat("Agents");
+		statPreyTotal = new Stat("Prey");
+		statPredatorTotal = new Stat("Predators");
+		agentTotal = 0;
+		agentCountMax = 0;
+		preyTotal = 0;
+		predatorTotal= 0;
+		agentIdCount = 0;
+	}
+	
 	/**
 	 * Adds the set number of predators and prey to the world.
 	 * @param worldSize
@@ -150,19 +166,18 @@ public class SimpleAgentManager
 
 		if (agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
-			predatorCount++;
+			predatorTotal++;
 		}
-		else
-		// AgentType.PREY
+		else // AgentType.PREY
 		{
-			preyCount++;
+			preyTotal++;
 		}
 
-		agentCount++;
+		agentTotal++;
 
-		if(agentCount > agentCountMax)
+		if(agentTotal > agentCountMax)
 		{
-			agentCountMax = agentCount;
+			agentCountMax = agentTotal;
 		}
 		
 	}
@@ -176,15 +191,15 @@ public class SimpleAgentManager
 
 		if (agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
-			predatorCount++;
+			predatorTotal++;
 		}
 		else
 		// AgentType.PREY
 		{
-			preyCount++;
+			preyTotal++;
 		}
 
-		agentCount++;
+		agentTotal++;
 
 		agentIdCount++;
 
@@ -235,7 +250,6 @@ public class SimpleAgentManager
 			}
 
 		}
-
 	}
 
 	/** Agent List preparation for the barrier */
@@ -251,7 +265,7 @@ public class SimpleAgentManager
 	/** Sets the barrier task for agents */
 	public void stage2()
 	{
-		barrierManager.setBarrierAgentTask(doList, agentCount);
+		barrierManager.setBarrierAgentTask(doList, agentTotal);
 	}
 
 	/** This stage performs the list updating and stats updates. */
@@ -267,9 +281,9 @@ public class SimpleAgentManager
 	 * Agents that are dead stay in the do list which gets nullified at the start next step. */
 	private void updateDoneList()
 	{
-		agentCount = 0;
-		preyCount = 0;
-		predatorCount = 0;
+		agentTotal = 0;
+		preyTotal = 0;
+		predatorTotal = 0;
 		//StatsPanel.statsDensityPanel.resetStats();
 		
 		for (SimpleAgent temp : doList) 
@@ -303,6 +317,11 @@ public class SimpleAgentManager
 			//}
 			
 		}
+		
+		statAgentTotal.addSample(agentTotal);
+		statPredatorTotal.addSample(predatorTotal);
+		statPreyTotal.addSample(preyTotal);
+
 	}
 
 	/** Sets up the safe starting position for the lists */
@@ -324,7 +343,7 @@ public class SimpleAgentManager
 	 * @return agentCount */
 	public int getAgentCount()
 	{
-		return agentCount;
+		return agentTotal;
 	}
 
 	/**
@@ -332,7 +351,7 @@ public class SimpleAgentManager
 	 * @return preyCount */
 	public int getPreyCount()
 	{
-		return preyCount;
+		return preyTotal;
 	}
 
 	/**
@@ -340,7 +359,18 @@ public class SimpleAgentManager
 	 * @return predatorCount */
 	public int getPredatorCount()
 	{
-		return predatorCount;
+		return predatorTotal;
+	}
+
+	public List<Stat> getPopulationStats()
+	{
+
+		List<Stat> stat = new LinkedList<Stat>();
+		
+		stat.add(statPredatorTotal);
+		stat.add(statPreyTotal);
+		
+		return stat;
 	}
 
 }

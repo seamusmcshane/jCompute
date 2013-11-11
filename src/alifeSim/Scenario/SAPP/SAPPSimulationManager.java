@@ -80,6 +80,8 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		
 		statManager.getStatGroup("Population").registerStats(genericPlantManager.getPopulationStats());
 		
+		statManager.getStatGroup("Population").registerStats(simpleAgentManager.getPopulationStats());
+		
 	}
 	
 	public StatManager getStatmanger()
