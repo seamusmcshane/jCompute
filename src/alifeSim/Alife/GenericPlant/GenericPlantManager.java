@@ -3,6 +3,7 @@ package alifeSim.Alife.GenericPlant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
@@ -13,6 +14,9 @@ import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationPerformanceStats;
+import alifeSim.Stats.Stat;
+import alifeSim.Stats.StatGroup;
+import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSim.World.WorldSetupSettings;
@@ -31,11 +35,11 @@ public class GenericPlantManager
 	private ArrayList<GenericPlant> doList;
 	private ArrayList<GenericPlant> doneList;
 	
-	/** The Total number of plants managed by this class */
-	private int plantCount = 0;
-
-	/** The iterator used to draw the plants */
-	//private ListIterator<GenericPlant> itrDrawPlant;
+	/** The Total number of plants */
+	// plantTotal is the variable use to create a sample
+	// statPlantTotal is the stat object used to record all samples
+	private Stat statPlantTotal;	
+	private int plantTotal;
 
 	/** The size of the world, needed for correctly placing new plants */
 	private int worldSize;
@@ -61,7 +65,6 @@ public class GenericPlantManager
 
 	/** Reference for setting task in the */
 	private BarrierManager barrierManager;
-
 	
 	/*
 	 * Internal
@@ -83,6 +86,8 @@ public class GenericPlantManager
 	 */
 	public GenericPlantManager(WorldInf world, BarrierManager barrierManager, GenericPlantSetupSettings plantSettings)
 	{
+		setUpStats();
+		
 		this.world = world;
 		
 		this.initalNumber = plantSettings.getInitialPlantNumbers();
@@ -103,6 +108,21 @@ public class GenericPlantManager
 		
 		addPlants(initalNumber,true);
 
+	}
+
+	private void setUpStats()
+	{
+		statPlantTotal = new Stat("Current Plants");
+		plantTotal = 0;
+	}
+	
+	public List<Stat> getPopulationStats()
+	{
+		List<Stat> stat = new LinkedList<Stat>();
+		
+		stat.add(statPlantTotal);
+		
+		return stat;
 	}
 
 	/** Draws all the plants with a toggle for body type
@@ -149,7 +169,7 @@ public class GenericPlantManager
 	/** Sets the barrier task for plants */
 	public void stage2()
 	{
-		barrierManager.setBarrierPlantTask(doList, plantCount);
+		barrierManager.setBarrierPlantTask(doList, plantTotal);
 	}
 
 	/** This stage performs the list updating, addition of new plants and stats updates. */
@@ -168,7 +188,7 @@ public class GenericPlantManager
 	private void updateDoneList()
 	{
 		/* Recount all the plants - since some will have died... */
-		plantCount = 0;
+		plantTotal = 0;
 		
 		for (GenericPlant temp : doList) 
 		{
@@ -193,9 +213,15 @@ public class GenericPlantManager
 
 				/** Plant is not dead add it to the done list */
 				doneList.add(temp);
-				plantCount++;
+				plantTotal++;
 			}
 		}
+		
+		/* Add a sample to the stat recorder */
+		statPlantTotal.addSample(plantTotal);
+		
+		//System.out.println("Stat Size" + statPlantTotal.sampleCount());
+		
 	}
 
 	/** 
@@ -241,7 +267,7 @@ public class GenericPlantManager
 	private void addNewPlant(GenericPlant plant)
 	{
 		doneList.add(plant);
-		plantCount++;
+		plantTotal++;
 	}
 
 	/** 
@@ -260,7 +286,7 @@ public class GenericPlantManager
 	 * @return int */
 	public int getPlantNo()
 	{
-		return plantCount;
+		return plantTotal;
 	}
 
 }

@@ -4,18 +4,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Line;
-
-import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
-import alifeSim.Gui.StatsPanel;
-import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
-import alifeSim.Stats.Stats;
-import alifeSim.World.World;
 import alifeSim.World.WorldInf;
-import alifeSim.World.WorldSetupSettings;
 
 /**
  * 
@@ -101,7 +93,7 @@ public class SimpleAgentManager
 	}
 
 	/**
-	 * Adds in build the set number of predators and prey to the world.
+	 * Adds the set number of predators and prey to the world.
 	 * @param worldSize
 	 * @param agentPreyNumbers
 	 * @param agentPredatorNumbers
