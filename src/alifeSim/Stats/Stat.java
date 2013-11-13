@@ -1,9 +1,12 @@
 package alifeSim.Stats;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class Stat
 {	
@@ -14,14 +17,15 @@ public class Stat
 	private List<Integer> allSamples;
 	
 	/* Last n samples */
-	private Deque<Integer> drawWindow;
+	private List<Number> drawWindow;
 	private int drawWindowLength = 1000;
+	private Semaphore drawLock = new Semaphore(1);
 	
-	/* Running total for average of last 1000 samples */
+	/* Running total for average of last 5000 samples */
 	private int runningTotal;	
 	
 	/* FILO of 1000avg sample averages */
-	private Deque<Integer> avgWindow;
+	private List<Number> avgWindow;
 	private int avgWindowLenght = 1000;
 	
 	public Stat()
@@ -47,6 +51,7 @@ public class Stat
 	
 	public void addSample(int value)
 	{		
+		drawLock.acquireUninterruptibly();
 		// Add the new sample 
 		allSamples.add(value);
 		
@@ -59,41 +64,42 @@ public class Stat
 		if(drawWindow.size() == drawWindowLength)
 		{
 			// Remove the last sample
-			int temp = (int) drawWindow.removeLast();
-			runningTotal -=temp;	 // This corrects the averages after avgWindowLenght samples
+			Number temp = drawWindow.remove(0);
+			runningTotal -=temp.intValue();	 // This corrects the averages after avgWindowLenght samples
 			
 			if(avgWindow.size() == avgWindowLenght)
 			{
 				// Just remove the last avgWindowLenght sample average
-				avgWindow.removeLast();
+				avgWindow.remove(0);
 			}
 			
 			// Add the new 1000 sample average
 			avgWindow.add( runningTotal / avgWindowLenght );
 
 		}
+		drawLock.release();
 		
 	}
 	
 	public int getLastSample()
 	{
-		return allSamples.get(allSamples.size()-1);
-		
+		return allSamples.get(allSamples.size()-1);		
 	}
 	
 	public void resetStats()
 	{		
 		/* All Samples */
-		allSamples = new ArrayList<Integer>();
+		allSamples = new LinkedList<Integer>();
 		
 		/* Last 1000 samples (for drawing) */
-		drawWindow = new LinkedList<Integer>();
+		drawWindow = new ArrayList<Number>();
+		addSample(0);
 		
 		/* Running Total for each list */
 		runningTotal = 0;
 		
 		/* FILO 1000avg (for Drawing) */
-		avgWindow = new LinkedList<Integer>();		
+		avgWindow = new ArrayList<Number>();		
 	}
 	
 	public int sampleCount()
@@ -101,12 +107,22 @@ public class Stat
 		return allSamples.size();
 	}
 	
-	public Deque<Integer> getDrawWindow()
+	public Collection<Number> getDrawWindowCollection()
 	{	
 		return drawWindow;	
 	}
 	
-	public Deque<Integer> getAvgWindow()
+	public List<Number> getDrawWindow()
+	{	
+		List drawWindowCopy = new ArrayList<Number>(drawWindow);
+		
+		Collections.reverse(drawWindowCopy);
+		
+		return drawWindowCopy;	
+	}	
+	
+	
+	public List<Number> getAvgWindow()
 	{
 		return avgWindow;		
 	}
