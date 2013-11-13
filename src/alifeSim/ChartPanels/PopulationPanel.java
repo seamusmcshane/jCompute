@@ -11,16 +11,19 @@ import info.monitorenter.gui.chart.views.ChartPanel;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 import java.awt.GridLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.border.TitledBorder;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import java.awt.BorderLayout;
+import javax.swing.UIManager;
 
 public class PopulationPanel extends StatPanelAbs
 {
@@ -33,6 +36,11 @@ public class PopulationPanel extends StatPanelAbs
 	StatGroup populationGroup;
 	String groupName = "Population";
 	String category = "Species";
+
+	JFreeChart populationBarChart;
+	org.jfree.chart.ChartPanel populationBarChartPanel;
+	DefaultCategoryDataset populationDataset;
+	Plot populationChartPlot;
 
 	// 
 	Chart2D chart2d;
@@ -47,6 +55,22 @@ public class PopulationPanel extends StatPanelAbs
 		populationGroup = manager.getStatGroup(groupName);		
 		setLayout(new GridLayout(2, 1, 0, 0));
 		createHistoryChart2D();
+		createBarChart();
+	}
+	
+	private void createBarChart()
+	{
+		populationDataset = new DefaultCategoryDataset();
+		populationBarChart = ChartFactory.createBarChart3D(null, null, null, populationDataset, PlotOrientation.VERTICAL, true, false, false);
+		populationChartPlot = populationBarChart.getCategoryPlot();
+		populationBarChartPanel = new org.jfree.chart.ChartPanel(populationBarChart);
+		populationBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current Populations", TitledBorder.CENTER, TitledBorder.TOP, null, null));
+		for(int i=0;i<100;i++)
+		{
+			populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(i,new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f)));
+		}
+		
+		add(populationBarChartPanel);
 	}
 	
 	private void createHistoryChart2D()
@@ -112,6 +136,9 @@ public class PopulationPanel extends StatPanelAbs
 				}
 				
 				tempT.addPoint(traceAdds,populationGroup.getStat(statName).getLastSample());
+				
+				populationDataset.setValue(populationGroup.getStat(statName).getLastSample(), statName, category);
+				
 			}
 
 
