@@ -50,6 +50,11 @@ public class Stat
 	
 	}
 
+	public void setColor(Color color)
+	{
+		this.statColor = color;
+	}
+	
 	public Color getColor()
 	{
 		return statColor;

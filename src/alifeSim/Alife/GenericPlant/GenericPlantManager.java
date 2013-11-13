@@ -1,5 +1,6 @@
 package alifeSim.Alife.GenericPlant;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -113,6 +114,7 @@ public class GenericPlantManager
 	private void setUpStats()
 	{
 		statPlantTotal = new Stat("Plants");
+		statPlantTotal.setColor(Color.green);
 		plantTotal = 0;
 	}
 	

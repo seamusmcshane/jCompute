@@ -1,5 +1,6 @@
 package alifeSim.Alife.SimpleAgent;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,7 +101,9 @@ public class SimpleAgentManager
 	{
 		statAgentTotal = new Stat("Agents");
 		statPreyTotal = new Stat("Prey");
+		statPreyTotal.setColor(Color.blue);
 		statPredatorTotal = new Stat("Predators");
+		statPredatorTotal.setColor(Color.red);
 		agentTotal = 0;
 		agentCountMax = 0;
 		preyTotal = 0;
