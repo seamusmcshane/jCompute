@@ -12,7 +12,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.HashMap;
-import java.util.concurrent.Semaphore;
 import java.awt.GridLayout;
 
 import javax.swing.border.TitledBorder;
@@ -22,7 +21,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
-import java.awt.BorderLayout;
+
 import javax.swing.UIManager;
 
 public class PopulationPanel extends StatPanelAbs
@@ -30,32 +29,36 @@ public class PopulationPanel extends StatPanelAbs
 	private static final long serialVersionUID = -3572724823868862025L;
 	
 	private final String name = "Population";
-	
-	private Semaphore resizeLock = new Semaphore(1);
-		
+			
 	StatGroup populationGroup;
 	String groupName = "Population";
 	String category = "Species";
 
 	JFreeChart populationBarChart;
+	int series = 0;
 	org.jfree.chart.ChartPanel populationBarChartPanel;
 	DefaultCategoryDataset populationDataset;
 	Plot populationChartPlot;
 
-	// 
-	Chart2D chart2d;
-	ITrace2D trace;
 	int traceAdds;
-	HashMap<String,ITrace2D> traceMap;
 	Font chartFont = new Font("Sans", Font.BOLD, 12);
-	ChartPanel chartPanel;
 	
+	// Short Term
+	Chart2D chart2dST;
+	ITrace2D traceST;
+	HashMap<String,ITrace2D> traceMapST;
+	ChartPanel chartPanelST;
+	int stSamDiv = 100;
+	int stSamWin = 100;
+	int stSamPer = stSamDiv*stSamWin;
+			
 	public PopulationPanel(StatManager manager)
 	{
 		populationGroup = manager.getStatGroup(groupName);		
 		setLayout(new GridLayout(2, 1, 0, 0));
-		createHistoryChart2D();
+		createHistoryChart2DST();
 		createBarChart();
+		traceAdds = 0;
 	}
 	
 	private void createBarChart()
@@ -64,44 +67,35 @@ public class PopulationPanel extends StatPanelAbs
 		populationBarChart = ChartFactory.createBarChart3D(null, null, null, populationDataset, PlotOrientation.VERTICAL, true, false, false);
 		populationChartPlot = populationBarChart.getCategoryPlot();
 		populationBarChartPanel = new org.jfree.chart.ChartPanel(populationBarChart);
-		populationBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current Populations", TitledBorder.CENTER, TitledBorder.TOP, null, null));
-		for(int i=0;i<100;i++)
-		{
-			populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(i,new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f)));
-		}
+		populationBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER, TitledBorder.TOP, null, null));
+
 		
 		add(populationBarChartPanel);
 	}
 	
-	private void createHistoryChart2D()
+	private void createHistoryChart2DST()
 	{
-		traceMap = new HashMap<String,ITrace2D>();
-		chart2d = new Chart2D();
-		chart2d.setUseAntialiasing(true);
-		chart2d.enablePointHighlighting(true);
-		chart2d.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
-		chart2d.getAxisY().getAxisTitle().setTitle("Population");
-		chart2d.getAxisY().getAxisTitle().setTitleFont(chartFont);
-		chart2d.getAxisX().getAxisTitle().setTitle("Step");
-		chart2d.getAxisX().getAxisTitle().setTitleFont(chartFont);
-		chart2d.setGridColor(new Color(192,192,192));
-		chart2d.getAxisY().setPaintGrid(true);
-		chart2d.getAxisX().setPaintGrid(true);
-		chart2d.setBackground(Color.white);
-		chartPanel = new ChartPanel(chart2d);
+		traceMapST = new HashMap<String,ITrace2D>();
+		chart2dST = new Chart2D();
+		chart2dST.setUseAntialiasing(true);
+		chart2dST.enablePointHighlighting(false);
+		chart2dST.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
+		chart2dST.getAxisY().getAxisTitle().setTitle("Population");
+		chart2dST.getAxisY().getAxisTitle().setTitleFont(chartFont);
+		chart2dST.getAxisX().getAxisTitle().setTitle("Step");
+		chart2dST.getAxisX().getAxisTitle().setTitleFont(chartFont);
+		chart2dST.setGridColor(new Color(192,192,192));
+		chart2dST.getAxisY().setPaintGrid(true);
+		chart2dST.getAxisX().setPaintGrid(true);
+		chart2dST.setBackground(Color.white);
+		chartPanelST = new ChartPanel(chart2dST);
 		
-		chartPanel.setBorder(new TitledBorder(null, "Historical", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
-		chartPanel.setBackground(Color.white);
-		
-	/*	trace = new Trace2DLtd(200);
-		trace.setColor(Color.RED);
-		chart2d.addTrace(trace);*/
-		traceAdds = 0;
-		add(chartPanel);
-		chartPanel.getChart().setLayout(new BorderLayout(0, 0));
-		
-	}
-		
+		chartPanelST.setBorder(new TitledBorder(null, "Historical", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
+		chartPanelST.setBackground(Color.white);
+
+		add(chartPanelST);		
+	}		
+
 	@Override
 	public void destroy()
 	{
@@ -113,39 +107,42 @@ public class PopulationPanel extends StatPanelAbs
 	@Override
 	public void update()
 	{
-		resizeLock.acquireUninterruptibly();
-
 		for (String statName : populationGroup.getStatList()) 
 		{
 			
-			if(traceAdds%45 == 0)
+			if(traceAdds%stSamDiv == 0)
 			{
-				ITrace2D tempT = traceMap.get(statName);
-				
+				ITrace2D tempT = traceMapST.get(statName);
+			
+				// This is a new stat being detected
 				if(tempT == null)
 				{
 
-					tempT = new Trace2DLtd(100);
+					tempT = new Trace2DLtd(stSamWin);
 					tempT.setName(statName);
 				
-					tempT.setColor(new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f)));
-					tempT.setStroke(new BasicStroke(2));
-					traceMap.put(statName,tempT);
-					chart2d.addTrace(tempT);
-					tempT.setPointHighlighter(new PointPainterDisc(8));
+					tempT.setColor(populationGroup.getStat(statName).getColor());
+					tempT.setStroke(new BasicStroke(1));
+					traceMapST.put(statName,tempT);
+					chart2dST.addTrace(tempT);
+					tempT.setPointHighlighter(new PointPainterDisc(4));
+					
+					// Update the series in the bar chart with the new stats color
+					populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,tempT.getColor());
+					
+					// Update series totals
+					series++;
 				}
 				
+				// Set the values
 				tempT.addPoint(traceAdds,populationGroup.getStat(statName).getLastSample());
-				
 				populationDataset.setValue(populationGroup.getStat(statName).getLastSample(), statName, category);
-				
 			}
-
-
+			
 		}
+		
 		traceAdds++;
 		
-		resizeLock.release();
 	}
 	
 	public String getName()
