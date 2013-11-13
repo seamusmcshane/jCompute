@@ -1,6 +1,5 @@
 package alifeSim.Simulation;
 
-import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
 
 public class SimulationPerformanceStats

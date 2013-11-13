@@ -6,7 +6,6 @@ import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
 import alifeSim.ChartPanels.StatPanelAbs;
-import alifeSim.Gui.SimulationGUI;
 import alifeSim.Gui.StatsPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenariosTypes.Scenario;

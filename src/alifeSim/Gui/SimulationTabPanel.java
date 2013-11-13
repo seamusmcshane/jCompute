@@ -306,6 +306,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 																																controlPanel.add(sliderSimStepRate, gbc_sliderSimStepRate);
 																																
 																																		btnGenerateSim = new JButton("Generate");
+																																		btnGenerateSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/grid.png")));
 																																		btnGenerateSim.addActionListener(this);
 																																		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
 																																		btnGenerateSim.setEnabled(false);
@@ -317,6 +318,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 																																		controlPanel.add(btnGenerateSim, gbc_btnGenerateSim);
 																																		
 																																				btnStartSim = new JButton("Start");
+																																				btnStartSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/play.png")));
 																																				btnStartSim.addActionListener(this);
 																																				btnStartSim.setToolTipText("Start the simulation.");
 																																				btnStartSim.setEnabled(false);
@@ -328,6 +330,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 																																				controlPanel.add(btnStartSim, gbc_btnStartSim);
 																																				
 																																						btnPauseSim = new JButton("   Pause");
+																																						btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
 																																						btnPauseSim.addActionListener(this);
 																																						btnPauseSim.setToolTipText("Pause / Unpause the simulation.");
 																																						btnPauseSim.setEnabled(false);
@@ -337,20 +340,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 																																						gbc_btnPauseSim.gridy = 3;
 																																						controlPanel.add(btnPauseSim, gbc_btnPauseSim);
 
-		/*JTabbedPane simulationGraph = new JTabbedPane(JTabbedPane.TOP);
-		
-		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		dataset.addValue(1500, "S1", "Population");
-		dataset.addValue(500, "S2", "Population");
-		dataset.addValue(43, "S3", "Population");
-		
-		JFreeChart chart = ChartFactory.createBarChart("Simulation Population", "Species", "Population", dataset, PlotOrientation.VERTICAL, true, false, false);
-		Plot p = chart.getPlot();
-		//p.setRangeGridlinePaint(Color.BLACK);
-		ChartPanel panel = new ChartPanel(chart);
-		
-		simulationTabPane.addTab("Graph", null, panel, null);
-		//simulationGraph.add(panel);*/
 	}
 
 	@Override
@@ -536,7 +525,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		btnPauseSim.setText("   Pause");
 
-		btnPauseSim.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alifeSim/icons/pause.png")));
+		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
 
 		sliderSimStepRate.setEnabled(false);
 
@@ -620,7 +609,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		sim.pauseSim();
 
-		btnPauseSim.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alifeSim/icons/resume.png")));
+		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
 
 	}
 
@@ -631,7 +620,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		sim.unPauseSim();
 
-		btnPauseSim.setIcon(new ImageIcon(SimulationGUI.class.getResource("/alifeSim/icons/pause.png")));
+		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
 	}
 
 	@Override
