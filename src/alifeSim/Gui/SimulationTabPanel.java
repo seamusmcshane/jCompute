@@ -48,14 +48,6 @@ import java.awt.Font;
 
 import javax.swing.UIManager;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
-
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.ChartPanels.PopulationPanel;
 import alifeSim.ChartPanels.StatPanelAbs;
