@@ -1,23 +1,32 @@
 package alifeSim.ChartPanels;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.category.SlidingCategoryDataset;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import com.xeiam.xchart.Chart;
+import com.xeiam.xchart.SeriesLineStyle;
+import com.xeiam.xchart.SeriesMarker;
+import com.xeiam.xchart.StyleManager.LegendPosition;
+import com.xeiam.xchart.XChartPanel;
 
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
+import info.monitorenter.gui.chart.Chart2D;
+import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.pointpainters.PointPainterDisc;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.gui.chart.views.ChartPanel;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.Font;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
+import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.border.TitledBorder;
+
+import java.awt.BorderLayout;
 
 public class PopulationPanel extends StatPanelAbs
 {
@@ -25,109 +34,59 @@ public class PopulationPanel extends StatPanelAbs
 	
 	private final String name = "Population";
 	
-	// Chart 1
-	JFreeChart populationBarChart;
-	ChartPanel populationBarChartPanel;
-	DefaultCategoryDataset populationDataset;
-	Plot populationChartPlot;
-	
-	// Chart 2
-	JFreeChart populationAreaChart;
-	ChartPanel populationAreaChartPanel;
-	
-	HashMap<String,XYSeries> map;
-	
-	XYSeries series1;
-	XYSeries series2;
-	XYSeries series3;
-	XYSeriesCollection populationAreaDataset;
-	Plot populationAreaChartPlot;
-	
+	private Semaphore resizeLock = new Semaphore(1);
+		
 	StatGroup populationGroup;
 	String groupName = "Population";
 	String category = "Species";
-	
-	private int totalAdds;
-	private int windowSize = 5000;
+
+	// 
+	Chart2D chart2d;
+	ITrace2D trace;
+	int traceAdds;
+	HashMap<String,ITrace2D> traceMap;
+	Font chartFont = new Font("Sans", Font.BOLD, 12);
+	ChartPanel chartPanel;
 	
 	public PopulationPanel(StatManager manager)
 	{
-		totalAdds = 0;
-		
-		map = new HashMap<String,XYSeries>();
-		
+		populationGroup = manager.getStatGroup(groupName);		
 		setLayout(new GridLayout(2, 1, 0, 0));
-		
-		populationDataset = new DefaultCategoryDataset();
-				
-		populationBarChart = ChartFactory.createBarChart3D("Species Populations", null, null, populationDataset, PlotOrientation.VERTICAL, true, false, false);
-		
-
-		
-		populationChartPlot = populationBarChart.getCategoryPlot();
-		
-		populationBarChartPanel = new ChartPanel(populationBarChart);
-		
-		add(populationBarChartPanel);
-		//simulationGraph.add(panel);*/	
-		
-		
-		series1 =  new XYSeries("Plants");
-		
-		series1.setMaximumItemCount(windowSize);
-		series2 =  new XYSeries("Predators");
-		series2.setMaximumItemCount(windowSize);
-		series3 =  new XYSeries("Prey");
-		series3.setMaximumItemCount(windowSize);
-		
-		map.put("Plants", series1);
-		map.put("Predators", series2);
-		map.put("Prey", series3);
-
-		populationAreaDataset = new XYSeriesCollection();
-		populationAreaDataset.setAutoWidth(false);
-				
-		populationAreaDataset.addSeries(series1);
-		populationAreaDataset.addSeries(series2);
-		populationAreaDataset.addSeries(series3);
-		
-		//slidingPopulationAreaDataset = new SlidingXYDataset(populationAreaDataset, 1, 10);
-		
-		populationAreaChart = ChartFactory.createXYLineChart("Population Dynamic",  "Step", "Population",populationAreaDataset);
-		
-		//.populationAreaChartPlot = populationAreaChart.getCategoryPlot();
-		
-		populationAreaChartPanel = new ChartPanel(populationAreaChart);
-		
-		add(populationAreaChartPanel);
-		
-		populationGroup = manager.getStatGroup(groupName);
-		
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.GREEN);
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesItemLabelsVisible(0, true);
-		populationAreaChart.getXYPlot().getRenderer().setSeriesPaint(0, Color.GREEN);
-		
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(1, Color.RED);
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesItemLabelsVisible(1, true);
-		populationAreaChart.getXYPlot().getRenderer().setSeriesPaint(1, Color.RED);
-
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(2, Color.BLUE);
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesItemLabelsVisible(2, true);
-		populationAreaChart.getXYPlot().getRenderer().setSeriesPaint(2, Color.BLUE);
-		
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(3, Color.yellow);
-		populationBarChart.getCategoryPlot().getRenderer().setSeriesItemLabelsVisible(2, false);
-		populationAreaChart.getXYPlot().getRenderer().setSeriesPaint(3, Color.yellow);
-
+		createHistoryChart2D();
 	}
 	
+	private void createHistoryChart2D()
+	{
+		traceMap = new HashMap<String,ITrace2D>();
+		chart2d = new Chart2D();
+		chart2d.setUseAntialiasing(true);
+		chart2d.enablePointHighlighting(true);
+		chart2d.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
+		chart2d.getAxisY().getAxisTitle().setTitle("Population");
+		chart2d.getAxisY().getAxisTitle().setTitleFont(chartFont);
+		chart2d.getAxisX().getAxisTitle().setTitle("Step");
+		chart2d.getAxisX().getAxisTitle().setTitleFont(chartFont);
+		chart2d.setGridColor(new Color(192,192,192));
+		chart2d.getAxisY().setPaintGrid(true);
+		chart2d.getAxisX().setPaintGrid(true);
+		chart2d.setBackground(Color.white);
+		chartPanel = new ChartPanel(chart2d);
+		
+		chartPanel.setBorder(new TitledBorder(null, "Historical", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
+		chartPanel.setBackground(Color.white);
+		
+	/*	trace = new Trace2DLtd(200);
+		trace.setColor(Color.RED);
+		chart2d.addTrace(trace);*/
+		traceAdds = 0;
+		add(chartPanel);
+		chartPanel.getChart().setLayout(new BorderLayout(0, 0));
+		
+	}
+		
 	@Override
 	public void destroy()
 	{
-		populationBarChart = null;
-		populationBarChartPanel = null;
-		populationDataset = null;
-		populationChartPlot = null;
 		populationGroup = null;
 		groupName = null;
 		category = null;
@@ -136,13 +95,36 @@ public class PopulationPanel extends StatPanelAbs
 	@Override
 	public void update()
 	{
+		resizeLock.acquireUninterruptibly();
+
 		for (String statName : populationGroup.getStatList()) 
 		{
-			populationDataset.setValue(populationGroup.getStat(statName).getLastSample(), statName, category);
-						
-			map.get(statName).add(totalAdds, populationGroup.getStat(statName).getLastSample());		
+			
+			if(traceAdds%45 == 0)
+			{
+				ITrace2D tempT = traceMap.get(statName);
+				
+				if(tempT == null)
+				{
+
+					tempT = new Trace2DLtd(100);
+					tempT.setName(statName);
+				
+					tempT.setColor(new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f)));
+					tempT.setStroke(new BasicStroke(2));
+					traceMap.put(statName,tempT);
+					chart2d.addTrace(tempT);
+					tempT.setPointHighlighter(new PointPainterDisc(8));
+				}
+				
+				tempT.addPoint(traceAdds,populationGroup.getStat(statName).getLastSample());
+			}
+
+
 		}
-		totalAdds++;	
+		traceAdds++;
+		
+		resizeLock.release();
 	}
 	
 	public String getName()
