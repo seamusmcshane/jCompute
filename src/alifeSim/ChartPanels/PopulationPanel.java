@@ -1,11 +1,5 @@
 package alifeSim.ChartPanels;
 
-import com.xeiam.xchart.Chart;
-import com.xeiam.xchart.SeriesLineStyle;
-import com.xeiam.xchart.SeriesMarker;
-import com.xeiam.xchart.StyleManager.LegendPosition;
-import com.xeiam.xchart.XChartPanel;
-
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import info.monitorenter.gui.chart.Chart2D;

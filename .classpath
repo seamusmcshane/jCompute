@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="libs/xchart"/>
 	<classpathentry kind="src" path="libs/kdtree/rednaxela-knn-benchmark"/>
 	<classpathentry kind="src" path="libs/ini4j/ini4j-0.5.2/src/main/java"/>
 	<classpathentry kind="src" path="libs/fastMath"/>
