@@ -48,6 +48,9 @@ public class SimulationInfoTabPanel extends JPanel
 	private ChartPanel chartPanelST;
 	private int stSamWin = 30;
 	
+	ITrace2D runTime;
+	float cOffset=0.8f;
+	
 	public SimulationInfoTabPanel()
 	{
 		super();
@@ -76,9 +79,9 @@ public class SimulationInfoTabPanel extends JPanel
 		chart2dST.setUseAntialiasing(true);
 		//chart2dST.enablePointHighlighting(false);
 		//chart2dST.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
-		chart2dST.getAxisY().getAxisTitle().setTitle("Simulation Step Rate");
+		chart2dST.getAxisY().getAxisTitle().setTitle("Step Rate");
 		chart2dST.getAxisY().getAxisTitle().setTitleFont(chartFont);
-		chart2dST.getAxisX().getAxisTitle().setTitle("Sample");
+		chart2dST.getAxisX().getAxisTitle().setTitle("");
 		chart2dST.getAxisX().getAxisTitle().setTitleFont(chartFont);
 		chart2dST.setGridColor(new Color(192,192,192));
 		chart2dST.getAxisY().setPaintGrid(true);
@@ -90,6 +93,13 @@ public class SimulationInfoTabPanel extends JPanel
 		chartPanelST.setBackground(Color.white);
 		chartPanelST.setPreferredSize(new Dimension(350,250));
 		add(chartPanelST, BorderLayout.NORTH);	
+		
+		runTime = new Trace2DLtd(stSamWin);
+		runTime.setName("Run Time");
+		
+		chart2dST.addTrace(runTime);
+		chart2dST.setMinPaintLatency(1000);
+		
 	}	
 	
 	public void update()
@@ -104,7 +114,9 @@ public class SimulationInfoTabPanel extends JPanel
 					tempT = new Trace2DLtd(stSamWin);
 					tempT.setName(row.getColum(0));
 				
-					tempT.setColor( new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f)));
+					cOffset+=0.13f;
+					cOffset=cOffset%1f;
+					tempT.setColor( new Color(Color.HSBtoRGB(cOffset,0.9f,1f)));
 					tempT.setStroke(new BasicStroke(1));
 					traceMapST.put(row.getColum(0),tempT);
 					chart2dST.addTrace(tempT);
@@ -115,6 +127,8 @@ public class SimulationInfoTabPanel extends JPanel
 				tempT.addPoint(traceAdds,Integer.parseInt(row.getColum(3)));		
 			
 		}
+		
+		runTime.addPoint(traceAdds,0);
 		
 		traceAdds++;
 		

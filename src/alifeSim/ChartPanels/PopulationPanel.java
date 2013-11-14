@@ -93,7 +93,7 @@ public class PopulationPanel extends StatPanelAbs
 		
 		chartPanelST.setBorder(new TitledBorder(null, "Historical", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
 		chartPanelST.setBackground(Color.white);
-
+		chart2dST.setMinPaintLatency(1000);
 		add(chartPanelST);		
 	}		
 
