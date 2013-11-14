@@ -95,6 +95,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private Simulation sim;
 	private static boolean generatingSim = false;
 
+	private String state = "New";
+	
 	public SimulationTabPanel()
 	{
 		setLayout(new BorderLayout(0, 0));
@@ -110,8 +112,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioPanel.setLayout(new BorderLayout(0, 0));
 
 		JPanel scenarioOpenPanel = new JPanel();
+		scenarioOpenPanel.setBorder(null);
 		scenarioPanel.add(scenarioOpenPanel, BorderLayout.SOUTH);
 		GridBagLayout gbl_scenarioOpenPanel = new GridBagLayout();
+		
 		gbl_scenarioOpenPanel.rowHeights = new int[]
 		{0};
 		gbl_scenarioOpenPanel.columnWidths = new int[]
@@ -123,24 +127,26 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioOpenPanel.setLayout(gbl_scenarioOpenPanel);
 
 		btnOpen = new JButton("Open");
+		btnOpen.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-open.png")));
 		btnOpen.addActionListener(this);
 		GridBagConstraints gbc_btnOpen = new GridBagConstraints();
 		gbc_btnOpen.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnOpen.insets = new Insets(0, 0, 0, 5);
+		gbc_btnOpen.insets = new Insets(0, 0, 0, 0);
 		gbc_btnOpen.gridx = 0;
 		gbc_btnOpen.gridy = 0;
 		scenarioOpenPanel.add(btnOpen, gbc_btnOpen);
 
 		btnSave = new JButton("Save");
+		btnSave.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-save.png")));
 		btnSave.addActionListener(this);
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnSave.insets = new Insets(0, 0, 0, 5);
 		gbc_btnSave.gridx = 1;
 		gbc_btnSave.gridy = 0;
 		scenarioOpenPanel.add(btnSave, gbc_btnSave);
 
 		btnClose = new JButton("Close");
+		btnClose.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-close.png")));
 		btnClose.addActionListener(this);
 		GridBagConstraints gbc_btnClose = new GridBagConstraints();
 		gbc_btnClose.fill = GridBagConstraints.HORIZONTAL;
@@ -588,6 +594,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private void simStartedState()
 	{
 
+		state = "Running";
+		
 		sim.startSim();
 
 		btnGenerateSim.setEnabled(false);
@@ -604,6 +612,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		System.out.println("Simulation now in Startup State");
 
+		state = "New";
+		
 		clearStats();
 
 		btnStartSim.setEnabled(false);
@@ -615,6 +625,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void simPausedState()
 	{
+		state = "Paused";
+		
 		btnPauseSim.setText("Resume");
 		btnGenerateSim.setEnabled(true);
 
@@ -626,6 +638,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void simUnPausedState()
 	{
+		state = "Running";
+		
 		btnPauseSim.setText("   Pause");
 		btnGenerateSim.setEnabled(false);
 
@@ -634,6 +648,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
 	}
 
+	public String getState()
+	{
+		return state;
+	}
+	
 	@Override
 	public void stateChanged(ChangeEvent e)
 	{
@@ -706,4 +725,29 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		setTime(0);
 	}
 
+	public String getASPS()
+	{
+		return lblAvgStepRate.getText();
+	}
+
+	/**
+	 * The current step number.
+	 * 
+	 * @param stepNo
+	 */
+	public String getStepNo()
+	{
+		return lblStepCount.getText();
+	}
+
+	/**
+	 * Displays the current run time of the simulation from a long count in
+	 * milliseconds
+	 * 
+	 * @param time
+	 */
+	public String getTime()
+	{
+		return lblSimRunTime.getText();
+	}
 }
