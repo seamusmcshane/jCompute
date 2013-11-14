@@ -141,6 +141,8 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					  
 
 				  }
+				  
+				  simulationInfoTab.update();
 			  }
 			  
 		},1000,1000);
@@ -197,6 +199,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 
 		if (value == JOptionPane.YES_OPTION)
 		{
+			simulationInfoTab.clearTrace(this.getTitleAt(this.getSelectedIndex()));
 			simulationTabs[selectedTabIndex].destroy();
 			this.setSelectedIndex(0);
 			this.remove(simulationTabs[selectedTabIndex]);
