@@ -54,6 +54,7 @@ public class PopulationPanel extends StatPanelAbs
 			
 	public PopulationPanel(StatManager manager)
 	{
+		System.out.println("Population Chart Panel Created");
 		populationGroup = manager.getStatGroup(groupName);		
 		setLayout(new GridLayout(2, 1, 0, 0));
 		createHistoryChart2DST();
@@ -117,7 +118,6 @@ public class PopulationPanel extends StatPanelAbs
 				// This is a new stat being detected
 				if(tempT == null)
 				{
-
 					tempT = new Trace2DLtd(stSamWin);
 					tempT.setName(statName);
 				

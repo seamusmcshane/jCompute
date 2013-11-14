@@ -3,6 +3,10 @@
 ConfigVersion = 0.001
 ScenarioType = SAPP
 
+[Graphs]
+
+Population = true
+
 [World]
 
 Type = 0
