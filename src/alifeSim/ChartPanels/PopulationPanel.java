@@ -94,7 +94,13 @@ public class PopulationPanel extends StatPanelAbs
 		chartPanelST.setBorder(new TitledBorder(null, "Historical", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
 		chartPanelST.setBackground(Color.white);
 		chart2dST.setMinPaintLatency(1000);
-		add(chartPanelST);		
+		add(chartPanelST);	
+		
+		ITrace2D tempT = new Trace2DLtd(stSamWin);
+		tempT.setName("Total Population");
+		tempT.setColor(Color.black);
+		traceMapST.put(tempT.getName(), tempT);
+		chart2dST.addTrace(tempT);
 	}		
 
 	@Override
@@ -108,12 +114,16 @@ public class PopulationPanel extends StatPanelAbs
 	@Override
 	public void update()
 	{
+		int totalPopulation = 0;
+		ITrace2D tempT;
+		
 		if(traceAdds%stSamDiv == 0)
 		{
 		
 			for (String statName : populationGroup.getStatList()) 
 			{
-				ITrace2D tempT = traceMapST.get(statName);
+
+				tempT = traceMapST.get(statName);
 			
 				// This is a new stat being detected
 				if(tempT == null)
@@ -136,9 +146,12 @@ public class PopulationPanel extends StatPanelAbs
 				
 				// Set the values
 				tempT.addPoint(traceAdds,populationGroup.getStat(statName).getLastSample());
+				totalPopulation+=populationGroup.getStat(statName).getLastSample();
 				populationDataset.setValue(populationGroup.getStat(statName).getLastSample(), statName, category);
 			}
 			
+			tempT = traceMapST.get("Total Population");
+			tempT.addPoint(traceAdds,totalPopulation);			
 		}
 
 		traceAdds++;
