@@ -108,10 +108,10 @@ public class PopulationPanel extends StatPanelAbs
 	@Override
 	public void update()
 	{
-		for (String statName : populationGroup.getStatList()) 
+		if(traceAdds%stSamDiv == 0)
 		{
-			
-			if(traceAdds%stSamDiv == 0)
+		
+			for (String statName : populationGroup.getStatList()) 
 			{
 				ITrace2D tempT = traceMapST.get(statName);
 			
@@ -140,7 +140,7 @@ public class PopulationPanel extends StatPanelAbs
 			}
 			
 		}
-		
+
 		traceAdds++;
 		
 	}
