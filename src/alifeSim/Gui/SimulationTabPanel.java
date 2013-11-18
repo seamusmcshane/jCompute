@@ -372,7 +372,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			if (val == JFileChooser.APPROVE_OPTION)
 			{
 				System.out.println("New Scenario Choosen");
-				scenarioEditor.removeAll();
+				
 				destroySimulation();
 				//File scenarioFile = filechooser.getSelectedFile();
 				lblFilePath.setText(filechooser.getSelectedFile().getAbsolutePath().toString());
@@ -382,12 +382,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				{
 					bufferedReader = new BufferedReader(new FileReader(filechooser.getSelectedFile()));
 					String sCurrentLine;
+					scenarioEditor.setText("");
 					while ((sCurrentLine = bufferedReader.readLine()) != null) 
 					{
 						scenarioEditor.append(sCurrentLine + "\n");
 						//scenarioEditor.insert(sCurrentLine, scenarioEditor.getLineCount());
 						//System.out.println(sCurrentLine);
 					}
+					// Switch off Edit mode
+					chckbxEditMode.setSelected(false);
 				}
 				catch (FileNotFoundException e1)
 				{
