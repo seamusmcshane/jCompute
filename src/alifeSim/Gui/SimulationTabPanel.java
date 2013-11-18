@@ -75,8 +75,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JButton btnClose;
 	private JCheckBox chckbxEditMode;
 	private boolean scenarioLoaded = false;
-	private Color normalMode = new Color(0, 0, 64);
-	private Color editMode = new Color(64, 0, 0);
+	private Color normalMode = new Color(240, 240, 255);
+	private Color editMode = new Color(255,240, 240);
 
 	// Sim Control
 	private JButton btnGenerateSim;
@@ -182,11 +182,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 		
 		scenarioEditor = new RSyntaxTextArea();
-		
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+		scenarioEditor.setEditable(false);
 
 		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
 		scenarioFilePanel.add(sp, BorderLayout.CENTER);
+		scenarioFilePanel.add(filePanel, BorderLayout.NORTH);
 		
 		JPanel controlPanel = new JPanel();
 		add(controlPanel, BorderLayout.SOUTH);
