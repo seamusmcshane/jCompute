@@ -191,7 +191,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioEditor.setHighlightSecondaryLanguages(false);
 		scenarioEditor.setRoundedSelectionEdges(true);
 		scenarioEditor.setAutoIndentEnabled(false);
-		scenarioEditor.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
 		scenarioEditor.setFadeCurrentLineHighlight(true);
 		scenarioEditor.setCurrentLineHighlightColor(Color.WHITE);
 		scenarioEditor.setBracketMatchingEnabled(false);
