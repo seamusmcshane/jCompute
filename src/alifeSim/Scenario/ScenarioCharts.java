@@ -3,7 +3,9 @@ package alifeSim.Scenario;
 import java.io.File;
 import java.util.LinkedList;
 
-import org.ini4j.Ini;
+
+
+import org.apache.commons.configuration.HierarchicalINIConfiguration;
 
 import alifeSim.ChartPanels.PopulationPanel;
 import alifeSim.ChartPanels.StatPanelAbs;
@@ -27,7 +29,7 @@ public class ScenarioCharts extends ScenarioVT
 		init(super.scenario, sim);
 	}
 
-	private void init(Ini Scenario,Simulation sim)
+	private void init(HierarchicalINIConfiguration Scenario,Simulation sim)
 	{
 		this.sim = sim;
 		charts = new LinkedList<StatPanelAbs>();
@@ -35,7 +37,7 @@ public class ScenarioCharts extends ScenarioVT
 		checkPopulationPanel(scenario);
 	}
 	
-	private void checkPopulationPanel(Ini scenario)
+	private void checkPopulationPanel(HierarchicalINIConfiguration scenario)
 	{
 		String section = "Graphs";
 		

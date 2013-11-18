@@ -6,9 +6,7 @@ import java.util.concurrent.Semaphore;
 import org.newdawn.slick.Graphics;
 
 import alifeSim.ChartPanels.StatPanelAbs;
-import alifeSim.Gui.StatsPanel;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Scenario.ScenariosTypes.Scenario;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Debug.DebugSimulationManager;
 import alifeSim.Scenario.SAPP.SAPPScenario;
@@ -82,19 +80,21 @@ public class Simulation
 	{
 		System.out.println("Create Scenario");
 		
-		if(scenario.getScenarioType().equals("DEBUG"))
+		String scenarioType = scenario.getScenarioType();
+		
+		if(scenarioType.equals("DEBUG"))
 		{
 			/* Switch Scenarios */
 			simManager = new DebugSimulationManager((DebugScenario) scenario);
 		}
-		else if (scenario.getScenarioType().equals("SAPP"))
+		else if (scenarioType.equals("SAPP"))
 		{
 			/* Switch Scenarios */
 			simManager = new SAPPSimulationManager((SAPPScenario) scenario);
 		}
 		else
 		{
-			System.out.println("UKNOWN Scenario Type");
+			System.out.println("UKNOWN Scenario Type : " + scenarioType);
 		}
 	}
 	

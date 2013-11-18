@@ -1,6 +1,6 @@
 package alifeSim.Scenario;
 
-import org.ini4j.Ini;
+import org.apache.commons.configuration.HierarchicalINIConfiguration;
 
 public interface ScenarioInf
 {
@@ -10,7 +10,7 @@ public interface ScenarioInf
 	
 	public double getDoubleValue(String section,String value);
 	
-	public Ini scenarioFile();
+	public HierarchicalINIConfiguration scenarioFile();
 	
 	public double getScenarioVersion();
 

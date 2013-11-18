@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.ini4j.Ini;
-import org.ini4j.InvalidFileFormatException;
-import org.ini4j.Wini;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalINIConfiguration;
+
 
 /**
  * Base Scenario File reader.
@@ -16,79 +16,79 @@ import org.ini4j.Wini;
 
 public class ScenarioVT implements ScenarioInf
 {
-	Ini scenario;
+	HierarchicalINIConfiguration scenario;
 
 	public ScenarioVT(File file)
 	{
-		try
-		{
-			scenario = new Wini(file);
-		}
-		catch (IOException e)
-		{
-			System.out.println("File not found :" + file);
-			e.printStackTrace();
-		}
+			try
+			{
+				scenario = new HierarchicalINIConfiguration();
+				scenario.load(file);
+			}
+			catch (ConfigurationException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 	}
 
 	public ScenarioVT(String text)
 	{
 		InputStream stream;
+
 		try
 		{
 			stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
-			scenario = new Wini(stream);
+			scenario = new HierarchicalINIConfiguration();
+			scenario.load(stream);
 		}
-		catch (UnsupportedEncodingException e)
+		catch (ConfigurationException e)
 		{
-			System.out.println("UnsupportedEncodingException");
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		catch (InvalidFileFormatException e)
+		catch (UnsupportedEncodingException e1)
 		{
-			System.out.println("InvalidFileFormatException");
-			e.printStackTrace();
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		catch (IOException e)
-		{
-			System.out.println("IOException");
-			e.printStackTrace();
-		}
+
 	}
 	
 	public String getStringValue(String section,String value)
 	{
-		return scenario.get(section,value);		
+		
+		return scenario.getString(section  + "." + value);		
 	}
 	
 	public int getIntValue(String section,String value)
 	{
-		return scenario.get(section,value,int.class);		
+		return scenario.getInt(section + "." +  value);		
 	}
 	
 	public float getFloatValue(String section,String value)
 	{
-		return scenario.get(section,value,float.class);		
+		return scenario.getFloat(section + "." +  value);		
 	}
 	
 	public double getDoubleValue(String section,String value)
 	{
-		return scenario.get(section,value,double.class);		
+		return scenario.getDouble( section + "." +  value);		
 	}
 	
-	public Ini scenarioFile()
+	public HierarchicalINIConfiguration scenarioFile()
 	{
 		return scenario;
 	}
 	
 	public double getScenarioVersion()
 	{
-		return scenario.get("Config","ConfigVersion",double.class);
+		return Double.parseDouble(scenario.getString("Config.ConfigVersion","0.00"));
 	}
 
 	public String getScenarioType()
 	{
-		return scenario.get("Config","ScenarioType");
+		return scenario.getString("Config.ScenarioType","Scenario Type Not Set!!!");
 	}
 }

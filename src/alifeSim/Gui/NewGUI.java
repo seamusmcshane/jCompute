@@ -1,10 +1,7 @@
 package alifeSim.Gui;
 
 import java.awt.Dimension;
-import java.awt.Frame;
-
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -29,14 +26,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JSplitPane;
-import javax.swing.JToolBar;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
 public class NewGUI 
 {
