@@ -57,6 +57,7 @@ import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
+import javax.swing.DropMode;
 
 public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationPerformanceStatsOutputInf
 {
@@ -75,8 +76,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JButton btnClose;
 	private JCheckBox chckbxEditMode;
 	private boolean scenarioLoaded = false;
-	private Color normalMode = new Color(240, 240, 255);
-	private Color editMode = new Color(255,240, 240);
+	private Color normalMode = new Color(240, 240, 240);
+	private Color editMode = new Color(255,255, 255);
 
 	// Sim Control
 	private JButton btnGenerateSim;
@@ -182,9 +183,25 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 		
 		scenarioEditor = new RSyntaxTextArea();
+		scenarioEditor.setCloseMarkupTags(false);
+		scenarioEditor.setCloseCurlyBraces(false);
+		scenarioEditor.setAnimateBracketMatching(false);
+		scenarioEditor.setUseSelectedTextColor(true);
+		scenarioEditor.setHyperlinksEnabled(false);
+		scenarioEditor.setHighlightSecondaryLanguages(false);
+		scenarioEditor.setRoundedSelectionEdges(true);
+		scenarioEditor.setAutoIndentEnabled(false);
+		scenarioEditor.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		scenarioEditor.setFadeCurrentLineHighlight(true);
+		scenarioEditor.setCurrentLineHighlightColor(Color.WHITE);
+		scenarioEditor.setBracketMatchingEnabled(false);
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
 		scenarioEditor.setEditable(false);
 		scenarioEditor.setBackground(normalMode);
+		scenarioEditor.setSelectedTextColor(Color.white);
+		scenarioEditor.setSelectionColor(Color.darkGray);
+		scenarioEditor.setMarginLineEnabled(true);
+		scenarioEditor.setMarginLinePosition(40);
 		
 		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
 		scenarioFilePanel.add(sp, BorderLayout.CENTER);
