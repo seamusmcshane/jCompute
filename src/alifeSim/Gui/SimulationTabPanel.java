@@ -24,32 +24,30 @@ import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Scanner;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import java.awt.Font;
 
-import javax.swing.UIManager;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgent;
-import alifeSim.ChartPanels.PopulationPanel;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Scenario.ScenarioCharts;
 import alifeSim.Scenario.ScenarioInf;
@@ -69,7 +67,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	LinkedList<StatPanelAbs> charts;
 
 	// Editor Releated
-	private JEditorPane scenarioEditor;
+	//private JEditorPane scenarioEditor;
+	private RSyntaxTextArea scenarioEditor;
 	private JLabel lblFilePath;
 	private JButton btnOpen;
 	private JButton btnSave;
@@ -158,21 +157,21 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioPanel.add(scenarioFilePanel, BorderLayout.CENTER);
 		scenarioFilePanel.setLayout(new BorderLayout(0, 0));
 
-		JScrollPane scrollPane = new JScrollPane();
+		/*JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scenarioFilePanel.add(scrollPane, BorderLayout.CENTER);
+		scenarioFilePanel.add(scrollPane, BorderLayout.CENTER);*/
 
-		scenarioEditor = new JEditorPane();
+		/*scenarioEditor = new JEditorPane();
 		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
 		scenarioEditor.setForeground(new Color(255, 255, 255));
 		scenarioEditor.setBackground(new Color(0, 0, 64));
 		scenarioEditor.setEditable(false);
 		scenarioEditor.setCaretColor(Color.white);
-		scrollPane.setViewportView(scenarioEditor);
+		scrollPane.setViewportView(scenarioEditor);*/
 
 		JPanel filePanel = new JPanel();
-		scrollPane.setColumnHeaderView(filePanel);
+		//scrollPane.setColumnHeaderView(filePanel);
 		filePanel.setLayout(new BorderLayout(0, 0));
 
 		lblFilePath = new JLabel("No File");
@@ -181,7 +180,14 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		chckbxEditMode = new JCheckBox("EditMode");
 		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
+		
+		scenarioEditor = new RSyntaxTextArea();
+		
+		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
 
+		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
+		scenarioFilePanel.add(sp, BorderLayout.CENTER);
+		
 		JPanel controlPanel = new JPanel();
 		add(controlPanel, BorderLayout.SOUTH);
 		controlPanel.setBorder(new TitledBorder(null, "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -363,27 +369,40 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 			if (val == JFileChooser.APPROVE_OPTION)
 			{
-				File scenarioFile = filechooser.getSelectedFile();
+				System.out.println("New Scenario Choosen");
+				scenarioEditor.removeAll();
+				destroySimulation();
+				//File scenarioFile = filechooser.getSelectedFile();
+				lblFilePath.setText(filechooser.getSelectedFile().getAbsolutePath().toString());
+				BufferedReader bufferedReader;
+				
 				try
 				{
-					System.out.println("New Scenario Choosen");
-
-					destroySimulation();
-
-					lblFilePath.setText(scenarioFile.getAbsolutePath());
-					scenarioEditor.setPage(scenarioFile.toURI().toURL());
-
-					scenarioLoaded = true;
-
-					// Set the Startup State
-					startUpState();
-
+					bufferedReader = new BufferedReader(new FileReader(filechooser.getSelectedFile()));
+					String sCurrentLine;
+					while ((sCurrentLine = bufferedReader.readLine()) != null) 
+					{
+						scenarioEditor.append(sCurrentLine + "\n");
+						//scenarioEditor.insert(sCurrentLine, scenarioEditor.getLineCount());
+						//System.out.println(sCurrentLine);
+					}
+				}
+				catch (FileNotFoundException e1)
+				{
+					System.out.println("File Not Found");
+					e1.printStackTrace();
 				}
 				catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
+					System.out.println("I/O Error");
 					e1.printStackTrace();
 				}
+				
+				scenarioLoaded = true;
+
+				// Set the Startup State
+				startUpState();
+
 			}
 
 		}
