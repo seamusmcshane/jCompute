@@ -181,10 +181,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 		
-		scenarioEditor = new RSyntaxTextArea();
+		scenarioEditor = new RSyntaxTextArea();		
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
 		scenarioEditor.setEditable(false);
-
+		scenarioEditor.setBackground(normalMode);
+		
 		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
 		scenarioFilePanel.add(sp, BorderLayout.CENTER);
 		scenarioFilePanel.add(filePanel, BorderLayout.NORTH);
