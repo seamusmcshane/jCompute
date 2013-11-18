@@ -3,19 +3,19 @@ package alifeSim.Alife.GenericPlant;
 public class GenericPlantSetupSettings
 {
 	/* Plant Numbers */
-	private int initialPlantNumbers;
+	private int initialPlantNumbers=0;
 
 	/* Plant Regeneration Rate */
-	private int plantRegenRate;
+	private int plantRegenRate=0;
 	
 	/* Plant Regeneration ever N step[s */
-	private int plantRegenerationNSteps;
+	private int plantRegenerationNSteps=1;
 
 	/* Plant Energy Absorption Rate */
-	private int plantEnergyAbsorptionRate;
+	private int plantEnergyAbsorptionRate=0;
 
 	/* Plant Starting Energy */
-	private int plantStartingEnergy;
+	private int plantStartingEnergy=0;
 
 	public int getInitialPlantNumbers()
 	{

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
@@ -56,6 +57,75 @@ public class ScenarioVT implements ScenarioInf
 
 	}
 	
+	public boolean hasSection(String section)
+	{
+		for(String name : scenario.getSections())
+		{
+			if(section.equals(name))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasStringValue(String section,String value)
+	{
+		try
+		{
+			scenario.getString(section  + "." + value);
+			return true;
+		}
+		catch(NoSuchElementException e)
+		{
+			return false;
+		}
+
+	}
+	
+	public boolean hasIntValue(String section,String value)
+	{
+		try
+		{
+			scenario.getInt(section + "." +  value);	
+			return true;
+		}
+		catch(NoSuchElementException e)
+		{
+			return false;
+		}
+
+	}
+	
+	public boolean hasFloatValue(String section,String value)
+	{
+		try
+		{
+			scenario.getFloat(section + "." +  value);	
+			return true;
+		}
+		catch(NoSuchElementException e)
+		{
+			return false;
+		}
+
+	}
+	
+	public boolean hasDoubleValue(String section,String value)
+	{
+		try
+		{
+			scenario.getDouble( section + "." +  value);
+			
+			return true;
+		}
+		catch(NoSuchElementException e)
+		{
+			return false;
+		}
+
+	}
+	
 	public String getStringValue(String section,String value)
 	{
 		
@@ -91,4 +161,5 @@ public class ScenarioVT implements ScenarioInf
 	{
 		return scenario.getString("Config.ScenarioType","Scenario Type Not Set!!!");
 	}
+	
 }

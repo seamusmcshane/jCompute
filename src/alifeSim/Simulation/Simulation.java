@@ -67,7 +67,7 @@ public class Simulation
 	{
 		if(scenario!=null)
 		{
-			createScenario(scenario);	
+			setUpSimManager(scenario);	
 		}		
 		
 		simStats.clearSimulationStats();
@@ -76,7 +76,7 @@ public class Simulation
 	/*
 	 * Master Scenario Hander
 	 */
-	private void createScenario(ScenarioInf scenario)
+	private void setUpSimManager(ScenarioInf scenario)
 	{
 		System.out.println("Create Scenario");
 		

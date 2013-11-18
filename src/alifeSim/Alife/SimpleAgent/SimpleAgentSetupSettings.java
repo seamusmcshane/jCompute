@@ -8,25 +8,25 @@ package alifeSim.Alife.SimpleAgent;
  */
 public class SimpleAgentSetupSettings
 {
-	private int initalNumbers;
+	private int initalNumbers=0;
 	
-	private float speed;
+	private float speed=1f;
 
-	private float viewRange;
+	private float viewRange=10f;
 
-	private float digestiveEfficiency;
+	private float digestiveEfficiency=0.5f;
 
-	private float REDiv;
+	private float REDiv=0.5f;
 
-	private float moveCost;
+	private float moveCost=0.025f;
 
-	private float hungerThres;
+	private float hungerThres=0.5f;
 
-	private float consumptionRate;
+	private float consumptionRate=0.1f;
 
-	private float reproductionCost;
+	private float reproductionCost=0.9f;
 
-	private float startingEnergy;
+	private float startingEnergy=0.25f;
 
 	public SimpleAgentSetupSettings()
 	{
