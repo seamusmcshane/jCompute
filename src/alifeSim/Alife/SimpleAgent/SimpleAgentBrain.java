@@ -42,7 +42,7 @@ public class SimpleAgentBrain
 	private int learnToMoveMax = 15;
 	
 	private int twiddleFactor = 50;
-	private boolean twiddle = true;
+	private boolean twiddle = false;
 	
 	/**
 	 * Constructor for SimpleAgentBrain.
