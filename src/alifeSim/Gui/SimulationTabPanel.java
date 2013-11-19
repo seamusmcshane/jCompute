@@ -24,16 +24,20 @@ import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
@@ -57,6 +61,7 @@ import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
+
 import javax.swing.DropMode;
 
 public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationPerformanceStatsOutputInf
@@ -68,7 +73,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	LinkedList<StatPanelAbs> charts;
 
 	// Editor Releated
-	//private JEditorPane scenarioEditor;
+	// private JEditorPane scenarioEditor;
 	private RSyntaxTextArea scenarioEditor;
 	private JLabel lblFilePath;
 	private JButton btnOpen;
@@ -77,7 +82,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JCheckBox chckbxEditMode;
 	private boolean scenarioLoaded = false;
 	private Color normalMode = new Color(240, 240, 240);
-	private Color editMode = new Color(255,255, 255);
+	private Color editMode = new Color(255, 255, 255);
+
+	private boolean saved = true;
 
 	// Sim Control
 	private JButton btnGenerateSim;
@@ -93,10 +100,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	// Sim Related
 	private Simulation sim;
-	private static boolean generatingSim = false;
+	private boolean generatingSim = false;
+	private boolean simGenerated = false;
 
 	private String state = "New";
-	
+
 	public SimulationTabPanel()
 	{
 		setLayout(new BorderLayout(0, 0));
@@ -115,7 +123,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioOpenPanel.setBorder(null);
 		scenarioPanel.add(scenarioOpenPanel, BorderLayout.SOUTH);
 		GridBagLayout gbl_scenarioOpenPanel = new GridBagLayout();
-		
+
 		gbl_scenarioOpenPanel.rowHeights = new int[]
 		{0};
 		gbl_scenarioOpenPanel.columnWidths = new int[]
@@ -144,10 +152,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		gbc_btnSave.gridx = 1;
 		gbc_btnSave.gridy = 0;
 		scenarioOpenPanel.add(btnSave, gbc_btnSave);
+		btnSave.setEnabled(false);
 
 		btnClose = new JButton("Close");
 		btnClose.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-close.png")));
 		btnClose.addActionListener(this);
+		btnClose.setEnabled(false);
 		GridBagConstraints gbc_btnClose = new GridBagConstraints();
 		gbc_btnClose.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnClose.gridx = 2;
@@ -158,21 +168,26 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioPanel.add(scenarioFilePanel, BorderLayout.CENTER);
 		scenarioFilePanel.setLayout(new BorderLayout(0, 0));
 
-		/*JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scenarioFilePanel.add(scrollPane, BorderLayout.CENTER);*/
+		/*
+		 * JScrollPane scrollPane = new JScrollPane();
+		 * scrollPane.setHorizontalScrollBarPolicy
+		 * (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		 * scrollPane.setVerticalScrollBarPolicy
+		 * (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		 * scenarioFilePanel.add(scrollPane, BorderLayout.CENTER);
+		 */
 
-		/*scenarioEditor = new JEditorPane();
-		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
-		scenarioEditor.setForeground(new Color(255, 255, 255));
-		scenarioEditor.setBackground(new Color(0, 0, 64));
-		scenarioEditor.setEditable(false);
-		scenarioEditor.setCaretColor(Color.white);
-		scrollPane.setViewportView(scenarioEditor);*/
+		/*
+		 * scenarioEditor = new JEditorPane(); scenarioEditor.setFont(new
+		 * Font("Monospaced", Font.BOLD, 12)); scenarioEditor.setForeground(new
+		 * Color(255, 255, 255)); scenarioEditor.setBackground(new Color(0, 0,
+		 * 64)); scenarioEditor.setEditable(false);
+		 * scenarioEditor.setCaretColor(Color.white);
+		 * scrollPane.setViewportView(scenarioEditor);
+		 */
 
 		JPanel filePanel = new JPanel();
-		//scrollPane.setColumnHeaderView(filePanel);
+		// scrollPane.setColumnHeaderView(filePanel);
 		filePanel.setLayout(new BorderLayout(0, 0));
 
 		lblFilePath = new JLabel("No File");
@@ -181,7 +196,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		chckbxEditMode = new JCheckBox("EditMode");
 		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
-		
+
 		scenarioEditor = new RSyntaxTextArea();
 		scenarioEditor.setCloseMarkupTags(false);
 		scenarioEditor.setCloseCurlyBraces(false);
@@ -202,11 +217,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioEditor.setSelectionColor(Color.darkGray);
 		scenarioEditor.setMarginLineEnabled(true);
 		scenarioEditor.setMarginLinePosition(40);
-		
+
 		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
 		scenarioFilePanel.add(sp, BorderLayout.CENTER);
 		scenarioFilePanel.add(filePanel, BorderLayout.NORTH);
-		
+
 		JPanel controlPanel = new JPanel();
 		add(controlPanel, BorderLayout.SOUTH);
 		controlPanel.setBorder(new TitledBorder(null, "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -374,12 +389,127 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
+	private boolean discardCurrentSimGenerated()
+	{
+		if(simGenerated)
+		{
+			// prompt to save
+			String message = "Discard Running Simulation?";
+
+			JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+			// Center Dialog on the GUI
+			JDialog dialog = pane.createDialog(this, "Discard Running Simulation");
+
+			dialog.pack();
+			dialog.setVisible(true);
+			
+			int value = ((Integer) pane.getValue()).intValue();
+
+			if (value == JOptionPane.YES_OPTION)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+			
+			
+		}
+		return true;
+	}
+	
+	private void checkSaved()
+	{
+		if(!saved)
+		{
+			// prompt to save
+			String message = "Do you want to Save?";
+
+			JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+			// Center Dialog on the GUI
+			JDialog dialog = pane.createDialog(this, "Save Scenario");
+
+			dialog.pack();
+			dialog.setVisible(true);
+
+			int value = ((Integer) pane.getValue()).intValue();
+
+			if (value == JOptionPane.YES_OPTION)
+			{
+				saveScenario();
+			}				
+			
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		// Open Scenario
 		if (e.getSource() == btnOpen)
 		{
+			openScenario();
+		}
+		else if (e.getSource() == btnGenerateSim)
+		{
+			if (scenarioLoaded)
+			{
+				/* Not already generating Sim */
+				if (!generatingSim)
+				{
+					generatingSim = true;
+
+					/* Create the new Simulation */
+					newSim(scenarioEditor.getText());
+
+					generatingSim = false;
+					
+					simGenerated = true;
+
+				}
+			}
+
+		}
+		else if (e.getSource() == btnPauseSim)
+		{
+			// Pause Toggle
+			if (sim.simPaused())
+			{
+				simUnPausedState();
+			}
+			else
+			{
+				simPausedState();
+			}
+		}
+		else if (e.getSource() == btnStartSim)
+		{
+			simStartedState();
+		}
+		else if (e.getSource() == btnSave)
+		{
+			saveScenario();
+		}
+		else if (e.getSource() == btnClose)
+		{
+			closeScenario();		
+		}
+		else
+		{
+			System.out.println("Button " + ((JButton) e.getSource()).getText() + " Not Implemented");
+		}
+
+	}
+
+	private void openScenario()
+	{
+		if(discardCurrentSimGenerated())
+		{
+			checkSaved();
+			
 			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
 
 			System.out.println("Scenario Open Dialog");
@@ -389,25 +519,27 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			if (val == JFileChooser.APPROVE_OPTION)
 			{
 				System.out.println("New Scenario Choosen");
-				
+
 				destroySimulation();
-				//File scenarioFile = filechooser.getSelectedFile();
+				// File scenarioFile = filechooser.getSelectedFile();
 				lblFilePath.setText(filechooser.getSelectedFile().getAbsolutePath().toString());
 				BufferedReader bufferedReader;
-				
+
 				try
 				{
 					bufferedReader = new BufferedReader(new FileReader(filechooser.getSelectedFile()));
 					String sCurrentLine;
 					scenarioEditor.setText("");
-					while ((sCurrentLine = bufferedReader.readLine()) != null) 
+					while ((sCurrentLine = bufferedReader.readLine()) != null)
 					{
 						scenarioEditor.append(sCurrentLine + "\n");
-						//scenarioEditor.insert(sCurrentLine, scenarioEditor.getLineCount());
-						//System.out.println(sCurrentLine);
+						// scenarioEditor.insert(sCurrentLine,
+						// scenarioEditor.getLineCount());
+						// System.out.println(sCurrentLine);
 					}
 					// Switch off Edit mode
 					chckbxEditMode.setSelected(false);
+					saved = true;
 				}
 				catch (FileNotFoundException e1)
 				{
@@ -419,57 +551,138 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 					System.out.println("I/O Error");
 					e1.printStackTrace();
 				}
-				
-				scenarioLoaded = true;
 
+				scenarioLoaded = true;
+				btnClose.setEnabled(true);
+				btnSave.setEnabled(true);
 				// Set the Startup State
 				startUpState();
 
 			}
-
 		}
-		else
-			if (e.getSource() == btnGenerateSim)
+		
+
+	}
+	
+
+	
+	private void closeScenario()
+	{
+		String message;
+		message = "Close Scenario?";
+
+		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+		// Center Dialog on the GUI
+		JDialog dialog = pane.createDialog(this, "Close Scenario");
+
+		dialog.pack();
+		dialog.setVisible(true);
+
+		int value = ((Integer) pane.getValue()).intValue();
+
+		if (value == JOptionPane.YES_OPTION)
+		{
+		
+			if(discardCurrentSimGenerated())
 			{
-				if (scenarioLoaded)
+					checkSaved();
+					
+					destroySimulation();
+					scenarioEditor.setText("");
+					lblFilePath.setText("No File");
+					chckbxEditMode.setSelected(false);
+					saved = true;
+					simGenerated = false;
+					
+					// We have no scenario therefore no sim.
+					btnGenerateSim.setEnabled(false);
+					btnStartSim.setEnabled(false);
+					btnPauseSim.setEnabled(false);
+					btnClose.setEnabled(false);
+					btnSave.setEnabled(false);
+
+			}		
+		}
+	}
+
+	private void saveScenario()
+	{
+		System.out.println("Save Scenario");
+		chckbxEditMode.setSelected(false);
+				
+		final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+
+		String fileName = lblFilePath.getText();
+
+		if(fileName.equals("No File"))
+		{
+			fileName = "NewScenario";
+		}
+		filechooser.setSelectedFile(new File("./scenarios/"+fileName));
+		
+		System.out.println("Choose File");
+		int val = filechooser.showSaveDialog(filechooser);	
+		
+		if (val == JFileChooser.APPROVE_OPTION)
+		{
+			File file = filechooser.getSelectedFile();	
+			
+			fileName = file.getAbsolutePath().toString();
+			
+			System.out.println("Save : " + fileName);
+			
+			try
+			{
+				System.out.println("Saving : " + fileName);
+				
+				/*if(!file.exists())
 				{
-					/* Not already generating Sim */
-					if (!generatingSim)
-					{
-						generatingSim = true;
-
-						/* Create the new Simulation */
-						newSim(scenarioEditor.getText());
-
-						generatingSim = false;
-
-					}
-				}
-
-			}
-			else
-				if (e.getSource() == btnPauseSim)
-				{
-					// Pause Toggle
-					if (sim.simPaused())
-					{
-						simUnPausedState();
-					}
-					else
-					{
-						simPausedState();
-					}
+					file.createNewFile();
+					System.out.println("Creating New File : " + fileName);
 				}
 				else
-					if (e.getSource() == btnStartSim)
-					{
-						simStartedState();
-					}
-					else
-					{
-						System.out.println("Button " + ((JButton) e.getSource()).getText() + " Not Implemented");
-					}
-
+				{
+					System.out.println("Overwriting File : " + fileName);
+				}			*/
+			
+				
+				if (fileName.indexOf(".") > 0)
+				{
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+				}
+				
+				FileWriter fileWriter = new FileWriter(fileName + ".txt");
+				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+				
+				bufferedWriter.write(scenarioEditor.getText());
+				bufferedWriter.close();
+				/*fileWriter.flush();
+				fileWriter.close();*/
+				
+				System.out.println("Saved : " + fileName);
+				saved = true;
+			
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		else
+		{
+			System.out.println("Save Cancelled");
+		}
+		
+		
+		
+		
+		/*BufferedWriter bw = new BufferedWriter(filechooser.getSelectedFile());
+		bw.write(content);
+		bw.close();*/
+		
 	}
 
 	private ScenarioInf determinScenarios(String text)
@@ -514,6 +727,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				sim.pauseSim();
 			}
 
+			SimulationView.setSim(null);
+			
 			sim.destroySim();
 
 			System.out.println("Simulation Destroyed");
@@ -527,8 +742,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void setUpPanels(String text, Simulation sim)
 	{
-		ScenarioCharts chartDetector = new ScenarioCharts(text,sim);
-		
+		ScenarioCharts chartDetector = new ScenarioCharts(text, sim);
+
 		// Setup the chart/panel list
 		if (charts == null)
 		{
@@ -544,15 +759,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			}
 
 		}
-		
+
 		// Add the detected Panels
-		
+
 		for (StatPanelAbs chartPanel : chartDetector.getCharts())
 		{
 			charts.add(chartPanel);
-			simulationTabPane.addTab(chartPanel.getName(), null,chartPanel);
+			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
 		}
-		
+
 		sim.setOutPutCharts(charts);
 	}
 
@@ -565,7 +780,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sim.createSim(determinScenarios(scenario));
 		SimulationView.setSim(sim);
 
-		setUpPanels(scenario,sim);
+		setUpPanels(scenario, sim);
 		/*
 		 * If needed the GC can free old objects now, before the simulation
 		 * starts
@@ -636,7 +851,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 
 		state = "Running";
-		
+
 		sim.startSim();
 
 		btnGenerateSim.setEnabled(false);
@@ -654,7 +869,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		System.out.println("Simulation now in Startup State");
 
 		state = "New";
-		
+
 		clearStats();
 
 		btnStartSim.setEnabled(false);
@@ -667,7 +882,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private void simPausedState()
 	{
 		state = "Paused";
-		
+
 		btnPauseSim.setText("Resume");
 		btnGenerateSim.setEnabled(true);
 
@@ -680,7 +895,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private void simUnPausedState()
 	{
 		state = "Running";
-		
+
 		btnPauseSim.setText("   Pause");
 		btnGenerateSim.setEnabled(false);
 
@@ -693,7 +908,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		return state;
 	}
-	
+
 	@Override
 	public void stateChanged(ChangeEvent e)
 	{
@@ -729,26 +944,30 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				}
 			}
 		}
-		else
-			if (e.getSource() == chckbxEditMode)
+		else if (e.getSource() == chckbxEditMode)
+		{
+			if (chckbxEditMode.isSelected())
 			{
-				if (chckbxEditMode.isSelected())
-				{
-					scenarioEditor.setEditable(true);
-					scenarioEditor.setBackground(editMode);
+				scenarioEditor.setEditable(true);
+				scenarioEditor.setBackground(editMode);
 
-				}
-				else
-				{
-					scenarioEditor.setEditable(false);
-					scenarioEditor.setBackground(normalMode);
+				btnClose.setEnabled(true);
+				
+				saved = false;
+				btnSave.setEnabled(true);
 
-				}
 			}
 			else
 			{
-				System.out.println("stateChanged : " + e.getSource().toString());
+				scenarioEditor.setEditable(false);
+				scenarioEditor.setBackground(normalMode);
+
 			}
+		}
+		else
+		{
+			System.out.println("stateChanged : " + e.getSource().toString());
+		}
 
 	}
 
