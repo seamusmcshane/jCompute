@@ -522,7 +522,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 				destroySimulation();
 				// File scenarioFile = filechooser.getSelectedFile();
-				lblFilePath.setText(filechooser.getSelectedFile().getAbsolutePath().toString());
+				lblFilePath.setText(filechooser.getSelectedFile().getName());
 				BufferedReader bufferedReader;
 
 				try
