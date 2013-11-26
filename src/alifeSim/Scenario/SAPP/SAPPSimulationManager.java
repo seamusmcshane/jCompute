@@ -120,8 +120,6 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	private void setUpBarrierManager()
 	{
 		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU threads we can run in parallel
-
-		this.numThreads = 8;
 		
 		System.out.println("Threads to use for Barrier Tasks : " + numThreads);
 
