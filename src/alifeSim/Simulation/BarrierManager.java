@@ -276,9 +276,12 @@ public class BarrierManager extends Thread
 		int div = plantList.size() / numThreads;
 		int end=0;		
 		
+		
 		if(div>numThreads)
 		{
-			for (i = 0; i < numThreads-1; i++)
+			//System.out.println("Div " + div + " numThreads " + numThreads);
+
+			for (i = 0; i < numThreads; i++)
 			{
 				end=(div*i)+div-1;
 				start=(div*i);
