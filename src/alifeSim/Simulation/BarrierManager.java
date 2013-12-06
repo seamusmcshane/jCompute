@@ -22,6 +22,11 @@ public class BarrierManager extends Thread
 	/** Number of threads used in this barrier */
 	private final int numThreads;
 
+	private Semaphore plantTreeTheadStartSemaphore;
+	private Semaphore agentTreeTheadStartSemaphore;
+	private Semaphore plantTreeTheadEndSemaphore;
+	private Semaphore agentTreeTheadEndSemaphore;
+	
 	/* The lock for the entire barrier */
 	private Semaphore barrierControllerSemaphore;
 
@@ -87,6 +92,56 @@ public class BarrierManager extends Thread
 	{
 		System.out.println("Barrier Manager Started");
 		
+		plantTreeTheadStartSemaphore = new Semaphore(0);
+		plantTreeTheadEndSemaphore = new Semaphore(0);
+		Thread plantSplitThread = new Thread(new Runnable(){
+
+			@Override
+			public void run()
+			{
+				System.out.println("Split Plant Thread");
+
+				while(running)
+				{
+					plantTreeTheadStartSemaphore.acquireUninterruptibly();
+					
+					//System.out.println("Split Plants");
+
+					// Creates the plant kd tree and divides plant list in to sub lists
+					splitPlantList();
+					
+					plantTreeTheadEndSemaphore.release();
+				}
+				
+			}});
+		plantSplitThread.start();
+		
+		agentTreeTheadStartSemaphore = new Semaphore(0);
+		agentTreeTheadEndSemaphore = new Semaphore(0);
+		Thread agentSplitThread = new Thread(new Runnable(){
+
+			@Override
+			public void run()
+			{
+				System.out.println("Split Agent Thread");
+				while(running)
+				{
+					agentTreeTheadStartSemaphore.acquireUninterruptibly();
+
+					//System.out.println("Split Agents");
+
+					
+					// Creates the agent kd tree and divides plant list in to sub lists
+					splitAgentList();
+					
+					agentTreeTheadEndSemaphore.release();
+				}
+				
+			}});
+		agentSplitThread.start();
+
+		System.out.println("Started Barrier");
+		
 		while (running)
 		{
 
@@ -94,14 +149,15 @@ public class BarrierManager extends Thread
 			
 			if(running)
 			{
-				//System.out.println("Start Barrier");
+				//System.out.println("Barrier");
+				plantTreeTheadStartSemaphore.release();
+				agentTreeTheadStartSemaphore.release();
+
+				plantTreeTheadEndSemaphore.acquireUninterruptibly();
+				agentTreeTheadEndSemaphore.acquireUninterruptibly();
+	
+				//System.out.println("Barrier 2");
 				
-				// Creates the plant kd tree and divides plant list in to sub lists
-				splitPlantList();
-	
-				// Creates the agent kd tree and divides plant list in to sub lists
-				splitAgentList();
-	
 				// set the tasks
 				setbarrierThreadsTasks();
 	
@@ -127,6 +183,8 @@ public class BarrierManager extends Thread
 	public void cleanUp()
 	{
 
+		plantTreeTheadStartSemaphore.release();
+		agentTreeTheadStartSemaphore.release();
 		
 		for(int i=0;i<barrierThreads.length;i++)
 		{
@@ -339,23 +397,27 @@ public class BarrierManager extends Thread
 		int div = agentList.size() / numThreads;
 		int end=0;		
 		
+		//System.out.println("Size : " + agentList.size());
+		
 		if(div>numThreads)
 		{
 			for (i = 0; i < numThreads; i++)
 			{
-				end=(div*i)+div-1;
-				start=(div*i);
-				
-				//System.out.println("Start : " + start);
-				//System.out.println("End : " + end);
 				if(i != (numThreads -1))
 				{
-					agentTaskLists[i] = agentList.subList(start,end);
+					end=(div*i)+div-1;
+					start=(div*i);
 				}
 				else	// To account for rounding error which can leave us one short of the list length
 				{
-					agentTaskLists[i] = agentList.subList(start,agentList.size());
+					end=agentList.size();
+					start=(div*i);
+
 				}
+				//System.out.println(i + "Start : " + start);
+				//System.out.println(i + "End : " + end);
+				agentTaskLists[i] = agentList.subList(start,end);
+
 			}
 		}
 		else // Drop to single threaded if the list is small
