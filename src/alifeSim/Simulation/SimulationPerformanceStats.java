@@ -155,6 +155,11 @@ public class SimulationPerformanceStats
 		stepTotalTime += stepEndTime - stepStartTime;	
 	}
 	
+	public long getTotalTime()
+	{
+		return stepTotalTime;
+	}
+	
 	public void clearSimulationStats()
 	{
 		stepTotalTime = 0;
