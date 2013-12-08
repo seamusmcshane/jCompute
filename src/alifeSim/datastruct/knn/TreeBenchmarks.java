@@ -17,7 +17,7 @@ public class TreeBenchmarks
 	static int minList = 0;
 	
 	static int iterations = 100000;
-	static int startObjects = 16;
+	static int startObjects = 1;
 	
 	static int areaSize = 1024;
 	
@@ -28,25 +28,20 @@ public class TreeBenchmarks
 
 	static Random r = new Random();
 	
-	static SimulationPerformanceStats stats = new SimulationPerformanceStats(null);
-	static SimulationPerformanceStats statsOverall = new SimulationPerformanceStats(null);
-
-	static long[][] results;
-	
+	static long[][] results;		
 	
 	public static void main(String []args)
 	{
-		int runs = 12;
+		int runs = 18;
 		
 		logger(1,"Benchmark\tThreads\tRuns\tIterations");
 		logger(1,"\t\t"+threads+"\t"+runs+"\t"+iterations);
-
 		
 		results = new long[runs][3];
 		
 		int i=0;
 
-		logger(1,"Results\tObjects\tAddTime\t(%)\tSearch Time\t(%)\tTotal Time");
+		logger(1,"Run\tObjects\tAddTime\t(%)\tSearch Time\t(%)\tTotal Time");
 
 		
 		for(i=0;i<runs;i++)
@@ -61,12 +56,13 @@ public class TreeBenchmarks
 			
 			//logger(1,"Min List" + minList);
 			
-			objectListGB = new ArrayList<TreeBenchObject>();
 			generateObjectList( startObjects<<i,areaSize);
+			
+			System.gc();
 			
 			results[i] = benchMarkThirdGenTree();
 			
-			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + results[i][3]+"\t" + results[i][1] + "\t\t" + results[i][4] +"\t" + results[i][2]);
+			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
 
 		}
 
@@ -76,10 +72,13 @@ public class TreeBenchmarks
 	{
 		logger(2,"Objects : " + num + " Area : " + size + " " +(new Exception()).getStackTrace()[0].getMethodName());
 		
+		objectListGB = new ArrayList<TreeBenchObject>();
+		
 		TreeBenchObject temp;
 		for(int i = 0;i< num;i++)
 		{
 			temp = new TreeBenchObject(i,r.nextInt(size) ,r.nextInt(size));
+			//logger(1,"temp" + temp.getX() + " " + temp.getY());
 			objectListGB.add(temp);	
 		}
 	}
@@ -98,21 +97,42 @@ public class TreeBenchmarks
 	{
 		String treeName = "thirdGenObjectKDTreeGB";
 		
+		ForkJoinPool pool = new ForkJoinPool(threads);
+		
 		logger(2,">> Start : " + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName());
 
+		timerObj statsAdd = new timerObj();
+		timerObj statsSearch = new timerObj();
+		
 		long[] time = new long[5];
 		
-		// Add Time
-		time[0] = generateThirdGenTree(objectListGB,thirdGenObjectKDTreeGB,treeName);
-		// Bench time
-		time[1] = benchTree(objectListGB,thirdGenObjectKDTreeGB,treeName);
+		int i=0;
 		
+		while(i<iterations)
+		{
+			// Add Time
+			statsAdd.resetTimer();
+			statsAdd.startTimer();
+				generateThirdGenTree(objectListGB,thirdGenObjectKDTreeGB,treeName);
+			statsAdd.stopTimer();
+			time[0]+=statsAdd.getTimeTaken();	
+					
+			// Bench time
+			statsSearch.resetTimer();
+			statsSearch.startTimer();
+				searchTree(pool,objectListGB,thirdGenObjectKDTreeGB,treeName);
+			statsSearch.stopTimer();
+			time[1]+=statsSearch.getTimeTaken();
+			
+			i++;
+		}	
 		// Total Time
-		time[2] = time[0]+time[1];
+		time[2] += (time[0]+time[1]);
 		
 		// Add %
-		time[3] = (long) (((double)time[0]/(double)time[2])*100);
-		time[4] = (long) (((double)time[1]/(double)time[2])*100);
+		time[3] = (long) (((double)time[0]/(double)time[2])*10000);
+		time[4] = (long) (((double)time[1]/(double)time[2])*10000);
+
 		
 		logger(2,"Total Time : " + time[2]);
 		logger(2,"Add Time :\t" + time[0] + "\t%"+ time[3]);
@@ -123,37 +143,14 @@ public class TreeBenchmarks
 	
 
 	
-	private static long generateThirdGenTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
+	private static void generateThirdGenTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
 	{
-		logger(2,">> Start : " + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName() + " Objects : " + objectList.size());
-
-		long totaltime = 0;
-		int i=0;
-		
-		while(i<iterations)
-		{
-			thirdGenObjectKDTreeGB = new thirdGenKDWrapper<TreeBenchObject>(2);
-			
-			totaltime+=addTree(objectListGB,thirdGenObjectKDTreeGB,treeName);
-			
-			i++;
-		}
-		
-		logger(2,"<< End :" + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName());
-		logger(2,"== Time Taken : " + totaltime + " || (" + (totaltime/1000)%60+"s)");
-		
-		return totaltime;
+		thirdGenObjectKDTreeGB = new thirdGenKDWrapper<TreeBenchObject>(2);	
+		addTree(objectListGB,thirdGenObjectKDTreeGB,treeName);
 	}
 	
-	private static long addTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
+	private static void addTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
 	{	
-		logger(3,">> Start : " + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName() + " Objects : " + objectList.size());
-
-		stats.clearSimulationStats();
-		stats.setStepStartTime();
-		
-		
-		
 		double[] pos;
 		
 		for (TreeBenchObject currentObject : objectList) 
@@ -163,47 +160,47 @@ public class TreeBenchmarks
 			pos[1] =  currentObject.getY();
 			tree.add(pos, currentObject);
 		}
-
-		//stats.incrementSimulationSteps();
-		
-		//stats.calcStepsPerSecond();
-		
-		stats.setStepEndTime();
-		
-		logger(3,"<< End :" + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName());
-		logger(3,"== Time Taken : " + stats.getTotalTime() + " || (" + (stats.getTotalTime()/1000)%60+"s)");
-		return stats.getTotalTime();
 	}
 		
-	public static long benchTree(ArrayList<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
+	public static void searchTree(ForkJoinPool pool,ArrayList<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
 	{
-		logger(3,">> Start Tree :" + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName());
-		stats.clearSimulationStats();
+		PoolTask poolTask = new PoolTask(objectList, tree,threads);
 		
-		ForkJoinPool pool = new ForkJoinPool(threads);
-		PoolTask poolTask;
-		int i=0;
-		
-		stats.setStepStartTime();
-		
-		while(i<iterations)
-		{
-			
-			poolTask = new PoolTask(objectList, tree,threads);
-			pool.invoke(poolTask);			
-			
-			i++;
-		}
-		
-		stats.setStepEndTime();
-		
-		int totalSearches = objectList.size() * iterations;
-		logger(3,"<< End Tree :" + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName() + " Searches : " + objectList.size() + " Iterations x"+iterations );
-		logger(3,"== Time Taken : " + stats.getTotalTime() + " || (" + (stats.getTotalTime()/1000)%60+"s)" + " for : " + totalSearches + " Searches") ;
-		logger(3,"== Iterations Per Second " + ((stats.getTotalTime()/1000)%60)/iterations);
-		return stats.getTotalTime();
+		pool.invoke(poolTask);			
 	}
 	
+	
+	public static class timerObj
+	{
+		private long stepStartTime;
+		private long stepEndTime;
+		private long stepTotalTime;
+
+		public timerObj()
+		{
+			
+		}
+		
+		public void startTimer()
+		{
+			stepStartTime = System.currentTimeMillis(); // Start time for the average step		
+		}
+		
+		public void stopTimer()
+		{
+			stepEndTime = System.currentTimeMillis();
+		}
+		
+		public long getTimeTaken()
+		{
+			return stepEndTime - stepStartTime;
+		}
+		
+		public void resetTimer()
+		{
+			stepTotalTime=0;
+		}
+	}
 	
 	/*
 	 * Private Thread Pool Task class
@@ -256,9 +253,9 @@ public class TreeBenchmarks
 				nearestObject = objectKDTree.nearestNeighbour(pos);
 				
 				currentObject.setNearestObject(nearestObject);
-				
+								
 			}		
 		}
 	}
-	
+		
 }
