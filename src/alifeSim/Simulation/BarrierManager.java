@@ -21,11 +21,6 @@ public class BarrierManager extends Thread
 {
 	/** Number of threads used in this barrier */
 	private final int numThreads;
-
-	private Semaphore plantTreeTheadStartSemaphore;
-	private Semaphore agentTreeTheadStartSemaphore;
-	private Semaphore plantTreeTheadEndSemaphore;
-	private Semaphore agentTreeTheadEndSemaphore;
 	
 	/* The lock for the entire barrier */
 	private Semaphore barrierControllerSemaphore;
@@ -92,72 +87,18 @@ public class BarrierManager extends Thread
 	{
 		System.out.println("Barrier Manager Started");
 		
-		plantTreeTheadStartSemaphore = new Semaphore(0);
-		plantTreeTheadEndSemaphore = new Semaphore(0);
-		Thread plantSplitThread = new Thread(new Runnable(){
-
-			@Override
-			public void run()
-			{
-				System.out.println("Split Plant Thread");
-
-				while(running)
-				{
-					plantTreeTheadStartSemaphore.acquireUninterruptibly();
-					
-					//System.out.println("Split Plants");
-
-					// Creates the plant kd tree and divides plant list in to sub lists
-					splitPlantList();
-					
-					plantTreeTheadEndSemaphore.release();
-				}
-				
-			}});
-		plantSplitThread.start();
-		
-		agentTreeTheadStartSemaphore = new Semaphore(0);
-		agentTreeTheadEndSemaphore = new Semaphore(0);
-		Thread agentSplitThread = new Thread(new Runnable(){
-
-			@Override
-			public void run()
-			{
-				System.out.println("Split Agent Thread");
-				while(running)
-				{
-					agentTreeTheadStartSemaphore.acquireUninterruptibly();
-
-					//System.out.println("Split Agents");
-
-					
-					// Creates the agent kd tree and divides plant list in to sub lists
-					splitAgentList();
-					
-					agentTreeTheadEndSemaphore.release();
-				}
-				
-			}});
-		agentSplitThread.start();
-
 		System.out.println("Started Barrier");
 		
 		while (running)
 		{
-
 			barrierControllerSemaphore.acquireUninterruptibly();
 			
 			if(running)
 			{
 				//System.out.println("Barrier");
-				plantTreeTheadStartSemaphore.release();
-				agentTreeTheadStartSemaphore.release();
-
-				plantTreeTheadEndSemaphore.acquireUninterruptibly();
-				agentTreeTheadEndSemaphore.acquireUninterruptibly();
-	
-				//System.out.println("Barrier 2");
-				
+				splitPlantList();
+				splitAgentList();
+								
 				// set the tasks
 				setbarrierThreadsTasks();
 	
@@ -182,9 +123,6 @@ public class BarrierManager extends Thread
 	 */
 	public void cleanUp()
 	{
-
-		plantTreeTheadStartSemaphore.release();
-		agentTreeTheadStartSemaphore.release();
 		
 		for(int i=0;i<barrierThreads.length;i++)
 		{
