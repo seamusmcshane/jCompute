@@ -24,21 +24,21 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.UIManager;
 
-public class PopulationPanel extends StatPanelAbs
+public class GlobalStatChartPanel extends StatPanelAbs
 {
 	private static final long serialVersionUID = -3572724823868862025L;
 	
-	private final String name = "Population";
+	private String name = "stat";
 			
-	StatGroup populationGroup;
-	String groupName = "Population";
-	String category = "Species";
+	StatGroup statGroup;
+	String groupName = "INVALID";
+	String category = "Species";	// Assume for now global = global per species
 
-	JFreeChart populationBarChart;
+	JFreeChart statBarChart;
 	int series = 0;
-	org.jfree.chart.ChartPanel populationBarChartPanel;
-	DefaultCategoryDataset populationDataset;
-	Plot populationChartPlot;
+	org.jfree.chart.ChartPanel statBarChartPanel;
+	DefaultCategoryDataset statDataset;
+	Plot statChartPlot;
 
 	int traceAdds;
 	Font chartFont = new Font("Sans", Font.BOLD, 12);
@@ -52,10 +52,16 @@ public class PopulationPanel extends StatPanelAbs
 	int stSamWin = 100;
 	int stSamPer = stSamDiv*stSamWin;
 			
-	public PopulationPanel(StatManager manager)
+	public GlobalStatChartPanel(String name ,StatManager manager)
 	{
-		System.out.println("Population Chart Panel Created");
-		populationGroup = manager.getStatGroup(groupName);		
+		// This panels name
+		this.name = name;
+		
+		// Source Stat Group
+		this.groupName = name;
+		
+		System.out.println(name + " Chart Panel Created");
+		statGroup = manager.getStatGroup(groupName);		
 		setLayout(new GridLayout(2, 1, 0, 0));
 		createHistoryChart2DST();
 		createBarChart();
@@ -64,14 +70,14 @@ public class PopulationPanel extends StatPanelAbs
 	
 	private void createBarChart()
 	{
-		populationDataset = new DefaultCategoryDataset();
-		populationBarChart = ChartFactory.createBarChart3D(null, null, null, populationDataset, PlotOrientation.VERTICAL, true, false, false);
-		populationChartPlot = populationBarChart.getCategoryPlot();
-		populationBarChartPanel = new org.jfree.chart.ChartPanel(populationBarChart);
-		populationBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER, TitledBorder.TOP, null, null));
+		statDataset = new DefaultCategoryDataset();
+		statBarChart = ChartFactory.createBarChart3D(null, null, null, statDataset, PlotOrientation.VERTICAL, true, false, false);
+		statChartPlot = statBarChart.getCategoryPlot();
+		statBarChartPanel = new org.jfree.chart.ChartPanel(statBarChart);
+		statBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 
 		
-		add(populationBarChartPanel);
+		add(statBarChartPanel);
 	}
 	
 	private void createHistoryChart2DST()
@@ -81,7 +87,7 @@ public class PopulationPanel extends StatPanelAbs
 		chart2dST.setUseAntialiasing(true);
 		chart2dST.enablePointHighlighting(false);
 		chart2dST.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
-		chart2dST.getAxisY().getAxisTitle().setTitle("Population");
+		chart2dST.getAxisY().getAxisTitle().setTitle("stat");
 		chart2dST.getAxisY().getAxisTitle().setTitleFont(chartFont);
 		chart2dST.getAxisX().getAxisTitle().setTitle("Step");
 		chart2dST.getAxisX().getAxisTitle().setTitleFont(chartFont);
@@ -97,7 +103,7 @@ public class PopulationPanel extends StatPanelAbs
 		add(chartPanelST);	
 		
 		ITrace2D tempT = new Trace2DLtd(stSamWin);
-		tempT.setName("Total Population");
+		tempT.setName("Total stat");
 		tempT.setColor(Color.black);
 		traceMapST.put(tempT.getName(), tempT);
 		chart2dST.addTrace(tempT);
@@ -106,7 +112,7 @@ public class PopulationPanel extends StatPanelAbs
 	@Override
 	public void destroy()
 	{
-		populationGroup = null;
+		statGroup = null;
 		groupName = null;
 		category = null;
 	}
@@ -114,13 +120,13 @@ public class PopulationPanel extends StatPanelAbs
 	@Override
 	public void update()
 	{
-		int totalPopulation = 0;
+		int totalstat = 0;
 		ITrace2D tempT;
 		
 		if(traceAdds%stSamDiv == 0)
 		{
 		
-			for (String statName : populationGroup.getStatList()) 
+			for (String statName : statGroup.getStatList()) 
 			{
 
 				tempT = traceMapST.get(statName);
@@ -131,27 +137,27 @@ public class PopulationPanel extends StatPanelAbs
 					tempT = new Trace2DLtd(stSamWin);
 					tempT.setName(statName);
 				
-					tempT.setColor(populationGroup.getStat(statName).getColor());
+					tempT.setColor(statGroup.getStat(statName).getColor());
 					tempT.setStroke(new BasicStroke(1));
 					traceMapST.put(statName,tempT);
 					chart2dST.addTrace(tempT);
 					tempT.setPointHighlighter(new PointPainterDisc(4));
 					
 					// Update the series in the bar chart with the new stats color
-					populationBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,tempT.getColor());
+					statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,tempT.getColor());
 					
 					// Update series totals
 					series++;
 				}
 				
 				// Set the values
-				tempT.addPoint(traceAdds,populationGroup.getStat(statName).getLastSample());
-				totalPopulation+=populationGroup.getStat(statName).getLastSample();
-				populationDataset.setValue(populationGroup.getStat(statName).getLastSample(), statName, category);
+				tempT.addPoint(traceAdds,statGroup.getStat(statName).getLastSample());
+				totalstat+=statGroup.getStat(statName).getLastSample();
+				statDataset.setValue(statGroup.getStat(statName).getLastSample(), statName, category);
 			}
 			
-			tempT = traceMapST.get("Total Population");
-			tempT.addPoint(traceAdds,totalPopulation);			
+			tempT = traceMapST.get("Total stat");
+			tempT.addPoint(traceAdds,totalstat);			
 		}
 
 		traceAdds++;
