@@ -354,8 +354,8 @@ public class SimpleAgentManager
 		statPreyBirths.addSample(preyBirths);
 		statPredatorBirths.addSample(predatorBirths);
 		
-		statPreyBirths.addSample(preyBirths);
-		statPredatorBirths.addSample(predatorBirths);
+		statPreyDeaths.addSample(preyDeaths);
+		statPredatorDeaths.addSample(predatorDeaths);
 
 	}
 
@@ -405,20 +405,20 @@ public class SimpleAgentManager
 		statPreyTotal.setColor(Color.blue);
 		
 		statPreyBirths = new Stat ("Prey Births");
-		statPreyBirths.setColor(Color.blue);
+		statPreyBirths.setColor(Color.blue.brighter());
 		
 		statPreyDeaths = new Stat ("Prey Deaths");
-		statPreyDeaths.setColor(Color.blue.darker());
+		statPreyDeaths.setColor(Color.blue.darker().darker());
 		
 		
 		statPredatorTotal = new Stat("Predators");
 		statPredatorTotal.setColor(Color.red);
 		
 		statPredatorBirths = new Stat ("Predator Births");
-		statPredatorBirths.setColor(Color.red);
+		statPredatorBirths.setColor(Color.red.brighter());
 		
 		statPredatorDeaths = new Stat ("Predator Deaths");
-		statPredatorDeaths.setColor(Color.red.darker());
+		statPredatorDeaths.setColor(Color.red.darker().darker());
 
 		preyBirths = 0;
 		preyDeaths = 0;
