@@ -105,14 +105,16 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private String state = "New";
 
+	private JPanel simulationScenarioTab;
+		
 	public SimulationTabPanel()
 	{
 		setLayout(new BorderLayout(0, 0));
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
 		add(simulationTabPane, BorderLayout.CENTER);
 
-		JPanel simulationScenarioTab = new JPanel();
-		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
+		simulationScenarioTab = new JPanel();
+		addScenarioTab();
 		simulationScenarioTab.setLayout(new BorderLayout(0, 0));
 
 		JPanel scenarioPanel = new JPanel();
@@ -389,6 +391,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
+	public void addScenarioTab()
+	{
+		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
+	}
+	
 	private boolean discardCurrentSimGenerated()
 	{
 		if(simGenerated)
@@ -744,28 +751,24 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		ScenarioCharts chartDetector = new ScenarioCharts(text, sim);
 
-		// Setup the chart/panel list
-		if (charts == null)
-		{
-			charts = new LinkedList<StatPanelAbs>();
-		}
-		else
-		{
-			for (StatPanelAbs chartPanel : charts)
-			{
-				simulationTabPane.remove(chartPanel);
-				charts.remove(chartPanel);
-				chartPanel.destroy();
-			}
-		}
+		// Remove all tabs
+		simulationTabPane.removeAll();
+		
+		// Clear the Chart List
+		charts = new LinkedList<StatPanelAbs>();
+		
+		// Re-add the Scenario Tab.
+		addScenarioTab();
 
 		// Add the detected Panels
 		for (StatPanelAbs chartPanel : chartDetector.getCharts())
 		{
+			System.out.println("Adding " + chartPanel);
 			charts.add(chartPanel);
 			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
 		}
 
+		// Set up the Sim with the new chart targets
 		sim.setOutPutCharts(charts);
 	}
 
