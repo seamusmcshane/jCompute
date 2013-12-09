@@ -48,12 +48,28 @@ public class SimpleAgentManager
 	private Stat statAgentTotal;	
 	private int agentTotal;
 	
-	/** Predator and prey counts */
+	/** Prey */
 	private int preyTotal;
 	private Stat statPreyTotal;
+
+	private int preyBirths;
+	private Stat statPreyBirths;
+	
+	private int preyDeaths;
+	private Stat statPreyDeaths;
+	
+	/** Predators */
 	private int predatorTotal;
 	private Stat statPredatorTotal;
+	
+	private int predatorBirths;
+	private Stat statPredatorBirths;
+	
+	private int predatorDeaths;
+	private Stat statPredatorDeaths;
+	
 
+	
 	/** Reference for setting barrier tasks */
 	BarrierManager barrierManager;
 
@@ -95,20 +111,6 @@ public class SimpleAgentManager
 
 		System.out.println("SimpleAgent Manager Setup Complete");
 		
-	}
-
-	private void setUpStats()
-	{
-		statAgentTotal = new Stat("Agents");
-		statPreyTotal = new Stat("Prey");
-		statPreyTotal.setColor(Color.blue);
-		statPredatorTotal = new Stat("Predators");
-		statPredatorTotal.setColor(Color.red);
-		agentTotal = 0;
-		agentCountMax = 0;
-		preyTotal = 0;
-		predatorTotal= 0;
-		agentIdCount = 0;
 	}
 	
 	/**
@@ -287,6 +289,13 @@ public class SimpleAgentManager
 		agentTotal = 0;
 		preyTotal = 0;
 		predatorTotal = 0;
+		
+		preyBirths = 0;
+		preyDeaths = 0;
+		
+		predatorBirths = 0;
+		predatorDeaths = 0;
+		
 		//StatsPanel.statsDensityPanel.resetStats();
 		
 		for (SimpleAgent temp : doList) 
@@ -307,6 +316,16 @@ public class SimpleAgentManager
 					 * stats here.
 					 */
 					addNewAgent(new SimpleAgent(world,0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), agentSize, temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
+					
+					if(temp.body.stats.getType().getType() == AgentType.PREDATOR)
+					{
+						predatorBirths++;
+					}
+					else
+					{
+						preyBirths++; 
+					}
+					
 				}
 
 				// Add to donelist  - agents not added get removed by java.
@@ -314,16 +333,29 @@ public class SimpleAgentManager
 				//StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
 
 			}
-			//else
-			//{
-			//	
-			//}
+			else
+			{
+				if(temp.body.stats.getType().getType() == AgentType.PREDATOR)
+				{
+					predatorDeaths++;
+				}
+				else
+				{
+					preyDeaths++; 
+				}	
+			}
 			
 		}
 		
 		statAgentTotal.addSample(agentTotal);
 		statPredatorTotal.addSample(predatorTotal);
 		statPreyTotal.addSample(preyTotal);
+		
+		statPreyBirths.addSample(preyBirths);
+		statPredatorBirths.addSample(predatorBirths);
+		
+		statPreyBirths.addSample(preyBirths);
+		statPredatorBirths.addSample(predatorBirths);
 
 	}
 
@@ -365,6 +397,43 @@ public class SimpleAgentManager
 		return predatorTotal;
 	}
 
+	private void setUpStats()
+	{
+		statAgentTotal = new Stat("Agents");
+		
+		statPreyTotal = new Stat("Prey");
+		statPreyTotal.setColor(Color.blue);
+		
+		statPreyBirths = new Stat ("Prey Births");
+		statPreyBirths.setColor(Color.blue);
+		
+		statPreyDeaths = new Stat ("Prey Deaths");
+		statPreyDeaths.setColor(Color.blue.darker());
+		
+		
+		statPredatorTotal = new Stat("Predators");
+		statPredatorTotal.setColor(Color.red);
+		
+		statPredatorBirths = new Stat ("Predator Births");
+		statPredatorBirths.setColor(Color.red);
+		
+		statPredatorDeaths = new Stat ("Predator Deaths");
+		statPredatorDeaths.setColor(Color.red.darker());
+
+		preyBirths = 0;
+		preyDeaths = 0;
+
+		predatorBirths = 0;
+		predatorDeaths = 0;
+		
+		
+		agentTotal = 0;
+		agentCountMax = 0;
+		preyTotal = 0;
+		predatorTotal= 0;
+		agentIdCount = 0;
+	}
+	
 	public List<Stat> getPopulationStats()
 	{
 
@@ -372,6 +441,19 @@ public class SimpleAgentManager
 		
 		stat.add(statPredatorTotal);
 		stat.add(statPreyTotal);
+		
+		return stat;
+	}
+	
+	public List<Stat> getBirthDeathStats()
+	{
+		List<Stat> stat = new LinkedList<Stat>();
+		
+		stat.add(statPreyBirths);
+		stat.add(statPreyDeaths);
+		
+		stat.add(statPredatorBirths);
+		stat.add(statPredatorDeaths);
 		
 		return stat;
 	}
