@@ -49,21 +49,55 @@ public class ScenarioCharts extends ScenarioVT
 		{
 			if(super.getStringValue(section,chartName) !=null)
 			{				
-				if(super.getStringValue(section,chartName).equalsIgnoreCase("true"))
+				String values[] = super.getStringValue(section,chartName).split(":");
+				int expectedParams = 2;		
+				
+				// The Parameters
+				String chartEnabled = "false";
+				String chartSampleRateFreq = "NAN";
+				
+				// The logic here is to avoid excessive nested if statements
+				
+				if( (values.length == expectedParams))
+				{
+					chartEnabled = values[0];
+					chartSampleRateFreq = values[1];
+				}
+				
+				if( !(isInteger(chartSampleRateFreq)))
+				{
+					break;
+				}
+				
+				if(chartEnabled.equalsIgnoreCase("true"))
 				{
 					System.out.println(chartName +" Chart Requested");
-					charts.add(new GlobalStatChartPanel(chartName,sim.getSimManager().getStatmanger(),validTotalStats[pos]));
+					charts.add(new GlobalStatChartPanel(chartName,sim.getSimManager().getStatmanger(),validTotalStats[pos],Integer.parseInt(chartSampleRateFreq)));
 				}
 				else
 				{
 					System.out.println(chartName + " Chart Disabled");
-				}
+				}				
+
 			}
 			pos ++;
 		}
 
 	}
 		
+	public boolean isInteger(String string) 
+	{
+		try 
+		{
+			Integer.parseInt(string);
+			return true;
+		} 
+		catch (NumberFormatException e) 
+		{
+			return false;
+		}
+	}
+	
 	public LinkedList<StatPanelAbs> getCharts()
 	{
 		return charts;
