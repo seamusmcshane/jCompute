@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 
-import alifeSim.ChartPanels.PopulationPanel;
+import alifeSim.ChartPanels.GlobalStatChartPanel;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Simulation.Simulation;
 
@@ -16,6 +16,8 @@ public class ScenarioCharts extends ScenarioVT
 {
 	private LinkedList<StatPanelAbs> charts;
 	private Simulation sim;
+	private String validChartTypes[] = {"Population"};
+	
 	
 	public ScenarioCharts(File file,Simulation sim)
 	{
@@ -40,20 +42,23 @@ public class ScenarioCharts extends ScenarioVT
 	private void checkPopulationPanel(HierarchicalINIConfiguration scenario)
 	{
 		String section = "Graphs";
-		
-		if(super.getStringValue(section,"Population") !=null)
+
+		for(String chartName : validChartTypes)
 		{
-			if(super.getStringValue(section,"Population").equalsIgnoreCase("true"))
-			{
-				System.out.println("Population Chart Enabled");
-				charts.add(new PopulationPanel(sim.getSimManager().getStatmanger()));
-			}
-			else
-			{
-				System.out.println("Population Chart Disabled");
+			if(super.getStringValue(section,chartName) !=null)
+			{				
+				if(super.getStringValue(section,chartName).equalsIgnoreCase("true"))
+				{
+					System.out.println(chartName +" Chart Requested");
+					charts.add(new GlobalStatChartPanel(chartName,sim.getSimManager().getStatmanger()));
+				}
+				else
+				{
+					System.out.println(chartName + " Chart Disabled");
+				}
 			}
 		}
-		
+
 	}
 		
 	public LinkedList<StatPanelAbs> getCharts()
