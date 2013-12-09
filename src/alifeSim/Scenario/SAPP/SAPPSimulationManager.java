@@ -78,9 +78,15 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		
 		statManager.registerGroup(new StatGroup("Population"));
 		
+		/* Population */ 
 		statManager.getStatGroup("Population").registerStats(genericPlantManager.getPopulationStats());
 		
 		statManager.getStatGroup("Population").registerStats(simpleAgentManager.getPopulationStats());
+		
+		statManager.registerGroup(new StatGroup("Births/Deaths"));
+		
+		/* Births Deaths */
+		statManager.getStatGroup("Births/Deaths").registerStats(simpleAgentManager.getBirthDeathStats());
 		
 	}
 	
