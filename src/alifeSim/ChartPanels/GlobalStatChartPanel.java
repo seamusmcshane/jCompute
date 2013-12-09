@@ -98,7 +98,7 @@ public class GlobalStatChartPanel extends StatPanelAbs
 		chart2dST.setUseAntialiasing(true);
 		chart2dST.enablePointHighlighting(false);
 		chart2dST.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
-		chart2dST.getAxisY().getAxisTitle().setTitle("stat");
+		chart2dST.getAxisY().getAxisTitle().setTitle(name);
 		chart2dST.getAxisY().getAxisTitle().setTitleFont(chartFont);
 		chart2dST.getAxisX().getAxisTitle().setTitle("Step");
 		chart2dST.getAxisX().getAxisTitle().setTitleFont(chartFont);
