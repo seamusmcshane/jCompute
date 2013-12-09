@@ -132,7 +132,7 @@ public class Simulation
 				while (running)
 				{
 						simUpdate();
-						asyncUpdateThread.yield();
+						//asyncUpdateThread.yield();
 				}
 			}
 		}, "Simulation Update Thread"
