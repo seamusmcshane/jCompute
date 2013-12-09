@@ -128,6 +128,8 @@ public class GlobalStatChartPanel extends StatPanelAbs
 		statGroup = null;
 		groupName = null;
 		category = null;
+		
+		System.out.println(name + " Chart Panel Self Destructing");
 	}
 	
 	@Override

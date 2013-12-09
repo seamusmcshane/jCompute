@@ -296,7 +296,7 @@ public class NewGUI
 		splitPane.setContinuousLayout(true);
 		
 		/* Split Pane Left - Sim Tabs */
-		simTabs = new SimulationTabPanelManager(JTabbedPane.LEFT);
+		simTabs = new SimulationTabPanelManager();
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
 

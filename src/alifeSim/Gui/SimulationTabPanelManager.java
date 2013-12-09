@@ -38,9 +38,9 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 
 	Timer tabStatusPoll = new Timer();
 	
-	public SimulationTabPanelManager(int val)
+	public SimulationTabPanelManager()
 	{
-		super(val);
+		super(LEFT);
 		
 		simulationTabs = new SimulationTabPanel[maxTabs];
 		

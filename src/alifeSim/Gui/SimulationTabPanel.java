@@ -757,11 +757,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				charts.remove(chartPanel);
 				chartPanel.destroy();
 			}
-
 		}
 
 		// Add the detected Panels
-
 		for (StatPanelAbs chartPanel : chartDetector.getCharts())
 		{
 			charts.add(chartPanel);

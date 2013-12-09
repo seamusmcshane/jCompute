@@ -37,10 +37,10 @@ public class ScenarioCharts extends ScenarioVT
 		this.sim = sim;
 		charts = new LinkedList<StatPanelAbs>();
 		
-		checkPopulationPanel(scenario);
+		checkChartPanels(scenario);
 	}
 	
-	private void checkPopulationPanel(HierarchicalINIConfiguration scenario)
+	private void checkChartPanels(HierarchicalINIConfiguration scenario)
 	{
 		String section = "Graphs";
 		int pos =0;
