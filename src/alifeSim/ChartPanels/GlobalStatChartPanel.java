@@ -29,7 +29,9 @@ public class GlobalStatChartPanel extends StatPanelAbs
 	private static final long serialVersionUID = -3572724823868862025L;
 	
 	private String name = "stat";
-			
+	private String totalStatName = "NOTSET";
+	private boolean totalStatEnabled = false;
+	
 	StatGroup statGroup;
 	String groupName = "INVALID";
 	String category = "Species";	// Assume for now global = global per species
@@ -52,13 +54,20 @@ public class GlobalStatChartPanel extends StatPanelAbs
 	int stSamWin = 100;
 	int stSamPer = stSamDiv*stSamWin;
 			
-	public GlobalStatChartPanel(String name ,StatManager manager)
+	public GlobalStatChartPanel(String name ,StatManager manager, boolean totalStatEnabled)
 	{
 		// This panels name
 		this.name = name;
 		
 		// Source Stat Group
 		this.groupName = name;
+		
+		this.totalStatEnabled = totalStatEnabled;
+		
+		if(totalStatEnabled)
+		{
+			this.totalStatName = "Total "+name;
+		}
 		
 		System.out.println(name + " Chart Panel Created");
 		statGroup = manager.getStatGroup(groupName);		
@@ -102,11 +111,15 @@ public class GlobalStatChartPanel extends StatPanelAbs
 		chart2dST.setMinPaintLatency(1000);
 		add(chartPanelST);	
 		
-		ITrace2D tempT = new Trace2DLtd(stSamWin);
-		tempT.setName("Total stat");
-		tempT.setColor(Color.black);
-		traceMapST.put(tempT.getName(), tempT);
-		chart2dST.addTrace(tempT);
+		if(totalStatEnabled)
+		{
+			ITrace2D tempT = new Trace2DLtd(stSamWin);
+			tempT.setName(totalStatName);
+			tempT.setColor(Color.black);
+			traceMapST.put(tempT.getName(), tempT);
+			chart2dST.addTrace(tempT);
+		}
+
 	}		
 
 	@Override
@@ -156,8 +169,12 @@ public class GlobalStatChartPanel extends StatPanelAbs
 				statDataset.setValue(statGroup.getStat(statName).getLastSample(), statName, category);
 			}
 			
-			tempT = traceMapST.get("Total stat");
-			tempT.addPoint(traceAdds,totalstat);			
+			if(totalStatEnabled)
+			{
+				tempT = traceMapST.get(totalStatName);
+				tempT.addPoint(traceAdds,totalstat);
+			}
+		
 		}
 
 		traceAdds++;
