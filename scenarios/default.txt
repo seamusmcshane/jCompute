@@ -6,6 +6,7 @@ ScenarioType = SAPP
 [Graphs]
 
 Population = true
+Births/Deaths = true
 
 [World]
 
