@@ -54,7 +54,7 @@ public class GlobalStatChartPanel extends StatPanelAbs
 	int stSamWin = 100;
 	int stSamPer = stSamDiv*stSamWin;
 			
-	public GlobalStatChartPanel(String name ,StatManager manager, boolean totalStatEnabled)
+	public GlobalStatChartPanel(String name ,StatManager manager, boolean totalStatEnabled, int sampleRate)
 	{
 		// This panels name
 		this.name = name;
@@ -68,6 +68,8 @@ public class GlobalStatChartPanel extends StatPanelAbs
 		{
 			this.totalStatName = "Total "+name;
 		}
+		
+		this.stSamDiv = sampleRate;
 		
 		System.out.println(name + " Chart Panel Created");
 		statGroup = manager.getStatGroup(groupName);		
