@@ -40,6 +40,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Set;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -106,6 +107,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private String state = "New";
 
 	private JPanel simulationScenarioTab;
+	private SimulationStatsListPanel simulationStatsListPanel;
 		
 	public SimulationTabPanel()
 	{
@@ -117,6 +119,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		addScenarioTab();
 		simulationScenarioTab.setLayout(new BorderLayout(0, 0));
 
+		simulationStatsListPanel = new SimulationStatsListPanel();
+		addSimulationStatsListTab();
+		
 		JPanel scenarioPanel = new JPanel();
 		simulationScenarioTab.add(scenarioPanel, BorderLayout.CENTER);
 		scenarioPanel.setLayout(new BorderLayout(0, 0));
@@ -391,6 +396,22 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
+	public void addSimulationStatsListTab()
+	{
+		simulationTabPane.addTab("Supported Statistics", simulationStatsListPanel);	
+		simulationStatsListPanel.clearTable();
+		if(sim!=null)
+		{
+			Set<String> statGroups = sim.getSimManager().getStatmanger().getStatList();
+			
+			for(String group : statGroups)
+			{				
+				simulationStatsListPanel.addRow(group, new String[]{Integer.toString(sim.getSimManager().getStatmanger().getStatGroup(group).getStatList().size())});
+			}			
+		}
+		
+	}
+	
 	public void addScenarioTab()
 	{
 		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
@@ -468,7 +489,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				if (!generatingSim)
 				{
 					generatingSim = true;
-
+					
 					/* Create the new Simulation */
 					newSim(scenarioEditor.getText());
 
@@ -759,6 +780,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 		// Re-add the Scenario Tab.
 		addScenarioTab();
+		
+		// Re-add the Scenario Tab
+		addSimulationStatsListTab();
 
 		// Add the detected Panels
 		for (StatPanelAbs chartPanel : chartDetector.getCharts())

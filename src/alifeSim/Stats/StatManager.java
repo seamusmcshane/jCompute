@@ -44,6 +44,14 @@ public class StatManager
 		return group;
 	}
 	
+	public int getStatGroupCount(String groupName)
+	{
+		statsManagerLock.acquireUninterruptibly();
+			int statCount = map.size();
+		statsManagerLock.release();
+		return statCount;
+	}
+	
 	// An unsorted list of the Stat names in the manager
 	public Set<String> getStatList()
 	{
