@@ -405,22 +405,22 @@ public class SimpleAgentManager
 		statPreyTotal.setColor(Color.blue);
 		
 		statPreyBirths = new Stat ("Prey Births");
-		statPreyBirths.setColor(new Color(Color.HSBtoRGB(0.7f,1f,1f)));
+		statPreyBirths.setColor(new Color(Color.HSBtoRGB(0.65f,1f,1f)));
 		
 		
 		
 		statPreyDeaths = new Stat ("Prey Deaths");
-		statPreyDeaths.setColor(new Color(Color.HSBtoRGB(0.75f,0.5f,0.7f)));
+		statPreyDeaths.setColor(new Color(Color.HSBtoRGB(0.65f,0.4f,1f)));
 		
 		
 		statPredatorTotal = new Stat("Predators");
 		statPredatorTotal.setColor(Color.red);
 		
 		statPredatorBirths = new Stat ("Predator Births");
-		statPredatorBirths.setColor(new Color(Color.HSBtoRGB(0.0f,1f,1f)));
+		statPredatorBirths.setColor(new Color(Color.HSBtoRGB(0f,1f,1f)));
 		
 		statPredatorDeaths = new Stat ("Predator Deaths");
-		statPredatorDeaths.setColor(new Color(Color.HSBtoRGB(0.05f,0.5f,0.7f)));
+		statPredatorDeaths.setColor(new Color(Color.HSBtoRGB(0f,0.4f,1f)));
 
 		preyBirths = 0;
 		preyDeaths = 0;
