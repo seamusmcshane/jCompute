@@ -112,7 +112,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public SimulationTabPanel()
 	{
 		setLayout(new BorderLayout(0, 0));
+		
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
+		simulationTabPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		add(simulationTabPane, BorderLayout.CENTER);
 
 		simulationScenarioTab = new JPanel();
@@ -409,12 +411,14 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				simulationStatsListPanel.addRow(group, new String[]{Integer.toString(sim.getSimManager().getStatmanger().getStatGroup(group).getStatList().size())});
 			}			
 		}
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount()-1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png")));
 		
 	}
 	
 	public void addScenarioTab()
 	{
 		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount()-1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/accessories-text-editor.png")));
 	}
 	
 	private boolean discardCurrentSimGenerated()
@@ -790,6 +794,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			System.out.println("Adding " + chartPanel);
 			charts.add(chartPanel);
 			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
+			simulationTabPane.setIconAt(simulationTabPane.getTabCount()-1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kchart.png")));
+
 		}
 
 		// Set up the Sim with the new chart targets
