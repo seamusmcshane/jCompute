@@ -93,6 +93,12 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		
 		statManager.getStatGroup("AgentEnergyLevels").registerStats(simpleAgentManager.getEnergyLevels());
 		
+		
+		/* Agent Stats */
+		statManager.registerGroup(new StatGroup("AgentAge"));
+		
+		statManager.getStatGroup("AgentAge").registerStats(simpleAgentManager.getAgentAges());
+		
 	}
 	
 	public StatManager getStatmanger()

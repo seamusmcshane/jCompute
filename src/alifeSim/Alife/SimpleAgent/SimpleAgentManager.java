@@ -80,8 +80,14 @@ public class SimpleAgentManager
 	/** Hard coded Agent Size */
 	float agentSize = 5f;
 	
+	private int energyBuckets = 10;
 	private int[] energyLevel;
 	private SingleStat[] statEnergyLevel;
+	
+	private int ageBuckets = 10;
+	private int ageBucketWidth = 20;
+	private int[] agentAges;
+	private SingleStat[] statAgentAges;
 
 	private WorldInf world;
 	
@@ -299,7 +305,8 @@ public class SimpleAgentManager
 		predatorBirths = 0;
 		predatorDeaths = 0;
 		
-		energyLevel = new int[10];
+		energyLevel = new int[energyBuckets];
+		agentAges = new int[ageBuckets];
 		
 		//StatsPanel.statsDensityPanel.resetStats();
 		
@@ -336,7 +343,8 @@ public class SimpleAgentManager
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
 				//StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
-
+				temp.body.stats.incrementAge();
+				
 			}
 			else
 			{
@@ -351,19 +359,18 @@ public class SimpleAgentManager
 			}
 			
 			recordEnergy(temp);
+			recordAge(temp);
 			
 		}
-		/*
-		for(int i : energyLevel)
-		{
-			System.out.print(i + " :");
-		}
-		System.out.print("\n");
-		*/
 
-		for(int i=0;i<10;i++)
+		for(int i=0;i<energyBuckets;i++)
 		{
 			statEnergyLevel[i].addSample(energyLevel[i]);
+		}
+		
+		for(int i=0;i<ageBuckets;i++)
+		{
+			statAgentAges[i].addSample(agentAges[i]);
 		}
 		
 		statAgentTotal.addSample(agentTotal);
@@ -454,20 +461,43 @@ public class SimpleAgentManager
 		predatorTotal= 0;
 		agentIdCount = 0;
 		
-		energyLevel = new int[10];
-		statEnergyLevel = new SingleStat[10];
+		energyLevel = new int[energyBuckets];
+		statEnergyLevel = new SingleStat[energyBuckets];
 		
 		for(int i=0;i<10;i++)
 		{
-			statEnergyLevel[i] = new SingleStat("> "+ Integer.toString(i*10));
-			statEnergyLevel[i].setColor(new Color(Color.HSBtoRGB((float)i/10f,1f,1f)));
-		}		
+			statEnergyLevel[i] = new SingleStat("> "+ Integer.toString(i*energyBuckets));
+			statEnergyLevel[i].setColor(new Color(Color.HSBtoRGB((float)i/(float)energyBuckets,1f,1f)));
+		}
+		
+		agentAges = new int[ageBuckets];
+		statAgentAges = new SingleStat[ageBuckets];
+		
+		for(int i=0;i<10;i++)
+		{
+			statAgentAges[i] = new SingleStat("> "+ Integer.toString(i*(ageBuckets*ageBucketWidth)));
+			statAgentAges[i].setColor(new Color(Color.HSBtoRGB((float)i/(float)ageBuckets,1f,1f)));
+		}
 		
 	}
 	
 	public void recordEnergy(SimpleAgent agent)
 	{
-		energyLevel[ ((int)agent.body.stats.getEnergy()/10) ]++;
+		energyLevel[ ((int)agent.body.stats.getEnergy()/energyBuckets) ]++;
+	}
+	
+	public void recordAge(SimpleAgent agent)
+	{
+		long age = agent.body.stats.getAge();
+		
+		int bucket = (int) (age/(ageBuckets*ageBucketWidth));
+		
+		if(bucket >= ageBuckets)
+		{
+			bucket = ageBuckets-1;
+		}
+				
+		agentAges[ bucket ]++;
 	}
 	
 	public List<StatInf> getPopulationStats()
@@ -498,9 +528,21 @@ public class SimpleAgentManager
 	{
 		List<StatInf> stat = new LinkedList<StatInf>();
 		
-		for(int i=0;i<10;i++)
+		for(int i=0;i<energyBuckets;i++)
 		{			
 			stat.add(statEnergyLevel[i]);
+		}	
+
+		return stat;
+	}
+	
+	public List<StatInf> getAgentAges()
+	{
+		List<StatInf> stat = new LinkedList<StatInf>();
+		
+		for(int i=0;i<ageBuckets;i++)
+		{			
+			stat.add(statAgentAges[i]);
 		}	
 
 		return stat;
