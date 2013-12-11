@@ -52,7 +52,7 @@ public class SimpleAgentStats
 	private float energyConsumptionRate;
 
 	/** Agent age in Simulation Steps */
-	private long age; // not used - todo evolution
+	private long age;
 
 	/** This agents type Predator/Prey */
 	private SimpleAgentType type;
@@ -98,7 +98,7 @@ public class SimpleAgentStats
 
 		this.hungryThreshold = hungryThreshold; // in energy
 
-		this.age = 0;	// Not implemented - age in steps
+		this.age = 0;	// age in steps
 
 		this.viewRange = size + viewRange; // Places the view range from the body, rather than from the middle
 
@@ -330,4 +330,14 @@ public class SimpleAgentStats
 		return viewRange - size;
 	}
 
+	public void incrementAge()
+	{
+		age++;
+	}
+	
+	public long getAge()
+	{
+		return age;
+	}
+	
 }
