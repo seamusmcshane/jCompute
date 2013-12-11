@@ -2,6 +2,7 @@ package alifeSim.Stats;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -50,10 +51,44 @@ public class StatGroup
 	public List<String> getStatList()
 	{
 		List list = new ArrayList<String>(map.keySet());
-		Collections.sort(list);
+		
+		Collections.sort(list,new sortComparator());
+		
 		return list;
 	}
 
+	/*
+	 * Private comparator for the stat name list, 
+	 * accounts for stats named in ranges ie > 100, > 200 etc
+	 */
+	private class sortComparator implements Comparator<String> 
+	{
+
+		@Override
+		public int compare(String string1, String string2)
+		{
+			Integer int1;
+			Integer int2;
+			if(string1.contains("> "))
+			{
+				int1 = rangeSubString(string1);
+				int2 = rangeSubString(string2);
+				
+				return int1.compareTo(int2);
+			}
+			
+			return string1.compareTo(string2);
+		}
+		
+		private Integer rangeSubString(String text)
+		{
+			String text2[] = 	text.split("> ");
+			
+			return Integer.parseInt(text2[1]);
+		}
+		
+	}
+	
 	public String getName()
 	{
 		return groupName;
