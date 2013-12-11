@@ -8,6 +8,7 @@ ScenarioType = SAPP
 Population = true:100
 Births/Deaths = true:100
 AgentEnergyLevels = true:100
+AgentAge = true:100
 
 [World]
 
