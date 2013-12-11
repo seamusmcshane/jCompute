@@ -460,6 +460,7 @@ public class SimpleAgentManager
 		for(int i=0;i<10;i++)
 		{
 			statEnergyLevel[i] = new SingleStat("> "+ Integer.toString(i*10));
+			statEnergyLevel[i].setColor(new Color(Color.HSBtoRGB((float)i/10f,1f,1f)));
 		}		
 		
 	}
