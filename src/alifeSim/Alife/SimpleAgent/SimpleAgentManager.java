@@ -11,6 +11,7 @@ import org.newdawn.slick.Graphics;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Simulation.BarrierManager;
+import alifeSim.Stats.BucketStat;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
 import alifeSim.World.WorldInf;
@@ -78,6 +79,9 @@ public class SimpleAgentManager
 
 	/** Hard coded Agent Size */
 	float agentSize = 5f;
+	
+	private int[] energyLevel;
+	private SingleStat[] statEnergyLevel;
 
 	private WorldInf world;
 	
@@ -295,6 +299,8 @@ public class SimpleAgentManager
 		predatorBirths = 0;
 		predatorDeaths = 0;
 		
+		energyLevel = new int[10];
+		
 		//StatsPanel.statsDensityPanel.resetStats();
 		
 		for (SimpleAgent temp : doList) 
@@ -344,6 +350,20 @@ public class SimpleAgentManager
 				}	
 			}
 			
+			recordEnergy(temp);
+			
+		}
+		/*
+		for(int i : energyLevel)
+		{
+			System.out.print(i + " :");
+		}
+		System.out.print("\n");
+		*/
+
+		for(int i=0;i<10;i++)
+		{
+			statEnergyLevel[i].addSample(energyLevel[i]);
 		}
 		
 		statAgentTotal.addSample(agentTotal);
@@ -433,6 +453,20 @@ public class SimpleAgentManager
 		preyTotal = 0;
 		predatorTotal= 0;
 		agentIdCount = 0;
+		
+		energyLevel = new int[10];
+		statEnergyLevel = new SingleStat[10];
+		
+		for(int i=0;i<10;i++)
+		{
+			statEnergyLevel[i] = new SingleStat("> "+ Integer.toString(i*10));
+		}		
+		
+	}
+	
+	public void recordEnergy(SimpleAgent agent)
+	{
+		energyLevel[ ((int)agent.body.stats.getEnergy()/10) ]++;
 	}
 	
 	public List<StatInf> getPopulationStats()
@@ -456,6 +490,18 @@ public class SimpleAgentManager
 		stat.add(statPredatorBirths);
 		stat.add(statPredatorDeaths);
 		
+		return stat;
+	}
+	
+	public List<StatInf> getEnergyLevels()
+	{
+		List<StatInf> stat = new LinkedList<StatInf>();
+		
+		for(int i=0;i<10;i++)
+		{			
+			stat.add(statEnergyLevel[i]);
+		}	
+
 		return stat;
 	}
 
