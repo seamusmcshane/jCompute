@@ -4,15 +4,19 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Stat
+public class SingleStat
 {	
 	// Identifier for the type of Information recorded 
 	private String name;
+	
+	// The stat type - Single samples
+	private final String statType = "Single";
+	
 	private Color statColor;
 	/* Raw Samples - count always == num of steps */
 	private List<Integer> allSamples;
 		
-	public Stat(String name)
+	public SingleStat(String name)
 	{
 		this.name = name;
 		statColor = new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f));

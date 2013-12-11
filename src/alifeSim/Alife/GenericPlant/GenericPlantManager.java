@@ -15,7 +15,7 @@ import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationPerformanceStats;
-import alifeSim.Stats.Stat;
+import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
@@ -39,7 +39,7 @@ public class GenericPlantManager
 	/** The Total number of plants */
 	// plantTotal is the variable use to create a sample
 	// statPlantTotal is the stat object used to record all samples
-	private Stat statPlantTotal;	
+	private SingleStat statPlantTotal;	
 	private int plantTotal;
 
 	/** The size of the world, needed for correctly placing new plants */
@@ -113,14 +113,14 @@ public class GenericPlantManager
 
 	private void setUpStats()
 	{
-		statPlantTotal = new Stat("Plants");
+		statPlantTotal = new SingleStat("Plants");
 		statPlantTotal.setColor(Color.green);
 		plantTotal = 0;
 	}
 	
-	public List<Stat> getPopulationStats()
+	public List<SingleStat> getPopulationStats()
 	{
-		List<Stat> stat = new LinkedList<Stat>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(statPlantTotal);
 		

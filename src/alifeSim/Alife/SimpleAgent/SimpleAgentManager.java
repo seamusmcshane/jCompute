@@ -11,7 +11,7 @@ import org.newdawn.slick.Graphics;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Simulation.BarrierManager;
-import alifeSim.Stats.Stat;
+import alifeSim.Stats.SingleStat;
 import alifeSim.World.WorldInf;
 
 /**
@@ -45,31 +45,29 @@ public class SimpleAgentManager
 	/** The agent count - used in array list size allocation*/
 	int agentCountMax;	
 	
-	private Stat statAgentTotal;	
+	private SingleStat statAgentTotal;	
 	private int agentTotal;
 	
 	/** Prey */
 	private int preyTotal;
-	private Stat statPreyTotal;
+	private SingleStat statPreyTotal;
 
 	private int preyBirths;
-	private Stat statPreyBirths;
+	private SingleStat statPreyBirths;
 	
 	private int preyDeaths;
-	private Stat statPreyDeaths;
+	private SingleStat statPreyDeaths;
 	
 	/** Predators */
 	private int predatorTotal;
-	private Stat statPredatorTotal;
+	private SingleStat statPredatorTotal;
 	
 	private int predatorBirths;
-	private Stat statPredatorBirths;
+	private SingleStat statPredatorBirths;
 	
 	private int predatorDeaths;
-	private Stat statPredatorDeaths;
-	
-
-	
+	private SingleStat statPredatorDeaths;
+		
 	/** Reference for setting barrier tasks */
 	BarrierManager barrierManager;
 
@@ -399,27 +397,27 @@ public class SimpleAgentManager
 
 	private void setUpStats()
 	{
-		statAgentTotal = new Stat("Agents");
+		statAgentTotal = new SingleStat("Agents");
 		
-		statPreyTotal = new Stat("Prey");
+		statPreyTotal = new SingleStat("Prey");
 		statPreyTotal.setColor(Color.blue);
 		
-		statPreyBirths = new Stat ("Prey Births");
+		statPreyBirths = new SingleStat ("Prey Births");
 		statPreyBirths.setColor(new Color(Color.HSBtoRGB(0.65f,1f,1f)));
 		
 		
 		
-		statPreyDeaths = new Stat ("Prey Deaths");
+		statPreyDeaths = new SingleStat ("Prey Deaths");
 		statPreyDeaths.setColor(new Color(Color.HSBtoRGB(0.65f,0.4f,1f)));
 		
 		
-		statPredatorTotal = new Stat("Predators");
+		statPredatorTotal = new SingleStat("Predators");
 		statPredatorTotal.setColor(Color.red);
 		
-		statPredatorBirths = new Stat ("Predator Births");
+		statPredatorBirths = new SingleStat ("Predator Births");
 		statPredatorBirths.setColor(new Color(Color.HSBtoRGB(0f,1f,1f)));
 		
-		statPredatorDeaths = new Stat ("Predator Deaths");
+		statPredatorDeaths = new SingleStat ("Predator Deaths");
 		statPredatorDeaths.setColor(new Color(Color.HSBtoRGB(0f,0.4f,1f)));
 
 		preyBirths = 0;
@@ -436,10 +434,10 @@ public class SimpleAgentManager
 		agentIdCount = 0;
 	}
 	
-	public List<Stat> getPopulationStats()
+	public List<SingleStat> getPopulationStats()
 	{
 
-		List<Stat> stat = new LinkedList<Stat>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(statPredatorTotal);
 		stat.add(statPreyTotal);
@@ -447,9 +445,9 @@ public class SimpleAgentManager
 		return stat;
 	}
 	
-	public List<Stat> getBirthDeathStats()
+	public List<SingleStat> getBirthDeathStats()
 	{
-		List<Stat> stat = new LinkedList<Stat>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(statPreyBirths);
 		stat.add(statPreyDeaths);
