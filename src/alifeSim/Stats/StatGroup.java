@@ -1,5 +1,7 @@
 package alifeSim.Stats;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -44,10 +46,12 @@ public class StatGroup
 		return stat;
 	}
 	
-	// An unsorted list of the Group names in the manager
-	public Set<String> getStatList()
+	// An sorted list of the Group names in the manager
+	public List<String> getStatList()
 	{
-		return map.keySet();
+		List list = new ArrayList<String>(map.keySet());
+		Collections.sort(list);
+		return list;
 	}
 
 	public String getName()
