@@ -11,7 +11,6 @@ import org.newdawn.slick.Graphics;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Simulation.BarrierManager;
-import alifeSim.Stats.BucketStat;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
 import alifeSim.World.WorldInf;
