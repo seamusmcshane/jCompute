@@ -5,22 +5,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import alifeSim.Alife.SimpleAgent.SimpleAgent;
-
 public class StatGroup
 {
 	private String groupName;
-	HashMap<String, SingleStat> map;
+	HashMap<String, StatInf> map;
 	Semaphore statsGroupLock = new Semaphore(1);
 	
 	public StatGroup(String groupName)
 	{
 		this.groupName = groupName;
-		map = new HashMap<String, SingleStat>();
+		map = new HashMap<String, StatInf>();
 	}
 	
 	// Add a new stat to the stat manager
-	public void registerStat(SingleStat stat)
+	public void registerStat(StatInf stat)
 	{
 		statsGroupLock.acquireUninterruptibly();
 			map.put(stat.getStatName(), stat);
@@ -28,19 +26,19 @@ public class StatGroup
 	}
 	
 	// Add a list of stats to the stat manager
-	public void registerStats(List<SingleStat> statList)
+	public void registerStats(List<StatInf> statList)
 	{
-		for (SingleStat stat : statList) 
+		for (StatInf stat : statList) 
 		{
 			registerStat(stat);
 		}			
 	}
 	
 	// returns a stat based on the stat name requested
-	public SingleStat getStat(String statName)
+	public StatInf getStat(String statName)
 	{
 		statsGroupLock.acquireUninterruptibly();
-			SingleStat stat = map.get(statName);
+			StatInf stat = map.get(statName);
 		statsGroupLock.release();
 		
 		return stat;

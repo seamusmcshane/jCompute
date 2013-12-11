@@ -12,6 +12,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Stats.SingleStat;
+import alifeSim.Stats.StatInf;
 import alifeSim.World.WorldInf;
 
 /**
@@ -434,10 +435,10 @@ public class SimpleAgentManager
 		agentIdCount = 0;
 	}
 	
-	public List<SingleStat> getPopulationStats()
+	public List<StatInf> getPopulationStats()
 	{
 
-		List<SingleStat> stat = new LinkedList<SingleStat>();
+		List<StatInf> stat = new LinkedList<StatInf>();
 		
 		stat.add(statPredatorTotal);
 		stat.add(statPreyTotal);
@@ -445,9 +446,9 @@ public class SimpleAgentManager
 		return stat;
 	}
 	
-	public List<SingleStat> getBirthDeathStats()
+	public List<StatInf> getBirthDeathStats()
 	{
-		List<SingleStat> stat = new LinkedList<SingleStat>();
+		List<StatInf> stat = new LinkedList<StatInf>();
 		
 		stat.add(statPreyBirths);
 		stat.add(statPreyDeaths);

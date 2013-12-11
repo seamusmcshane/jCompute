@@ -1,5 +1,6 @@
 package alifeSim.ChartPanels;
 
+import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import info.monitorenter.gui.chart.Chart2D;
@@ -168,9 +169,9 @@ public class GlobalStatChartPanel extends StatPanelAbs
 				}
 				
 				// Set the values
-				tempT.addPoint(traceAdds,statGroup.getStat(statName).getLastSample());
-				totalstat+=statGroup.getStat(statName).getLastSample();
-				statDataset.setValue(statGroup.getStat(statName).getLastSample(), statName, category);
+				tempT.addPoint(traceAdds,((SingleStat)statGroup.getStat(statName)).getLastSample());
+				totalstat+=((SingleStat)statGroup.getStat(statName)).getLastSample();
+				statDataset.setValue(((SingleStat)statGroup.getStat(statName)).getLastSample(), statName, category);
 			}
 			
 			if(totalStatEnabled)

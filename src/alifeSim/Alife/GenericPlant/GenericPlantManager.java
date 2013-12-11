@@ -17,6 +17,7 @@ import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
+import alifeSim.Stats.StatInf;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
@@ -118,9 +119,9 @@ public class GenericPlantManager
 		plantTotal = 0;
 	}
 	
-	public List<SingleStat> getPopulationStats()
+	public List<StatInf> getPopulationStats()
 	{
-		List<SingleStat> stat = new LinkedList<SingleStat>();
+		List<StatInf> stat = new LinkedList<StatInf>();
 		
 		stat.add(statPlantTotal);
 		
