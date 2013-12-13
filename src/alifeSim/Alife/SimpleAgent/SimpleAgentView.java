@@ -287,6 +287,7 @@ public class SimpleAgentView
 	public void drawViewRange(Graphics g)
 	{
 		/* Edge */
+		g.setLineWidth(0.25f);
 		g.setColor(new Color(255,255,255));	
 		upDateViewLocation(fovDiameter);
 		g.draw(fov);
@@ -332,6 +333,7 @@ public class SimpleAgentView
 
 	public void drawViews(Graphics g)
 	{
+		g.setLineWidth(0.25f);
 		if(getNearestAgentPos() != null)
 		{
 			Line line = new Line(body.getBodyPos(), getNearestAgentPos());
