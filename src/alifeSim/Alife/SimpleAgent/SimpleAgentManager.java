@@ -87,6 +87,11 @@ public class SimpleAgentManager
 	private int ageBucketWidth = 20;
 	private int[] agentAges;
 	private SingleStat[] statAgentAges;
+	
+	private int viewBuckets = 10;
+	private int viewBucketWidth = 1;
+	private float[] agentViewSizes;
+	private SingleStat[] statAgentViewSizes;
 
 	private WorldInf world;
 	
@@ -306,7 +311,8 @@ public class SimpleAgentManager
 		
 		energyLevel = new int[energyBuckets];
 		agentAges = new int[ageBuckets];
-		
+		agentViewSizes = new float[viewBuckets];
+				
 		//StatsPanel.statsDensityPanel.resetStats();
 		
 		for (SimpleAgent temp : doList) 
@@ -359,6 +365,7 @@ public class SimpleAgentManager
 			
 			recordEnergy(temp);
 			recordAge(temp);
+			recordViewSize(temp);
 			
 		}
 
@@ -370,6 +377,11 @@ public class SimpleAgentManager
 		for(int i=0;i<ageBuckets;i++)
 		{
 			statAgentAges[i].addSample(agentAges[i]);
+		}
+		
+		for(int i=0;i<viewBuckets;i++)
+		{
+			statAgentViewSizes[i].addSample((int)agentViewSizes[i]);
 		}
 		
 		statAgentTotal.addSample(agentTotal);
@@ -478,6 +490,30 @@ public class SimpleAgentManager
 			statAgentAges[i].setColor(new Color(Color.HSBtoRGB((float)i/(float)ageBuckets,1f,1f)));
 		}
 		
+		agentViewSizes = new float[viewBuckets];
+		statAgentViewSizes = new SingleStat[ageBuckets];
+		
+		for(int i=0;i<10;i++)
+		{
+			statAgentViewSizes[i] = new SingleStat("> "+ Integer.toString(i*(viewBuckets*viewBucketWidth)));
+			statAgentViewSizes[i].setColor(new Color(Color.HSBtoRGB((float)i/(float)viewBuckets,1f,1f)));
+		}
+				
+	}
+	
+	public void recordViewSize(SimpleAgent agent)
+	{
+		float viewSize = agent.body.stats.getViewRange();
+				
+		int bucket = (int) (viewSize/(viewBuckets*viewBucketWidth));
+		
+		if(bucket >= viewBuckets)
+		{
+			bucket = viewBuckets-1;
+		}
+				
+		agentViewSizes[ bucket ]++;
+		
 	}
 	
 	public void recordEnergy(SimpleAgent agent)
@@ -547,4 +583,16 @@ public class SimpleAgentManager
 		return stat;
 	}
 
+	public List<StatInf> getAgentViewSizes()
+	{
+		List<StatInf> stat = new LinkedList<StatInf>();
+		
+		for(int i=0;i<viewBuckets;i++)
+		{			
+			stat.add(statAgentViewSizes[i]);
+		}	
+
+		return stat;
+	}
+	
 }

@@ -16,8 +16,8 @@ public class ScenarioCharts extends ScenarioVT
 {
 	private LinkedList<StatPanelAbs> charts;
 	private Simulation sim;
-	private String validChartTypes[] = {"Population",	"Births/Deaths" , "AgentEnergyLevels" , "AgentAge"};
-	private boolean validTotalStats[] = {true		,	false 			, false				  , false };
+	private String validChartTypes[] = {"Population",	"Births/Deaths" , "AgentEnergyLevels" , "AgentAge"	, "AgentViewSize"};
+	private boolean validTotalStats[] = {true		,	false 			, false				  , false		, false };
 	
 	
 	public ScenarioCharts(File file,Simulation sim)
