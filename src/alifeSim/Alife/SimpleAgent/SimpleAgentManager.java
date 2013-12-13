@@ -518,7 +518,18 @@ public class SimpleAgentManager
 	
 	public void recordEnergy(SimpleAgent agent)
 	{
-		energyLevel[ ((int)agent.body.stats.getEnergy()/energyBuckets) ]++;
+		
+		float energy = agent.body.stats.getEnergy();
+		
+		int bucket = (int)(energy/energyBuckets);
+		
+		if(bucket >= energyBuckets)
+		{
+			bucket = energyBuckets-1;
+		}
+				
+		energyLevel[ bucket ]++;
+		
 	}
 	
 	public void recordAge(SimpleAgent agent)
