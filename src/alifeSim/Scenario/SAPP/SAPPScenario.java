@@ -246,7 +246,7 @@ public class SAPPScenario extends ScenarioVT
 			
 			if(super.hasIntValue(section, "BarrierScenario"))
 			{
-				worldSettings.setBarrierMode(super.getIntValue(section,"BarrierScenario"));
+				worldSettings.setBarrierScenario(super.getIntValue(section,"BarrierScenario"));
 				System.out.println("BarrierScenario : " + worldSettings.getBarrierScenario());
 			}
 			else
