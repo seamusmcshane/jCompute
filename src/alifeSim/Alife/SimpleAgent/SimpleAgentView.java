@@ -6,11 +6,12 @@ import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.Vector2f;
-import fastMath.fastMath;
 
+import fastMath.fastMath;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.GenericPlant.GenericPlantViewStats;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentEval;
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 
 /**
  * This Class holds the representation of a view for the agent in the current simulation step.
@@ -282,22 +283,48 @@ public class SimpleAgentView
 
 	/**
 	 * Draws the agents field of view.
-	 * @param g
 	 */
-	public void drawViewRange(Graphics g)
+	public void drawViewRange(Graphics g, boolean distanceRings, boolean edgeStyled)
 	{
 		/* Edge */
-		g.setLineWidth(0.25f);
-		g.setColor(new Color(255,255,255));	
+		if(edgeStyled)
+		{
+			g.setLineWidth(0.75f);
+			
+			if (body.stats.getType().getType() == AgentType.PREDATOR )
+			{
+				g.setColor(Color.red);	// Same is treated as inactive as Agents of same type ignore each other		
+			}
+			else
+			{
+				g.setColor(Color.blue);		// The current Agent is Stronger i.e Predator 		
+			}
+		}
+		else
+		{
+			g.setLineWidth(0.25f);
+			
+			g.setColor(new Color(255,255,255));	
+		}
+		
 		upDateViewLocation(fovDiameter);
 		g.draw(fov);
 		
+		if(distanceRings)
+		{
+			drawDistanceRings(g);
+		}
+		
+	}
+
+	public void drawDistanceRings(Graphics g)
+	{
 		float fovd;
 		
 		float rings = (fovDiameter/20);
 		
 		float spacing = fovDiameter/rings;
-		
+				
 		for(int i=1; i<=rings; i++)
 		{
 			fovd = spacing*i;
@@ -327,10 +354,9 @@ public class SimpleAgentView
 			
 			g.draw(fov);
 			
-		}
-		
+		}		
 	}
-
+	
 	public void drawViews(Graphics g)
 	{
 		g.setLineWidth(0.25f);
@@ -338,6 +364,10 @@ public class SimpleAgentView
 		{
 			Line line = new Line(body.getBodyPos(), getNearestAgentPos());
 			aDis = line.length();
+			
+			upDateViewLocation(aDis);
+			g.draw(fov);
+			
 			g.draw(line);
 		}
 		else

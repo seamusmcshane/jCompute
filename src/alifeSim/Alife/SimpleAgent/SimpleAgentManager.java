@@ -257,7 +257,7 @@ public class SimpleAgentManager
 				if (viewRangeDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
-					tAgentDrawAI.brain.view.drawViewRange(g);
+					tAgentDrawAI.brain.view.drawViewRange(g,false,true);
 				}
 				
 				if(viewsDrawing)
