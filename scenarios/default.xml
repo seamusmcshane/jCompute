@@ -5,15 +5,42 @@
 		<Type>SAPP</Type>
 	</Header>
 	<Statistics>
-		<Population>true</Population>
+		<Stat>
+			<Name>Population</Name>
+			<Enabled>true</Enabled>
+			<TotalStat>true</TotalStat>
+			<Graph>true</Graph>
+			<GraphSampleRate>100</GraphSampleRate>
+		</Stat>
+		<Stat>
+			<Name>Births-Deaths</Name>
+			<Enabled>true</Enabled>
+			<TotalStat>false</TotalStat>
+			<Graph>true</Graph>
+			<GraphSampleRate>100</GraphSampleRate>
+		</Stat>
+		<Stat>
+			<Name>AgentEnergyLevels</Name>
+			<Enabled>true</Enabled>
+			<TotalStat>false</TotalStat>
+			<Graph>true</Graph>
+			<GraphSampleRate>100</GraphSampleRate>
+		</Stat>
+		<Stat>
+			<Name>AgentAge</Name>
+			<Enabled>true</Enabled>
+			<TotalStat>false</TotalStat>
+			<Graph>true</Graph>
+			<GraphSampleRate>100</GraphSampleRate>
+		</Stat>
+		<Stat>
+			<Name>AgentViewSize</Name>
+			<Enabled>true</Enabled>
+			<TotalStat>false</TotalStat>
+			<Graph>true</Graph>
+			<GraphSampleRate>100</GraphSampleRate>
+		</Stat>
 	</Statistics>
-	<Graphs>
-		<Population>true:100</Population>
-		<Births-Deaths>true:100</Births-Deaths>
-		<AgentEnergyLevels >true:100</AgentEnergyLevels>
-		<AgentAge>true:100</AgentAge>
-		<AgentViewSize>true:100</AgentViewSize>
-	</Graphs>
 	<World>
 		<Type>0</Type>
 		<Size>1024</Size>
