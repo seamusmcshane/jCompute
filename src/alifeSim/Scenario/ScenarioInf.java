@@ -2,8 +2,10 @@ package alifeSim.Scenario;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import alifeSim.Stats.StatGroupSetting;
 
 public interface ScenarioInf
 {
@@ -22,5 +24,7 @@ public interface ScenarioInf
 	public void loadConfig(File file);
 	
 	public void loadConfig(String text);
+	
+	public List<StatGroupSetting> getStatGroupSettingsList();
 
 }
