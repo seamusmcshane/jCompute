@@ -65,8 +65,7 @@ public class SimpleAgentSetupSettings
 
 	public float getViewRange()
 	{
-		Random r = new Random();
-		return r.nextInt(100);
+		return this.viewRange;
 	}
 /*	
 	public float getViewRange()
