@@ -1,6 +1,9 @@
 package alifeSim.Scenario;
 
-import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import java.io.File;
+import java.io.InputStream;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
 
 public interface ScenarioInf
 {
@@ -10,10 +13,14 @@ public interface ScenarioInf
 	
 	public double getDoubleValue(String section,String value);
 	
-	public HierarchicalINIConfiguration scenarioFile();
+	public HierarchicalConfiguration scenarioFile();
 	
 	public double getScenarioVersion();
 
 	public String getScenarioType();
+
+	public void loadConfig(File file);
+	
+	public void loadConfig(String text);
 
 }

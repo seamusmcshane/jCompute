@@ -5,10 +5,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 
 
 /**
@@ -17,56 +23,119 @@ import org.apache.commons.configuration.HierarchicalINIConfiguration;
 
 public class ScenarioVT implements ScenarioInf
 {
-	HierarchicalINIConfiguration scenario;
-
-	public ScenarioVT(File file)
+	XMLConfiguration scenario;
+	
+	public ScenarioVT()
 	{
-			try
-			{
-				scenario = new HierarchicalINIConfiguration();
-				scenario.load(file);
-			}
-			catch (ConfigurationException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 
 	}
 
-	public ScenarioVT(String text)
-	{
+	private void populateSections()
+	{		
+		Iterator test = scenario.getKeys();
+		
+		while(test.hasNext())
+		{
+			String text = test.next().toString();
+			Object value =  scenario.getProperty(text);
+			
+			if(value instanceof String)
+			{
+				System.out.println(text);
+			}			
+		}
+	}
+	
+	public void test()
+	{		
+		/*Iterator test = scenario.getKeys();
+		
+		int agents=0;
+		
+		while(test.hasNext())
+		{
+			String text = test.next().toString();
+			Object value =  scenario.getProperty(text);
+			
+			if(value instanceof String)
+			{
+				System.out.print(text + " : ");
+				System.out.println(value);	
+			}
+			
+			if(value instanceof Collection)
+			{
+				agents = ((Collection<?>) value).size();
+			}
+		}*/
+						
+		List<HierarchicalConfiguration> agentList = scenario.configurationsAt("Agents.SimpleAgent");
+		
+		for(HierarchicalConfiguration sub : agentList)
+		{
+			System.out.println(sub.getString("Type"));
+		}
+		
+		/*for(HierarchicalConfiguration agent : agentList) 
+		{
+		    System.out.println(agent.getList("SimpleAgent.Type"));
+		}*/
+		
+		
+		/*while(agentSub.hasNext())
+		{
+			String text = agentSub.next().toString();
+
+			Object value =  sub.getProperty(text);
+			
+			if(value instanceof String)
+			{
+				System.out.print(text + " : ");
+				System.out.println(value);	
+			}
+		}*/
+		
+	}
+	
+	@Override
+	public void loadConfig(String text)
+	{		
 		InputStream stream;
+		
+		System.out.println(text);
 
 		try
-		{
-			stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
-			scenario = new HierarchicalINIConfiguration();
-			scenario.load(stream);
+		{			
+			stream = new ByteArrayInputStream(text.getBytes());
+			scenario = new XMLConfiguration();
+			scenario.setSchemaValidation(true);
+			scenario.load(stream);	
 		}
 		catch (ConfigurationException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error : " + e.toString());
 		}
-		catch (UnsupportedEncodingException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 	}
 	
-	public boolean hasSection(String section)
+	@Override
+	public void loadConfig(File file)
 	{
-		for(String name : scenario.getSections())
+		try
 		{
-			if(section.equals(name))
-			{
-				return true;
-			}
+			scenario = new XMLConfiguration();
+			scenario.setSchemaValidation(true);
+			scenario.load(file);
 		}
-		return false;
+		catch (ConfigurationException e)
+		{
+			System.out.println("Error : " + e.toString());
+		}
+		
+	}
+	
+	public int getSubListSize(String section,String value)
+	{
+		return scenario.configurationsAt(section+"."+value).size();
 	}
 	
 	public boolean hasStringValue(String section,String value)
@@ -128,7 +197,6 @@ public class ScenarioVT implements ScenarioInf
 	
 	public String getStringValue(String section,String value)
 	{
-		
 		return scenario.getString(section  + "." + value);		
 	}
 	
@@ -147,19 +215,18 @@ public class ScenarioVT implements ScenarioInf
 		return scenario.getDouble( section + "." +  value);		
 	}
 	
-	public HierarchicalINIConfiguration scenarioFile()
+	public XMLConfiguration scenarioFile()
 	{
 		return scenario;
 	}
 	
 	public double getScenarioVersion()
 	{
-		return Double.parseDouble(scenario.getString("Config.ConfigVersion","0.00"));
+		return Double.parseDouble(scenario.getString("Header.Version","0.00"));
 	}
 
 	public String getScenarioType()
 	{
-		return scenario.getString("Config.ScenarioType","Scenario Type Not Set!!!");
+		return scenario.getString("Header.Type","Scenario Type Not Set!!!");
 	}
-	
 }
