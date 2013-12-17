@@ -11,12 +11,16 @@ import java.util.concurrent.Semaphore;
 public class StatGroup
 {
 	private String groupName;
-	HashMap<String, StatInf> map;
-	Semaphore statsGroupLock = new Semaphore(1);
+	private HashMap<String, StatInf> map;
+	private Semaphore statsGroupLock = new Semaphore(1);
+	private StatGroupSetting setting;
 	
 	public StatGroup(String groupName)
 	{
 		this.groupName = groupName;
+		
+		setting = new StatGroupSetting(groupName);
+		
 		map = new HashMap<String, StatInf>();
 	}
 	
@@ -87,6 +91,16 @@ public class StatGroup
 			return Integer.parseInt(text2[1]);
 		}
 		
+	}
+	
+	public void setGroupSettings(StatGroupSetting setting)
+	{
+		this.setting = setting;
+	}
+	
+	public StatGroupSetting getGroupSettings()
+	{
+		return setting;
 	}
 	
 	public String getName()
