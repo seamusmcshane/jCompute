@@ -22,24 +22,17 @@ public class ScenarioCharts extends ScenarioVT
 	private boolean validTotalStats[] = {true		,	false 			, false				  , false		, false };
 	
 	
-	public ScenarioCharts(File file,Simulation sim)
+	public ScenarioCharts()
 	{
-		super(file);
-		init(super.scenario, sim);
-	}
-	
-	public ScenarioCharts(String text,Simulation sim)
-	{		
-		super(text);
-		init(super.scenario, sim);
+
 	}
 
-	private void init(XMLConfiguration Scenario,Simulation sim)
+	public void init(Simulation sim)
 	{
 		this.sim = sim;
 		charts = new LinkedList<StatPanelAbs>();
 		
-		checkChartPanels(scenario);
+		checkChartPanels(super.scenarioFile());
 	}
 	
 	private void checkChartPanels(XMLConfiguration scenario)
