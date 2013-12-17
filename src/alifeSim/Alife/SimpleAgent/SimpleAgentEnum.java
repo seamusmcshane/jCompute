@@ -16,7 +16,7 @@ public class SimpleAgentEnum
 	 */
 	public enum AgentType
 	{
-		PREY, PREDATOR
+		INVALID,PREY, PREDATOR
 	};
 
 	/** 
