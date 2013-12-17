@@ -1,35 +1,23 @@
 package alifeSim.Gui;
 
 import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
-
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-
 import javax.swing.SwingConstants;
-
 import java.awt.Color;
-
 import javax.swing.JSlider;
-
 import java.awt.Dimension;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -41,19 +29,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Set;
-
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import java.awt.Font;
-
-import org.apache.commons.configuration.ConfigurationException;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Scenario.ScenarioCharts;
 import alifeSim.Scenario.ScenarioInf;
@@ -63,8 +44,6 @@ import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
-
-import javax.swing.DropMode;
 
 public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationPerformanceStatsOutputInf
 {
@@ -785,7 +764,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void setUpPanels(String text, Simulation sim)
 	{
-		ScenarioCharts chartDetector = new ScenarioCharts(text, sim);
+		ScenarioCharts chartDetector = new ScenarioCharts();
+		chartDetector.loadConfig(text);
+		chartDetector.init(sim);
 
 		// Remove all tabs
 		simulationTabPane.removeAll();
@@ -828,7 +809,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			sim.createSim(simScenario);
 			SimulationView.setSim(sim);
 
-			//setUpPanels(scenario, sim);
+			setUpPanels(scenario, sim);
 			/*
 			 * If needed the GC can free old objects now, before the simulation
 			 * starts
