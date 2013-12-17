@@ -34,10 +34,12 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -48,6 +50,7 @@ import java.awt.Font;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import alifeSim.ChartPanels.GlobalStatChartPanel;
@@ -78,8 +81,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JButton btnClose;
 	private JCheckBox chckbxEditMode;
 	private boolean scenarioLoaded = false;
-	private Color normalMode = new Color(240, 240, 240);
-	private Color editMode = new Color(255, 255, 255);
+	private Color normalMode;
+	private Color editMode;
 
 	private boolean saved = true;
 
@@ -202,7 +205,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 
+		
 		scenarioEditor = new RSyntaxTextArea();
+		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+
 		scenarioEditor.setCloseMarkupTags(true);
 		scenarioEditor.setCloseCurlyBraces(false);
 		scenarioEditor.setAnimateBracketMatching(true);
@@ -212,17 +218,32 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioEditor.setRoundedSelectionEdges(true);
 		scenarioEditor.setAutoIndentEnabled(true);
 		scenarioEditor.setTabSize(2);
-		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
 		scenarioEditor.setFadeCurrentLineHighlight(true);
-		scenarioEditor.setCurrentLineHighlightColor(Color.WHITE);
+		//scenarioEditor.setCurrentLineHighlightColor(Color.WHITE);
 		scenarioEditor.setBracketMatchingEnabled(false);
-		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		scenarioEditor.setEditable(false);
-		scenarioEditor.setBackground(normalMode);
-		scenarioEditor.setSelectedTextColor(Color.white);
-		scenarioEditor.setSelectionColor(Color.darkGray);
+		//scenarioEditor.setBackground(normalMode);
+		//scenarioEditor.setSelectedTextColor(Color.white);
+		//scenarioEditor.setSelectionColor(Color.darkGray);
 		scenarioEditor.setMarginLineEnabled(true);
 		scenarioEditor.setMarginLinePosition(40);
+
+        Theme theme;
+        InputStream in; 
+		try
+		{
+			in = new FileInputStream(new File("S:/AlifeSimWorkSpace/alifesim/editor-themes/dark-mod.xml"));
+			theme = Theme.load(in);
+			theme.apply(scenarioEditor);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		normalMode = scenarioEditor.getBackground();
+		editMode = normalMode.darker();
+		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
 
 		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
 		scenarioFilePanel.add(sp, BorderLayout.CENTER);
