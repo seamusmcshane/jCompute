@@ -2,19 +2,14 @@ package alifeSim.Scenario;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
-
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+
+import alifeSim.Stats.StatGroupSetting;
 
 
 /**
@@ -23,11 +18,12 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 public class ScenarioVT implements ScenarioInf
 {
-	XMLConfiguration scenario;
+	private XMLConfiguration scenario;
+	private List<StatGroupSetting> statSettingsList;
 	
 	public ScenarioVT()
 	{
-
+		statSettingsList = new ArrayList<StatGroupSetting>();
 	}
 	
 	@Override
@@ -35,7 +31,7 @@ public class ScenarioVT implements ScenarioInf
 	{		
 		InputStream stream;
 		
-		System.out.println(text);
+		//System.out.println(text);
 
 		try
 		{			
@@ -133,6 +129,11 @@ public class ScenarioVT implements ScenarioInf
 		return scenario.getString(section  + "." + value);		
 	}
 	
+	public boolean getBooleanValue(String section,String value)
+	{
+		return scenario.getBoolean(section  + "." + value);		
+	}
+	
 	public int getIntValue(String section,String value)
 	{
 		return scenario.getInt(section + "." +  value);		
@@ -161,5 +162,19 @@ public class ScenarioVT implements ScenarioInf
 	public String getScenarioType()
 	{
 		return scenario.getString("Header.Type","Scenario Type Not Set!!!");
+	}
+
+	/**
+	 * Only Sub Class add StatSettings
+	 * @param statSetting
+	 */
+	protected void addStatSettings(StatGroupSetting statSetting)
+	{
+		statSettingsList.add(statSetting);
+	}
+	
+	public List<StatGroupSetting> getStatGroupSettingsList()
+	{
+		return statSettingsList;
 	}
 }
