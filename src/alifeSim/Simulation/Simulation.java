@@ -187,10 +187,10 @@ public class Simulation
 		
 		simStats.updateStatsOutput();
 		
-		for (StatPanelAbs panel : charts) 
+		/*for (StatPanelAbs panel : charts) 
 		{
 			panel.update();
-		}
+		}*/
 		
 		// Allow the simulation to be paused again
 		pause.release();
