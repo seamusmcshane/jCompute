@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="Scenario">
+  <xs:complexType>
+    <xs:sequence>
+		<xs:element name="Header">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="Version" type="xs:string"/>
+					<xs:element name="Type" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element> 
+		<xs:element name="Statistics">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="Population" type="xs:string" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Births-Deaths" type="xs:string" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:complexType>			
+		</xs:element> 
+		<xs:element name="Graphs">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="Population" type="xs:string" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Births-Deaths" type="xs:string" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="AgentEnergyLevels" type="xs:string" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="AgentAge" type="xs:string" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="AgentViewSize" type="xs:string" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:complexType>			
+		</xs:element> 
+		<xs:element name="World">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="Type" type="xs:string"/>
+					<xs:element name="Size" type="xs:integer"/>
+					<xs:element name="Barriers" type="xs:integer"/>
+					<xs:element name="BarriersScenario" type="xs:integer"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element> 		
+		<xs:element name="Agents" minOccurs="1" maxOccurs="1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="SimpleAgent" minOccurs="0" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="Type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="InitialNumbers" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="Size" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="Speed" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="ViewRange" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="MovementCost" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="StartingEnergy" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="DigestiveEfficiency" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="HungerThreshold" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="EnergyConsumptionRate" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="ReproductionAndSurvivalDivisor" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="ReproductionCost" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element> 	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element> 		
+		<xs:element name="Plants">
+		</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element> 
+</xs:schema> 

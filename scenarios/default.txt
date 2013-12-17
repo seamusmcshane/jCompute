@@ -16,7 +16,7 @@ AgentViewSize = true:100
 Type = 0
 
 WorldSize=1024
-Barriers = 1
+Barriers = 0
 BarrierScenario = 0
 
 [Predators]
