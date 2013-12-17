@@ -34,6 +34,14 @@ public class StatManager
 		}			
 	}
 	
+	public void setGroupSettings(String groupName,StatGroupSetting setting)
+	{
+		statsManagerLock.acquireUninterruptibly();
+			StatGroup group = map.get(groupName);
+			group.setGroupSettings(setting);
+		statsManagerLock.release();
+	}
+	
 	// returns a group based on the group name requested
 	public StatGroup getStatGroup(String groupName)
 	{
@@ -53,7 +61,7 @@ public class StatManager
 	}
 	
 	// An unsorted list of the Stat names in the manager
-	public Set<String> getStatList()
+	public Set<String> getGroupList()
 	{
 		return map.keySet();
 	}
@@ -61,6 +69,15 @@ public class StatManager
 	public String getname()
 	{
 		return managerName;
+	}
+	
+	public boolean containsGroup(String name)
+	{
+		statsManagerLock.acquireUninterruptibly();
+			boolean status = map.containsKey(name);
+		statsManagerLock.release();
+		
+		return status;
 	}
 	
 }
