@@ -16,7 +16,7 @@ public class SimulationStatsListPanel extends JPanel
 		setLayout(new BorderLayout(0, 0));
 		this.setMinimumSize(new Dimension(350,250));
 		
-		table = new SimTablePanel("Statistics",new String[]{"Group Name","Sample Categories"});
+		table = new SimTablePanel("Statistics",new String[]{"Group Name","Sample Categories","Enabled","Graph"});
 		
 		this.add(table);
 	}

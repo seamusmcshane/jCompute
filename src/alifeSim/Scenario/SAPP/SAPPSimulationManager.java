@@ -12,6 +12,7 @@ import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
+import alifeSim.Stats.StatGroupSetting;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 
@@ -78,33 +79,46 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	{
 		statManager = new StatManager("SAPP");
 		
-		statManager.registerGroup(new StatGroup("Population"));
-		
 		/* Population */ 
+		statManager.registerGroup(new StatGroup("Population"));
 		statManager.getStatGroup("Population").registerStats(genericPlantManager.getPopulationStats());
-		
 		statManager.getStatGroup("Population").registerStats(simpleAgentManager.getPopulationStats());
 		
-		statManager.registerGroup(new StatGroup("Births/Deaths"));
 		
 		/* Births Deaths */
-		statManager.getStatGroup("Births/Deaths").registerStats(simpleAgentManager.getBirthDeathStats());
+		statManager.registerGroup(new StatGroup("Births-Deaths"));
+		statManager.getStatGroup("Births-Deaths").registerStats(simpleAgentManager.getBirthDeathStats());
 		
 		/* Agent Stats */
 		statManager.registerGroup(new StatGroup("AgentEnergyLevels"));
-		
 		statManager.getStatGroup("AgentEnergyLevels").registerStats(simpleAgentManager.getEnergyLevels());
 		
 		
 		/* Agent Stats */
 		statManager.registerGroup(new StatGroup("AgentAge"));
-		
 		statManager.getStatGroup("AgentAge").registerStats(simpleAgentManager.getAgentAges());
 		
 		/* Agent Stats */
 		statManager.registerGroup(new StatGroup("AgentViewSize"));
-		
 		statManager.getStatGroup("AgentViewSize").registerStats(simpleAgentManager.getAgentViewSizes());
+		
+		List<StatGroupSetting> statSettings = scenario.getStatList();
+		
+		/* This code filters out invalid stat group names in the xml file
+		 * Those that are valid are registered above.
+		 */
+		for(StatGroupSetting statSetting : statSettings)
+		{
+			if(statManager.containsGroup(statSetting.getName()))
+			{
+				statManager.setGroupSettings(statSetting.getName(), statSetting);
+			}
+			else
+			{
+				System.out.println("Stat Group / Setting " + statSetting.getName() + " Does not EXIST!");
+			}
+			
+		}
 		
 	}
 	
