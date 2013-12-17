@@ -11,6 +11,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentType;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Stats.StatGroupSetting;
 import alifeSim.World.WorldSetupSettings;
 
 public class SAPPScenario extends ScenarioVT
@@ -25,7 +26,7 @@ public class SAPPScenario extends ScenarioVT
 	public GenericPlantSetupSettings plantSettings;
 	
 	/** Agent Settings */
-	private ArrayList<SimpleAgentSetupSettings> agentSetings;
+	private ArrayList<SimpleAgentSetupSettings> agentSettingsList;
 	
 	public SAPPScenario()
 	{		
@@ -61,13 +62,14 @@ public class SAPPScenario extends ScenarioVT
 
 		readPlantSettings();
 		
+		readStatSettings();
+		
 		return true;
 		
 	}
 	
-	public void readPlantSettings()
-	{			
-		
+	private void readPlantSettings()
+	{
 		String section = "Plants.GenericPlant";
 		
 		plantSettings = new GenericPlantSetupSettings();
@@ -84,11 +86,25 @@ public class SAPPScenario extends ScenarioVT
 				
 	}
 	
+	private void readStatSettings()
+	{
+		int statisticsGroups = super.getSubListSize("Statistics","Stat");
+
+		String section;
+		for(int i=0;i<statisticsGroups;i++)
+		{
+			section = "Statistics.Stat("+i+")";
+			super.addStatSettings(new StatGroupSetting(super.getStringValue(section, "Name"),super.getBooleanValue(section, "Enabled"),super.getBooleanValue(section, "TotalStat"),super.getBooleanValue(section, "Graph"),super.getIntValue(section, "GraphSampleRate")));
+		}
+		
+		System.out.println("Statistics " + statisticsGroups );		
+	}
+	
 	private void readAgentsSettings()
 	{
 		int agentGroups = super.getSubListSize("Agents","SimpleAgent");
 		
-		agentSetings = new ArrayList<SimpleAgentSetupSettings>(agentGroups);
+		agentSettingsList = new ArrayList<SimpleAgentSetupSettings>(agentGroups);
 		
 		SimpleAgentSetupSettings agentSettings;
 		String section;
@@ -138,7 +154,7 @@ public class SAPPScenario extends ScenarioVT
 			agentSettings.setReproductionCost(super.getFloatValue(section,"ReproductionCost"));
 			System.out.println("ReproductionCost : " + agentSettings.getReproductionCost());
 
-			agentSetings.add(agentSettings);
+			agentSettingsList.add(agentSettings);
 		}
 		
 		System.out.println("Loaded " + agentGroups + " AgentGroups");
@@ -166,9 +182,9 @@ public class SAPPScenario extends ScenarioVT
 		return simManager;		
 	}
 
-	public List<SimpleAgentSetupSettings> getAgentSetingsList()
+	public List<SimpleAgentSetupSettings> getAgentSettingsList()
 	{
-		return agentSetings;
+		return agentSettingsList;
 	}
 	
 }

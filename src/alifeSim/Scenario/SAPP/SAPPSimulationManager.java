@@ -1,11 +1,13 @@
 package alifeSim.Scenario.SAPP;
 
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import org.newdawn.slick.Graphics;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
+import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.Stats.StatGroup;
@@ -133,7 +135,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 */
 	private void setUpAgentManager()
 	{
-		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.getAgentSetingsList());
+		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.getAgentSettingsList());
 	}
 
 	/**

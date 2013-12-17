@@ -571,7 +571,7 @@ public class SimpleAgentManager
 		for(int i=0;i<ageBuckets;i++)
 		{			
 			stat.add(statAgentAges[i]);
-		}	
+		}
 
 		return stat;
 	}
@@ -583,7 +583,7 @@ public class SimpleAgentManager
 		for(int i=0;i<viewBuckets;i++)
 		{			
 			stat.add(statAgentViewSizes[i]);
-		}	
+		}
 
 		return stat;
 	}
