@@ -1,4 +1,9 @@
 package alifeSim.Alife.SimpleAgent;
+
+import java.util.Random;
+
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
+
 /**
  * This class is used for transferring many parameters into the simulation from the GUI in bulk
  * avoiding the need to pass them in singular.
@@ -8,7 +13,12 @@ package alifeSim.Alife.SimpleAgent;
  */
 public class SimpleAgentSetupSettings
 {
+	/* Internal Defaults */
+	private AgentType type = AgentType.PREDATOR;
+	
 	private int initalNumbers=0;
+	
+	private float size=5f;
 	
 	private float speed=1f;
 
@@ -33,6 +43,16 @@ public class SimpleAgentSetupSettings
 
 	}
 
+	public AgentType getType()
+	{
+		return type;
+	}
+	
+	public void setType(AgentType type)
+	{
+		this.type = type;
+	}
+	
 	public float getSpeed()
 	{
 		return speed;
@@ -45,9 +65,15 @@ public class SimpleAgentSetupSettings
 
 	public float getViewRange()
 	{
+		Random r = new Random();
+		return r.nextInt(100);
+	}
+/*	
+	public float getViewRange()
+	{
 		return viewRange;
 	}
-
+*/
 	public void setViewRange(float viewRange)
 	{
 		this.viewRange = viewRange;
@@ -131,6 +157,16 @@ public class SimpleAgentSetupSettings
 	public void setInitalNumbers(int initalNumbers)
 	{
 		this.initalNumbers = initalNumbers;
+	}
+
+	public float getSize()
+	{
+		return size;
+	}
+
+	public void setSize(float size)
+	{
+		this.size = size;
 	}
 
 }
