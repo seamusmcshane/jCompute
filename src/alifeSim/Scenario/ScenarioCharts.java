@@ -5,7 +5,9 @@ import java.util.LinkedList;
 
 
 
+
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 
 import alifeSim.ChartPanels.GlobalStatChartPanel;
 import alifeSim.ChartPanels.StatPanelAbs;
@@ -32,7 +34,7 @@ public class ScenarioCharts extends ScenarioVT
 		init(super.scenario, sim);
 	}
 
-	private void init(HierarchicalINIConfiguration Scenario,Simulation sim)
+	private void init(XMLConfiguration Scenario,Simulation sim)
 	{
 		this.sim = sim;
 		charts = new LinkedList<StatPanelAbs>();
@@ -40,7 +42,7 @@ public class ScenarioCharts extends ScenarioVT
 		checkChartPanels(scenario);
 	}
 	
-	private void checkChartPanels(HierarchicalINIConfiguration scenario)
+	private void checkChartPanels(XMLConfiguration scenario)
 	{
 		String section = "Graphs";
 		int pos =0;
