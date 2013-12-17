@@ -1,34 +1,23 @@
 package alifeSim.Gui;
 
 import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
-
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-
 import javax.swing.SwingConstants;
-
 import java.awt.Color;
-
 import javax.swing.JSlider;
-
 import java.awt.Dimension;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -42,17 +31,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Set;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import java.awt.Font;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
 import alifeSim.ChartPanels.GlobalStatChartPanel;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Scenario.ScenarioInf;
@@ -73,7 +58,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	LinkedList<StatPanelAbs> charts;
 
 	// Editor Releated
-	// private JEditorPane scenarioEditor;
 	private RSyntaxTextArea scenarioEditor;
 	private JLabel lblFilePath;
 	private JButton btnOpen;
@@ -176,26 +160,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioPanel.add(scenarioFilePanel, BorderLayout.CENTER);
 		scenarioFilePanel.setLayout(new BorderLayout(0, 0));
 
-		/*
-		 * JScrollPane scrollPane = new JScrollPane();
-		 * scrollPane.setHorizontalScrollBarPolicy
-		 * (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		 * scrollPane.setVerticalScrollBarPolicy
-		 * (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		 * scenarioFilePanel.add(scrollPane, BorderLayout.CENTER);
-		 */
-
-		/*
-		 * scenarioEditor = new JEditorPane(); scenarioEditor.setFont(new
-		 * Font("Monospaced", Font.BOLD, 12)); scenarioEditor.setForeground(new
-		 * Color(255, 255, 255)); scenarioEditor.setBackground(new Color(0, 0,
-		 * 64)); scenarioEditor.setEditable(false);
-		 * scenarioEditor.setCaretColor(Color.white);
-		 * scrollPane.setViewportView(scenarioEditor);
-		 */
-
 		JPanel filePanel = new JPanel();
-		// scrollPane.setColumnHeaderView(filePanel);
 		filePanel.setLayout(new BorderLayout(0, 0));
 
 		lblFilePath = new JLabel("No File");
@@ -204,7 +169,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		chckbxEditMode = new JCheckBox("EditMode");
 		chckbxEditMode.addChangeListener(this);
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
-
 		
 		scenarioEditor = new RSyntaxTextArea();
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
@@ -219,14 +183,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioEditor.setAutoIndentEnabled(true);
 		scenarioEditor.setTabSize(2);
 		scenarioEditor.setFadeCurrentLineHighlight(true);
-		//scenarioEditor.setCurrentLineHighlightColor(Color.WHITE);
 		scenarioEditor.setBracketMatchingEnabled(false);
 		scenarioEditor.setEditable(false);
-		//scenarioEditor.setBackground(normalMode);
-		//scenarioEditor.setSelectedTextColor(Color.white);
-		//scenarioEditor.setSelectionColor(Color.darkGray);
-		scenarioEditor.setMarginLineEnabled(true);
-		scenarioEditor.setMarginLinePosition(40);
 
         Theme theme;
         InputStream in; 
@@ -681,12 +639,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			{
 				System.out.println("Saving : " + fileName);
 
-				/*
-				 * if(!file.exists()) { file.createNewFile();
-				 * System.out.println("Creating New File : " + fileName); } else
-				 * { System.out.println("Overwriting File : " + fileName); }
-				 */
-
 				if (fileName.indexOf(".") > 0)
 				{
 					fileName = fileName.substring(0, fileName.lastIndexOf("."));
@@ -697,9 +649,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 				bufferedWriter.write(scenarioEditor.getText());
 				bufferedWriter.close();
-				/*
-				 * fileWriter.flush(); fileWriter.close();
-				 */
 
 				System.out.println("Saved : " + fileName);
 				saved = true;
@@ -707,7 +656,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -716,12 +664,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 			System.out.println("Save Cancelled");
 		}
-
-		/*
-		 * BufferedWriter bw = new
-		 * BufferedWriter(filechooser.getSelectedFile()); bw.write(content);
-		 * bw.close();
-		 */
 
 	}
 
@@ -816,7 +758,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		// Collect the enabled Charts
 		for (String group : statGroups)
 		{
-			//simulationStatsListPanel.addRow(group,new String[]{Integer.toString(sim.getSimManager().getStatmanger().getStatGroup(group).getStatList().size()), String.valueOf(sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().statsEnabled()),String.valueOf(sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled())});
 			StatGroup statGroup = sim.getSimManager().getStatmanger().getStatGroup(group);
 			
 			if(statGroup.getGroupSettings().graphEnabled())
