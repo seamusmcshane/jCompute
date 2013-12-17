@@ -102,7 +102,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		statManager.registerGroup(new StatGroup("AgentViewSize"));
 		statManager.getStatGroup("AgentViewSize").registerStats(simpleAgentManager.getAgentViewSizes());
 		
-		List<StatGroupSetting> statSettings = scenario.getStatList();
+		List<StatGroupSetting> statSettings = scenario.getStatGroupSettingsList();
 		
 		/* This code filters out invalid stat group names in the xml file
 		 * Those that are valid are registered above.
