@@ -49,6 +49,7 @@ import javax.swing.event.ChangeListener;
 
 import java.awt.Font;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -207,19 +208,20 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		filePanel.add(chckbxEditMode, BorderLayout.EAST);
 
 		scenarioEditor = new RSyntaxTextArea();
-		scenarioEditor.setCloseMarkupTags(false);
+		scenarioEditor.setCloseMarkupTags(true);
 		scenarioEditor.setCloseCurlyBraces(false);
-		scenarioEditor.setAnimateBracketMatching(false);
+		scenarioEditor.setAnimateBracketMatching(true);
 		scenarioEditor.setUseSelectedTextColor(true);
 		scenarioEditor.setHyperlinksEnabled(false);
 		scenarioEditor.setHighlightSecondaryLanguages(false);
 		scenarioEditor.setRoundedSelectionEdges(true);
-		scenarioEditor.setAutoIndentEnabled(false);
+		scenarioEditor.setAutoIndentEnabled(true);
+		scenarioEditor.setTabSize(2);
 		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
 		scenarioEditor.setFadeCurrentLineHighlight(true);
 		scenarioEditor.setCurrentLineHighlightColor(Color.WHITE);
 		scenarioEditor.setBracketMatchingEnabled(false);
-		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		scenarioEditor.setEditable(false);
 		scenarioEditor.setBackground(normalMode);
 		scenarioEditor.setSelectedTextColor(Color.white);
@@ -562,13 +564,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 					bufferedReader = new BufferedReader(new FileReader(filechooser.getSelectedFile()));
 					String sCurrentLine;
 					scenarioEditor.setText("");
+					
 					while ((sCurrentLine = bufferedReader.readLine()) != null)
 					{
 						scenarioEditor.append(sCurrentLine + "\n");
-						// scenarioEditor.insert(sCurrentLine,
-						// scenarioEditor.getLineCount());
-						// System.out.println(sCurrentLine);
 					}
+					
 					// Switch off Edit mode
 					chckbxEditMode.setSelected(false);
 					saved = true;
@@ -719,9 +720,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private ScenarioInf determinScenarios(String text)
 	{
-		ScenarioVT scenarioParser = new ScenarioVT(text);
+		ScenarioVT scenarioParser = null;
+		
 		ScenarioInf simScenario = null;
-
+		
+		scenarioParser = new ScenarioVT();
+		
+		// To get the type of Scenario object to create.
+		scenarioParser.loadConfig(text);
+		
 		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
 
 		if (scenarioParser.getScenarioType().equals("DEBUG"))
@@ -734,13 +741,17 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			if (scenarioParser.getScenarioType().equals("SAPP"))
 			{
 				System.out.println("SAPP File");
-				simScenario = new SAPPScenario(text);
+				simScenario = new SAPPScenario();
+				
+				simScenario.loadConfig(text);
+
 			}
 			else
 			{
-				System.out.println("UKNOWN");
+				System.out.println("DeterminScenarios :UKNOWN");
 			}
 		}
+
 
 		return simScenario;
 	}
@@ -804,33 +815,45 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void newSim(String scenario)
 	{
+		ScenarioInf simScenario = null;
+		
 		destroySimulation();
 
 		sim = new Simulation(new SimulationPerformanceStats(this));
 
-		sim.createSim(determinScenarios(scenario));
-		SimulationView.setSim(sim);
+		simScenario = determinScenarios(scenario);
+		
+		if(simScenario!=null)
+		{
+			sim.createSim(simScenario);
+			SimulationView.setSim(sim);
 
-		setUpPanels(scenario, sim);
-		/*
-		 * If needed the GC can free old objects now, before the simulation
-		 * starts
-		 */
-		System.gc();
+			//setUpPanels(scenario, sim);
+			/*
+			 * If needed the GC can free old objects now, before the simulation
+			 * starts
+			 */
+			System.gc();
 
-		btnGenerateSim.setEnabled(true);
+			btnGenerateSim.setEnabled(true);
 
-		btnStartSim.setEnabled(true);
+			btnStartSim.setEnabled(true);
 
-		btnPauseSim.setEnabled(false);
+			btnPauseSim.setEnabled(false);
 
-		btnPauseSim.setText("   Pause");
+			btnPauseSim.setText("   Pause");
 
-		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
+			btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
 
-		sliderSimStepRate.setEnabled(false);
+			sliderSimStepRate.setEnabled(false);
 
-		sliderSimStepRate.setValue(15);
+			sliderSimStepRate.setValue(15);
+		}
+		else
+		{
+			System.out.println("Scenario Failed to Load");
+		}
+
 
 	}
 
