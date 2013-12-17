@@ -133,7 +133,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	 */
 	private void setUpAgentManager()
 	{
-		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.predatorAgentSettings,scenario.preyAgentSettings);
+		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.getAgentSetingsList());
 	}
 
 	/**
