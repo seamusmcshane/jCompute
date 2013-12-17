@@ -94,4 +94,21 @@ public class SimpleAgentType
 		return eval;
 
 	}
+	
+	
+	public AgentType typeFromString(String type)
+	{
+		if(type.equalsIgnoreCase("Predator"))
+		{
+			return AgentType.PREDATOR;
+		}
+		else if (type.equalsIgnoreCase("Prey"))
+		{
+			return AgentType.PREY;
+		}
+		else
+		{
+			return AgentType.INVALID;
+		}
+	}
 }
