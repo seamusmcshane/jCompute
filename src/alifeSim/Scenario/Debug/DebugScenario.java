@@ -19,7 +19,7 @@ public class DebugScenario extends ScenarioVT
 	
 	public DebugScenario(String text)
 	{
-		super(text);
+		super();
 		
 		readScenarioSettings();
 		

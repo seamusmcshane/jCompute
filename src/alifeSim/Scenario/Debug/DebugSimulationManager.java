@@ -37,7 +37,7 @@ public class DebugSimulationManager implements SimulationManagerInf
 	}
 
 	private void setUpAgents()
-	{		
+	{
 		noAgents = scenario.getTestAgentNum();
 		
 		testAgents = new DebugAgent[noAgents];
