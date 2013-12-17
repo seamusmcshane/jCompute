@@ -2,9 +2,13 @@ package unitTests.AlifeSim;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Simulation.BarrierManager;
@@ -24,6 +28,8 @@ public class SimpleAgentManagerTests
 	int worldSize = 1024;
 
 	WorldSetupSettings worldSettings = new WorldSetupSettings();
+	
+	List<SimpleAgentSetupSettings> agentSettingsList = new ArrayList(2);
 	SimpleAgentSetupSettings predatorAgentSettings = new SimpleAgentSetupSettings();
 	SimpleAgentSetupSettings preyAgentSettings = new SimpleAgentSetupSettings();
 	
@@ -39,6 +45,8 @@ public class SimpleAgentManagerTests
 		int value = 100;
 		
 		worldSettings.setWorldSize(1024);
+		
+		predatorAgentSettings.setType(AgentType.PREDATOR);
 		
 		predatorAgentSettings.setInitalNumbers(agentPredatorNumbers);
 		
@@ -62,6 +70,8 @@ public class SimpleAgentManagerTests
 		
 		preyAgentSettings.setInitalNumbers(agentPreyNumbers);
 		
+		preyAgentSettings.setType(AgentType.PREY);
+		
 		preyAgentSettings.setSpeed(1);
 
 		preyAgentSettings.setViewRange(2);
@@ -80,7 +90,10 @@ public class SimpleAgentManagerTests
 
 		preyAgentSettings.setStartingEnergy(9);		
 
-		agentManger = new SimpleAgentManager(world,barrierManager, predatorAgentSettings, preyAgentSettings);
+		agentSettingsList.add(predatorAgentSettings);
+		agentSettingsList.add(preyAgentSettings);
+		
+		agentManger = new SimpleAgentManager(world,barrierManager,agentSettingsList );
 
 	}
 

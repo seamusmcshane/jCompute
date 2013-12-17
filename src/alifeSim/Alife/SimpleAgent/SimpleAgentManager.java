@@ -138,7 +138,6 @@ public class SimpleAgentManager
 
 		int x, y;
 
-		// Predator
 		for (int i = 0; i < setttings.getInitalNumbers(); i++)
 		{
 			x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
