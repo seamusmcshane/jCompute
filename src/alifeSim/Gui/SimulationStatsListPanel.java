@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.filechooser.FileFilter;
 
 import alifeSim.Stats.StatManager;
 
@@ -97,42 +98,41 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 		{
 			if(statManager!=null)
 			{
-				String directory = chooseExportDirectory();
-				
-				if(!directory.equals("CANCELLED"))
-				{
-					statManager.exportStats(directory);
-					
-					System.out.println(directory);
-				}
-
+				chooseExport();
 			}
 		}
 	
 	}	
 	
-	private String chooseExportDirectory()
+	private void chooseExport()
 	{
 		System.out.println("Choose Export Directory");
 
 		String exportDirectory = "";
+		String fileFormat = "";
 		
-		final JFileChooser filechooser = new JFileChooser(new File("./stats"));
+		JFileChooser filechooser = new JFileChooser(new File("./stats"));
 
 		filechooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		
 		filechooser.setDialogTitle("Choose Export Directory");
 		
 		filechooser.setSelectedFile(new File("./"));
+		
+		// Allowable file formats
+		filechooser.setAcceptAllFileFilterUsed(false);
+
+		// CSV
+		filechooser.addChoosableFileFilter(new ExportFileFilter("csv","Comma-Separated Values") );
 
 		int val = filechooser.showSaveDialog(filechooser);
 
 		if (val == JFileChooser.APPROVE_OPTION)
 		{
-
 			try
 			{
 				exportDirectory = filechooser.getSelectedFile().getCanonicalPath();
+				fileFormat = filechooser.getFileFilter().getDescription();
 			}
 			catch (IOException e)
 			{
@@ -147,7 +147,23 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 			exportDirectory = "CANCELLED";
 		}
 
-		return exportDirectory;
+		// Export File format
+		if(!exportDirectory.equals("CANCELLED"))
+		{
+			if(fileFormat.equals("Comma-Separated Values"))
+			{
+				System.out.println("Directory Choosen : " + exportDirectory);
+				statManager.exportStatsToCSV(exportDirectory);
+			}
+			else
+			{
+				System.out.println(fileFormat + " Not Implemented");
+			}			
+
+		}
+
+	}
+	
 	private class ExportFileFilter extends FileFilter 
 	{
 		String extension;
@@ -170,6 +186,7 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 		{
 			return description;
 		}
+		
 	}
 	
 }
