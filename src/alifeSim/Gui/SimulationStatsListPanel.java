@@ -148,6 +148,28 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 		}
 
 		return exportDirectory;
+	private class ExportFileFilter extends FileFilter 
+	{
+		String extension;
+		String description;
+		
+		public ExportFileFilter(String extension, String description)
+		{
+			this.extension = extension;
+			this.description = description;
+		}
+		
+		@Override
+		public boolean accept(File file)
+		{
+			return file.getName().toLowerCase().endsWith(extension) || file.isDirectory();
+		}
+
+		@Override
+		public String getDescription()
+		{
+			return description;
+		}
 	}
 	
 }
