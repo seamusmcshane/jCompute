@@ -386,9 +386,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			{
 				simulationStatsListPanel.addRow(group,new String[]{Integer.toString(sim.getSimManager().getStatmanger().getStatGroup(group).getStatList().size()), String.valueOf(sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().statsEnabled()),String.valueOf(sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled())});
 			}
+			
+			// Give the List Panel a reference to the simulations stat manager - so it can initiate an export.
+			simulationStatsListPanel.setStatManager(sim.getSimManager().getStatmanger());
 		}
 		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png")));
-
+		
 	}
 
 	public void addScenarioTab()
@@ -878,6 +881,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		btnPauseSim.setEnabled(true);
 
 		sliderSimStepRate.setEnabled(true);
+		
+		simulationStatsListPanel.setExportEnabled(false);
 
 	}
 
@@ -906,6 +911,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sim.pauseSim();
 
 		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
+		
+		simulationStatsListPanel.setExportEnabled(true);
 
 	}
 
@@ -919,6 +926,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sim.unPauseSim();
 
 		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
+		
+		simulationStatsListPanel.setExportEnabled(false);
 	}
 
 	public String getState()
