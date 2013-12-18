@@ -1,6 +1,7 @@
 package alifeSim.Stats;
 
 import java.awt.Color;
+import java.util.List;
 
 public interface StatInf
 {
@@ -10,5 +11,9 @@ public interface StatInf
 	public String getType();
 	
 	public Color getColor();
+
+	public int getHistoryLength();
+	
+	public List<Integer> getHistory();
 	
 }
