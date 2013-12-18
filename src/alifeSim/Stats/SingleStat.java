@@ -67,4 +67,14 @@ public class SingleStat implements StatInf
 	{
 		return type;
 	}
+
+	public List<Integer> getHistory()
+	{
+		return allSamples;
+	}
+	
+	public int getHistoryLength()
+	{
+		return allSamples.size();
+	}
 }
