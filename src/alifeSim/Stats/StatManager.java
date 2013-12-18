@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import javax.swing.JOptionPane;
+
 public class StatManager
 {
 	private String managerName;
@@ -84,74 +86,79 @@ public class StatManager
 		
 		return status;
 	}
+	
 	/**http://tools.ietf.org/html/rfc4180#section-2
 	 * field_name,field_name,field_name CRLF
      * aaa,bbb,ccc CRLF
      * zzz,yyy,xxx CRLF
 	 * @param directory
 	 */
-	public void exportStats(String directory)
+	public void exportStatsToCSV(String directory)
 	{
 		statsManagerLock.acquireUninterruptibly();
 				
 		System.out.println("Export Stats");
-		
+				
 		Set<String> groupList = getGroupList();
 		
+		// Each stat group is a new file to output
 		String[] fileNames = new String[groupList.size()];
 		for(String fileName: fileNames)
 		{
 			fileName = new String();
 		}	
 		
-		String[] fileData = new String[groupList.size()];
-		for(String data: fileData)
+		// For efficient concatenation we use StringBuilder to build up the output file
+		StringBuilder[] fileData = new StringBuilder[groupList.size()];
+		for(int i=0;i<fileData.length;i++)
 		{
-			data = new String();
-		}	
+			fileData[i] = new StringBuilder();
+		}
 		
-		System.out.println("Iterate Stat Groups");
+		System.out.println("Processing Statistic Groups");
 		int groupIndex = 0;
+		
+		// Loop over each stat group
 		for (String group : groupList) 
 		{
 			// Get the Stat Group for export
 			StatGroup statGroup = map.get(group);
 			List<String> statList = statGroup.getStatList();
 			
-			// File Name
+			// Set the File Name
 			fileNames[groupIndex] = group;
-			System.out.println(fileNames[groupIndex]);
+			System.out.println("Group : " + fileNames[groupIndex]);
 						
 			// The Header Row			
 			int statCount = statList.size();
 			int statIndex = 0;
-			fileData[groupIndex] = statList.get(statIndex) + ",";
+			fileData[groupIndex].append(statList.get(statIndex) + ",");
 			System.out.print("Categories : " + statList.get(statIndex));
 			
 			for(statIndex=1;statIndex< statCount;statIndex++)
 			{
-				System.out.print(" " + statList.get(statIndex));
+				System.out.print(", " + statList.get(statIndex));
 
-				fileData[groupIndex] = fileData[groupIndex] + statList.get(statIndex);
+				fileData[groupIndex].append(statList.get(statIndex));
 				
 				if(statIndex<(statCount-1))
 				{
-					fileData[groupIndex] = fileData[groupIndex] + ",";
+					fileData[groupIndex].append(",");
 				}
 				else
 				{
-					fileData[groupIndex] = fileData[groupIndex] + "\n";
+					fileData[groupIndex].append("\n");
 				}
 				
 			}
 			System.out.print("\n");
 			
-			// The data rows
-			// Get the history lenth of the stats (all the same length (steps))
+			// The Data Rows
+			// Get the history length of the stats (all the same length in steps)
 			int historyLength = statGroup.getStat(statList.get(0)).getHistoryLength();
 			Integer[][] statHistorys = new Integer[statCount][historyLength];
 			
-			// Convert Linked list to arrays - so we can look up individual indexes quickly.
+			// Convert each Linked list to arrays - so we can look up individual indexes quicker later.
 			for(statIndex=0;statIndex< statCount;statIndex++)
 			{
 				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new Integer[historyLength]);
@@ -160,15 +167,22 @@ public class StatManager
 			int history =0;
 			System.out.print("DataRows for " + group + " Progress :");
 			
+			// For progress output
 			int percentage = 0;
+			
+			// So we don't spam more than once.
 			boolean progressTrigger = false;
 			
+			// Loop for the lenght of the stat history (sim run length)
 			while(history<historyLength)
 			{
+				// Calculate the %progress
 				percentage = (int)(( ((float)history) / ((float)historyLength))*100);				
 				
+				// Output every 10%
 				if( ((percentage%10) == 0) )
 				{
+					// Dont spam for each sub interval  i.e. 10.0% to 10.9%
 					if(!progressTrigger)
 					{	
 						System.out.print(" " + percentage);
@@ -180,22 +194,24 @@ public class StatManager
 					progressTrigger = false;
 				}
 
+				// The first stat
 				statIndex = 0;
-								
-				//fileData[groupIndex] = fileData[groupIndex] + statGroup.getStat(statList.get(statIndex)).getSample(history) + ",";
-				fileData[groupIndex] = fileData[groupIndex] + statHistorys[statIndex][history] + ",";
+				
+				// Append the sample from the first stat with a , appended				
+				fileData[groupIndex].append(statHistorys[statIndex][history] + ",");
 
+				// Do the same for every history, append , after each sample or a new line after each history
 				for(statIndex=1;statIndex< statCount;statIndex++)
 				{
-					fileData[groupIndex] = fileData[groupIndex] + statHistorys[statIndex][history];
+					fileData[groupIndex].append(statHistorys[statIndex][history]);
 					
 					if(statIndex<(statCount-1))
 					{
-						fileData[groupIndex] = fileData[groupIndex] + ",";
+						fileData[groupIndex].append(",");
 					}
 					else
 					{
-						fileData[groupIndex] = fileData[groupIndex] + "\n";
+						fileData[groupIndex].append("\n");
 					}
 					
 				}
@@ -205,13 +221,13 @@ public class StatManager
 			groupIndex++;
 		}
 		
-		
+		// Now send the strings to the output writer
 		System.out.println("Writing Files");
 		for(int i=0;i<fileNames.length;i++)
 		{
 			System.out.print(fileNames[i] + " ");			
 			//System.out.print(fileData[i]);
-			writeFiles(directory,fileNames[i],fileData[i],"csv");
+			writeFiles(directory,fileNames[i],fileData[i].toString(),"csv");
 		}
 		
 		statsManagerLock.release();		
@@ -220,8 +236,8 @@ public class StatManager
 	private void writeFiles(String directory,String fileName,String fileData,String extension)
 	{
 		String filePath = directory+"\\"+fileName+"."+extension;
-		System.out.print("filepath : " + filePath + " \n");
-		
+		System.out.print(filePath + "\n");
+	
 		try
 		{
 			FileWriter fileWriter = new FileWriter(filePath);
@@ -233,7 +249,7 @@ public class StatManager
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
 		}
 
 	}
