@@ -122,9 +122,12 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 		// Allowable file formats
 		filechooser.setAcceptAllFileFilterUsed(false);
 
-		// CSV
+		// Comma-Separated Values
 		filechooser.addChoosableFileFilter(new ExportFileFilter("csv","Comma-Separated Values") );
 
+		// Attribute-Relation File Format (WEKA)
+		filechooser.addChoosableFileFilter(new ExportFileFilter("arff","Attribute-Relation File Format") );
+		
 		int val = filechooser.showSaveDialog(filechooser);
 
 		if (val == JFileChooser.APPROVE_OPTION)
@@ -150,10 +153,15 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 		// Export File format
 		if(!exportDirectory.equals("CANCELLED"))
 		{
+			System.out.println("Directory Choosen : " + exportDirectory);
+
 			if(fileFormat.equals("Comma-Separated Values"))
 			{
-				System.out.println("Directory Choosen : " + exportDirectory);
 				statManager.exportStatsToCSV(exportDirectory);
+			}
+			else if(fileFormat.equals("Attribute-Relation File Format"))
+			{
+				statManager.exportStatsToARFF(exportDirectory);
 			}
 			else
 			{
