@@ -128,6 +128,9 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 		// Attribute-Relation File Format (WEKA)
 		filechooser.addChoosableFileFilter(new ExportFileFilter("arff","Attribute-Relation File Format") );
 		
+		// XML
+		filechooser.addChoosableFileFilter(new ExportFileFilter("xml","XML") );
+		
 		int val = filechooser.showSaveDialog(filechooser);
 
 		if (val == JFileChooser.APPROVE_OPTION)
@@ -162,6 +165,10 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 			else if(fileFormat.equals("Attribute-Relation File Format"))
 			{
 				statManager.exportStatsToARFF(exportDirectory);
+			}
+			else if(fileFormat.equals("XML"))
+			{
+				statManager.exportStatsToXML(exportDirectory);
 			}
 			else
 			{
