@@ -393,4 +393,34 @@ public class StatManager
 		
 		statsManagerLock.release();
 	}
+	
+	/**
+	 * Method checks a string according to XML entity naming rules and returns a corrected string if needed.
+	 * @param text
+	 * @return
+	 */
+	private String xmlString(String text)
+	{
+	    StringBuilder validString = new StringBuilder();
+	    	    	    
+	    // XML cannot have numeric first chars or punctuation for names etc    
+	    if(!XMLChar.isNameStart(text.charAt(0)))
+	    {
+	    	// Add a safe first char
+	    	validString.append("_");
+	    }
+
+	    // Strip invalid chars
+	    for(char c:text.toCharArray())
+	    {
+	        if(XMLChar.isName(c)) 
+	        {
+	        	validString.append(c);
+	        }
+	    }
+
+	    // Return a valid string
+	    return validString.toString();
+	}
+
 }
