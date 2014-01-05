@@ -647,7 +647,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 					fileName = fileName.substring(0, fileName.lastIndexOf("."));
 				}
 
-				FileWriter fileWriter = new FileWriter(fileName + ".txt");
+				FileWriter fileWriter = new FileWriter(fileName + ".xml");
 				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
 				bufferedWriter.write(scenarioEditor.getText());
