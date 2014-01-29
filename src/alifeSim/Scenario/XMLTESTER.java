@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
+import alifeSim.Scenario.Math.LVScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 
 public class XMLTESTER
@@ -20,12 +21,14 @@ public class XMLTESTER
 	public static void main(String []args)
 	{
 		System.out.println("XML TESTER");
-		File file = new File("scenarios/default.xml");		
+		File file = new File("scenarios/LV/default.xml");		
 		
 		XMLConfiguration scenario = new XMLConfiguration();
 
 		scenario.setSchemaValidation(true);
-		SAPPScenario sapp = new SAPPScenario();
+		//SAPPScenario sapp = new SAPPScenario();
+		LVScenario lv = new LVScenario();
+		
 		
 		BufferedReader bufferedReader = null;
 		try
@@ -62,7 +65,7 @@ public class XMLTESTER
 		}
 		System.out.println(editor);
 							
-		sapp.loadConfig(editor);
+		lv.loadConfig(editor);
 
 		
 	}
