@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -16,7 +17,7 @@ import alifeSim.Stats.StatGroupSetting;
  * Base Scenario File reader.
  */
 
-public class ScenarioVT implements ScenarioInf
+public class ScenarioVT
 {
 	private XMLConfiguration scenario;
 	private List<StatGroupSetting> statSettingsList;
@@ -26,13 +27,10 @@ public class ScenarioVT implements ScenarioInf
 		statSettingsList = new ArrayList<StatGroupSetting>();
 	}
 	
-	@Override
 	public void loadConfig(String text)
-	{		
+	{
 		InputStream stream;
 		
-		//System.out.println(text);
-
 		try
 		{			
 			stream = new ByteArrayInputStream(text.getBytes());
@@ -42,11 +40,10 @@ public class ScenarioVT implements ScenarioInf
 		}
 		catch (ConfigurationException e)
 		{
-			System.out.println("Error : " + e.toString());
+			System.out.println("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
 	}
 	
-	@Override
 	public void loadConfig(File file)
 	{
 		try
@@ -57,7 +54,7 @@ public class ScenarioVT implements ScenarioInf
 		}
 		catch (ConfigurationException e)
 		{
-			System.out.println("Error : " + e.toString());
+			System.out.println("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
 		
 	}
@@ -171,6 +168,21 @@ public class ScenarioVT implements ScenarioInf
 	protected void addStatSettings(StatGroupSetting statSetting)
 	{
 		statSettingsList.add(statSetting);
+	}
+	
+	/** Only called by sub class */
+	protected void readStatSettings()
+	{
+		int statisticsGroups = getSubListSize("Statistics","Stat");
+
+		String section;
+		for(int i=0;i<statisticsGroups;i++)
+		{
+			section = "Statistics.Stat("+i+")";
+			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"),getBooleanValue(section, "Enabled"),getBooleanValue(section, "TotalStat"),getBooleanValue(section, "Graph"),getIntValue(section, "GraphSampleRate")));
+		}
+		
+		System.out.println("Statistics " + statisticsGroups );		
 	}
 	
 	public List<StatGroupSetting> getStatGroupSettingsList()

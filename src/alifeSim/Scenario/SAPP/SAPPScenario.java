@@ -9,12 +9,13 @@ import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentType;
+import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.World.WorldSetupSettings;
 
-public class SAPPScenario extends ScenarioVT
+public class SAPPScenario extends ScenarioVT implements ScenarioInf
 {	
 	
 	public SimulationManagerInf simManager;
@@ -85,21 +86,7 @@ public class SAPPScenario extends ScenarioVT
 		plantSettings.setPlantRegenerationNSteps(super.getIntValue(section,"PlantRegenerationNSteps"));
 				
 	}
-	
-	private void readStatSettings()
-	{
-		int statisticsGroups = super.getSubListSize("Statistics","Stat");
-
-		String section;
-		for(int i=0;i<statisticsGroups;i++)
-		{
-			section = "Statistics.Stat("+i+")";
-			super.addStatSettings(new StatGroupSetting(super.getStringValue(section, "Name"),super.getBooleanValue(section, "Enabled"),super.getBooleanValue(section, "TotalStat"),super.getBooleanValue(section, "Graph"),super.getIntValue(section, "GraphSampleRate")));
-		}
 		
-		System.out.println("Statistics " + statisticsGroups );		
-	}
-	
 	private void readAgentsSettings()
 	{
 		int agentGroups = super.getSubListSize("Agents","SimpleAgent");
