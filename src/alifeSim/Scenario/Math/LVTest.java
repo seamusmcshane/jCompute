@@ -33,8 +33,7 @@ public class LVTest
 		double prey_population = initial_prey_population;
 		double predator_population = initial_predator_population;
 		double t = 0;
-		double dx=0;
-		double dy=0;
+
 		double dt = 1/sub_steps;
 		
 		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
@@ -84,8 +83,7 @@ public class LVTest
 		double prey_population = initial_prey_population;
 		double predator_population = initial_predator_population;
 		double t = 0;
-		double dx=0;
-		double dy=0;
+
 		double dt = 1/sub_steps;
 		
 		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
@@ -135,8 +133,7 @@ public class LVTest
 		double prey_population = initial_prey_population;
 		double predator_population = initial_predator_population;
 		double t = 0;
-		double dx=0;
-		double dy=0;
+
 		double dt = 1/(double)sub_steps;
 		
 		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
@@ -165,8 +162,7 @@ public class LVTest
 	
 	public static double calculate_predator(double prey_population,double predator_population)
 	{
-		return predator_conversion_rate*predation_rate*prey_population*predator_population-predator_death_rate*predator_population;
-		 
+		return predator_conversion_rate*predation_rate*prey_population*predator_population-predator_death_rate*predator_population; 
 	}
-	
+		
 }
