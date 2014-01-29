@@ -42,9 +42,9 @@ public class LVManager
 		predator_prey_rk4();
 		t++;
 		
-		stat_predator_population.addSample((int)predator_population);
+		stat_predator_population.addSample(predator_population);
 		
-		stat_prey_population.addSample((int)prey_population);
+		stat_prey_population.addSample(prey_population);
 		
 	}
 	

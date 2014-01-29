@@ -13,7 +13,7 @@ public class SingleStat implements StatInf
 	
 	private Color statColor;
 	/* Raw Samples - count always == num of steps */
-	private List<Integer> allSamples;
+	private List<Double> allSamples;
 		
 	public SingleStat(String name)
 	{
@@ -32,13 +32,19 @@ public class SingleStat implements StatInf
 		return name;
 	}
 	
-	public void addSample(int value)
+	public void addSample(Double value)
 	{		
 		// Add the new sample 
 		allSamples.add(value);
 	}
 	
-	public int getLastSample()
+	public void addSample(int value)
+	{		
+		// Add the new sample 
+		allSamples.add((double)value);
+	}
+	
+	public Double getLastSample()
 	{
 		return allSamples.get(allSamples.size()-1);		
 	}
@@ -46,10 +52,10 @@ public class SingleStat implements StatInf
 	public void resetStats()
 	{		
 		/* All Samples */
-		allSamples = new LinkedList<Integer>();
+		allSamples = new LinkedList<Double>();
 		
 		/* Last 1000 samples (for drawing) */
-		addSample(0);	
+		addSample(0.0);	
 	
 	}
 
@@ -68,7 +74,7 @@ public class SingleStat implements StatInf
 		return type;
 	}
 
-	public List<Integer> getHistory()
+	public List<Double> getHistory()
 	{
 		return allSamples;
 	}

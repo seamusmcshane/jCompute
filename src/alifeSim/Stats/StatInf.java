@@ -14,6 +14,6 @@ public interface StatInf
 
 	public int getHistoryLength();
 	
-	public List<Integer> getHistory();
+	public List<Double> getHistory();
 	
 }

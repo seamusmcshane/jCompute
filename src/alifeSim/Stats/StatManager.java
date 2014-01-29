@@ -160,12 +160,12 @@ public class StatManager
 			// The Data Rows
 			// Get the history length of the stats (all the same length in steps)
 			int historyLength = statGroup.getStat(statList.get(0)).getHistoryLength();
-			Integer[][] statHistorys = new Integer[statCount][historyLength];
+			Double[][] statHistorys = new Double[statCount][historyLength];
 			
 			// Convert each Linked list to arrays - so we can look up individual indexes quicker later.
 			for(statIndex=0;statIndex< statCount;statIndex++)
 			{
-				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new Integer[historyLength]);
+				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new Double[historyLength]);
 			}
 
 			int history =0;
