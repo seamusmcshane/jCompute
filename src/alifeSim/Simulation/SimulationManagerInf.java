@@ -5,7 +5,7 @@ import org.newdawn.slick.Graphics;
 import alifeSim.Stats.StatManager;
 
 public interface SimulationManagerInf
-{	
+{
 	public void cleanUp();
 
 	public void doSimulationUpdate();
