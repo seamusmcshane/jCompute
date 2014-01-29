@@ -2,11 +2,14 @@ package alifeSim.Scenario.Debug;
 
 import java.io.File;
 
+import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.SAPP.SAPPSimulationManager;
+import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Stats.StatManager;
 import alifeSim.World.WorldSetupSettings;
 
-public class DebugScenario extends ScenarioVT
+public class DebugScenario extends ScenarioVT implements ScenarioInf
 {
 	/** World Settings */
 	public WorldSetupSettings worldSettings;
@@ -77,4 +80,12 @@ public class DebugScenario extends ScenarioVT
 		
 		worldSettings.setBarrierScenario(super.getIntValue(section,"BarrierScenario"));
 	}
+
+	@Override
+	public SimulationManagerInf getSimManager()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
