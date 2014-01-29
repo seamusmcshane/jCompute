@@ -10,7 +10,7 @@
 			<Enabled>true</Enabled>
 			<TotalStat>true</TotalStat>
 			<Graph>true</Graph>
-			<GraphSampleRate>64</GraphSampleRate>
+			<GraphSampleRate>1</GraphSampleRate>
 		</Stat>
 	</Statistics>
 	<Integration>
