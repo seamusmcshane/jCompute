@@ -1,6 +1,7 @@
 package alifeSim.Scenario.Math;
 
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import org.newdawn.slick.Graphics;
 
@@ -12,6 +13,8 @@ import alifeSim.Scenario.Math.LVScenario;
 
 public class LVSimulationManager implements SimulationManagerInf
 {
+	private Semaphore lock = new Semaphore(1, false);
+	
 	private LVScenario scenario;
 
 	private StatManager statManager;
@@ -36,7 +39,11 @@ public class LVSimulationManager implements SimulationManagerInf
 	@Override
 	public void doSimulationUpdate()
 	{
-		lv.doStep();
+		lock.acquireUninterruptibly();
+		
+			lv.doStep();
+		
+		lock.release();
 	}
 
 	@Override
@@ -48,7 +55,21 @@ public class LVSimulationManager implements SimulationManagerInf
 	@Override
 	public void drawSim(Graphics g, boolean trueDrawing, boolean viewRangeDrawing, boolean viewsDrawing)
 	{
+		try
+		{
+			lock.acquire();
+			
+				lv.drawLV(g);
+			
+			lock.release();
+			
+		}
+		catch (InterruptedException e)
+		{
+
+		}
 		
+
 	}
 
 	@Override
