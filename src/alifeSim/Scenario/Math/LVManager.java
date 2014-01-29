@@ -16,36 +16,55 @@ import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
 
-public strictfp class LVManager
+public class LVManager
 {
 	/* Defaults */
-	private double initial_prey_population = 800;
-	private double initial_predator_population = 100;
+	private double initial_prey_population;
+	private double initial_predator_population;
 		
-	private double prey_growth = 0.5;
-	private double predation_rate = 0.008;
-	private double predator_death_rate = 0.8;
-	private double predator_conversion_rate = 0.2;
-	
-	
-	private double prey_population = initial_prey_population;
+	private double prey_growth;
+	private double predation_rate;
+	private double predator_death_rate;
+	private double predator_conversion_rate;
+		
+	private double prey_population;
 	private SingleStat stat_prey_population;	
 
-	private double predator_population = initial_predator_population;
+	private double predator_population;
 	private SingleStat stat_predator_population;
 
 	private int t = 0;
 	private int max_t = 10000;
-	private int sub_steps = 256;
+	
+	/* 0 - Euler, 1 - RK4 */
+	private int intMethod; 
+	private int sub_steps;
 	private int draw_mod = 1;
 	
-	private double dt = 1/(double)sub_steps;
+	private double dt;
 	
 	private List<Point2D> values;
 	
-	public LVManager()
+	public LVManager(LVSettings settings)
 	{
 		values = new LinkedList<Point2D>();
+		
+		initial_prey_population = settings.getInitialPreyPopulation();
+		initial_predator_population = settings.getInitialPredatorPopulation();
+		
+		prey_population = initial_prey_population;
+		predator_population = initial_predator_population;
+		
+		prey_growth = settings.getPreyGrowth();
+		predation_rate = settings.getPredationRate();
+		predator_death_rate = settings.getPredatorDeathRate();
+		predator_conversion_rate = settings.getPredatorConversionRate();
+		
+		sub_steps = settings.getSubSteps();
+		
+		dt = 1/(double)sub_steps;
+		
+		intMethod = setIntMethod(settings.getIntMethod());
 		
 		setUpStats();
 		
@@ -53,14 +72,36 @@ public strictfp class LVManager
 		System.out.printf("%d\t\t%5.2f\t\t%5.2f\n",t,initial_prey_population,initial_predator_population);
 	}
 
+	private int setIntMethod(String settingValue)
+	{
+		if(settingValue.equalsIgnoreCase("Euler"))
+		{
+			return 0;
+		}
+		else if(settingValue.equalsIgnoreCase("RK4"))
+		{
+			return 1;
+		}
+		
+		System.out.println("INVALID INT METHOD in Settings - defaulted to Euler");
+		
+		return 0;
+	}
+	
 	public void doStep()
 	{
 		if(t<max_t)
 		{
-			//predator_prey_rk4();
-			
-			predator_prey_euler();
-									
+			switch(intMethod)
+			{
+				case 0:
+					predator_prey_euler();
+				break;
+				case 1:
+					predator_prey_rk4();
+				break;
+			}
+				
 			t++;
 		}
 		
@@ -202,7 +243,7 @@ public strictfp class LVManager
 				{					
 					g.setLineWidth(1f);
 					
-					g.setColor(new org.newdawn.slick.Color(255,255,255,16));
+					g.setColor(new org.newdawn.slick.Color(255,255,255,8));
 										
 					float x = (float)point.getX();
 					float y =(float)point.getY();
