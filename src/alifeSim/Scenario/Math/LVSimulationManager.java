@@ -21,11 +21,15 @@ public class LVSimulationManager implements SimulationManagerInf
 	
 	private LVManager lv;
 	
+	private LVSettings settings;
+	
 	public LVSimulationManager(LVScenario scenario)
 	{
 		this.scenario = scenario;	
+				
+		settings = scenario.settings;
 		
-		lv = new LVManager();
+		lv = new LVManager(settings);
 		
 		setUpStatManager();
 	}
