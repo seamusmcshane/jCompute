@@ -9,6 +9,8 @@ import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Debug.DebugSimulationManager;
+import alifeSim.Scenario.Math.LVScenario;
+import alifeSim.Scenario.Math.LVSimulationManager;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Scenario.SAPP.SAPPSimulationManager;
 
@@ -67,37 +69,15 @@ public class Simulation
 	{
 		if(scenario!=null)
 		{
-			setUpSimManager(scenario);	
+			simManager = scenario.getSimManager();
+			
+			System.out.println("Scenario Type : " + scenario.getScenarioType());
+
 		}		
 		
 		simStats.clearSimulationStats();
 	}
-	
-	/*
-	 * Master Scenario Hander
-	 */
-	private void setUpSimManager(ScenarioInf scenario)
-	{
-		System.out.println("Create Scenario");
-		
-		String scenarioType = scenario.getScenarioType();
-		
-		if(scenarioType.equals("DEBUG"))
-		{
-			/* Switch Scenarios */
-			simManager = new DebugSimulationManager((DebugScenario) scenario);
-		}
-		else if (scenarioType.equals("SAPP"))
-		{
-			/* Switch Scenarios */
-			simManager = new SAPPSimulationManager((SAPPScenario) scenario);
-		}
-		else
-		{
-			System.out.println("UKNOWN Scenario Type : " + scenarioType);
-		}
-	}
-	
+
 	/**
 	 * This method initiates the thread shutdown sequence in the Simulation Manager
 	 */
