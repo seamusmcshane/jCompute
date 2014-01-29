@@ -32,7 +32,13 @@ public class TreeBenchmarks
 	
 	public static void main(String []args)
 	{
-		int runs = 18;
+		if(threads==1)
+		{
+			threads=2;
+		}
+		
+		
+		int runs = 19;
 		
 		logger(1,"Benchmark\tThreads\tRuns\tIterations");
 		logger(1,"\t\t"+threads+"\t"+runs+"\t"+iterations);
