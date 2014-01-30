@@ -42,28 +42,30 @@ public class LVManager
 	/* 0 - Euler, 1 - RK4 */
 	private int intMethod; 
 	private int sub_steps;
+	
+	// Ratio of SubSteps to draw (1=all)
 	private int draw_mod = 1;
 	
 	private double dt;
 	
 	private List<Point2D> values;
-	private List<Point2D> removeValues;
 	
 	/** Off screen buffer */
 	private Graphics bufferGraphics;
 	private Image buffer;
-	private int bufferDrawNum = 0;
+	Point2D previous;
 	
 	private boolean resize = true;
 	
+	/* This will be too large on old graphics hardware */
 	private float bufferWidth = 2048;
 	private float bufferHeight = 2048;
+	
 	private float pointsHue=0f;
 	
 	public LVManager(LVSettings settings)
 	{
 		values = new LinkedList<Point2D>();
-		removeValues = new LinkedList<Point2D>();
 		
 		initial_prey_population = settings.getInitialPreyPopulation();
 		initial_predator_population = settings.getInitialPredatorPopulation();
@@ -211,21 +213,6 @@ public class LVManager
 
 	}
 	
-	private void addRemovePoint(Point2D point)
-	{
-		removeValues.add(point);
-	}
-	
-	private void removePoints()
-	{
-		for (Point2D point : removeValues) 
-		{	
-			values.remove(point);
-		}
-		removeValues = new LinkedList<Point2D>();
-
-	}
-	
 	/* LOTKA-VOLTERA - PREY */
 	private double calculate_prey(double prey_population,double predator_population)
 	{
@@ -279,7 +266,6 @@ public class LVManager
 		//g.clear();
 		
 		g.setAntiAlias(true);
-		Point2D previous;
 		
 		float zoom = 1f;
 		float xscale = 4f*zoom;
@@ -292,14 +278,15 @@ public class LVManager
 		{
 			if(values.size() > 0)
 			{
-				previous = values.get(0);
+				if(previous==null)
+				{
+					previous = values.get(0);
+				}
 
 				for (Point2D point : values) 
 				{					
 					g.setLineWidth(2f);
-					
-					//g.setColor(new org.newdawn.slick.Color(255,255,255,255));
-						
+											
 					g.setColor(new org.newdawn.slick.Color(Color.HSBtoRGB(pointsHue,1f,1f)));
 										
 					float x = (float)point.getX();
@@ -317,16 +304,12 @@ public class LVManager
 										
 					g.draw(new Line((float)previous.getX()*xscale,(float)previous.getY()*yscale,x*xscale,y*yscale));
 					
-					if(previous!=null)
-					{
-						addRemovePoint(previous);
-					}
-					
 					previous = point;
 					
 				}
 				
-				removePoints();
+				values = new LinkedList<Point2D>();
+				
 			}
 		}
 	}
