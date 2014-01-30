@@ -8,11 +8,14 @@ import java.util.List;
 import javax.swing.text.html.HTMLDocument.Iterator;
 
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Line;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
 
 import alifeSim.Alife.GenericPlant.GenericPlant;
+import alifeSim.Simulation.Simulation;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
 
@@ -34,7 +37,7 @@ public class LVManager
 	private SingleStat stat_predator_population;
 
 	private int t = 0;
-	private int max_t = 10000;
+	//private int max_t = 10000;
 	
 	/* 0 - Euler, 1 - RK4 */
 	private int intMethod; 
@@ -44,10 +47,23 @@ public class LVManager
 	private double dt;
 	
 	private List<Point2D> values;
+	private List<Point2D> removeValues;
+	
+	/** Off screen buffer */
+	private Graphics bufferGraphics;
+	private Image buffer;
+	private int bufferDrawNum = 0;
+	
+	private boolean resize = true;
+	
+	private float bufferWidth = 2048;
+	private float bufferHeight = 2048;
+	private float pointsHue=0f;
 	
 	public LVManager(LVSettings settings)
 	{
 		values = new LinkedList<Point2D>();
+		removeValues = new LinkedList<Point2D>();
 		
 		initial_prey_population = settings.getInitialPreyPopulation();
 		initial_predator_population = settings.getInitialPredatorPopulation();
@@ -90,7 +106,7 @@ public class LVManager
 	
 	public void doStep()
 	{
-		if(t<max_t)
+		//if(t<max_t)
 		{
 			switch(intMethod)
 			{
@@ -103,6 +119,13 @@ public class LVManager
 			}
 				
 			t++;
+		}
+		
+		pointsHue=pointsHue+0.001f;
+		
+		if(pointsHue>=1f)
+		{
+			pointsHue=0;
 		}
 		
 	}
@@ -188,6 +211,21 @@ public class LVManager
 
 	}
 	
+	private void addRemovePoint(Point2D point)
+	{
+		removeValues.add(point);
+	}
+	
+	private void removePoints()
+	{
+		for (Point2D point : removeValues) 
+		{	
+			values.remove(point);
+		}
+		removeValues = new LinkedList<Point2D>();
+
+	}
+	
 	/* LOTKA-VOLTERA - PREY */
 	private double calculate_prey(double prey_population,double predator_population)
 	{
@@ -221,8 +259,25 @@ public class LVManager
 	}
 	
 	public void drawLV(Graphics g)
+	{	
+		if(resize==true)
+		{
+			setUpImageBuffer();
+			resize=false;
+		}
+		g.setWorldClip(null);
+		
+		drawPoints(bufferGraphics);
+		
+		g.draw(new Rectangle(0,0,bufferWidth,bufferHeight));
+		
+		g.drawImage(buffer, 0, 0);
+	}
+	
+	private void drawPoints(Graphics g)
 	{
-		g.clear();
+		//g.clear();
+		
 		g.setAntiAlias(true);
 		Point2D previous;
 		
@@ -230,8 +285,8 @@ public class LVManager
 		float xscale = 4f*zoom;
 		float yscale = 1f*zoom;
 		
-		float ymax = 0f;
-		float xmax = 0f;
+		float xmax = 0;
+		float ymax = 0;
 		
 		if(values!=null)
 		{
@@ -241,15 +296,15 @@ public class LVManager
 
 				for (Point2D point : values) 
 				{					
-					g.setLineWidth(1f);
+					g.setLineWidth(2f);
 					
-					g.setColor(new org.newdawn.slick.Color(255,255,255,8));
+					//g.setColor(new org.newdawn.slick.Color(255,255,255,255));
+						
+					g.setColor(new org.newdawn.slick.Color(Color.HSBtoRGB(pointsHue,1f,1f)));
 										
 					float x = (float)point.getX();
 					float y =(float)point.getY();
-					
-					g.draw(new Line((float)previous.getX()*xscale,(float)previous.getY()*yscale,x*xscale,y*yscale));
-					
+
 					if(x>xmax)
 					{
 						xmax = x;
@@ -259,22 +314,37 @@ public class LVManager
 					{
 						ymax = y;
 					}
-
+										
+					g.draw(new Line((float)previous.getX()*xscale,(float)previous.getY()*yscale,x*xscale,y*yscale));
+					
+					if(previous!=null)
+					{
+						addRemovePoint(previous);
+					}
+					
 					previous = point;
 					
 				}
 				
-				g.setAntiAlias(false);
-				
-				g.setLineWidth(1f);
-				g.setColor(new org.newdawn.slick.Color(255,255,255));
-
-				g.draw(new Rectangle(0,0,xmax*xscale+10f,ymax*yscale+10f));
-			
+				removePoints();
 			}
-		
 		}
-		
+	}
+	
+	/** Sets up the off-screen buffer image */
+	private void setUpImageBuffer()
+	{
+		try
+		{			
+			buffer = new Image((int)bufferWidth, (int)bufferHeight);
+			
+			bufferGraphics = buffer.getGraphics();
+
+		}
+		catch (SlickException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 }
