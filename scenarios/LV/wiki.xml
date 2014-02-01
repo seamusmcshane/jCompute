@@ -20,27 +20,27 @@
 	<Parameters>
 		<Parameter>
 			<Name>initial_prey_population</Name>
-			<Value>800</Value>
+			<Value>10</Value>
 		</Parameter>
 		<Parameter>
 			<Name>initial_predator_population</Name>
-			<Value>100</Value>
+			<Value>5</Value>
 		</Parameter>
 		<Parameter>
 			<Name>prey_growth</Name>
-			<Value>1</Value>
+			<Value>1.5</Value>
 		</Parameter>
 		<Parameter>
 			<Name>predation_rate</Name>
-			<Value>0.008</Value>
-		</Parameter>
-		<Parameter>
-			<Name>predator_death_rate</Name>
 			<Value>1</Value>
 		</Parameter>
 		<Parameter>
+			<Name>predator_death_rate</Name>
+			<Value>3</Value>
+		</Parameter>
+		<Parameter>
 			<Name>predator_conversion_rate</Name>
-			<Value>0.0025</Value>
+			<Value>1</Value>
 		</Parameter>
 	</Parameters>
 </Scenario>
