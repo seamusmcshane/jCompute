@@ -9,10 +9,12 @@ import alifeSim.Simulation.Simulation;
 import alifeSimGeom.A2DCircle;
 import alifeSimGeom.A2DLine;
 import alifeSimGeom.A2DRectangle;
+import alifeSimGeom.A2DVector2f;
 import alifeSimGeom.A2RGBA;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
@@ -20,7 +22,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
-public class NewSimView implements ApplicationListener
+public class NewSimView implements ApplicationListener, InputProcessor
 {
 	/** The Drawing Canvas */
 	private LwjglAWTCanvas canvas;	
@@ -33,6 +35,12 @@ public class NewSimView implements ApplicationListener
 	private static Simulation sim;
 	private static Semaphore viewLock = new Semaphore(1);
 	
+	/* Mouse */
+	/** Stores the mouse vector across updates */
+	private A2DVector2f mousePos = new A2DVector2f(0, 0);
+	private A2DVector2f globalTranslateDefault = new A2DVector2f(-50, -50);
+
+	private boolean button0Pressed;
 	
 	public NewSimView()
 	{
@@ -40,7 +48,11 @@ public class NewSimView implements ApplicationListener
 		Display.setVSyncEnabled(true);
 		Display.setSwapInterval(2);
 		
+		canvas.getInput().setInputProcessor(this);
+		
 		viewCam = new OrthographicCamera(640, 480);
+		resetCamera();
+		//viewCam.setToOrtho(true, 640, 480);
 	}
 	
 	public void exitDisplay()
@@ -123,9 +135,7 @@ public class NewSimView implements ApplicationListener
 	@Override
 	public void resize(int width, int height)
 	{		
-		viewCam.setToOrtho(true, width, height);
-		
-		viewCam.position.set(width/2, height/2, 0);
+		resetCamera();
 	}
 	
 	@Override
@@ -185,5 +195,92 @@ public class NewSimView implements ApplicationListener
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         shapeRenderer.rect(x,  y, width, height);
         shapeRenderer.end();
+	}
+
+	@Override
+	public boolean keyDown(int arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char arg0)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int arg0)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int x, int y)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int arg0)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int x, int y, int pointer, int button)
+	{
+		if(button == 0)
+		{
+			button0Pressed = true;
+			mousePos.set(-x - viewCam.position.x, -y - viewCam.position.y);
+		}
+		else
+		{
+			resetCamera();
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int x, int y, int z)
+	{
+		if(button0Pressed)
+		{
+			float camX = (-x) - mousePos.getX();
+			float camY = (-y) - mousePos.getY();
+	
+			moveCamera(camX, camY);
+		}
+		else
+		{
+			
+		}
+			
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int x, int y, int pointer, int button)
+	{
+		button0Pressed = false;
+		
+		mousePos.set(-x - viewCam.position.x, -y - viewCam.position.y);
+		
+		return false;
+	}
+	
+	private void moveCamera(float x, float y)
+	{
+		viewCam.position.set(x, y,0);
+	}
+	
+	private void resetCamera()
+	{
+		viewCam.setToOrtho(true, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+		viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
 	}
 }
