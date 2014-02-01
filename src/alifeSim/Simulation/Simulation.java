@@ -3,9 +3,8 @@ package alifeSim.Simulation;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
-import org.newdawn.slick.Graphics;
-
 import alifeSim.ChartPanels.StatPanelAbs;
+import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Debug.DebugSimulationManager;
@@ -167,10 +166,10 @@ public class Simulation
 		
 		simStats.updateStatsOutput();
 		
-		for (StatPanelAbs panel : charts) 
+		/*for (StatPanelAbs panel : charts) 
 		{
 			panel.update();
-		}
+		}*/
 		
 		// Allow the simulation to be paused again
 		pause.release();
@@ -267,9 +266,9 @@ public class Simulation
 	 * @param true_drawing boolean
 	 * @param view_range_drawing boolean
 	 */
-	public void drawSim(Graphics g, boolean true_drawing, boolean view_range_drawing,boolean viewsDrawing)
+	public void drawSim(NewSimView simView)
 	{
-			simManager.drawSim(g, true_drawing, view_range_drawing,viewsDrawing);
+		simManager.drawSim(simView);
 	}
 
 	public void setOutPutCharts(LinkedList<StatPanelAbs> charts)

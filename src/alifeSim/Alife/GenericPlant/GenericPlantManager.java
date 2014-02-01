@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
-import org.newdawn.slick.Graphics;
-
+import alifeSim.Gui.NewSimView;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
@@ -133,7 +132,7 @@ public class GenericPlantManager
 	 * @param g Graphics	
 	 * @param trueDrawing boolean
 	 */
-	public void drawPlants(Graphics g, boolean simpleDrawing)
+	public void draw(NewSimView simView)
 	{
 		for (GenericPlant tPlantDraw : doneList) 
 		{
@@ -141,21 +140,9 @@ public class GenericPlantManager
 			 * Optimization - Only draw visible plants that are inside the
 			 * cameraBoundaries
 			 */
-			if (tPlantDraw.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tPlantDraw.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tPlantDraw.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tPlantDraw.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
+			//if (tPlantDraw.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tPlantDraw.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tPlantDraw.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tPlantDraw.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
 			{
-				/*
-				 * Optimization - draw correct circular bodies or faster
-				 * rectangular bodies
-				 */
-				if (simpleDrawing)
-				{
-					tPlantDraw.body.drawTrueBody(g);
-				}
-				else
-				{
-					tPlantDraw.body.drawRectBody(g);
-				}
-
+				tPlantDraw.body.draw(simView);
 			}		
 		}
 

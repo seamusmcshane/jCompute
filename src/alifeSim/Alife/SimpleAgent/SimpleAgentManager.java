@@ -6,9 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import org.newdawn.slick.Graphics;
-
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
+import alifeSim.Gui.NewSimView;
 import alifeSim.Gui.SimulationView;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Stats.SingleStat;
@@ -213,38 +212,31 @@ public class SimpleAgentManager
 	 * @param trueDrawing boolean
 	 * @param viewRangeDrawing boolean
 	 */
-	public void drawAgent(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing, boolean viewsDrawing)
+	public void draw(NewSimView simView)
 	{
 
 		for (SimpleAgent tAgentDrawAI : doneList) 
 		{
 
 			// Optimization - Only draw visible agents that are inside the cameraBoundarie
-			if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
+			//if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
 			{
 				/*
 				 * Optimization - draw correct circular bodies or faster
 				 * rectangular bodies
 				 */
-				if(simpleDrawing)
-				{
-					tAgentDrawAI.body.drawRectBody(g);
-				}
-				else
-				{
-					tAgentDrawAI.body.drawTrueBody(g);
-				}
+				tAgentDrawAI.body.draw(simView);
 				
-				if (viewRangeDrawing)
+				//if (viewRangeDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
-					tAgentDrawAI.brain.view.drawViewRange(g,false,true);
+					//tAgentDrawAI.brain.view.drawViewRange(g,false,true);
 				}
 				
-				if(viewsDrawing)
+				//if(viewsDrawing)
 				{
 					/* Draw the agent views */
-					tAgentDrawAI.brain.view.drawViews(g);
+					//tAgentDrawAI.brain.view.drawViews(g);
 				}
 			}
 

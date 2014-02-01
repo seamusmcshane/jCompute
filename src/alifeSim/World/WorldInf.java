@@ -1,12 +1,12 @@
 package alifeSim.World;
 
-import org.newdawn.slick.Graphics;
+import alifeSim.Gui.NewSimView;
 
 public interface WorldInf
 {
 	public int getWorldBoundingSquareSize();
 	
-	public void drawWorld(Graphics g);
+	public void drawWorld(NewSimView simView);
 	
 	public boolean isInvalidPosition(float x,float y);
 

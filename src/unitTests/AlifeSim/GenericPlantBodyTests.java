@@ -40,7 +40,7 @@ public class GenericPlantBodyTests
 	{
 		int size = 2; // This is the default size
 
-		Rectangle body = new Rectangle(0, 0, size, size);
+		A2DRectangle body = new A2DRectangle(0, 0, size, size);
 		float trueSize = body.getBoundingCircleRadius();
 
 		// *2 for Diameter

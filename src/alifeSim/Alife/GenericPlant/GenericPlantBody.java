@@ -1,9 +1,9 @@
 package alifeSim.Alife.GenericPlant;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.geom.Vector2f;
 
 import alifeSim.Alife.AlifeBody;
+import alifeSimGeom.A2DVector2f;
+import alifeSimGeom.A2RGBA;
 /**
  * 
  * This Class is the body of a plant.
@@ -23,7 +23,7 @@ public class GenericPlantBody extends AlifeBody
 	 * @param absorptionRate float
 	 * @param basePlantReproductionCost float
 	 */
-	public GenericPlantBody(Vector2f pos, float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
+	public GenericPlantBody(A2DVector2f pos, float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
 	{
 		stats = new GenericPlantStats(startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
 		
@@ -39,14 +39,14 @@ public class GenericPlantBody extends AlifeBody
 	{
 		setSize(size);
 		
-		setColor(Color.green);
+		setColor(new A2RGBA(0f,1f,0f,0f));
 	}
 
 	/** 
 	 * Sets the Color of the Body of this plant.
 	 * 
 	 */
-	public void setColor(Color color)
+	public void setColor(A2RGBA color)
 	{
 		this.color = color;
 	}

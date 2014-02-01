@@ -1,8 +1,10 @@
 package alifeSim.World;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Rectangle;
+import java.awt.Color;
+
+import alifeSim.Gui.NewSimView;
+import alifeSimGeom.A2DRectangle;
+import alifeSimGeom.A2RGBA;
 
 /**
  * World Class.
@@ -17,7 +19,7 @@ public class World implements WorldInf
 	private WorldGrid grid;
 
 	/** The world boundary */
-	private Rectangle worldBound;
+	private A2DRectangle worldBound;
 
 	/** The size of the world */
 	private int worldSize;
@@ -25,7 +27,7 @@ public class World implements WorldInf
 	/** The Grid Steps */
 	private int gridSteps = 8;
 	
-	private Rectangle[] barriers;
+	private A2DRectangle[] barriers;
 	
 	private int barrierMode=0;
 	
@@ -43,7 +45,7 @@ public class World implements WorldInf
 	{
 		this.worldSize = size;
 
-		worldBound = new Rectangle(0, 0, worldSize + 1, worldSize + 1);
+		worldBound = new A2DRectangle(0, 0, worldSize + 1, worldSize + 1);
 		
 		this.barrierMode = barrierMode;
 				
@@ -61,44 +63,44 @@ public class World implements WorldInf
 	private void setUpBarriers()
 	{
 
-		barriers = new Rectangle[barrierScenario+1];
+		barriers = new A2DRectangle[barrierScenario+1];
 		
 		switch(barrierScenario)
 		{
 			case 0:
 				if(barrierMode==1)
 				{
-					barriers[0] = new Rectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
 				}
 				else
 				{
-					barriers[0] = new Rectangle(0,worldSize*0.45f,worldSize*0.90f,worldSize*barrierThickness);					
+					barriers[0] = new A2DRectangle(0,worldSize*0.45f,worldSize*0.90f,worldSize*barrierThickness);					
 				}
 			break;
 			case 1:				
 				if(barrierMode==1)
 				{
-					barriers[0] = new Rectangle(worldSize*0.25f,worldSize*0.20f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[1] = new Rectangle(worldSize*0.25f,worldSize*0.70f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.20f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.70f,worldSize*0.50f,worldSize*barrierThickness);
 				}
 				else
 				{
-					barriers[0] = new Rectangle(0,worldSize*0.20f,worldSize*0.90f,worldSize*barrierThickness);
-					barriers[1] = new Rectangle(0,worldSize*0.70f,worldSize*0.90f,worldSize*barrierThickness);				
+					barriers[0] = new A2DRectangle(0,worldSize*0.20f,worldSize*0.90f,worldSize*barrierThickness);
+					barriers[1] = new A2DRectangle(0,worldSize*0.70f,worldSize*0.90f,worldSize*barrierThickness);				
 				}				
 			break;
 			case 2:
 				if(barrierMode==1)
 				{
-					barriers[0] = new Rectangle(worldSize*0.25f,worldSize*0.15f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[1] = new Rectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[2] = new Rectangle(worldSize*0.25f,worldSize*0.75f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.15f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
+					barriers[2] = new A2DRectangle(worldSize*0.25f,worldSize*0.75f,worldSize*0.50f,worldSize*barrierThickness);
 				}
 				else
 				{
-					barriers[0] = new Rectangle(0,worldSize*0.15f,worldSize*0.90f,worldSize*barrierThickness);
-					barriers[1] = new Rectangle(worldSize*0.20f,worldSize*0.45f,worldSize*0.80f,worldSize*barrierThickness);
-					barriers[2] = new Rectangle(0,worldSize*0.75f,worldSize*0.90f,worldSize*barrierThickness);		
+					barriers[0] = new A2DRectangle(0,worldSize*0.15f,worldSize*0.90f,worldSize*barrierThickness);
+					barriers[1] = new A2DRectangle(worldSize*0.20f,worldSize*0.45f,worldSize*0.80f,worldSize*barrierThickness);
+					barriers[2] = new A2DRectangle(0,worldSize*0.75f,worldSize*0.90f,worldSize*barrierThickness);		
 				}				
 			break;
 		}
@@ -240,20 +242,18 @@ public class World implements WorldInf
 	 *  Draw method for the world 
 	 * @param g Graphics
 	 */
-	public void drawWorld(Graphics g)
+	public void drawWorld(NewSimView simView)
 	{
-		grid.drawGrid(g);
+		grid.draw(simView);
 
-		g.setColor(Color.blue);
-
-		g.draw(worldBound);
-		
+		simView.drawRectangle(worldBound,new A2RGBA(0,0,1f,0));
+				
 		/* if Barriers are enabled */
 		if(barrierMode>0)
 		{
 			for(int i=0;i<(barrierScenario+1);i++)
 			{
-				g.draw(barriers[i]);	
+				simView.drawRectangle(barriers[i],new A2RGBA(0,0,1f,0));
 			}		
 		}
 

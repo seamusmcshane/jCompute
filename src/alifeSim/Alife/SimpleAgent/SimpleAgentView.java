@@ -1,17 +1,12 @@
 package alifeSim.Alife.SimpleAgent;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Line;
-import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.geom.Vector2f;
-
 import fastMath.fastMath;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.GenericPlant.GenericPlantViewStats;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentEval;
-import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
+import alifeSimGeom.A2DCircle;
+import alifeSimGeom.A2DRectangle;
+import alifeSimGeom.A2DVector2f;
 
 /**
  * This Class holds the representation of a view for the agent in the current simulation step.
@@ -24,7 +19,7 @@ public class SimpleAgentView
 	private SimpleAgentBody body;
 
 	/** Agent View Range */
-	private Circle fov;
+	private A2DCircle fov;
 	private float aDis = 0;
 	private float pDis = 0;
 	private float fovRadius;
@@ -63,12 +58,10 @@ public class SimpleAgentView
 	private void setUpView()
 	{
 
-		Rectangle viewBox = new Rectangle(0, 0, body.stats.getViewRange(), body.stats.getBaseViewRange());
-
-		fovRadius = viewBox.getBoundingCircleRadius();
+		fovRadius = body.stats.getBaseViewRange();
 		fovDiameter = fovRadius * 2;
 
-		fov = new Circle(body.getBodyPos().getX(), body.getBodyPos().getY(), fovDiameter);
+		fov = new A2DCircle(body.getBodyPos().getX(), body.getBodyPos().getY(), fovDiameter);
 	}
 
 	/**
@@ -122,7 +115,7 @@ public class SimpleAgentView
 	/** 
 	* Nearest Agent Position 
 	* @return Vector2f */
-	public Vector2f getNearestAgentPos()
+	public A2DVector2f getNearestAgentPos()
 	{
 		if (!agentInView)
 		{
@@ -133,7 +126,7 @@ public class SimpleAgentView
 
 	/** Nearest Agent Position 
 	* @return Vector2f	*/
-	public Vector2f getNearestPlantPos()
+	public A2DVector2f getNearestPlantPos()
 	{
 		if (!plantInView)
 		{
@@ -225,7 +218,7 @@ public class SimpleAgentView
 	 * @param from Vector2f
 	 * @param posTo Vector2f
 	 * @return float */
-	public float distanceTo(Vector2f from, Vector2f posTo)
+	public float distanceTo(A2DVector2f from, A2DVector2f posTo)
 	{
 		return from.distanceSquared(posTo);
 	}
@@ -284,9 +277,9 @@ public class SimpleAgentView
 	/**
 	 * Draws the agents field of view.
 	 */
-	public void drawViewRange(Graphics g, boolean distanceRings, boolean edgeStyled)
+	/*public void drawViewRange(Graphics g, boolean distanceRings, boolean edgeStyled)
 	{
-		/* Edge */
+		// Edge
 		if(edgeStyled)
 		{
 			g.setLineWidth(0.75f);
@@ -315,9 +308,9 @@ public class SimpleAgentView
 			drawDistanceRings(g);
 		}
 		
-	}
+	}*/
 
-	public void drawDistanceRings(Graphics g)
+	/*public void drawDistanceRings(Graphics g)
 	{
 		float fovd;
 		
@@ -355,9 +348,9 @@ public class SimpleAgentView
 			g.draw(fov);
 			
 		}		
-	}
+	}*/
 	
-	public void drawViews(Graphics g)
+	/*public void drawViews(Graphics g)
 	{
 		g.setLineWidth(0.25f);
 		if(getNearestAgentPos() != null)
@@ -390,6 +383,6 @@ public class SimpleAgentView
 		{
 			pDis=0;
 		}
-	}
+	}*/
 	
 }

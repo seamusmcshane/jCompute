@@ -1,6 +1,6 @@
 package alifeSim.Alife.SimpleAgent;
 
-import org.newdawn.slick.geom.Vector2f;
+import alifeSimGeom.A2DVector2f;
 
 /** Used to store the "visible" statistics of the inViewAgent
  * @author Seamus McShane
@@ -12,7 +12,7 @@ public class SimpleAgentViewStats
 	private float size;
 
 	/** Position of the Agent in view (Cartesian) */
-	private Vector2f agentPos;
+	private A2DVector2f agentPos;
 
 	/** Type of Agent in view */
 	private SimpleAgentType type;
@@ -54,7 +54,7 @@ public class SimpleAgentViewStats
 		this.size = 0;
 
 		/** Position of the Agent in view (Cartesian) */
-		agentPos = new Vector2f();
+		agentPos = new A2DVector2f();
 
 	}
 
@@ -77,7 +77,7 @@ public class SimpleAgentViewStats
 
 	/** Position of the Agent in view (Cartesian) 
 	 * * @return Vector2f */
-	public Vector2f getAgentPos()
+	public A2DVector2f getAgentPos()
 	{
 		return agentPos;
 	}

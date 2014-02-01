@@ -1,6 +1,6 @@
 package alifeSim.Alife.GenericPlant;
 
-import org.newdawn.slick.geom.Vector2f;
+import alifeSimGeom.A2DVector2f;
 
 /** 
  * Used to store the "visible" statistics of the inViewPlant  for agents.
@@ -13,7 +13,7 @@ public class GenericPlantViewStats
 	private float energy;
 
 	/** Position of the Plant in view (Cartesian) */
-	private Vector2f plantPos;
+	private A2DVector2f plantPos;
 
 	/** Original plant that this view refers to */
 	private GenericPlant originalPlant = null;
@@ -54,7 +54,7 @@ public class GenericPlantViewStats
 		this.energy = 0;
 
 		/** Position of the Plant in view (Cartesian) */
-		plantPos = new Vector2f();
+		plantPos = new A2DVector2f();
 
 	}
 
@@ -78,7 +78,7 @@ public class GenericPlantViewStats
 	 * Position of the Plant in view (Cartesian)
 	 * 
 	 * @return Vector2f */
-	public Vector2f getPlantPos()
+	public A2DVector2f getPlantPos()
 	{
 		return plantPos;
 	}

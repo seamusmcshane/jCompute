@@ -816,9 +816,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		if (simScenario != null)
 		{
 			sim.createSim(simScenario);
-			SimulationView.setSim(sim);
+			NewSimView.setSim(sim);
 
-			setUpPanels(scenario, sim);
+			//setUpPanels(scenario, sim);
 			/*
 			 * If needed the GC can free old objects now, before the simulation
 			 * starts
@@ -921,7 +921,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sliderSimStepRate.setEnabled(false);
 		btnPauseSim.setEnabled(false);
 		btnGenerateSim.setEnabled(true);
-		SimulationView.setSim(null);
+		//SimulationView.setSim(null);
 	}
 
 	private void simPausedState()
@@ -1004,7 +1004,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 				saved = false;
 				btnSave.setEnabled(true);
-
 			}
 			else
 			{

@@ -1,15 +1,11 @@
 package alifeSim.Alife.SimpleAgent;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.geom.Vector2f;
-
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
+import alifeSimGeom.A2DVector2f;
+import alifeSimGeom.A2RGBA;
 
 /**
  * Agent Body Class
@@ -24,13 +20,13 @@ public class SimpleAgentBody extends AlifeBody
 	public final SimpleAgentStats stats;
 	
 	/** Calculated body pos */
-	private Vector2f newBodyPos = new Vector2f(0, 0);
+	private A2DVector2f newBodyPos = new A2DVector2f(0, 0);
 
 	/** Forward Vector */
-	private Vector2f forwardVector;
+	private A2DVector2f forwardVector;
 
 	/** Calculated forward vector */
-	private Vector2f newForwardVector = new Vector2f(0, 0); /* Latched */
+	private A2DVector2f newForwardVector = new A2DVector2f(0, 0); /* Latched */
 
 	/** Direction of movement of the Agent */
 	private float direction;
@@ -42,13 +38,13 @@ public class SimpleAgentBody extends AlifeBody
 	 * @param pos
 	 * @param stats
 	 */
-	public SimpleAgentBody(WorldInf world, Vector2f pos, SimpleAgentStats stats)
+	public SimpleAgentBody(WorldInf world, A2DVector2f pos, SimpleAgentStats stats)
 	{
 		this.world = world;	
 		
 		this.stats = stats;
 
-		forwardVector = new Vector2f(0, -stats.getMaxSpeed()); /* Forward 1 up */
+		forwardVector = new A2DVector2f(0, -stats.getMaxSpeed()); /* Forward 1 up */
 
 		initAgentBody(stats.getSize());
 
@@ -73,7 +69,7 @@ public class SimpleAgentBody extends AlifeBody
 	 * @return boolean   */
 	public boolean move(float requestedDirection)
 	{
-		Vector2f newPos = newPosition(requestedDirection);
+		A2DVector2f newPos = newPosition(requestedDirection);
 
 		/* If physics says yes then move the agent */
 		if (world.isValidPosition(newPos.getX(), newPos.getY()))
@@ -101,7 +97,7 @@ public class SimpleAgentBody extends AlifeBody
 	 * @return boolean  */
 	public boolean movePossible(float reqDirection)
 	{
-		Vector2f newPos = newPosition(reqDirection);
+		A2DVector2f newPos = newPosition(reqDirection);
 
 		if (world.isValidPosition(newPos.getX(), newPos.getY()))
 		{
@@ -117,7 +113,7 @@ public class SimpleAgentBody extends AlifeBody
 	 * @param reqDirection	
 	 * 
 	 * @return newBodyPos  */
-	private Vector2f newPosition(float reqDirection)
+	private A2DVector2f newPosition(float reqDirection)
 	{
 		//System.out.println("reqDirection : " + reqDirection);
 
@@ -145,7 +141,7 @@ public class SimpleAgentBody extends AlifeBody
 	 * Internal Movement - decrements move energy
 	 * @param pos Vector2f
 	 */
-	private void updateBodyPosition(Vector2f pos)
+	private void updateBodyPosition(A2DVector2f pos)
 	{
 		stats.decrementMoveEnergy();
 		bodyPos.set(pos);
@@ -246,11 +242,11 @@ public class SimpleAgentBody extends AlifeBody
 	{
 		if (stats.getType().getType() == AgentType.PREY)
 		{
-			setColor(Color.blue);
+			setColor(new A2RGBA(0,0,1f,0));
 		}
 		else // Predator
 		{
-			setColor(Color.red);
+			setColor(new A2RGBA(1f,0,0f,0));
 		}
 	}
 

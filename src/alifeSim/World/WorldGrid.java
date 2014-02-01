@@ -1,8 +1,8 @@
 package alifeSim.World;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Line;
+import alifeSim.Gui.NewSimView;
+import alifeSimGeom.A2DLine;
+import alifeSimGeom.A2RGBA;
 
 /**
  * This class contains the methods needed to create 
@@ -15,10 +15,10 @@ public class WorldGrid
 {
 
 	/** The Horizontal Lines. */
-	private Line[] hlines;
+	private A2DLine[] hlines;
 
 	/** The Vertical Lines. */
-	private Line[] vlines;
+	private A2DLine[] vlines;
 
 	/** Number of lines (generated) */
 	private int num;
@@ -58,14 +58,14 @@ public class WorldGrid
 
 		major_div = step * 8; /* If step = 8 then this will be every 64 lines */
 
-		hlines = new Line[num];
-		vlines = new Line[num];
+		hlines = new A2DLine[num];
+		vlines = new A2DLine[num];
 
 		int x = 0;
 		for (int i = 0; i < num; i++)
 		{
-			hlines[i] = new Line(x, 0, x, size);
-			vlines[i] = new Line(0, x, size, x);
+			hlines[i] = new A2DLine(x, 0, x, size);
+			vlines[i] = new A2DLine(0, x, size, x);
 			x = x + step;
 		}
 
@@ -75,28 +75,34 @@ public class WorldGrid
 	 * Draws the grid method on the image object 
 	 * @param g Graphics
 	 */
-	public void drawGrid(Graphics g)
+	public void draw(NewSimView simView)
 	{
-		g.setBackground(Color.black);
+		/*g.setBackground(Color.black);
 
 		g.setColor(new Color(25, 25, 25));
 
 		g.setLineWidth(2f);
 
-		g.setAntiAlias(true);
+		g.setAntiAlias(true);*/
+		
+		A2RGBA major = new A2RGBA(0.2f,0.2f,0.2f,1f);
+
+		A2RGBA minor = new A2RGBA(0.2f,0.2f,0.2f,1f);
+		
+		A2RGBA color;
 
 		for (int i = 0; i < num; i++)
 		{
 			if (i % major_div == 0)
 			{
-				g.setColor(new Color(50, 50, 50)); /* Major Div */
+				color = major;
 			}
 			else
 			{
-				g.setColor(new Color(25, 25, 25)); /* Normal Line */
+				color = minor;
 			}
-			g.draw(hlines[i]);
-			g.draw(vlines[i]);
+			simView.drawLine(hlines[i],color,2f);
+			simView.drawLine(vlines[i],color,2f);
 		}
 	}
 

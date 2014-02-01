@@ -1,26 +1,23 @@
 package alifeSim.Alife;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.geom.Vector2f;
+import java.awt.Color;
+
+import alifeSim.Gui.NewSimView;
+import alifeSimGeom.A2DCircle;
+import alifeSimGeom.A2DRectangle;
+import alifeSimGeom.A2DVector2f;
+import alifeSimGeom.A2RGBA;
 
 public class AlifeBody
 {
 	/** Agent Body */
-	protected Rectangle body;
-	
-	/** The circular body and size */
-	protected Circle trueBody;
-	
-	protected float trueSize;
+	protected A2DCircle body;
 	
 	/** Color of this agent */
-	protected Color color;
+	protected A2RGBA color;
 	
 	/** Current Body Pos */
-	protected Vector2f bodyPos;	
+	protected A2DVector2f bodyPos;	
 
 	/** The size of this body */
 	private float size;
@@ -29,7 +26,7 @@ public class AlifeBody
 	{
 		super();
 				
-		bodyPos = new Vector2f(0,0);
+		bodyPos = new A2DVector2f(0,0);
 	}
 
 /*
@@ -40,23 +37,21 @@ public class AlifeBody
  */	
 	private void initBody(float size)
 	{
-		body = new Rectangle(0, 0, getSize(), getSize());
+		this.size = size;
 
-		trueSize = body.getBoundingCircleRadius();
-
-		trueBody = new Circle(0, 0, trueSize);
+		body = new A2DCircle(0, 0, size);
 	}
 	
 	public void setIntialPos(double pos[])
 	{
-		bodyPos = new Vector2f((float)pos[0], (float)pos[1]);
+		bodyPos = new A2DVector2f((float)pos[0], (float)pos[1]);
 	}
 	
 	/** 
 	 * Initial Cartesian X/Y Position 
 	 * @param pos Vector2f
 	 */
-	public void setIntialPos(Vector2f pos)
+	public void setIntialPos(A2DVector2f pos)
 	{
 		bodyPos = pos;
 	}	
@@ -64,7 +59,7 @@ public class AlifeBody
 	/** 
 	 * Returns the position of the body
 	 * @return Vector2f  */
-	public Vector2f getBodyPos()
+	public A2DVector2f getBodyPos()
 	{
 		return bodyPos;
 	}
@@ -95,7 +90,7 @@ public class AlifeBody
 	 * @return float */
 	public float getTrueSizeSQRRadius()
 	{
-		return trueSize * trueSize;
+		return size * size;
 	}
 	
 	/** 
@@ -103,7 +98,7 @@ public class AlifeBody
 	 * @return float */
 	public float getTrueSizeSQRDiameter()
 	{
-		return (trueSize * trueSize) * 2;
+		return (size * size) * 2;
 	}		
 	
 /*
@@ -114,7 +109,7 @@ public class AlifeBody
 	 * Set Color
 	 * 
 	 */
-	public void setColor(Color color)
+	public void setColor(A2RGBA color)
 	{
 		this.color = color;
 	}
@@ -123,27 +118,10 @@ public class AlifeBody
 	 * Slow Draw method - circles
 	 * @param g Graphics
 	 */
-	public void drawTrueBody(Graphics g)
+	public void draw(NewSimView simView)
 	{
-		trueBody.setLocation(bodyPos.getX() - (trueSize), bodyPos.getY() - (trueSize));
+		body.setLocation(bodyPos.getX() - (size), bodyPos.getY() - (size));
 
-		g.setColor(color);
-
-		g.fill(trueBody);
-
-		drawRectBody(g);
-	}
-	
-	/** 
-	 * Fast Body Draw Method - rectangles
-	 * @param g Graphics
-	 */
-	public void drawRectBody(Graphics g)
-	{
-		body.setLocation(bodyPos.getX() - (getSize() / 2), bodyPos.getY() - (getSize() / 2));
-
-		g.setColor(color);
-
-		g.fill(body);
+		simView.drawFilledCircle(body, color);
 	}	
 }

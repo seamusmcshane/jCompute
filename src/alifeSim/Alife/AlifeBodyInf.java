@@ -1,10 +1,9 @@
 package alifeSim.Alife;
 
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Vector2f;
-
 import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
 import alifeSim.Alife.SimpleAgent.SimpleAgentView;
+import alifeSim.Gui.NewSimView;
+import alifeSimGeom.A2DVector2f;
 
 public interface AlifeBodyInf
 {
@@ -12,7 +11,7 @@ public interface AlifeBodyInf
 	/**
 	 *  Return the body Position 
 	 * */
-	public Vector2f getBodyPos();
+	public A2DVector2f getBodyPos();
 
 	/**
 	 * The eat plant Action, attempts to eat the plant in view.
@@ -30,7 +29,7 @@ public interface AlifeBodyInf
 	 * Fast Body Draw Method - rectangles
 	 * @param g Graphics
 	 */
-	public void drawRectBody(Graphics g);
+	public void draw(NewSimView simView);
 
 
 	/** 

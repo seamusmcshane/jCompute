@@ -1,7 +1,6 @@
 package alifeSim.Simulation;
 
-import org.newdawn.slick.Graphics;
-
+import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.StatManager;
 
 public interface SimulationManagerInf
@@ -12,7 +11,7 @@ public interface SimulationManagerInf
 	
 	public StatManager getStatmanger();
 	
-	public void drawSim(Graphics g, boolean trueDrawing, boolean viewRangeDrawing, boolean viewsDrawing);
+	public void drawSim(NewSimView simView);
 
 	public int getWorldSize();
 

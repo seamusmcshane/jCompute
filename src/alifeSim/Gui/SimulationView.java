@@ -15,6 +15,7 @@ import org.newdawn.slick.CanvasGameContainer;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.MouseListener;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
@@ -83,7 +84,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	private static int cameraMargin = 1;
 
 	/** Camera View Size */
-	public static Rectangle cameraBound;
+	public static A2DRectangle cameraBound;
 
 	/** Toggles the drawing of the text overlay */
 	private static boolean overlay = false;
@@ -115,7 +116,7 @@ public class SimulationView extends BasicGame implements MouseListener
 		// Uncomment when building the executable jar for that platform 
 		 //buildStandAlone(true);
 	}
-
+	
 	/**
 	 * Method buildStandAlone.
 	 * @param setPath boolean
@@ -182,7 +183,7 @@ public class SimulationView extends BasicGame implements MouseListener
 	@Override
 	public void render(GameContainer container, Graphics g) throws SlickException
 	{
-		
+				
 		if (drawSim)
 		{
 			/*
@@ -193,15 +194,13 @@ public class SimulationView extends BasicGame implements MouseListener
 
 			/* Draws on the buffer */
 			doDraw(g);
-
+			
 			/* Always draw the buffer even if it has not changed */
 			//g.drawImage(buffer, 0, 0);
 
 			// View Overlay
 			g.setColor(Color.white);
 			titleTTFont.drawString(10-globalTranslate.getX(),10-globalTranslate.getY(),simulationTitle);
-			
-
 			
 		}
 		else
@@ -349,7 +348,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			simView = new CanvasGameContainer(new SimulationView(width,height));
 
 			//sim.setDisplayMode(worldViewWidth,worldViewHeight, false);
-
+			
 			/* Always update */
 			simView.getContainer().setUpdateOnlyWhenVisible(false);
 
@@ -380,7 +379,7 @@ public class SimulationView extends BasicGame implements MouseListener
 			
 			simView.setMinimumSize(new Dimension(320,240));
 
-			cameraBound = new Rectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
+			cameraBound = new A2DRectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
 			
 			return simView;
 
@@ -535,7 +534,7 @@ public class SimulationView extends BasicGame implements MouseListener
 				panelWidth = simView.getContainer().getWidth();
 				panelHeight = simView.getContainer().getHeight();
 			}
-			cameraBound = new Rectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
+			cameraBound = new A2DRectangle(cameraMargin, cameraMargin, panelWidth - (cameraMargin * 2), panelHeight - (cameraMargin * 2));
 	}
 	
 	public static void setSimulationTitle(String text)

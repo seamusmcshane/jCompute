@@ -36,13 +36,14 @@ public class NewGUI
 	private static JFrame guiFrame;
 	private static SimulationTabPanelManager simTabs;
 	private static JSplitPane splitPane;
+	private static NewSimView simView;
 	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawSimpleBodies,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
 	private static JMenu mnFrameRate,mnVerticalSync,mnOverlay;
 	private static JRadioButtonMenuItem rdbtnmntm15FramesPerSecond,rdbtnmntm60FramesPerSecond,rdbtnmntmUnlimitedFrameRate,rdbtnmntmVsyncOn,rdbtnmntmVsyncOff,rdbtnmntmOverlayDisabled,rdbtnmntmOverlayEnabled;
 	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
 	private static final ButtonGroup vSyncButtonGroup = new ButtonGroup();
 	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
-		
+			
 	public static void main(String args[])
 	{
 		lookandFeel();
@@ -96,12 +97,12 @@ public class NewGUI
 				if (chckbxmntmDisplaySimulation.isSelected())
 				{
 					// have been checked
-					SimulationView.setVisible(true);
+					//SimulationView.setVisible(true);
 				}
 				else
 				{
 					// have been unchecked
-					SimulationView.setVisible(false);
+					//SimulationView.setVisible(false);
 				}
 
 			}
@@ -121,12 +122,12 @@ public class NewGUI
 				if (chckbxmntmDrawSimpleBodies.isSelected())
 				{
 					// have been checked
-					SimulationView.setSimpleDrawing(true);
+					//SimulationView.setSimpleDrawing(true);
 				}
 				else
 				{
 					// have been unchecked
-					SimulationView.setSimpleDrawing(false);
+					//SimulationView.setSimpleDrawing(false);
 				}
 			}
 		});
@@ -141,12 +142,12 @@ public class NewGUI
 				if (chckbxmntmDrawFieldOf.isSelected())
 				{
 					// have been checked
-					SimulationView.setViewRangeDrawing(true);
+					//SimulationView.setViewRangeDrawing(true);
 				}
 				else
 				{
 					// have been unchecked
-					SimulationView.setViewRangeDrawing(false);
+					//SimulationView.setViewRangeDrawing(false);
 				}
 			}
 		});
@@ -295,19 +296,25 @@ public class NewGUI
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setContinuousLayout(true);
 		
+		simView = new NewSimView();
+		
 		/* Split Pane Left - Sim Tabs */
-		simTabs = new SimulationTabPanelManager();
+		simTabs = new SimulationTabPanelManager(simView);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
 
-		splitPane.setRightComponent(SimulationView.getView(null, guiFrame.getWidth() , guiFrame.getHeight()));
-	
+		
+		
+		//splitPane.setRightComponent(SimulationView.getView(null, guiFrame.getWidth() , guiFrame.getHeight()));
+		
+		splitPane.setRightComponent(simView.getAwtCanvas());
+		
 		/* We control the exit */
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 		
 		guiFrame.setVisible(true);
 		//guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-		SimulationView.startView();
+		//SimulationView.startView();
 	}
 	
 	private static void registerGUIListeners()
@@ -328,13 +335,13 @@ public class NewGUI
 			@Override
 			public void componentResized(ComponentEvent e)
 			{
-				SimulationView.updateCameraBound();
+				//SimulationView.updateCameraBound();
 			}
 		});
 		
 		splitPane.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
-				SimulationView.updateCameraBound();
+				//SimulationView.updateCameraBound();
 			}
 		});
 		
@@ -359,7 +366,7 @@ public class NewGUI
 
 		if (value == JOptionPane.YES_OPTION)
 		{
-			SimulationView.exitDisplay(); // Tell OpenGL we are done and free
+			simView.exitDisplay(); // Tell OpenGL we are done and free
 											// the resources used in the canvas.
 											// - must be done else sim will
 											// lockup.

@@ -219,11 +219,28 @@ public class LVManager
 		return prey_growth*prey_population - predation_rate*prey_population*predator_population;
 	}
 	
+/*	private double calculate_prey(double prey_population,double predator_population)
+	{
+		return prey_growth*prey_population*plant_population - prey_death_rate*prey_population - predation_rate*prey_population*predator_population;
+	}
+	*/
 	/* LOTKA-VOLTERA - PREDATOR */
 	private double calculate_predator(double prey_population,double predator_population)
 	{
-		return predator_conversion_rate*predation_rate*prey_population*predator_population-predator_death_rate*predator_population; 
+		return -predator_death_rate*predator_population+predator_conversion_rate*prey_population*predator_population; 
 	}
+	
+	// A = prey_growth
+	// B = predation_rate
+	// C = predator_death_rate
+	// D = predator_conversion_rate
+	
+	
+	/* LOTKA-VOLTERA - PLANT */
+	/*private double calculate_plant(double prey_population,double plant_population)
+	{
+		return plant_growth - prey_graze_rate*prey_population*plant_population;
+	}*/
 	
 	private void setUpStats()
 	{
@@ -256,7 +273,7 @@ public class LVManager
 		
 		drawPoints(bufferGraphics);
 		
-		g.draw(new Rectangle(0,0,bufferWidth,bufferHeight));
+		g.draw(new A2DRectangle(0,0,bufferWidth,bufferHeight));
 		
 		g.drawImage(buffer, 0, 0);
 	}
@@ -268,7 +285,7 @@ public class LVManager
 		g.setAntiAlias(true);
 		
 		float zoom = 1f;
-		float xscale = 4f*zoom;
+		float xscale = 1f*zoom;
 		float yscale = 1f*zoom;
 		
 		float xmax = 0;

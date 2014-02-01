@@ -1,6 +1,7 @@
 package alifeSim.Alife.GenericPlant;
 
-import org.newdawn.slick.geom.Vector2f;
+import alifeSimGeom.A2DVector2f;
+
 /**
  * This Class is an instantiation of a plant. 
  * @author Seamus McShane
@@ -21,7 +22,7 @@ public class GenericPlant
 	 */
 	public GenericPlant(float x, float y, float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
 	{
-		body = new GenericPlantBody(new Vector2f(x, y), startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
+		body = new GenericPlantBody(new A2DVector2f(x, y), startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
 	}
 
 }

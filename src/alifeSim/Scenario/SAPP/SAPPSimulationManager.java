@@ -3,11 +3,10 @@ package alifeSim.Scenario.SAPP;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import org.newdawn.slick.Graphics;
-
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
+import alifeSim.Gui.NewSimView;
 import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.Stats.StatGroup;
@@ -71,7 +70,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 
 		setUpAgentManager();	
 		
-		setUpStatManager();
+		//setUpStatManager();
 		
 	}
 	
@@ -215,7 +214,6 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	private void stage1()
 	{
 		genericPlantManager.stage1();
-
 		simpleAgentManager.stage1();
 	}
 
@@ -238,27 +236,18 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		simpleAgentManager.stage3();
 	}
 
-	/**
-	 * Method drawAgentsAndPlants.
-	 * @param g Graphics
-	 * @param trueDrawing boolean
-	 * @param viewRangeDrawing boolean
-	 */
-	public void drawSim(Graphics g, boolean simpleDrawing, boolean viewRangeDrawing,boolean viewsDrawing)
+	
+	public void drawSim(NewSimView simView)
 	{
-		// Get a lock on the done list, 
-		// but don't wait if we cant get a lock 
-		// so we can draw the old image buffer and stay interactive with regards moving the view.
-		// Side effect is that the view could look static if processing power is very low.
 		try
 		{
 			lock.acquire();
 
-			world.drawWorld(g);
+			world.drawWorld(simView);
 			
-			genericPlantManager.drawPlants(g, simpleDrawing);
+			genericPlantManager.draw(simView);
 
-			simpleAgentManager.drawAgent(g, simpleDrawing, viewRangeDrawing,viewsDrawing);
+			simpleAgentManager.draw(simView);
 
 			// Release the lock on the done list
 			lock.release();
@@ -267,7 +256,6 @@ public class SAPPSimulationManager implements SimulationManagerInf
 		{
 			// Debug System.out.println("Never Got Lock");
 		}
-
 	}
 
 	@Override
