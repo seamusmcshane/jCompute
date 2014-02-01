@@ -75,8 +75,8 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				{
 					if(simulationInfoTab == getSelectedComponent())
 					{
-						//SimulationView.setSim(null);
-						//SimulationView.setSimulationTitle("No Simulation Selected");
+						NewSimView.setSim(null);
+						NewSimView.setSimulationTitle("No Simulation Selected");
 						
 					}
 					
@@ -84,8 +84,8 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					{
 						if(simulationTabs[i] == getSelectedComponent())
 						{
-							//SimulationView.setSim(simulationTabs[i].getSimulation());
-							//SimulationView.setSimulationTitle(getTitleAt(getSelectedIndex()));
+							NewSimView.setSim(simulationTabs[i].getSimulation());
+							NewSimView.setSimulationTitle(getTitleAt(getSelectedIndex()));
 							
 							break;
 						}					

@@ -921,7 +921,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sliderSimStepRate.setEnabled(false);
 		btnPauseSim.setEnabled(false);
 		btnGenerateSim.setEnabled(true);
-		//SimulationView.setSim(null);
+		NewSimView.setSim(null);
 	}
 
 	private void simPausedState()
