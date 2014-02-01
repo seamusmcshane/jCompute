@@ -744,7 +744,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				sim.pauseSim();
 			}
 
-			SimulationView.setSim(null);
+			NewSimView.setSim(null);
 
 			sim.destroySim();
 
