@@ -87,7 +87,7 @@ public class WorldGrid
 		
 		A2RGBA major = new A2RGBA(0.2f,0.2f,0.2f,1f);
 
-		A2RGBA minor = new A2RGBA(0.2f,0.2f,0.2f,1f);
+		A2RGBA minor = new A2RGBA(0.1f,0.1f,0.1f,1f);
 		
 		A2RGBA color;
 
