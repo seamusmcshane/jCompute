@@ -19,6 +19,8 @@ import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
@@ -34,6 +36,25 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/** Simulation Reference */
 	private static Simulation sim;
 	private static Semaphore viewLock = new Semaphore(1);
+
+	private static String simulationTitle = "";
+	
+	private final int lowFrameRate = 15;
+	private final int highFrameRate = 60;
+
+	/** Default Graphic frame rate control */
+	private final int defaultFrameRate = lowFrameRate; // Frame rate starts up set at this
+
+	private final int frameRateGuiInteractionOff = lowFrameRate;
+	private final int frameRateGuiInteractionOn = highFrameRate;
+	
+	/** Records status of mouse button */
+	private boolean mouseButtonPressed = false;
+	
+	/** Allows fixing the update rate at the mouseInteraction rate **/
+	private boolean highUpdateRate = false;
+	private int activeFrameRate = defaultFrameRate;
+	
 	
 	/* Mouse */
 	/** Stores the mouse vector across updates */
@@ -42,11 +63,14 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	private boolean button0Pressed;
 	
+	private BitmapFont font;
+	private SpriteBatch spriteBatch;
+	
 	public NewSimView()
 	{
 		canvas = new LwjglAWTCanvas(this, false);
 		Display.setVSyncEnabled(true);
-		Display.setSwapInterval(2);
+		Display.setSwapInterval(1);
 		
 		canvas.getInput().setInputProcessor(this);
 		
@@ -78,13 +102,20 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	public void create()
 	{
         shapeRenderer = new ShapeRenderer();
-
+        
+        spriteBatch = new SpriteBatch();
+        
+        font = new BitmapFont();
+        font.setColor(Color.WHITE);
+        
 	}
 
 	@Override
 	public void dispose()
 	{
-		
+       /* font.dispose();
+		shapeRenderer.dispose();
+		spriteBatch.dispose();*/
 	}
 
 	@Override
@@ -105,8 +136,27 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		viewCam.update();
 		viewCam.apply(gl);
-				
+				        
 		shapeRenderer.setProjectionMatrix(viewCam.combined);
+		
+		viewLock.acquireUninterruptibly();
+		
+		if(sim!=null)
+		{
+			sim.drawSim(this);
+		}
+		
+		viewLock.release();
+		
+		//spriteBatch.setProjectionMatrix(Gdx.graphics.g.);
+
+		spriteBatch.begin();			
+        	font.draw(spriteBatch, simulationTitle, 0, Gdx.graphics.getHeight()-25);
+        spriteBatch.end();
+		
+		/*
+		 * 
+		 * 		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.line(0, 0, 100, 200);
         shapeRenderer.end();
@@ -121,15 +171,9 @@ public class NewSimView implements ApplicationListener, InputProcessor
         shapeRenderer.circle( 100,  100, 25, 16);
         shapeRenderer.end();
         
-		viewLock.acquireUninterruptibly();
+		 */
+		Display.sync(activeFrameRate);
 		
-		if(sim!=null)
-		{
-			sim.drawSim(this);
-		}
-		
-		viewLock.release();
-
 	}
 
 	@Override
@@ -147,8 +191,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/*
 	 * Drawing Methods
 	 * 
-	 */
-		
+	 */		
 	public void drawFilledCircle(A2DCircle circle,A2RGBA color)
 	{
         shapeRenderer.begin(ShapeType.Filled);
@@ -223,8 +266,22 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 
 	@Override
-	public boolean scrolled(int arg0)
+	public boolean scrolled(int val)
 	{
+		viewCam.zoom +=(val*0.125f);
+		
+		if(viewCam.zoom < 0.2f)
+		{
+			viewCam.zoom = 0.2f;
+		}
+		
+		if(viewCam.zoom > 10f)
+		{
+			viewCam.zoom = 10f;
+		}
+		
+		System.out.println("Zoom " + viewCam.zoom);
+		
 		return false;
 	}
 
@@ -234,7 +291,9 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		if(button == 0)
 		{
 			button0Pressed = true;
-			mousePos.set(-x - viewCam.position.x, -y - viewCam.position.y);
+			mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
+			
+			mouseInteractionModeOn();
 		}
 		else
 		{
@@ -250,7 +309,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		if(button0Pressed)
 		{
 			float camX = (-x) - mousePos.getX();
-			float camY = (-y) - mousePos.getY();
+			float camY = (y) - mousePos.getY();
 	
 			moveCamera(camX, camY);
 		}
@@ -267,7 +326,9 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		button0Pressed = false;
 		
-		mousePos.set(-x - viewCam.position.x, -y - viewCam.position.y);
+		mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
+		
+		mouseInteractionModeOff();
 		
 		return false;
 	}
@@ -279,8 +340,41 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	private void resetCamera()
 	{
-		viewCam.setToOrtho(true, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		viewCam.zoom = 1f;
+		
+		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
+	}
+	
+	private void mouseInteractionModeOn()
+	{
+
+		if (!highUpdateRate) // Only Toggle if allowed to
+		{
+			System.out.println("activeFrameRate" + activeFrameRate);
+
+			if (!mouseButtonPressed) // Used so the we dont do this repeatedly only the first time
+			{
+				activeFrameRate = frameRateGuiInteractionOn;
+				mouseButtonPressed = true;
+			}
+
+		}
+	}
+
+	private void mouseInteractionModeOff()
+	{
+		if (!highUpdateRate) // Only Toggle if allowed to
+		{
+			activeFrameRate = frameRateGuiInteractionOff;
+			
+			mouseButtonPressed = false;	// To allow setting interaction on mode again.
+		}
+	}
+	
+	public static void setSimulationTitle(String text)
+	{
+		simulationTitle = text;
 	}
 }
