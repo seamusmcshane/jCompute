@@ -45,7 +45,7 @@ public class World implements WorldInf
 	{
 		this.worldSize = size;
 
-		worldBound = new A2DRectangle(0, 0, worldSize + 1, worldSize + 1);
+		worldBound = new A2DRectangle(0, 0, worldSize, worldSize);
 		
 		this.barrierMode = barrierMode;
 				
@@ -245,8 +245,6 @@ public class World implements WorldInf
 	public void drawWorld(NewSimView simView)
 	{
 		grid.draw(simView);
-
-		simView.drawRectangle(worldBound,new A2RGBA(0,0,1f,0));
 				
 		/* if Barriers are enabled */
 		if(barrierMode>0)
@@ -256,6 +254,8 @@ public class World implements WorldInf
 				simView.drawRectangle(barriers[i],new A2RGBA(0,0,1f,0));
 			}		
 		}
+		
+		simView.drawRectangle(worldBound,new A2RGBA(0,0,1f,0),2f);
 
 	}
 	
