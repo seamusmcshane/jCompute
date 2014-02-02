@@ -819,7 +819,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			sim.createSim(simScenario);
 			NewSimView.setSim(sim);
 
-			//setUpPanels(scenario, sim);
+			setUpPanels(scenario, sim);
 			/*
 			 * If needed the GC can free old objects now, before the simulation
 			 * starts

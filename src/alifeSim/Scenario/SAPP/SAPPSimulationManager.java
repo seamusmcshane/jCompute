@@ -70,7 +70,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 
 		setUpAgentManager();	
 		
-		//setUpStatManager();
+		setUpStatManager();
 		
 	}
 	
