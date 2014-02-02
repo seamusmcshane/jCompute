@@ -19,6 +19,14 @@ public class A2DLine
 		this.y2 = y2;
 	}
 
+	public A2DLine(A2DVector2f vec1, A2DVector2f vec2)
+	{
+		this.x1 = vec1.getX();
+		this.y1 = vec1.getY();
+		this.x2 = vec2.getX();
+		this.y2 = vec2.getY();
+	}
+
 	public float getX1()
 	{
 		return x1;
@@ -57,6 +65,11 @@ public class A2DLine
 	public void setY2(float y2)
 	{
 		this.y2 = y2;
+	}
+	
+	public float length()
+	{
+		return (float)Math.sqrt(Math.abs((((x1)-x2)*(x1-x2)) + ((y1-y2)*(y1-y2))));
 	}
 
 }
