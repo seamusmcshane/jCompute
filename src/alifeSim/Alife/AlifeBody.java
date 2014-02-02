@@ -120,7 +120,7 @@ public class AlifeBody
 	 */
 	public void draw(NewSimView simView)
 	{
-		body.setLocation(bodyPos.getX() - (size), bodyPos.getY() - (size));
+		body.setLocation(bodyPos.getX(), bodyPos.getY());
 
 		simView.drawFilledCircle(body, color);
 	}	
