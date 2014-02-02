@@ -699,14 +699,14 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
 
-		if (scenarioParser.getScenarioType().equals("DEBUG"))
+		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
 		{
 			System.out.println("Debug File");
 			simScenario = new DebugScenario(text);
 		}
 		else
 		{
-			if (scenarioParser.getScenarioType().equals("SAPP"))
+			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
 			{
 				System.out.println("SAPP File");
 				simScenario = new SAPPScenario();
@@ -714,7 +714,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				simScenario.loadConfig(text);
 
 			}
-			else if(scenarioParser.getScenarioType().equals("LV"))
+			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
 			{
 				System.out.println("LV File");
 				simScenario = new LVScenario();
@@ -815,6 +815,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		if (simScenario != null)
 		{
+			System.out.println("Creating Sim");
 			sim.createSim(simScenario);
 			NewSimView.setSim(sim);
 
