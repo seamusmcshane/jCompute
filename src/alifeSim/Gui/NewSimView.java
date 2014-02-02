@@ -73,6 +73,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	private BitmapFont font;
 	private SpriteBatch spriteBatch;
+
+	private float defaultLineWidth = 1f;
 	
 	public NewSimView()
 	{
@@ -205,6 +207,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 */		
 	public void drawCircle(A2DCircle circle,A2RGBA color)
 	{
+		Gdx.gl10.glLineWidth(defaultLineWidth);
+		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         shapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
@@ -229,6 +233,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         shapeRenderer.line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
         shapeRenderer.end();
+        
 	}
 	
 	// Outlined Rectangle
@@ -239,6 +244,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
+		Gdx.gl10.glLineWidth(defaultLineWidth);
+
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         shapeRenderer.rect(x,  y, width, height);
