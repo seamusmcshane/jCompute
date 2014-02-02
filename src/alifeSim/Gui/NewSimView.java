@@ -237,11 +237,27 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 	
 	// Outlined Rectangle
+	public void drawRectangle(A2DRectangle rectangle,A2RGBA color,float lineWidth)
+	{
+		drawRectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(),color,lineWidth);
+	}
+	
+	// Outlined Rectangle
 	public void drawRectangle(A2DRectangle rectangle,A2RGBA color)
 	{
 		drawRectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(),color);
 	}
 
+	public void drawRectangle(float x,float y,float width,float height,A2RGBA color,float lineWidth)
+	{
+		Gdx.gl10.glLineWidth(lineWidth);
+
+        shapeRenderer.begin(ShapeType.Line);
+        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        shapeRenderer.rect(x,  y, width, height);
+        shapeRenderer.end();
+	}
+	
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
 		Gdx.gl10.glLineWidth(defaultLineWidth);
