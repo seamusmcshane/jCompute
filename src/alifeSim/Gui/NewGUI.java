@@ -1,6 +1,8 @@
 package alifeSim.Gui;
 
 import java.awt.Dimension;
+import java.awt.Frame;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -26,6 +28,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JSplitPane;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -288,10 +291,6 @@ public class NewGUI
 		simTabs = new SimulationTabPanelManager(simView);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
-
-		
-		
-		//splitPane.setRightComponent(SimulationView.getView(null, guiFrame.getWidth() , guiFrame.getHeight()));
 		
 		splitPane.setRightComponent(simView.getAwtCanvas());
 		
@@ -299,7 +298,7 @@ public class NewGUI
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 		
 		guiFrame.setVisible(true);
-		//guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+		guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 	
 	private static void registerGUIListeners()
