@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/sapp-schema.xmls">
+	<Header>
+		<Version>0.02</Version>
+		<Type>SAPP</Type>
+	</Header>
+	<Statistics>
+	</Statistics>
+	<World>
+		<Type>0</Type>
+		<Size>512</Size>
+		<Barriers>0</Barriers>
+		<BarriersScenario>0</BarriersScenario>
+	</World>
+	<Agents>
+		<SimpleAgent>
+			<Type>Prey</Type>
+			<InitialNumbers>2</InitialNumbers>
+			<Size>5</Size>
+			<Speed>0.90</Speed>
+			<ViewRange>100</ViewRange>
+			<MovementCost>0.0</MovementCost>
+			<StartingEnergy>25</StartingEnergy>
+			<DigestiveEfficiency>0.4</DigestiveEfficiency>
+			<HungerThreshold>1000</HungerThreshold>
+			<EnergyConsumptionRate>10</EnergyConsumptionRate>
+			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
+			<ReproductionCost>1</ReproductionCost>
+		</SimpleAgent>
+	</Agents>
+	<Plants>
+		<GenericPlant>
+				<Type>0</Type>
+				<InitialNumbers>10</InitialNumbers>
+				<StartingEnergy>50</StartingEnergy>
+				<PlantRegeratonRate>1</PlantRegeratonRate>
+				<PlantRegenerationNSteps>100</PlantRegenerationNSteps>
+				<EnergyAbsorptionRate>1</EnergyAbsorptionRate>
+				<ReproductionAndSurvivalDivisor>0.25</ReproductionAndSurvivalDivisor>
+		</GenericPlant>
+	</Plants>
+</Scenario>

@@ -1,9 +1,7 @@
 package alifeSim.Scenario.Debug;
 
-import org.newdawn.slick.Graphics;
-
 import alifeSim.Alife.DebugAgent.DebugAgent;
-import alifeSim.Scenario.SAPP.SAPPScenario;
+import alifeSim.Gui.NewSimView;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
@@ -74,8 +72,7 @@ public class DebugSimulationManager implements SimulationManagerInf
 		
 		for(int i=0;i<noAgents;i++)
 		{
-			testAgents[i].doMove();
-			
+			testAgents[i].doMove();			
 		}
 		
 		debugAgent.doMove();
@@ -85,17 +82,16 @@ public class DebugSimulationManager implements SimulationManagerInf
 	
 		
 	@Override
-	public void drawSim(Graphics g, boolean trueDrawing, boolean viewRangeDrawing, boolean viewsDrawing)
+	public void drawSim(NewSimView simView)
 	{
-		world.drawWorld(g);
-		
+		world.drawWorld(simView);		
 		
 		for(int i=0;i<noAgents;i++)
 		{
-			testAgents[i].drawAgent(g);
+			testAgents[i].draw(simView);
 		}
 		
-		debugAgent.drawAgent(g);
+		debugAgent.draw(simView);
 		
 	}
 

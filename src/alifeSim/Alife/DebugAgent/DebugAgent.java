@@ -1,15 +1,14 @@
 package alifeSim.Alife.DebugAgent;
 
 import org.lwjgl.input.Mouse;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Vector2f;
 
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
+import alifeSim.Gui.NewSimView;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
+import alifeSimGeom.A2RGBA;
 
 public class DebugAgent
 {
@@ -47,28 +46,27 @@ public class DebugAgent
 			case 0 : // TOP LEFT
 					pos[0] = worldSize*0.25;
 					pos[1] = worldSize*0.25;
-					body.setColor(Color.red);
+					body.setColor(new A2RGBA(0,1,0,1));
 				break;
 			case 1 : // TOP RIGHT
 					pos[0] = worldSize*0.75;
 					pos[1] = worldSize*0.25;
-					body.setColor(Color.green);
+					body.setColor(new A2RGBA(0,1,0,1));
 				break;
 			case 2 : // BOTTOM RIGHT
 					pos[0] = worldSize*0.75;
 					pos[1] = worldSize*0.75;
-					body.setColor(Color.orange);
+					body.setColor(new A2RGBA(1,1,0,1));
 				break;
 			case 3 : // BOTTOM LEFT
 					pos[0] = worldSize*0.25;
 					pos[1] = worldSize*0.75;
-					body.setColor(Color.pink);
+					body.setColor(new A2RGBA(0,1,1,1));
 				break;
 			case -1:
-
 					pos[0] = worldSize*0.50; // MIDDLE
 					pos[1] = worldSize*0.50;		
-					body.setColor(Color.yellow);
+					body.setColor(new A2RGBA(1,0,1,1));
 
 			break;
 			default :				
@@ -132,11 +130,11 @@ public class DebugAgent
 		this.auto = auto;
 	}
 
-	public void drawAgent(Graphics g)
+	public void draw(NewSimView simView)
 	{		
 		if(body!=null)
 		{
-			body.drawTrueBody(g);
+			body.draw(simView);
 		}
 	}
 

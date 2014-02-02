@@ -24,28 +24,25 @@ public class DebugScenario extends ScenarioVT implements ScenarioInf
 	{
 		super();
 		
-		readScenarioSettings();
+		super.loadConfig(text);
+		
+		setScenarioSettings();
 		
 		simManager = new DebugSimulationManager(this);
 	}
 
-	private void readScenarioSettings()
+	private void setScenarioSettings()
 	{
-		readDebugSettings();
+		setDebugSettings();
 		
-		readWorldSettings();	
+		setWorldSettings();	
 	}
 	
-	private void readDebugSettings()
+	private void setDebugSettings()
 	{
-		String section = "Debug Agent";
-		debugAgentMouseCTRL = super.getIntValue(section,"MouseCtrl");
-		
-		section = "Test Agent";
-		
-		testAgentNum = super.getIntValue(section,"TestAgentNumbers");
-		
-		randomTestArrangement = super.getIntValue(section,"RandomTestArrangement");
+		debugAgentMouseCTRL = 1;	
+		testAgentNum = 4;
+		randomTestArrangement = 0;
 	}
 	
 	public WorldSetupSettings getWorldSettings()
@@ -68,24 +65,21 @@ public class DebugScenario extends ScenarioVT implements ScenarioInf
 		return randomTestArrangement;
 	}
 
-	private void readWorldSettings()
+	private void setWorldSettings()
 	{
 		worldSettings = new WorldSetupSettings();
-
-		String section = "World";
 		
-		worldSettings.setWorldSize(super.getIntValue(section,"WorldSize"));
+		worldSettings.setWorldSize(512);
 		
-		worldSettings.setBarrierMode(super.getIntValue(section,"Barriers"));
+		worldSettings.setBarrierMode(0);
 		
-		worldSettings.setBarrierScenario(super.getIntValue(section,"BarrierScenario"));
+		worldSettings.setBarrierScenario(0);
 	}
 
 	@Override
 	public SimulationManagerInf getSimManager()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return simManager;
 	}
 
 }
