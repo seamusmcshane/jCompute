@@ -6,12 +6,6 @@ import java.util.concurrent.Semaphore;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Scenario.Debug.DebugScenario;
-import alifeSim.Scenario.Debug.DebugSimulationManager;
-import alifeSim.Scenario.Math.LVScenario;
-import alifeSim.Scenario.Math.LVSimulationManager;
-import alifeSim.Scenario.SAPP.SAPPScenario;
-import alifeSim.Scenario.SAPP.SAPPSimulationManager;
 
 /**
  * Simulation class
@@ -68,6 +62,7 @@ public class Simulation
 	{
 		if(scenario!=null)
 		{
+			System.out.println("Assigning Sim Manager");
 			simManager = scenario.getSimManager();
 			
 			System.out.println("Scenario Type : " + scenario.getScenarioType());
@@ -266,9 +261,9 @@ public class Simulation
 	 * @param true_drawing boolean
 	 * @param view_range_drawing boolean
 	 */
-	public void drawSim(NewSimView simView)
+	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
-		simManager.drawSim(simView);
+		simManager.drawSim(simView,viewRangeDrawing,viewsDrawing);
 	}
 
 	public void setOutPutCharts(LinkedList<StatPanelAbs> charts)

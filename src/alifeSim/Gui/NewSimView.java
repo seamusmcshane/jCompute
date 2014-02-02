@@ -54,7 +54,15 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/** Allows fixing the update rate at the mouseInteraction rate **/
 	private boolean highUpdateRate = false;
 	private int activeFrameRate = defaultFrameRate;
+
+	/** Draw the View range of the agents */
+	private static boolean viewRangeDrawing = false;
+
+	/** Draw Views */
+	private static boolean viewsDrawing = false;
 	
+	/** Is Simulation view drawing enabled */
+	private static boolean drawSim = false;
 	
 	/* Mouse */
 	/** Stores the mouse vector across updates */
@@ -143,7 +151,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		if(sim!=null)
 		{
-			sim.drawSim(this);
+			if (drawSim)
+			{
+				sim.drawSim(this,viewRangeDrawing,viewsDrawing);
+			}
 		}
 		
 		viewLock.release();
@@ -192,6 +203,14 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 * Drawing Methods
 	 * 
 	 */		
+	public void drawCircle(A2DCircle circle,A2RGBA color)
+	{
+        shapeRenderer.begin(ShapeType.Line);
+        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        shapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
+        shapeRenderer.end();
+	}
+	
 	public void drawFilledCircle(A2DCircle circle,A2RGBA color)
 	{
         shapeRenderer.begin(ShapeType.Filled);
@@ -377,4 +396,32 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		simulationTitle = text;
 	}
+	
+	/**
+	 * Method setViewRangeDrawing.
+	 * @param inViewRangeDrawing boolean
+	 */
+	public static void setViewRangeDrawing(boolean inViewRangeDrawing)
+	{
+		viewRangeDrawing = inViewRangeDrawing;
+	}
+
+	/**
+	 * Method setViewRangeDrawing.
+	 * @param inViewRangeDrawing boolean
+	 */
+	public static void setViewsDrawing(boolean inViewsDrawing)
+	{
+		viewsDrawing = inViewsDrawing;
+	}
+	
+	/**
+	 * Method setVisible.
+	 * @param visible boolean
+	 */
+	public static void setVisible(boolean visible)
+	{
+		drawSim = visible;
+	}
+	
 }

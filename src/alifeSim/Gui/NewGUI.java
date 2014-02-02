@@ -37,7 +37,7 @@ public class NewGUI
 	private static SimulationTabPanelManager simTabs;
 	private static JSplitPane splitPane;
 	private static NewSimView simView;
-	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawSimpleBodies,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
+	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
 	private static JMenu mnFrameRate,mnVerticalSync,mnOverlay;
 	private static JRadioButtonMenuItem rdbtnmntm15FramesPerSecond,rdbtnmntm60FramesPerSecond,rdbtnmntmUnlimitedFrameRate,rdbtnmntmVsyncOn,rdbtnmntmVsyncOff,rdbtnmntmOverlayDisabled,rdbtnmntmOverlayEnabled;
 	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
@@ -46,11 +46,17 @@ public class NewGUI
 			
 	public static void main(String args[])
 	{
-		lookandFeel();
-		
-		setUpGUI();
-		
-		registerGUIListeners();
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() 
+	    {
+	        public void run() 
+	        {
+	    		lookandFeel();
+	    		
+	    		setUpGUI();
+	    		
+	    		registerGUIListeners();
+	        }
+	    });
 	}
 	
 	private static void setUpMenu()
@@ -97,12 +103,12 @@ public class NewGUI
 				if (chckbxmntmDisplaySimulation.isSelected())
 				{
 					// have been checked
-					//SimulationView.setVisible(true);
+					NewSimView.setVisible(true);
 				}
 				else
 				{
 					// have been unchecked
-					//SimulationView.setVisible(false);
+					NewSimView.setVisible(false);
 				}
 
 			}
@@ -114,26 +120,6 @@ public class NewGUI
 		JMenu mnAgentDrawing = new JMenu("Agent Drawing");
 		mnView.add(mnAgentDrawing);
 
-		chckbxmntmDrawSimpleBodies = new JCheckBoxMenuItem("Draw Simple Bodies");
-		chckbxmntmDrawSimpleBodies.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent arg0)
-			{
-				if (chckbxmntmDrawSimpleBodies.isSelected())
-				{
-					// have been checked
-					//SimulationView.setSimpleDrawing(true);
-				}
-				else
-				{
-					// have been unchecked
-					//SimulationView.setSimpleDrawing(false);
-				}
-			}
-		});
-		mnAgentDrawing.add(chckbxmntmDrawSimpleBodies);
-		chckbxmntmDrawSimpleBodies.setSelected(true);
-
 		chckbxmntmDrawFieldOf = new JCheckBoxMenuItem("Draw Field of Views");
 		chckbxmntmDrawFieldOf.addItemListener(new ItemListener()
 		{
@@ -142,12 +128,12 @@ public class NewGUI
 				if (chckbxmntmDrawFieldOf.isSelected())
 				{
 					// have been checked
-					//SimulationView.setViewRangeDrawing(true);
+					NewSimView.setViewRangeDrawing(true);
 				}
 				else
 				{
 					// have been unchecked
-					//SimulationView.setViewRangeDrawing(false);
+					NewSimView.setViewRangeDrawing(false);
 				}
 			}
 		});
@@ -161,12 +147,12 @@ public class NewGUI
 				if (chckbxmntDrawAgentViews.isSelected())
 				{
 					// have been checked
-					SimulationView.setViewsDrawing(true);
+					NewSimView.setViewsDrawing(true);
 				}
 				else
 				{
 					// have been unchecked
-					SimulationView.setViewsDrawing(false);
+					NewSimView.setViewsDrawing(false);
 				}
 			}
 		});
@@ -181,7 +167,7 @@ public class NewGUI
 			public void actionPerformed(ActionEvent arg0)
 			{
 				// Change the frame rate of the view to standard (15)
-				SimulationView.setStandardUpdateRate();
+				NewSimView.setStandardUpdateRate();
 			}
 		});
 		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
@@ -195,7 +181,7 @@ public class NewGUI
 			public void actionPerformed(ActionEvent e)
 			{
 				// Change the frame rate of the view to high (60)
-				SimulationView.setHighUpdateRate();
+				NewSimView.setHighUpdateRate();
 			}
 		});
 		frameRateButtonGroup.add(rdbtnmntm60FramesPerSecond);
@@ -225,7 +211,7 @@ public class NewGUI
 			public void actionPerformed(ActionEvent e)
 			{
 				// Sync frames to the monitor refresh
-				SimulationView.setVerticalSync(true);
+				NewSimView.setVerticalSync(true);
 			}
 		});
 		rdbtnmntmVsyncOn.setSelected(true);
@@ -239,7 +225,7 @@ public class NewGUI
 			public void actionPerformed(ActionEvent e)
 			{
 				// Dont Sync frames to the monitor refresh
-				SimulationView.setVerticalSync(false);
+				NewSimView.setVerticalSync(false);
 			}
 		});
 		mnVerticalSync.add(rdbtnmntmVsyncOff);
@@ -253,7 +239,7 @@ public class NewGUI
 			public void actionPerformed(ActionEvent e)
 			{
 				// Enable some view debug text which may be of interest
-				SimulationView.setViewOverLay(true);
+				NewSimView.setViewOverLay(true);
 			}
 		});
 		overlayButtonGroup.add(rdbtnmntmOverlayEnabled);
@@ -265,7 +251,7 @@ public class NewGUI
 			public void actionPerformed(ActionEvent e)
 			{
 				// Disable the view debug text
-				SimulationView.setViewOverLay(false);
+				NewSimView.setViewOverLay(false);
 			}
 		});
 		rdbtnmntmOverlayDisabled.setSelected(true);
@@ -314,7 +300,6 @@ public class NewGUI
 		
 		guiFrame.setVisible(true);
 		//guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-		//SimulationView.startView();
 	}
 	
 	private static void registerGUIListeners()
@@ -328,21 +313,6 @@ public class NewGUI
 				doProgramExit();
 			}
 
-		});
-		
-		guiFrame.addComponentListener(new ComponentAdapter()
-		{
-			@Override
-			public void componentResized(ComponentEvent e)
-			{
-				//SimulationView.updateCameraBound();
-			}
-		});
-		
-		splitPane.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-				//SimulationView.updateCameraBound();
-			}
 		});
 		
 	}

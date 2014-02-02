@@ -11,7 +11,7 @@ public interface SimulationManagerInf
 	
 	public StatManager getStatmanger();
 	
-	public void drawSim(NewSimView simView);
+	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing);
 
 	public int getWorldSize();
 

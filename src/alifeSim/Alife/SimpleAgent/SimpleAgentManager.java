@@ -212,7 +212,7 @@ public class SimpleAgentManager
 	 * @param trueDrawing boolean
 	 * @param viewRangeDrawing boolean
 	 */
-	public void draw(NewSimView simView)
+	public void draw(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 
 		for (SimpleAgent tAgentDrawAI : doneList) 
@@ -227,16 +227,16 @@ public class SimpleAgentManager
 				 */
 				tAgentDrawAI.body.draw(simView);
 				
-				//if (viewRangeDrawing)
+				if (viewRangeDrawing)
 				{
 					/* Optimization - Only draw the views of agents we can see */
-					//tAgentDrawAI.brain.view.drawViewRange(g,false,true);
+					tAgentDrawAI.brain.view.drawViewRange(simView,false,true);
 				}
 				
-				//if(viewsDrawing)
+				if(viewsDrawing)
 				{
 					/* Draw the agent views */
-					//tAgentDrawAI.brain.view.drawViews(g);
+					tAgentDrawAI.brain.view.drawViews(simView);
 				}
 			}
 

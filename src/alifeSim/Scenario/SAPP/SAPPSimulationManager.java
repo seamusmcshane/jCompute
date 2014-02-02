@@ -237,7 +237,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 	}
 
 	
-	public void drawSim(NewSimView simView)
+	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 		try
 		{
@@ -247,7 +247,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 			
 			genericPlantManager.draw(simView);
 
-			simpleAgentManager.draw(simView);
+			simpleAgentManager.draw(simView,viewRangeDrawing,viewsDrawing);
 
 			// Release the lock on the done list
 			lock.release();
