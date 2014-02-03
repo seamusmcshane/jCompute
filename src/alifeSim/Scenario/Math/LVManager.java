@@ -5,19 +5,12 @@ import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
+import com.badlogic.gdx.graphics.Pixmap;
 
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Line;
-import org.newdawn.slick.geom.Point;
-import org.newdawn.slick.geom.Rectangle;
-
-import alifeSim.Alife.GenericPlant.GenericPlant;
-import alifeSim.Simulation.Simulation;
+import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
+import alifeSimGeom.A2RGBA;
 
 public class LVManager
 {
@@ -50,16 +43,16 @@ public class LVManager
 	
 	private List<Point2D> values;
 	
-	/** Off screen buffer */
-	private Graphics bufferGraphics;
-	private Image buffer;
+	/* Previous Point */
 	Point2D previous;
 	
 	private boolean resize = true;
 	
 	/* This will be too large on old graphics hardware */
-	private float bufferWidth = 2048;
-	private float bufferHeight = 2048;
+	private int bufferWidth = 2048;
+	private int bufferHeight = 2048;
+	
+	Pixmap pixmap = new Pixmap(bufferWidth,bufferHeight, Pixmap.Format.RGBA8888);
 	
 	private float pointsHue=0f;
 	
@@ -88,6 +81,9 @@ public class LVManager
 		
 		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
 		System.out.printf("%d\t\t%5.2f\t\t%5.2f\n",t,initial_prey_population,initial_predator_population);
+		
+        pixmap.setColor(0,0,0,0);
+        pixmap.fill();
 	}
 
 	private int setIntMethod(String settingValue)
@@ -262,34 +258,29 @@ public class LVManager
 		return stat;
 	}
 	
-	public void drawLV(Graphics g)
+	public void drawLV(NewSimView simView)
 	{	
-		if(resize==true)
-		{
-			setUpImageBuffer();
-			resize=false;
-		}
-		g.setWorldClip(null);
 		
-		drawPoints(bufferGraphics);
+		drawPoints(simView);
 		
-		g.draw(new A2DRectangle(0,0,bufferWidth,bufferHeight));
+		simView.drawPixMap(pixmap, 0, 0);
 		
-		g.drawImage(buffer, 0, 0);
+		simView.drawRectangle(0,0,bufferWidth,bufferHeight,new A2RGBA(1f,1f,1f,1f));
+		
 	}
 	
-	private void drawPoints(Graphics g)
+	private void drawPoints(NewSimView simView)
 	{
 		//g.clear();
-		
-		g.setAntiAlias(true);
-		
+				
 		float zoom = 1f;
 		float xscale = 1f*zoom;
 		float yscale = 1f*zoom;
 		
 		float xmax = 0;
 		float ymax = 0;
+		
+		Color color;
 		
 		if(values!=null)
 		{
@@ -301,11 +292,9 @@ public class LVManager
 				}
 
 				for (Point2D point : values) 
-				{					
-					g.setLineWidth(2f);
-											
-					g.setColor(new org.newdawn.slick.Color(Color.HSBtoRGB(pointsHue,1f,1f)));
-										
+				{											
+					color = new Color(Color.HSBtoRGB(pointsHue,1f,1f));
+					
 					float x = (float)point.getX();
 					float y =(float)point.getY();
 
@@ -318,8 +307,10 @@ public class LVManager
 					{
 						ymax = y;
 					}
-										
-					g.draw(new Line((float)previous.getX()*xscale,(float)previous.getY()*yscale,x*xscale,y*yscale));
+						
+					pixmap.setColor(1f/255f*(float)color.getRed(),1f/255f*(float)color.getGreen(),1f/255f*(float)color.getBlue(),1f/255f*(float)color.getAlpha());
+					
+					pixmap.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale));
 					
 					previous = point;
 					
@@ -328,22 +319,6 @@ public class LVManager
 				values = new LinkedList<Point2D>();
 				
 			}
-		}
-	}
-	
-	/** Sets up the off-screen buffer image */
-	private void setUpImageBuffer()
-	{
-		try
-		{			
-			buffer = new Image((int)bufferWidth, (int)bufferHeight);
-			
-			bufferGraphics = buffer.getGraphics();
-
-		}
-		catch (SlickException e)
-		{
-			e.printStackTrace();
 		}
 	}
 	

@@ -3,8 +3,7 @@ package alifeSim.Scenario.Math;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import org.newdawn.slick.Graphics;
-
+import alifeSim.Gui.NewSimView;
 import alifeSim.Simulation.SimulationManagerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatGroupSetting;
@@ -57,13 +56,13 @@ public class LVSimulationManager implements SimulationManagerInf
 	}
 
 	@Override
-	public void drawSim(Graphics g, boolean trueDrawing, boolean viewRangeDrawing, boolean viewsDrawing)
+	public void drawSim(NewSimView simView, boolean ignored, boolean ignored2)
 	{
 		try
 		{
 			lock.acquire();
 			
-				lv.drawLV(g);
+				lv.drawLV(simView);
 			
 			lock.release();
 			
