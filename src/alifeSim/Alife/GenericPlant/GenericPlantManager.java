@@ -9,7 +9,6 @@ import java.util.ListIterator;
 import java.util.Random;
 
 import alifeSim.Gui.NewSimView;
-import alifeSim.Gui.SimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.BarrierManager;

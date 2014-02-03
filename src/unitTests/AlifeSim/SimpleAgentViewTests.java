@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.newdawn.slick.geom.Vector2f;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.Alife.SimpleAgent.SimpleAgentBody;
