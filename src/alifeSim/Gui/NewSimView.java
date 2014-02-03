@@ -136,10 +136,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 		GL10 gl = Gdx.graphics.getGL10();
 		
-		Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
+		/*Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
 		Gdx.gl.glEnable(GL10.GL_POINT_SMOOTH);
 		Gdx.gl.glHint(GL10.GL_POLYGON_SMOOTH_HINT, GL10.GL_NICEST);
-		Gdx.gl.glHint(GL10.GL_POINT_SMOOTH_HINT, GL10.GL_NICEST);
+		Gdx.gl.glHint(GL10.GL_POINT_SMOOTH_HINT, GL10.GL_NICEST);*/
 		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 				
