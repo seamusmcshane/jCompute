@@ -4,7 +4,7 @@ public class WorldSetupSettings
 {
 	int worldSize=1024;
 	
-	int barrierMode=1;
+	int barrierNum=0;
 	
 	int barrierScenario=0;
 
@@ -18,14 +18,14 @@ public class WorldSetupSettings
 		this.worldSize = worldSize;
 	}
 
-	public int getBarrierMode()
+	public int getBarrierNum()
 	{
-		return barrierMode;
+		return barrierNum;
 	}
 
-	public void setBarrierMode(int barrierMode)
+	public void setBarrierNum(int barrierNum)
 	{
-		this.barrierMode = barrierMode;
+		this.barrierNum = barrierNum;
 	}
 
 	public int getBarrierScenario()

@@ -172,7 +172,7 @@ public class SAPPSimulationManager implements SimulationManagerInf
 
 	private void setUpWorld()
 	{
-		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierMode(), scenario.worldSettings.getBarrierScenario());
+		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierNum(), scenario.worldSettings.getBarrierScenario());
 	}
 	
 	/**

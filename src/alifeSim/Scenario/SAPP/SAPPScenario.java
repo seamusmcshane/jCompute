@@ -156,8 +156,8 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		worldSettings.setWorldSize(super.getIntValue(section,"Size"));
 		System.out.println("World Size : " + worldSettings.getWorldSize());
 		
-		worldSettings.setBarrierMode(super.getIntValue(section,"Barriers"));
-		System.out.println("BarrierMode : " + worldSettings.getBarrierMode());
+		worldSettings.setBarrierNum(super.getIntValue(section,"Barriers"));
+		System.out.println("BarrierMode : " + worldSettings.getBarrierNum());
 		
 		worldSettings.setBarrierScenario(super.getIntValue(section,"BarriersScenario"));
 		System.out.println("BarriersScenario : " + worldSettings.getBarrierScenario());
