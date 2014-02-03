@@ -18,8 +18,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -74,7 +79,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	private BitmapFont font;
 	private SpriteBatch spriteBatch;
 
-	private float defaultLineWidth = 1f;
+	private float defaultLineWidth = 0.25f;
 	
 	public NewSimView()
 	{
@@ -142,6 +147,11 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
+		Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
+		Gdx.gl.glEnable(GL10.GL_POINT_SMOOTH);
+		Gdx.gl.glHint(GL10.GL_POLYGON_SMOOTH_HINT, GL10.GL_NICEST);
+		Gdx.gl.glHint(GL10.GL_POINT_SMOOTH_HINT, GL10.GL_NICEST);
+		
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		viewCam.update();
@@ -161,8 +171,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		viewLock.release();
 		
-		//spriteBatch.setProjectionMatrix(Gdx.graphics.g.);
-
+		spriteBatch.setProjectionMatrix(viewCam.combined);
+		//spriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		spriteBatch.begin();			
         	font.draw(spriteBatch, simulationTitle, 0, Gdx.graphics.getHeight()-25);
         spriteBatch.end();
@@ -205,6 +215,19 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 * Drawing Methods
 	 * 
 	 */		
+	public void drawPixMap(Pixmap pixmap, float x, float y)
+	{
+		Texture texture = new Texture(pixmap);
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		Sprite sprite = new Sprite(texture);
+		spriteBatch.begin();
+	        sprite.setPosition(x, y);
+	        sprite.draw(spriteBatch);
+        spriteBatch.end();
+        
+        texture.dispose();
+	}
+	
 	public void drawCircle(A2DCircle circle,A2RGBA color)
 	{
 		Gdx.gl10.glLineWidth(defaultLineWidth);
@@ -226,12 +249,35 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	// Line
 	public void drawLine(A2DLine line,A2RGBA color,float width)
 	{
-
 		Gdx.gl10.glLineWidth(width);
 		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         shapeRenderer.line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
+        shapeRenderer.end();
+        
+	}
+	
+	// Line
+	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color,float width)
+	{
+		Gdx.gl10.glLineWidth(width);
+		
+        shapeRenderer.begin(ShapeType.Line);
+        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        shapeRenderer.line(x1, y1, x2, y2);
+        shapeRenderer.end();
+        
+	}
+	
+	// Line
+	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color)
+	{
+		Gdx.gl10.glLineWidth(defaultLineWidth);
+		
+        shapeRenderer.begin(ShapeType.Line);
+        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        shapeRenderer.line(x1, y1, x2, y2);
         shapeRenderer.end();
         
 	}
