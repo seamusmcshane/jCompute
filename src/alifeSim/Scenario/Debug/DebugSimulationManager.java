@@ -82,7 +82,7 @@ public class DebugSimulationManager implements SimulationManagerInf
 	
 		
 	@Override
-	public void drawSim(NewSimView simView)
+	public void drawSim(NewSimView simView, boolean ignored1,boolean ignored2)
 	{
 		world.drawWorld(simView);		
 		
@@ -103,7 +103,7 @@ public class DebugSimulationManager implements SimulationManagerInf
 
 	private void setUpWorld()
 	{
-		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierMode(), scenario.worldSettings.getBarrierScenario());
+		world = new World(scenario.worldSettings.getWorldSize(), scenario.worldSettings.getBarrierNum(), scenario.worldSettings.getBarrierScenario());
 	}
 
 	@Override

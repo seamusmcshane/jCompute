@@ -71,7 +71,7 @@ public class DebugScenario extends ScenarioVT implements ScenarioInf
 		
 		worldSettings.setWorldSize(512);
 		
-		worldSettings.setBarrierMode(0);
+		worldSettings.setBarrierNum(0);
 		
 		worldSettings.setBarrierScenario(0);
 	}
