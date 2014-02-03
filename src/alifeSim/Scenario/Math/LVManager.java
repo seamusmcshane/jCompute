@@ -270,9 +270,7 @@ public class LVManager
 	}
 	
 	private void drawPoints(NewSimView simView)
-	{
-		//g.clear();
-				
+	{			
 		float zoom = 1f;
 		float xscale = 1f*zoom;
 		float yscale = 1f*zoom;

@@ -42,7 +42,7 @@ public class GenericPlantManagerTests
 		worldSettings = new WorldSetupSettings();
 		worldSettings.setWorldSize(worldSize);
 		
-		world = new World(worldSettings.getWorldSize(), worldSettings.getBarrierMode(), worldSettings.getBarrierScenario());
+		world = new World(worldSettings.getWorldSize(), worldSettings.getBarrierNum(), worldSettings.getBarrierScenario());
 		
 		plantSettings= new GenericPlantSetupSettings();
 		

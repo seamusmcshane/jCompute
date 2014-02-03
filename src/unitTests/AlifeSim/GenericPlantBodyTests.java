@@ -4,16 +4,16 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.geom.Vector2f;
 
 import alifeSim.Alife.GenericPlant.GenericPlantBody;
+import alifeSimGeom.A2DRectangle;
+import alifeSimGeom.A2DVector2f;
 
 public class GenericPlantBodyTests
 {
 	GenericPlantBody plant;
 
-	Vector2f pos = new Vector2f(0, 0);
+	A2DVector2f pos = new A2DVector2f(0, 0);
 	float startingEnergy = 50f;
 	float maxEnergy = 100f;
 	float absorptionRate = 10f;
@@ -34,26 +34,5 @@ public class GenericPlantBodyTests
 		System.out.println("plant pos : " + plant.getBodyPos().toString() + " Vector should be:" + pos.toString());
 		assertEquals(true, plant.getBodyPos().equals(pos));
 	}
-
-	@Test
-	public void plantTrueSizeTest()
-	{
-		int size = 2; // This is the default size
-
-		A2DRectangle body = new A2DRectangle(0, 0, size, size);
-		float trueSize = body.getBoundingCircleRadius();
-
-		// *2 for Diameter
-		float trueSizeSQRD = (trueSize * trueSize) * 2;
-
-		plant.setSize(2);
-		
-		/* ASSUMES size is 1 as its hardcoded for now */
-		System.out.println("----------------------------------------------------");
-		System.out.println("Test - plantTrueSizeTest");
-		System.out.println("----------------------------------------------------");
-		System.out.println("Plant Bounding Circle Size Squared :" + plant.getTrueSizeSQRDiameter() + " trueSize should be : " + trueSizeSQRD);
-		assertEquals(true, plant.getTrueSizeSQRDiameter() == trueSizeSQRD);
-	}
-
+	
 }
