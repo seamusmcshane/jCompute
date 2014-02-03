@@ -1,5 +1,7 @@
 package alifeSimGeom;
 
+import java.awt.Color;
+
 public class A2RGBA
 {
 	private float red;
@@ -15,6 +17,17 @@ public class A2RGBA
 		this.blue = blue;
 		this.alpha = alpha;
 	}
+	
+	public A2RGBA(Color color)
+	{
+		super();
+		// Int 255 to 1 float
+		this.red = 1f/255f*(float)color.getRed();
+		this.green = 1f/255f*(float)color.getGreen();
+		this.blue =	1f/255f*(float) color.getBlue();
+		this.alpha = 1f/255f*(float)color.getAlpha();
+	}
+	
 	public float getRed()
 	{
 		return red;
@@ -47,5 +60,5 @@ public class A2RGBA
 	{
 		this.alpha = alpha;
 	}
-
+	
 }
