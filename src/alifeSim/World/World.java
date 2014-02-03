@@ -29,11 +29,13 @@ public class World implements WorldInf
 	
 	private A2DRectangle[] barriers;
 	
-	private int barrierMode=0;
+	private int barrierNum;
 	
-	private int barrierScenario=0;
+	private int barrierScenario;
 	
-	private float barrierThickness = 0.10f;
+	private float barrierThicknessMulti = 0.10f;
+
+	private float barrierThickness;
 
 	/**
 	 * Constructor for World.
@@ -41,17 +43,19 @@ public class World implements WorldInf
 	 * @param barrierMode int
 	 * @param barrierScenario int
 	 */
-	public World(int size, int barrierMode,int barrierScenario)
+	public World(int size, int barrierNum,int barrierScenario)
 	{
 		this.worldSize = size;
 
 		worldBound = new A2DRectangle(0, 0, worldSize, worldSize);
 		
-		this.barrierMode = barrierMode;
+		this.barrierNum = barrierNum;
 				
 		/* if barriers are enabled */
-		if(this.barrierMode>0)
+		if(this.barrierNum>0)
 		{
+			barrierThickness = worldSize*0.10f;
+			
 			this.barrierScenario = barrierScenario;
 			
 			setUpBarriers();		
@@ -63,45 +67,93 @@ public class World implements WorldInf
 	private void setUpBarriers()
 	{
 
-		barriers = new A2DRectangle[barrierScenario+1];
+		barriers = new A2DRectangle[barrierNum+1];
 		
-		switch(barrierScenario)
+		int barrierSetting = barrierNum-1;
+		
+		/*
+		 * 
+		 * 	Default is scenario is the first in each case if we get sent anything invalid
+
+		 */
+		switch(barrierSetting)
 		{
-			case 0:
-				if(barrierMode==1)
+			case 0:			
+				/* Single Barriers 
+				 * 0 - One Barrier Centred
+				 * 1 - One Barrier Left aligned with small channel on the right
+				 */			
+				switch(barrierScenario)
 				{
-					barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
+					case 0:
+						
+						barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize/2-(barrierThickness/2),worldSize*0.50f,barrierThickness);
+						
+						break;
+					case 1:
+
+						barriers[0] = new A2DRectangle(0,worldSize/2-(barrierThickness/2),worldSize*0.90f,barrierThickness);
+
+						break;
+					default:
+						System.out.println("Selected " + barrierNum + " Barriers but with Invalid Barrier Scenario : " + barrierScenario);
+						barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize/2-(barrierThickness/2),worldSize*0.50f,barrierThickness);
+					break;		
 				}
-				else
-				{
-					barriers[0] = new A2DRectangle(0,worldSize*0.45f,worldSize*0.90f,worldSize*barrierThickness);					
-				}
+								
 			break;
-			case 1:				
-				if(barrierMode==1)
+			case 1:	
+				/* Dual Barriers 
+				 * 0 - Two Barrier Centred in each Hemisphere
+				 * 1 - Two Barrier Left aligned with small channel on the right
+				 */	
+				switch(barrierScenario)
 				{
-					barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.20f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.70f,worldSize*0.50f,worldSize*barrierThickness);
+					case 0:
+						barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.25f-(barrierThickness/2),worldSize*0.50f,barrierThickness);
+						barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.75f-(barrierThickness/2),worldSize*0.50f,barrierThickness);						
+					break;
+					case 1:
+						barriers[0] = new A2DRectangle(0,worldSize*0.25f-(barrierThickness/2),worldSize*0.90f,barrierThickness);
+						barriers[1] = new A2DRectangle(0,worldSize*0.75f-(barrierThickness/2),worldSize*0.90f,barrierThickness);						
+					break;
+					default:
+						System.out.println("Selected " + barrierNum + " Barriers but with Invalid Barrier Scenario : " + barrierScenario);
+						barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.25f-(barrierThickness/2),worldSize*0.50f,barrierThickness);
+						barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.75f-(barrierThickness/2),worldSize*0.50f,barrierThickness);							
+					break;
 				}
-				else
-				{
-					barriers[0] = new A2DRectangle(0,worldSize*0.20f,worldSize*0.90f,worldSize*barrierThickness);
-					barriers[1] = new A2DRectangle(0,worldSize*0.70f,worldSize*0.90f,worldSize*barrierThickness);				
-				}				
+		
 			break;
 			case 2:
-				if(barrierMode==1)
+				switch(barrierScenario)
 				{
-					barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.15f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.45f,worldSize*0.50f,worldSize*barrierThickness);
-					barriers[2] = new A2DRectangle(worldSize*0.25f,worldSize*0.75f,worldSize*0.50f,worldSize*barrierThickness);
+					case 0:
+						barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.16f*1-(barrierThickness/2),worldSize*0.50f,barrierThickness);
+						barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.16f*3-(barrierThickness/2),worldSize*0.50f,barrierThickness);	
+						barriers[2] = new A2DRectangle(worldSize*0.25f,worldSize*0.16f*5-(barrierThickness/2),worldSize*0.50f,barrierThickness);	
+											
+					break;
+					case 1:
+						barriers[0] = new A2DRectangle(0,worldSize*0.16f*1-(barrierThickness/2),worldSize*0.90f,barrierThickness);
+						barriers[1] = new A2DRectangle(0,worldSize*0.16f*3-(barrierThickness/2),worldSize*0.90f,barrierThickness);	
+						barriers[2] = new A2DRectangle(0,worldSize*0.16f*5-(barrierThickness/2),worldSize*0.90f,barrierThickness);					
+					break;
+					case 2:
+						barriers[0] = new A2DRectangle(0,worldSize*0.16f*1-(barrierThickness/2),worldSize*0.90f,barrierThickness);
+						barriers[1] = new A2DRectangle(worldSize*0.10f,worldSize*0.16f*3-(barrierThickness/2),worldSize*0.90f,barrierThickness);	
+						barriers[2] = new A2DRectangle(0,worldSize*0.16f*5-(barrierThickness/2),worldSize*0.90f,barrierThickness);								
+					break;
+					
+					default:
+						System.out.println("Selected " + barrierNum + " Barriers but with Invalid Barrier Scenario : " + barrierScenario);
+						barriers[0] = new A2DRectangle(worldSize*0.25f,worldSize*0.16f*1-(barrierThickness/2),worldSize*0.50f,barrierThickness);
+						barriers[1] = new A2DRectangle(worldSize*0.25f,worldSize*0.16f*3-(barrierThickness/2),worldSize*0.50f,barrierThickness);	
+						barriers[2] = new A2DRectangle(worldSize*0.25f,worldSize*0.16f*5-(barrierThickness/2),worldSize*0.50f,barrierThickness);								
+					break;
+					
 				}
-				else
-				{
-					barriers[0] = new A2DRectangle(0,worldSize*0.15f,worldSize*0.90f,worldSize*barrierThickness);
-					barriers[1] = new A2DRectangle(worldSize*0.20f,worldSize*0.45f,worldSize*0.80f,worldSize*barrierThickness);
-					barriers[2] = new A2DRectangle(0,worldSize*0.75f,worldSize*0.90f,worldSize*barrierThickness);		
-				}				
+			
 			break;
 		}
 	}
@@ -145,7 +197,7 @@ public class World implements WorldInf
 	private boolean doBarriersContain(float x,float y)
 	{
 		/* if Barriers are enabled */
-		if(barrierMode>0)
+		if(barrierNum>0)
 		{
 			/* Check Barriers */
 			if(isBarrierWall(x,y))
@@ -179,7 +231,7 @@ public class World implements WorldInf
 	private boolean isBarrierWall(float x, float y)
 	{
 		
-		for(int i=0;i<(barrierScenario+1);i++)
+		for(int i=0;i<(barrierNum);i++)
 		{
 			if(barriers[i].contains(x,y))
 			{
@@ -247,14 +299,14 @@ public class World implements WorldInf
 		grid.draw(simView);
 				
 		/* if Barriers are enabled */
-		if(barrierMode>0)
+		if(barrierNum>0)
 		{
-			for(int i=0;i<(barrierScenario+1);i++)
+			for(int i=0;i<(barrierNum);i++)
 			{
 				simView.drawRectangle(barriers[i],new A2RGBA(0,0,1f,0));
 			}		
 		}
-		
+				
 		simView.drawRectangle(worldBound,new A2RGBA(0,0,1f,0),2f);
 
 	}
