@@ -20,7 +20,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -37,7 +36,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	/** Cameara and Shape Renderer */
 	private ShapeRenderer shapeRenderer;
-	private PerspectiveCamera viewCam;
+	private OrthographicCamera viewCam;
 	
 	/** Simulation Reference */
 	private static Simulation sim;
@@ -62,7 +61,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/* Mouse */
 	/** Stores the mouse vector across updates */
 	private A2DVector2f mousePos = new A2DVector2f(0, 0);
-	private A2DVector2f mouseRot = new A2DVector2f(0, 0);
+	private A2DVector2f globalTranslateDefault = new A2DVector2f(-50, -50);
 
 	private boolean button0Pressed;
 	
@@ -70,8 +69,6 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	private SpriteBatch spriteBatch;
 
 	private float defaultLineWidth = 0.25f;
-	
-	private float zoom = 512f;
 	
 	public NewSimView()
 	{
@@ -81,11 +78,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		canvas.getInput().setInputProcessor(this);
 		
-		viewCam = new PerspectiveCamera(90,640, 480);
-		
-		viewCam.near = 0.1f;
-		viewCam.far = 1025f;
-		
+		viewCam = new OrthographicCamera(640, 480);
 		resetCamera();
 		//viewCam.setToOrtho(true, 640, 480);
 	}
@@ -105,11 +98,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();
-		sim = simIn;		
+		sim = simIn;
 		viewLock.release();
 	}
 	
-		
 	@Override
 	public void create()
 	{
@@ -316,13 +308,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 
 	@Override
-	public boolean keyTyped(char ch)
+	public boolean keyTyped(char arg0)
 	{
-		if(ch == 'c')
-		{
-			resetCamera();
-		}	
-		
 		return false;
 	}
 
@@ -341,21 +328,19 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	@Override
 	public boolean scrolled(int val)
 	{
-		zoom +=(val*10f);
+		viewCam.zoom +=(val*0.125f);
 		
-		if(zoom < 25f)
+		if(viewCam.zoom < 0.2f)
 		{
-			zoom = 25f;
+			viewCam.zoom = 0.2f;
 		}
 		
-		if(zoom > 1024f)
+		if(viewCam.zoom > 10f)
 		{
-			zoom = 1024f;
+			viewCam.zoom = 10f;
 		}
 		
-		System.out.println("Zoom " + zoom);
-		
-		viewCam.position.set(viewCam.position.x, viewCam.position.y, zoom);
+		System.out.println("Zoom " + viewCam.zoom);
 		
 		return false;
 	}
@@ -369,8 +354,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 			mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
 			
 		}
-	
-		if(button == 1)
+		else
 		{
 			resetCamera();
 		}
@@ -379,7 +363,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 
 	@Override
-	public boolean touchDragged(int x, int y, int pointer)
+	public boolean touchDragged(int x, int y, int z)
 	{
 		if(button0Pressed)
 		{
@@ -388,6 +372,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 			moveCamera(camX, camY);
 		}
+		else
+		{
+			
+		}
 			
 		return false;
 	}
@@ -395,35 +383,25 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button)
 	{
+		button0Pressed = false;
 		
-		if(button == 0)
-		{
-			button0Pressed = false;
-			
-			mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
-		}
+		mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
 				
 		return false;
 	}
 	
 	private void moveCamera(float x, float y)
 	{
-		viewCam.position.set(x, y,zoom);
+		viewCam.position.set(x, y,0);
 	}
 	
 	private void resetCamera()
 	{
-		//viewCam.zoom = 1f;
+		viewCam.zoom = 1f;
 		
-		//viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-		if(sim!=null)
-		{
-			viewCam.position.set(sim.getSimManager().getWorldSize()/2, sim.getSimManager().getWorldSize()/2, zoom);
-
-			viewCam.lookAt(sim.getSimManager().getWorldSize()/2, sim.getSimManager().getWorldSize()/2, 0);
-		}
-		
+		viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
 	}
 		
 	public static void setSimulationTitle(String text)
