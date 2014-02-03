@@ -41,8 +41,6 @@ public class NewGUI
 	private static JSplitPane splitPane;
 	private static NewSimView simView;
 	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
-	private static JMenu mnFrameRate,mnVerticalSync,mnOverlay;
-	private static JRadioButtonMenuItem rdbtnmntm15FramesPerSecond,rdbtnmntm60FramesPerSecond,rdbtnmntmUnlimitedFrameRate,rdbtnmntmVsyncOn,rdbtnmntmVsyncOff,rdbtnmntmOverlayDisabled,rdbtnmntmOverlayEnabled;
 	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
 	private static final ButtonGroup vSyncButtonGroup = new ButtonGroup();
 	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
@@ -160,106 +158,6 @@ public class NewGUI
 			}
 		});
 		mnAgentDrawing.add(chckbxmntDrawAgentViews);
-
-		mnFrameRate = new JMenu("Frame Rate");
-		mnView.add(mnFrameRate);
-
-		rdbtnmntm15FramesPerSecond = new JRadioButtonMenuItem("15 Frames Per Second");
-		rdbtnmntm15FramesPerSecond.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				// Change the frame rate of the view to standard (15)
-				NewSimView.setStandardUpdateRate();
-			}
-		});
-		frameRateButtonGroup.add(rdbtnmntm15FramesPerSecond);
-		mnFrameRate.add(rdbtnmntm15FramesPerSecond);
-		rdbtnmntm15FramesPerSecond.setSelected(true);
-
-		rdbtnmntm60FramesPerSecond = new JRadioButtonMenuItem("60 Frames Per Second");
-		
-		rdbtnmntm60FramesPerSecond.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// Change the frame rate of the view to high (60)
-				NewSimView.setHighUpdateRate();
-			}
-		});
-		frameRateButtonGroup.add(rdbtnmntm60FramesPerSecond);
-		mnFrameRate.add(rdbtnmntm60FramesPerSecond);
-
-		rdbtnmntmUnlimitedFrameRate = new JRadioButtonMenuItem("Unlimited");
-		rdbtnmntmUnlimitedFrameRate.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// Unlock the frame rate of the view - as fast as your computer
-				// can churn them out.
-				SimulationView.setUnlimitedUpdateRate();
-			}
-		});
-
-		frameRateButtonGroup.add(rdbtnmntmUnlimitedFrameRate);
-		mnFrameRate.add(rdbtnmntmUnlimitedFrameRate);
-
-		mnVerticalSync = new JMenu("Vertical Sync");
-		mnView.add(mnVerticalSync);
-
-		rdbtnmntmVsyncOn = new JRadioButtonMenuItem("VSync On");
-		vSyncButtonGroup.add(rdbtnmntmVsyncOn);
-		rdbtnmntmVsyncOn.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// Sync frames to the monitor refresh
-				NewSimView.setVerticalSync(true);
-			}
-		});
-		rdbtnmntmVsyncOn.setSelected(true);
-		mnVerticalSync.add(rdbtnmntmVsyncOn);
-
-		rdbtnmntmVsyncOff = new JRadioButtonMenuItem("VSync Off");
-		
-		vSyncButtonGroup.add(rdbtnmntmVsyncOff);
-		rdbtnmntmVsyncOff.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// Dont Sync frames to the monitor refresh
-				NewSimView.setVerticalSync(false);
-			}
-		});
-		mnVerticalSync.add(rdbtnmntmVsyncOff);
-
-		mnOverlay = new JMenu("Overlay");
-		mnView.add(mnOverlay);
-
-		rdbtnmntmOverlayEnabled = new JRadioButtonMenuItem("Enabled");
-		rdbtnmntmOverlayEnabled.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// Enable some view debug text which may be of interest
-				NewSimView.setViewOverLay(true);
-			}
-		});
-		overlayButtonGroup.add(rdbtnmntmOverlayEnabled);
-		mnOverlay.add(rdbtnmntmOverlayEnabled);
-
-		rdbtnmntmOverlayDisabled = new JRadioButtonMenuItem("Disabled");
-		rdbtnmntmOverlayDisabled.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// Disable the view debug text
-				NewSimView.setViewOverLay(false);
-			}
-		});
-		rdbtnmntmOverlayDisabled.setSelected(true);
-		overlayButtonGroup.add(rdbtnmntmOverlayDisabled);
-		mnOverlay.add(rdbtnmntmOverlayDisabled);
 
 	}
 	
