@@ -35,9 +35,14 @@ public class LVScenario extends ScenarioVT implements ScenarioInf
 		settings = new LVSettings();
 		
 		loadSettings();
-				
+		
+		/* Sub Type */
+		String section = "Header";				
+		settings.setSubType(super.getStringValue(section,"SubType"));
+		System.out.println("SubType : " + settings.getSubType());
+		
 		/* View */
-		String section = "View";				
+		section = "View";				
 		settings.setViewScale(super.getFloatValue(section,"Scale"));
 		System.out.println("View Scale : " + settings.getViewScale());
 		
@@ -47,9 +52,7 @@ public class LVScenario extends ScenarioVT implements ScenarioInf
 		System.out.println("SubSteps : " + settings.getSubSteps());
 		
 		settings.setIntMethod(super.getStringValue(section,"Method"));
-		System.out.println("Method : " + settings.getIntMethod());	
-		
-
+		System.out.println("Method : " + settings.getIntMethod());
 		
 		/* Parameters */		
 		if(parameters.containsKey("initial_prey_population"))

@@ -2,6 +2,8 @@ package alifeSim.Scenario.Math;
 
 public class LVSettings
 {
+	private String subType;
+	
 	private double initial_prey_population = 800;
 	private double initial_predator_population = 100;
 		
@@ -103,6 +105,16 @@ public class LVSettings
 	public void setViewScale(float viewScale)
 	{
 		this.viewScale = viewScale;
+	}
+
+	public String getSubType()
+	{
+		return subType;
+	}
+
+	public void setSubType(String subType)
+	{
+		this.subType = subType;
 	}
 
 }
