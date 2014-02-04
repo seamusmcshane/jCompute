@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
@@ -70,9 +71,11 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	private float defaultLineWidth = 0.25f;
 	
+	FrameBuffer fbo;
+	
 	public NewSimView()
 	{
-		canvas = new LwjglAWTCanvas(this, false);
+		canvas = new LwjglAWTCanvas(this, true);
 		Display.setVSyncEnabled(true);
 		Display.setSwapInterval(1);
 		
@@ -112,6 +115,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         
+        fbo = new FrameBuffer(Pixmap.Format.RGBA8888,2048,2048,false);
+
 	}
 
 	@Override
@@ -134,7 +139,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{        
 		Display.sync(defaultFrameRate);
 
-		GL10 gl = Gdx.graphics.getGL10();
+		//GL20 gl = Gdx.graphics.getGL20();
 		
 		/*Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
 		Gdx.gl.glEnable(GL10.GL_POINT_SMOOTH);
@@ -143,11 +148,11 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 				
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		viewCam.update();
 		
-		viewCam.apply(gl);
+		// viewCam.apply(gl); // GL10
 				        
 		shapeRenderer.setProjectionMatrix(viewCam.combined);
 		
@@ -186,7 +191,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/*
 	 * Drawing Methods
 	 * 
-	 */		
+	 */			
 	public void drawPixMap(Pixmap pixmap, float x, float y)
 	{
 		Texture texture = new Texture(pixmap);
@@ -194,6 +199,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		Sprite sprite = new Sprite(texture);
 		spriteBatch.begin();
 	        sprite.setPosition(x, y);
+	        sprite.flip(false, true);
 	        sprite.draw(spriteBatch);
         spriteBatch.end();
         
@@ -202,7 +208,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public void drawCircle(A2DCircle circle,A2RGBA color)
 	{
-		Gdx.gl10.glLineWidth(defaultLineWidth);
+		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -221,7 +227,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	// Line
 	public void drawLine(A2DLine line,A2RGBA color,float width)
 	{
-		Gdx.gl10.glLineWidth(width);
+		Gdx.gl20.glLineWidth(width);
 		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -233,7 +239,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	// Line
 	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color,float width)
 	{
-		Gdx.gl10.glLineWidth(width);
+		Gdx.gl20.glLineWidth(width);
 		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -245,7 +251,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	// Line
 	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color)
 	{
-		Gdx.gl10.glLineWidth(defaultLineWidth);
+		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -268,7 +274,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color,float lineWidth)
 	{
-		Gdx.gl10.glLineWidth(lineWidth);
+		Gdx.gl20.glLineWidth(lineWidth);
 
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -278,7 +284,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
-		Gdx.gl10.glLineWidth(defaultLineWidth);
+		Gdx.gl20.glLineWidth(defaultLineWidth);
 
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
