@@ -55,10 +55,13 @@ public class LVTwoSpeciesManager
 	Pixmap pixmap = new Pixmap(bufferWidth,bufferHeight, Pixmap.Format.RGBA8888);
 	
 	private float pointsHue=0f;
+	private float scale;
 	
 	public LVTwoSpeciesManager(LVSettings settings)
 	{
 		values = new LinkedList<A2DPoint2d>();
+		
+		scale = settings.getViewScale();
 		
 		initial_prey_population = settings.getInitialPreyPopulation();
 		initial_predator_population = settings.getInitialPredatorPopulation();
@@ -256,9 +259,8 @@ public class LVTwoSpeciesManager
 	
 	private void drawPoints(NewSimView simView)
 	{			
-		float zoom = 1f;
-		float xscale = 1f*zoom;
-		float yscale = 1f*zoom;
+		float xscale = scale;
+		float yscale = scale;
 		
 		float xmax = 0;
 		float ymax = 0;

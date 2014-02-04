@@ -12,6 +12,8 @@ public class LVSettings
 
 	private int sub_steps = 256;
 	private String intType = "RK4";
+	
+	private float viewScale = 1f;
 		
 	public double getInitialPreyPopulation()
 	{
@@ -91,6 +93,16 @@ public class LVSettings
 	public void setIntMethod(String intType)
 	{
 		this.intType = intType;
+	}
+
+	public float getViewScale()
+	{
+		return viewScale;
+	}
+
+	public void setViewScale(float viewScale)
+	{
+		this.viewScale = viewScale;
 	}
 
 }

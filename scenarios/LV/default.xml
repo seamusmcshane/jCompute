@@ -5,6 +5,9 @@
 		<Type>LV</Type>
 		<SubType>Two</SubType>
 	</Header>
+	<View>
+		<Scale>1.00</Scale>
+	</View>
 	<Statistics>
 		<Stat>
 			<Name>Population</Name>

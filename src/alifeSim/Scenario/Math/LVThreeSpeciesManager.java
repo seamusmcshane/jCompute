@@ -68,9 +68,13 @@ public class LVThreeSpeciesManager
 	
 	private float pointsHue=0f;
 	
+	private double scale;
+	
 	public LVThreeSpeciesManager(LVSettings settings)
 	{
 		values = new LinkedList<A3DVector3f>();
+		
+		scale = settings.getViewScale();
 		
 		initial_prey_population = settings.getInitialPreyPopulation();
 		initial_predator_population = settings.getInitialPredatorPopulation();
@@ -290,9 +294,8 @@ public class LVThreeSpeciesManager
 	
 	private void drawPoints(NewSimView simView)
 	{			
-		float zoom = 1f;
-		float xscale = 1f*zoom;
-		float yscale = 1f*zoom;
+		float xscale = (float) scale;
+		float yscale = (float) scale;
 		
 		float xmax = 0;
 		float ymax = 0;

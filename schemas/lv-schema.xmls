@@ -12,6 +12,13 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element> 
+			<xs:element name="View" minOccurs="1" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Scale" type="xs:decimal"  minOccurs="1" maxOccurs="1"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element> 
 			<xs:element name="Statistics" minOccurs="1" maxOccurs="1">
 				<xs:complexType>
 					<xs:sequence>
