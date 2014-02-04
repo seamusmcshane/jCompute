@@ -367,6 +367,21 @@ public class SimpleAgentView
 		aDis = 0;
 		pDis = 0;
 		
+		
+		if (inViewMode != null)
+		{
+			switch (inViewMode)
+			{
+				case STRONGER :
+					color = new A2RGBA(1f,0,0,1);				// The current Agent is Stronger i.e Predator 		
+					break;
+				case WEAKER :
+					color = new A2RGBA(0,0,1f,1f);			// The current Agent is Weaker i.e Prey 	
+					break;
+			}
+		}		
+		
+		
 		if(getNearestAgentPos() != null)
 		{
 			A2DLine line = new A2DLine(body.getBodyPos(), getNearestAgentPos());
