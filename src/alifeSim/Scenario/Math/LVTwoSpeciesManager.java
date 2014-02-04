@@ -12,7 +12,7 @@ import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
 import alifeSimGeom.A2RGBA;
 
-public class LVManager
+public class LVTwoSpeciesManager
 {
 	/* Defaults */
 	private double initial_prey_population;
@@ -56,7 +56,7 @@ public class LVManager
 	
 	private float pointsHue=0f;
 	
-	public LVManager(LVSettings settings)
+	public LVTwoSpeciesManager(LVSettings settings)
 	{
 		values = new LinkedList<Point2D>();
 		
