@@ -29,14 +29,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 
 public class NewSimView implements ApplicationListener, InputProcessor
 {
 	/** The Drawing Canvas */
 	private LwjglAWTCanvas canvas;	
+	private int width;
+	private int height;
 	
 	/** Cameara and Shape Renderer */
-	private ShapeRenderer shapeRenderer;
 	private OrthographicCamera viewCam;
 	
 	/** Simulation Reference */
@@ -67,11 +69,21 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	private boolean button0Pressed;
 	
 	private BitmapFont font;
-	private SpriteBatch spriteBatch;
+
 
 	private float defaultLineWidth = 0.25f;
 	
-	FrameBuffer fbo;
+	/* FBO / BBO */
+	private SpriteBatch bboSpriteBatch;
+	private ShapeRenderer bboShapeRenderer;
+	
+	private FrameBuffer fbo;
+	private SpriteBatch fboSpriteBatch;
+	private ShapeRenderer fboShapeRenderer;
+
+	private SpriteBatch currentSpriteBatch;
+	private ShapeRenderer currentShapeRenderer;
+
 	
 	public NewSimView()
 	{
@@ -107,16 +119,21 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	@Override
 	public void create()
-	{
-        shapeRenderer = new ShapeRenderer();
+	{		
+		bboShapeRenderer = new ShapeRenderer();
+		fboShapeRenderer = new ShapeRenderer();
         
-        spriteBatch = new SpriteBatch();
+		bboSpriteBatch = new SpriteBatch();
+		fboSpriteBatch = new SpriteBatch();
+		
+		currentShapeRenderer = bboShapeRenderer;
+		
+		currentSpriteBatch = bboSpriteBatch;
         
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         
-        fbo = new FrameBuffer(Pixmap.Format.RGBA8888,2048,2048,false);
-
+        fbo = new FrameBuffer(Pixmap.Format.RGBA8888,Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),false);
 	}
 
 	@Override
@@ -134,9 +151,22 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 	}
 
+	public int getWidth()
+	{
+		return width;
+	}
+	
+	public int getHeight()
+	{
+		return height;
+	}
+	
 	@Override
 	public void render()
 	{        
+		width = Gdx.graphics.getWidth();
+		height = Gdx.graphics.getHeight();
+		
 		Display.sync(defaultFrameRate);
 
 		//GL20 gl = Gdx.graphics.getGL20();
@@ -146,7 +176,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		Gdx.gl.glHint(GL10.GL_POLYGON_SMOOTH_HINT, GL10.GL_NICEST);
 		Gdx.gl.glHint(GL10.GL_POINT_SMOOTH_HINT, GL10.GL_NICEST);*/
 		
-		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport(0, 0, width, height);
 				
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
@@ -154,7 +184,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		// viewCam.apply(gl); // GL10
 				        
-		shapeRenderer.setProjectionMatrix(viewCam.combined);
+		bboShapeRenderer.setProjectionMatrix(viewCam.combined);
+		bboSpriteBatch.setProjectionMatrix(viewCam.combined);
 		
 		viewLock.acquireUninterruptibly();
 		
@@ -167,12 +198,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		}
 		
 		viewLock.release();
-		
-		spriteBatch.setProjectionMatrix(viewCam.combined);
-		spriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		spriteBatch.begin();			
-        	font.draw(spriteBatch, simulationTitle, 0, Gdx.graphics.getHeight()-25);
-        spriteBatch.end();
+				
+
         
 	}
 
@@ -192,16 +219,81 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 * Drawing Methods
 	 * 
 	 */			
+	
+	public void blankBBO()
+	{
+		
+	}
+	
+	public void blankFBO()
+	{
+		fbo.begin();
+		
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		fbo.end();
+	}
+	
+	public void targetFBOStart()
+	{
+		currentShapeRenderer = fboShapeRenderer;
+		
+		currentSpriteBatch = fboSpriteBatch;
+		
+		fbo.begin();
+		
+	}
+	
+	public void drawText(float x,float y,String text)
+	{
+		currentSpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		currentSpriteBatch.begin();
+        	font.draw(currentSpriteBatch, text, x, y);
+    	currentSpriteBatch.end();
+	}
+	
+	public void targetFBOStop()
+	{				
+		currentShapeRenderer = bboShapeRenderer;
+		
+		currentSpriteBatch = bboSpriteBatch;
+		
+		fbo.end();
+		
+		//Sprite sprite = new Sprite(fbo.getColorBufferTexture());
+				
+		//Matrix4 projectionMatrix = new Matrix4();
+		//projectionMatrix.setToOrtho2D(0, 0, sprite.getRegionWidth(), sprite.getRegionHeight());
+		//spriteBatch.setProjectionMatrix(projectionMatrix);
+		
+		//currentShapeRenderer.setProjectionMatrix(projectionMatrix);
+		//currentSpriteBatch.setProjectionMatrix(projectionMatrix);
+
+		currentSpriteBatch.begin();
+
+		
+		currentSpriteBatch.draw(fbo.getColorBufferTexture(),0, 0);
+		
+       // sprite.setPosition(0, 0);
+       // sprite.flip(false, true);
+		
+		//sprite.flip(false, false);
+        //sprite.draw(currentSpriteBatch);
+		
+        currentSpriteBatch.end();
+        
+	}
+	
 	public void drawPixMap(Pixmap pixmap, float x, float y)
 	{
 		Texture texture = new Texture(pixmap);
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		Sprite sprite = new Sprite(texture);
-		spriteBatch.begin();
+		currentSpriteBatch.begin();
 	        sprite.setPosition(x, y);
 	        sprite.flip(false, true);
-	        sprite.draw(spriteBatch);
-        spriteBatch.end();
+	        sprite.draw(currentSpriteBatch);
+        currentSpriteBatch.end();
         
         texture.dispose();
 	}
@@ -210,18 +302,18 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Line);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
+		currentShapeRenderer.end();
 	}
 	
 	public void drawFilledCircle(A2DCircle circle,A2RGBA color)
 	{
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Filled);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
+		currentShapeRenderer.end();
 	}
 	
 	// Line
@@ -229,10 +321,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		Gdx.gl20.glLineWidth(width);
 		
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Line);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
+		currentShapeRenderer.end();
         
 	}
 	
@@ -241,10 +333,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		Gdx.gl20.glLineWidth(width);
 		
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.line(x1, y1, x2, y2);
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Line);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        currentShapeRenderer.line(x1, y1, x2, y2);
+        currentShapeRenderer.end();
         
 	}
 	
@@ -253,10 +345,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.line(x1, y1, x2, y2);
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Line);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.line(x1, y1, x2, y2);
+		currentShapeRenderer.end();
         
 	}
 	
@@ -276,20 +368,20 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		Gdx.gl20.glLineWidth(lineWidth);
 
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.rect(x,  y, width, height);
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Line);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.rect(x,  y, width, height);
+		currentShapeRenderer.end();
 	}
 	
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.rect(x,  y, width, height);
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Line);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.rect(x,  y, width, height);
+		currentShapeRenderer.end();
 	}
 	
 	// Filled Rectangle
@@ -300,10 +392,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public void drawFilledRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        shapeRenderer.rect(x,  y, width, height);
-        shapeRenderer.end();
+		currentShapeRenderer.begin(ShapeType.Filled);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.rect(x,  y, width, height);
+		currentShapeRenderer.end();
 	}
 
 	@Override
