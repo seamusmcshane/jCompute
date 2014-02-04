@@ -1,11 +1,8 @@
 package alifeSim.Scenario.Math;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.badlogic.gdx.graphics.Pixmap;
 
 import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.SingleStat;
@@ -13,7 +10,7 @@ import alifeSim.Stats.StatInf;
 import alifeSimGeom.A2DPoint2d;
 import alifeSimGeom.A2RGBA;
 
-public class LVTwoSpeciesManager
+public class LVTwoSpeciesManager implements LVSubTypeInf
 {
 	/* Defaults */
 	private double initial_prey_population;
@@ -45,15 +42,7 @@ public class LVTwoSpeciesManager
 	
 	/* Previous Point */
 	A2DPoint2d previous;
-	
-	private boolean resize = true;
-	
-	/* This will be too large on old graphics hardware */
-	private int bufferWidth = 2048;
-	private int bufferHeight = 2048;
-	
-	Pixmap pixmap = new Pixmap(bufferWidth,bufferHeight, Pixmap.Format.RGBA8888);
-	
+			
 	private float pointsHue=0f;
 	private float scale;
 	
@@ -85,8 +74,6 @@ public class LVTwoSpeciesManager
 		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
 		System.out.printf("%d\t\t%5.2f\t\t%5.2f\n",t,initial_prey_population,initial_predator_population);
 		
-        pixmap.setColor(0,0,0,0);
-        pixmap.fill();
 	}
 
 	private int setIntMethod(String settingValue)
@@ -107,8 +94,7 @@ public class LVTwoSpeciesManager
 	
 	public void doStep()
 	{
-		//if(t<max_t)
-		{
+
 			switch(intMethod)
 			{
 				case 0:
@@ -120,7 +106,6 @@ public class LVTwoSpeciesManager
 			}
 				
 			t++;
-		}
 		
 		pointsHue=pointsHue+0.001f;
 		
@@ -246,15 +231,39 @@ public class LVTwoSpeciesManager
 		return stat;
 	}
 	
-	public void drawLV(NewSimView simView)
-	{	
-		
+	public void draw(NewSimView simView)
+	{			
 		drawPoints(simView);
+				
+		drawAxis(simView);
+
+	}
+	
+	private void drawAxis(NewSimView simView)
+	{
+		simView.drawLine(0,0,0,1000,new A2RGBA(1f,1f,1f,1f));
 		
-		simView.drawPixMap(pixmap, 0, 0);
+		simView.drawLine(0,0,1000,0,new A2RGBA(1f,1f,1f,1f));
 		
-		simView.drawRectangle(0,0,bufferWidth,bufferHeight,new A2RGBA(1f,1f,1f,1f));
+		for(int i=0;i<=1000;i++)
+		{
+			if(i%100 == 0)
+			{
+				simView.drawLine(0,i,-20,i,new A2RGBA(1f,1f,1f,1f));
+				
+				simView.drawText(-60,i+5,Integer.toString((int)(i/scale)));
+			}
+		}
 		
+		for(int i=0;i<=1000;i++)
+		{
+			if(i%100 == 0)
+			{
+				simView.drawLine(i,0,i,-20,new A2RGBA(1f,1f,1f,1f));
+				
+				simView.drawText( i-10, -60,Integer.toString((int)(i/scale)));
+			}
+		}
 	}
 	
 	private void drawPoints(NewSimView simView)
@@ -290,17 +299,22 @@ public class LVTwoSpeciesManager
 					{
 						ymax = y;
 					}
-											
-					pixmap.setColor(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha());
-					
-					pixmap.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale));
+
+					simView.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale), new A2RGBA(new Color(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha())));
 					
 					previous = point;
 					
 				}
+								
+				if(values.size() > 10240)
+				{			
+					while(values.size() > 10240)
+					{
+						values.remove(0);
+					}
+				}
 				
-				values = new LinkedList<A2DPoint2d>();
-				
+				previous = null;
 			}
 		}
 	}
