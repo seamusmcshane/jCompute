@@ -3,6 +3,7 @@
 	<Header>
 		<Version>0.01</Version>
 		<Type>LV</Type>
+		<SubType>Two</SubType>
 	</Header>
 	<Statistics>
 		<Stat>
