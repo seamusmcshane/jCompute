@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
+import alifeSimGeom.A2DPoint2d;
 import alifeSimGeom.A2RGBA;
 
 public class LVTwoSpeciesManager
@@ -30,7 +31,6 @@ public class LVTwoSpeciesManager
 	private SingleStat stat_predator_population;
 
 	private int t = 0;
-	//private int max_t = 10000;
 	
 	/* 0 - Euler, 1 - RK4 */
 	private int intMethod; 
@@ -41,10 +41,10 @@ public class LVTwoSpeciesManager
 	
 	private double dt;
 	
-	private List<Point2D> values;
+	private List<A2DPoint2d> values;
 	
 	/* Previous Point */
-	Point2D previous;
+	A2DPoint2d previous;
 	
 	private boolean resize = true;
 	
@@ -58,7 +58,7 @@ public class LVTwoSpeciesManager
 	
 	public LVTwoSpeciesManager(LVSettings settings)
 	{
-		values = new LinkedList<Point2D>();
+		values = new LinkedList<A2DPoint2d>();
 		
 		initial_prey_population = settings.getInitialPreyPopulation();
 		initial_predator_population = settings.getInitialPredatorPopulation();
@@ -201,10 +201,12 @@ public class LVTwoSpeciesManager
 	
 	private void addDrawVal(int i)
 	{
+		A2RGBA color = new A2RGBA(new Color(Color.HSBtoRGB(pointsHue,1f,1f)));
+
 		if(i%draw_mod == 0)
 		{
 			// Draw 
-			values.add(new Point2D.Double(predator_population,prey_population));			
+			values.add(new A2DPoint2d(predator_population,prey_population,color));			
 		}
 
 	}
@@ -214,29 +216,12 @@ public class LVTwoSpeciesManager
 	{
 		return prey_growth*prey_population - predation_rate*prey_population*predator_population;
 	}
-	
-/*	private double calculate_prey(double prey_population,double predator_population)
-	{
-		return prey_growth*prey_population*plant_population - prey_death_rate*prey_population - predation_rate*prey_population*predator_population;
-	}
-	*/
+
 	/* LOTKA-VOLTERA - PREDATOR */
 	private double calculate_predator(double prey_population,double predator_population)
 	{
 		return -predator_death_rate*predator_population+predator_conversion_rate*prey_population*predator_population; 
 	}
-	
-	// A = prey_growth
-	// B = predation_rate
-	// C = predator_death_rate
-	// D = predator_conversion_rate
-	
-	
-	/* LOTKA-VOLTERA - PLANT */
-	/*private double calculate_plant(double prey_population,double plant_population)
-	{
-		return plant_growth - prey_graze_rate*prey_population*plant_population;
-	}*/
 	
 	private void setUpStats()
 	{
@@ -289,10 +274,8 @@ public class LVTwoSpeciesManager
 					previous = values.get(0);
 				}
 
-				for (Point2D point : values) 
-				{											
-					color = new Color(Color.HSBtoRGB(pointsHue,1f,1f));
-					
+				for (A2DPoint2d point : values) 
+				{																
 					float x = (float)point.getX();
 					float y =(float)point.getY();
 
@@ -305,8 +288,8 @@ public class LVTwoSpeciesManager
 					{
 						ymax = y;
 					}
-						
-					pixmap.setColor(1f/255f*(float)color.getRed(),1f/255f*(float)color.getGreen(),1f/255f*(float)color.getBlue(),1f/255f*(float)color.getAlpha());
+											
+					pixmap.setColor(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha());
 					
 					pixmap.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale));
 					
@@ -314,7 +297,7 @@ public class LVTwoSpeciesManager
 					
 				}
 				
-				values = new LinkedList<Point2D>();
+				values = new LinkedList<A2DPoint2d>();
 				
 			}
 		}
