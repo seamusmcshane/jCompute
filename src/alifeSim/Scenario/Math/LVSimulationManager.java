@@ -18,7 +18,7 @@ public class LVSimulationManager implements SimulationManagerInf
 
 	private StatManager statManager;
 	
-	private LVTwoSpeciesManager lv;
+	private LVSubTypeInf lv;
 	
 	private LVSettings settings;
 	
@@ -28,10 +28,27 @@ public class LVSimulationManager implements SimulationManagerInf
 				
 		settings = scenario.settings;
 		
-		lv = new LVTwoSpeciesManager(settings);
+		lv = setSimSubType(settings.getSubType(),settings);
 		
 		setUpStatManager();
 	}
+	
+	private LVSubTypeInf setSimSubType(String text,LVSettings settings)
+	{
+		LVSubTypeInf subType;
+		
+		if(text.equalsIgnoreCase("Three"))
+		{
+			subType = new LVThreeSpeciesManager(settings);
+		}
+		else // Two
+		{
+			subType = new LVTwoSpeciesManager(settings);
+		}
+		
+		return subType;		
+	}
+	
 	
 	@Override
 	public void cleanUp()
@@ -62,7 +79,7 @@ public class LVSimulationManager implements SimulationManagerInf
 		{
 			lock.acquire();
 			
-				lv.drawLV(simView);
+				lv.draw(simView);
 			
 			lock.release();
 			
@@ -108,8 +125,7 @@ public class LVSimulationManager implements SimulationManagerInf
 			else
 			{
 				System.out.println("Stat Group / Setting " + statSetting.getName() + " Does not EXIST!");
-			}
-			
+			}			
 		}
 		
 	}
