@@ -18,7 +18,7 @@ public class LVSimulationManager implements SimulationManagerInf
 
 	private StatManager statManager;
 	
-	private LVManager lv;
+	private LVTwoSpeciesManager lv;
 	
 	private LVSettings settings;
 	
@@ -28,7 +28,7 @@ public class LVSimulationManager implements SimulationManagerInf
 				
 		settings = scenario.settings;
 		
-		lv = new LVManager(settings);
+		lv = new LVTwoSpeciesManager(settings);
 		
 		setUpStatManager();
 	}
@@ -70,8 +70,7 @@ public class LVSimulationManager implements SimulationManagerInf
 		catch (InterruptedException e)
 		{
 
-		}
-		
+		}		
 
 	}
 
