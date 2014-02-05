@@ -52,6 +52,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	private float scale;
 	
 	private float axisMax = 1500;
+	private int maxPoints;
 	
 	public LVTwoSpeciesManager(LVSettings settings)
 	{
@@ -76,6 +77,8 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		predator_conversion_rate = settings.getPredatorConversionRate();
 		
 		sub_steps = settings.getSubSteps();
+		
+		maxPoints = sub_steps*10;
 		
 		dt = 1/(double)sub_steps;
 		
@@ -278,36 +281,36 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	{
 		
 		// Pred Min
-		simView.drawLine((int)(predator_min_population*scale),-15,(int)(predator_min_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f));
-		simView.drawText((int)(predator_min_population*scale),-20,"PredMin\n " + (float)predator_min_population,new A2RGBA(1f,0f,0f,1f));
+		simView.drawLine((float)(predator_min_population*scale),-15,(float)(predator_min_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f));
+		simView.drawText((float)(predator_min_population*scale),-20,"PredMin\n " + (float)predator_min_population,new A2RGBA(1f,0f,0f,1f));
 		
 		// Pred Max
-		simView.drawLine((int)(predator_max_population*scale),-15,(int)(predator_max_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f));
-		simView.drawText((int)(predator_max_population*scale),-20,"PredMax\n " + (float)predator_max_population,new A2RGBA(1f,0f,0f,1f));
+		simView.drawLine((float)(predator_max_population*scale),-15,(float)(predator_max_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f));
+		simView.drawText((float)(predator_max_population*scale),-20,"PredMax\n " + (float)predator_max_population,new A2RGBA(1f,0f,0f,1f));
 		
 		// Pred Min-Max Dis
-		simView.drawLine((int)(predator_min_population*scale),-40,(int)(predator_max_population*scale),-40,new A2RGBA(1f,0f,0f,1f));
+		simView.drawLine((float)(predator_min_population*scale),-40,(float)(predator_max_population*scale),-40,new A2RGBA(1f,0f,0f,1f));
 		
 		double predDis = predator_max_population - predator_min_population;
 		
-		simView.drawText((int)predDis/2*scale,-42,"PredDis\n " + (float)predDis,new A2RGBA(1f,0f,0f,1f));
+		simView.drawText((float)predDis/2*scale,-42,"PredDis\n " + (float)predDis,new A2RGBA(1f,0f,0f,1f));
 		
 		// Prey Min
-		simView.drawLine(-15,(int)(prey_min_population*scale),axisMax,(int)(prey_min_population*scale),new A2RGBA(0f,0f,1f,1f));
-		simView.drawText(-150,(int)(prey_min_population*scale),"PreyMin\n " + (float)prey_min_population,new A2RGBA(0f,0f,1f,1f));
+		simView.drawLine(-15,(float)(prey_min_population*scale),axisMax,(float)(prey_min_population*scale),new A2RGBA(0f,0f,1f,1f));
+		simView.drawText(-150,(float)(prey_min_population*scale),"PreyMin\n " + (float)prey_min_population,new A2RGBA(0f,0f,1f,1f));
 		
 		// Prey Max
-		simView.drawLine(-15,(int)(prey_max_population*scale),axisMax,(int)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f));
-		simView.drawText(-150,(int)(prey_max_population*scale),"PreyMax\n " + (float)prey_max_population,new A2RGBA(0f,0f,1f,1f));
+		simView.drawLine(-15,(float)(prey_max_population*scale),axisMax,(float)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f));
+		simView.drawText(-150,(float)(prey_max_population*scale),"PreyMax\n " + (float)prey_max_population,new A2RGBA(0f,0f,1f,1f));
 		
 		
 		// Prey Min-Max Dis
-		simView.drawLine(-160,(int)(prey_min_population*scale),-160,(int)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f));
+		simView.drawLine(-160,(float)(prey_min_population*scale),-160,(float)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f));
 		
 		double preyDis = prey_max_population - prey_min_population;
 		
-		simView.drawText(-230,(int)(preyDis/2*scale),"preyDis",new A2RGBA(0f,0f,1f,1f));
-		simView.drawText(-230,(int)(preyDis/2*scale)-20,""+(float)preyDis,new A2RGBA(0f,0f,1f,1f));
+		simView.drawText(-230,(float)(preyDis/2*scale),"preyDis",new A2RGBA(0f,0f,1f,1f));
+		simView.drawText(-230,(float)(preyDis/2*scale)-20,""+(float)preyDis,new A2RGBA(0f,0f,1f,1f));
 		
 	}
 
@@ -373,15 +376,15 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 						ymax = y;
 					}
 
-					simView.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale), new A2RGBA(new Color(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha())));
+					simView.drawLine((float)(previous.getX()*xscale),(float)(previous.getY()*yscale),(float)(x*xscale),(float)(y*yscale), new A2RGBA(new Color(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha())));
 					
 					previous = point;
 					
 				}
 								
-				if(values.size() > 10240)
+				if(values.size() > maxPoints)
 				{			
-					while(values.size() > 10240)
+					while(values.size() > maxPoints)
 					{
 						values.remove(0);
 					}
