@@ -181,6 +181,9 @@ public class NewGUI
 		/* Simulation View */
 		simView = new NewSimView();
 		
+		/* Link up the view with the simulation manager */
+		simsManager.setSimView(simView);
+		
 		/* Frame */
 		guiFrame = new JFrame();
 		guiFrame.setMinimumSize(new Dimension(800,600));
@@ -205,7 +208,7 @@ public class NewGUI
 		splitPane.setRightComponent(simView.getAwtCanvas());
 		
 		/* Split Pane Left - Sim Tabs */
-		simTabs = new SimulationTabPanelManager(simsManager,simView);
+		simTabs = new SimulationTabPanelManager(simsManager);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
 		
