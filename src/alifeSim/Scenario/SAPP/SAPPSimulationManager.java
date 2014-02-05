@@ -8,7 +8,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Simulation.BarrierManager;
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import alifeSim.Stats.StatGroupSetting;
@@ -24,7 +24,7 @@ import alifeSim.World.WorldInf;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class SAPPSimulationManager implements SimulationManagerInf
+public class SAPPSimulationManager implements SimulationScenarioManagerInf
 {
 	/** Used to prevent dual Access to the lists - which would cause an exception.
 	 * This semaphore is unfair.

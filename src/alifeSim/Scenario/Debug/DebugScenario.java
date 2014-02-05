@@ -5,7 +5,7 @@ import java.io.File;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.SAPP.SAPPSimulationManager;
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.WorldSetupSettings;
 
@@ -77,7 +77,7 @@ public class DebugScenario extends ScenarioVT implements ScenarioInf
 	}
 
 	@Override
-	public SimulationManagerInf getSimManager()
+	public SimulationScenarioManagerInf getSimManager()
 	{
 		return simManager;
 	}

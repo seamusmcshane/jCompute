@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Gui.NewSimView;
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.Stats.StatManager;
 import alifeSim.Scenario.Math.LVScenario;
 
-public class LVSimulationManager implements SimulationManagerInf
+public class LVSimulationManager implements SimulationScenarioManagerInf
 {
 	private Semaphore lock = new Semaphore(1, false);
 	

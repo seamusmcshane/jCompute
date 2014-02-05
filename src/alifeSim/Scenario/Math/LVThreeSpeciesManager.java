@@ -13,7 +13,7 @@ import alifeSim.Stats.StatInf;
 import alifeSimGeom.A2RGBA;
 import alifeSimGeom.A3DVector3f;
 
-public class LVThreeSpeciesManager
+public class LVThreeSpeciesManager implements LVSubTypeInf
 {
 	/* Initial */
 	private double initial_prey_population;
@@ -122,11 +122,11 @@ public class LVThreeSpeciesManager
 	{
 		//if(t<max_t)
 		{
-			switch(intMethod)
+			//switch(intMethod)
 			{
-				case 0:
+				//case 0:
 					predator_prey_euler();
-				break;
+				//break;
 				/*case 1:
 					predator_prey_rk4();
 				break;*/
@@ -171,7 +171,7 @@ public class LVThreeSpeciesManager
 			stat_plant_population.addSample(plant_population);
 			
 			// Draw 
-			addDrawVal(i);			
+			//addDrawVal(i);			
 		}
 	}
 	
@@ -273,15 +273,13 @@ public class LVThreeSpeciesManager
 		return statList;
 	}
 	
-	public void drawLV(NewSimView simView)
+	public void draw(NewSimView simView)
 	{	
-		
 		drawPoints(simView);
 		
 		simView.drawPixMap(pixmap, 0, 0);
 		
 		simView.drawRectangle(0,0,bufferWidth,bufferHeight,new A2RGBA(1f,1f,1f,1f));
-		
 	}
 	
 	private void drawLAPoint(NewSimView simView, float x, float y, float z)
@@ -289,7 +287,6 @@ public class LVThreeSpeciesManager
 	    double px = x*(-10*x+10*y);
 	    double py = y*(28*x-y-x*z);
 	    double pz = z*(-8*z/3+x*y);	    
-	    
 	}
 	
 	private void drawPoints(NewSimView simView)
@@ -331,7 +328,7 @@ public class LVThreeSpeciesManager
 					pixmap.setColor(1f/255f*(float)color.getRed(),1f/255f*(float)color.getGreen(),1f/255f*(float)color.getBlue(),1f/255f*(float)color.getAlpha());
 					
 					pixmap.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale));
-														
+					
 					previous = point;
 					
 				}

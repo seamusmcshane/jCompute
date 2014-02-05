@@ -11,14 +11,14 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentType;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.World.WorldSetupSettings;
 
 public class SAPPScenario extends ScenarioVT implements ScenarioInf
 {	
 	
-	public SimulationManagerInf simManager;
+	public SimulationScenarioManagerInf simManager;
 	
 	/** World Settings */
 	public WorldSetupSettings worldSettings;
@@ -164,7 +164,7 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 
 	}
 	
-	public SimulationManagerInf getSimManager()
+	public SimulationScenarioManagerInf getSimManager()
 	{
 		return simManager;		
 	}

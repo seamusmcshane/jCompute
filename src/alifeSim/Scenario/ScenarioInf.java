@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.Stats.StatManager;
 
@@ -29,6 +29,6 @@ public interface ScenarioInf
 	
 	public List<StatGroupSetting> getStatGroupSettingsList();
 	
-	public SimulationManagerInf getSimManager();
+	public SimulationScenarioManagerInf getSimManager();
 
 }

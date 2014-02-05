@@ -3,7 +3,7 @@ package alifeSim.Simulation;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.StatManager;
 
-public interface SimulationManagerInf
+public interface SimulationScenarioManagerInf
 {
 	public void cleanUp();
 

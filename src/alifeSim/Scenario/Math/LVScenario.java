@@ -3,11 +3,11 @@ package alifeSim.Scenario.Math;
 import java.util.HashMap;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 
 public class LVScenario extends ScenarioVT implements ScenarioInf
 {
-	private SimulationManagerInf simManager;
+	private SimulationScenarioManagerInf simManager;
 	
 	private HashMap <String, Double>parameters;
 	
@@ -111,7 +111,7 @@ public class LVScenario extends ScenarioVT implements ScenarioInf
 	}
 	
 	@Override
-	public SimulationManagerInf getSimManager()
+	public SimulationScenarioManagerInf getSimManager()
 	{
 		return simManager;
 	}

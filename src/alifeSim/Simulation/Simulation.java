@@ -27,7 +27,7 @@ public class Simulation
 	private long stepTimePrev;
 
 	/* The Simulation manager */
-	private SimulationManagerInf simManager;
+	private SimulationScenarioManagerInf simManager;
 
 	/* The default simulation update rate */
 	private int reqSps = 15;
@@ -250,7 +250,7 @@ public class Simulation
 
 	}
 
-	public SimulationManagerInf getSimManager()
+	public SimulationScenarioManagerInf getSimManager()
 	{
 		return simManager;
 	}

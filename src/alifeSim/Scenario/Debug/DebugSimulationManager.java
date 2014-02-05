@@ -2,14 +2,14 @@ package alifeSim.Scenario.Debug;
 
 import alifeSim.Alife.DebugAgent.DebugAgent;
 import alifeSim.Gui.NewSimView;
-import alifeSim.Simulation.SimulationManagerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSim.datastruct.knn.KDTree;
 import alifeSim.datastruct.knn.KNNInf;
 
-public class DebugSimulationManager implements SimulationManagerInf
+public class DebugSimulationManager implements SimulationScenarioManagerInf
 {
 
 	private DebugScenario scenario;
