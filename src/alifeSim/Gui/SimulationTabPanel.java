@@ -108,8 +108,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JPanel simulationScenarioTab;
 	private SimulationStatsListPanel simulationStatsListPanel;
 
-	public SimulationTabPanel()
+	private NewSimView simView;
+	
+	public SimulationTabPanel(NewSimView simView)
 	{
+		this.simView = simView;
+		
 		setLayout(new BorderLayout(0, 0));
 
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
@@ -744,8 +748,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				sim.pauseSim();
 			}
 
-			NewSimView.setSim(null);
-
+			simView.setSim(null);
+			
 			sim.destroySim();
 
 			System.out.println("Simulation Destroyed");
@@ -816,9 +820,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		if (simScenario != null)
 		{
 			System.out.println("Creating Sim");
+			
 			sim.createSim(simScenario);
-			NewSimView.setSim(sim);
 
+			simView.setSim(sim);
+			
 			setUpPanels(scenario, sim);
 
 			btnGenerateSim.setEnabled(true);
@@ -834,6 +840,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			sliderSimStepRate.setEnabled(false);
 
 			sliderSimStepRate.setValue(15);
+			
+			simView.setSim(sim);
 		}
 		else
 		{
@@ -888,7 +896,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void simStartedState()
 	{
-
 		state = "Running";
 
 		sim.startSim();
@@ -917,7 +924,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sliderSimStepRate.setEnabled(false);
 		btnPauseSim.setEnabled(false);
 		btnGenerateSim.setEnabled(true);
-		NewSimView.setSim(null);
 	}
 
 	private void simPausedState()

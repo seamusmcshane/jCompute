@@ -42,10 +42,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	private OrthographicCamera viewCam;
 	
 	/** Simulation Reference */
-	private static Simulation sim;
-	private static Semaphore viewLock = new Semaphore(1);
+	private Simulation sim;
+	private Semaphore viewLock = new Semaphore(1);
 
-	private static String simulationTitle = "";
+	private String simulationTitle = "";
 		
 	/** Records status of mouse button */
 	private boolean mouseButtonPressed = false;
@@ -53,13 +53,13 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	private int defaultFrameRate = 60;
 
 	/** Draw the View range of the agents */
-	private static boolean viewRangeDrawing = false;
+	private boolean viewRangeDrawing = false;
 
 	/** Draw Views */
-	private static boolean viewsDrawing = false;
+	private boolean viewsDrawing = false;
 	
 	/** Is Simulation view drawing enabled */
-	private static boolean drawSim = false;
+	private boolean drawSim = false;
 	
 	/* Mouse */
 	/** Stores the mouse vector across updates */
@@ -87,6 +87,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public NewSimView()
 	{
+		System.out.println("Created Simulation View");
+		
 		canvas = new LwjglAWTCanvas(this, true);
 		Display.setVSyncEnabled(true);
 		Display.setSwapInterval(1);
@@ -109,7 +111,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		return canvas.getCanvas();
 	}
 
-	public static void setSim(Simulation simIn)
+	public void setSim(Simulation simIn)
 	{
 		//System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();
@@ -512,7 +514,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
 	}
 		
-	public static void setSimulationTitle(String text)
+	public void setSimulationTitle(String text)
 	{
 		simulationTitle = text;
 	}
@@ -521,7 +523,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 * Method setViewRangeDrawing.
 	 * @param inViewRangeDrawing boolean
 	 */
-	public static void setViewRangeDrawing(boolean inViewRangeDrawing)
+	public void setViewRangeDrawing(boolean inViewRangeDrawing)
 	{
 		viewRangeDrawing = inViewRangeDrawing;
 	}
@@ -530,7 +532,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 * Method setViewRangeDrawing.
 	 * @param inViewRangeDrawing boolean
 	 */
-	public static void setViewsDrawing(boolean inViewsDrawing)
+	public void setViewsDrawing(boolean inViewsDrawing)
 	{
 		viewsDrawing = inViewsDrawing;
 	}
@@ -539,7 +541,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	 * Method setVisible.
 	 * @param visible boolean
 	 */
-	public static void setVisible(boolean visible)
+	public void setVisible(boolean visible)
 	{
 		drawSim = visible;
 	}

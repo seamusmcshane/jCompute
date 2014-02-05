@@ -1,10 +1,7 @@
 package alifeSim.Gui;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Timer;
@@ -43,7 +40,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 	
 	private Timer tabStatusPoll = new Timer();
 	
-	public SimulationTabPanelManager(SimulationsManager simsManager,NewSimView simView)
+	public SimulationTabPanelManager(SimulationsManager simsManager,final NewSimView simView)
 	{
 		super(LEFT);
 		
@@ -80,8 +77,8 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				{
 					if(simulationInfoTab == getSelectedComponent())
 					{
-						NewSimView.setSim(null);
-						NewSimView.setSimulationTitle("No Simulation Selected");
+						simView.setSim(null);
+						simView.setSimulationTitle("No Simulation Selected");
 						
 					}
 					
@@ -89,8 +86,8 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					{
 						if(simulationTabs[i] == getSelectedComponent())
 						{
-							NewSimView.setSim(simulationTabs[i].getSimulation());
-							NewSimView.setSimulationTitle(getTitleAt(getSelectedIndex()));
+							simView.setSim(simulationTabs[i].getSimulation());
+							simView.setSimulationTitle(getTitleAt(getSelectedIndex()));
 							
 							break;
 						}					
@@ -182,7 +179,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			{
 				if(simulationTabs[i] == null)
 				{
-					simulationTabs[i] = new SimulationTabPanel();	
+					simulationTabs[i] = new SimulationTabPanel(simView);	
 					this.add(simulationTabs[i],this.getTabCount()-1);
 					this.setTitleAt(this.getTabCount()-2, "Simulation " + (launchCount+1));
 					this.setIconAt(this.getTabCount()-2, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
@@ -225,6 +222,9 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 		{
 			simulationInfoTab.clearTrace(this.getTitleAt(this.getSelectedIndex()));
 			simulationTabs[selectedTabIndex].destroy();
+
+			simView.setSim(null);
+
 			this.setSelectedIndex(0);
 			this.remove(simulationTabs[selectedTabIndex]);
 			simulationTabs[selectedTabIndex] = null;	

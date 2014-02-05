@@ -118,12 +118,12 @@ public class NewGUI
 				if (chckbxmntmDisplaySimulation.isSelected())
 				{
 					// have been checked
-					NewSimView.setVisible(true);
+					simView.setVisible(true);
 				}
 				else
 				{
 					// have been unchecked
-					NewSimView.setVisible(false);
+					simView.setVisible(false);
 				}
 
 			}
@@ -143,12 +143,12 @@ public class NewGUI
 				if (chckbxmntmDrawFieldOf.isSelected())
 				{
 					// have been checked
-					NewSimView.setViewRangeDrawing(true);
+					simView.setViewRangeDrawing(true);
 				}
 				else
 				{
 					// have been unchecked
-					NewSimView.setViewRangeDrawing(false);
+					simView.setViewRangeDrawing(false);
 				}
 			}
 		});
@@ -162,12 +162,12 @@ public class NewGUI
 				if (chckbxmntDrawAgentViews.isSelected())
 				{
 					// have been checked
-					NewSimView.setViewsDrawing(true);
+					simView.setViewsDrawing(true);
 				}
 				else
 				{
 					// have been unchecked
-					NewSimView.setViewsDrawing(false);
+					simView.setViewsDrawing(false);
 				}
 			}
 		});
@@ -177,6 +177,10 @@ public class NewGUI
 	
 	private static void setUpGUI()
 	{
+		
+		/* Simulation View */
+		simView = new NewSimView();
+		
 		/* Frame */
 		guiFrame = new JFrame();
 		guiFrame.setMinimumSize(new Dimension(800,600));
@@ -197,8 +201,7 @@ public class NewGUI
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setContinuousLayout(true);
 		
-		/* Simulation View */
-		simView = new NewSimView();
+		/* Add the View to the right split pane */
 		splitPane.setRightComponent(simView.getAwtCanvas());
 		
 		/* Split Pane Left - Sim Tabs */
