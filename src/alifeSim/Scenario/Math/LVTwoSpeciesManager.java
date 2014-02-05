@@ -51,7 +51,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	private float pointsHue=0f;
 	private float scale;
 	
-	private float axisMax = 1000;
+	private float axisMax = 1500;
 	
 	public LVTwoSpeciesManager(LVSettings settings)
 	{
