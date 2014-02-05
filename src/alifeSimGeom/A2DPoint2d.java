@@ -14,6 +14,13 @@ public class A2DPoint2d
 		this.color = color;
 	}
 	
+	public A2DPoint2d(float x, float y)
+	{
+		super();
+		this.x = x;
+		this.y = y;
+	}
+	
 	public A2DPoint2d(double x, double y, A2RGBA color)
 	{
 		super();
@@ -37,6 +44,10 @@ public class A2DPoint2d
 		return color;
 	}
 	
+	public void setColor(A2RGBA color)
+	{
+		this.color =  color;
+	}
 	
 	
 }
