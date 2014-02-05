@@ -52,13 +52,13 @@ public class Simulation
 		simStats = stats;	
 		setupThreads();
 
-		createSim(null); // Never used - needed for successful startup		
+		createSimScenario(null); // Never used - needed for successful startup		
 	}
 
 	/**
 	 * Method createSim.
 	 */
-	public void createSim(ScenarioInf scenario)
+	public void createSimScenario(ScenarioInf scenario)
 	{
 		if(scenario!=null)
 		{
@@ -77,6 +77,13 @@ public class Simulation
 	 */
 	public void destroySim()
 	{
+		// Pause will get the simulation threads to a safe position, i.e not
+		// inside a list.
+		if (!simPaused())
+		{
+			pauseSim();
+		}
+		
 		if(simManager!=null)
 		{
 			/* Initiate clean up */
@@ -232,7 +239,7 @@ public class Simulation
 	 * Method reqSimUpdateRate.
 	 * @param steps int
 	 */
-	public void reqSimUpdateRate(int steps)
+	public void setReqStepRate(int steps)
 	{
 		if (steps > 0)
 		{
@@ -263,13 +270,15 @@ public class Simulation
 	 */
 	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
-		simManager.drawSim(simView,viewRangeDrawing,viewsDrawing);
+		if(simManager!=null)
+		{
+			simManager.drawSim(simView,viewRangeDrawing,viewsDrawing);
+		}
 	}
 
 	public void setOutPutCharts(LinkedList<StatPanelAbs> charts)
 	{
 		this.charts = charts;
-		
 	}	
 	
 }
