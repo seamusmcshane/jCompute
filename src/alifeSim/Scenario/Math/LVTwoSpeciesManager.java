@@ -306,8 +306,8 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		
 		double preyDis = prey_max_population - prey_min_population;
 		
-		simView.drawText(-230,(int)preyDis/2+(int)(prey_min_population*scale),"preyDis",new A2RGBA(0f,0f,1f,1f));
-		simView.drawText(-230,(int)preyDis/2+(int)(prey_min_population-20*scale),""+(float)preyDis,new A2RGBA(0f,0f,1f,1f));
+		simView.drawText(-230,(int)(preyDis/2*scale),"preyDis",new A2RGBA(0f,0f,1f,1f));
+		simView.drawText(-230,(int)(preyDis/2*scale)-20,""+(float)preyDis,new A2RGBA(0f,0f,1f,1f));
 		
 	}
 
