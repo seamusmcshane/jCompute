@@ -7,7 +7,6 @@ import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Gui.NewSimView;
-import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;

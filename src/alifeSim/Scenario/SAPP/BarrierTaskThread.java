@@ -1,4 +1,4 @@
-package alifeSim.Simulation;
+package alifeSim.Scenario.SAPP;
 
 import java.util.List;
 import java.util.ListIterator;

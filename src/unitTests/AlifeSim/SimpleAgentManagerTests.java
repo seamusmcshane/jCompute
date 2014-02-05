@@ -11,7 +11,7 @@ import org.junit.Test;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
-import alifeSim.Simulation.BarrierManager;
+import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 /**

@@ -10,8 +10,8 @@ import java.util.Random;
 
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Scenario.SAPP.SAPPScenario;
-import alifeSim.Simulation.BarrierManager;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;

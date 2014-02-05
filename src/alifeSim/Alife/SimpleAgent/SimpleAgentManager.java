@@ -8,7 +8,7 @@ import java.util.Random;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.NewSimView;
-import alifeSim.Simulation.BarrierManager;
+import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatInf;
 import alifeSim.World.WorldInf;

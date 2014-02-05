@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
-import alifeSim.Simulation.BarrierManager;
+import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 

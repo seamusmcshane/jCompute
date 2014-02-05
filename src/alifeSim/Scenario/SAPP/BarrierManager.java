@@ -1,4 +1,4 @@
-package alifeSim.Simulation;
+package alifeSim.Scenario.SAPP;
 
 import java.util.ArrayList;
 import java.util.List;
