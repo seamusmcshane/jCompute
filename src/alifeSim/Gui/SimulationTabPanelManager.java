@@ -35,19 +35,16 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 
 	private int selectedTabIndex = 0;
 
-	private NewSimView simView;
 	private SimulationsManager simsManager;
 	
 	private Timer tabStatusPoll = new Timer();
 	
-	public SimulationTabPanelManager(SimulationsManager simsManager,final NewSimView simView)
+	public SimulationTabPanelManager(final SimulationsManager simsManager)
 	{
 		super(LEFT);
 		
 		this.simsManager = simsManager;
-		
-		this.simView = simView;
-		
+				
 		simulationTabs = new SimulationTabPanel[maxTabs];
 		
 		simulationInfoTab = new SimulationInfoTabPanel();
@@ -57,7 +54,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 		this.setIconAt(this.getTabCount()-1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/dialog-information.png")));
 	
 		this.add(addPanel);
-		//this.setTitleAt(this.getTabCount()-1, " + ");
 		this.setIconAt(this.getTabCount()-1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/tab-new-background.png")));
 		
 		// This makes the last tab act as a button, that adds tabs.
@@ -70,24 +66,22 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				{
 					// Unselect us asap or we will get called again.
 					setSelectedIndex(0);
+					
 					// call the add tab functionality and we are done.
 					addTab();
 				}
 				else
 				{
 					if(simulationInfoTab == getSelectedComponent())
-					{
-						simView.setSim(null);
-						simView.setSimulationTitle("No Simulation Selected");
-						
+					{						
+						simsManager.clearActiveSim();							
 					}
 					
 					for(int i=0;i<maxTabs;i++)
 					{
 						if(simulationTabs[i] == getSelectedComponent())
 						{
-							simView.setSim(simulationTabs[i].getSimulation());
-							simView.setSimulationTitle(getTitleAt(getSelectedIndex()));
+							simsManager.setActiveSim(simulationTabs[i].getSimulationId());
 							
 							break;
 						}					
@@ -126,24 +120,20 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				  {
 					  	SimulationTabPanel temp = (SimulationTabPanel) getComponentAt (i);
 
-					  	//System.out.println("Timer0");
 						if(temp.getState().equals("Running"))
 						{
-							//System.out.println("Timer1");
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png")));
 							
 							simulationInfoTab.addRow(getTitleAt(i), new String[]{temp.getState(), temp.getStepNo(),temp.getASPS(), temp.getTime()});
 						}
 						else if(temp.getState().equals("Paused"))
 						{
-							//System.out.println("Timer2");
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png")));
 							
 							simulationInfoTab.addRow(getTitleAt(i), new String[]{temp.getState(), temp.getStepNo(),"0", temp.getTime()});
 						}
 						else if(temp.getState().equals("New"))
 						{
-							//System.out.println("Timer3");
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
 							
 							simulationInfoTab.addRow(getTitleAt(i),  new String[]{temp.getState(), temp.getStepNo(),"0", temp.getTime()});
@@ -151,19 +141,13 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 						}
 						else
 						{
-							//System.out.println("Timer4");
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png")));
 							
 							simulationInfoTab.addRow(getTitleAt(i), new String[]{temp.getState(), temp.getStepNo(),"0", temp.getTime()});
 
-						}
-						
-						
-						
+						}	
 				  }	
-			  }
-			  
-
+			  }  
 		  }
 		  
 		  simulationInfoTab.update();
@@ -179,7 +163,8 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			{
 				if(simulationTabs[i] == null)
 				{
-					simulationTabs[i] = new SimulationTabPanel(simView);	
+					simulationTabs[i] = new SimulationTabPanel(simsManager);
+					
 					this.add(simulationTabs[i],this.getTabCount()-1);
 					this.setTitleAt(this.getTabCount()-2, "Simulation " + (launchCount+1));
 					this.setIconAt(this.getTabCount()-2, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
@@ -223,8 +208,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			simulationInfoTab.clearTrace(this.getTitleAt(this.getSelectedIndex()));
 			simulationTabs[selectedTabIndex].destroy();
 
-			simView.setSim(null);
-
 			this.setSelectedIndex(0);
 			this.remove(simulationTabs[selectedTabIndex]);
 			simulationTabs[selectedTabIndex] = null;	
@@ -249,10 +232,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 
 	@Override
 	public void mouseClicked(MouseEvent e)
-	{		
-		
-		//System.out.println("Clicked");
-		
+	{				
 		if((e.getButton() == 3))
 		{
 			for(int i=0;i<maxTabs;i++)
