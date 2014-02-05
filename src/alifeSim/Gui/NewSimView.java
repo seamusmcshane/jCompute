@@ -111,7 +111,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	public static void setSim(Simulation simIn)
 	{
-		System.out.println("Simulation Set");
+		//System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();
 		sim = simIn;
 		viewLock.release();
@@ -448,7 +448,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 			viewCam.zoom = 10f;
 		}
 		
-		System.out.println("Zoom " + viewCam.zoom);
+		//System.out.println("Zoom " + viewCam.zoom);
 		
 		return false;
 	}
