@@ -248,8 +248,18 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		currentSpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		currentSpriteBatch.begin();
-        	font.draw(currentSpriteBatch, text, x, y);
-    	currentSpriteBatch.end();
+			font.setColor(Color.WHITE);
+			font.draw(currentSpriteBatch, text, x, y);
+		currentSpriteBatch.end();
+	}
+	
+	public void drawText(float x,float y,String text,A2RGBA color)
+	{
+		currentSpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		currentSpriteBatch.begin();
+			font.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+			font.draw(currentSpriteBatch, text, x, y);
+		currentSpriteBatch.end();
 	}
 	
 	public void targetFBOStop()
