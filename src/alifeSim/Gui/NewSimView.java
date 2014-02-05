@@ -70,8 +70,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	private BitmapFont font;
 
-
 	private float defaultLineWidth = 0.25f;
+	
+	private float minZoom = 0.1f;
+	private float maxZoom = 10f;
 	
 	/* FBO / BBO */
 	private SpriteBatch bboSpriteBatch;
@@ -440,14 +442,14 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		viewCam.zoom +=(val*0.125f);
 		
-		if(viewCam.zoom < 0.2f)
+		if(viewCam.zoom < minZoom)
 		{
-			viewCam.zoom = 0.2f;
+			viewCam.zoom = minZoom;
 		}
 		
-		if(viewCam.zoom > 10f)
+		if(viewCam.zoom > maxZoom)
 		{
-			viewCam.zoom = 10f;
+			viewCam.zoom = maxZoom;
 		}
 		
 		//System.out.println("Zoom " + viewCam.zoom);
