@@ -20,6 +20,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import alifeSim.Simulation.SimulationsManager;
+
 public class SimulationTabPanelManager extends JTabbedPane implements MouseListener, ActionListener
 {
 	private static final long serialVersionUID = 1L;
@@ -37,12 +39,15 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 	private int selectedTabIndex = 0;
 
 	private NewSimView simView;
+	private SimulationsManager simsManager;
 	
 	private Timer tabStatusPoll = new Timer();
 	
-	public SimulationTabPanelManager(NewSimView simView)
+	public SimulationTabPanelManager(SimulationsManager simsManager,NewSimView simView)
 	{
 		super(LEFT);
+		
+		this.simsManager = simsManager;
 		
 		this.simView = simView;
 		
@@ -109,7 +114,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			  }
 			  
 		},1000,1000);
-	}	
+	}
 		
 	private void refresh()
 	{

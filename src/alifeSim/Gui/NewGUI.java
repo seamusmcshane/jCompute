@@ -29,6 +29,8 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JSplitPane;
 
+import alifeSim.Simulation.SimulationsManager;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -36,17 +38,29 @@ import java.beans.PropertyChangeEvent;
 
 public class NewGUI 
 {
+	// Main Frame
 	private static JFrame guiFrame;
-	private static SimulationTabPanelManager simTabs;
-	private static JSplitPane splitPane;
-	private static NewSimView simView;
+	
+	// Menu Check Boxes
 	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
-	private static final ButtonGroup frameRateButtonGroup = new ButtonGroup();
-	private static final ButtonGroup vSyncButtonGroup = new ButtonGroup();
-	private static final ButtonGroup overlayButtonGroup = new ButtonGroup();
+	
+	// Split Pane
+	private static JSplitPane splitPane;
+	
+	// Tab Manager (Left Split)
+	private static SimulationTabPanelManager simTabs;
 			
+	// Simulation View (Right Split)
+	private static NewSimView simView;
+	
+	// Simulations Manager
+	private static int maxConcurrentSims = 8;
+	private static SimulationsManager simsManager;
+
 	public static void main(String args[])
 	{
+		simsManager = new SimulationsManager(maxConcurrentSims);		
+		
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() 
 	    {
 	        public void run() 
@@ -183,14 +197,14 @@ public class NewGUI
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setContinuousLayout(true);
 		
+		/* Simulation View */
 		simView = new NewSimView();
+		splitPane.setRightComponent(simView.getAwtCanvas());
 		
 		/* Split Pane Left - Sim Tabs */
-		simTabs = new SimulationTabPanelManager(simView);
+		simTabs = new SimulationTabPanelManager(simsManager,simView);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
-		
-		splitPane.setRightComponent(simView.getAwtCanvas());
 		
 		/* We control the exit */
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
