@@ -63,7 +63,9 @@ import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
+import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatGroup;
+import alifeSim.Stats.StatManager;
 
 public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationPerformanceStatsOutputInf
 {
@@ -99,7 +101,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JLabel lblRequestedStepRate;
 
 	// Sim Related
-	private Simulation sim;
+	//private Simulation sim;
 	private boolean generatingSim = false;
 	private boolean simGenerated = false;
 
@@ -108,12 +110,16 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JPanel simulationScenarioTab;
 	private SimulationStatsListPanel simulationStatsListPanel;
 
-	private NewSimView simView;
+	private SimulationsManager simsManager;
 	
-	public SimulationTabPanel(NewSimView simView)
+	private int simId = -1;
+	
+	public SimulationTabPanel(SimulationsManager simsManager)
 	{
-		this.simView = simView;
+		this.simsManager = simsManager;
 		
+		simId = -1;
+				
 		setLayout(new BorderLayout(0, 0));
 
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
@@ -398,19 +404,26 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		simulationTabPane.addTab("Supported Statistics", simulationStatsListPanel);
 		simulationStatsListPanel.clearTable();
-		if (sim != null)
-		{
-			Set<String> statGroups = sim.getSimManager().getStatmanger().getGroupList();
 
+		//Set<String> statGroups = sim.getSimManager().getStatmanger().getGroupList();
+		StatManager statManager = simsManager.getStatManager(simId);
+		
+		if(statManager!=null)
+		{
+			Set<String> statGroups = statManager.getGroupList();
+			
 			for (String group : statGroups)
 			{
-				simulationStatsListPanel.addRow(group,new String[]{Integer.toString(sim.getSimManager().getStatmanger().getStatGroup(group).getStatList().size()), String.valueOf(sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().statsEnabled()),String.valueOf(sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled())});
+				simulationStatsListPanel.addRow(group,new String[]{Integer.toString(statManager.getStatGroup(group).getStatList().size()), String.valueOf(statManager.getStatGroup(group).getGroupSettings().statsEnabled()),String.valueOf(statManager.getStatGroup(group).getGroupSettings().graphEnabled())});
 			}
 			
 			// Give the List Panel a reference to the simulations stat manager - so it can initiate an export.
-			simulationStatsListPanel.setStatManager(sim.getSimManager().getStatmanger());
+			simulationStatsListPanel.setStatManager(statManager);
+		
+			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png")));			
 		}
-		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png")));
+		
+
 		
 	}
 
@@ -504,9 +517,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		}
 		else if (e.getSource() == btnPauseSim)
-		{
+		{			
 			// Pause Toggle
-			if (sim.simPaused())
+			if (simsManager.isSimPaused(simId))
 			{
 				simUnPausedState();
 			}
@@ -549,8 +562,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			if (val == JFileChooser.APPROVE_OPTION)
 			{
 				System.out.println("New Scenario Choosen");
-
-				destroySimulation();
+				
+				simsManager.destroySimulation(simId);
+				
 				// File scenarioFile = filechooser.getSelectedFile();
 				lblFilePath.setText(filechooser.getSelectedFile().getName());
 				BufferedReader bufferedReader;
@@ -613,8 +627,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			if (discardCurrentSimGenerated())
 			{
 				checkSaved();
-
+				
 				destroySimulation();
+				
 				scenarioEditor.setText("");
 				lblFilePath.setText("No File");
 				chckbxEditMode.setSelected(false);
@@ -738,30 +753,13 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		System.out.println("Request to Destroy Old Simulation");
 
-		/* Cleans up the old simulation threads */
-		if (sim != null)
-		{
-			// Pause will get the simulation threads to a safe position, i.e not
-			// inside a list.
-			if (!sim.simPaused())
-			{
-				sim.pauseSim();
-			}
-
-			simView.setSim(null);
+		simsManager.destroySimulation(simId);
 			
-			sim.destroySim();
-
-			System.out.println("Simulation Destroyed");
-		}
-		else
-		{
-			System.out.println("A Previous Simulation was not created");
-		}
+		System.out.println("Simulation Destroyed");
 
 	}
 
-	private void setUpPanels(String text, Simulation sim)
+	private void setUpPanels()
 	{
 		// Remove all tabs
 		simulationTabPane.removeAll();
@@ -778,25 +776,31 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		addChartTabs();
 		
 		// Set up the Sim with the new chart targets
-		sim.setOutPutCharts(charts);
+		simsManager.setSimOutPutCharts(simId,charts);
 	}
 
 	private void addChartTabs()
 	{
-		Set<String> statGroups = sim.getSimManager().getStatmanger().getGroupList();
-
-		// Collect the enabled Charts
-		for (String group : statGroups)
-		{
-			StatGroup statGroup = sim.getSimManager().getStatmanger().getStatGroup(group);
-			
-			if(statGroup.getGroupSettings().graphEnabled())
-			{
-				charts.add(new GlobalStatChartPanel(group,sim.getSimManager().getStatmanger(),statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleRate()));
-			}
-
-		}
+		StatManager statManager = simsManager.getStatManager(simId);
 		
+		if(statManager!=null)
+		{
+			Set<String> statGroups = statManager.getGroupList();
+
+			// Collect the enabled Charts
+			for (String group : statGroups)
+			{
+				StatGroup statGroup = statManager.getStatGroup(group);
+				
+				if(statGroup.getGroupSettings().graphEnabled())
+				{
+					charts.add(new GlobalStatChartPanel(group,statManager,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleRate()));
+				}
+
+			}		
+			
+		}
+
 		// Add the detected Panels
 		for (StatPanelAbs chartPanel : charts)
 		{
@@ -813,19 +817,20 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		destroySimulation();
 
-		sim = new Simulation(new SimulationPerformanceStats(this));
-
+		// Add a new sim and direct its performance stats to this panel.
+		simId = simsManager.addSimulation(new SimulationPerformanceStats(this));
+						
 		simScenario = determinScenarios(scenario);
 
 		if (simScenario != null)
 		{
 			System.out.println("Creating Sim");
 			
-			sim.createSim(simScenario);
-
-			simView.setSim(sim);
+			simsManager.createSimScenario(simId,simScenario);
+					
+			simsManager.setActiveSim(simId);
 			
-			setUpPanels(scenario, sim);
+			setUpPanels();
 
 			btnGenerateSim.setEnabled(true);
 
@@ -841,18 +846,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 			sliderSimStepRate.setValue(15);
 			
-			simView.setSim(sim);
 		}
 		else
 		{
 			System.out.println("Scenario Failed to Load");
 		}
 
-	}
-
-	public Simulation getSimulation()
-	{
-		return sim;
 	}
 
 	/**
@@ -898,7 +897,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		state = "Running";
 
-		sim.startSim();
+		simsManager.startSim(simId);
 
 		btnGenerateSim.setEnabled(false);
 
@@ -932,8 +931,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		btnPauseSim.setText("Resume");
 		btnGenerateSim.setEnabled(true);
+		
+		simsManager.pauseSim(simId);	
 
-		sim.pauseSim();
 
 		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
 		
@@ -947,9 +947,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 		btnPauseSim.setText("   Pause");
 		btnGenerateSim.setEnabled(false);
-
-		sim.unPauseSim();
-
+		
+		simsManager.unPauseSim(simId);	
+		
 		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
 		
 		simulationStatsListPanel.setExportEnabled(false);
@@ -965,35 +965,35 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		if (e.getSource() == sliderSimStepRate)
 		{
-			if (sim != null)
+
+			// Prevent a 0 value being set
+			if (sliderSimStepRate.getValue() == 0)
 			{
-				// Prevent a 0 value being set
-				if (sliderSimStepRate.getValue() == 0)
+				lblRequestedStepRate.setText("1");
+
+				// Set the requested update rate
+				simsManager.setReqSimStepRate(simId,sliderSimStepRate.getValue());
+				
+			}
+			else
+			{
+				if (sliderSimStepRate.getValue() < 300)
 				{
-					lblRequestedStepRate.setText("1");
+					lblRequestedStepRate.setText(Integer.toString(sliderSimStepRate.getValue()));
 
 					// Set the requested update rate
-					sim.reqSimUpdateRate(sliderSimStepRate.getValue());
+					simsManager.setReqSimStepRate(simId,sliderSimStepRate.getValue());
 				}
 				else
 				{
-					if (sliderSimStepRate.getValue() < 300)
-					{
-						lblRequestedStepRate.setText(Integer.toString(sliderSimStepRate.getValue()));
+					lblRequestedStepRate.setText("Unli");
 
-						// Set the requested update rate
-						sim.reqSimUpdateRate(sliderSimStepRate.getValue());
-					}
-					else
-					{
-						lblRequestedStepRate.setText("Unli");
-
-						// Set the requested update rate
-						sim.reqSimUpdateRate(-1);
-					}
-
+					// Set the requested update rate
+					simsManager.setReqSimStepRate(simId,-1);
 				}
+
 			}
+			
 		}
 		else if (e.getSource() == chckbxEditMode)
 		{
@@ -1059,5 +1059,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public String getTime()
 	{
 		return lblSimRunTime.getText();
+	}
+
+	public int getSimulationId()
+	{
+		return simId;
 	}
 }
