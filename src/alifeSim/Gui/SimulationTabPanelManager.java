@@ -104,7 +104,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				  refresh();
 			  }
 			  
-		},1000,1000);
+		},0,1000);
 	}
 		
 	private void refresh()
