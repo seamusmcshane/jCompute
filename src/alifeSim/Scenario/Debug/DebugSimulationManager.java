@@ -2,12 +2,14 @@ package alifeSim.Scenario.Debug;
 
 import alifeSim.Alife.DebugAgent.DebugAgent;
 import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSim.datastruct.knn.KDTree;
 import alifeSim.datastruct.knn.KNNInf;
+import alifeSimGeom.A2DVector2f;
 
 public class DebugSimulationManager implements SimulationScenarioManagerInf
 {
@@ -24,9 +26,15 @@ public class DebugSimulationManager implements SimulationScenarioManagerInf
 	private DebugAgent[] testAgents;
 	
 	private DebugAgent debugAgent;
+
+	private SimViewCam simViewCam;
 	
 	public DebugSimulationManager(DebugScenario debugScenario)
 	{
+		simViewCam = new SimViewCam();
+		
+		simViewCam.setCamOffset(new A2DVector2f(50f,50f));
+		
 		this.scenario = debugScenario;
 		
 		setUpWorld();
@@ -118,5 +126,41 @@ public class DebugSimulationManager implements SimulationScenarioManagerInf
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public float getCamZoom()
+	{
+		return simViewCam.getCamZoom();
+	}
+	
+	@Override
+	public void resetCamPos(float x,float y)
+	{
+		simViewCam.resetCamPos(x, y);
+	}
+	
+	@Override
+	public void adjCamZoom(float z)
+	{
+		simViewCam.adjCamZoom(z);	
+	}
+
+	@Override
+	public void resetCamZoom()
+	{
+		simViewCam.resetCamZoom();			
+	}
+
+	@Override
+	public A2DVector2f getCamPos()
+	{
+		return new A2DVector2f(simViewCam.getCamPosX(),simViewCam.getCamPosY());
+	}
+
+	@Override
+	public void moveCamPos(float x, float y)
+	{
+		simViewCam.moveCam(x,y);		
 	}
 }
