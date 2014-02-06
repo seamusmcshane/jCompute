@@ -17,7 +17,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -29,7 +28,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Matrix4;
 
 public class NewSimView implements ApplicationListener, InputProcessor
 {
@@ -70,7 +68,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	private BitmapFont font;
 
-	private float defaultLineWidth = 0.25f;
+	private float defaultLineWidth = 0.10f;
 	
 	private float minZoom = 0.1f;
 	private float maxZoom = 10f;
@@ -172,22 +170,13 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		height = Gdx.graphics.getHeight();
 		
 		Display.sync(defaultFrameRate);
-
-		//GL20 gl = Gdx.graphics.getGL20();
-		
-		/*Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
-		Gdx.gl.glEnable(GL10.GL_POINT_SMOOTH);
-		Gdx.gl.glHint(GL10.GL_POLYGON_SMOOTH_HINT, GL10.GL_NICEST);
-		Gdx.gl.glHint(GL10.GL_POINT_SMOOTH_HINT, GL10.GL_NICEST);*/
 		
 		Gdx.gl.glViewport(0, 0, width, height);
 				
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		viewCam.update();
-		
-		// viewCam.apply(gl); // GL10
-				        
+						        
 		bboShapeRenderer.setProjectionMatrix(viewCam.combined);
 		bboSpriteBatch.setProjectionMatrix(viewCam.combined);
 		
@@ -202,9 +191,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		}
 		
 		viewLock.release();
-				
 
-        
 	}
 
 	@Override
