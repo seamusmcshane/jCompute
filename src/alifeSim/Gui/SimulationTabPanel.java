@@ -347,13 +347,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sliderSimStepRate.setSnapToTicks(true);
 		sliderSimStepRate.addChangeListener(this);
 
-		sliderSimStepRate.setValue(15);
+		sliderSimStepRate.setValue(4);
 		sliderSimStepRate.setToolTipText("Adjust requested step rate.");
 		sliderSimStepRate.setPreferredSize(new Dimension(25, 20));
 		sliderSimStepRate.setPaintTicks(true);
-		sliderSimStepRate.setMinorTickSpacing(5);
-		sliderSimStepRate.setMaximum(300);
-		sliderSimStepRate.setMajorTickSpacing(15);
+		sliderSimStepRate.setMaximum(16);
+		sliderSimStepRate.setMajorTickSpacing(4);
 		sliderSimStepRate.setEnabled(false);
 		GridBagConstraints gbc_sliderSimStepRate = new GridBagConstraints();
 		gbc_sliderSimStepRate.fill = GridBagConstraints.BOTH;
@@ -845,7 +844,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 			sliderSimStepRate.setEnabled(false);
 
-			sliderSimStepRate.setValue(15);
+			sliderSimStepRate.setValue(8);
 			
 		}
 		else
@@ -968,7 +967,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 
 			// Prevent a 0 value being set
-			if (sliderSimStepRate.getValue() < 1)
+			if (sliderSimStepRate.getValue() <= 1)
 			{
 				lblRequestedStepRate.setText("1");
 
@@ -976,24 +975,36 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				simsManager.setReqSimStepRate(simId,1);
 				
 			}
+			else if (sliderSimStepRate.getValue() == 4 )
+			{
+				lblRequestedStepRate.setText("5");
+
+				// Set the requested update rate
+				simsManager.setReqSimStepRate(simId,5);
+			}
+			else if (sliderSimStepRate.getValue() == 8 )
+			{
+				lblRequestedStepRate.setText("15");
+
+				// Set the requested update rate
+				simsManager.setReqSimStepRate(simId,15);
+			}
+			else if (sliderSimStepRate.getValue() == 12 )
+			{
+				lblRequestedStepRate.setText("60");
+
+				// Set the requested update rate
+				simsManager.setReqSimStepRate(simId,60);
+			}
 			else
 			{
-				if (sliderSimStepRate.getValue() < 300)
-				{
-					lblRequestedStepRate.setText(Integer.toString(sliderSimStepRate.getValue()));
+				lblRequestedStepRate.setText("Unli");
 
-					// Set the requested update rate
-					simsManager.setReqSimStepRate(simId,sliderSimStepRate.getValue());
-				}
-				else
-				{
-					lblRequestedStepRate.setText("Unli");
-
-					// Set the requested update rate
-					simsManager.setReqSimStepRate(simId,-1);
-				}
-
+				// Set the requested update rate
+				simsManager.setReqSimStepRate(simId,-1);
 			}
+
+			
 			
 		}
 		else if (e.getSource() == chckbxEditMode)
