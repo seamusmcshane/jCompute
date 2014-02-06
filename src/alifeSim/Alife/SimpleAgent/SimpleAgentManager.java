@@ -216,29 +216,19 @@ public class SimpleAgentManager
 
 		for (SimpleAgent tAgentDrawAI : doneList) 
 		{
-
-			// Optimization - Only draw visible agents that are inside the cameraBoundarie
-			//if (tAgentDrawAI.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tAgentDrawAI.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tAgentDrawAI.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
+			tAgentDrawAI.body.draw(simView);
+			
+			if (viewRangeDrawing)
 			{
-				/*
-				 * Optimization - draw correct circular bodies or faster
-				 * rectangular bodies
-				 */
-				tAgentDrawAI.body.draw(simView);
-				
-				if (viewRangeDrawing)
-				{
-					/* Optimization - Only draw the views of agents we can see */
-					tAgentDrawAI.brain.view.drawViewRange(simView,false,true);
-				}
-				
-				if(viewsDrawing)
-				{
-					/* Draw the agent views */
-					tAgentDrawAI.brain.view.drawViews(simView);
-				}
+				/* Optimization - Only draw the views of agents we can see */
+				tAgentDrawAI.brain.view.drawViewRange(simView,false,true);
 			}
-
+			
+			if(viewsDrawing)
+			{
+				/* Draw the agent views */
+				tAgentDrawAI.brain.view.drawViews(simView);
+			}
 		}
 	}
 

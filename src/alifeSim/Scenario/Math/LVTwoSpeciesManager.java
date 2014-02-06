@@ -281,31 +281,31 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	{
 		
 		// Pred Min
-		simView.drawLine((float)(predator_min_population*scale),-15,(float)(predator_min_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f));
+		simView.drawLine((float)(predator_min_population*scale),-15,(float)(predator_min_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f),false);
 		simView.drawText((float)(predator_min_population*scale),-20,"PredMin\n " + (float)predator_min_population,new A2RGBA(1f,0f,0f,1f));
 		
 		// Pred Max
-		simView.drawLine((float)(predator_max_population*scale),-15,(float)(predator_max_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f));
+		simView.drawLine((float)(predator_max_population*scale),-15,(float)(predator_max_population*scale),axisMax,new A2RGBA(1f,0f,0f,1f),false);
 		simView.drawText((float)(predator_max_population*scale),-20,"PredMax\n " + (float)predator_max_population,new A2RGBA(1f,0f,0f,1f));
 		
 		// Pred Min-Max Dis
-		simView.drawLine((float)(predator_min_population*scale),-40,(float)(predator_max_population*scale),-40,new A2RGBA(1f,0f,0f,1f));
+		simView.drawLine((float)(predator_min_population*scale),-40,(float)(predator_max_population*scale),-40,new A2RGBA(1f,0f,0f,1f),false);
 		
 		double predDis = predator_max_population - predator_min_population;
 		
 		simView.drawText((float)predDis/2*scale,-42,"PredDis\n " + (float)predDis,new A2RGBA(1f,0f,0f,1f));
 		
 		// Prey Min
-		simView.drawLine(-15,(float)(prey_min_population*scale),axisMax,(float)(prey_min_population*scale),new A2RGBA(0f,0f,1f,1f));
+		simView.drawLine(-15,(float)(prey_min_population*scale),axisMax,(float)(prey_min_population*scale),new A2RGBA(0f,0f,1f,1f),false);
 		simView.drawText(-150,(float)(prey_min_population*scale),"PreyMin\n " + (float)prey_min_population,new A2RGBA(0f,0f,1f,1f));
 		
 		// Prey Max
-		simView.drawLine(-15,(float)(prey_max_population*scale),axisMax,(float)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f));
+		simView.drawLine(-15,(float)(prey_max_population*scale),axisMax,(float)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f),false);
 		simView.drawText(-150,(float)(prey_max_population*scale),"PreyMax\n " + (float)prey_max_population,new A2RGBA(0f,0f,1f,1f));
 		
 		
 		// Prey Min-Max Dis
-		simView.drawLine(-160,(float)(prey_min_population*scale),-160,(float)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f));
+		simView.drawLine(-160,(float)(prey_min_population*scale),-160,(float)(prey_max_population*scale),new A2RGBA(0f,0f,1f,1f),false);
 		
 		double preyDis = prey_max_population - prey_min_population;
 		
@@ -316,15 +316,15 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 
 	private void drawAxis(NewSimView simView)
 	{
-		simView.drawLine(0,0,0,axisMax,new A2RGBA(1f,1f,1f,1f));
+		simView.drawLine(0,0,0,axisMax,new A2RGBA(1f,1f,1f,1f),false);
 		
-		simView.drawLine(0,0,axisMax,0,new A2RGBA(1f,1f,1f,1f));
+		simView.drawLine(0,0,axisMax,0,new A2RGBA(1f,1f,1f,1f),false);
 		
 		for(int i=0;i<=axisMax;i++)
 		{
 			if(i%100 == 0)
 			{
-				simView.drawLine(0,i,-20,i,new A2RGBA(1f,1f,1f,1f));
+				simView.drawLine(0,i,-20,i,new A2RGBA(1f,1f,1f,1f),false);
 				
 				simView.drawText(-60,i+5,Integer.toString((int)(i/scale)));
 			}
@@ -334,7 +334,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		{
 			if(i%100 == 0)
 			{
-				simView.drawLine(i,0,i,-20,new A2RGBA(1f,1f,1f,1f));
+				simView.drawLine(i,0,i,-20,new A2RGBA(1f,1f,1f,1f),false);
 				
 				simView.drawText( i-10, -60,Integer.toString((int)(i/scale)));
 			}
@@ -376,7 +376,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 						ymax = y;
 					}
 
-					simView.drawLine((float)(previous.getX()*xscale),(float)(previous.getY()*yscale),(float)(x*xscale),(float)(y*yscale), new A2RGBA(new Color(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha())));
+					simView.drawLine((float)(previous.getX()*xscale),(float)(previous.getY()*yscale),(float)(x*xscale),(float)(y*yscale), new A2RGBA(new Color(point.getColor().getRed(),point.getColor().getGreen(),point.getColor().getBlue(),point.getColor().getAlpha())),false);
 					
 					previous = point;
 					

@@ -135,14 +135,7 @@ public class GenericPlantManager
 	{
 		for (GenericPlant tPlantDraw : doneList) 
 		{
-			/*
-			 * Optimization - Only draw visible plants that are inside the
-			 * cameraBoundaries
-			 */
-			//if (tPlantDraw.body.getBodyPos().getX() > (SimulationView.cameraBound.getX() - SimulationView.globalTranslate.getX()) && tPlantDraw.body.getBodyPos().getX() < (SimulationView.cameraBound.getMaxX() - SimulationView.globalTranslate.getX()) && tPlantDraw.body.getBodyPos().getY() > (SimulationView.cameraBound.getY() - SimulationView.globalTranslate.getY()) && tPlantDraw.body.getBodyPos().getY() < (SimulationView.cameraBound.getMaxY() - SimulationView.globalTranslate.getY()))
-			{
-				tPlantDraw.body.draw(simView);
-			}		
+			tPlantDraw.body.draw(simView);
 		}
 
 	}

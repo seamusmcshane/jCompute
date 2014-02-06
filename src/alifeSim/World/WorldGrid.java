@@ -76,15 +76,7 @@ public class WorldGrid
 	 * @param g Graphics
 	 */
 	public void draw(NewSimView simView)
-	{
-		/*g.setBackground(Color.black);
-
-		g.setColor(new Color(25, 25, 25));
-
-		g.setLineWidth(2f);
-
-		g.setAntiAlias(true);*/
-		
+	{		
 		A2RGBA major = new A2RGBA(0.2f,0.2f,0.2f,1f);
 
 		A2RGBA minor = new A2RGBA(0.1f,0.1f,0.1f,1f);
@@ -101,8 +93,8 @@ public class WorldGrid
 			{
 				color = minor;
 			}
-			simView.drawLine(hlines[i],color,2f);
-			simView.drawLine(vlines[i],color,2f);
+			simView.drawLine(hlines[i],color,2f,false);
+			simView.drawLine(vlines[i],color,2f,false);
 		}
 	}
 

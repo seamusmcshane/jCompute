@@ -390,7 +390,7 @@ public class SimpleAgentView
 			upDateViewLocation(aDis);
 			simView.drawCircle(fov, color);
 			
-			simView.drawLine(line, color, lineWidth);
+			simView.drawLine(line, color, lineWidth,true);
 			
 		}
 		
@@ -403,7 +403,7 @@ public class SimpleAgentView
 			upDateViewLocation(pDis);
 			simView.drawCircle(fov, color);
 			
-			simView.drawLine(line, color, lineWidth);
+			simView.drawLine(line, color, lineWidth,true);
 		}
 
 	}

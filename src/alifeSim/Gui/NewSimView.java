@@ -300,7 +300,12 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 	
 	public void drawCircle(A2DCircle circle,A2RGBA color)
-	{
+	{	
+		if(!viewCam.frustum.pointInFrustum(new Vector3(circle.getX(),circle.getY(),0)))
+		{
+			return;
+		}
+	
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
 		currentShapeRenderer.begin(ShapeType.Line);
@@ -311,6 +316,11 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public void drawFilledCircle(A2DCircle circle,A2RGBA color)
 	{
+		if(!viewCam.frustum.pointInFrustum(new Vector3(circle.getX(),circle.getY(),0)))
+		{
+			return;
+		}
+		
 		currentShapeRenderer.begin(ShapeType.Filled);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
@@ -318,10 +328,31 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 	
 	// Line
-	public void drawLine(A2DLine line,A2RGBA color,float width)
+	public void drawLine(A2DLine line,A2RGBA color,float width,boolean clipCheck)
 	{
-		Gdx.gl20.glLineWidth(width);
+		if(clipCheck)
+		{
+
+			boolean pos00View = true;
+			boolean pos11View = true;
+			
+			if(!viewCam.frustum.pointInFrustum(new Vector3(line.getX1(),line.getY1(),0)))
+			{
+				pos00View = false;
+			}
+			
+			if(!viewCam.frustum.pointInFrustum(new Vector3(line.getX2(),line.getY2(),0)))
+			{
+				pos11View = false;
+			}
+			
+			if(!pos00View && !pos11View)
+			{
+				return;
+			}
 		
+		}
+		Gdx.gl20.glLineWidth(width);
 		currentShapeRenderer.begin(ShapeType.Line);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
@@ -330,10 +361,33 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 	
 	// Line
-	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color,float width)
+	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color,float width,boolean clipCheck)
 	{
-		Gdx.gl20.glLineWidth(width);
 		
+		if(clipCheck)
+		{
+			boolean pos00View = true;
+			boolean pos11View = true;
+			
+			if(!viewCam.frustum.pointInFrustum(new Vector3(x1,y1,0)))
+			{
+				pos00View = false;
+			}
+			
+			if(!viewCam.frustum.pointInFrustum(new Vector3(x2,y2,0)))
+			{
+				pos11View = false;
+			}
+			
+			if(!pos00View && !pos11View)
+			{
+				return;
+			}		
+		}
+
+		
+		Gdx.gl20.glLineWidth(width);
+				
 		currentShapeRenderer.begin(ShapeType.Line);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         currentShapeRenderer.line(x1, y1, x2, y2);
@@ -342,8 +396,28 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 	
 	// Line
-	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color)
+	public void drawLine(float x1,float y1, float x2, float y2,A2RGBA color,boolean clipCheck)
 	{
+		if(clipCheck)
+		{
+			boolean pos00View = true;
+			boolean pos11View = true;
+			
+			if(!viewCam.frustum.pointInFrustum(new Vector3(x1,y1,0)))
+			{
+				pos00View = false;
+			}
+			
+			if(!viewCam.frustum.pointInFrustum(new Vector3(x2,y2,0)))
+			{
+				pos11View = false;
+			}
+			
+			if(!pos00View && !pos11View)
+			{
+				return;
+			}			
+		}
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
 		currentShapeRenderer.begin(ShapeType.Line);
@@ -367,6 +441,36 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color,float lineWidth)
 	{
+		boolean pos00View = true;
+		boolean pos01View = true;
+		boolean pos11View = true;
+		boolean pos10View = true;
+
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y,0)))
+		{
+			pos00View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y,0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y+height,0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y+height,0)))
+		{
+			pos11View = false;
+		}
+		
+		if(!pos00View && !pos10View && !pos01View && !pos11View)
+		{
+			return;
+		}
+		
 		Gdx.gl20.glLineWidth(lineWidth);
 
 		currentShapeRenderer.begin(ShapeType.Line);
@@ -379,6 +483,35 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 
+		boolean pos00View = true;
+		boolean pos01View = true;
+		boolean pos11View = true;
+		boolean pos10View = true;
+
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y,0)))
+		{
+			pos00View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y,0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y+height,0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y+height,0)))
+		{
+			pos11View = false;
+		}
+		
+		if(!pos00View && !pos10View && !pos01View && !pos11View)
+		{
+			return;
+		}
 		currentShapeRenderer.begin(ShapeType.Line);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.rect(x,  y, width, height);
@@ -393,6 +526,36 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public void drawFilledRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
+		boolean pos00View = true;
+		boolean pos01View = true;
+		boolean pos11View = true;
+		boolean pos10View = true;
+
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y,0)))
+		{
+			pos00View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y,0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y+height,0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y+height,0)))
+		{
+			pos11View = false;
+		}
+		
+		if(!pos00View && !pos10View && !pos01View && !pos11View)
+		{
+			return;
+		}
+		
 		currentShapeRenderer.begin(ShapeType.Filled);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.rect(x,  y, width, height);
