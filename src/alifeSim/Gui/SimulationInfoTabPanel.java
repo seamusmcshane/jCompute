@@ -46,7 +46,7 @@ public class SimulationInfoTabPanel extends JPanel
 	private ITrace2D traceST;
 	private HashMap<String,ITrace2D> traceMapST;
 	private ChartPanel chartPanelST;
-	private int stSamWin = 30;
+	private int stSamWin = 300;
 	
 	ITrace2D runTime;
 	float cOffset=0.8f;
