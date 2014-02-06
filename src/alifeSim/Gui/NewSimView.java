@@ -28,6 +28,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector3;
 
 public class NewSimView implements ApplicationListener, InputProcessor
 {
@@ -62,17 +63,13 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/* Mouse */
 	/** Stores the mouse vector across updates */
 	private A2DVector2f mousePos = new A2DVector2f(0, 0);
-	private A2DVector2f globalTranslateDefault = new A2DVector2f(-50, -50);
-
+	
 	private boolean button0Pressed;
 	
 	private BitmapFont font;
 
 	private float defaultLineWidth = 0.10f;
-	
-	private float minZoom = 0.1f;
-	private float maxZoom = 10f;
-	
+		
 	/* FBO / BBO */
 	private SpriteBatch bboSpriteBatch;
 	private ShapeRenderer bboShapeRenderer;
@@ -96,6 +93,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		canvas.getInput().setInputProcessor(this);
 		
 		viewCam = new OrthographicCamera(640, 480);
+		
 		resetCamera();
 		//viewCam.setToOrtho(true, 640, 480);
 	}
@@ -136,6 +134,9 @@ public class NewSimView implements ApplicationListener, InputProcessor
         font.setColor(Color.WHITE);
         
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888,Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),false);
+        
+		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 	}
 
 	@Override
@@ -174,7 +175,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		Gdx.gl.glViewport(0, 0, width, height);
 				
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
+			
 		viewCam.update();
 						        
 		bboShapeRenderer.setProjectionMatrix(viewCam.combined);
@@ -186,6 +187,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		{
 			if (drawSim)
 			{
+				viewCam.position.set(sim.getSimManager().getCamPos().getX(), sim.getSimManager().getCamPos().getY(),0);
+
+				viewCam.zoom = sim.getSimManager().getCamZoom();
+				
 				sim.drawSim(this,viewRangeDrawing,viewsDrawing);
 			}
 		}
@@ -197,6 +202,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	@Override
 	public void resize(int width, int height)
 	{		
+		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 		resetCamera();
 	}
 	
@@ -353,6 +360,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		}
 		Gdx.gl20.glLineWidth(width);
+				
 		currentShapeRenderer.begin(ShapeType.Line);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
@@ -418,6 +426,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 				return;
 			}			
 		}
+		
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
 		currentShapeRenderer.begin(ShapeType.Line);
@@ -512,6 +521,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		{
 			return;
 		}
+		
 		currentShapeRenderer.begin(ShapeType.Line);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.rect(x,  y, width, height);
@@ -590,19 +600,10 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	@Override
 	public boolean scrolled(int val)
 	{
-		viewCam.zoom +=(val*0.125f);
-		
-		if(viewCam.zoom < minZoom)
+		if(sim!=null)
 		{
-			viewCam.zoom = minZoom;
+			sim.getSimManager().adjCamZoom(val);
 		}
-		
-		if(viewCam.zoom > maxZoom)
-		{
-			viewCam.zoom = maxZoom;
-		}
-		
-		//System.out.println("Zoom " + viewCam.zoom);
 		
 		return false;
 	}
@@ -653,19 +654,26 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	}
 	
 	private void moveCamera(float x, float y)
-	{
-		viewCam.position.set(x, y,0);
+	{		
+		if(sim!=null)
+		{
+			sim.getSimManager().moveCamPos(x,y);
+		}
 	}
 	
-	private void resetCamera()
-	{
-		viewCam.zoom = 1f;
+	public void resetCamera()
+	{		
+		//viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
 		
-		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		if(sim!=null)
+		{
+			sim.getSimManager().resetCamZoom();
+			
+			sim.getSimManager().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);			
+		}
 
-		viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
-	}
-		
+	}	
+	
 	public void setSimulationTitle(String text)
 	{
 		simulationTitle = text;

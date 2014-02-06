@@ -7,12 +7,14 @@ import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
+import alifeSimGeom.A2DVector2f;
 
 
 /**
@@ -53,12 +55,19 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	private SAPPScenario scenario;
 	
 	private StatManager statManager;
+
+	// The local state of this simulations view
+	private SimViewCam simViewCam;
 	
 	/**
 	 * Constructor for SimulationManager.
 	*/
 	public SAPPSimulationManager(SAPPScenario scenario)
 	{
+		simViewCam = new SimViewCam();
+		
+		simViewCam.setCamOffset(new A2DVector2f(50,50));
+		
 		this.scenario = scenario;
 
 		setUpBarrierManager();
@@ -267,5 +276,41 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		barrierManager.displayBarrierTaskDebugStats();
 	}
+
+	@Override
+	public float getCamZoom()
+	{
+		return simViewCam.getCamZoom();
+	}
+	
+	@Override
+	public void resetCamPos(float x,float y)
+	{
+		simViewCam.resetCamPos(x, y);
+	}
+	
+	@Override
+	public void adjCamZoom(float z)
+	{
+		simViewCam.adjCamZoom(z);	
+	}
+
+	@Override
+	public void resetCamZoom()
+	{
+		simViewCam.resetCamZoom();			
+	}
+
+	@Override
+	public A2DVector2f getCamPos()
+	{
+		return new A2DVector2f(simViewCam.getCamPosX(),simViewCam.getCamPosY());
+	}
+
+	@Override
+	public void moveCamPos(float x, float y)
+	{
+		simViewCam.moveCam(x,y);		
+	}	
 
 }

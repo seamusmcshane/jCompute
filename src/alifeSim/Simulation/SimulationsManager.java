@@ -202,5 +202,15 @@ public class SimulationsManager
 		}
 		
 	}
+
+	/* Will Reset the Camera of the active */
+	public void resetActiveSimCamera()
+	{
+		if(simView!=null)
+		{
+			simView.resetCamera();
+		}
+		
+	}
 	
 }

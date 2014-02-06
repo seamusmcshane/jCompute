@@ -829,6 +829,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 					
 			simsManager.setActiveSim(simId);
 			
+			simsManager.resetActiveSimCamera();
+			
 			setUpPanels();
 
 			btnGenerateSim.setEnabled(true);
