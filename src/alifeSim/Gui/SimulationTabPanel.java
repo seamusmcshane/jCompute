@@ -344,17 +344,16 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		simRunTime.add(lblSimRunTime, BorderLayout.CENTER);
 
 		sliderSimStepRate = new JSlider();
+		sliderSimStepRate.setSnapToTicks(true);
 		sliderSimStepRate.addChangeListener(this);
 
 		sliderSimStepRate.setValue(15);
 		sliderSimStepRate.setToolTipText("Adjust requested step rate.");
-		sliderSimStepRate.setSnapToTicks(true);
 		sliderSimStepRate.setPreferredSize(new Dimension(25, 20));
 		sliderSimStepRate.setPaintTicks(true);
-		sliderSimStepRate.setMinorTickSpacing(30);
-		sliderSimStepRate.setMinimum(15);
+		sliderSimStepRate.setMinorTickSpacing(5);
 		sliderSimStepRate.setMaximum(300);
-		sliderSimStepRate.setMajorTickSpacing(150);
+		sliderSimStepRate.setMajorTickSpacing(15);
 		sliderSimStepRate.setEnabled(false);
 		GridBagConstraints gbc_sliderSimStepRate = new GridBagConstraints();
 		gbc_sliderSimStepRate.fill = GridBagConstraints.BOTH;
@@ -967,12 +966,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 
 			// Prevent a 0 value being set
-			if (sliderSimStepRate.getValue() == 0)
+			if (sliderSimStepRate.getValue() < 1)
 			{
 				lblRequestedStepRate.setText("1");
 
 				// Set the requested update rate
-				simsManager.setReqSimStepRate(simId,sliderSimStepRate.getValue());
+				simsManager.setReqSimStepRate(simId,1);
 				
 			}
 			else
