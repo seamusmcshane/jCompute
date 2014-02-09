@@ -41,10 +41,15 @@ public class SimulationPerformanceStats
 	{
 		if(simulationSteps%15 == 0)
 		{
-			outputTarget.setASPS((int)((float)simulationSteps/((float)stepTotalTime/1000f)));			
+			outputTarget.setASPS(getAverageStepRate());			
 			outputTarget.setStepNo(simulationSteps);
 			outputTarget.setTime(stepTotalTime);
 		}
+	}
+	
+	public int getAverageStepRate()
+	{
+		return (int)((float)simulationSteps/((float)stepTotalTime/1000f));
 	}
 	
 	public void setStepStartTime()
