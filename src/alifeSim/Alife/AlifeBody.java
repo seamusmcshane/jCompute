@@ -122,6 +122,6 @@ public class AlifeBody
 	{
 		body.setLocation(bodyPos.getX(), bodyPos.getY());
 
-		simView.drawCircle(body, color);
+		simView.drawFilledCircle(body, color);
 	}	
 }
