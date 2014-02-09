@@ -41,5 +41,56 @@
 	<classpathentry kind="lib" path="libs/gdx/libgdx-0.9.9/gdx-backend-lwjgl.jar"/>
 	<classpathentry kind="lib" path="libs/gdx/libgdx-0.9.9/gdx-natives.jar"/>
 	<classpathentry kind="lib" path="libs/gdx/libgdx-0.9.9/gdx.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/annotations/asm-4.1.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/annotations/asm-commons-4.1.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/annotations/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jaspi/javax.security.auth.message-1.0.0.v201108011116.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jndi/javax.activation-1.1.0.v201105071233.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jndi/javax.mail.glassfish-1.4.1.v201005082020.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jndi/javax.transaction-api-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/javax.el-3.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/javax.servlet.jsp-2.3.2.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/javax.servlet.jsp-api-2.3.1.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/jetty-jsp-jdt-2.3.3.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/org.apache.taglibs.standard.glassfish-1.2.0.v201112081803.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/org.eclipse.jdt.core-3.8.2.v20130121.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/monitor/jetty-monitor-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/setuid/jetty-setuid-java-1.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/spdy/spdy-client-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/spdy/spdy-core-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/spdy/spdy-http-common-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/spdy/spdy-http-server-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/spdy/spdy-server-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/javax-websocket-client-impl-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/javax-websocket-server-impl-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/javax.websocket-api-1.0.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/websocket-api-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/websocket-client-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/websocket-common-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/websocket-server-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/websocket/websocket-servlet-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-annotations-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-client-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-continuation-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-deploy-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-http-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-io-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-jaas-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-jaspi-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-jmx-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-jndi-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-plus-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-proxy-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-rewrite-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-schemas-3.1.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-security-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-server-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-servlet-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-servlets-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-util-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-webapp-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-xml-9.1.1.v20140108.jar"/>
+	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/servlet-api-3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
