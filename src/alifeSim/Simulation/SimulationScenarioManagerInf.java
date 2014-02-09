@@ -1,7 +1,5 @@
 package alifeSim.Simulation;
 
-import java.awt.Component;
-
 import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2DVector2f;

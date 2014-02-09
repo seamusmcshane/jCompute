@@ -107,9 +107,7 @@ public class Simulation
 
 				/* Top Priority to the simulation thread */
 				//thisThread.setPriority(Thread.MAX_PRIORITY);
-				
-				simStats.setUpStepsPerSecond();
-				
+								
 				while (running)
 				{
 						simUpdate();
@@ -139,16 +137,6 @@ public class Simulation
 
 		// Increment the Step counter
 		simStats.incrementSimulationSteps();
-		
-		
-		/*if( (simStats.getSimulationSteps() % 100 ) == 0)
-		{
-			System.out.println("Step : " + simStats.getSimulationSteps());
-			simManager.displayDebug();
-		}*/
-		
-		// Calculate the Steps per Second
-		simStats.calcStepsPerSecond();
 
 		// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
 		if(realtime)
