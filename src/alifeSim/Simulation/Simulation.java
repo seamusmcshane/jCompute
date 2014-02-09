@@ -17,6 +17,26 @@ import alifeSim.Scenario.ScenarioInf;
  */
 public class Simulation
 {
+	public enum SimulationState
+	{		
+		NEW ("NEW"),
+		RUNNING ("RUNNING"),
+		PAUSED ("PAUSED"),
+		FINISHED ("FINISHED");
+
+	    private final String name;
+
+	    private SimulationState(String name) 
+	    {
+	        this.name = name;
+	    }
+
+	    public String toString()
+	    {
+	       return name;
+	    }
+	};
+	
 	/* Stats */
 	private SimulationPerformanceStats simStats;
 	
@@ -36,8 +56,7 @@ public class Simulation
 	private Semaphore pause;
 
 	/* Simulation state */
-	private boolean simPaused = true;
-	private boolean simStarted = false;
+	private SimulationState state = SimulationState.NEW;	
 
 	/* Simulation Update Thread */
 	private Thread asyncUpdateThread;
@@ -79,7 +98,7 @@ public class Simulation
 	{
 		// Pause will get the simulation threads to a safe position, i.e not
 		// inside a list.
-		if (!simPaused())
+		if ( simPaused() == SimulationState.PAUSED)
 		{
 			pauseSim();
 		}
@@ -192,25 +211,50 @@ public class Simulation
 	 */
 	public void startSim()
 	{
-		simStarted = true;
 		unPauseSim();
 	}
 
+	/**
+	 *  Toggle Pause/UnPause
+	 */
+	
+	public SimulationState togglePause()
+	{
+		if(state == SimulationState.RUNNING)
+		{
+			pauseSim();
+		}
+		else if(state == SimulationState.PAUSED)
+		{
+			unPauseSim();
+		}
+		else
+		{
+			System.out.println("ATTEMPT to PAUSE Simulation in :" + state);
+		}
+		
+		return state;
+	}
+	
 	/**
 	 * UnPauses the Sim.
 	 */
 	public void unPauseSim()
 	{
-		simPaused = false;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now unpaused.
+		state = SimulationState.RUNNING;
+		
+		System.out.println("Sim " + state.toString());
+		
 		pause.release();					// Release the pause semaphore
+		
 	}
 
 	/**
 	 * Method simPaused.
 	 * @return boolean */
-	public boolean simPaused()
+	public SimulationState simPaused()
 	{
-		return simPaused;
+		return state;
 	}
 
 	/**
@@ -220,7 +264,10 @@ public class Simulation
 	{
 		pause.acquireUninterruptibly();		// Pause the sim
 
-		simPaused = true;					// Sets the logic boolean to indicate to the other parts of the code that the sim is now paused.					
+		state = SimulationState.PAUSED;
+
+		System.out.println("Sim " + state.toString());
+		
 	}
 
 	/**
@@ -269,4 +316,14 @@ public class Simulation
 		this.charts = charts;
 	}	
 	
+	public SimulationPerformanceStats getStats()
+	{
+		return simStats;
+	}
+
+	public SimulationState getState()
+	{
+		return state;
+	}
+		
 }
