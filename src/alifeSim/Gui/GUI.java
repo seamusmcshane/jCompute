@@ -36,30 +36,28 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
-public class NewGUI 
+public class GUI 
 {
 	// Main Frame
-	private static JFrame guiFrame;
+	private JFrame guiFrame;
 	
 	// Menu Check Boxes
-	private static JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
+	private JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
 	
 	// Split Pane
-	private static JSplitPane splitPane;
+	private JSplitPane splitPane;
 	
 	// Tab Manager (Left Split)
-	private static SimulationTabPanelManager simTabs;
+	private SimulationTabPanelManager simTabs;
 			
 	// Simulation View (Right Split)
-	private static NewSimView simView;
+	private NewSimView simView;
 	
-	// Simulations Manager
-	private static int maxConcurrentSims = 8;
-	private static SimulationsManager simsManager;
-
-	public static void main(String args[])
+	private SimulationsManager simsManager;
+	
+	public GUI(SimulationsManager simsManager)
 	{
-		simsManager = new SimulationsManager(maxConcurrentSims);		
+		this.simsManager = simsManager;
 		
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() 
 	    {
@@ -74,7 +72,7 @@ public class NewGUI
 	    });
 	}
 	
-	private static void setUpMenu()
+	private void setUpMenu()
 	{
 		JMenuBar menuBar = new JMenuBar();
 		guiFrame.setJMenuBar(menuBar);
@@ -175,7 +173,7 @@ public class NewGUI
 
 	}
 	
-	private static void setUpGUI()
+	private void setUpGUI()
 	{
 		
 		/* Simulation View */
@@ -219,7 +217,7 @@ public class NewGUI
 		guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 	
-	private static void registerGUIListeners()
+	private void registerGUIListeners()
 	{
 		/* Window Closing */
 		guiFrame.addWindowListener(new WindowAdapter()
@@ -235,7 +233,7 @@ public class NewGUI
 	}
 	
 	/* Ensure the user wants to exit then exit the program */
-	private static void doProgramExit()
+	private void doProgramExit()
 	{
 
 		String message;
@@ -264,7 +262,7 @@ public class NewGUI
 	}
 	
 	/* Use the java provided system look and feel */
-	private static void lookandFeel()
+	private void lookandFeel()
 	{
 		try
 		{
