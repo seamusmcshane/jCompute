@@ -16,7 +16,7 @@ public class SimulationPerformanceStats
 	
 	// Average Steps per second
 	int averageStepsPerSecond;
-	private int numSamples = 150;	
+	private int numSamples = 15;	
 	private float stepSamples[];
 	private float tasps; 		// To avoid a cumulative rounding error when calculating the average, a double is use
 	private float sps;	 			// Average Steps Per Second as an int for display purposes
