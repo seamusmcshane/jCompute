@@ -325,5 +325,10 @@ public class Simulation
 	{
 		return state;
 	}
+
+	public SimulationPerformanceStats getSimulationPerformanceStats()
+	{
+		return simStats;
+	}
 		
 }
