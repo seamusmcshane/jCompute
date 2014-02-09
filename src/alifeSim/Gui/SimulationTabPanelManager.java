@@ -17,6 +17,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import alifeSim.Simulation.Simulation.SimulationState;
 import alifeSim.Simulation.SimulationsManager;
 
 public class SimulationTabPanelManager extends JTabbedPane implements MouseListener, ActionListener
@@ -119,32 +120,34 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				  {
 					  	SimulationTabPanel temp = (SimulationTabPanel) getComponentAt (i);
 
-						if(temp.getState().equals("Running"))
-						{
+					  	int simId = temp.getSimulationId();
+					  	
+					  	SimulationState state = simsManager.getSimState(simId);
+					  	
+					  	if(state == SimulationState.RUNNING)
+					  	{
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png")));
-							
-							simulationInfoTab.addRow(getTitleAt(i), new String[]{temp.getState(), temp.getStepNo(),temp.getASPS(), temp.getTime()});
-						}
-						else if(temp.getState().equals("Paused"))
-						{
+							simulationInfoTab.addRow(getTitleAt(i), new String[]{state.toString(), temp.getStepNo(),temp.getASPS(), temp.getTime()});
+					  		
+					  	}
+					  	else if(state == SimulationState.PAUSED)
+					  	{
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png")));
 							
-							simulationInfoTab.addRow(getTitleAt(i), new String[]{temp.getState(), temp.getStepNo(),"0", temp.getTime()});
-						}
-						else if(temp.getState().equals("New"))
-						{
+							simulationInfoTab.addRow(getTitleAt(i), new String[]{state.toString(), temp.getStepNo(),"0", temp.getTime()});					  		
+					  		
+					  	}
+					  	else if(state == SimulationState.NEW)
+					  	{
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
 							
-							simulationInfoTab.addRow(getTitleAt(i),  new String[]{temp.getState(), temp.getStepNo(),"0", temp.getTime()});
-
-						}
-						else
-						{
+							simulationInfoTab.addRow(getTitleAt(i),  new String[]{state.toString(), temp.getStepNo(),"0", temp.getTime()});					  		
+					  	}
+					  	else // Finished
+					  	{
 							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png")));
-							
-							simulationInfoTab.addRow(getTitleAt(i), new String[]{temp.getState(), temp.getStepNo(),"0", temp.getTime()});
-
-						}	
+							simulationInfoTab.addRow(getTitleAt(i), new String[]{state.toString(), temp.getStepNo(),"0", temp.getTime()});					  		
+					  	}
 				  }	
 			  }  
 		  }

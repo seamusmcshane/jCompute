@@ -11,6 +11,7 @@ import java.util.concurrent.Semaphore;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Simulation.Simulation.SimulationState;
 import alifeSim.Stats.StatManager;
 
 public class SimulationsManager
@@ -131,24 +132,43 @@ public class SimulationsManager
 		
 	}
 
-	public boolean isSimPaused(int simId)
+	public SimulationState isSimPaused(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 				
 		Simulation sim = simulations.get(simId);
 		
+		SimulationState state = null;
+		
 		if(sim!=null)
 		{	
-			simulationsManagerLock.release();
-
-			return sim.simPaused();
+			state = sim.simPaused();
 		}
 
 		simulationsManagerLock.release();
 		
-		return false;
+		return state;
 	}
 
+	public SimulationState togglePause(int simId)
+	{
+		SimulationState state = null;
+		
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{	
+			state = sim.togglePause();
+		}		
+		
+		simulationsManagerLock.release();	
+		
+		return state;
+		
+	}
+	
 	public void unPauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -278,4 +298,26 @@ public class SimulationsManager
 		
 		return list;
 	}	
+	
+	public SimulationState getSimState(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		SimulationState state;
+		
+		if(sim!=null)
+		{	
+			state = sim.getState();
+		}
+		else
+		{
+			state = SimulationState.NEW;
+		}
+		
+		simulationsManagerLock.release();
+		
+		return state;
+	}
 }
