@@ -115,7 +115,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 		  {
 			  if(getComponentAt (i)!=null)
 			  {
-				  //System.out.println("Timer");
 				  if(getComponentAt(i).getClass().equals(SimulationTabPanel.class))
 				  {
 					  	SimulationTabPanel temp = (SimulationTabPanel) getComponentAt (i);
@@ -240,8 +239,6 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				if(simulationTabs[i] == this.getSelectedComponent())
 				{
 					selectedTabIndex=i;
-					System.out.println(" " + this.getSelectedIndex());
-					System.out.println(" " + selectedTabIndex);
 					showPopUP(e);
 				}
 			}
