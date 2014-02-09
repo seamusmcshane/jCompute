@@ -116,6 +116,24 @@ public class SimulationsManager
 		
 		return statManager;
 	}
+	
+	public SimulationScenarioManagerInf getScenarioManager(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		 SimulationScenarioManagerInf scenarioManager = null;
+		
+		if(sim!=null)
+		{			
+			scenarioManager = simulations.get(simId).getSimManager();	
+		}
+		
+		simulationsManagerLock.release();
+		
+		return scenarioManager;
+	}
 
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
@@ -280,7 +298,30 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	public List<Integer> getSimList()
+	public List<Simulation> getSimList()
+	{
+		simulationsManagerLock.acquireUninterruptibly();		
+		
+		Set<Integer> simSet = simulations.keySet();
+		List<Simulation> list = new LinkedList<Simulation>();
+
+		if(simSet!=null)
+		{
+		
+	
+			for(Integer id : simSet)
+			{
+				list.add(simulations.get(id));
+			}
+
+		}
+				
+		simulationsManagerLock.release();
+		
+		return list;
+	}	
+	
+	public List<Integer> getSimIdList()
 	{
 		simulationsManagerLock.acquireUninterruptibly();		
 		
@@ -319,5 +360,27 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 		
 		return state;
+	}
+
+	public SimulationPerformanceStats getSimPerformanceStats(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		SimulationPerformanceStats stats;
+		
+		if(sim!=null)
+		{	
+			stats = sim.getSimulationPerformanceStats();
+		}
+		else
+		{
+			stats = null;
+		}
+		
+		simulationsManagerLock.release();
+		
+		return stats;
 	}
 }
