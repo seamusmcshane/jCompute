@@ -80,7 +80,6 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	private SpriteBatch currentSpriteBatch;
 	private ShapeRenderer currentShapeRenderer;
-
 	
 	public NewSimView()
 	{
@@ -176,7 +175,6 @@ public class NewSimView implements ApplicationListener, InputProcessor
 				
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			
-		viewCam.update();
 						        
 		bboShapeRenderer.setProjectionMatrix(viewCam.combined);
 		bboSpriteBatch.setProjectionMatrix(viewCam.combined);
@@ -190,6 +188,8 @@ public class NewSimView implements ApplicationListener, InputProcessor
 				viewCam.position.set(sim.getSimManager().getCamPos().getX(), sim.getSimManager().getCamPos().getY(),0);
 
 				viewCam.zoom = sim.getSimManager().getCamZoom();
+				
+				viewCam.update();
 				
 				sim.drawSim(this,viewRangeDrawing,viewsDrawing);
 			}
