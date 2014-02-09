@@ -1,7 +1,10 @@
 package alifeSim.Simulation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -97,6 +100,8 @@ public class SimulationsManager
 
 	public StatManager getStatManager(int simId)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		StatManager statManager = null;
@@ -106,11 +111,15 @@ public class SimulationsManager
 			statManager = simulations.get(simId).getSimManager().getStatmanger();	
 		}
 		
+		simulationsManagerLock.release();
+		
 		return statManager;
 	}
 
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
@@ -118,22 +127,32 @@ public class SimulationsManager
 			sim.setReqStepRate(stepRate);
 		}
 		
+		simulationsManagerLock.release();
+		
 	}
 
 	public boolean isSimPaused(int simId)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+				
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
 		{	
+			simulationsManagerLock.release();
+
 			return sim.simPaused();
 		}
 
+		simulationsManagerLock.release();
+		
 		return false;
 	}
 
 	public void unPauseSim(int simId)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
@@ -141,10 +160,14 @@ public class SimulationsManager
 			sim.unPauseSim();
 		}
 		
+		simulationsManagerLock.release();
+		
 	}
 
 	public void destroySimulation(int simId)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
@@ -154,10 +177,14 @@ public class SimulationsManager
 			sim.destroySim();
 		}
 		
+		simulationsManagerLock.release();
+		
 	}
 
 	public void createSimScenario(int simId, ScenarioInf simScenario)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
@@ -165,10 +192,14 @@ public class SimulationsManager
 			sim.createSimScenario(simScenario);
 		}
 		
+		simulationsManagerLock.release();
 	}
+	
 
 	public void setSimOutPutCharts(int simId, LinkedList<StatPanelAbs> charts)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
@@ -176,10 +207,14 @@ public class SimulationsManager
 			sim.setOutPutCharts(charts);
 		}
 		
+		simulationsManagerLock.release();
+		
 	}
 	
 	public void setActiveSim(int simId)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		Simulation sim = simulations.get(simId);
 		
 		if(simView!=null)
@@ -187,30 +222,60 @@ public class SimulationsManager
 			simView.setSim(sim);
 		}
 		
+		simulationsManagerLock.release();
 	}
 
 	public void setSimView(NewSimView simView)
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		this.simView = simView;
+		
+		simulationsManagerLock.release();
 	}
 	
 	public void clearActiveSim()
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		if(simView!=null)
 		{
 			simView.setSim(null);
 		}
+		
+		simulationsManagerLock.release();
 		
 	}
 
 	/* Will Reset the Camera of the active */
 	public void resetActiveSimCamera()
 	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
 		if(simView!=null)
 		{
 			simView.resetCamera();
 		}
 		
+		simulationsManagerLock.release();
 	}
 	
+	public List<Integer> getSimList()
+	{
+		simulationsManagerLock.acquireUninterruptibly();		
+		
+		Set<Integer> simSet = simulations.keySet();
+
+		List<Integer> list = null;
+
+		if(simSet!=null)
+		{
+			list = new ArrayList<Integer>(simSet);
+		}
+				
+		simulationsManagerLock.release();
+
+		
+		return list;
+	}	
 }
