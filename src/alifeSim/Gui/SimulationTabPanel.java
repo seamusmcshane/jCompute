@@ -71,7 +71,9 @@ import alifeSim.Stats.StatManager;
 public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationPerformanceStatsOutputInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
-
+	
+	private String tabTitle = "New";
+	
 	// Graphs
 	JTabbedPane simulationTabPane;
 	LinkedList<StatPanelAbs> charts;
@@ -567,7 +569,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			{
 				System.out.println("New Scenario Choosen");
 				
-				simsManager.destroySimulation(simId);
+				simsManager.removeSimulation(simId);
 				
 				// File scenarioFile = filechooser.getSelectedFile();
 				lblFilePath.setText(filechooser.getSelectedFile().getName());
@@ -632,7 +634,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			{
 				checkSaved();
 				
-				destroySimulation();
+				removeSimulation();
 				
 				scenarioEditor.setText("");
 				lblFilePath.setText("No File");
@@ -753,16 +755,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		return simScenario;
 	}
 
-	private void destroySimulation()
-	{
-		System.out.println("Request to Destroy Old Simulation");
-
-		simsManager.destroySimulation(simId);
-			
-		System.out.println("Simulation Destroyed");
-
-	}
-
 	private void setUpPanels()
 	{
 		// Remove all tabs
@@ -819,11 +811,13 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		ScenarioInf simScenario = null;
 
-		destroySimulation();
+		removeSimulation();
 
 		// Add a new sim and direct its performance stats to this panel.
 		simId = simsManager.addSimulation(new SimulationPerformanceStats(this));
 						
+		tabTitle = "Simulation " + simId;
+		
 		simScenario = determinScenarios(scenario);
 
 		if (simScenario != null)
@@ -920,6 +914,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	{
 		System.out.println("Simulation now in Startup State");
 
+		tabTitle = "Loaded";
+		
 		clearStats();
 
 		btnStartSim.setEnabled(false);
@@ -1027,11 +1023,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
-	public void destroy()
-	{
-		destroySimulation();
-	}
-
 	@Override
 	public void clearStats()
 	{
@@ -1070,5 +1061,27 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public int getSimulationId()
 	{
 		return simId;
+	}
+
+	public void removeSim()
+	{
+		removeSimulation();		
+	}
+
+	private void removeSimulation()
+	{
+		System.out.println("Request to Remove Simulation");
+
+		simsManager.removeSimulation(simId);
+			
+		System.out.println("Simulation Removed");
+		
+		tabTitle = "No Sim";
+		
+	}
+	
+	public String getTitle()
+	{
+		return tabTitle;
 	}
 }

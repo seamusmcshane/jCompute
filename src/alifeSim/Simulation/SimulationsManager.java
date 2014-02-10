@@ -65,8 +65,15 @@ public class SimulationsManager
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
-		// remove sim id...
-				
+		Simulation sim = simulations.remove(simId);
+		
+		if(sim!=null)
+		{	
+			// Clear the Active Simulation Reference
+			simView.setSim(null);
+			
+			sim.destroySim();
+		}
 		
 		simulationsManagerLock.release();
 	}
@@ -196,24 +203,6 @@ public class SimulationsManager
 		if(sim!=null)
 		{	
 			sim.unPauseSim();
-		}
-		
-		simulationsManagerLock.release();
-		
-	}
-
-	public void destroySimulation(int simId)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
-			// Clear the Active Simulation Reference
-			simView.setSim(null);
-			
-			sim.destroySim();
 		}
 		
 		simulationsManagerLock.release();
