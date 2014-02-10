@@ -1,0 +1,104 @@
+<html>
+<head>
+<Title>TEST TITLE</Title>
+<script src="jquery/jquery-2.1.0.js"></script>
+<style>
+#tablecontainer 
+{    
+	display: table;
+	margin: auto;
+}
+
+#tableheader  
+{
+	display: table-caption;
+	text-align: center;
+	font-weight: bold;
+	font-size: larger;
+}
+
+#tablerow  
+{
+	display: table-row;
+	
+}
+
+#tablecell
+{
+	display: table-cell;
+	text-align: center;
+	width : 100px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+</style>
+<script>
+function drawSimTable()
+{
+		var table_row = '<div class="tablecontainer">';
+		
+		$('.tablecontainer').replaceWith($(table_row));			
+		
+		$.get('SimulationsList', function(simList)
+		{
+			
+			$(simList).find('Simulation').each(function()
+			{
+				var $sim = $(this);
+				
+				var ID = $sim.find('ID').text();
+				var State = $sim.find('State').text();
+				var TotalTime = $sim.find('TotalTime').text();
+				var Steps = $sim.find('Steps').text();
+				var AvgSPS = $sim.find('AvgSPS').text();
+				
+				var header_row = '<div id ="tableheader">';
+				
+				header_row+='<div id="tablecell">Sim ID</div>';
+				header_row+='<div id="tablecell">State</div>';
+				header_row+='<div id="tablecell">TotalTime</div>';
+				header_row+='<div id="tablecell">Steps</div>';
+				header_row+='<div id="tablecell">AvgSPS</div>';
+				
+				header_row+='</div>';
+				
+				$(".tablecontainer").append($(header_row));
+				
+				var data_row = '<div id="tablerow">';
+				
+				data_row+='<div id="tablecell">' + ID + ' </div>'
+				data_row+='<div id="tablecell">'  + State  +'</div>';
+				data_row+='<div id="tablecell">' + TotalTime + '</div>';
+				data_row+='<div id="tablecell"> ' + Steps + '</div>';
+				data_row+='<div id="tablecell">' + AvgSPS + '</div>';			
+				
+				data_row+='</div>';
+					
+				$(".tablecontainer").append($(data_row));
+			});
+			
+			$('body').append('</div>');
+
+		});
+}
+
+</script>
+
+
+
+</head>
+
+<Body>
+ <div class="tablecontainer">
+</div>
+<script type="text/javascript">
+	$(document).ready(function()
+	{
+		setInterval(drawSimTable, 100);
+	});
+</script>
+
+</Body>
+
+</html>
