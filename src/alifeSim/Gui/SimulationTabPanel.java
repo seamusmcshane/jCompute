@@ -1070,11 +1070,18 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void removeSimulation()
 	{
-		System.out.println("Request to Remove Simulation");
+		if(simId!=-1)
+		{
+			System.out.println("Request to Remove Simulation");
 
-		simsManager.removeSimulation(simId);
-			
-		System.out.println("Simulation Removed");
+			simsManager.removeSimulation(simId);
+				
+			System.out.println("Simulation Removed");
+		}
+		else
+		{
+			System.out.println("No Sim to Remove");
+		}
 		
 		tabTitle = "No Sim";
 		

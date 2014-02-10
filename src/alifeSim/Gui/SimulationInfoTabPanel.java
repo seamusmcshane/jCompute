@@ -145,7 +145,12 @@ public class SimulationInfoTabPanel extends JPanel
 	public void clearTrace(String name)
 	{
 		ITrace2D tempT = traceMapST.remove(name);
-		chart2dST.removeTrace(tempT);		
+		
+		if(tempT!=null)
+		{
+			chart2dST.removeTrace(tempT);		
+		}
+		
 	}
 
 	
