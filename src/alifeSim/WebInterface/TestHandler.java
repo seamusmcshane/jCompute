@@ -30,29 +30,55 @@ public class TestHandler extends AbstractHandler
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
 	{
-		List<Integer> simList = simsManager.getSimIdList();
-				
-		response.setContentType("text/html;charset=utf-8");
+
+		System.out.println(baseRequest.getPathInfo());
+		
+		simulationListXML(baseRequest,response);
+		
+		return;		
+	}
+	
+	private void simulationListXML(Request baseRequest,HttpServletResponse response)
+	{
+		response.setContentType("text/xml;charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 		baseRequest.setHandled(true);
 		
-		response.getWriter().println("<h1>"+"Simulations"+"</h1>");		
-					
+		List<Integer> simList = simsManager.getSimIdList();
 		
-		for(Integer id : simList)
+		try
 		{
-			
-			SimulationPerformanceStats perfStats = simsManager.getSimPerformanceStats(id);
-			
-			response.getWriter().println("Simulation : " + id);
-			response.getWriter().println("State		 : " + simsManager.getSimState(id).toString());
-			response.getWriter().println("Total Time : " + formatTime(perfStats.getTotalTime()));
-			response.getWriter().println("Steps      : " + perfStats.getSimulationSteps());
-			response.getWriter().println("AvgSPS     : " + perfStats.getAverageStepRate());		
-			response.getWriter().println("</br>");
-		}
 		
-		return;		
+			// Simulations Tag
+			response.getWriter().print("<Simulations>");
+		
+				for(Integer id : simList)
+				{
+					
+					SimulationPerformanceStats perfStats = simsManager.getSimPerformanceStats(id);
+					
+					// Simulation Tag		
+					response.getWriter().print("<Simulation>");
+					
+					// Sim Values
+					response.getWriter().print("<ID>");response.getWriter().print(id);response.getWriter().print("</ID>");
+					response.getWriter().print("<State>");response.getWriter().print(simsManager.getSimState(id).toString());response.getWriter().print("</State>");
+					response.getWriter().print("<TotalTime>");response.getWriter().print(formatTime(perfStats.getTotalTime()));response.getWriter().print("</TotalTime>");
+					response.getWriter().print("<Steps>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</Steps>");
+					response.getWriter().print("<AvgSPS>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</AvgSPS>");
+					
+					// End Simulation Tag
+					response.getWriter().print("</Simulation>");
+				}
+		
+			// End Simulations Tag
+			response.getWriter().print("</Simulations>");
+		
+		}
+		catch (IOException e)
+		{
+			System.out.println("IOException - : " + e.getStackTrace()[0].getMethodName());
+		}
 	}
 	
 	private String formatTime(long time)
