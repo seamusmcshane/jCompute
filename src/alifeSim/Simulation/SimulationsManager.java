@@ -210,7 +210,8 @@ public class SimulationsManager
 		
 		if(sim!=null)
 		{	
-			clearActiveSim();
+			// Clear the Active Simulation Reference
+			simView.setSim(null);
 			
 			sim.destroySim();
 		}
