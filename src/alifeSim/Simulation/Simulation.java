@@ -96,13 +96,17 @@ public class Simulation
 	 */
 	public void destroySim()
 	{
-		// Pause will get the simulation threads to a safe position, i.e not
-		// inside a list.
-		if ( simPaused() == SimulationState.PAUSED)
+		// Ensure we have the simulation in a state where it is not active.
+		
+		if ( state == SimulationState.RUNNING)
 		{
+			System.out.println("Pausing... (state|"+state.toString()+")");
+
 			pauseSim();
 		}
 		
+		System.out.println("Destroying...");
+
 		if(simManager!=null)
 		{
 			/* Initiate clean up */
