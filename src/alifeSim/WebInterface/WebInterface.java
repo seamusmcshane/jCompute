@@ -21,10 +21,10 @@ public class WebInterface
 		
 		ResourceHandler resource_handler = new ResourceHandler();
 		
-        resource_handler.setDirectoriesListed(true);
+        resource_handler.setDirectoriesListed(false);
         resource_handler.setWelcomeFiles(new String[]{ "index.html" });
         resource_handler.setResourceBase("./WebInterface");
-		
+
         HandlerList handlers = new HandlerList();
         handlers.addHandler(resource_handler);
         //handlers.setHandlers(new Handler[] { resource_handler, new DefaultHandler() });
@@ -34,9 +34,8 @@ public class WebInterface
         ContextHandler context = new ContextHandler();
         context.setContextPath("/SimulationsList");
         context.setResourceBase(".");
-        context.setClassLoader(Thread.currentThread().getContextClassLoader());
+        //context.setClassLoader(Thread.currentThread().getContextClassLoader());
         handlers.addHandler(context);
-        
         
 		server.setHandler(handlers);
 		context.setHandler(new TestHandler(simsManager));
