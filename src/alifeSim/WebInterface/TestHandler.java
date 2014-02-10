@@ -65,7 +65,7 @@ public class TestHandler extends AbstractHandler
 					response.getWriter().print("<State>");response.getWriter().print(simsManager.getSimState(id).toString());response.getWriter().print("</State>");
 					response.getWriter().print("<TotalTime>");response.getWriter().print(formatTime(perfStats.getTotalTime()));response.getWriter().print("</TotalTime>");
 					response.getWriter().print("<Steps>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</Steps>");
-					response.getWriter().print("<AvgSPS>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</AvgSPS>");
+					response.getWriter().print("<AvgSPS>");response.getWriter().print(perfStats.getAverageStepRate());response.getWriter().print("</AvgSPS>");
 					
 					// End Simulation Tag
 					response.getWriter().print("</Simulation>");
