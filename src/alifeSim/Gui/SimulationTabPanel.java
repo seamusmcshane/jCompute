@@ -696,7 +696,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 				System.out.println("Saved : " + fileName);
 				saved = true;
-
+				
+				lblFilePath.setText(filechooser.getSelectedFile().getName()+".xml");
+				
 			}
 			catch (IOException e)
 			{
