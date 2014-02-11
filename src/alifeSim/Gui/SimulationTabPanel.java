@@ -1127,7 +1127,5 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	  	
   		simulationTabPanelManager.setTitleAt(tabPanelIndex, tabTitle);
   		
-  		System.out.println("Status Changed");
-
 	}
 }
