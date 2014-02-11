@@ -51,10 +51,10 @@
 		<SimpleAgent>
 			<Type>Predator</Type>
 			<InitialNumbers>100</InitialNumbers>
-			<Size>5</Size>
+			<Size>3.5</Size>
 			<Speed>1.00</Speed>
 			<ViewRange>10</ViewRange>
-			<MovementCost>0.025</MovementCost>
+			<MovementCost>0.033</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
 			<DigestiveEfficiency>0.5</DigestiveEfficiency>
 			<HungerThreshold>50</HungerThreshold>
@@ -65,10 +65,10 @@
 		<SimpleAgent>
 			<Type>Prey</Type>
 			<InitialNumbers>800</InitialNumbers>
-			<Size>5</Size>
+			<Size>3.5</Size>
 			<Speed>0.90</Speed>
 			<ViewRange>10</ViewRange>
-			<MovementCost>0.025</MovementCost>
+			<MovementCost>0.033</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
 			<DigestiveEfficiency>0.4</DigestiveEfficiency>
 			<HungerThreshold>50</HungerThreshold>

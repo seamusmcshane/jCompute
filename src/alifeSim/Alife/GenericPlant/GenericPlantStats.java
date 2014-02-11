@@ -17,7 +17,7 @@ public class GenericPlantStats
 	private float maxSize; 		// TODO - Allow plants to increase in size, based on energy value?
 
 	/* hard coded sizes for now - planned is - plants size changes with growth */
-	private float size = 2;
+	private float size = 1.4f;
 
 	private int sizeDiv = 1;
 
