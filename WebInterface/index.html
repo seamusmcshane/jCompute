@@ -46,7 +46,7 @@ function drawSimTable()
 		
 		$('.tablecontainer').replaceWith($(table_row));			
 		
-		$.get('SimulationsList', function(simList)
+		$.get('./xml/SimulationsList.xml', function(simList)
 		{
 			
 			$(simList).find('Simulation').each(function()

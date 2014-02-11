@@ -17,12 +17,12 @@ import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatManager;
 
-public class TestHandler extends AbstractHandler
+public class XMLHandler extends AbstractHandler
 {
 	private SimulationsManager simsManager;
 	private ServletResponse response;
 	
-	public TestHandler(SimulationsManager simsManager)
+	public XMLHandler(SimulationsManager simsManager)
 	{
 		this.simsManager = simsManager;
 	}
@@ -31,10 +31,15 @@ public class TestHandler extends AbstractHandler
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
 	{
 
-		System.out.println(baseRequest.getPathInfo());
+		System.out.println(request.getPathInfo());
 		
-		simulationListXML(baseRequest,response);
+		String fileName = request.getPathInfo();
 		
+		if(fileName.equals("/SimulationsList.xml"))
+		{
+			simulationListXML(baseRequest,response);
+		}
+				
 		return;		
 	}
 	
@@ -73,7 +78,8 @@ public class TestHandler extends AbstractHandler
 		
 			// End Simulations Tag
 			response.getWriter().print("</Simulations>");
-		
+			response.getWriter().flush();
+					
 		}
 		catch (IOException e)
 		{

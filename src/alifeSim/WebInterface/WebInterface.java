@@ -1,8 +1,12 @@
 package alifeSim.WebInterface;
 
+import java.util.Properties;
+
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import alifeSim.Simulation.SimulationsManager;
@@ -16,29 +20,24 @@ public class WebInterface
 	public WebInterface(SimulationsManager simsManager)
 	{
 		this.simsManager = simsManager;
-		
+				
 		server = new Server(8080);
-		
+		HandlerList handlers = new HandlerList();
+        		
 		ResourceHandler resource_handler = new ResourceHandler();
-		
         resource_handler.setDirectoriesListed(false);
         resource_handler.setWelcomeFiles(new String[]{ "index.html" });
         resource_handler.setResourceBase("./WebInterface");
-
-        HandlerList handlers = new HandlerList();
         handlers.addHandler(resource_handler);
-        //handlers.setHandlers(new Handler[] { resource_handler, new DefaultHandler() });
-        //server.setHandler(handlers);
 		
 		// SIM LIST
         ContextHandler context = new ContextHandler();
-        context.setContextPath("/SimulationsList");
-        context.setResourceBase(".");
-        //context.setClassLoader(Thread.currentThread().getContextClassLoader());
+        context.setContextPath("/xml");
+        context.setClassLoader(Thread.currentThread().getContextClassLoader());
         handlers.addHandler(context);
         
 		server.setHandler(handlers);
-		context.setHandler(new TestHandler(simsManager));
+		context.setHandler(new XMLHandler(simsManager));
 		
 		try
 		{
