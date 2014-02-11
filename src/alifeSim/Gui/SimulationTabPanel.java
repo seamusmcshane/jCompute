@@ -61,12 +61,13 @@ import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Math.LVScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationState.SimStatus;
-import alifeSim.Simulation.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationStatusListenerInf;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 
-public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationStateListenerInf
+public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationStatListenerInf, SimulationStatusListenerInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -108,12 +109,24 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JPanel simulationScenarioTab;
 	private SimulationStatsListPanel simulationStatsListPanel;
 
+	private SimulationTabPanelManager simulationTabPanelManager;
 	private SimulationsManager simsManager;
 	
 	private int simId = -1;
+
+	private ImageIcon simRunningIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png"));
+	private ImageIcon simPausedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png"));
+	private ImageIcon simNewIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png"));
+	private ImageIcon simFinishedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png"));
+
 	
-	public SimulationTabPanel(SimulationsManager simsManager)
+	
+	/* Our Index in the tab panel */
+	private int tabPanelIndex;
+	
+	public SimulationTabPanel(SimulationTabPanelManager simulationTabPanelManager, SimulationsManager simsManager)
 	{
+		this.simulationTabPanelManager = simulationTabPanelManager;
 		this.simsManager = simsManager;
 		
 		simId = -1;
@@ -820,9 +833,13 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 			System.out.println("Creating Sim");
 			
+			// Register as a Stat Listener
+			simsManager.addSimulationStatListener(simId, this);
+			
+			// Register as a Stat Listener
+			simsManager.addSimulationStatusListener(simId, this);
+			
 			simsManager.createSimScenario(simId,simScenario);
-					
-			simsManager.addSimulationStateListener(simId, this);
 			
 			simsManager.setActiveSim(simId);
 			
@@ -1052,10 +1069,47 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	}
 	
 	@Override
-	public void simulationStateChanged(SimStatus status,long time,long stepNo,int asps)
+	public void simulationStatChanged(long time,long stepNo,int asps)
 	{
-		setTime(time);
-		setStepNo(stepNo);
-		setASPS(asps);
+		if(stepNo%15 == 0)
+		{
+			setTime(time);
+			setStepNo(stepNo);
+			setASPS(asps);
+		}
+	}
+
+	public void setTabPanelIndex(int index)
+	{
+		this.tabPanelIndex = index;	
+	}
+
+	@Override
+	public void simulationStatusChanged(SimStatus status)
+	{
+		
+	  	if(status == SimStatus.RUNNING)
+	  	{
+	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simRunningIcon);							
+	  	}
+	  	else if(status == SimStatus.PAUSED)
+	  	{
+	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simPausedIcon);							
+					  		
+	  	}
+	  	else if(status == SimStatus.NEW)
+	  	{
+	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simNewIcon);							
+
+	  	}
+	  	else // Finished
+	  	{
+	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simFinishedIcon);							
+	  	}
+	  	
+  		simulationTabPanelManager.setTitleAt(tabPanelIndex, tabTitle);
+  		
+  		System.out.println("Status Changed");
+
 	}
 }
