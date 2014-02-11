@@ -17,7 +17,7 @@ import alifeSim.Simulation.SimulationState.SimStatus;
  */
 public class Simulation
 {
-	/* Stats */
+	/* Simulation State */
 	private SimulationState simState;
 	
 	// Inter-step delay Calculations
@@ -222,24 +222,19 @@ public class Simulation
 	public void unPauseSim()
 	{
 		simState.run();
-		
-		System.out.println("Sim " + simState.toString());
-		
+				
 		pause.release();					// Release the pause semaphore
 		
 	}
 
 	/**
-	 * Pauses the Sim and sets the display frame rate to a more-interactive and more intensive update rate for better mouse interaction 
+	 * Pauses the Sim
 	 */
 	public void pauseSim()
 	{
 		pause.acquireUninterruptibly();		// Pause the sim
 
-		simState.pause();
-
-		System.out.println("Sim " + simState.toString());
-		
+		simState.pause();		
 	}
 
 	/**
@@ -288,7 +283,7 @@ public class Simulation
 		this.charts = charts;
 	}	
 	
-	public SimulationState getStats()
+	public SimulationState getState()
 	{
 		return simState;
 	}
