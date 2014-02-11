@@ -1060,11 +1060,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		return simId;
 	}
 
-	public void removeSim()
-	{
-		removeSimulation();		
-	}
-
 	private void removeSimulation()
 	{
 		if(simId!=-1)
@@ -1080,8 +1075,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			System.out.println("No Sim to Remove");
 		}
 		
-		tabTitle = "No Sim";
-		
+		tabTitle = "No Sim";		
 	}
 	
 	public String getTitle()
