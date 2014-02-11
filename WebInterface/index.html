@@ -17,8 +17,7 @@
 
 #tableheader  
 {
-	display: table-caption;
-	text-align: center;
+	display: table-header-group;
 	font-weight: bold;
 	font-size: larger;
 }
@@ -26,7 +25,6 @@
 #tablerow  
 {
 	display: table-row;
-	
 }
 
 #tablecell
@@ -44,7 +42,19 @@ function drawSimTable()
 {
 		var table_row = '<div class="tablecontainer">';
 		
-		$('.tablecontainer').replaceWith($(table_row));			
+		$('.tablecontainer').replaceWith($(table_row));	
+		
+		var header_row = '<div id ="tableheader">';
+
+		header_row+='<div id="tablecell">Sim ID</div>';
+		header_row+='<div id="tablecell">State</div>';
+		header_row+='<div id="tablecell">TotalTime</div>';
+		header_row+='<div id="tablecell">Steps</div>';
+		header_row+='<div id="tablecell">AvgSPS</div>';
+
+		header_row+='</div>';
+			
+		$(".tablecontainer").append($(header_row));
 		
 		$.get('./xml/SimulationsList.xml', function(simList)
 		{
@@ -59,17 +69,7 @@ function drawSimTable()
 				var Steps = $sim.find('Steps').text();
 				var AvgSPS = $sim.find('AvgSPS').text();
 				
-				var header_row = '<div id ="tableheader">';
-				
-				header_row+='<div id="tablecell">Sim ID</div>';
-				header_row+='<div id="tablecell">State</div>';
-				header_row+='<div id="tablecell">TotalTime</div>';
-				header_row+='<div id="tablecell">Steps</div>';
-				header_row+='<div id="tablecell">AvgSPS</div>';
-				
-				header_row+='</div>';
-				
-				$(".tablecontainer").append($(header_row));
+
 				
 				var data_row = '<div id="tablerow">';
 				
@@ -84,14 +84,14 @@ function drawSimTable()
 				$(".tablecontainer").append($(data_row));
 			});
 			
-			$('body').append('</div>');
-
+			
 		});
+		
+		$('body').append('</div>');
+
 }
 
 </script>
-
-
 
 </head>
 
