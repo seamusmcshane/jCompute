@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -119,7 +121,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private ImageIcon simNewIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png"));
 	private ImageIcon simFinishedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png"));
 
-	
+	private Timer updateTimer = new Timer();
+	private boolean allowUpdate = false;
 	
 	/* Our Index in the tab panel */
 	private int tabPanelIndex;
@@ -406,6 +409,18 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		gbc_btnPauseSim.gridx = 2;
 		gbc_btnPauseSim.gridy = 3;
 		controlPanel.add(btnPauseSim, gbc_btnPauseSim);
+		
+		// A slow/low overhead timer to update the tab icons based on the status of the running simulation in that tab.
+		updateTimer.schedule(new TimerTask() 
+		{
+			  @Override
+			  public void run() 
+			  {
+				  allowUpdate = true;
+			  }
+			  
+		},0,1000);
+		
 
 	}
 
@@ -1071,12 +1086,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	@Override
 	public void simulationStatChanged(long time,long stepNo,int asps)
 	{
-		if(stepNo%15 == 0)
+		if(allowUpdate)
 		{
 			setTime(time);
 			setStepNo(stepNo);
 			setASPS(asps);
+			
+			allowUpdate = false;
 		}
+		
 	}
 
 	public void setTabPanelIndex(int index)
