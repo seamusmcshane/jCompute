@@ -16,7 +16,7 @@
 		<SimpleAgent>
 			<Type>Prey</Type>
 			<InitialNumbers>2</InitialNumbers>
-			<Size>5</Size>
+			<Size>3.5</Size>
 			<Speed>0.90</Speed>
 			<ViewRange>100</ViewRange>
 			<MovementCost>0.0</MovementCost>
