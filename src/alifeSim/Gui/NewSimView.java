@@ -49,7 +49,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	/** Records status of mouse button */
 	private boolean mouseButtonPressed = false;
 	
-	private int defaultFrameRate = 60;
+	private int defaultFrameRate = 15;
 
 	/** Draw the View range of the agents */
 	private boolean viewRangeDrawing = false;
