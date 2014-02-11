@@ -61,21 +61,22 @@ import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Math.LVScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationState.SimStatus;
+import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 
-public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener
+public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationStateListenerInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
 	private String tabTitle = "New";
 	
 	// Graphs
-	JTabbedPane simulationTabPane;
-	LinkedList<StatPanelAbs> charts;
+	private JTabbedPane simulationTabPane;
+	private LinkedList<StatPanelAbs> charts;
 
-	// Editor Releated
+	// Editor Related
 	private RSyntaxTextArea scenarioEditor;
 	private JLabel lblFilePath;
 	private JButton btnOpen;
@@ -101,7 +102,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JLabel lblRequestedStepRate;
 
 	// Sim Related
-	//private Simulation sim;
 	private boolean generatingSim = false;
 	private boolean simGenerated = false;
 
@@ -401,7 +401,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		simulationTabPane.addTab("Supported Statistics", simulationStatsListPanel);
 		simulationStatsListPanel.clearTable();
 
-		//Set<String> statGroups = sim.getSimManager().getStatmanger().getGroupList();
 		StatManager statManager = simsManager.getStatManager(simId);
 		
 		if(statManager!=null)
@@ -418,9 +417,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png")));			
 		}
-		
 
-		
 	}
 
 	public void addScenarioTab()
@@ -825,6 +822,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			
 			simsManager.createSimScenario(simId,simScenario);
 					
+			simsManager.addSimulationStateListener(simId, this);
+			
 			simsManager.setActiveSim(simId);
 			
 			simsManager.resetActiveSimCamera();
@@ -850,45 +849,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 			System.out.println("Scenario Failed to Load");
 		}
-
-	}
-
-	/**
-	 * The Average Steps per second.
-	 * 
-	 * @param asps
-	 *            int
-	 */
-	public void setASPS(int asps)
-	{
-		lblAvgStepRate.setText(Integer.toString(asps));
-	}
-
-	/**
-	 * The current step number.
-	 * 
-	 * @param stepNo
-	 */
-	public void setStepNo(long stepNo)
-	{
-		lblStepCount.setText(Long.toString(stepNo));
-	}
-
-	/**
-	 * Displays the current run time of the simulation from a long count in
-	 * milliseconds
-	 * 
-	 * @param time
-	 */
-	public void setTime(long time)
-	{
-		time = time / 1000; // seconds
-		int days = (int) (time / 86400); // to days
-		int hrs = (int) (time / 3600) % 24; // to hrs
-		int mins = (int) ((time / 60) % 60);	// to seconds
-		int sec = (int) (time % 60);
-
-		lblSimRunTime.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
 
 	}
 
@@ -1029,32 +989,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		setTime(0);
 	}
 
-	public String getASPS()
-	{
-		return lblAvgStepRate.getText();
-	}
-
-	/**
-	 * The current step number.
-	 * 
-	 * @param stepNo
-	 */
-	public String getStepNo()
-	{
-		return lblStepCount.getText();
-	}
-
-	/**
-	 * Displays the current run time of the simulation from a long count in
-	 * milliseconds
-	 * 
-	 * @param time
-	 */
-	public String getTime()
-	{
-		return lblSimRunTime.getText();
-	}
-
 	public int getSimulationId()
 	{
 		return simId;
@@ -1062,7 +996,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void removeSimulation()
 	{
-		if(simId!=-1)
+		if(simId != -1)
 		{
 			System.out.println("Request to Remove Simulation");
 
@@ -1081,5 +1015,47 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public String getTitle()
 	{
 		return tabTitle;
+	}
+
+	/**
+	 * The Average Steps per second.
+	 * @param asps
+	 */
+	private void setASPS(int asps)
+	{
+		lblAvgStepRate.setText(Integer.toString(asps));
+	}
+
+	/**
+	 * The current step number.
+	 * @param stepNo
+	 */
+	private void setStepNo(long stepNo)
+	{
+		lblStepCount.setText(Long.toString(stepNo));
+	}
+
+	/**
+	 * Displays the current run time of the simulation from a long count in
+	 * milliseconds
+	 * @param time
+	 */
+	private void setTime(long time)
+	{
+		time = time / 1000; // seconds
+		int days = (int) (time / 86400); // to days
+		int hrs = (int) (time / 3600) % 24; // to hrs
+		int mins = (int) ((time / 60) % 60);	// to seconds
+		int sec = (int) (time % 60);
+
+		lblSimRunTime.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
+	}
+	
+	@Override
+	public void simulationStateChanged(SimStatus status,long time,long stepNo,int asps)
+	{
+		setTime(time);
+		setStepNo(stepNo);
+		setASPS(asps);
 	}
 }

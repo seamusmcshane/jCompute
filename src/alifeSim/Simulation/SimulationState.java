@@ -112,7 +112,7 @@ public class SimulationState
 		listenersLock.acquireUninterruptibly();
 		    for (SimulationStateListenerInf listener : listeners)
 		    {
-		    	listener.simulationStateChanged();
+		    	listener.simulationStateChanged(status,stepTotalTime,simulationSteps,getAverageStepRate());
 		    }
 	   listenersLock.release();
 	}
