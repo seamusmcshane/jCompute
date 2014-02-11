@@ -28,11 +28,8 @@ import alifeSimGeom.A2DVector2f;
 public class SAPPSimulationManager implements SimulationScenarioManagerInf
 {
 	/** Used to prevent dual Access to the lists - which would cause an exception.
-	 * This semaphore is unfair.
-	 * The more the drawAgentsAndPlants updates grabs it the lower step rate in simulation.
-	 * The inverse doesn't happen, if the doSimulationUpdate grabs its,  the drawAgentsAndPlants will skip the attempt and draw the old buffer.
 	 * */
-	private Semaphore lock = new Semaphore(1, false);
+	private Semaphore lock = new Semaphore(1, true);
 
 	/** Simulation Agent Manager */
 	private SimpleAgentManager simpleAgentManager;
