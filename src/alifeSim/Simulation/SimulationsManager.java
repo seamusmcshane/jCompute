@@ -11,7 +11,7 @@ import java.util.concurrent.Semaphore;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Simulation.Simulation.SimulationState;
+import alifeSim.Simulation.SimulationState.SimStatus;
 import alifeSim.Stats.StatManager;
 
 public class SimulationsManager
@@ -19,7 +19,7 @@ public class SimulationsManager
 	private static Semaphore simulationsManagerLock = new Semaphore(1);
 
 	/* Max Concurrent Simulations */
-	private int maxSims;
+	private final int maxSims;
 	
 	/* Simulation Storage Struct */
 	private HashMap<Integer, Simulation> simulations;
@@ -43,7 +43,7 @@ public class SimulationsManager
 		System.out.println("Max Active Sims : " + maxSims);		
 	}
 
-	public int addSimulation(SimulationPerformanceStats stats)
+	public int addSimulation()
 	{
 		int simId = 0;
 		simulationsManagerLock.acquireUninterruptibly();
@@ -53,7 +53,7 @@ public class SimulationsManager
 		simId = simulationNum;
 		
 		// add sim to struct - index on id
-		simulations.put(simId, new Simulation(stats));
+		simulations.put(simId, new Simulation());
 		
 		
 		simulationsManagerLock.release();
@@ -157,40 +157,22 @@ public class SimulationsManager
 		
 	}
 
-	public SimulationState isSimPaused(int simId)
+	public SimStatus togglePause(int simId)
 	{
-		simulationsManagerLock.acquireUninterruptibly();
-				
-		Simulation sim = simulations.get(simId);
+		SimStatus SimStatus = null;
 		
-		SimulationState state = null;
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
 		{	
-			state = sim.simPaused();
+			SimStatus = sim.togglePause();
 		}
-
-		simulationsManagerLock.release();
-		
-		return state;
-	}
-
-	public SimulationState togglePause(int simId)
-	{
-		SimulationState state = null;
-		
-		simulationsManagerLock.acquireUninterruptibly();
-
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
-			state = sim.togglePause();
-		}		
 		
 		simulationsManagerLock.release();	
 		
-		return state;
+		return SimStatus;
 		
 	}
 	
@@ -330,47 +312,31 @@ public class SimulationsManager
 		return list;
 	}	
 	
-	public SimulationState getSimState(int simId)
+	public SimStatus getSimStatus(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
 		
-		SimulationState state;
+		SimStatus status;
 		
 		if(sim!=null)
 		{	
-			state = sim.getState();
+			status = sim.getStatus();
 		}
 		else
 		{
-			state = SimulationState.NEW;
+			status = SimStatus.NEW;
 		}
 		
 		simulationsManagerLock.release();
 		
-		return state;
+		return status;
 	}
-
-	public SimulationPerformanceStats getSimPerformanceStats(int simId)
+	
+	public int getMaxSims()
 	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		SimulationPerformanceStats stats;
-		
-		if(sim!=null)
-		{	
-			stats = sim.getSimulationPerformanceStats();
-		}
-		else
-		{
-			stats = null;
-		}
-		
-		simulationsManagerLock.release();
-		
-		return stats;
+		return maxSims;
 	}
+	
 }

@@ -60,15 +60,12 @@ import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Math.LVScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
-import alifeSim.Simulation.Simulation;
-import alifeSim.Simulation.Simulation.SimulationState;
-import alifeSim.Simulation.SimulationPerformanceStats;
-import alifeSim.Simulation.SimulationPerformanceStatsOutputInf;
+import alifeSim.Simulation.SimulationState.SimStatus;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 
-public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationPerformanceStatsOutputInf
+public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -518,19 +515,19 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		else if (e.getSource() == btnPauseSim)
 		{			
 			// Pause Toggle
-			SimulationState state = simsManager.togglePause(simId);
+			SimStatus status = simsManager.togglePause(simId);
 			
-			if(state == SimulationState.PAUSED)
+			if(status == SimStatus.PAUSED)
 			{
-				simPausedState();
+				simPausedStatus();
 			}
-			else if(state == SimulationState.RUNNING)
+			else if(status == SimStatus.RUNNING)
 			{
-				simUnPausedState();
+				simUnPausedStatus();
 			}
 			else
 			{
-				System.out.println("Invalid State in Pause Button");
+				System.out.println("Invalid Status in Pause Button");
 			}
 
 		}
@@ -816,7 +813,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		removeSimulation();
 
 		// Add a new sim and direct its performance stats to this panel.
-		simId = simsManager.addSimulation(new SimulationPerformanceStats(this));
+		simId = simsManager.addSimulation();
 						
 		tabTitle = "Simulation " + simId;
 		
@@ -926,11 +923,10 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		btnGenerateSim.setEnabled(true);
 	}
 
-	private void simPausedState()
+	private void simPausedStatus()
 	{
 		btnPauseSim.setText("Resume");
-		btnGenerateSim.setEnabled(true);
-		
+		btnGenerateSim.setEnabled(true);	
 
 		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
 		
@@ -938,7 +934,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
-	private void simUnPausedState()
+	private void simUnPausedStatus()
 	{
 		btnPauseSim.setText("   Pause");
 		btnGenerateSim.setEnabled(false);
@@ -1025,7 +1021,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
-	@Override
 	public void clearStats()
 	{
 		System.out.println("Simulation Stats Cleared");

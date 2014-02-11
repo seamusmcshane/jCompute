@@ -6,6 +6,7 @@ import java.util.concurrent.Semaphore;
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Simulation.SimulationState.SimStatus;
 
 /**
  * Simulation class
@@ -16,29 +17,9 @@ import alifeSim.Scenario.ScenarioInf;
  * @version $Revision: 1.0 $
  */
 public class Simulation
-{
-	public enum SimulationState
-	{		
-		NEW ("NEW"),
-		RUNNING ("RUNNING"),
-		PAUSED ("PAUSED"),
-		FINISHED ("FINISHED");
-
-	    private final String name;
-
-	    private SimulationState(String name) 
-	    {
-	        this.name = name;
-	    }
-
-	    public String toString()
-	    {
-	       return name;
-	    }
-	};
-	
+{	
 	/* Stats */
-	private SimulationPerformanceStats simStats;
+	private SimulationState simState;
 	
 	// Inter-step delay Calculations
 	private long stepTimeNow;
@@ -55,9 +36,6 @@ public class Simulation
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
 
-	/* Simulation state */
-	private SimulationState state = SimulationState.NEW;	
-
 	/* Simulation Update Thread */
 	private Thread asyncUpdateThread;
 	private boolean running=true;
@@ -66,9 +44,9 @@ public class Simulation
 	
 	private LinkedList<StatPanelAbs> charts;
 	
-	public Simulation(SimulationPerformanceStats stats)
+	public Simulation()
 	{
-		simStats = stats;	
+		simState = new SimulationState();	
 		setupThreads();
 
 		createSimScenario(null); // Never used - needed for successful startup		
@@ -88,7 +66,7 @@ public class Simulation
 
 		}		
 		
-		simStats.clearSimulationStats();
+		simState.clearSimulationStats();
 	}
 
 	/**
@@ -98,9 +76,9 @@ public class Simulation
 	{
 		// Ensure we have the simulation in a state where it is not active.
 		
-		if ( state == SimulationState.RUNNING)
+		if ( simState.getStatus() == SimStatus.RUNNING)
 		{
-			System.out.println("Pausing... (state|"+state.toString()+")");
+			System.out.println("Pausing... (state|"+simState.toString()+")");
 
 			pauseSim();
 		}
@@ -150,16 +128,13 @@ public class Simulation
 		// The pause semaphore (We do not pause half way through a step)
 		pause.acquireUninterruptibly();
 		
-		simStats.setStepStartTime();
+		simState.setStepStartTime();
 
 		// record step start time for inter-step delay
 		timeTotal();
 
 		// This single method hides the rest of the sim
 		simManager.doSimulationUpdate();
-
-		// Increment the Step counter
-		simStats.incrementSimulationSteps();
 
 		// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
 		if(realtime)
@@ -175,10 +150,11 @@ public class Simulation
 		// resets the value calculated in timeTotal()
 		resetTotalTime();
 
-		simStats.setStepEndTime();
+		simState.setStepEndTime();
 		
-		simStats.updateStatsOutput();
-		
+		// Increment the Step counter
+		simState.incrementSimulationSteps();
+				
 		for (StatPanelAbs panel : charts) 
 		{
 			panel.update();
@@ -222,19 +198,21 @@ public class Simulation
 	 *  Toggle Pause/UnPause
 	 */
 	
-	public SimulationState togglePause()
+	public SimStatus togglePause()
 	{
-		if(state == SimulationState.RUNNING)
+		SimStatus state = simState.getStatus();
+		
+		if(state == SimStatus.RUNNING)
 		{
 			pauseSim();
 		}
-		else if(state == SimulationState.PAUSED)
+		else if(state == SimStatus.PAUSED)
 		{
 			unPauseSim();
 		}
 		else
 		{
-			System.out.println("ATTEMPT to PAUSE Simulation in :" + state);
+			System.out.println("ATTEMPT to PAUSE Simulation in :" + state.toString());
 		}
 		
 		return state;
@@ -245,20 +223,12 @@ public class Simulation
 	 */
 	public void unPauseSim()
 	{
-		state = SimulationState.RUNNING;
+		simState.run();
 		
-		System.out.println("Sim " + state.toString());
+		System.out.println("Sim " + simState.toString());
 		
 		pause.release();					// Release the pause semaphore
 		
-	}
-
-	/**
-	 * Method simPaused.
-	 * @return boolean */
-	public SimulationState simPaused()
-	{
-		return state;
 	}
 
 	/**
@@ -268,9 +238,9 @@ public class Simulation
 	{
 		pause.acquireUninterruptibly();		// Pause the sim
 
-		state = SimulationState.PAUSED;
+		simState.pause();
 
-		System.out.println("Sim " + state.toString());
+		System.out.println("Sim " + simState.toString());
 		
 	}
 
@@ -320,19 +290,19 @@ public class Simulation
 		this.charts = charts;
 	}	
 	
-	public SimulationPerformanceStats getStats()
+	public SimulationState getStats()
 	{
-		return simStats;
+		return simState;
+	}
+
+	public SimStatus getStatus()
+	{
+		return simState.getStatus();
 	}
 
 	public SimulationState getState()
 	{
-		return state;
-	}
-
-	public SimulationPerformanceStats getSimulationPerformanceStats()
-	{
-		return simStats;
+		return simState;
 	}
 		
 }

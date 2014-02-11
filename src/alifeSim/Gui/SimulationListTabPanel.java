@@ -13,6 +13,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -22,6 +23,8 @@ import java.awt.SystemColor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
@@ -32,7 +35,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-public class SimulationInfoTabPanel extends JPanel
+public class SimulationListTabPanel extends JPanel
 {
 	private static final long serialVersionUID = 76641721672552215L;
 	
@@ -41,9 +44,7 @@ public class SimulationInfoTabPanel extends JPanel
 	private int traceAdds=0;
 	private Font chartFont = new Font("Sans", Font.BOLD, 12);
 	
-	// Short Term
 	private Chart2D chart2dST;
-	private ITrace2D traceST;
 	private HashMap<String,ITrace2D> traceMapST;
 	private ChartPanel chartPanelST;
 	private int stSamWin = 300;
@@ -51,7 +52,11 @@ public class SimulationInfoTabPanel extends JPanel
 	ITrace2D runTime;
 	float cOffset=0.8f;
 	
-	public SimulationInfoTabPanel()
+	private Timer tabStatusPoll = new Timer();
+
+	private String name = "Simulations List";
+	
+	public SimulationListTabPanel()
 	{
 		super();
 
@@ -62,7 +67,18 @@ public class SimulationInfoTabPanel extends JPanel
 		
 		this.add(table);
 		
-		createHistoryChart2DST();		
+		createHistoryChart2DST();
+		
+		// A slow/low overhead timer to update the tab icons based on the status of the running simulation in that tab.
+		tabStatusPoll.schedule(new TimerTask() 
+		{
+			  @Override
+			  public void run() 
+			  {
+				  //refresh();
+			  }
+			  
+		},0,100);
 		
 	}
 	
@@ -152,6 +168,56 @@ public class SimulationInfoTabPanel extends JPanel
 		}
 		
 	}
+	
+	/*private void refresh()
+	{
+		  simulationInfoTab.clearTable();
+		  
+		  for(int i = 0;i<getTabCount();i++)
+		  {
+			  if(getComponentAt (i)!=null)
+			  {
+				  if(getComponentAt(i).getClass().equals(SimulationTabPanel.class))
+				  {
+					  	SimulationTabPanel temp = (SimulationTabPanel) getComponentAt (i);
 
+					  	int simId = temp.getSimulationId();
+					  	
+					  	SimulationState state = simsManager.getSimState(simId);
+					  	
+					  	if(state == SimulationState.RUNNING)
+					  	{
+							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png")));							
+							this.setTitleAt(i, temp.getTitle());
+							simulationInfoTab.addRow(getTitleAt(i), new String[]{state.toString(), temp.getStepNo(),temp.getASPS(), temp.getTime()});
+					  		
+					  	}
+					  	else if(state == SimulationState.PAUSED)
+					  	{
+							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png")));
+							this.setTitleAt(i, temp.getTitle());					  		
+					  	}
+					  	else if(state == SimulationState.NEW)
+					  	{
+							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
+							this.setTitleAt(i, temp.getTitle());
+					  	}
+					  	else // Finished
+					  	{
+							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png")));
+							this.setTitleAt(i, temp.getTitle());
+					  	}
+				  }	
+			  }  
+		  }
+		  
+		  simulationInfoTab.update();
+	}*/
+	
+	
+	public String getTabName()
+	{
+		return name;
+	}
 	
 }
