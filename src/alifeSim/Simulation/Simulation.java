@@ -2,7 +2,6 @@ package alifeSim.Simulation;
 
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
-
 import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
@@ -17,7 +16,7 @@ import alifeSim.Simulation.SimulationState.SimStatus;
  * @version $Revision: 1.0 $
  */
 public class Simulation
-{	
+{
 	/* Stats */
 	private SimulationState simState;
 	
@@ -200,22 +199,21 @@ public class Simulation
 	
 	public SimStatus togglePause()
 	{
-		SimStatus state = simState.getStatus();
 		
-		if(state == SimStatus.RUNNING)
+		if(simState.getStatus() == SimStatus.RUNNING)
 		{
 			pauseSim();
 		}
-		else if(state == SimStatus.PAUSED)
+		else if(simState.getStatus() == SimStatus.PAUSED)
 		{
 			unPauseSim();
 		}
 		else
 		{
-			System.out.println("ATTEMPT to PAUSE Simulation in :" + state.toString());
+			System.out.println("ATTEMPT to PAUSE Simulation in :" + simState.getStatus());
 		}
 		
-		return state;
+		return simState.getStatus();
 	}
 	
 	/**
