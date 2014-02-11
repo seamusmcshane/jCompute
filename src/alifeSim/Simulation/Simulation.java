@@ -299,10 +299,10 @@ public class Simulation
 	{
 		return simState.getStatus();
 	}
-
-	public SimulationState getState()
+	
+	public void addSimulationStateListener(SimulationStateListenerInf listener)
 	{
-		return simState;
+		simState.addListener(listener);
 	}
 		
 }

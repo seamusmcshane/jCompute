@@ -339,4 +339,18 @@ public class SimulationsManager
 		return maxSims;
 	}
 	
+	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(simView!=null)
+		{
+			sim.addSimulationStateListener(listener);
+		}
+		
+		simulationsManagerLock.release();
+	}
+	
 }
