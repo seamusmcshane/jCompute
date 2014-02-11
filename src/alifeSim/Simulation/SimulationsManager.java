@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -21,7 +20,7 @@ public class SimulationsManager
 	/* Max Concurrent Simulations */
 	private final int maxSims;
 	
-	/* Simulation Storage Struct */
+	/* Simulation Storage Structure */
 	private HashMap<Integer, Simulation> simulations;
 	
 	/* Total Count of Simulations Ran - used for simulation ID */
@@ -339,7 +338,7 @@ public class SimulationsManager
 		return maxSims;
 	}
 	
-	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
+	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -347,7 +346,21 @@ public class SimulationsManager
 		
 		if(simView!=null)
 		{
-			sim.addSimulationStateListener(listener);
+			sim.addSimulationStatListener(listener);
+		}
+		
+		simulationsManagerLock.release();
+	}
+	
+	public void addSimulationStatusListener(int simId,SimulationStatusListenerInf listener)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(simView!=null)
+		{
+			sim.addSimulationStatusListener(listener);
 		}
 		
 		simulationsManagerLock.release();

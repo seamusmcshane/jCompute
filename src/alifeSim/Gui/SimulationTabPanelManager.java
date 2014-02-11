@@ -130,15 +130,18 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 				if(simulationTabs[i] == null)
 				{
 					// Add a new tab the list
-					simulationTabs[i] = new SimulationTabPanel(simsManager);
+					simulationTabs[i] = new SimulationTabPanel(this,simsManager);
 					
 					// Add the tab before the new tab button
 					this.add(simulationTabs[i],this.getTabCount()-1);
 
 					// Default our states.
-					this.setIconAt(this.getTabCount()-2, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
-					this.setTitleAt(this.getTabCount()-2, "New");
+					this.setIconAt(this.getTabCount()-2, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/dialog-warning.png")));
+					this.setTitleAt(this.getTabCount()-2, simulationTabs[i].getTitle());
 					this.setSelectedComponent(simulationTabs[i]);
+					
+					// Let the Tab know its tab panel index (used for notify call back)
+					simulationTabs[i].setTabPanelIndex(this.getSelectedIndex());
 
 					tabCount++;
 					
@@ -223,8 +226,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					showPopUP(e);
 				}
 			}
-		}
-		
+		}		
 	}
 
 	@Override

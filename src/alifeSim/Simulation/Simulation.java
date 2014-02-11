@@ -63,9 +63,11 @@ public class Simulation
 			
 			System.out.println("Scenario Type : " + scenario.getScenarioType());
 
-		}		
+		}
 		
 		simState.clearSimulationStats();
+		simState.newState();
+		
 	}
 
 	/**
@@ -221,7 +223,7 @@ public class Simulation
 	 */
 	public void unPauseSim()
 	{
-		simState.run();
+		simState.runState();
 				
 		pause.release();					// Release the pause semaphore
 		
@@ -234,7 +236,7 @@ public class Simulation
 	{
 		pause.acquireUninterruptibly();		// Pause the sim
 
-		simState.pause();		
+		simState.pauseState();		
 	}
 
 	/**
@@ -293,9 +295,14 @@ public class Simulation
 		return simState.getStatus();
 	}
 	
-	public void addSimulationStateListener(SimulationStateListenerInf listener)
+	public void addSimulationStatListener(SimulationStatListenerInf listener)
 	{
-		simState.addListener(listener);
+		simState.addStatListener(listener);
+	}
+	
+	public void addSimulationStatusListener(SimulationStatusListenerInf listener)
+	{
+		simState.addStatusListener(listener);
 	}
 		
 }

@@ -22,7 +22,8 @@ public class SimulationState
 	 * Listeners are notified after a status change or
 	 * after a simulation step has occurred.
 	 * */
-	private List<SimulationStateListenerInf> listeners = new ArrayList<SimulationStateListenerInf>();
+	private List<SimulationStatListenerInf> statListeners = new ArrayList<SimulationStatListenerInf>();
+	private List<SimulationStatusListenerInf> statusListeners = new ArrayList<SimulationStatusListenerInf>();
 	
 	// To prevent concurrent access when a listener is added and a notification event has occured.
 	private Semaphore listenersLock = new Semaphore(1, false);	
@@ -32,25 +33,32 @@ public class SimulationState
 		clearSimulationStats();
 	}
 		
-	public void run()
+	public void newState()
+	{
+		status = SimStatus.NEW;
+		
+		notifyStatusListeners();
+	}
+	
+	public void runState()
 	{
 		status = SimStatus.RUNNING;
 		
-		notifyStateListeners();
+		notifyStatusListeners();
 	}
 	
-	public void pause()
+	public void pauseState()
 	{
 		status = SimStatus.PAUSED;
 		
-		notifyStateListeners();
+		notifyStatusListeners();
 	}
 	
-	public void finish()
+	public void finishState()
 	{
 		status = SimStatus.FINISHED;
 		
-		notifyStateListeners();
+		notifyStatusListeners();
 	}	
 	
 	public SimStatus getStatus()
@@ -67,11 +75,16 @@ public class SimulationState
 	{
 		simulationSteps++;
 		
-		notifyStateListeners();
+		notifyStatListeners();
 	}
 	
 	public int getAverageStepRate()
 	{
+		if(simulationSteps<100)
+		{
+			return 0;
+		}
+		
 		return (int)((float)simulationSteps/((float)stepTotalTime/1000f));
 	}
 	
@@ -97,25 +110,43 @@ public class SimulationState
 		stepTotalTime = 0;
 		simulationSteps = 0;
 		
-		notifyStateListeners();
+		notifyStatListeners();
 	}
 
-	public void addListener(SimulationStateListenerInf listener)
+	public void addStatListener(SimulationStatListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
-	    	listeners.add(listener);
+	    	statListeners.add(listener);
     	listenersLock.release();
 	}
 	
-	private void notifyStateListeners()
+	private void notifyStatListeners()
 	{
 		listenersLock.acquireUninterruptibly();
-		    for (SimulationStateListenerInf listener : listeners)
+		    for (SimulationStatListenerInf listener : statListeners)
 		    {
-		    	listener.simulationStateChanged(status,stepTotalTime,simulationSteps,getAverageStepRate());
+		    	listener.simulationStatChanged(stepTotalTime,simulationSteps,getAverageStepRate());
 		    }
 	   listenersLock.release();
 	}
+	
+	public void addStatusListener(SimulationStatusListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+	    	statusListeners.add(listener);
+    	listenersLock.release();
+	}
+	
+	private void notifyStatusListeners()
+	{
+		listenersLock.acquireUninterruptibly();
+	    for (SimulationStatusListenerInf listener : statusListeners)
+	    {
+	    	listener.simulationStatusChanged(status);
+	    }
+	    listenersLock.release();
+	}
+
 	
 	/** State Enum */
 	public enum SimStatus
