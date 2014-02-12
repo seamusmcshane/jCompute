@@ -37,15 +37,21 @@ public class Simulation
 
 	/* Simulation Update Thread */
 	private Thread asyncUpdateThread;
-	private boolean running=true;
+	
+	/* asyncUpdateThread exit condition */
+	private boolean running = true;
 
-	private boolean realtime=true;
+	/* Busy wait inter-step delay toggle */
+	private boolean realtime = true;
 	
 	private LinkedList<StatPanelAbs> charts;
 	
 	public Simulation()
 	{
+		pause = new Semaphore(0, true); // Starts Paused
+		
 		simState = new SimulationState();	
+		
 		setupThreads();
 
 		createSimScenario(null); // Never used - needed for successful startup		
@@ -99,8 +105,6 @@ public class Simulation
 	/* Simulation Main Thread - The step update loop */
 	private void setupThreads()
 	{
-		pause = new Semaphore(0, true); // Starts Paused
-
 		asyncUpdateThread = new Thread(new Runnable()
 		{
 			public void run()
