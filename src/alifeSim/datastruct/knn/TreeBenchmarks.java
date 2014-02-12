@@ -6,8 +6,6 @@ import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
-import alifeSim.Simulation.SimulationPerformanceStats;
-
 public class TreeBenchmarks
 {
 	static int MaxLogLevel = 1;
