@@ -410,8 +410,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		gbc_btnPauseSim.gridy = 3;
 		controlPanel.add(btnPauseSim, gbc_btnPauseSim);
 		
-		// A slow/low overhead timer to update the tab icons based on the status of the running simulation in that tab.
-		updateTimer.schedule(new TimerTask() 
+		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+		updateTimer.schedule(new TimerTask()
 		{
 			  @Override
 			  public void run() 
@@ -421,7 +421,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			  
 		},0,1000);
 		
-
 	}
 
 	public void addSimulationStatsListTab()
