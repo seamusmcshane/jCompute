@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <Scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/sapp-schema.xmls">
 	<Header>
-		<Version>0.02</Version>
+		<Version>0.03</Version>
 		<Type>SAPP</Type>
 	</Header>
+	<EndEvents>
+		<Event>
+			<Name>StepCount</Name>
+			<Value>10000</Value>
+		</Event>
+		<Event>
+			<Name>AllPreyLTE</Name>
+			<Value>0</Value>
+		</Event>
+		<Event>
+			<Name>AllPredatorLTE</Name>
+			<Value>0</Value>
+		</Event>
+	</EndEvents>
 	<Statistics>
 		<Stat>
 			<Name>Population</Name>
