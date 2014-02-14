@@ -66,7 +66,7 @@ public class SimulationState
 		return status;
 	}
 		
-	public long getSimulationSteps()
+	public int getSimulationSteps()
 	{
 		return simulationSteps;
 	}
