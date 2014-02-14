@@ -38,6 +38,8 @@ public class SimulationState
 		status = SimStatus.NEW;
 		
 		notifyStatusListeners();
+		
+		notifyStatListeners();
 	}
 	
 	public void runState()
@@ -45,6 +47,8 @@ public class SimulationState
 		status = SimStatus.RUNNING;
 		
 		notifyStatusListeners();
+		
+		notifyStatListeners();
 	}
 	
 	public void pauseState()
@@ -52,6 +56,8 @@ public class SimulationState
 		status = SimStatus.PAUSED;
 		
 		notifyStatusListeners();
+		
+		notifyStatListeners();
 	}
 	
 	public void finishState()
@@ -59,6 +65,8 @@ public class SimulationState
 		status = SimStatus.FINISHED;
 		
 		notifyStatusListeners();
+		
+		notifyStatListeners();
 	}	
 	
 	public SimStatus getStatus()
