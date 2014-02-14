@@ -51,6 +51,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 	
 	private ImageIcon simRunningIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png"));
 	private ImageIcon simPausedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png"));
+	private ImageIcon newTabIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/dialog-warning.png"));
 	private ImageIcon simNewIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png"));
 	private ImageIcon simFinishedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png"));
 	
@@ -82,7 +83,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 			{
 				// This makes the last tab (simulationListTab) act as a button, that adds new tabs.
 				if( getSelectedComponent() == addPanel)
-				{					
+				{
 					// call the add tab functionality and we are done.
 					addTab();
 				}
@@ -150,7 +151,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 						this.add(simulationTabs[i],this.getTabCount()-1);
 	
 						// Default our states.
-						this.setIconAt(this.getTabCount()-2, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/dialog-warning.png")));
+						this.setIconAt(this.getTabCount()-2, newTabIcon);
 						this.setTitleAt(this.getTabCount()-2, simulationTabs[i].getTitle());
 						this.setSelectedComponent(simulationTabs[i]);
 						
