@@ -12,7 +12,7 @@ public class SimulationState
 	private long stepTotalTime = 0; // Total Simulation run-time is the time taken per step for each step	
 	
 	/** Simulation Step Counter */
-	private long simulationSteps;
+	private int simulationSteps;
 
 	/** Simulation Running State */
 	private SimStatus status = SimStatus.NEW;

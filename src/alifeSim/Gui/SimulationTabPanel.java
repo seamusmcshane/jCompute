@@ -1073,9 +1073,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	 * The current step number.
 	 * @param stepNo
 	 */
-	private void setStepNo(long stepNo)
+	private void setStepNo(int stepNo)
 	{
-		lblStepCount.setText(Long.toString(stepNo));
+		lblStepCount.setText(Integer.toString(stepNo));
 	}
 
 	/**
@@ -1095,7 +1095,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	}
 	
 	@Override
-	public void simulationStatChanged(long time,long stepNo,int asps)
+	public void simulationStatChanged(long time,int stepNo,int asps)
 	{
 		if(allowUpdate)
 		{
