@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -22,9 +24,31 @@ public class ScenarioVT
 	private XMLConfiguration scenario;
 	private List<StatGroupSetting> statSettingsList;
 	
+	/** Simulation End Events */
+	private HashMap<String,Integer>endEvents;	
+	
 	public ScenarioVT()
 	{
 		statSettingsList = new ArrayList<StatGroupSetting>();
+	}
+	
+	private void readScenarioEndEvents()
+	{
+		int numEvent = getSubListSize("EndEvents","Event");
+		
+		endEvents = new HashMap<String, Integer>();
+		
+		String section;
+		
+		for(int i=0;i<numEvent;i++)
+		{
+			section = "EndEvents.Event("+i+")";
+			
+			endEvents.put(getStringValue(section,"Name"), getIntValue(section,"Value"));
+			
+			System.out.println(i);
+		}
+		
 	}
 	
 	public void loadConfig(String text)
@@ -36,7 +60,10 @@ public class ScenarioVT
 			stream = new ByteArrayInputStream(text.getBytes());
 			scenario = new XMLConfiguration();
 			scenario.setSchemaValidation(true);
-			scenario.load(stream);	
+			scenario.load(stream);
+			
+			readScenarioEndEvents();
+			
 		}
 		catch (ConfigurationException e)
 		{
@@ -51,6 +78,9 @@ public class ScenarioVT
 			scenario = new XMLConfiguration();
 			scenario.setSchemaValidation(true);
 			scenario.load(file);
+			
+			readScenarioEndEvents();
+			
 		}
 		catch (ConfigurationException e)
 		{
@@ -189,4 +219,27 @@ public class ScenarioVT
 	{
 		return statSettingsList;
 	}
+	
+	/*public ScenarioKeyValuePair<String, Integer> getEndEvent(String eventName)
+	{
+		ScenarioKeyValuePair<String, Integer> event = null;
+		
+		if(endEvents.containsKey(eventName))
+		{
+			event = new ScenarioKeyValuePair<String, Integer>(eventName,endEvents.get(eventName));
+		}
+		
+		return event;		
+	}*/
+	
+	public boolean endEventIsSet(String eventName)
+	{
+		return endEvents.containsKey(eventName);
+	}
+	
+	public int getEventValue(String eventName)
+	{
+		return endEvents.get(eventName);
+	}
+	
 }
