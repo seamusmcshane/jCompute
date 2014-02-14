@@ -52,11 +52,7 @@ public class SingleStat implements StatInf
 	public void resetStats()
 	{		
 		/* All Samples */
-		allSamples = new LinkedList<Double>();
-		
-		/* Last 1000 samples (for drawing) */
-		addSample(0.0);	
-	
+		allSamples = new LinkedList<Double>();	
 	}
 
 	public void setColor(Color color)
