@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 public class StatGroup
@@ -38,7 +37,7 @@ public class StatGroup
 		for (StatInf stat : statList) 
 		{
 			registerStat(stat);
-		}			
+		}
 	}
 	
 	// returns a stat based on the stat name requested
@@ -54,7 +53,7 @@ public class StatGroup
 	// An sorted list of the Group names in the manager
 	public List<String> getStatList()
 	{
-		List list = new ArrayList<String>(map.keySet());
+		List<String> list = new ArrayList<String>(map.keySet());
 		
 		Collections.sort(list,new sortComparator());
 		
