@@ -85,7 +85,7 @@ public class Simulation
 		
 		if ( simState.getStatus() == SimStatus.RUNNING)
 		{
-			System.out.println("Pausing... (state|"+simState.toString()+")");
+			System.out.println("Pausing... (state|"+simState.getStatus().toString()+")");
 
 			pauseSim();
 		}
