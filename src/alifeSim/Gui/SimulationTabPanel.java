@@ -40,10 +40,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -111,7 +114,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private JPanel simulationScenarioTab;
 	private SimulationStatsListPanel simulationStatsListPanel;
 
-	private SimulationTabPanelManager simulationTabPanelManager;
 	private SimulationsManager simsManager;
 	
 	private int simId = -1;
@@ -133,9 +135,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private ImageIcon scenarioEditorIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/accessories-text-editor.png"));
 	private ImageIcon simulationStatChartIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kchart.png"));
 		
-	public SimulationTabPanel(SimulationTabPanelManager simulationTabPanelManager, SimulationsManager simsManager)
+	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
+	private Semaphore listenersLock = new Semaphore(1, false);
+	
+	public SimulationTabPanel(SimulationsManager simsManager)
 	{
-		this.simulationTabPanelManager = simulationTabPanelManager;
 		this.simsManager = simsManager;
 		
 		simId = -1;
@@ -1107,6 +1111,19 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	@Override
 	public void simulationStatusChanged(SimStatus status)
 	{
-		simulationTabPanelManager.tabStatusChanged(this,status);
+		listenersLock.acquireUninterruptibly();
+	    for (TabStatusChangedListenerInf listener : tabStatusListeners)
+	    {
+	    	listener.tabStatusChanged(this,status);
+	    }
+	    listenersLock.release();
 	}
+	
+	public void addTabStatusListener(TabStatusChangedListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+	    	tabStatusListeners.add(listener);
+    	listenersLock.release();
+	}
+
 }

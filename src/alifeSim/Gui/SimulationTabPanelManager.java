@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Simulation.SimulationState.SimStatus;
 
-public class SimulationTabPanelManager extends JTabbedPane implements MouseListener, ActionListener
+public class SimulationTabPanelManager extends JTabbedPane implements MouseListener, ActionListener,TabStatusChangedListenerInf
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -141,7 +141,10 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 					if(simulationTabs[i] == null)
 					{
 						// Add a new tab the list
-						simulationTabs[i] = new SimulationTabPanel(this,simsManager);
+						simulationTabs[i] = new SimulationTabPanel(simsManager);
+						
+						// Listen to Status change events
+						simulationTabs[i].addTabStatusListener(this);
 						
 						// Add the tab before the new tab button
 						this.add(simulationTabs[i],this.getTabCount()-1);
@@ -266,6 +269,7 @@ public class SimulationTabPanelManager extends JTabbedPane implements MouseListe
 		removeTab();
 	}
 
+	@Override
 	public void tabStatusChanged(SimulationTabPanel tab,SimStatus status)
 	{
 		int index = this.indexOfComponent(tab);
