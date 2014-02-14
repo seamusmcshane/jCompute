@@ -116,17 +116,23 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	
 	private int simId = -1;
 
-	private ImageIcon simRunningIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png"));
-	private ImageIcon simPausedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png"));
-	private ImageIcon simNewIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png"));
-	private ImageIcon simFinishedIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png"));
-
 	private Timer updateTimer = new Timer();
 	private boolean allowUpdate = false;
 	
-	/* Our Index in the tab panel */
-	private int tabPanelIndex;
+	/** Scenario Editor Icons */
+	private ImageIcon openScenarioIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-open.png"));
+	private ImageIcon saveScenarioIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-save.png"));
+	private ImageIcon closeScenarioIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-close.png"));
 	
+	private ImageIcon generateSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/grid.png"));
+	private ImageIcon startSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/play.png"));
+	private ImageIcon resumeSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png"));
+	private ImageIcon pauseSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png"));
+
+	private ImageIcon simulationStatsExportIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png"));
+	private ImageIcon scenarioEditorIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/accessories-text-editor.png"));
+	private ImageIcon simulationStatChartIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kchart.png"));
+		
 	public SimulationTabPanel(SimulationTabPanelManager simulationTabPanelManager, SimulationsManager simsManager)
 	{
 		this.simulationTabPanelManager = simulationTabPanelManager;
@@ -167,7 +173,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioOpenPanel.setLayout(gbl_scenarioOpenPanel);
 
 		btnOpen = new JButton("Open");
-		btnOpen.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-open.png")));
+		btnOpen.setIcon(openScenarioIcon);
 		btnOpen.addActionListener(this);
 		GridBagConstraints gbc_btnOpen = new GridBagConstraints();
 		gbc_btnOpen.fill = GridBagConstraints.HORIZONTAL;
@@ -177,7 +183,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		scenarioOpenPanel.add(btnOpen, gbc_btnOpen);
 
 		btnSave = new JButton("Save");
-		btnSave.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-save.png")));
+		btnSave.setIcon(saveScenarioIcon);
 		btnSave.addActionListener(this);
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
@@ -187,7 +193,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		btnSave.setEnabled(false);
 
 		btnClose = new JButton("Close");
-		btnClose.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-close.png")));
+		btnClose.setIcon(closeScenarioIcon);
 		btnClose.addActionListener(this);
 		btnClose.setEnabled(false);
 		GridBagConstraints gbc_btnClose = new GridBagConstraints();
@@ -376,7 +382,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		controlPanel.add(sliderSimStepRate, gbc_sliderSimStepRate);
 
 		btnGenerateSim = new JButton("Generate");
-		btnGenerateSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/grid.png")));
+		btnGenerateSim.setIcon(generateSimIcon);
 		btnGenerateSim.addActionListener(this);
 		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
 		btnGenerateSim.setEnabled(false);
@@ -388,7 +394,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		controlPanel.add(btnGenerateSim, gbc_btnGenerateSim);
 
 		btnStartSim = new JButton("Start");
-		btnStartSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/play.png")));
+		btnStartSim.setIcon(startSimIcon);
 		btnStartSim.addActionListener(this);
 		btnStartSim.setToolTipText("Start the simulation.");
 		btnStartSim.setEnabled(false);
@@ -400,7 +406,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		controlPanel.add(btnStartSim, gbc_btnStartSim);
 
 		btnPauseSim = new JButton("   Pause");
-		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
+		btnPauseSim.setIcon(resumeSimIcon);
 		btnPauseSim.addActionListener(this);
 		btnPauseSim.setToolTipText("Pause / Unpause the simulation.");
 		btnPauseSim.setEnabled(false);
@@ -442,7 +448,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			// Give the List Panel a reference to the simulations stat manager - so it can initiate an export.
 			simulationStatsListPanel.setStatManager(statManager);
 		
-			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png")));			
+			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, simulationStatsExportIcon);			
 		}
 
 	}
@@ -450,7 +456,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	public void addScenarioTab()
 	{
 		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
-		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/accessories-text-editor.png")));
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, scenarioEditorIcon);
 	}
 
 	private boolean discardCurrentSimGenerated()
@@ -825,7 +831,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 			System.out.println("Adding " + chartPanel.getName() + " Chart Panel");
 			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
-			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kchart.png")));
+			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, simulationStatChartIcon);
 		}
 		
 	}
@@ -869,7 +875,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 			btnPauseSim.setText("   Pause");
 
-			btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
+			btnPauseSim.setIcon(pauseSimIcon);
 
 			sliderSimStepRate.setEnabled(false);
 
@@ -919,7 +925,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		btnPauseSim.setText("Resume");
 		btnGenerateSim.setEnabled(true);	
 
-		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png")));
+		btnPauseSim.setIcon(resumeSimIcon);
 		
 		simulationStatsListPanel.setExportEnabled(true);
 
@@ -930,7 +936,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		btnPauseSim.setText("   Pause");
 		btnGenerateSim.setEnabled(false);
 				
-		btnPauseSim.setIcon(new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png")));
+		btnPauseSim.setIcon(pauseSimIcon);
 		
 		simulationStatsListPanel.setExportEnabled(false);
 	}
@@ -1032,6 +1038,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			System.out.println("Request to Remove Simulation");
 
 			simsManager.removeSimulation(simId);
+			
+			simId=-1;
 				
 			System.out.println("Simulation Removed");
 		}
@@ -1096,35 +1104,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 	}
 
-	public void setTabPanelIndex(int index)
-	{
-		this.tabPanelIndex = index;	
-	}
-
 	@Override
 	public void simulationStatusChanged(SimStatus status)
 	{
-		
-	  	if(status == SimStatus.RUNNING)
-	  	{
-	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simRunningIcon);							
-	  	}
-	  	else if(status == SimStatus.PAUSED)
-	  	{
-	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simPausedIcon);							
-					  		
-	  	}
-	  	else if(status == SimStatus.NEW)
-	  	{
-	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simNewIcon);							
-
-	  	}
-	  	else // Finished
-	  	{
-	  		simulationTabPanelManager.setIconAt(tabPanelIndex, simFinishedIcon);							
-	  	}
-	  	
-  		simulationTabPanelManager.setTitleAt(tabPanelIndex, tabTitle);
-  		
+		simulationTabPanelManager.tabStatusChanged(this,status);
 	}
 }
