@@ -376,7 +376,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		sliderSimStepRate.setSnapToTicks(true);
 		sliderSimStepRate.addChangeListener(this);
 
-		sliderSimStepRate.setValue(4);
+		sliderSimStepRate.setValue(8);
 		sliderSimStepRate.setToolTipText("Adjust requested step rate.");
 		sliderSimStepRate.setPreferredSize(new Dimension(25, 20));
 		sliderSimStepRate.setPaintTicks(true);
@@ -437,7 +437,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			}
 			  
 		},0,1000);
-		
+			
 	}
 
 	public void addSimulationStatsListTab()
@@ -548,6 +548,8 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 					generatingSim = false;
 
 					simGenerated = true;
+					
+					clearStats();
 
 				}
 			}
@@ -642,9 +644,14 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				scenarioLoaded = true;
 				btnClose.setEnabled(true);
 				btnSave.setEnabled(true);
+				
 				// Set the Startup State
 				startUpState();
 
+				tabTitle = "Loaded Scenario";
+				
+				notifiyTabStatusChangedListeners(SimStatus.NEW);
+				
 			}
 		}
 
@@ -878,19 +885,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 			
 			setUpPanels();
 
-			btnGenerateSim.setEnabled(true);
-
-			btnStartSim.setEnabled(true);
-
-			btnPauseSim.setEnabled(false);
-
-			btnPauseSim.setText("   Pause");
-
-			btnPauseSim.setIcon(pauseSimIcon);
-
-			sliderSimStepRate.setEnabled(false);
-
-			sliderSimStepRate.setValue(8);
+			generatedState();
 			
 		}
 		else
@@ -919,16 +914,42 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	private void startUpState()
 	{
-		System.out.println("Simulation now in Startup State");
-
-		tabTitle = "Loaded";
+		System.out.println("GUI now in Startup State");
 		
-		clearStats();
-
 		btnStartSim.setEnabled(false);
 		sliderSimStepRate.setEnabled(false);
 		btnPauseSim.setEnabled(false);
 		btnGenerateSim.setEnabled(true);
+	}
+	
+	private void generatedState()
+	{
+		System.out.println("GUI now in Generated State");
+
+		btnGenerateSim.setEnabled(true);
+
+		btnStartSim.setEnabled(true);
+		
+		btnPauseSim.setEnabled(false);
+		btnPauseSim.setText("   Pause");
+		btnPauseSim.setIcon(pauseSimIcon);
+
+		sliderSimStepRate.setValue(8);
+		
+		sliderSimStepRate.setEnabled(false);		
+
+	}
+	
+	private void finishedState()
+	{
+		System.out.println("GUI now in Finished State");
+		
+		btnStartSim.setEnabled(false);
+		sliderSimStepRate.setEnabled(false);
+		btnPauseSim.setEnabled(false);
+		btnGenerateSim.setEnabled(true);
+						
+		simulationStatsListPanel.setExportEnabled(true);
 	}
 
 	private void simPausedStatus()
@@ -1111,6 +1132,18 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	@Override
 	public void simulationStatusChanged(SimStatus status)
+	{
+		if(status == SimStatus.FINISHED)
+		{
+			finishedState();
+		}
+		
+		notifiyTabStatusChangedListeners(status);
+		
+	}
+	
+	
+	private void notifiyTabStatusChangedListeners(SimStatus status)
 	{
 		listenersLock.acquireUninterruptibly();
 	    for (TabStatusChangedListenerInf listener : tabStatusListeners)
