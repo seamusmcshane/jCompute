@@ -1,5 +1,6 @@
 package alifeSim.Scenario.SAPP;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -8,7 +9,11 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Gui.SimViewCam;
+import alifeSim.Scenario.ScenarioKeyValuePair;
+import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
+import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
+import alifeSim.Simulation.SimulationState;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 import alifeSim.Stats.StatGroupSetting;
@@ -55,7 +60,9 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 
 	// The local state of this simulations view
 	private SimViewCam simViewCam;
-	
+		
+	private List<ScenarioEndEventInf> endEvents;
+		
 	/**
 	 * Constructor for SimulationManager.
 	*/
@@ -66,7 +73,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		simViewCam.setCamOffset(new A2DVector2f(50,50));
 		
 		this.scenario = scenario;
-
+		
 		setUpBarrierManager();
 
 		setUpWorld();
@@ -77,8 +84,10 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		
 		setUpStatManager();
 		
+		setUpEndEvents();
+				
 	}
-	
+
 	private void setUpStatManager()
 	{
 		statManager = new StatManager("SAPP");
@@ -308,6 +317,42 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	public void moveCamPos(float x, float y)
 	{
 		simViewCam.moveCam(x,y);		
-	}	
+	}
 
+	private void setUpEndEvents()
+	{
+		endEvents = new ArrayList<ScenarioEndEventInf>();	
+				
+
+
+	}
+	
+	@Override
+	public boolean hasEndEventOccurred()
+	{
+		boolean eventOccurred = false;
+				
+		for(ScenarioEndEventInf event : endEvents)
+		{
+			if(event.checkEvent())
+			{
+				eventOccurred = true;
+				
+				break;	// No need to check other events
+			}
+		}
+				
+		return eventOccurred;
+	}
+
+	@Override
+	public void setScenarioStepCountEndEvent(SimulationState simState)
+	{
+		if(scenario.endEventIsSet("StepCount"))
+		{
+			int endStep = scenario.getEventValue("StepCount");
+			
+			endEvents.add(new ScenarioStepCountEndEvent(simState,endStep));			
+		}		
+	}	
 }

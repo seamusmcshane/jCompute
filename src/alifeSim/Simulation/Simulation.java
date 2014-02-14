@@ -54,7 +54,7 @@ public class Simulation
 		
 		setupThreads();
 
-		createSimScenario(null); // Never used - needed for successful startup		
+		createSimScenario(null);
 	}
 
 	/**
@@ -65,7 +65,11 @@ public class Simulation
 		if(scenario!=null)
 		{
 			System.out.println("Assigning Sim Manager");
+			
 			simManager = scenario.getSimManager();
+			
+			// This is a special external end event based on the simulation step count.
+			simManager.setScenarioStepCountEndEvent(simState);
 			
 			System.out.println("Scenario Type : " + scenario.getScenarioType());
 
@@ -116,8 +120,8 @@ public class Simulation
 								
 				while (running)
 				{
-						simUpdate();
-						//asyncUpdateThread.yield();
+					simUpdate();
+					//asyncUpdateThread.yield();
 				}
 			}
 		}, "Simulation Update Thread"
@@ -165,9 +169,19 @@ public class Simulation
 			panel.update();
 		}
 		
+		// Check for an End Event
+		if(simManager.hasEndEventOccurred())
+		{
+			System.out.println("Simulation End Occurrred");
+			
+			simState.finishState();
+			
+			// Effectively a dead lock under any other circumstance.
+			pause.acquireUninterruptibly();
+		}
+		
 		// Allow the simulation to be paused again
-		pause.release();
-	
+		pause.release();	
 	}
 
 	/**
@@ -308,5 +322,5 @@ public class Simulation
 	{
 		simState.addStatusListener(listener);
 	}
-		
+			
 }

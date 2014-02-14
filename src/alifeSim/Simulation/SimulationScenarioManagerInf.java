@@ -29,5 +29,9 @@ public interface SimulationScenarioManagerInf
 	public A2DVector2f getCamPos();
 
 	public void moveCamPos(float x, float y);
+	
+	public boolean hasEndEventOccurred();
+
+	public void setScenarioStepCountEndEvent(SimulationState simState);
 
 }
