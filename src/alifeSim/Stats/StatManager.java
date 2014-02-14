@@ -3,16 +3,11 @@ package alifeSim.Stats;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-
 import javax.swing.JOptionPane;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 import com.sun.org.apache.xerces.internal.util.XMLChar;
 
@@ -110,7 +105,7 @@ public class StatManager
 		for(String fileName: fileNames)
 		{
 			fileName = new String();
-		}	
+		}
 		
 		// For efficient concatenation we use StringBuilder to build up the output file
 		StringBuilder[] fileData = new StringBuilder[groupList.size()];
