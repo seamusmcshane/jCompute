@@ -138,6 +138,11 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);
 	
+	// Because the values in the GUI are only updated on a time interval we latch the values and update it using them
+	private long latchTime = 0;
+	private int latchStepNo = 0;
+	private int latchASPS = 0;
+	
 	public SimulationTabPanel(SimulationsManager simsManager)
 	{
 		this.simsManager = simsManager;
@@ -423,11 +428,13 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
 		updateTimer.schedule(new TimerTask()
 		{
-			  @Override
-			  public void run() 
-			  {
-				  allowUpdate = true;
-			  }
+			@Override
+			public void run() 
+			{
+				setTime(latchTime);
+				setStepNo(latchStepNo);
+				setASPS(latchASPS);
+			}
 			  
 		},0,1000);
 		
@@ -1097,15 +1104,9 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	@Override
 	public void simulationStatChanged(long time,int stepNo,int asps)
 	{
-		if(allowUpdate)
-		{
-			setTime(time);
-			setStepNo(stepNo);
-			setASPS(asps);
-			
-			allowUpdate = false;
-		}
-		
+		latchTime = time;
+		latchStepNo = stepNo;
+		latchASPS = asps;		
 	}
 
 	@Override
