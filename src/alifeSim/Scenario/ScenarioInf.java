@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 import alifeSim.Simulation.SimulationScenarioManagerInf;
+import alifeSim.Simulation.SimulationState;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.Stats.StatManager;
 
