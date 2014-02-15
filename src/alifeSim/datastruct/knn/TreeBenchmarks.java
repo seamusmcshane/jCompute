@@ -24,6 +24,9 @@ public class TreeBenchmarks
 	/* Tree 1 */
 	static KNNInf<TreeBenchObject> thirdGenObjectKDTreeGB;
 
+	/* Tree 2 */
+	static KNNInf<TreeBenchObject> jkMegaKDObjectKDTreeGB;
+
 	static Random r = new Random();
 	
 	static long[][] results;		
@@ -34,9 +37,8 @@ public class TreeBenchmarks
 		{
 			threads=2;
 		}
-		
-		
-		int runs = 19;
+				
+		int runs = 10;
 		
 		logger(1,"Benchmark\tThreads\tRuns\tIterations");
 		logger(1,"\t\t"+threads+"\t"+runs+"\t"+iterations);
@@ -45,6 +47,7 @@ public class TreeBenchmarks
 		
 		int i=0;
 
+		logger(1, "benchMarkThirdGenTree");
 		logger(1,"Run\tObjects\tAddTime\t(%)\tSearch Time\t(%)\tTotal Time");
 
 		
@@ -65,7 +68,30 @@ public class TreeBenchmarks
 			System.gc();
 			
 			results[i] = benchMarkThirdGenTree();
+						
+			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
+
+		}
+		
+		logger(1, "benchMarkjkMegaKDObjectKDTree");
+		for(i=0;i<runs;i++)
+		{		
+			//logger(1,"Iteration\t"+i+"\tObjects\t"+(startObjects<<i));
+			minList = (( startObjects<<i)/threads);//+1;
 			
+			if(minList < threads)
+			{
+				minList = threads;
+			}
+			
+			//logger(1,"Min List" + minList);
+			
+			generateObjectList( startObjects<<i,areaSize);
+			
+			System.gc();
+			
+			results[i] = benchMarkjkMegaKDObjectKDTree();
+						
 			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
 
 		}
@@ -145,6 +171,54 @@ public class TreeBenchmarks
 		return time;
 	}
 	
+	private static long[] benchMarkjkMegaKDObjectKDTree()
+	{
+		String treeName = "thirdGenObjectKDTreeGB";
+		
+		ForkJoinPool pool = new ForkJoinPool(threads);
+		
+		logger(2,">> Start : " + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName());
+
+		timerObj statsAdd = new timerObj();
+		timerObj statsSearch = new timerObj();
+		
+		long[] time = new long[5];
+		
+		int i=0;
+		
+		while(i<iterations)
+		{
+			// Add Time
+			statsAdd.resetTimer();
+			statsAdd.startTimer();
+			generateJKMegaKD(objectListGB,jkMegaKDObjectKDTreeGB,treeName);
+			statsAdd.stopTimer();
+			time[0]+=statsAdd.getTimeTaken();	
+					
+			// Bench time
+			statsSearch.resetTimer();
+			statsSearch.startTimer();
+				searchTree(pool,objectListGB,jkMegaKDObjectKDTreeGB,treeName);
+			statsSearch.stopTimer();
+			time[1]+=statsSearch.getTimeTaken();
+			
+			i++;
+		}	
+		// Total Time
+		time[2] += (time[0]+time[1]);
+		
+		// Add %
+		time[3] = (long) (((double)time[0]/(double)time[2])*10000);
+		time[4] = (long) (((double)time[1]/(double)time[2])*10000);
+
+		
+		logger(2,"Total Time : " + time[2]);
+		logger(2,"Add Time :\t" + time[0] + "\t%"+ time[3]);
+		logger(2,"Search Time :\t" + time[1] + "\t%" + time[4]);
+
+		return time;
+	}
+	
 
 	
 	private static void generateThirdGenTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
@@ -152,6 +226,14 @@ public class TreeBenchmarks
 		thirdGenObjectKDTreeGB = new thirdGenKDWrapper<TreeBenchObject>(2);	
 		addTree(objectListGB,thirdGenObjectKDTreeGB,treeName);
 	}
+	
+	private static void generateJKMegaKD(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
+	{
+		jkMegaKDObjectKDTreeGB = new JKMegaKDWrapper<TreeBenchObject>(2);	
+		addTree(objectListGB,jkMegaKDObjectKDTreeGB,treeName);
+	}
+	
+	
 	
 	private static void addTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
 	{	
