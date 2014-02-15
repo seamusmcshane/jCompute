@@ -4,6 +4,20 @@
 		<Version>0.02</Version>
 		<Type>SAPP</Type>
 	</Header>
+	<EndEvents>
+		<Event>
+			<Name>StepCount</Name>
+			<Value>10000</Value>
+		</Event>
+		<Event>
+			<Name>AllPreyLTE</Name>
+			<Value>0</Value>
+		</Event>
+		<Event>
+			<Name>AllPredatorLTE</Name>
+			<Value>0</Value>
+		</Event>
+	</EndEvents>
 	<Statistics>
 		<Stat>
 			<Name>Population</Name>
