@@ -3,7 +3,8 @@ package alifeSim.Scenario.Math;
 import java.util.List;
 
 import alifeSim.Gui.NewSimView;
-import alifeSim.Stats.StatInf;
+import alifeSim.Stats.SingleStat;
+import alifeSim.Stats.StatManager;
 
 public interface LVSubTypeInf
 {
@@ -12,7 +13,9 @@ public interface LVSubTypeInf
 	
 	public void draw(NewSimView simView);
 	
-	public List<StatInf> getPopulationStats();
+	public List<SingleStat> getPopulationStats();
+
+	public void setStatManager(StatManager statManager);
 
 	
 }

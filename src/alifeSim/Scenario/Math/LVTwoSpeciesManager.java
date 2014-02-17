@@ -6,7 +6,7 @@ import java.util.List;
 
 import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.SingleStat;
-import alifeSim.Stats.StatInf;
+import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2DPoint2d;
 import alifeSimGeom.A2RGBA;
 
@@ -32,7 +32,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	private double predator_population;
 	private double predator_min_population;
 	private double predator_max_population;	
-	private int t = 0;
+	private double t = 0;
 	
 	/* 0 - Euler, 1 - RK4 */
 	private int intMethod; 
@@ -54,10 +54,12 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	private float axisMax = 1500;
 	private int maxPoints;
 	
+	private StatManager statManager;
+	
 	public LVTwoSpeciesManager(LVSettings settings)
 	{
 		values = new LinkedList<A2DPoint2d>();
-		
+				
 		prey_min_population = Double.POSITIVE_INFINITY;
 		prey_max_population = Double.NEGATIVE_INFINITY;;
 		predator_min_population = Double.POSITIVE_INFINITY;
@@ -84,11 +86,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		
 		intMethod = setIntMethod(settings.getIntMethod());
 		
-		setUpStats();
-		
-		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
-		System.out.printf("%d\t\t%5.2f\t\t%5.2f\n",t,initial_prey_population,initial_predator_population);
-		
+		setUpStats();		
 	}
 
 	private int setIntMethod(String settingValue)
@@ -110,17 +108,17 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	public void doStep()
 	{
 
-			switch(intMethod)
-			{
-				case 0:
-					predator_prey_euler();
-				break;
-				case 1:
-					predator_prey_rk4();
-				break;
-			}
-				
-			t++;
+		switch(intMethod)
+		{
+			case 0:
+				predator_prey_euler();
+			break;
+			case 1:
+				predator_prey_rk4();
+			break;
+		}
+			
+		t++;
 		
 		pointsHue=pointsHue+0.001f;
 		
@@ -138,7 +136,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		double dy;
 		
 		for(int i=1;i<sub_steps;i++)
-		{			
+		{
 			/* Prey */
 			dx = calculate_prey(prey_population,predator_population);
 			
@@ -149,11 +147,13 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 			predator_population += dy*dt;
 			
 			// Stats
-			stat_predator_population.addSample(predator_population);
-			stat_prey_population.addSample(prey_population);
+			stat_predator_population.addSample(t+(dt*(double)i),predator_population);
+			stat_prey_population.addSample(t+(dt*(double)i),prey_population);
 			
 			// Draw 
-			addDrawVal(i);			
+			addDrawVal(i);	
+			
+			statManager.update();
 		}
 	}
 	
@@ -192,11 +192,13 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 			prey_population			+= (pyk1 + (2.0 * pyk2) + (2.0 * pyk3) + pyk4)*(1.0/6.0)*dt;
 			
 			// Stats
-			stat_predator_population.addSample(predator_population);
-			stat_prey_population.addSample(prey_population);
+			stat_predator_population.addSample(t+(dt*(double)i),predator_population);
+			stat_prey_population.addSample(t+(dt*(double)i),prey_population);
 			
 			// Draw 
 			addDrawVal(i);
+			
+			statManager.update();
 			
 		}
 		
@@ -257,10 +259,10 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		stat_prey_population.setColor(Color.blue);
 	}
 	
-	public List<StatInf> getPopulationStats()
+	public List<SingleStat> getPopulationStats()
 	{
 
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(stat_predator_population);
 		stat.add(stat_prey_population);
@@ -393,6 +395,12 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 				previous = null;
 			}
 		}
+	}
+	
+	@Override
+	public void setStatManager(StatManager statManager)
+	{
+		this.statManager = statManager;		
 	}
 	
 }

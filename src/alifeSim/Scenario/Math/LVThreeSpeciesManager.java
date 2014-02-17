@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 
 import alifeSim.Gui.NewSimView;
 import alifeSim.Stats.SingleStat;
-import alifeSim.Stats.StatInf;
+import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2RGBA;
 import alifeSimGeom.A3DVector3f;
 
@@ -69,6 +69,7 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 	private float pointsHue=0f;
 	
 	private double scale;
+	private StatManager statManager;
 	
 	public LVThreeSpeciesManager(LVSettings settings)
 	{
@@ -262,9 +263,9 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 		stat_plant_population.setColor(Color.GREEN);
 	}
 	
-	public List<StatInf> getPopulationStats()
+	public List<SingleStat> getPopulationStats()
 	{
-		List<StatInf> statList = new LinkedList<StatInf>();
+		List<SingleStat> statList = new LinkedList<SingleStat>();
 		
 		statList.add(stat_predator_population);
 		statList.add(stat_prey_population);
@@ -337,6 +338,12 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 				
 			}
 		}
+	}
+
+	@Override
+	public void setStatManager(StatManager statManager)
+	{
+		this.statManager = statManager;		
 	}
 	
 }
