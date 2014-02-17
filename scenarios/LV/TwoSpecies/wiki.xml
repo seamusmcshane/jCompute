@@ -5,6 +5,20 @@
 		<Type>LV</Type>
 		<SubType>Two</SubType>
 	</Header>
+	<EndEvents>
+		<Event>
+			<Name>StepCount</Name>
+			<Value>50</Value>
+		</Event>
+		<Event>
+			<Name>AllPreyLTE</Name>
+			<Value>0</Value>
+		</Event>
+		<Event>
+			<Name>AllPredatorLTE</Name>
+			<Value>0</Value>
+		</Event>
+	</EndEvents>
 	<View>
 		<Scale>100.00</Scale>
 	</View>
@@ -12,7 +26,7 @@
 		<Stat>
 			<Name>Population</Name>
 			<Enabled>true</Enabled>
-			<TotalStat>true</TotalStat>
+			<TotalStat>false</TotalStat>
 			<Graph>true</Graph>
 			<GraphSampleRate>1</GraphSampleRate>
 		</Stat>
