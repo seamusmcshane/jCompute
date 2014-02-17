@@ -3,10 +3,12 @@ package alifeSim.Stats;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+
 import javax.swing.JOptionPane;
 
 import com.sun.org.apache.xerces.internal.util.XMLChar;
@@ -14,8 +16,12 @@ import com.sun.org.apache.xerces.internal.util.XMLChar;
 public class StatManager
 {
 	private String managerName;
-	HashMap<String, StatGroup> map;
-	Semaphore statsManagerLock = new Semaphore(1);
+	
+	private HashMap<String, StatGroup> map;
+	
+	private ArrayList<StatGroup> statGroupList;
+	
+	private Semaphore statsManagerLock = new Semaphore(1);
 	
 	public StatManager(String managerName)
 	{
@@ -155,12 +161,12 @@ public class StatManager
 			// The Data Rows
 			// Get the history length of the stats (all the same length in steps)
 			int historyLength = statGroup.getStat(statList.get(0)).getHistoryLength();
-			Double[][] statHistorys = new Double[statCount][historyLength];
+			StatSample[][] statHistorys = new StatSample[statCount][historyLength];
 			
 			// Convert each Linked list to arrays - so we can look up individual indexes quicker later.
 			for(statIndex=0;statIndex< statCount;statIndex++)
 			{
-				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new Double[historyLength]);
+				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
 			}
 
 			int history =0;
@@ -197,12 +203,12 @@ public class StatManager
 				statIndex = 0;
 				
 				// Append the sample from the first stat with a , appended				
-				fileData[groupIndex].append(statHistorys[statIndex][history] + ",");
+				fileData[groupIndex].append(statHistorys[statIndex][history].getSample() + ",");
 
 				// Do the same for every history, append , after each sample or a new line after each history
 				for(statIndex=1;statIndex< statCount;statIndex++)
 				{
-					fileData[groupIndex].append(statHistorys[statIndex][history]);
+					fileData[groupIndex].append(statHistorys[statIndex][history].getSample());
 					
 					if(statIndex<(statCount-1))
 					{
@@ -578,6 +584,36 @@ public class StatManager
 
 	    // Return a valid string
 	    return validString.toString();
+	}
+
+	private List<StatGroup> getStatGroupList()
+	{
+		if(statGroupList == null)
+		{
+			statGroupList = new ArrayList<StatGroup>();
+		}		
+		
+		if(statGroupList.size() != map.size())
+		{
+			statGroupList = new ArrayList<StatGroup>();
+			
+			Set<String> groupList = getGroupList();
+			
+			for(String group : groupList)
+			{
+				statGroupList.add(map.get(group));
+			}			
+		}
+		
+		return statGroupList;
+	}
+	
+	public void update()
+	{
+		for (StatGroup group : getStatGroupList()) 
+		{
+			group.notifyStatGroupListeners();
+		}
 	}
 
 }

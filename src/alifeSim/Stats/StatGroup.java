@@ -3,16 +3,30 @@ package alifeSim.Stats;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class StatGroup
 {
+	// Group Name
 	private String groupName;
-	private HashMap<String, StatInf> map;
+	
+	// Stat List in this group - we do not check for duplicates
+	private ArrayList<SingleStat> statList;
+	
+	// Group lock
 	private Semaphore statsGroupLock = new Semaphore(1);
+	
+	// Group Settings
 	private StatGroupSetting setting;
+	private int notifiyCalls = 0;
+	
+	// The Listeners for changes in this stat groups stats
+	private List<StatGroupListenerInf> statGroupListeners = new ArrayList<StatGroupListenerInf>();
+	
+	// Lock for the listeners
+	private Semaphore listenersLock = new Semaphore(1, false);
 	
 	public StatGroup(String groupName)
 	{
@@ -20,31 +34,47 @@ public class StatGroup
 		
 		setting = new StatGroupSetting(groupName);
 		
-		map = new HashMap<String, StatInf>();
+		statList = new ArrayList<SingleStat>();
 	}
 	
 	// Add a new stat to the stat manager
-	public void registerStat(StatInf stat)
+	public void registerStat(SingleStat stat)
 	{
-		statsGroupLock.acquireUninterruptibly();
-			map.put(stat.getStatName(), stat);
+		statsGroupLock.acquireUninterruptibly();		
+			statList.add(stat);
 		statsGroupLock.release();
 	}
 	
 	// Add a list of stats to the stat manager
-	public void registerStats(List<StatInf> statList)
+	public void registerStats(List<SingleStat> statList)
 	{
-		for (StatInf stat : statList) 
+		for (SingleStat stat : statList) 
 		{
 			registerStat(stat);
 		}
 	}
 	
 	// returns a stat based on the stat name requested
-	public StatInf getStat(String statName)
+	public SingleStat getStat(String statName)
 	{
 		statsGroupLock.acquireUninterruptibly();
-			StatInf stat = map.get(statName);
+		
+			Iterator<SingleStat> listItr = statList.iterator();
+		
+			SingleStat stat = null;
+			
+			while(listItr.hasNext())
+			{
+				SingleStat tempStat =  listItr.next();
+				if( tempStat.getStatName().equals(statName))
+				{
+					stat = tempStat;
+					
+					// Found Sample Exit loop
+					break;
+				}
+			}
+					
 		statsGroupLock.release();
 		
 		return stat;
@@ -53,7 +83,14 @@ public class StatGroup
 	// An sorted list of the Group names in the manager
 	public List<String> getStatList()
 	{
-		List<String> list = new ArrayList<String>(map.keySet());
+		List<String> list = new ArrayList<String>();
+		
+		Iterator<SingleStat> listItr = statList.iterator();
+		
+		while(listItr.hasNext())
+		{
+			list.add(listItr.next().getStatName());
+		}		
 		
 		Collections.sort(list,new sortComparator());
 		
@@ -105,6 +142,30 @@ public class StatGroup
 	public String getName()
 	{
 		return groupName;
+	}
+	
+	public void addStatGroupListener(StatGroupListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+			statGroupListeners.add(listener);
+    	listenersLock.release();
+	}
+	
+	public void notifyStatGroupListeners()
+	{
+		listenersLock.acquireUninterruptibly();
+		
+		if(notifiyCalls % setting.getGraphSampleRate() == 0)
+		{
+			for (StatGroupListenerInf listener : statGroupListeners)
+		    {
+		    	listener.groupStatsUpdated(statList);
+		    }
+		}
+		
+		notifiyCalls++;
+		
+	    listenersLock.release();
 	}
 	
 }

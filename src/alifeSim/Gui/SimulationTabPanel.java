@@ -59,7 +59,6 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import alifeSim.ChartPanels.GlobalStatChartPanel;
-import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
@@ -80,7 +79,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	
 	// Graphs
 	private JTabbedPane simulationTabPane;
-	private LinkedList<StatPanelAbs> charts;
+	private LinkedList<GlobalStatChartPanel> charts;
 
 	// Editor Related
 	private RSyntaxTextArea scenarioEditor;
@@ -808,7 +807,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		simulationTabPane.removeAll();
 
 		// Clear the Chart List
-		charts = new LinkedList<StatPanelAbs>();
+		charts = new LinkedList<GlobalStatChartPanel>();
 
 		// Re-add the Scenario Tab.
 		addScenarioTab();
@@ -817,9 +816,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		addSimulationStatsListTab();
 
 		addChartTabs();
-		
-		// Set up the Sim with the new chart targets
-		simsManager.setSimOutPutCharts(simId,charts);
 	}
 
 	private void addChartTabs()
@@ -837,7 +833,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				
 				if(statGroup.getGroupSettings().graphEnabled())
 				{
-					charts.add(new GlobalStatChartPanel(group,statManager,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleRate()));
+					
+					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleRate());
+					
+					charts.add(chart);
+					
+					statGroup.addStatGroupListener(chart);
 				}
 
 			}		
@@ -845,7 +846,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		}
 
 		// Add the detected Panels
-		for (StatPanelAbs chartPanel : charts)
+		for (GlobalStatChartPanel chartPanel : charts)
 		{
 			System.out.println("Adding " + chartPanel.getName() + " Chart Panel");
 			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);

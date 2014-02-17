@@ -6,10 +6,8 @@ import java.util.concurrent.Semaphore;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
-import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Gui.SimViewCam;
-import alifeSim.Scenario.ScenarioKeyValuePair;
 import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -248,6 +246,9 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		genericPlantManager.stage3();
 		simpleAgentManager.stage3();
+		
+		// 
+		statManager.update();
 	}
 
 	

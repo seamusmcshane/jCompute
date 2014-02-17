@@ -2,7 +2,9 @@ package alifeSim.ChartPanels;
 
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
+import alifeSim.Stats.StatGroupListenerInf;
 import alifeSim.Stats.StatManager;
+import alifeSim.Stats.StatSample;
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.pointpainters.PointPainterDisc;
@@ -12,7 +14,9 @@ import info.monitorenter.gui.chart.views.ChartPanel;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.awt.GridLayout;
 
 import javax.swing.border.TitledBorder;
@@ -23,9 +27,10 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-public class GlobalStatChartPanel extends StatPanelAbs
+public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 {
 	private static final long serialVersionUID = -3572724823868862025L;
 	
@@ -33,29 +38,27 @@ public class GlobalStatChartPanel extends StatPanelAbs
 	private String totalStatName = "NOTSET";
 	private boolean totalStatEnabled = false;
 	
-	StatGroup statGroup;
-	String groupName = "INVALID";
-	String category = "Species";	// Assume for now global = global per species
+	private String groupName = "INVALID";
+	private String category = "Species";	// Assume for now global = global per species
 
-	JFreeChart statBarChart;
-	int series = 0;
-	org.jfree.chart.ChartPanel statBarChartPanel;
-	DefaultCategoryDataset statDataset;
-	Plot statChartPlot;
+	private JFreeChart statBarChart;
+	private int series = 0;
+	private org.jfree.chart.ChartPanel statBarChartPanel;
+	private DefaultCategoryDataset statDataset;
+	private Plot statChartPlot;
 
-	int traceAdds;
-	Font chartFont = new Font("Sans", Font.BOLD, 12);
+	private Font chartFont = new Font("Sans", Font.BOLD, 12);
 	
 	// Short Term
-	Chart2D chart2dST;
-	ITrace2D traceST;
-	HashMap<String,ITrace2D> traceMapST;
-	ChartPanel chartPanelST;
-	int stSamDiv = 100;
-	int stSamWin = 100;
-	int stSamPer = stSamDiv*stSamWin;
+	private Chart2D chart2dST;
+	private ITrace2D traceST;
+	private HashMap<String,ITrace2D> traceMapST;
+	private ChartPanel chartPanelST;
+	private int stSamDiv = 100;
+	private int stSamWin = 100;
+	private int stSamPer = stSamDiv*stSamWin;
 			
-	public GlobalStatChartPanel(String name ,StatManager manager, boolean totalStatEnabled, int sampleRate)
+	public GlobalStatChartPanel(String name ,boolean totalStatEnabled, int sampleRate)
 	{
 		// This panels name
 		this.name = name;
@@ -73,11 +76,11 @@ public class GlobalStatChartPanel extends StatPanelAbs
 		this.stSamDiv = sampleRate;
 		
 		System.out.println(name + " Chart Panel Created");
-		statGroup = manager.getStatGroup(groupName);		
+
 		setLayout(new GridLayout(2, 1, 0, 0));
 		createHistoryChart2DST();
 		createBarChart();
-		traceAdds = 0;
+		//traceAdds = 0;
 	}
 	
 	private void createBarChart()
@@ -123,72 +126,80 @@ public class GlobalStatChartPanel extends StatPanelAbs
 			chart2dST.addTrace(tempT);
 		}
 
-	}		
-
-	@Override
-	public void destroy()
-	{
-		statGroup = null;
-		groupName = null;
-		category = null;
-		
-		System.out.println(name + " Chart Panel Self Destructing");
-	}
-	
-	@Override
-	public void update()
-	{
-		int totalstat = 0;
-		ITrace2D tempT;
-		
-		if(traceAdds%stSamDiv == 0)
-		{
-		
-			for (String statName : statGroup.getStatList()) 
-			{
-
-				tempT = traceMapST.get(statName);
-			
-				// This is a new stat being detected
-				if(tempT == null)
-				{
-					tempT = new Trace2DLtd(stSamWin);
-					tempT.setName(statName);
-				
-					tempT.setColor(statGroup.getStat(statName).getColor());
-					tempT.setStroke(new BasicStroke(1));
-					traceMapST.put(statName,tempT);
-					chart2dST.addTrace(tempT);
-					tempT.setPointHighlighter(new PointPainterDisc(4));
-					
-					// Update the series in the bar chart with the new stats color
-					statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,tempT.getColor());
-					
-					// Update series totals
-					series++;
-				}
-				
-				// Set the values
-				tempT.addPoint(traceAdds,((SingleStat)statGroup.getStat(statName)).getLastSample());
-				totalstat+=((SingleStat)statGroup.getStat(statName)).getLastSample();
-				statDataset.setValue(((SingleStat)statGroup.getStat(statName)).getLastSample(), statName, category);
-			}
-			
-			if(totalStatEnabled)
-			{
-				tempT = traceMapST.get(totalStatName);
-				tempT.addPoint(traceAdds,totalstat);
-			}
-		
-		}
-
-		traceAdds++;
-		
 	}
 	
 	public String getName()
 	{
 		return name;
+	}
+
+	@Override
+	public void groupStatsUpdated(ArrayList<SingleStat> sampleList)
+	{
+		int totalstat = 0;
+		ITrace2D tempT;	
+		
+		String name = null;
+		double time = 0;
+		double value = 0;
+		Color color;
+		
+		for(SingleStat stat : sampleList)
+		{
+			value 	= 	stat.getLastSample().getSample();		
+			time 	= 	stat.getLastSample().getTime();	
+			name 	= 	stat.getStatName();
+			color	=	stat.getColor();
+			
+			tempT = traceMapST.get(name);
+			
+			// This is a new stat being detected
+			if(tempT == null)
+			{
+				// New Sample Trace for Chart
+				tempT = new Trace2DLtd(stSamWin);
+				
+				// Set Sample Trace Name
+				tempT.setName(name);
+			
+				// Set Sample Trace Color
+				tempT.setColor(color);
+				
+				// Set Line Width
+				tempT.setStroke(new BasicStroke(1));
+				
+				// Add Sample Name+Trace to Index of Known SampleNames
+				traceMapST.put(name,tempT);
+
+				// Add Trace to the Chart
+				chart2dST.addTrace(tempT);
+				
+				// Show a circle around samples in the chart
+				tempT.setPointHighlighter(new PointPainterDisc(4));
+				
+				// Update the series in the bar chart with the new stats color
+				statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,tempT.getColor());
+				
+				// Update series totals
+				series++;				
+			}
+			
+			// Add the values of the sample in the trace at the samples time index
+			tempT.addPoint(time,value);
+			
+			// A totals trace that can be enabled
+			totalstat+=value;
+			
+			statDataset.setValue(value, name, category);
+			
+		}
+		
+		if(totalStatEnabled)
+		{
+			tempT = traceMapST.get(totalStatName);
+			tempT.addPoint(time,totalstat);
+		}		
+		
 	}
 	
 }

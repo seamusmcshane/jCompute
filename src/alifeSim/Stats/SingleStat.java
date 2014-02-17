@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SingleStat implements StatInf
+public class SingleStat
 {	
 	// Identifier for the type of Information recorded 
 	private String name;
@@ -12,8 +12,15 @@ public class SingleStat implements StatInf
 	private final String type = "Single";
 	
 	private Color statColor;
-	/* Raw Samples - count always == num of steps */
-	private List<Double> allSamples;
+	
+	/* Raw Samples */
+	private List<StatSample> allSamples;
+		
+	// When used time in the sample == step number
+	private int sampleCount = 0;
+	
+	/* Quick ref to last sample */
+	private StatSample lastSample;
 		
 	public SingleStat(String name)
 	{
@@ -32,27 +39,38 @@ public class SingleStat implements StatInf
 		return name;
 	}
 	
-	public void addSample(Double value)
-	{		
-		// Add the new sample 
-		allSamples.add(value);
-	}
-	
-	public void addSample(int value)
-	{		
-		// Add the new sample 
-		allSamples.add((double)value);
-	}
-	
-	public Double getLastSample()
+	// Record a step==time sync'd sample
+	public void addSample(double sample)
 	{
-		return allSamples.get(allSamples.size()-1);		
+		// Increment before add!
+		sampleCount++;
+		
+		// Record the quick ref to last sample
+		lastSample = new StatSample(sampleCount,sample);
+		
+		// Add the sample 
+		allSamples.add(lastSample);
+	}
+	
+	// Record a sample with a specific time index
+	public void addSample(double time, double sample)
+	{		
+		// Record the quick ref to last sample
+		lastSample = new StatSample(time,sample);
+		
+		// Add the sample 
+		allSamples.add(lastSample);
+	}
+	
+	public StatSample getLastSample()
+	{
+		return lastSample;
 	}
 	
 	public void resetStats()
 	{		
 		/* All Samples */
-		allSamples = new LinkedList<Double>();	
+		allSamples = new LinkedList<StatSample>();	
 	}
 
 	public void setColor(Color color)
@@ -70,7 +88,7 @@ public class SingleStat implements StatInf
 		return type;
 	}
 
-	public List<Double> getHistory()
+	public List<StatSample> getHistory()
 	{
 		return allSamples;
 	}
