@@ -14,7 +14,6 @@ import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
-import alifeSim.Stats.StatInf;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
@@ -116,9 +115,9 @@ public class GenericPlantManager
 		plantTotal = 0;
 	}
 	
-	public List<StatInf> getPopulationStats()
+	public List<SingleStat> getPopulationStats()
 	{
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(statPlantTotal);
 		

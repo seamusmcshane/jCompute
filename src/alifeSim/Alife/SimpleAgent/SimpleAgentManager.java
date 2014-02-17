@@ -10,7 +10,6 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Stats.SingleStat;
-import alifeSim.Stats.StatInf;
 import alifeSim.World.WorldInf;
 
 /**
@@ -28,16 +27,9 @@ public class SimpleAgentManager
 {
 
 	/** The agent Actions Linked Lists */
-	//LinkedList<SimpleAgent> doList;
-	//LinkedList<SimpleAgent> doneList;
 	ArrayList<SimpleAgent> doList;
 	ArrayList<SimpleAgent> doneList;	
 	
-	/** The draw agent references */
-	//ListIterator<SimpleAgent> itrDrawAI;
-	
-	SimpleAgent tAgentDrawAI;
-
 	/** Holds Unique Id position agent id */
 	int agentIdCount;
 	
@@ -59,6 +51,7 @@ public class SimpleAgentManager
 	
 	/** Predators */
 	private int predatorTotal;
+	
 	private SingleStat statPredatorTotal;
 	
 	private int predatorBirths;
@@ -68,7 +61,7 @@ public class SimpleAgentManager
 	private SingleStat statPredatorDeaths;
 		
 	/** Reference for setting barrier tasks */
-	BarrierManager barrierManager;
+	private BarrierManager barrierManager;
 
 	/** Agent Settings */
 	List<SimpleAgentSetupSettings> agentSettingsList;
@@ -365,7 +358,7 @@ public class SimpleAgentManager
 		doneList = new ArrayList<SimpleAgent>(agentCountMax);
 	}
 
-	/** Randomize the doList */
+	/** Randomise the doList */
 	private void randomizeListOrder()
 	{
 		// TODO randomizeListOrder
@@ -508,10 +501,10 @@ public class SimpleAgentManager
 		agentAges[ bucket ]++;
 	}
 	
-	public List<StatInf> getPopulationStats()
+	public List<SingleStat> getPopulationStats()
 	{
 
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(statPredatorTotal);
 		stat.add(statPreyTotal);
@@ -519,9 +512,9 @@ public class SimpleAgentManager
 		return stat;
 	}
 	
-	public List<StatInf> getBirthDeathStats()
+	public List<SingleStat> getBirthDeathStats()
 	{
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		stat.add(statPreyBirths);
 		stat.add(statPreyDeaths);
@@ -532,9 +525,9 @@ public class SimpleAgentManager
 		return stat;
 	}
 	
-	public List<StatInf> getEnergyLevels()
+	public List<SingleStat> getEnergyLevels()
 	{
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		for(int i=0;i<energyBuckets;i++)
 		{			
@@ -544,9 +537,9 @@ public class SimpleAgentManager
 		return stat;
 	}
 	
-	public List<StatInf> getAgentAges()
+	public List<SingleStat> getAgentAges()
 	{
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		for(int i=0;i<ageBuckets;i++)
 		{			
@@ -556,9 +549,9 @@ public class SimpleAgentManager
 		return stat;
 	}
 
-	public List<StatInf> getAgentViewSizes()
+	public List<SingleStat> getAgentViewSizes()
 	{
-		List<StatInf> stat = new LinkedList<StatInf>();
+		List<SingleStat> stat = new LinkedList<SingleStat>();
 		
 		for(int i=0;i<viewBuckets;i++)
 		{			
@@ -566,6 +559,16 @@ public class SimpleAgentManager
 		}
 
 		return stat;
+	}
+	
+	public int getPreyTotal()
+	{
+		return preyTotal;
+	}
+
+	public int getPredatorTotal()
+	{
+		return predatorTotal;
 	}
 	
 }
