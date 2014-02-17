@@ -204,22 +204,6 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-
-	public void setSimOutPutCharts(int simId, LinkedList<StatPanelAbs> charts)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
-			sim.setOutPutCharts(charts);
-		}
-		
-		simulationsManagerLock.release();
-		
-	}
-	
 	public void setActiveSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
