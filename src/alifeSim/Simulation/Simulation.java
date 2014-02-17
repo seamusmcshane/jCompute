@@ -1,8 +1,6 @@
 package alifeSim.Simulation;
 
-import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
-import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.SimulationState.SimStatus;
@@ -43,8 +41,6 @@ public class Simulation
 
 	/* Busy wait inter-step delay toggle */
 	private boolean realtime = true;
-	
-	private LinkedList<StatPanelAbs> charts;
 	
 	public Simulation()
 	{
@@ -164,11 +160,6 @@ public class Simulation
 		// Increment the Step counter
 		simState.incrementSimulationSteps();
 				
-		for (StatPanelAbs panel : charts) 
-		{
-			panel.update();
-		}
-		
 		// Check for an End Event
 		if(simManager.hasEndEventOccurred())
 		{
@@ -297,11 +288,6 @@ public class Simulation
 			simManager.drawSim(simView,viewRangeDrawing,viewsDrawing);
 		}
 	}
-
-	public void setOutPutCharts(LinkedList<StatPanelAbs> charts)
-	{
-		this.charts = charts;
-	}	
 	
 	public SimulationState getState()
 	{
