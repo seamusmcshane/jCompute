@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import alifeSim.ChartPanels.StatPanelAbs;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.SimulationState.SimStatus;
