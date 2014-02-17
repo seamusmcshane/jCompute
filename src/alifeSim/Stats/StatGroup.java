@@ -155,7 +155,7 @@ public class StatGroup
 	{
 		listenersLock.acquireUninterruptibly();
 		
-		if(notifiyCalls % setting.getGraphSampleRate() == 0)
+		if(notifiyCalls % setting.getStatSampleRate() == 0)
 		{
 			for (StatGroupListenerInf listener : statGroupListeners)
 		    {

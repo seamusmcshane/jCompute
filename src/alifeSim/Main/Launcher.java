@@ -9,7 +9,7 @@ public class Launcher
 	private static GUI gui;
 
 	// Simulations Manager
-	private static int maxConcurrentSims = 8;
+	private static int maxConcurrentSims = 3;
 	private static SimulationsManager simsManager;
 	
 	// WebInterface
@@ -23,7 +23,7 @@ public class Launcher
 		/* GUI */
 		gui = new GUI(simsManager);
 		
-		webInterface = new WebInterface(simsManager);
+		//webInterface = new WebInterface(simsManager);
 		 
 	}
 	

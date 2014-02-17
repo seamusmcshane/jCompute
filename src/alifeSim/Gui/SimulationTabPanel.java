@@ -834,7 +834,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				if(statGroup.getGroupSettings().graphEnabled())
 				{
 					
-					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleRate());
+					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleWindow());
 					
 					charts.add(chart);
 					

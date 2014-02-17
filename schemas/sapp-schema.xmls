@@ -35,7 +35,8 @@
 								<xs:element name="Enabled" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
 								<xs:element name="TotalStat" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
 								<xs:element name="Graph" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
-								<xs:element name="GraphSampleRate" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="StatSampleRate" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="GraphSampleWindow" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>

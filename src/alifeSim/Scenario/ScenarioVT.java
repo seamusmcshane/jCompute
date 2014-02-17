@@ -209,7 +209,7 @@ public class ScenarioVT
 		for(int i=0;i<statisticsGroups;i++)
 		{
 			section = "Statistics.Stat("+i+")";
-			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"),getBooleanValue(section, "Enabled"),getBooleanValue(section, "TotalStat"),getBooleanValue(section, "Graph"),getIntValue(section, "GraphSampleRate")));
+			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"),getBooleanValue(section, "Enabled"),getBooleanValue(section, "TotalStat"),getBooleanValue(section, "Graph"),getIntValue(section, "StatSampleRate"),getIntValue(section, "GraphSampleWindow")));
 		}
 		
 		System.out.println("Statistics " + statisticsGroups );		

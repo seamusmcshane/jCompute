@@ -54,11 +54,10 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	private ITrace2D traceST;
 	private HashMap<String,ITrace2D> traceMapST;
 	private ChartPanel chartPanelST;
-	private int stSamDiv = 100;
-	private int stSamWin = 100;
-	private int stSamPer = stSamDiv*stSamWin;
+
+	private int stSamWin;
 			
-	public GlobalStatChartPanel(String name ,boolean totalStatEnabled, int sampleRate)
+	public GlobalStatChartPanel(String name ,boolean totalStatEnabled, int sampleWindow)
 	{
 		// This panels name
 		this.name = name;
@@ -73,7 +72,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			this.totalStatName = "Total "+name;
 		}
 		
-		this.stSamDiv = sampleRate;
+		this.stSamWin = sampleWindow;
 		
 		System.out.println(name + " Chart Panel Created");
 

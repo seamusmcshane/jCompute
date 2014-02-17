@@ -6,9 +6,10 @@ public class StatGroupSetting
 	private boolean enabled;
 	private boolean totalStat;
 	private boolean graph;
-	private int graphSampleRate;
+	private int statSampleRate;
+	private int graphSampleWindow;
 	
-	public StatGroupSetting(String name, boolean enabled,boolean totalStat, boolean graph, int graphSampleRate)
+	public StatGroupSetting(String name, boolean enabled,boolean totalStat, boolean graph, int statSampleRate, int graphSampleWindow)
 	{
 		super();
 		this.name = name;
@@ -26,7 +27,9 @@ public class StatGroupSetting
 		}
 		
 		
-		this.graphSampleRate = graphSampleRate;
+		this.statSampleRate = statSampleRate;
+
+		this.graphSampleWindow = graphSampleWindow;
 	}
 	
 	/**
@@ -40,7 +43,8 @@ public class StatGroupSetting
 		this.name = name;
 		this.enabled = false;
 		this.graph = enabled;
-		this.graphSampleRate = 100;
+		this.statSampleRate = 100;
+		this.graphSampleWindow = 100;
 	}
 	
 	public String getName()
@@ -58,14 +62,19 @@ public class StatGroupSetting
 		return graph;
 	}
 
-	public int getGraphSampleRate()
+	public int getStatSampleRate()
 	{
-		return graphSampleRate;
+		return statSampleRate;
 	}
 	
 	public boolean hasTotalStat()
 	{
 		return totalStat;
+	}
+
+	public int getGraphSampleWindow()
+	{
+		return graphSampleWindow;
 	}
 	
 }

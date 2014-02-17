@@ -3,6 +3,7 @@ package alifeSim.Scenario.SAPP;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
@@ -10,6 +11,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentType;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.ScenarioKeyValuePair;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Stats.StatGroupSetting;
@@ -30,7 +32,7 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 	private ArrayList<SimpleAgentSetupSettings> agentSettingsList;
 	
 	public SAPPScenario()
-	{		
+	{
 		super();
 	}
 	
@@ -55,7 +57,7 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 	}
 	
 	public boolean readScenarioSettings()
-	{	
+	{
 		
 		readWorldSettings();
 		
@@ -64,11 +66,10 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		readPlantSettings();
 		
 		readStatSettings();
-		
-		return true;
-		
+						
+		return true;		
 	}
-	
+
 	private void readPlantSettings()
 	{
 		String section = "Plants.GenericPlant";
