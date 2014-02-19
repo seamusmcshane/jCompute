@@ -4,6 +4,7 @@ import alifeSim.Alife.DebugAgent.DebugAgent;
 import alifeSim.Gui.NewSimView;
 import alifeSim.Gui.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
+import alifeSim.Simulation.SimulationState;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
@@ -162,5 +163,17 @@ public class DebugSimulationManager implements SimulationScenarioManagerInf
 	public void moveCamPos(float x, float y)
 	{
 		simViewCam.moveCam(x,y);		
+	}
+
+	@Override
+	public boolean hasEndEventOccurred()
+	{
+		return false;
+	}
+
+	@Override
+	public void setScenarioStepCountEndEvent(SimulationState simState)
+	{
+		
 	}
 }
