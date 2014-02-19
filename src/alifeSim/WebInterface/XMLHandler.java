@@ -12,7 +12,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import alifeSim.Simulation.Simulation;
-import alifeSim.Simulation.SimulationPerformanceStats;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatManager;
@@ -60,17 +59,17 @@ public class XMLHandler extends AbstractHandler
 				for(Integer id : simList)
 				{
 					
-					SimulationPerformanceStats perfStats = simsManager.getSimPerformanceStats(id);
+					String simStatus = simsManager.getSimStatus(id).toString();
 					
 					// Simulation Tag		
 					response.getWriter().print("<Simulation>");
 					
 					// Sim Values
 					response.getWriter().print("<ID>");response.getWriter().print(id);response.getWriter().print("</ID>");
-					response.getWriter().print("<State>");response.getWriter().print(simsManager.getSimState(id).toString());response.getWriter().print("</State>");
-					response.getWriter().print("<TotalTime>");response.getWriter().print(formatTime(perfStats.getTotalTime()));response.getWriter().print("</TotalTime>");
-					response.getWriter().print("<Steps>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</Steps>");
-					response.getWriter().print("<AvgSPS>");response.getWriter().print(perfStats.getAverageStepRate());response.getWriter().print("</AvgSPS>");
+					response.getWriter().print("<Status>");response.getWriter().print(simStatus);response.getWriter().print("</Status>");
+					//response.getWriter().print("<TotalTime>");response.getWriter().print(formatTime(perfStats.getTotalTime()));response.getWriter().print("</TotalTime>");
+					//response.getWriter().print("<Steps>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</Steps>");
+					//response.getWriter().print("<AvgSPS>");response.getWriter().print(perfStats.getAverageStepRate());response.getWriter().print("</AvgSPS>");
 					
 					// End Simulation Tag
 					response.getWriter().print("</Simulation>");

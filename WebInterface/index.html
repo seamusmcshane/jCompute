@@ -47,7 +47,7 @@ function drawSimTable()
 		var header_row = '<div id ="tableheader">';
 
 		header_row+='<div id="tablecell">Sim ID</div>';
-		header_row+='<div id="tablecell">State</div>';
+		header_row+='<div id="tablecell">Status</div>';
 		header_row+='<div id="tablecell">TotalTime</div>';
 		header_row+='<div id="tablecell">Steps</div>';
 		header_row+='<div id="tablecell">AvgSPS</div>';
@@ -64,7 +64,7 @@ function drawSimTable()
 				var $sim = $(this);
 				
 				var ID = $sim.find('ID').text();
-				var State = $sim.find('State').text();
+				var Status = $sim.find('Status').text();
 				var TotalTime = $sim.find('TotalTime').text();
 				var Steps = $sim.find('Steps').text();
 				var AvgSPS = $sim.find('AvgSPS').text();
@@ -74,7 +74,7 @@ function drawSimTable()
 				var data_row = '<div id="tablerow">';
 				
 				data_row+='<div id="tablecell">' + ID + ' </div>'
-				data_row+='<div id="tablecell">'  + State  +'</div>';
+				data_row+='<div id="tablecell">'  + Status  +'</div>';
 				data_row+='<div id="tablecell">' + TotalTime + '</div>';
 				data_row+='<div id="tablecell"> ' + Steps + '</div>';
 				data_row+='<div id="tablecell">' + AvgSPS + '</div>';			

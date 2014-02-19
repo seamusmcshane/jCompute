@@ -23,7 +23,7 @@ public class Launcher
 		/* GUI */
 		gui = new GUI(simsManager);
 		
-		//webInterface = new WebInterface(simsManager);
+		webInterface = new WebInterface(simsManager);
 		 
 	}
 	
