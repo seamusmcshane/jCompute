@@ -299,14 +299,14 @@ public class Simulation
 		return simState.getStatus();
 	}
 	
-	public void addSimulationStatListener(SimulationStatListenerInf listener)
+	public void addSimulationStatListener(SimulationStateStatListenerInf listener)
 	{
-		simState.addStatListener(listener);
+		simState.addStateStatListener(listener);
 	}
 	
-	public void addSimulationStatusListener(SimulationStatusListenerInf listener)
+	public void addSimulationStatusListener(SimulationStateStatusListenerInf listener)
 	{
-		simState.addStatusListener(listener);
+		simState.addStateStatusListener(listener);
 	}
 			
 }

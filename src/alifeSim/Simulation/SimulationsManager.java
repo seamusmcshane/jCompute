@@ -292,7 +292,7 @@ public class SimulationsManager
 
 		
 		return list;
-	}	
+	}
 	
 	public SimStatus getSimStatus(int simId)
 	{
@@ -321,7 +321,7 @@ public class SimulationsManager
 		return maxSims;
 	}
 	
-	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
+	public void addSimulationStatListener(int simId,SimulationStateStatListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -335,7 +335,7 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	public void addSimulationStatusListener(int simId,SimulationStatusListenerInf listener)
+	public void addSimulationStatusListener(int simId,SimulationStateStatusListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		

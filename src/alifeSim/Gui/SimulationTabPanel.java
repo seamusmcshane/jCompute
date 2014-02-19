@@ -65,13 +65,13 @@ import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Math.LVScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationState.SimStatus;
-import alifeSim.Simulation.SimulationStatListenerInf;
-import alifeSim.Simulation.SimulationStatusListenerInf;
+import alifeSim.Simulation.SimulationStateStatListenerInf;
+import alifeSim.Simulation.SimulationStateStatusListenerInf;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 
-public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationStatListenerInf, SimulationStatusListenerInf
+public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationStateStatListenerInf, SimulationStateStatusListenerInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -1124,7 +1124,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	}
 	
 	@Override
-	public void simulationStatChanged(long time,int stepNo,int asps)
+	public void simulationStateStatChanged(long time,int stepNo,int asps)
 	{
 		latchTime = time;
 		latchStepNo = stepNo;
@@ -1132,7 +1132,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	}
 
 	@Override
-	public void simulationStatusChanged(SimStatus status)
+	public void simulationStateStatusChanged(SimStatus status)
 	{
 		if(status == SimStatus.FINISHED)
 		{
@@ -1141,8 +1141,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 		notifiyTabStatusChangedListeners(status);
 		
-	}
-	
+	}	
 	
 	private void notifiyTabStatusChangedListeners(SimStatus status)
 	{

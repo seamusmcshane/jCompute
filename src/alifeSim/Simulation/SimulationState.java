@@ -22,8 +22,8 @@ public class SimulationState
 	 * Listeners are notified after a status change or
 	 * after a simulation step has occurred.
 	 * */
-	private List<SimulationStatListenerInf> statListeners = new ArrayList<SimulationStatListenerInf>();
-	private List<SimulationStatusListenerInf> statusListeners = new ArrayList<SimulationStatusListenerInf>();
+	private List<SimulationStateStatListenerInf> statListeners = new ArrayList<SimulationStateStatListenerInf>();
+	private List<SimulationStateStatusListenerInf> statusListeners = new ArrayList<SimulationStateStatusListenerInf>();
 	
 	// To prevent concurrent access when a listener is added and a notification event has occured.
 	private Semaphore listenersLock = new Semaphore(1, false);	
@@ -121,7 +121,7 @@ public class SimulationState
 		notifyStatListeners();
 	}
 
-	public void addStatListener(SimulationStatListenerInf listener)
+	public void addStateStatListener(SimulationStateStatListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
 	    	statListeners.add(listener);
@@ -131,14 +131,14 @@ public class SimulationState
 	private void notifyStatListeners()
 	{
 		listenersLock.acquireUninterruptibly();
-		    for (SimulationStatListenerInf listener : statListeners)
+		    for (SimulationStateStatListenerInf listener : statListeners)
 		    {
-		    	listener.simulationStatChanged(stepTotalTime,simulationSteps,getAverageStepRate());
+		    	listener.simulationStateStatChanged(stepTotalTime,simulationSteps,getAverageStepRate());
 		    }
 	   listenersLock.release();
 	}
 	
-	public void addStatusListener(SimulationStatusListenerInf listener)
+	public void addStateStatusListener(SimulationStateStatusListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
 	    	statusListeners.add(listener);
@@ -148,9 +148,9 @@ public class SimulationState
 	private void notifyStatusListeners()
 	{
 		listenersLock.acquireUninterruptibly();
-	    for (SimulationStatusListenerInf listener : statusListeners)
+	    for (SimulationStateStatusListenerInf listener : statusListeners)
 	    {
-	    	listener.simulationStatusChanged(status);
+	    	listener.simulationStateStatusChanged(status);
 	    }
 	    listenersLock.release();
 	}
