@@ -1,4 +1,4 @@
-package alifeSim.Gui;
+package alifeSim.Gui.View;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,9 +17,7 @@ public class SimViewCam
 	
 	private A2DVector2f camPos;
 	private float camZoom;
-	
-	
-	
+
 	private Timer viewTimer = new Timer();
 	
 	public SimViewCam(A2DVector2f camPos, float camZoom, A2DVector2f camOffset)

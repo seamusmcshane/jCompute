@@ -12,6 +12,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -35,11 +36,26 @@ import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-public class SimulationListTabPanel extends JPanel
+import alifeSim.Gui.Component.ProgressBarTableCellRenderer;
+import alifeSim.Gui.Component.TablePanel;
+import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationsManagerEventListenerInf;
+
+import javax.swing.JButton;
+
+import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class SimulationListTabPanel extends JPanel implements SimulationsManagerEventListenerInf
 {
 	private static final long serialVersionUID = 76641721672552215L;
 	
-	private SimTablePanel table;
+	private TablePanel table;
 	
 	private int traceAdds=0;
 	private Font chartFont = new Font("Sans", Font.BOLD, 12);
@@ -55,17 +71,57 @@ public class SimulationListTabPanel extends JPanel
 	private Timer tabStatusPoll = new Timer();
 
 	private String name = "Simulations List";
-	
-	public SimulationListTabPanel()
+		
+	public SimulationListTabPanel(final GUITabManager tabManager)
 	{
 		super();
-
-		setLayout(new BorderLayout(0, 0));
-		this.setMinimumSize(new Dimension(350,250));
 		
-		table = new SimTablePanel("Information Status",new String[]{"Tab","Status","Step No","Avg Sps","Run Time"});
+		setLayout(new BorderLayout(0, 0));
+		this.setMinimumSize(new Dimension(350, 400));
+		
+		table = new TablePanel("Information Status",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
+				
+		// Progress Column uses a progress bar for display
+		table.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		
 		this.add(table);
+		
+		table.addMouseListener(new MouseAdapter() 
+		{
+			public void mousePressed(MouseEvent e) 
+			{
+				if(e.getButton() == 1)
+				{
+					JTable table =(JTable) e.getSource();
+					Point p = e.getPoint();
+					
+					int row = table.rowAtPoint(p);
+					
+					if (e.getClickCount() == 2) 
+					{
+						
+						// Get the sim id from the selected row and display a tab for it
+						tabManager.displayTab(Integer.parseInt((String) table.getValueAt(row, 0)));
+						
+						
+						System.out.println("Button " + e.getButton() + " Clicked " + row);
+					}
+				}
+				else
+				{
+					table.clearSelection();
+				}
+			}
+		});
+		
+		/*
+		this.addRow("TEST Sim 1", new String[] {"Running", "100", "25","1","100"});
+		this.addRow("TEST Sim 2", new String[] {"Running", "100", "50","1","100"});
+		this.addRow("TEST Sim 3", new String[] {"Running", "100", "75","1","100"});
+		this.addRow("TEST Sim 4", new String[] {"Running", "100", "0","1","100"});
+		this.addRow("TEST Sim 5", new String[] {"Running", "100", "100","1","100"});
+		this.addRow("TEST Sim 6", new String[] {"Running", "100", "-1","1","100"});
+		 */
 		
 		createHistoryChart2DST();
 		
@@ -102,7 +158,8 @@ public class SimulationListTabPanel extends JPanel
 		chartPanelST.setBorder(new TitledBorder(null, "Simulation Performance Graph (30 seconds)", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
 		chartPanelST.setBackground(Color.white);
 		chartPanelST.setPreferredSize(new Dimension(350,250));
-		add(chartPanelST, BorderLayout.NORTH);	
+		
+		add(chartPanelST, BorderLayout.NORTH);
 		
 		runTime = new Trace2DLtd(stSamWin);
 		runTime.setName("Run Time");
@@ -110,7 +167,7 @@ public class SimulationListTabPanel extends JPanel
 		chart2dST.addTrace(runTime);
 		chart2dST.setMinPaintLatency(1000);
 		
-	}	
+	}
 	
 	public void clearTable()
 	{
@@ -122,9 +179,14 @@ public class SimulationListTabPanel extends JPanel
 		table.addRow(rowKey, columnValues);
 	}
 	
-	public void update()
+	public void removeRow(String rowKey)
 	{
-
+		System.out.println("RK : " + rowKey);
+		table.removeRow(rowKey);
+	}
+	
+	private void update()
+	{
 		
 		for (int row=0;row<table.getRowsCount();row++) 
 		{
@@ -219,5 +281,24 @@ public class SimulationListTabPanel extends JPanel
 	{
 		return name;
 	}
+
+	@Override
+	public void SimulationsManagerEvent(int simId, SimulationManagerEvent event)
+	{
+		if(event == SimulationManagerEvent.AddedSim)
+		{						
+			this.addRow(String.valueOf(simId), new String[] {"NEW", "0", "0","0","0"});
+			
+		}
+		else if( event == SimulationManagerEvent.RemovedSim)
+		{
+			this.removeRow(String.valueOf(simId));
+		}
+		else
+		{
+			System.out.println("Unhandled SimulationManagerEvent in Simulations List");
+		}
+	}
+
 	
 }

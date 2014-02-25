@@ -1,4 +1,4 @@
-package alifeSim.ChartPanels;
+package alifeSim.Gui.Charts;
 
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
@@ -63,8 +63,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		this.name = name;
 		
 		// Source Stat Group
-		this.groupName = name;
 		
+		this.groupName = name;
 		this.totalStatEnabled = totalStatEnabled;
 		
 		if(totalStatEnabled)

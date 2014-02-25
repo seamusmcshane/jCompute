@@ -46,7 +46,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	private Semaphore viewLock = new Semaphore(1);
 
 	private String simulationTitle = "";
-		
+	
 	/** Records status of mouse button */
 	private boolean mouseButtonPressed = false;
 	
@@ -111,7 +111,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	{
 		//System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();
-		sim = simIn;
+		sim = simIn;		
 		viewLock.release();
 	}
 	
@@ -179,6 +179,8 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		bboSpriteBatch.setProjectionMatrix(viewCam.combined);
 		
 		viewLock.acquireUninterruptibly();
+		
+
 		
 		if(sim!=null)
 		{
@@ -699,4 +701,5 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	{
 		viewsDrawing = inViewsDrawing;
 	}
+		
 }

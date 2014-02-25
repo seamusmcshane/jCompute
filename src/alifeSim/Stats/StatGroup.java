@@ -151,6 +151,13 @@ public class StatGroup
     	listenersLock.release();
 	}
 	
+	public void removeStatGroupListener(StatGroupListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+			statGroupListeners.remove(listener);
+    	listenersLock.release();
+	}
+	
 	public void notifyStatGroupListeners()
 	{
 		listenersLock.acquireUninterruptibly();

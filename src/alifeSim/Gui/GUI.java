@@ -3,12 +3,11 @@ package alifeSim.Gui;
 import java.awt.Dimension;
 import java.awt.Frame;
 
-import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -20,8 +19,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
@@ -34,8 +31,14 @@ import alifeSim.Simulation.SimulationsManager;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
+
+import javax.swing.JButton;
+
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+
+import javax.swing.ImageIcon;
+import java.awt.Insets;
 
 public class GUI 
 {
@@ -49,12 +52,15 @@ public class GUI
 	private JSplitPane splitPane;
 	
 	// Tab Manager (Left Split)
-	private SimulationTabPanelManager simTabs;
+	private GUITabManager simTabs;
 			
 	// Simulation View (Right Split)
 	private GUISimulationView simView;
 	
 	private SimulationsManager simsManager;
+
+	private Icon addSimIcon = new ImageIcon(GUI.class.getResource("/alifeSim/icons/media-floppy.png"));
+	private Icon removeSimIcon = new ImageIcon(GUI.class.getResource("/alifeSim/icons/media-eject.png"));
 	
 	public GUI(SimulationsManager simsManager)
 	{
@@ -106,8 +112,6 @@ public class GUI
 			}
 		});
 		mnHelp.add(mntmAbout);
-
-
 
 		chckbxmntmDisplaySimulation = new JCheckBoxMenuItem("Display Simulation");
 		chckbxmntmDisplaySimulation.addItemListener(new ItemListener()
@@ -188,7 +192,6 @@ public class GUI
 
 	}
 	
-	private void setUpGUI()
 	private void addView()
 	{
 		if(simView == null)
@@ -216,13 +219,13 @@ public class GUI
 		
 		simView = null;
 	}
+	
+	private void setUpGUI()
+	{		
 		/* Frame */
 		guiFrame = new JFrame();
 		guiFrame.setMinimumSize(new Dimension(800,600));
-		
-		/* Menu Bar */
-		setUpMenu();
-		
+				
 		/* Container for Split Pane */		
 		JPanel containerPanel = new JPanel();
 		guiFrame.getContentPane().add(containerPanel, BorderLayout.CENTER);
@@ -237,7 +240,7 @@ public class GUI
 		splitPane.setContinuousLayout(true);
 				
 		/* Split Pane Left - Sim Tabs */
-		simTabs = new SimulationTabPanelManager(simsManager);
+		simTabs = new GUITabManager(simsManager);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
 		
@@ -245,6 +248,7 @@ public class GUI
 		
 		/* Menu Bar */
 		setUpMenu();
+		
 		/* We control the exit */
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 		
@@ -322,5 +326,4 @@ public class GUI
 			e1.printStackTrace();
 		}
 	}
-		
 }

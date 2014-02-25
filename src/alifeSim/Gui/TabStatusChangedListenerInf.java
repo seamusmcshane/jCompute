@@ -1,8 +1,8 @@
 package alifeSim.Gui;
 
-import alifeSim.Simulation.SimulationState.SimStatus;
+import alifeSim.Simulation.SimulationState.SimState;
 
 public interface TabStatusChangedListenerInf
 {
-	public void tabStatusChanged(SimulationTabPanel tab,SimStatus status);
+	public void tabStatusChanged(GUISimulationTab tab,SimState state);
 }

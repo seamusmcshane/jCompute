@@ -1,11 +1,20 @@
-package alifeSim.Gui;
+package alifeSim.Gui.Component;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -13,9 +22,14 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
-public class SimTablePanel extends JPanel
+import com.sun.glass.ui.Cursor;
+
+public class TablePanel extends JPanel
 {
 	private static final long serialVersionUID = 7193787210494563482L;
 	private JLabel lblTitle;		
@@ -27,7 +41,7 @@ public class SimTablePanel extends JPanel
 	 * @param title
 	 * @param columnNames
 	 */
-	public SimTablePanel(String title,String columnNames[])
+	public TablePanel(String title,String columnNames[])
 	{
 		super();
 
@@ -46,6 +60,16 @@ public class SimTablePanel extends JPanel
 	}
 	
 	/**
+	 * Sets a TableCellRenderer to be used for a column
+	 * @param renderer
+	 * @param column
+	 */
+	public void addColumRenderer(TableCellRenderer renderer, int column)
+	{
+		table.getColumnModel().getColumn(column).setCellRenderer(renderer);
+	}
+	
+	/**
 	 * Appends a new row to the end of the table
 	 * @param rowKey
 	 * @param columnValues
@@ -53,6 +77,15 @@ public class SimTablePanel extends JPanel
 	public void addRow(String rowKey,String columnValues[])
 	{
 		model.addRow(rowKey,columnValues);
+	}
+	
+	/**
+	 * Removes a row
+	 * @param rowKey
+	 */
+	public void removeRow(String rowKey)
+	{
+		model.removeRow(rowKey);
 	}
 	
 	/**
@@ -83,18 +116,17 @@ public class SimTablePanel extends JPanel
 		table.setBorder(null);
 		scrollPane.setViewportView(table);
 		
-		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		table.setCellSelectionEnabled(false);	
+		table.setColumnSelectionAllowed(false);
+		table.setRowSelectionAllowed(true);
+				
 	}
 	
-	/**
-	 * Gets a list of values in an entire column
-	 * @param index
-	 * @return
-	 */
-	public List<String>getColumnValues(int index)
+	public void addMouseListener(MouseAdapter adaptor)
 	{
-		return model.getColumnValues(index);
-		
+		table.addMouseListener(adaptor);
 	}
 	
 	/**
@@ -127,24 +159,80 @@ public class SimTablePanel extends JPanel
 	{
 		private static final long serialVersionUID = -3810467809045113741L;
 		private List<String> columnNames = new ArrayList<String>();
-		private List<TableRow> tableRow;
+		private List<TableRow> tableRows;
 
         public TableModel(String names[]) 
         {
-
+        	// Set the Column names
     		for(String colName: names)
     		{
     			columnNames.add(colName);
     		}
             
+    		// Init the table rows
             clearData();
             
         }
 				        
-        public void addRow(String rowKey,String columnList[])
+        public void removeRow(String rowKey)
+		{
+  
+        	Iterator<TableRow> itr = tableRows.iterator();
+        	
+        	int row = 0;
+        	
+        	while(itr.hasNext())
+        	{
+        		TableRow current = itr.next();
+        		
+        		if(current.getColumn(0).equals(rowKey))
+        		{
+        			
+        			//current.updateColumns(rowKey, columnValueList);
+        			
+        			tableRows.remove(current);
+        			
+                	fireTableRowsDeleted(row, row);
+                	
+        			break;
+        		}
+        		row++;
+        	}
+			
+		}
+
+		public void addRow(String rowKey,String columnList[])
         {
-        	tableRow.add(new TableRow(rowKey,columnList));
-        	fireTableRowsInserted(tableRow.size() - 1, tableRow.size() - 1);
+        	tableRows.add(new TableRow(rowKey,columnList));
+        	
+        	// Redraw the last row
+        	fireTableRowsInserted(tableRows.size() - 1, tableRows.size() - 1);
+        }
+        
+        public void updateRow(String rowKey,String columnValueList[])
+        {
+        	Iterator<TableRow> itr = tableRows.iterator();
+        	
+        	int row = 0;
+        	
+        	while(itr.hasNext())
+        	{
+        		TableRow current = itr.next();
+        		
+        		if(current.getColumn(0).equals(rowKey))
+        		{
+        			
+        			current.updateColumns(rowKey, columnValueList);
+        			
+                	// Redraw the row...
+                	fireTableRowsUpdated(row,row);
+        			
+        			break;
+        		}
+        		
+        		row++;
+        	}
+
         }
         
 		@Override
@@ -162,36 +250,20 @@ public class SimTablePanel extends JPanel
 		@Override
 		public int getRowCount()
 		{
-			return tableRow.size();
+			return tableRows.size();
 		}
 
 		@Override
 		public Object getValueAt(int row, int col)
 		{
-			return tableRow.get(row).getColum(col);
+			return tableRows.get(row).getColumn(col);
 		}
 		
 		public void clearData()
 		{
-			this.tableRow = new ArrayList<TableRow>();
+			this.tableRows = new ArrayList<TableRow>();
 		}
 		
-		public List<TableRow> getRows()
-		{			
-			return tableRow;
-		}
-		
-		public List<String>getColumnValues(int index)
-		{
-			List<String>columValues = new LinkedList<String>();
-			
-			for(TableRow row:tableRow)
-			{
-				columValues.add(row.getColum(0));
-			}
-			
-			return columValues;			
-		}
 	}	
 	
 	/**
@@ -201,26 +273,36 @@ public class SimTablePanel extends JPanel
 	 */
 	private class TableRow
 	{
-		private List<String> columns;
+		private List<String> rowColumns;
 		
-		public TableRow(String rowKey,String columNames[])
+		public TableRow(String row,String values[])
 		{
 			super();
 			
-			this.columns = new ArrayList<>();
-			
-			columns.add(rowKey);
-			
-			for(String columName : columNames)
-			{
-				columns.add(columName);
-			}			
+			updateColumns(row,values);	
 		}
 		
-		public String getColum(int index)
+		public String getColumn(int index)
 		{
-			return columns.get(index);
+			return rowColumns.get(index);
 		}
-				
+		
+		public void updateColumns(String row,String values[])
+		{
+			this.rowColumns = new ArrayList<>();
+			
+			rowColumns.add(row);
+			
+			for(String value : values)
+			{
+				rowColumns.add(value);
+			}
+		}
 	}
+
+	public void clearSelection()
+	{
+		table.clearSelection();		
+	}
+		
 }

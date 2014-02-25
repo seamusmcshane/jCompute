@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JLabel;
 
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
@@ -22,6 +23,7 @@ import javax.swing.JSlider;
 
 import java.awt.Dimension;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -31,6 +33,8 @@ import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -58,20 +62,23 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import alifeSim.ChartPanels.GlobalStatChartPanel;
+import alifeSim.Gui.Charts.GlobalStatChartPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Math.LVScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
-import alifeSim.Simulation.SimulationState.SimStatus;
-import alifeSim.Simulation.SimulationStateStatListenerInf;
-import alifeSim.Simulation.SimulationStateStatusListenerInf;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
+import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationsManager;
+import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationsManagerEventListenerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 
-public class SimulationTabPanel extends JPanel implements ActionListener, ChangeListener, SimulationStateStatListenerInf, SimulationStateStatusListenerInf
+public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener, SimulationStateListenerInf, SimulationStatListenerInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -118,21 +125,26 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private int simId = -1;
 
 	private Timer updateTimer = new Timer();
-	private boolean allowUpdate = false;
+	
+	private ImageIcon simRunningIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-start.png"));
+	private ImageIcon simPausedIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-pause.png"));
+	private ImageIcon newTabIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/dialog-warning.png"));
+	private ImageIcon simNewIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-stop.png"));
+	private ImageIcon simFinishedIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/task-complete.png"));
 	
 	/** Scenario Editor Icons */
-	private ImageIcon openScenarioIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-open.png"));
-	private ImageIcon saveScenarioIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-save.png"));
-	private ImageIcon closeScenarioIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/document-close.png"));
+	private ImageIcon openScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-open.png"));
+	private ImageIcon saveScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-save.png"));
+	private ImageIcon closeScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-close.png"));
 	
-	private ImageIcon generateSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/grid.png"));
-	private ImageIcon startSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/play.png"));
-	private ImageIcon resumeSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/resume.png"));
-	private ImageIcon pauseSimIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/pause.png"));
+	private ImageIcon generateSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/grid.png"));
+	private ImageIcon startSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/play.png"));
+	private ImageIcon resumeSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/resume.png"));
+	private ImageIcon pauseSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/pause.png"));
 
-	private ImageIcon simulationStatsExportIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kspread.png"));
-	private ImageIcon scenarioEditorIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/accessories-text-editor.png"));
-	private ImageIcon simulationStatChartIcon = new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/kchart.png"));
+	private ImageIcon simulationStatsExportIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kspread.png"));
+	private ImageIcon scenarioEditorIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/accessories-text-editor.png"));
+	private ImageIcon simulationStatChartIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kchart.png"));
 		
 	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);
@@ -142,43 +154,286 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 	private int latchStepNo = 0;
 	private int latchASPS = 0;
 	
-	public SimulationTabPanel(SimulationsManager simsManager)
+	private GUITabManager tabManager;
+	private TabButton title;
+	
+	public GUISimulationTab(GUITabManager tabManager,SimulationsManager simsManager, int simId)
 	{
-		this.simsManager = simsManager;
+		this.tabManager = tabManager;
 		
-		simId = -1;
-				
+		this.simsManager = simsManager;
+
+		this.simId = simId;
+
+		title = new TabButton(tabManager,this);	
+		// Layout
 		setLayout(new BorderLayout(0, 0));
 
+		// Tab Pane
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
 		simulationTabPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		add(simulationTabPane, BorderLayout.CENTER);
-
-		simulationScenarioTab = new JPanel();
-		addScenarioTab();
-		simulationScenarioTab.setLayout(new BorderLayout(0, 0));
-
+		
+		// Scenario Editor
+		setUpScenarioEditorTab();
+		
 		simulationStatsListPanel = new SimulationStatsListPanel();
-		addSimulationStatsListTab();
 
-		JPanel scenarioPanel = new JPanel();
-		simulationScenarioTab.add(scenarioPanel, BorderLayout.CENTER);
-		scenarioPanel.setLayout(new BorderLayout(0, 0));
+		// Simulation Control GUI
+		setUpSimulationContolPanel();
+		
+		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+		updateTimer.schedule(new TimerTask()
+		{
+			@Override
+			public void run() 
+			{
+				setTime(latchTime);
+				setStepNo(latchStepNo);
+				setASPS(latchASPS);
+			}
+			  
+		},0,1000);
+		
+		checkTabState();
+		
+		/*
+		 *  This is not efficient for adding a new tab with no matching sim, 
+		 *  but has the effect reloading the tab state for tabs that do.
+		 */
+		setUpPanels();			
+	}
 
-		JPanel scenarioOpenPanel = new JPanel();
-		scenarioOpenPanel.setBorder(null);
-		scenarioPanel.add(scenarioOpenPanel, BorderLayout.SOUTH);
-		GridBagLayout gbl_scenarioOpenPanel = new GridBagLayout();
-
-		gbl_scenarioOpenPanel.rowHeights = new int[]
-		{0};
-		gbl_scenarioOpenPanel.columnWidths = new int[]
-		{0, 0, 0};
-		gbl_scenarioOpenPanel.columnWeights = new double[]
+	public void checkTabState()
+	{
+		// We may be a tab for an active simulation 
+		if(simId!=-1)
+		{
+			SimulationScenarioManagerInf simulationScenario = simsManager.getScenarioManager(simId);
+			
+			SimState state = simsManager.getState(simId);
+			
+			// 
+			//if(simulationScenario!=null)
+			{
+				scenarioEditor.setText(simulationScenario.getScenario().getScenarioText());		
+				
+				scenarioLoaded = true;
+				
+				registerListeners();
+				
+				setSimView();
+								
+				tabTitle = "Simulation " + simId;
+				
+				setGuiState(state);
+				
+			}
+			
+		}
+	}
+	
+	public void setUpSimulationContolPanel()
+	{
+		JPanel simulationControlPanel = new JPanel();
+		add(simulationControlPanel, BorderLayout.SOUTH);
+		simulationControlPanel.setBorder(new TitledBorder(null, "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagLayout gbl_simulationControlPanel = new GridBagLayout();
+		gbl_simulationControlPanel.columnWidths = new int[]
+		{112, 112, 112};
+		gbl_simulationControlPanel.rowHeights = new int[]
+		{31, 31, 31, 31};
+		gbl_simulationControlPanel.columnWeights = new double[]
 		{1.0, 1.0, 1.0};
-		gbl_scenarioOpenPanel.rowWeights = new double[]
+		gbl_simulationControlPanel.rowWeights = new double[]
+		{0.0, 0.0, 0.0, 0.0};
+		simulationControlPanel.setLayout(gbl_simulationControlPanel);
+
+		JLabel lblAverageStepRate = new JLabel("Average Step Rate");
+		lblAverageStepRate.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_lblAverageStepRate = new GridBagConstraints();
+		gbc_lblAverageStepRate.fill = GridBagConstraints.BOTH;
+		gbc_lblAverageStepRate.insets = new Insets(0, 0, 5, 5);
+		gbc_lblAverageStepRate.gridx = 0;
+		gbc_lblAverageStepRate.gridy = 0;
+		simulationControlPanel.add(lblAverageStepRate, gbc_lblAverageStepRate);
+
+		JLabel label_1 = new JLabel("Steps");
+		label_1.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_label_1 = new GridBagConstraints();
+		gbc_label_1.fill = GridBagConstraints.BOTH;
+		gbc_label_1.insets = new Insets(0, 0, 5, 5);
+		gbc_label_1.gridx = 1;
+		gbc_label_1.gridy = 0;
+		simulationControlPanel.add(label_1, gbc_label_1);
+
+		JLabel label_2 = new JLabel("Requested Step Rate");
+		label_2.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_label_2 = new GridBagConstraints();
+		gbc_label_2.fill = GridBagConstraints.BOTH;
+		gbc_label_2.insets = new Insets(0, 0, 5, 0);
+		gbc_label_2.gridx = 2;
+		gbc_label_2.gridy = 0;
+		simulationControlPanel.add(label_2, gbc_label_2);
+
+		JPanel simAverageStepRate = new JPanel();
+		simAverageStepRate.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simAverageStepRate.setBackground(Color.WHITE);
+		GridBagConstraints gbc_simAverageStepRate = new GridBagConstraints();
+		gbc_simAverageStepRate.fill = GridBagConstraints.BOTH;
+		gbc_simAverageStepRate.insets = new Insets(0, 0, 5, 5);
+		gbc_simAverageStepRate.gridx = 0;
+		gbc_simAverageStepRate.gridy = 1;
+		simulationControlPanel.add(simAverageStepRate, gbc_simAverageStepRate);
+		simAverageStepRate.setLayout(new BorderLayout(0, 0));
+
+		lblAvgStepRate = new JLabel("0");
+		lblAvgStepRate.setHorizontalAlignment(SwingConstants.CENTER);
+		simAverageStepRate.add(lblAvgStepRate, BorderLayout.CENTER);
+
+		JPanel simStepTotal = new JPanel();
+		simStepTotal.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simStepTotal.setBackground(Color.WHITE);
+		GridBagConstraints gbc_simStepTotal = new GridBagConstraints();
+		gbc_simStepTotal.fill = GridBagConstraints.BOTH;
+		gbc_simStepTotal.insets = new Insets(0, 0, 5, 5);
+		gbc_simStepTotal.gridx = 1;
+		gbc_simStepTotal.gridy = 1;
+		simulationControlPanel.add(simStepTotal, gbc_simStepTotal);
+		simStepTotal.setLayout(new BorderLayout(0, 0));
+
+		lblStepCount = new JLabel("0");
+		lblStepCount.setHorizontalAlignment(SwingConstants.CENTER);
+		simStepTotal.add(lblStepCount, BorderLayout.CENTER);
+
+		JPanel simRequestedStepRate = new JPanel();
+		simRequestedStepRate.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simRequestedStepRate.setBackground(Color.WHITE);
+		GridBagConstraints gbc_simRequestedStepRate = new GridBagConstraints();
+		gbc_simRequestedStepRate.fill = GridBagConstraints.BOTH;
+		gbc_simRequestedStepRate.insets = new Insets(0, 0, 5, 0);
+		gbc_simRequestedStepRate.gridx = 2;
+		gbc_simRequestedStepRate.gridy = 1;
+		simulationControlPanel.add(simRequestedStepRate, gbc_simRequestedStepRate);
+		simRequestedStepRate.setLayout(new BorderLayout(0, 0));
+
+		lblRequestedStepRate = new JLabel("0");
+		lblRequestedStepRate.setHorizontalAlignment(SwingConstants.CENTER);
+		simRequestedStepRate.add(lblRequestedStepRate, BorderLayout.CENTER);
+
+		JLabel label_3 = new JLabel("Time");
+		label_3.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_label_3 = new GridBagConstraints();
+		gbc_label_3.fill = GridBagConstraints.BOTH;
+		gbc_label_3.insets = new Insets(0, 0, 5, 5);
+		gbc_label_3.gridx = 0;
+		gbc_label_3.gridy = 2;
+		simulationControlPanel.add(label_3, gbc_label_3);
+
+		JPanel simRunTime = new JPanel();
+		simRunTime.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simRunTime.setBackground(Color.WHITE);
+		GridBagConstraints gbc_simRunTime = new GridBagConstraints();
+		gbc_simRunTime.fill = GridBagConstraints.BOTH;
+		gbc_simRunTime.insets = new Insets(0, 0, 5, 5);
+		gbc_simRunTime.gridx = 1;
+		gbc_simRunTime.gridy = 2;
+		simulationControlPanel.add(simRunTime, gbc_simRunTime);
+		simRunTime.setLayout(new BorderLayout(0, 0));
+
+		lblSimRunTime = new JLabel("0");
+		lblSimRunTime.setHorizontalAlignment(SwingConstants.CENTER);
+		simRunTime.add(lblSimRunTime, BorderLayout.CENTER);
+
+		sliderSimStepRate = new JSlider();
+				
+		sliderSimStepRate.setSnapToTicks(true);
+		sliderSimStepRate.addChangeListener(this);
+		
+		// If there is a sim set the slider to its step rate - otherwise default to 15sps
+		if(simId!=-1)
+		{
+			sliderSimStepRate.setValue(spsToSliderVal(simsManager.getReqSps(simId)));
+		}
+		else
+		{
+			sliderSimStepRate.setValue(spsToSliderVal(15));
+		}
+		
+		sliderSimStepRate.setToolTipText("Adjust requested step rate.");
+		sliderSimStepRate.setPreferredSize(new Dimension(25, 20));
+		sliderSimStepRate.setPaintTicks(true);
+		sliderSimStepRate.setMaximum(16);
+		sliderSimStepRate.setMajorTickSpacing(4);
+		sliderSimStepRate.setEnabled(false);
+		GridBagConstraints gbc_sliderSimStepRate = new GridBagConstraints();
+		gbc_sliderSimStepRate.fill = GridBagConstraints.BOTH;
+		gbc_sliderSimStepRate.insets = new Insets(0, 0, 5, 0);
+		gbc_sliderSimStepRate.gridx = 2;
+		gbc_sliderSimStepRate.gridy = 2;
+		simulationControlPanel.add(sliderSimStepRate, gbc_sliderSimStepRate);
+
+		btnGenerateSim = new JButton("Generate");
+		btnGenerateSim.setIcon(generateSimIcon);
+		btnGenerateSim.addActionListener(this);
+		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
+		btnGenerateSim.setEnabled(false);
+		GridBagConstraints gbc_btnGenerateSim = new GridBagConstraints();
+		gbc_btnGenerateSim.fill = GridBagConstraints.BOTH;
+		gbc_btnGenerateSim.insets = new Insets(0, 0, 0, 5);
+		gbc_btnGenerateSim.gridx = 0;
+		gbc_btnGenerateSim.gridy = 3;
+		simulationControlPanel.add(btnGenerateSim, gbc_btnGenerateSim);
+
+		btnStartSim = new JButton("Start");
+		btnStartSim.setIcon(startSimIcon);
+		btnStartSim.addActionListener(this);
+		btnStartSim.setToolTipText("Start the simulation.");
+		btnStartSim.setEnabled(false);
+		GridBagConstraints gbc_btnStartSim = new GridBagConstraints();
+		gbc_btnStartSim.fill = GridBagConstraints.BOTH;
+		gbc_btnStartSim.insets = new Insets(0, 0, 0, 5);
+		gbc_btnStartSim.gridx = 1;
+		gbc_btnStartSim.gridy = 3;
+		simulationControlPanel.add(btnStartSim, gbc_btnStartSim);
+
+		btnPauseSim = new JButton("   Pause");
+		btnPauseSim.setIcon(resumeSimIcon);
+		btnPauseSim.addActionListener(this);
+		btnPauseSim.setToolTipText("Pause / Unpause the simulation.");
+		btnPauseSim.setEnabled(false);
+		GridBagConstraints gbc_btnPauseSim = new GridBagConstraints();
+		gbc_btnPauseSim.fill = GridBagConstraints.BOTH;
+		gbc_btnPauseSim.gridx = 2;
+		gbc_btnPauseSim.gridy = 3;
+		simulationControlPanel.add(btnPauseSim, gbc_btnPauseSim);
+	}
+	
+	public void setUpScenarioEditorTab()
+	{
+		// Scenario Tab
+		simulationScenarioTab = new JPanel();
+		simulationScenarioTab.setLayout(new BorderLayout(0, 0));	
+		addScenarioTab();
+		
+		JPanel scenarioEditorContainerPanel = new JPanel();
+		simulationScenarioTab.add(scenarioEditorContainerPanel, BorderLayout.CENTER);
+		scenarioEditorContainerPanel.setLayout(new BorderLayout(0, 0));
+
+		JPanel scenarioEditorButtonPanel = new JPanel();
+		scenarioEditorButtonPanel.setBorder(null);
+		scenarioEditorContainerPanel.add(scenarioEditorButtonPanel, BorderLayout.SOUTH);
+		GridBagLayout gbl_scenarioEditorButtonPanel = new GridBagLayout();
+
+		gbl_scenarioEditorButtonPanel.rowHeights = new int[]
+		{0};
+		gbl_scenarioEditorButtonPanel.columnWidths = new int[]
+		{0, 0, 0};
+		gbl_scenarioEditorButtonPanel.columnWeights = new double[]
+		{1.0, 1.0, 1.0};
+		gbl_scenarioEditorButtonPanel.rowWeights = new double[]
 		{1.0};
-		scenarioOpenPanel.setLayout(gbl_scenarioOpenPanel);
+		scenarioEditorButtonPanel.setLayout(gbl_scenarioEditorButtonPanel);
 
 		btnOpen = new JButton("Open");
 		btnOpen.setIcon(openScenarioIcon);
@@ -188,7 +443,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		gbc_btnOpen.insets = new Insets(0, 0, 0, 0);
 		gbc_btnOpen.gridx = 0;
 		gbc_btnOpen.gridy = 0;
-		scenarioOpenPanel.add(btnOpen, gbc_btnOpen);
+		scenarioEditorButtonPanel.add(btnOpen, gbc_btnOpen);
 
 		btnSave = new JButton("Save");
 		btnSave.setIcon(saveScenarioIcon);
@@ -197,7 +452,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnSave.gridx = 1;
 		gbc_btnSave.gridy = 0;
-		scenarioOpenPanel.add(btnSave, gbc_btnSave);
+		scenarioEditorButtonPanel.add(btnSave, gbc_btnSave);
 		btnSave.setEnabled(false);
 
 		btnClose = new JButton("Close");
@@ -208,21 +463,21 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		gbc_btnClose.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnClose.gridx = 2;
 		gbc_btnClose.gridy = 0;
-		scenarioOpenPanel.add(btnClose, gbc_btnClose);
+		scenarioEditorButtonPanel.add(btnClose, gbc_btnClose);
 
-		JPanel scenarioFilePanel = new JPanel();
-		scenarioPanel.add(scenarioFilePanel, BorderLayout.CENTER);
-		scenarioFilePanel.setLayout(new BorderLayout(0, 0));
+		JPanel scenarioEditorPanel = new JPanel();
+		scenarioEditorContainerPanel.add(scenarioEditorPanel, BorderLayout.CENTER);
+		scenarioEditorPanel.setLayout(new BorderLayout(0, 0));
 
-		JPanel filePanel = new JPanel();
-		filePanel.setLayout(new BorderLayout(0, 0));
+		JPanel scenarioEditorTopPanel = new JPanel();
+		scenarioEditorTopPanel.setLayout(new BorderLayout(0, 0));
 
 		lblFilePath = new JLabel("No File");
-		filePanel.add(lblFilePath);
+		scenarioEditorTopPanel.add(lblFilePath);
 
 		chckbxEditMode = new JCheckBox("EditMode");
 		chckbxEditMode.addChangeListener(this);
-		filePanel.add(chckbxEditMode, BorderLayout.EAST);
+		scenarioEditorTopPanel.add(chckbxEditMode, BorderLayout.EAST);
 		
 		scenarioEditor = new RSyntaxTextArea();
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
@@ -257,188 +512,12 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		editMode = normalMode.darker();
 		scenarioEditor.setFont(new Font("Monospaced", Font.BOLD, 12));
 
-		RTextScrollPane sp = new RTextScrollPane(scenarioEditor);
-		scenarioFilePanel.add(sp, BorderLayout.CENTER);
-		scenarioFilePanel.add(filePanel, BorderLayout.NORTH);
-
-		JPanel controlPanel = new JPanel();
-		add(controlPanel, BorderLayout.SOUTH);
-		controlPanel.setBorder(new TitledBorder(null, "Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagLayout gbl_controlPanel = new GridBagLayout();
-		gbl_controlPanel.columnWidths = new int[]
-		{112, 112, 112};
-		gbl_controlPanel.rowHeights = new int[]
-		{31, 31, 31, 31};
-		gbl_controlPanel.columnWeights = new double[]
-		{1.0, 1.0, 1.0};
-		gbl_controlPanel.rowWeights = new double[]
-		{0.0, 0.0, 0.0, 0.0};
-		controlPanel.setLayout(gbl_controlPanel);
-
-		JLabel lblAverageStepRate = new JLabel("Average Step Rate");
-		lblAverageStepRate.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblAverageStepRate = new GridBagConstraints();
-		gbc_lblAverageStepRate.fill = GridBagConstraints.BOTH;
-		gbc_lblAverageStepRate.insets = new Insets(0, 0, 5, 5);
-		gbc_lblAverageStepRate.gridx = 0;
-		gbc_lblAverageStepRate.gridy = 0;
-		controlPanel.add(lblAverageStepRate, gbc_lblAverageStepRate);
-
-		JLabel label_1 = new JLabel("Steps");
-		label_1.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_label_1 = new GridBagConstraints();
-		gbc_label_1.fill = GridBagConstraints.BOTH;
-		gbc_label_1.insets = new Insets(0, 0, 5, 5);
-		gbc_label_1.gridx = 1;
-		gbc_label_1.gridy = 0;
-		controlPanel.add(label_1, gbc_label_1);
-
-		JLabel label_2 = new JLabel("Requested Step Rate");
-		label_2.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_label_2 = new GridBagConstraints();
-		gbc_label_2.fill = GridBagConstraints.BOTH;
-		gbc_label_2.insets = new Insets(0, 0, 5, 0);
-		gbc_label_2.gridx = 2;
-		gbc_label_2.gridy = 0;
-		controlPanel.add(label_2, gbc_label_2);
-
-		JPanel simAverageStepRate = new JPanel();
-		simAverageStepRate.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		simAverageStepRate.setBackground(Color.WHITE);
-		GridBagConstraints gbc_simAverageStepRate = new GridBagConstraints();
-		gbc_simAverageStepRate.fill = GridBagConstraints.BOTH;
-		gbc_simAverageStepRate.insets = new Insets(0, 0, 5, 5);
-		gbc_simAverageStepRate.gridx = 0;
-		gbc_simAverageStepRate.gridy = 1;
-		controlPanel.add(simAverageStepRate, gbc_simAverageStepRate);
-		simAverageStepRate.setLayout(new BorderLayout(0, 0));
-
-		lblAvgStepRate = new JLabel("0");
-		lblAvgStepRate.setHorizontalAlignment(SwingConstants.CENTER);
-		simAverageStepRate.add(lblAvgStepRate, BorderLayout.CENTER);
-
-		JPanel simStepTotal = new JPanel();
-		simStepTotal.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		simStepTotal.setBackground(Color.WHITE);
-		GridBagConstraints gbc_simStepTotal = new GridBagConstraints();
-		gbc_simStepTotal.fill = GridBagConstraints.BOTH;
-		gbc_simStepTotal.insets = new Insets(0, 0, 5, 5);
-		gbc_simStepTotal.gridx = 1;
-		gbc_simStepTotal.gridy = 1;
-		controlPanel.add(simStepTotal, gbc_simStepTotal);
-		simStepTotal.setLayout(new BorderLayout(0, 0));
-
-		lblStepCount = new JLabel("0");
-		lblStepCount.setHorizontalAlignment(SwingConstants.CENTER);
-		simStepTotal.add(lblStepCount, BorderLayout.CENTER);
-
-		JPanel simRequestedStepRate = new JPanel();
-		simRequestedStepRate.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		simRequestedStepRate.setBackground(Color.WHITE);
-		GridBagConstraints gbc_simRequestedStepRate = new GridBagConstraints();
-		gbc_simRequestedStepRate.fill = GridBagConstraints.BOTH;
-		gbc_simRequestedStepRate.insets = new Insets(0, 0, 5, 0);
-		gbc_simRequestedStepRate.gridx = 2;
-		gbc_simRequestedStepRate.gridy = 1;
-		controlPanel.add(simRequestedStepRate, gbc_simRequestedStepRate);
-		simRequestedStepRate.setLayout(new BorderLayout(0, 0));
-
-		lblRequestedStepRate = new JLabel("0");
-		lblRequestedStepRate.setHorizontalAlignment(SwingConstants.CENTER);
-		simRequestedStepRate.add(lblRequestedStepRate, BorderLayout.CENTER);
-
-		JLabel label_3 = new JLabel("Time");
-		label_3.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_label_3 = new GridBagConstraints();
-		gbc_label_3.fill = GridBagConstraints.BOTH;
-		gbc_label_3.insets = new Insets(0, 0, 5, 5);
-		gbc_label_3.gridx = 0;
-		gbc_label_3.gridy = 2;
-		controlPanel.add(label_3, gbc_label_3);
-
-		JPanel simRunTime = new JPanel();
-		simRunTime.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		simRunTime.setBackground(Color.WHITE);
-		GridBagConstraints gbc_simRunTime = new GridBagConstraints();
-		gbc_simRunTime.fill = GridBagConstraints.BOTH;
-		gbc_simRunTime.insets = new Insets(0, 0, 5, 5);
-		gbc_simRunTime.gridx = 1;
-		gbc_simRunTime.gridy = 2;
-		controlPanel.add(simRunTime, gbc_simRunTime);
-		simRunTime.setLayout(new BorderLayout(0, 0));
-
-		lblSimRunTime = new JLabel("0");
-		lblSimRunTime.setHorizontalAlignment(SwingConstants.CENTER);
-		simRunTime.add(lblSimRunTime, BorderLayout.CENTER);
-
-		sliderSimStepRate = new JSlider();
-		sliderSimStepRate.setSnapToTicks(true);
-		sliderSimStepRate.addChangeListener(this);
-
-		sliderSimStepRate.setValue(8);
-		sliderSimStepRate.setToolTipText("Adjust requested step rate.");
-		sliderSimStepRate.setPreferredSize(new Dimension(25, 20));
-		sliderSimStepRate.setPaintTicks(true);
-		sliderSimStepRate.setMaximum(16);
-		sliderSimStepRate.setMajorTickSpacing(4);
-		sliderSimStepRate.setEnabled(false);
-		GridBagConstraints gbc_sliderSimStepRate = new GridBagConstraints();
-		gbc_sliderSimStepRate.fill = GridBagConstraints.BOTH;
-		gbc_sliderSimStepRate.insets = new Insets(0, 0, 5, 0);
-		gbc_sliderSimStepRate.gridx = 2;
-		gbc_sliderSimStepRate.gridy = 2;
-		controlPanel.add(sliderSimStepRate, gbc_sliderSimStepRate);
-
-		btnGenerateSim = new JButton("Generate");
-		btnGenerateSim.setIcon(generateSimIcon);
-		btnGenerateSim.addActionListener(this);
-		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
-		btnGenerateSim.setEnabled(false);
-		GridBagConstraints gbc_btnGenerateSim = new GridBagConstraints();
-		gbc_btnGenerateSim.fill = GridBagConstraints.BOTH;
-		gbc_btnGenerateSim.insets = new Insets(0, 0, 0, 5);
-		gbc_btnGenerateSim.gridx = 0;
-		gbc_btnGenerateSim.gridy = 3;
-		controlPanel.add(btnGenerateSim, gbc_btnGenerateSim);
-
-		btnStartSim = new JButton("Start");
-		btnStartSim.setIcon(startSimIcon);
-		btnStartSim.addActionListener(this);
-		btnStartSim.setToolTipText("Start the simulation.");
-		btnStartSim.setEnabled(false);
-		GridBagConstraints gbc_btnStartSim = new GridBagConstraints();
-		gbc_btnStartSim.fill = GridBagConstraints.BOTH;
-		gbc_btnStartSim.insets = new Insets(0, 0, 0, 5);
-		gbc_btnStartSim.gridx = 1;
-		gbc_btnStartSim.gridy = 3;
-		controlPanel.add(btnStartSim, gbc_btnStartSim);
-
-		btnPauseSim = new JButton("   Pause");
-		btnPauseSim.setIcon(resumeSimIcon);
-		btnPauseSim.addActionListener(this);
-		btnPauseSim.setToolTipText("Pause / Unpause the simulation.");
-		btnPauseSim.setEnabled(false);
-		GridBagConstraints gbc_btnPauseSim = new GridBagConstraints();
-		gbc_btnPauseSim.fill = GridBagConstraints.BOTH;
-		gbc_btnPauseSim.gridx = 2;
-		gbc_btnPauseSim.gridy = 3;
-		controlPanel.add(btnPauseSim, gbc_btnPauseSim);
+		RTextScrollPane scenarioEditorRTextScrollPane = new RTextScrollPane(scenarioEditor);
+		scenarioEditorPanel.add(scenarioEditorRTextScrollPane, BorderLayout.CENTER);
+		scenarioEditorPanel.add(scenarioEditorTopPanel, BorderLayout.NORTH);
 		
-		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-		updateTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run() 
-			{
-				setTime(latchTime);
-				setStepNo(latchStepNo);
-				setASPS(latchASPS);
-			}
-			  
-		},0,1000);
-			
 	}
-
+	
 	public void addSimulationStatsListTab()
 	{
 		simulationTabPane.addTab("Supported Statistics", simulationStatsListPanel);
@@ -549,33 +628,17 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 					simGenerated = true;
 					
 					clearStats();
-
 				}
 			}
 
 		}
 		else if (e.getSource() == btnPauseSim)
-		{			
-			// Pause Toggle
-			SimStatus status = simsManager.togglePause(simId);
-			
-			if(status == SimStatus.PAUSED)
-			{
-				simPausedStatus();
-			}
-			else if(status == SimStatus.RUNNING)
-			{
-				simUnPausedStatus();
-			}
-			else
-			{
-				System.out.println("Invalid Status in Pause Button");
-			}
-
+		{
+			simsManager.togglePause(simId);
 		}
 		else if (e.getSource() == btnStartSim)
 		{
-			simStartedState();
+			simsManager.startSim(simId);
 		}
 		else if (e.getSource() == btnSave)
 		{
@@ -648,8 +711,6 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 				startUpState();
 
 				tabTitle = "Loaded Scenario";
-				
-				notifiyTabStatusChangedListeners(SimStatus.NEW);
 				
 			}
 		}
@@ -815,6 +876,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		// Re-add the Scenario Tab
 		addSimulationStatsListTab();
 
+		// Re-add the ChartTabs
 		addChartTabs();
 	}
 
@@ -855,6 +917,21 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		
 	}
 
+	private void registerListeners()
+	{
+		// State / Stats
+		simsManager.addSimulationStateListener(simId, this);
+		simsManager.addSimulationStatListener(simId, this);
+		this.addTabStatusListener(title);
+	}
+	
+	private void setSimView()
+	{
+		simsManager.setActiveSim(simId);
+		
+		simsManager.resetActiveSimCamera();
+	}
+	
 	private void newSim(String scenario)
 	{
 		ScenarioInf simScenario = null;
@@ -872,21 +949,15 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		{
 			System.out.println("Creating Sim");
 			
-			// Register as a Stat Listener
-			simsManager.addSimulationStatListener(simId, this);
-			
-			// Register as a Stat Listener
-			simsManager.addSimulationStatusListener(simId, this);
-			
+			registerListeners();
+
 			simsManager.createSimScenario(simId,simScenario);
 			
-			simsManager.setActiveSim(simId);
-			
-			simsManager.resetActiveSimCamera();
+			setSimView();
 			
 			setUpPanels();
 
-			generatedState();
+			//generatedState();
 			
 		}
 		else
@@ -896,134 +967,73 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 
 	}
 
-	private void simStartedState()
+	private int spsToSliderVal(int reqSps)
 	{
-
-		simsManager.startSim(simId);
-
-		btnGenerateSim.setEnabled(false);
-
-		btnStartSim.setEnabled(false);
-
-		btnPauseSim.setEnabled(true);
-
-		sliderSimStepRate.setEnabled(true);
+		int sliderVal = -1;
 		
-		simulationStatsListPanel.setExportEnabled(false);
-
-	}
-
-	private void startUpState()
-	{
-		System.out.println("GUI now in Startup State");
+		switch(reqSps)
+		{
+			case 1:
+				sliderVal = 1;
+			break;
+			case 5:
+				sliderVal = 4;
+			break;
+			case 15:
+				sliderVal = 8;
+			break;
+			case 60:
+				sliderVal = 12;
+			break;
+			case 0:
+				sliderVal = 16;
+			break;
+			default :
+				sliderVal = 8;
+			break;			
+		}	
 		
-		btnStartSim.setEnabled(false);
-		sliderSimStepRate.setEnabled(false);
-		btnPauseSim.setEnabled(false);
-		btnGenerateSim.setEnabled(true);
-	}
-	
-	private void generatedState()
-	{
-		System.out.println("GUI now in Generated State");
-
-		btnGenerateSim.setEnabled(true);
-
-		btnStartSim.setEnabled(true);
-		
-		btnPauseSim.setEnabled(false);
-		btnPauseSim.setText("   Pause");
-		btnPauseSim.setIcon(pauseSimIcon);
-
-		sliderSimStepRate.setValue(8);
-		
-		sliderSimStepRate.setEnabled(false);		
-
+		return sliderVal;
 	}
 	
-	private void finishedState()
-	{
-		System.out.println("GUI now in Finished State");
-		
-		btnStartSim.setEnabled(false);
-		sliderSimStepRate.setEnabled(false);
-		btnPauseSim.setEnabled(false);
-		btnGenerateSim.setEnabled(true);
-						
-		simulationStatsListPanel.setExportEnabled(true);
+	private void setStepRate(int sliderVal)
+	{		
+		switch(sliderVal)
+		{
+			case 1:
+				lblRequestedStepRate.setText("1");
+				simsManager.setReqSimStepRate(simId,1);
+			break;
+			case 4:
+				lblRequestedStepRate.setText("5");
+				simsManager.setReqSimStepRate(simId,5);
+			break;
+			case 8:
+				lblRequestedStepRate.setText("15");
+				simsManager.setReqSimStepRate(simId,15);
+			break;
+			case 12:
+				lblRequestedStepRate.setText("60");
+				simsManager.setReqSimStepRate(simId,60);
+			break;
+			case 16:
+				lblRequestedStepRate.setText("Unli");
+				simsManager.setReqSimStepRate(simId,0);
+			break;
+			default :
+				lblRequestedStepRate.setText("Selecting");
+			break;
+		}
 	}
-
-	private void simPausedStatus()
-	{
-		btnPauseSim.setText("Resume");
-		btnGenerateSim.setEnabled(true);	
-
-		btnPauseSim.setIcon(resumeSimIcon);
 		
-		simulationStatsListPanel.setExportEnabled(true);
-
-	}
-
-	private void simUnPausedStatus()
-	{
-		btnPauseSim.setText("   Pause");
-		btnGenerateSim.setEnabled(false);
-				
-		btnPauseSim.setIcon(pauseSimIcon);
-		
-		simulationStatsListPanel.setExportEnabled(false);
-	}
-
 	@Override
 	public void stateChanged(ChangeEvent e)
 	{
 		if (e.getSource() == sliderSimStepRate)
 		{
 
-			// Prevent a 0 value being set
-			if (sliderSimStepRate.getValue() <= 1)
-			{
-				lblRequestedStepRate.setText("1");
+			setStepRate(sliderSimStepRate.getValue());		
 
-				// Set the requested update rate
-				simsManager.setReqSimStepRate(simId,1);
-				
-			}
-			else if (sliderSimStepRate.getValue() == 4 )
-			{
-				lblRequestedStepRate.setText("5");
-
-				// Set the requested update rate
-				simsManager.setReqSimStepRate(simId,5);
-			}
-			else if (sliderSimStepRate.getValue() == 8 )
-			{
-				lblRequestedStepRate.setText("15");
-
-				// Set the requested update rate
-				simsManager.setReqSimStepRate(simId,15);
-			}
-			else if (sliderSimStepRate.getValue() == 12 )
-			{
-				lblRequestedStepRate.setText("60");
-
-				// Set the requested update rate
-				simsManager.setReqSimStepRate(simId,60);
-			}
-			else if (sliderSimStepRate.getValue() == 16)
-			{
-				lblRequestedStepRate.setText("Unli");
-
-				// Set the requested update rate
-				simsManager.setReqSimStepRate(simId,-1);
-			}
-			else
-			{
-				lblRequestedStepRate.setText("Selecting");
-			}
-
-			
-			
 		}
 		else if (e.getSource() == chckbxEditMode)
 		{
@@ -1084,7 +1094,7 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		tabTitle = "No Sim";		
 	}
 	
-	public String getTitle()
+	private String getTitle()
 	{
 		return tabTitle;
 	}
@@ -1123,41 +1133,280 @@ public class SimulationTabPanel extends JPanel implements ActionListener, Change
 		lblSimRunTime.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
 	}
 	
-	@Override
-	public void simulationStateStatChanged(long time,int stepNo,int asps)
-	{
-		latchTime = time;
-		latchStepNo = stepNo;
-		latchASPS = asps;		
-	}
-
-	@Override
-	public void simulationStateStatusChanged(SimStatus status)
-	{
-		if(status == SimStatus.FINISHED)
-		{
-			finishedState();
-		}
-		
-		notifiyTabStatusChangedListeners(status);
-		
-	}	
-	
-	private void notifiyTabStatusChangedListeners(SimStatus status)
+	private void notifiyTabStatusChangedListeners(SimState state)
 	{
 		listenersLock.acquireUninterruptibly();
 	    for (TabStatusChangedListenerInf listener : tabStatusListeners)
 	    {
-	    	listener.tabStatusChanged(this,status);
+	    	listener.tabStatusChanged(this,state);
 	    }
 	    listenersLock.release();
 	}
 	
-	public void addTabStatusListener(TabStatusChangedListenerInf listener)
+	private void addTabStatusListener(TabStatusChangedListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
 	    	tabStatusListeners.add(listener);
     	listenersLock.release();
+
+    	/*
+    	 * Needed to avoid race condition where by this tab does not exist in the tab panel
+    	 * and a listener has been added when the tab has just been added added to a tab panel manager.
+    	 */
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() 
+	    {
+			@Override
+			public void run()
+			{
+		    	if(simId!=-1)
+		    	{
+					SimState state = simsManager.getState(simId);
+					
+					notifiyTabStatusChangedListeners(state);
+		    	}
+			}
+	    	
+	    });
+    		
+    	   	
+	}
+	
+	private void removeTabStatusListener(TabStatusChangedListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+	    	tabStatusListeners.remove(listener);
+    	listenersLock.release();
 	}
 
+	public void cleanUp()
+	{
+		// Clean up our tabs which are listening to state groups
+		removeChartTabs();		
+		
+		removeTabStatusListener(title);
+		
+		simsManager.removeSimulationStateListener(simId, this);
+		
+		simsManager.removeSimulationStatListener(simId, this);
+	}
+
+	private void removeChartTabs()
+	{
+		StatManager statManager = simsManager.getStatManager(simId);
+		
+		// Remove ChartPanels and Unset listeners
+		for (GlobalStatChartPanel chartPanel : charts)
+		{
+			StatGroup group = statManager.getStatGroup(chartPanel.getName());
+			
+			group.removeStatGroupListener(chartPanel);
+			
+			System.out.println("Removing " + chartPanel.getName() + " Chart Panel");
+			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
+			simulationTabPane.remove(chartPanel);
+		}
+		
+	}
+
+	@Override
+	public void simulationStateChanged(int simId, SimState state)
+	{
+		setGuiState(state);
+	}
+
+	private void setGuiState(SimState state)
+	{
+		switch(state)
+		{
+			case RUNNING:
+				simRunningState();
+			break;
+			case NEW:
+				generatedState();
+			break;
+			case FINISHED:
+				finishedState();
+			break;
+			case PAUSED:
+				simPausedState();
+			break;	
+			default :
+				
+				for(int i=0;i<100;i++)
+				{
+					System.out.println("Invalid/Unhandled SimState passed to GUI");
+				}
+				
+			break;
+		}
+		
+		notifiyTabStatusChangedListeners(state);
+	}
+	
+	private void simRunningState()
+	{
+		System.out.println("GUI now in Running State");
+		
+		btnGenerateSim.setEnabled(false);
+
+		btnStartSim.setEnabled(false);
+
+		btnPauseSim.setEnabled(true);
+		
+		btnPauseSim.setText("   Pause");
+		
+		btnPauseSim.setIcon(pauseSimIcon);
+
+		sliderSimStepRate.setEnabled(true);
+		
+		simulationStatsListPanel.setExportEnabled(false);
+	
+	}
+	
+	private void simPausedState()
+	{
+		System.out.println("GUI now in Paused State");
+		
+		btnPauseSim.setText("Resume");
+		btnPauseSim.setEnabled(true);
+		btnGenerateSim.setEnabled(true);	
+
+		btnPauseSim.setIcon(resumeSimIcon);
+		
+		simulationStatsListPanel.setExportEnabled(true);
+		
+	}
+	
+	private void startUpState()
+	{
+		System.out.println("GUI now in Startup State");
+		
+		btnStartSim.setEnabled(false);
+		sliderSimStepRate.setEnabled(false);
+		btnPauseSim.setEnabled(false);
+		btnGenerateSim.setEnabled(true);
+	}
+	
+	private void generatedState()
+	{
+		System.out.println("GUI now in Generated State");
+
+		btnGenerateSim.setEnabled(true);
+
+		btnStartSim.setEnabled(true);
+		
+		btnPauseSim.setEnabled(false);
+		btnPauseSim.setText("   Pause");
+		btnPauseSim.setIcon(pauseSimIcon);
+		
+		sliderSimStepRate.setEnabled(false);	
+	}
+	
+	
+	private void finishedState()
+	{
+		System.out.println("GUI now in Finished State");
+		
+		btnStartSim.setEnabled(false);
+		sliderSimStepRate.setEnabled(false);
+		btnPauseSim.setEnabled(false);
+		btnGenerateSim.setEnabled(true);
+						
+		simulationStatsListPanel.setExportEnabled(true);
+	}
+	
+	@Override
+	public void simulationStatChanged(int simId, long time, int stepNo, int asps)
+	{
+		latchTime = time;
+		latchStepNo = stepNo;
+		latchASPS = asps;	
+	}
+
+	
+	public TabButton getTabTitle()
+	{
+		return title;
+	}
+	
+	private class TabButton extends JPanel implements TabStatusChangedListenerInf
+	{
+		private GUITabManager tabManager;
+		private GUISimulationTab tab;
+		private ImageIcon icon;
+		private JLabel title;
+		JButton closeButton;
+		
+		public TabButton(final GUITabManager tabManager,final GUISimulationTab tab) 
+		{
+			this.tabManager = tabManager;
+			
+			this.tab = tab;
+			
+			this.setLayout(new FlowLayout(FlowLayout.CENTER, 1, 2));
+			
+			this.setOpaque(false);
+									
+			title = new JLabel(tab.getTitle());
+			title.setIcon(simNewIcon);
+						
+			this.add(title);
+			
+			closeButton = new JButton(Character.toString((char) 0x2573));
+			closeButton.setPreferredSize(new Dimension(16,16));
+			closeButton.setBorder(null);
+			closeButton.setFocusable(false);
+			
+			closeButton.addMouseListener(new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent e)
+				{
+					tabManager.setSelectedComponent(tab);
+					tabManager.removeTab();
+				}
+			});
+			
+			this.add(closeButton);
+		
+		}
+		
+		@Override
+		public void tabStatusChanged(GUISimulationTab tab,SimState state)
+		{
+			//int index = tabManager.indexOfComponent(tab);
+			
+		  	if(state == SimState.RUNNING)
+		  	{
+		  		//tabManager.setIconAt(index, simRunningIcon);		
+		  		title.setIcon(simRunningIcon);
+		  		title.setText(tab.getTitle());
+		  	}
+		  	else if(state == SimState.PAUSED)
+		  	{
+		  		//tabManager.setIconAt(index, simPausedIcon);	
+		  		title.setIcon(simPausedIcon);
+		  		title.setText(tab.getTitle());
+
+						  		
+		  	}
+		  	else if(state == SimState.NEW)
+		  	{
+		  	//	tabManager.setIconAt(index, simNewIcon);	
+		  		title.setIcon(simNewIcon);
+		  		title.setText(tab.getTitle());
+		  	}
+		  	else // Finished
+		  	{
+		  		//tabManager.setIconAt(index, simFinishedIcon);	
+		  		title.setIcon(simFinishedIcon);
+		  		title.setText(tab.getTitle());
+		  	}
+		  	
+		  	//tabManager.setTitleAt(index, tab.getTitle());
+		  	this.repaint();
+		}
+
+	}
+	
 }

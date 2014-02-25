@@ -9,7 +9,7 @@ import java.util.concurrent.Semaphore;
 
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Simulation.SimulationState.SimStatus;
+import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Stats.StatManager;
 
 public class SimulationsManager
@@ -26,10 +26,15 @@ public class SimulationsManager
 	private int simulationNum;
 	
 	/* Active Sims View */
-	private NewSimView simView;
-		
+	private GUISimulationView simView;
+	private Simulation activeSim;	
+	
+	/* SimulationsManger Listeners */
+	private List<SimulationsManagerEventListenerInf> simulationsMangerListeners = new ArrayList<SimulationsManagerEventListenerInf>();
+	private Semaphore listenersLock = new Semaphore(1, false);	
+	
 	public SimulationsManager(int maxSims)
-	{		
+	{
 		System.out.println("Created Simulations Manager");
 		
 		this.maxSims = maxSims;
@@ -43,20 +48,18 @@ public class SimulationsManager
 
 	public int addSimulation()
 	{
-		int simId = 0;
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		simulationNum++;
 		
-		simId = simulationNum;
+		// add sim to struct - index on id & let sim know its id
+		simulations.put(simulationNum, new Simulation(simulationNum));		
 		
-		// add sim to struct - index on id
-		simulations.put(simId, new Simulation());
-		
-		
+		simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
+
 		simulationsManagerLock.release();
 		
-		return simId;
+		return simulationNum;
 	}
 	
 	public void removeSimulation(int simId)
@@ -65,12 +68,22 @@ public class SimulationsManager
 		
 		Simulation sim = simulations.remove(simId);
 		
-		if(sim!=null)
-		{	
-			// Clear the Active Simulation Reference
+		// Clear the Active Simulation Reference
+		if(sim == activeSim && simView!=null)
+		{
 			simView.setSim(null);
-			
+		}
+		
+		if(sim!=null)
+		{
 			sim.destroySim();
+			
+			simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
+			
+			if(activeSim == sim)
+			{
+				activeSim = null;
+			}
 		}
 		
 		simulationsManagerLock.release();
@@ -81,11 +94,8 @@ public class SimulationsManager
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
-			sim.startSim();
-		}	
+
+		sim.startSim();
 		
 		simulationsManagerLock.release();		
 	}
@@ -95,11 +105,8 @@ public class SimulationsManager
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
-			sim.pauseSim();
-		}		
+
+		sim.pauseSim();
 		
 		simulationsManagerLock.release();		
 	}
@@ -113,7 +120,7 @@ public class SimulationsManager
 		StatManager statManager = null;
 		
 		if(sim!=null)
-		{			
+		{
 			statManager = simulations.get(simId).getSimManager().getStatmanger();	
 		}
 		
@@ -155,9 +162,9 @@ public class SimulationsManager
 		
 	}
 
-	public SimStatus togglePause(int simId)
+	public SimState togglePause(int simId)
 	{
-		SimStatus SimStatus = null;
+		SimState simState = null;
 		
 		simulationsManagerLock.acquireUninterruptibly();
 
@@ -165,12 +172,12 @@ public class SimulationsManager
 		
 		if(sim!=null)
 		{	
-			SimStatus = sim.togglePause();
+			simState = sim.togglePause();
 		}
 		
 		simulationsManagerLock.release();	
 		
-		return SimStatus;
+		return simState;
 		
 	}
 	
@@ -196,7 +203,7 @@ public class SimulationsManager
 		Simulation sim = simulations.get(simId);
 		
 		if(sim!=null)
-		{	
+		{
 			sim.createSimScenario(simScenario);
 		}
 		
@@ -209,10 +216,16 @@ public class SimulationsManager
 		
 		Simulation sim = simulations.get(simId);
 		
+		System.out.println("Active Sim : " + simId);
+		
 		if(simView!=null)
 		{
 			simView.setSim(sim);
 		}
+		
+		// We latch the active sim incase we do add a view.
+		activeSim = sim;
+		
 		
 		simulationsManagerLock.release();
 	}
@@ -223,6 +236,17 @@ public class SimulationsManager
 		
 		this.simView = simView;
 		
+		// Assuming there has been an active sim and there is currently  a simView
+		if(simView!=null)
+		{
+			// Set the latched active sim in the new view.
+			if(activeSim!=null)
+			{
+				simView.setSim(activeSim);
+			}
+			
+		}
+
 		simulationsManagerLock.release();
 	}
 	
@@ -261,8 +285,6 @@ public class SimulationsManager
 
 		if(simSet!=null)
 		{
-		
-	
 			for(Integer id : simSet)
 			{
 				list.add(simulations.get(id));
@@ -293,41 +315,71 @@ public class SimulationsManager
 		
 		return list;
 	}
-	
-	public SimStatus getSimStatus(int simId)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
 		
-		Simulation sim = simulations.get(simId);
-		
-		SimStatus status;
-		
-		if(sim!=null)
-		{	
-			status = sim.getStatus();
-		}
-		else
-		{
-			status = SimStatus.NEW;
-		}
-		
-		simulationsManagerLock.release();
-		
-		return status;
-	}
-	
 	public int getMaxSims()
 	{
 		return maxSims;
 	}
 	
-	public void addSimulationStatListener(int simId,SimulationStateStatListenerInf listener)
+
+		
+	public void addSimulationManagerListener(SimulationsManagerEventListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+			simulationsMangerListeners.add(listener);
+	    listenersLock.release();
+	}
+	
+	public void removeSimulationManagerListener(SimulationsManagerEventListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+			simulationsMangerListeners.remove(listener);
+	    listenersLock.release();
+	}
+	
+	private void simulationManagerListenerEventNotification(int simId,SimulationManagerEvent event)
+	{
+	    for (SimulationsManagerEventListenerInf listener : simulationsMangerListeners)
+	    {
+	    	listener.SimulationsManagerEvent(simId,event);
+	    }
+	}
+		
+	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
 		
-		if(simView!=null)
+		if(sim!=null)
+		{
+			sim.addSimulationStateListener(listener);
+		}
+		
+		simulationsManagerLock.release();
+	}
+	
+	public void removeSimulationStateListener(int simId,SimulationStateListenerInf listener)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{
+			sim.removeSimulationStateListener(listener);
+		}
+		
+		simulationsManagerLock.release();
+	}
+	
+	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
 		{
 			sim.addSimulationStatListener(listener);
 		}
@@ -335,18 +387,74 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	public void addSimulationStatusListener(int simId,SimulationStateStatusListenerInf listener)
+	public void removeSimulationStatListener(int simId,SimulationStatListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
 		
-		if(simView!=null)
+		if(sim!=null)
 		{
-			sim.addSimulationStatusListener(listener);
+			sim.removeSimulationStatListener(listener);
 		}
 		
 		simulationsManagerLock.release();
 	}
+	
+	public SimState getState(int simId)
+	{
+		SimState simState = null;
+		
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{	
+			simState = sim.getState();
+		}
+		
+		simulationsManagerLock.release();	
+		
+		return simState;
+		
+	}
+	
+	public int getReqSps(int simId)
+	{
+		int reqSps = -1;
+		
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{	
+			reqSps = sim.getReqSps();
+		}
+		
+		simulationsManagerLock.release();	
+		
+		return reqSps;
+	}
+	
+	/** Manager Events */
+	public enum SimulationManagerEvent
+	{
+		AddedSim	("Added Sim"),
+		RemovedSim	("Removed Sim");
+
+	    private final String name;
+
+	    private SimulationManagerEvent(String name) 
+	    {
+	        this.name = name;
+	    }
+
+	    public String toString()
+	    {
+	       return name;
+	    }
+	};
 	
 }
