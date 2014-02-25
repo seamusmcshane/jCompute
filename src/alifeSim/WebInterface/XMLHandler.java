@@ -50,7 +50,7 @@ public class XMLHandler extends AbstractHandler
 		
 		List<Integer> simList = simsManager.getSimIdList();
 		
-		try
+		/*try
 		{
 		
 			// Simulations Tag
@@ -83,7 +83,7 @@ public class XMLHandler extends AbstractHandler
 		catch (IOException e)
 		{
 			System.out.println("IOException - : " + e.getStackTrace()[0].getMethodName());
-		}
+		}*/
 	}
 	
 	private String formatTime(long time)
