@@ -54,7 +54,6 @@
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/javax.servlet.jsp-api-2.3.1.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/jetty-jsp-jdt-2.3.3.jar"/>
-	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/org.apache.taglibs.standard.glassfish-1.2.0.v201112081803.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jsp/org.eclipse.jdt.core-3.8.2.v20130121.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/monitor/jetty-monitor-9.1.1.v20140108.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/setuid/jetty-setuid-java-1.0.1.jar"/>
@@ -93,5 +92,10 @@
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-webapp-9.1.1.v20140108.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/jetty-xml-9.1.1.v20140108.jar"/>
 	<classpathentry kind="lib" path="libs/jetty/jetty-distribution-9.1.1.v20140108/lib/servlet-api-3.1.jar"/>
+	<classpathentry kind="lib" path="libs/aparapi/Aparapi_2013_01_23_windows_x86_64/aparapi.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="alifesim/libs/aparapi/Aparapi_2013_01_23_windows_x86_64"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
