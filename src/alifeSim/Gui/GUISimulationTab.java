@@ -45,6 +45,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -196,11 +197,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		},0,1000);
 		
 		checkTabState();
-		
-		/*
-		 *  This is not efficient for adding a new tab with no matching sim, 
-		 *  but has the effect reloading the tab state for tabs that do.
-		 */
+
 		setUpPanels();			
 	}
 
@@ -619,7 +616,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				if (!generatingSim)
 				{
 					generatingSim = true;
-
+					
 					/* Create the new Simulation */
 					newSim(scenarioEditor.getText());
 
@@ -671,7 +668,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			{
 				System.out.println("New Scenario Choosen");
 				
-				simsManager.removeSimulation(simId);
+				cleanUp();
+				
+				removeSimulation();
 				
 				// File scenarioFile = filechooser.getSelectedFile();
 				lblFilePath.setText(filechooser.getSelectedFile().getName());
@@ -738,6 +737,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			if (discardCurrentSimGenerated())
 			{
 				checkSaved();
+				
+				cleanUp();
 				
 				removeSimulation();
 				
@@ -864,12 +865,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	private void setUpPanels()
 	{
-		// Remove all tabs
-		simulationTabPane.removeAll();
-
 		// Clear the Chart List
 		charts = new LinkedList<GlobalStatChartPanel>();
-
+		
 		// Re-add the Scenario Tab.
 		addScenarioTab();
 
@@ -903,7 +901,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 					statGroup.addStatGroupListener(chart);
 				}
 
-			}		
+			}
 			
 		}
 
@@ -936,8 +934,10 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	{
 		ScenarioInf simScenario = null;
 
+		cleanUp();
+		
 		removeSimulation();
-
+				
 		// Add a new sim and direct its performance stats to this panel.
 		simId = simsManager.addSimulation();
 						
@@ -1084,7 +1084,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			
 			simId=-1;
 				
-			System.out.println("Simulation Removed");
+			System.out.println("Simulation Removed");	
 		}
 		else
 		{
@@ -1194,6 +1194,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	{
 		StatManager statManager = simsManager.getStatManager(simId);
 		
+		Iterator<GlobalStatChartPanel> itr = charts.iterator();
+		
 		// Remove ChartPanels and Unset listeners
 		for (GlobalStatChartPanel chartPanel : charts)
 		{
@@ -1202,9 +1204,11 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			group.removeStatGroupListener(chartPanel);
 			
 			System.out.println("Removing " + chartPanel.getName() + " Chart Panel");
-			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
-			simulationTabPane.remove(chartPanel);
+			simulationTabPane.remove(chartPanel);			
 		}
+		
+		// Clear the Chart List
+		charts = new LinkedList<GlobalStatChartPanel>();
 		
 	}
 
