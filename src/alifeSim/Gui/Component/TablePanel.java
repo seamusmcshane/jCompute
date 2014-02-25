@@ -1,20 +1,14 @@
 package alifeSim.Gui.Component;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,12 +16,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-
-import com.sun.glass.ui.Cursor;
 
 public class TablePanel extends JPanel
 {
@@ -35,6 +25,8 @@ public class TablePanel extends JPanel
 	private JLabel lblTitle;		
 	private JTable table;
 	private TableModel model;
+
+	private Semaphore tableLock = new Semaphore(1, false);
 	
 	/**
 	 * Creates a Panel with a table - needs Title and a List of column names (column titles)
@@ -74,9 +66,19 @@ public class TablePanel extends JPanel
 	 * @param rowKey
 	 * @param columnValues
 	 */
-	public void addRow(String rowKey,String columnValues[])
+	public void addRow(String rowKey,String columnValueList[])
 	{
-		model.addRow(rowKey,columnValues);
+		model.addRow(rowKey,columnValueList);
+	}
+	
+	
+	/**
+	 * Updates a row
+	 * @param rowKey
+	 */
+	public void updateRow(String rowKey,String columnValueList[])
+	{
+		model.updateRow(rowKey,columnValueList);
 	}
 	
 	/**
@@ -126,7 +128,12 @@ public class TablePanel extends JPanel
 	
 	public void addMouseListener(MouseAdapter adaptor)
 	{
+		tableLock.acquireUninterruptibly();
+		
 		table.addMouseListener(adaptor);
+		
+		tableLock.release();
+
 	}
 	
 	/**
@@ -137,7 +144,15 @@ public class TablePanel extends JPanel
 	 */
 	public String getValueAt(int row,int column)
 	{
-		return (String)model.getValueAt(row, column);
+		tableLock.acquireUninterruptibly();
+		
+		String value;
+
+		value = (String) model.getValueAt(row, column);
+		
+		tableLock.release();
+		
+		return value;
 	}
 	
 	
@@ -147,8 +162,43 @@ public class TablePanel extends JPanel
 	 */
 	public int getRowsCount()
 	{
-		return model.getRowCount();
+		tableLock.acquireUninterruptibly();
+
+		int rowCount = model.getRowCount();
+		
+		tableLock.release();
+
+		return rowCount;
 	}
+	
+	public void clearSelection()
+	{
+		tableLock.acquireUninterruptibly();
+
+		table.clearSelection();	
+		
+		tableLock.release();
+	}
+
+	public void updateCell(String rowKey, int column, String columnValue)
+	{
+		tableLock.acquireUninterruptibly();
+		
+		model.updateCell(rowKey,column, columnValue);
+		
+		tableLock.release();
+
+	}
+	
+	public void RedrawTable()
+	{
+		tableLock.acquireUninterruptibly();
+
+		model.dataSync(); 
+		
+		tableLock.release();
+	}
+	
 	
 	/** 
 	 * Private Table Model Class
@@ -159,7 +209,8 @@ public class TablePanel extends JPanel
 	{
 		private static final long serialVersionUID = -3810467809045113741L;
 		private List<String> columnNames = new ArrayList<String>();
-		private List<TableRow> tableRows;
+		private HashMap<String,TableRow> tableRowIndex;
+		private ArrayList<TableRow> tableRows;
 
         public TableModel(String names[]) 
         {
@@ -173,66 +224,57 @@ public class TablePanel extends JPanel
             clearData();
             
         }
-				        
+		
+        public void updateCell(String rowKey, int column, String columnValue)
+		{
+    		TableRow row = tableRowIndex.get(rowKey);
+    		
+    		row.updateColumn(column, columnValue);			
+		}
+
+		public void dataSync()
+        {
+        	fireTableDataChanged();
+        }
+        
         public void removeRow(String rowKey)
 		{
-  
+        	// Remove from Index
+        	TableRow row = tableRowIndex.remove(rowKey);
+        	        	
+        	// Remove from the rows      	
         	Iterator<TableRow> itr = tableRows.iterator();
-        	
-        	int row = 0;
         	
         	while(itr.hasNext())
         	{
-        		TableRow current = itr.next();
+        		TableRow temp = itr.next();
         		
-        		if(current.getColumn(0).equals(rowKey))
+        		if(temp.getColumn(0).equals(rowKey))
         		{
+        			tableRows.remove(temp);
         			
-        			//current.updateColumns(rowKey, columnValueList);
-        			
-        			tableRows.remove(current);
-        			
-                	fireTableRowsDeleted(row, row);
-                	
         			break;
         		}
-        		row++;
         	}
-			
 		}
 
-		public void addRow(String rowKey,String columnList[])
+		public void addRow(String rowKey,String columnValueList[])
         {
-        	tableRows.add(new TableRow(rowKey,columnList));
-        	
-        	// Redraw the last row
-        	fireTableRowsInserted(tableRows.size() - 1, tableRows.size() - 1);
+			// New Object
+			TableRow temp = new TableRow(rowKey,columnValueList);
+			
+			// Add it to index
+			tableRowIndex.put(rowKey,temp);
+			
+			// Add it to rows
+			tableRows.add(temp);
+			
         }
         
         public void updateRow(String rowKey,String columnValueList[])
         {
-        	Iterator<TableRow> itr = tableRows.iterator();
-        	
-        	int row = 0;
-        	
-        	while(itr.hasNext())
-        	{
-        		TableRow current = itr.next();
-        		
-        		if(current.getColumn(0).equals(rowKey))
-        		{
-        			
-        			current.updateColumns(rowKey, columnValueList);
-        			
-                	// Redraw the row...
-                	fireTableRowsUpdated(row,row);
-        			
-        			break;
-        		}
-        		
-        		row++;
-        	}
-
+        	// Use index to update row
+        	tableRowIndex.put(rowKey,new TableRow(rowKey,columnValueList));
         }
         
 		@Override
@@ -256,16 +298,19 @@ public class TablePanel extends JPanel
 		@Override
 		public Object getValueAt(int row, int col)
 		{
+			// Use tableRows for direct lookup
 			return tableRows.get(row).getColumn(col);
 		}
 		
 		public void clearData()
 		{
-			this.tableRows = new ArrayList<TableRow>();
+			tableRowIndex = new HashMap<String,TableRow>();
+			
+			tableRows = new ArrayList<TableRow>();
 		}
 		
 	}	
-	
+		
 	/**
 	 *  Private Row Class for Table Model
 	 * @author Seamus McShane
@@ -273,7 +318,7 @@ public class TablePanel extends JPanel
 	 */
 	private class TableRow
 	{
-		private List<String> rowColumns;
+		private ArrayList<String> rowColumns;
 		
 		public TableRow(String row,String values[])
 		{
@@ -298,11 +343,11 @@ public class TablePanel extends JPanel
 				rowColumns.add(value);
 			}
 		}
+		
+		public void updateColumn(int column, String value)
+		{
+			rowColumns.set(column, value);
+		}
 	}
 
-	public void clearSelection()
-	{
-		table.clearSelection();		
-	}
-		
 }

@@ -14,78 +14,120 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 
 import java.awt.Color;
-import java.awt.SystemColor;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.UIManager;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.ListSelectionModel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 
 import alifeSim.Gui.Component.ProgressBarTableCellRenderer;
 import alifeSim.Gui.Component.TablePanel;
+import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationsManagerEventListenerInf;
 
-import javax.swing.JButton;
-
-import java.awt.GridLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class SimulationListTabPanel extends JPanel implements SimulationsManagerEventListenerInf
+public class SimulationListTabPanel extends JPanel implements SimulationsManagerEventListenerInf,SimulationStateListenerInf,SimulationStatListenerInf
 {
 	private static final long serialVersionUID = 76641721672552215L;
 	
-	private TablePanel table;
+	// The table object
+	private TablePanel table;	
 	
-	private int traceAdds=0;
-	private Font chartFont = new Font("Sans", Font.BOLD, 12);
-	
-	private Chart2D chart2dST;
-	private HashMap<String,ITrace2D> traceMapST;
-	private ChartPanel chartPanelST;
-	private int stSamWin = 300;
-	
-	ITrace2D runTime;
-	float cOffset=0.8f;
-	
-	private Timer tabStatusPoll = new Timer();
-
+	// Name for the Table / This Object
 	private String name = "Simulations List";
+	
+	// References to the needed objects
+	private GUITabManager tabManager;
+	private SimulationsManager simsManger;
 		
-	public SimulationListTabPanel(final GUITabManager tabManager)
+	// The update time used to redraw the table and graphs at a slower rate than the data rate.
+	private Timer updateTimer = new Timer();
+	private int traceAdds=0;
+	
+	// Chart and ChartPanel Objects
+	private Chart2D chart2dST;
+	private ChartPanel chartPanelST;
+	private Font chartFont = new Font("Sans", Font.BOLD, 12);
+
+	// Hash Map of graph traces
+	private HashMap<String,ITrace2D> traceMapST;
+	
+	// Trace for the run time (also ensures graph moves when nothing is present)
+	private ITrace2D runTime;
+	
+	// Initial Color Hue offset
+	private float cOffset=0.8f;
+	
+	// Lenght of the graph in samples
+	private int stSamWin = 300;
+
+	public SimulationListTabPanel(GUITabManager tabManager, SimulationsManager simsManager) 
 	{
 		super();
+		
+		this.tabManager = tabManager;
+		this.simsManger = simsManager;
 		
 		setLayout(new BorderLayout(0, 0));
 		this.setMinimumSize(new Dimension(350, 400));
 		
-		table = new TablePanel("Information Status",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
+		setUpTable();
 				
+		createHistoryChart2DST();
+		
+		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+		updateTimer.schedule(new TimerTask()
+		{
+			@Override
+			public void run() 
+			{
+				table.RedrawTable();
+				
+				updateGraph();
+			}
+			  
+		},0,1000);
+		
+	}
+	
+	/*
+	 * SetsUp the Table with the correct 
+	 */
+	private void setUpTable()
+	{
+		table = new TablePanel("Simulation List",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
+		
 		// Progress Column uses a progress bar for display
 		table.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
-		
 		this.add(table);
 		
+		registerTableMouseListener();
+		
+		/* Debug
+			this.addRow("TEST Sim 1", new String[] {"Running", "100", "25","1","100"});
+			this.addRow("TEST Sim 2", new String[] {"Running", "100", "50","1","100"});
+			this.addRow("TEST Sim 3", new String[] {"Running", "100", "75","1","100"});
+			this.addRow("TEST Sim 4", new String[] {"Running", "100", "0","1","100"});
+			this.addRow("TEST Sim 5", new String[] {"Running", "100", "100","1","100"});
+			this.addRow("TEST Sim 6", new String[] {"Running", "100", "-1","1","100"});
+		 */
+	}
+	
+	/*
+	 * Sets up the handler for the mouse clicks on the Table
+	 */
+	private void registerTableMouseListener()
+	{
 		table.addMouseListener(new MouseAdapter() 
 		{
 			public void mousePressed(MouseEvent e) 
@@ -99,10 +141,11 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 					
 					if (e.getClickCount() == 2) 
 					{
+						// Get the String "Simulation (int)" and remove "Simulation "
+						String simId = ((String) table.getValueAt(row, 0)).replace("Simulation ", "");
 						
 						// Get the sim id from the selected row and display a tab for it
-						tabManager.displayTab(Integer.parseInt((String) table.getValueAt(row, 0)));
-						
+						tabManager.displayTab(Integer.parseInt(simId));						
 						
 						System.out.println("Button " + e.getButton() + " Clicked " + row);
 					}
@@ -113,29 +156,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 				}
 			}
 		});
-		
-		/*
-		this.addRow("TEST Sim 1", new String[] {"Running", "100", "25","1","100"});
-		this.addRow("TEST Sim 2", new String[] {"Running", "100", "50","1","100"});
-		this.addRow("TEST Sim 3", new String[] {"Running", "100", "75","1","100"});
-		this.addRow("TEST Sim 4", new String[] {"Running", "100", "0","1","100"});
-		this.addRow("TEST Sim 5", new String[] {"Running", "100", "100","1","100"});
-		this.addRow("TEST Sim 6", new String[] {"Running", "100", "-1","1","100"});
-		 */
-		
-		createHistoryChart2DST();
-		
-		// A slow/low overhead timer to update the tab icons based on the status of the running simulation in that tab.
-		tabStatusPoll.schedule(new TimerTask() 
-		{
-			  @Override
-			  public void run() 
-			  {
-				  //refresh();
-			  }
-			  
-		},0,100);
-		
 	}
 	
 	private void createHistoryChart2DST()
@@ -169,46 +189,39 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		
 	}
 	
-	public void clearTable()
+	private void clearTable()
 	{
 		table.clearTable();
 	}
 	
-	public void addRow(String rowKey,String columnValues[])
+	private void addRow(String rowKey,String columnValues[])
 	{
 		table.addRow(rowKey, columnValues);
 	}
 	
-	public void removeRow(String rowKey)
+	private void updateRow(String rowKey,String columnValues[])
 	{
-		System.out.println("RK : " + rowKey);
+		table.updateRow(rowKey, columnValues);
+	}
+	
+	private void updateCell(String rowKey,int column, String columnValue)
+	{
+		table.updateCell(rowKey, column,columnValue);
+	}
+	
+	private void removeRow(String rowKey)
+	{
 		table.removeRow(rowKey);
 	}
 	
-	private void update()
+	private void updateGraph()
 	{
-		
 		for (int row=0;row<table.getRowsCount();row++) 
 		{
 				String tabName = table.getValueAt(row,0);
-				String value = table.getValueAt(row,3);
+				String value = table.getValueAt(row,4);
 				ITrace2D tempT = traceMapST.get(tabName);
 			
-				// This is a new stat being detected
-				if(tempT == null)
-				{
-					tempT = new Trace2DLtd(stSamWin);
-					tempT.setName(tabName);
-				
-					cOffset+=0.13f;
-					cOffset=cOffset%1f;
-					tempT.setColor( new Color(Color.HSBtoRGB(cOffset,0.9f,1f)));
-					tempT.setStroke(new BasicStroke(1));
-					traceMapST.put(tabName,tempT);
-					chart2dST.addTrace(tempT);
-					tempT.setPointHighlighter(new PointPainterDisc(4));
-				}
-				
 				// Set the values
 				tempT.addPoint(traceAdds,Integer.parseInt(value));		
 			
@@ -220,7 +233,30 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		
 	}
 	
-	public void clearTrace(String name)
+	/*
+	 * Add a trace.
+	 */
+	private void addTrace(String name)
+	{
+		ITrace2D tempT = traceMapST.get(name);
+				
+		if(tempT == null)
+		{
+			tempT = new Trace2DLtd(stSamWin);
+			tempT.setName(name);
+		
+			cOffset+=0.13f;
+			cOffset=cOffset%1f;
+			tempT.setColor( new Color(Color.HSBtoRGB(cOffset,0.9f,1f)));
+			tempT.setStroke(new BasicStroke(1));
+			traceMapST.put(name,tempT);
+			chart2dST.addTrace(tempT);
+			tempT.setPointHighlighter(new PointPainterDisc(4));
+		}
+		
+	}
+	
+	private void clearTrace(String name)
 	{
 		ITrace2D tempT = traceMapST.remove(name);
 		
@@ -283,16 +319,55 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	}
 
 	@Override
-	public void SimulationsManagerEvent(int simId, SimulationManagerEvent event)
+	public void SimulationsManagerEvent(final int simId, SimulationManagerEvent event)
 	{
+		// Getting access to simulationListTabPanel via this is not possible in the runnables
+		final SimulationListTabPanel simulationListTabPanel = this;
+		
 		if(event == SimulationManagerEvent.AddedSim)
-		{						
-			this.addRow(String.valueOf(simId), new String[] {"NEW", "0", "0","0","0"});
+		{			
+			
+		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
+		    {
+		        public void run() 
+		        {	
+		        	// Add teh R
+		        	simulationListTabPanel.addRow("Simulation " + simId, new String[] {"New", "0", "0","0","0"});
+					
+					// Add Trace
+					addTrace("Simulation " + simId);
+		        	
+					// RegiserStateListener
+					simsManger.addSimulationStateListener(simId, simulationListTabPanel);
+					
+					// RegisterStatsListerner
+					simsManger.addSimulationStatListener(simId, simulationListTabPanel);
+					
+		        }
+		    });
 			
 		}
 		else if( event == SimulationManagerEvent.RemovedSim)
-		{
-			this.removeRow(String.valueOf(simId));
+		{					
+		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
+		    {
+		        public void run() 
+		        {						
+		        	// UnRegisterStatsListerner
+		        	simsManger.removeSimulationStatListener(simId, simulationListTabPanel);
+		        	
+					// UnRegiserStateListener
+					simsManger.removeSimulationStateListener(simId, simulationListTabPanel);
+					
+					// RemoveTrace
+					clearTrace("Simulation " + simId);
+					
+					// Remove the Row
+					simulationListTabPanel.removeRow("Simulation " + simId);
+
+		        }
+		    });
+		    
 		}
 		else
 		{
@@ -300,5 +375,38 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		}
 	}
 
+	@Override
+	public void simulationStatChanged(int simId, long time, int stepNo, int asps)
+	{
+		// 2 StepNo
+		updateCell("Simulation " + simId, 2 , Integer.toString(stepNo));
+		
+		// 3 progress
+		// updateCell("Simulation " + simId, 3 , String.valueOf(progress));
+		
+		// 4 Average Steps Per Second
+		updateCell("Simulation " + simId, 4 , Integer.toString(asps));
+		
+		// 5 Run Time
+		updateCell("Simulation " + simId, 5 , longTimeToString(time));
+		
+	}
+
+	@Override
+	public void simulationStateChanged(int simId, SimState state)
+	{
+		// Simulation State
+		updateCell("Simulation " + simId, 1 , state.toString());
+	}
 	
+	public String longTimeToString(long time)
+	{
+		time = time / 1000; // seconds
+		int days = (int) (time / 86400); // to days
+		int hrs = (int) (time / 3600) % 24; // to hrs
+		int mins = (int) ((time / 60) % 60);	// to seconds
+		int sec = (int) (time % 60);
+	
+		return String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec);
+	}
 }
