@@ -1,9 +1,14 @@
 package alifeSim.Simulation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
+
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Simulation.SimulationState.SimStatus;
+import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationState.stateChangedInf;
+import alifeSim.Simulation.SimulationStats.statChangedInf;
 
 /**
  * Simulation class
@@ -13,10 +18,17 @@ import alifeSim.Simulation.SimulationState.SimStatus;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class Simulation
+public class Simulation implements stateChangedInf, statChangedInf
 {
 	/* Simulation State */
 	private SimulationState simState;
+	private List<SimulationStateListenerInf> simStateListeners = new ArrayList<SimulationStateListenerInf>();
+		
+	private SimulationStats simStats;
+	private List<SimulationStatListenerInf> simStatListeners = new ArrayList<SimulationStatListenerInf>();
+
+	// Lock for the listeners
+	private Semaphore listenersLock = new Semaphore(1, false);
 	
 	// Inter-step delay Calculations
 	private long stepTimeNow;
@@ -42,12 +54,19 @@ public class Simulation
 	/* Busy wait inter-step delay toggle */
 	private boolean realtime = true;
 	
-	public Simulation()
+	/* Simulation Id */
+	private int simId = -1;
+	
+	public Simulation(int simId)
 	{
+		this.simId = simId;
+		
 		pause = new Semaphore(0, true); // Starts Paused
 		
-		simState = new SimulationState();	
-		
+		simState = new SimulationState(this);	
+
+		simStats = new SimulationStats(this);	
+
 		setupThreads();
 
 		createSimScenario(null);
@@ -62,16 +81,16 @@ public class Simulation
 		{
 			System.out.println("Assigning Sim Manager");
 			
-			simManager = scenario.getSimManager();
+			simManager = scenario.getSimulationScenarioManager();
 			
 			// This is a special external end event based on the simulation step count.
-			simManager.setScenarioStepCountEndEvent(simState);
+			simManager.setScenarioStepCountEndEvent(simStats);
 			
 			System.out.println("Scenario Type : " + scenario.getScenarioType());
 
 		}
 		
-		simState.clearSimulationStats();
+		simStats.clearSimulationStats();
 		simState.newState();
 		
 	}
@@ -83,9 +102,9 @@ public class Simulation
 	{
 		// Ensure we have the simulation in a state where it is not active.
 		
-		if ( simState.getStatus() == SimStatus.RUNNING)
+		if ( simState.getState() == SimState.RUNNING)
 		{
-			System.out.println("Pausing... (state|"+simState.getStatus().toString()+")");
+			System.out.println("Pausing... (state|"+simState.getState().toString()+")");
 
 			pauseSim();
 		}
@@ -133,7 +152,7 @@ public class Simulation
 		// The pause semaphore (We do not pause half way through a step)
 		pause.acquireUninterruptibly();
 		
-		simState.setStepStartTime();
+		simStats.setStepStartTime();
 
 		// record step start time for inter-step delay
 		timeTotal();
@@ -155,10 +174,10 @@ public class Simulation
 		// resets the value calculated in timeTotal()
 		resetTotalTime();
 
-		simState.setStepEndTime();
+		simStats.setStepEndTime();
 		
 		// Increment the Step counter
-		simState.incrementSimulationSteps();
+		simStats.incrementSimulationSteps();
 				
 		// Check for an End Event
 		if(simManager.hasEndEventOccurred())
@@ -208,23 +227,23 @@ public class Simulation
 	 *  Toggle Pause/UnPause
 	 */
 	
-	public SimStatus togglePause()
+	public SimState togglePause()
 	{
 		
-		if(simState.getStatus() == SimStatus.RUNNING)
+		if(simState.getState() == SimState.RUNNING)
 		{
 			pauseSim();
 		}
-		else if(simState.getStatus() == SimStatus.PAUSED)
+		else if(simState.getState() == SimState.PAUSED)
 		{
 			unPauseSim();
 		}
 		else
 		{
-			System.out.println("ATTEMPT to PAUSE Simulation in :" + simState.getStatus());
+			System.out.println("ATTEMPT to PAUSE Simulation in :" + simState.getState());
 		}
 		
-		return simState.getStatus();
+		return simState.getState();
 	}
 	
 	/**
@@ -289,24 +308,84 @@ public class Simulation
 		}
 	}
 	
-	public SimulationState getState()
+	public void addSimulationStateListener(SimulationStateListenerInf listener)
 	{
-		return simState;
+		listenersLock.acquireUninterruptibly();
+		
+			simStateListeners.add(listener);
+			
+			listener.simulationStateChanged(simId, simState.getState());
+		
+		listenersLock.release();	
+	}
+	
+	public void removeSimulationStateListener(SimulationStateListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+			simStateListeners.remove(listener);
+		
+		listenersLock.release();	
+	}
+	
+	public void addSimulationStatListener(SimulationStatListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+			simStatListeners.add(listener);
+		
+		listenersLock.release();
 	}
 
-	public SimStatus getStatus()
+	public void removeSimulationStatListener(SimulationStatListenerInf listener)
 	{
-		return simState.getStatus();
+		listenersLock.acquireUninterruptibly();
+		
+			simStatListeners.remove(listener);
+		
+		listenersLock.release();
 	}
 	
-	public void addSimulationStatListener(SimulationStateStatListenerInf listener)
+	/*
+	 * Call Backs from state + stat objects
+	 * (non-Javadoc)
+	 * @see alifeSim.Simulation.SimulationState.stateChangedInf#stateChanged(alifeSim.Simulation.SimulationState.SimState)
+	 */
+	
+	@Override
+	public void stateChanged(SimState state)
 	{
-		simState.addStateStatListener(listener);
+		listenersLock.acquireUninterruptibly();
+
+		for (SimulationStateListenerInf listener : simStateListeners)
+	    {
+	    	listener.simulationStateChanged(simId, state);
+	    }
+		
+		listenersLock.release();
+	}
+
+	@Override
+	public void statChanged(long time, int stepNo, int asps)
+	{
+		listenersLock.acquireUninterruptibly();
+
+		for (SimulationStatListenerInf listener : simStatListeners)
+	    {
+	    	listener.simulationStatChanged(simId, time, stepNo, asps);
+	    }
+		
+		listenersLock.release();
+
+	}
+
+	public SimState getState()
+	{
+		return simState.getState();
 	}
 	
-	public void addSimulationStatusListener(SimulationStateStatusListenerInf listener)
+	public int getReqSps()
 	{
-		simState.addStateStatusListener(listener);
+		return reqSps;
 	}
-			
 }
