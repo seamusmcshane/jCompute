@@ -2,9 +2,10 @@ package alifeSim.Scenario.Debug;
 
 import alifeSim.Alife.DebugAgent.DebugAgent;
 import alifeSim.Gui.View.GUISimulationView;
-import alifeSim.Gui.SimViewCam;
+import alifeSim.Gui.View.SimViewCam;
+import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
-import alifeSim.Simulation.SimulationState;
+import alifeSim.Simulation.SimulationStats;
 import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
@@ -172,8 +173,14 @@ public class DebugSimulationManager implements SimulationScenarioManagerInf
 	}
 
 	@Override
-	public void setScenarioStepCountEndEvent(SimulationState simState)
+	public void setScenarioStepCountEndEvent(SimulationStats simStats)
 	{
 		
 	}
+	
+	@Override
+	public ScenarioInf getScenario()
+	{
+		return scenario;
+	}	
 }

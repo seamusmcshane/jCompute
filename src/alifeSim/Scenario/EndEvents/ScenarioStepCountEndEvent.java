@@ -1,21 +1,21 @@
 package alifeSim.Scenario.EndEvents;
 
-import alifeSim.Simulation.SimulationState;
+import alifeSim.Simulation.SimulationStats;
 
 public class ScenarioStepCountEndEvent implements ScenarioEndEventInf
 {
-	private SimulationState state;
+	private SimulationStats stat;
 	private int endStepNum;
 	
-	public ScenarioStepCountEndEvent(SimulationState state,int endStepNum)
+	public ScenarioStepCountEndEvent(SimulationStats stat,int endStepNum)
 	{
-		this.state = state;
+		this.stat = stat;
 		this.endStepNum = endStepNum;
 	}
 
 	@Override
 	public boolean checkEvent()
 	{
-		return (state.getSimulationSteps() == endStepNum);
+		return (stat.getSimulationSteps() == endStepNum);
 	}
 }

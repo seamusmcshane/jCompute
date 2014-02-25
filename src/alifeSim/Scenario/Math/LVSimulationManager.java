@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Gui.View.GUISimulationView;
+import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationState;
+import alifeSim.Simulation.SimulationStats;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatGroupSetting;
 import alifeSim.Stats.StatManager;
+import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
 import alifeSim.Scenario.Math.LVScenario;
@@ -209,14 +212,20 @@ public class LVSimulationManager implements SimulationScenarioManagerInf
 	}
 
 	@Override
-	public void setScenarioStepCountEndEvent(SimulationState simState)
+	public void setScenarioStepCountEndEvent(SimulationStats simStats)
 	{
 		if(scenario.endEventIsSet("StepCount"))
 		{
 			int endStep = scenario.getEventValue("StepCount");
 			
-			endEvents.add(new ScenarioStepCountEndEvent(simState,endStep));			
+			endEvents.add(new ScenarioStepCountEndEvent(simStats,endStep));			
 		}		
+	}
+
+	@Override
+	public ScenarioInf getScenario()
+	{
+		return scenario;
 	}	
 	
 }

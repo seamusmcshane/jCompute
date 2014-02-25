@@ -1,6 +1,7 @@
 package alifeSim.Simulation;
 
 import alifeSim.Gui.View.GUISimulationView;
+import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2DVector2f;
 
@@ -32,6 +33,8 @@ public interface SimulationScenarioManagerInf
 	
 	public boolean hasEndEventOccurred();
 
-	public void setScenarioStepCountEndEvent(SimulationState simState);
+	public void setScenarioStepCountEndEvent(SimulationStats simState);
+	
+	public ScenarioInf getScenario();
 
 }
