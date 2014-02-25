@@ -2,11 +2,13 @@ package alifeSim.datastruct.knn;
 
 public class TreeBenchObject
 {
+	
 	private int id;
 	private float x;
 	private float y;
 	
 	private TreeBenchObject nearestObject;
+	private int nearestObjectID;
 	private float nearestObjectDistance;
 	
 	public TreeBenchObject(int id,float x, float y)
@@ -61,6 +63,17 @@ public class TreeBenchObject
 
 		/* Distance */
 		return dis;
+	}
+
+	// Aparapi
+	public int getNearestObjectID()
+	{
+		return nearestObjectID;
+	}
+
+	public void setNearestObjectID(int nearestObjectID)
+	{
+		this.nearestObjectID = nearestObjectID;
 	}
 	
 }
