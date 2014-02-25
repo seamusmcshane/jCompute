@@ -957,7 +957,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			
 			setUpPanels();
 
-			//generatedState();
+			setStepRate(sliderSimStepRate.getValue());
 			
 		}
 		else
