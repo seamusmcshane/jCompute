@@ -1,12 +1,12 @@
 package alifeSim.World;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 
 public interface WorldInf
 {
 	public int getWorldBoundingSquareSize();
 	
-	public void drawWorld(NewSimView simView);
+	public void drawWorld(GUISimulationView simView);
 	
 	public boolean isInvalidPosition(float x,float y);
 

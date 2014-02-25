@@ -1,6 +1,6 @@
 package alifeSim.Simulation;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2DVector2f;
 
@@ -12,7 +12,7 @@ public interface SimulationScenarioManagerInf
 	
 	public StatManager getStatmanger();
 	
-	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing);
+	public void drawSim(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing);
 
 	public int getWorldSize();
 

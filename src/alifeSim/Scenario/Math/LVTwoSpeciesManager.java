@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2DPoint2d;
@@ -270,7 +270,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		return stat;
 	}
 	
-	public void draw(NewSimView simView)
+	public void draw(GUISimulationView simView)
 	{			
 		drawPoints(simView);
 				
@@ -279,7 +279,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		drawMinMax(simView);
 	}
 	
-	private void drawMinMax(NewSimView simView)
+	private void drawMinMax(GUISimulationView simView)
 	{
 		
 		// Pred Min
@@ -316,7 +316,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 		
 	}
 
-	private void drawAxis(NewSimView simView)
+	private void drawAxis(GUISimulationView simView)
 	{
 		simView.drawLine(0,0,0,axisMax,new A2RGBA(1f,1f,1f,1f),false);
 		
@@ -344,7 +344,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 				
 	}
 	
-	private void drawPoints(NewSimView simView)
+	private void drawPoints(GUISimulationView simView)
 	{			
 		float xscale = scale;
 		float yscale = scale;

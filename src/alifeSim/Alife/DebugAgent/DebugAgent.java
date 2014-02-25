@@ -5,7 +5,7 @@ import org.lwjgl.input.Mouse;
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSimGeom.A2RGBA;
@@ -130,7 +130,7 @@ public class DebugAgent
 		this.auto = auto;
 	}
 
-	public void draw(NewSimView simView)
+	public void draw(GUISimulationView simView)
 	{		
 		if(body!=null)
 		{

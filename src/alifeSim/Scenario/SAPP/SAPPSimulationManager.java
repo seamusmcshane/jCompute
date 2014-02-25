@@ -6,7 +6,7 @@ import java.util.concurrent.Semaphore;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.SimViewCam;
 import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
@@ -252,7 +252,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	}
 
 	
-	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
+	public void drawSim(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 		try
 		{

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Scenario.SAPP.SAPPScenario;
@@ -129,7 +129,7 @@ public class GenericPlantManager
 	 * @param g Graphics	
 	 * @param trueDrawing boolean
 	 */
-	public void draw(NewSimView simView)
+	public void draw(GUISimulationView simView)
 	{
 		for (GenericPlant tPlantDraw : doneList) 
 		{

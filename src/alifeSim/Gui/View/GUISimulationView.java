@@ -1,4 +1,4 @@
-package alifeSim.Gui;
+package alifeSim.Gui.View;
 
 import java.awt.Canvas;
 import java.util.concurrent.Semaphore;
@@ -6,6 +6,7 @@ import java.util.concurrent.Semaphore;
 import org.lwjgl.opengl.Display;
 
 import alifeSim.Simulation.Simulation;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSimGeom.A2DCircle;
 import alifeSimGeom.A2DLine;
 import alifeSimGeom.A2DRectangle;
@@ -30,10 +31,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
-public class NewSimView implements ApplicationListener, InputProcessor
+public class GUISimulationView implements ApplicationListener, InputProcessor
 {
 	/** The Drawing Canvas */
-	private LwjglAWTCanvas canvas;	
+	private LwjglAWTCanvas canvas;
 	private int width;
 	private int height;
 	
@@ -56,10 +57,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 
 	/** Draw Views */
 	private boolean viewsDrawing = false;
-	
-	/** Is Simulation view drawing enabled */
-	private boolean drawSim = false;
-	
+		
 	/* Mouse */
 	/** Stores the mouse vector across updates */
 	private A2DVector2f mousePos = new A2DVector2f(0, 0);
@@ -81,7 +79,7 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	private SpriteBatch currentSpriteBatch;
 	private ShapeRenderer currentShapeRenderer;
 	
-	public NewSimView()
+	public GUISimulationView()
 	{
 		System.out.println("Created Simulation View");
 		
@@ -99,8 +97,9 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	
 	public void exitDisplay()
 	{
-		// Needed or a variety of deadlocks and errors can occur on App exit.
-		canvas.stop();
+		canvas.getInput().setInputProcessor(null);
+		canvas.stop();		
+		Display.destroy();
 	}
 	
 	public Canvas getAwtCanvas()
@@ -183,16 +182,16 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		if(sim!=null)
 		{
-			if (drawSim)
+			if(sim.getSimManager()!=null)
 			{
 				viewCam.position.set(sim.getSimManager().getCamPos().getX(), sim.getSimManager().getCamPos().getY(),0);
 
 				viewCam.zoom = sim.getSimManager().getCamZoom();
-				
-				viewCam.update();
-				
-				sim.drawSim(this,viewRangeDrawing,viewsDrawing);
 			}
+
+			viewCam.update();
+			
+			sim.drawSim(this,viewRangeDrawing,viewsDrawing);
 		}
 		
 		viewLock.release();
@@ -667,11 +666,15 @@ public class NewSimView implements ApplicationListener, InputProcessor
 		
 		if(sim!=null)
 		{
-			sim.getSimManager().resetCamZoom();
+			SimulationScenarioManagerInf simManager = sim.getSimManager();
 			
-			sim.getSimManager().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);			
+			// This can be null if a tab is added when no sim is generated and the window is resized
+			if(simManager!=null)
+			{
+				sim.getSimManager().resetCamZoom();	
+				sim.getSimManager().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
+			}
 		}
-
 	}	
 	
 	public void setSimulationTitle(String text)
@@ -696,14 +699,4 @@ public class NewSimView implements ApplicationListener, InputProcessor
 	{
 		viewsDrawing = inViewsDrawing;
 	}
-	
-	/**
-	 * Method setVisible.
-	 * @param visible boolean
-	 */
-	public void setVisible(boolean visible)
-	{
-		drawSim = visible;
-	}
-	
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.SimulationState.SimStatus;
 import alifeSim.Stats.StatManager;
@@ -217,7 +217,7 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 
-	public void setSimView(NewSimView simView)
+	public void setSimView(GUISimulationView simView)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		

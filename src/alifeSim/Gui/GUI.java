@@ -29,6 +29,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JSplitPane;
 
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Simulation.SimulationsManager;
 
 import java.awt.event.ActionListener;
@@ -51,7 +52,7 @@ public class GUI
 	private SimulationTabPanelManager simTabs;
 			
 	// Simulation View (Right Split)
-	private NewSimView simView;
+	private GUISimulationView simView;
 	
 	private SimulationsManager simsManager;
 	
@@ -116,12 +117,14 @@ public class GUI
 				if (chckbxmntmDisplaySimulation.isSelected())
 				{
 					// have been checked
-					simView.setVisible(true);
+					//simView.setVisible(true);
+					addView();
 				}
 				else
 				{
 					// have been unchecked
-					simView.setVisible(false);
+					//simView.setVisible(false);
+					removeView();
 				}
 
 			}
@@ -140,13 +143,19 @@ public class GUI
 			{
 				if (chckbxmntmDrawFieldOf.isSelected())
 				{
-					// have been checked
-					simView.setViewRangeDrawing(true);
+					if(simView !=null)
+					{
+						// have been checked
+						simView.setViewRangeDrawing(true);
+					}
 				}
 				else
 				{
-					// have been unchecked
-					simView.setViewRangeDrawing(false);
+					if(simView !=null)
+					{
+						// have been unchecked
+						simView.setViewRangeDrawing(false);
+					}
 				}
 			}
 		});
@@ -159,13 +168,19 @@ public class GUI
 			{
 				if (chckbxmntDrawAgentViews.isSelected())
 				{
-					// have been checked
-					simView.setViewsDrawing(true);
+					if(simView !=null)
+					{
+						// have been checked
+						simView.setViewsDrawing(true);
+					}
 				}
 				else
 				{
-					// have been unchecked
-					simView.setViewsDrawing(false);
+					if(simView !=null)
+					{
+						// have been unchecked
+						simView.setViewsDrawing(false);
+					}
 				}
 			}
 		});
@@ -174,14 +189,33 @@ public class GUI
 	}
 	
 	private void setUpGUI()
+	private void addView()
 	{
+		if(simView == null)
+		{
+			/* Simulation View */
+			simView = new GUISimulationView();
+			
+			/* Link up the view with the simulation manager */
+			simsManager.setSimView(simView);
+			
+			/* Add the View to the right split pane */
+			splitPane.setRightComponent(simView.getAwtCanvas());
+		}
+	}
+	
+	private void removeView()
+	{
+		simsManager.clearActiveSim();
+				
+		splitPane.setRightComponent(null);
 		
-		/* Simulation View */
-		simView = new NewSimView();
+		simsManager.setSimView(null);
 		
-		/* Link up the view with the simulation manager */
-		simsManager.setSimView(simView);
+		simView.exitDisplay();
 		
+		simView = null;
+	}
 		/* Frame */
 		guiFrame = new JFrame();
 		guiFrame.setMinimumSize(new Dimension(800,600));
@@ -201,15 +235,16 @@ public class GUI
 		splitPane.setDoubleBuffered(true);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setContinuousLayout(true);
-		
-		/* Add the View to the right split pane */
-		splitPane.setRightComponent(simView.getAwtCanvas());
-		
+				
 		/* Split Pane Left - Sim Tabs */
 		simTabs = new SimulationTabPanelManager(simsManager);
 		simTabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		splitPane.setLeftComponent(simTabs);
 		
+		addView();
+		
+		/* Menu Bar */
+		setUpMenu();
 		/* We control the exit */
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 		
@@ -251,10 +286,12 @@ public class GUI
 
 		if (value == JOptionPane.YES_OPTION)
 		{
-			simView.exitDisplay(); // Tell OpenGL we are done and free
-											// the resources used in the canvas.
-											// - must be done else sim will
-											// lockup.
+			
+			if(simView !=null)
+			{
+				simView.exitDisplay(); 
+			}
+
 			// Do EXIT
 			System.exit(0);
 		}

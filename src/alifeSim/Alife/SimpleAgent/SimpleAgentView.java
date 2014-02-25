@@ -5,7 +5,7 @@ import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.GenericPlant.GenericPlantViewStats;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentEval;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DCircle;
 import alifeSimGeom.A2DLine;
 import alifeSimGeom.A2DRectangle;
@@ -281,7 +281,7 @@ public class SimpleAgentView
 	/**
 	 * Draws the agents field of view.
 	 */
-	public void drawViewRange(NewSimView simView, boolean distanceRings, boolean edgeStyled)
+	public void drawViewRange(GUISimulationView simView, boolean distanceRings, boolean edgeStyled)
 	{
 		A2RGBA color;
 		float lineWidth;
@@ -318,7 +318,7 @@ public class SimpleAgentView
 		
 	}
 
-	public void drawDistanceRings(NewSimView simView, float lineWidth)
+	public void drawDistanceRings(GUISimulationView simView, float lineWidth)
 	{
 		float fovd;
 		
@@ -360,7 +360,7 @@ public class SimpleAgentView
 		}		
 	}
 	
-	public void drawViews(NewSimView simView)
+	public void drawViews(GUISimulationView simView)
 	{
 		float lineWidth = 0.25f;
 		A2RGBA color = new A2RGBA(1,1,1,1);

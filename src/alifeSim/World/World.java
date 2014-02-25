@@ -2,7 +2,7 @@ package alifeSim.World;
 
 import java.awt.Color;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DRectangle;
 import alifeSimGeom.A2RGBA;
 
@@ -294,7 +294,7 @@ public class World implements WorldInf
 	 *  Draw method for the world 
 	 * @param g Graphics
 	 */
-	public void drawWorld(NewSimView simView)
+	public void drawWorld(GUISimulationView simView)
 	{
 		grid.draw(simView);
 				

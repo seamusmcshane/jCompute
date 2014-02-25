@@ -2,7 +2,7 @@ package alifeSim.Alife;
 
 import java.awt.Color;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DCircle;
 import alifeSimGeom.A2DRectangle;
 import alifeSimGeom.A2DVector2f;
@@ -118,7 +118,7 @@ public class AlifeBody
 	 * Slow Draw method - circles
 	 * @param g Graphics
 	 */
-	public void draw(NewSimView simView)
+	public void draw(GUISimulationView simView)
 	{
 		body.setLocation(bodyPos.getX(), bodyPos.getY());
 

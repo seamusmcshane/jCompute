@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import alifeSim.Gui.NewSimView;
-import alifeSim.Gui.SimViewCam;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationState;
 import alifeSim.Stats.StatGroup;
@@ -90,7 +89,7 @@ public class LVSimulationManager implements SimulationScenarioManagerInf
 	}
 
 	@Override
-	public void drawSim(NewSimView simView, boolean ignored, boolean ignored2)
+	public void drawSim(GUISimulationView simView, boolean ignored, boolean ignored2)
 	{
 		try
 		{

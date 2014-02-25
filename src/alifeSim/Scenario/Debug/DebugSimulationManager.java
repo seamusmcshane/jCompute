@@ -1,7 +1,7 @@
 package alifeSim.Scenario.Debug;
 
 import alifeSim.Alife.DebugAgent.DebugAgent;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationState;
@@ -91,7 +91,7 @@ public class DebugSimulationManager implements SimulationScenarioManagerInf
 	
 		
 	@Override
-	public void drawSim(NewSimView simView, boolean ignored1,boolean ignored2)
+	public void drawSim(GUISimulationView simView, boolean ignored1,boolean ignored2)
 	{
 		world.drawWorld(simView);		
 		

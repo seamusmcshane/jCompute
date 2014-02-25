@@ -2,7 +2,7 @@ package alifeSim.Alife;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgentStats;
 import alifeSim.Alife.SimpleAgent.SimpleAgentView;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DVector2f;
 
 public interface AlifeBodyInf
@@ -29,7 +29,7 @@ public interface AlifeBodyInf
 	 * Fast Body Draw Method - rectangles
 	 * @param g Graphics
 	 */
-	public void draw(NewSimView simView);
+	public void draw(GUISimulationView simView);
 
 
 	/** 

@@ -1,6 +1,6 @@
 package alifeSim.World;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DLine;
 import alifeSimGeom.A2RGBA;
 
@@ -75,7 +75,7 @@ public class WorldGrid
 	 * Draws the grid method on the image object 
 	 * @param g Graphics
 	 */
-	public void draw(NewSimView simView)
+	public void draw(GUISimulationView simView)
 	{		
 		A2RGBA major = new A2RGBA(0.2f,0.2f,0.2f,1f);
 

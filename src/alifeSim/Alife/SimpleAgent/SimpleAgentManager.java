@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Stats.SingleStat;
 import alifeSim.World.WorldInf;
@@ -204,7 +204,7 @@ public class SimpleAgentManager
 	 * @param trueDrawing boolean
 	 * @param viewRangeDrawing boolean
 	 */
-	public void draw(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
+	public void draw(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 
 		for (SimpleAgent tAgentDrawAI : doneList) 

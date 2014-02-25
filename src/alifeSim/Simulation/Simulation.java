@@ -1,7 +1,7 @@
 package alifeSim.Simulation;
 
 import java.util.concurrent.Semaphore;
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.SimulationState.SimStatus;
 
@@ -281,7 +281,7 @@ public class Simulation
 	 * @param true_drawing boolean
 	 * @param view_range_drawing boolean
 	 */
-	public void drawSim(NewSimView simView,boolean viewRangeDrawing,boolean viewsDrawing)
+	public void drawSim(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 		if(simManager!=null)
 		{

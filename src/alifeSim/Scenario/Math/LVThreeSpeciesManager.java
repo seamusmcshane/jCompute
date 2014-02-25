@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.badlogic.gdx.graphics.Pixmap;
 
-import alifeSim.Gui.NewSimView;
+import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2RGBA;
@@ -274,7 +274,7 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 		return statList;
 	}
 	
-	public void draw(NewSimView simView)
+	public void draw(GUISimulationView simView)
 	{	
 		drawPoints(simView);
 		
@@ -283,14 +283,14 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 		simView.drawRectangle(0,0,bufferWidth,bufferHeight,new A2RGBA(1f,1f,1f,1f));
 	}
 	
-	private void drawLAPoint(NewSimView simView, float x, float y, float z)
+	private void drawLAPoint(GUISimulationView simView, float x, float y, float z)
 	{
 	    double px = x*(-10*x+10*y);
 	    double py = y*(28*x-y-x*z);
 	    double pz = z*(-8*z/3+x*y);	    
 	}
 	
-	private void drawPoints(NewSimView simView)
+	private void drawPoints(GUISimulationView simView)
 	{			
 		float xscale = (float) scale;
 		float yscale = (float) scale;
