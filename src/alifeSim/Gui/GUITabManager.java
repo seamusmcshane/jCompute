@@ -1,17 +1,11 @@
 package alifeSim.Gui;
 
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,7 +14,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationsManager;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
@@ -145,12 +138,17 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 					tabSimId = simulationTabs[i].getSimulationId();
 				}
 			}
-		}		
+		}
 		
 		// No Tab Added
 		if(tabSimId == -1)
 		{
 			addTab(simId);
+		}
+		else
+		{
+			this.setSelectedIndex(0);
+			JOptionPane.showMessageDialog(this, "The Limit of " + simsManager.getMaxSims() + " Sims has been reached.");
 		}
 			
 	}
@@ -166,14 +164,14 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			addingTab=true;		
 		
 			// Only allow adding up to the tab limit
-			if(tabCount < maxTabs)
+			if( tabCount < maxTabs)
 			{
 				// Loop though all the simulation tabs
 				for(int i=0;i<maxTabs;i++)
 				{
 					// If This slot is a free.
 					if(simulationTabs[i] == null)
-					{					
+					{
 						// Add a new tab the list ( -1 = no Sim )
 						simulationTabs[i] = new GUISimulationTab(this,simsManager, simId);
 						

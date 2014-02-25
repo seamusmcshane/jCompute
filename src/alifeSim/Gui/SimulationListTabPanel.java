@@ -70,14 +70,14 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	
 	// Lenght of the graph in samples
 	private int stSamWin = 300;
-
+	
 	public SimulationListTabPanel(GUITabManager tabManager, SimulationsManager simsManager) 
 	{
 		super();
 		
 		this.tabManager = tabManager;
 		this.simsManger = simsManager;
-		
+				
 		setLayout(new BorderLayout(0, 0));
 		this.setMinimumSize(new Dimension(350, 400));
 		
@@ -204,6 +204,11 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		table.updateRow(rowKey, columnValues);
 	}
 	
+	private void updateCells(String rowKey,int columns[], String columnValues[])
+	{
+		table.updateCells(rowKey,columns,columnValues);
+	}
+	
 	private void updateCell(String rowKey,int column, String columnValue)
 	{
 		table.updateCell(rowKey, column,columnValue);
@@ -230,7 +235,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		runTime.addPoint(traceAdds,0);
 		
 		traceAdds++;
-		
 	}
 	
 	/*
@@ -342,7 +346,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 					
 					// RegisterStatsListerner
 					simsManger.addSimulationStatListener(simId, simulationListTabPanel);
-					
 		        }
 		    });
 			
@@ -378,25 +381,14 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	@Override
 	public void simulationStatChanged(int simId, long time, int stepNo, int asps)
 	{
-		// 2 StepNo
-		updateCell("Simulation " + simId, 2 , Integer.toString(stepNo));
-		
-		// 3 progress
-		// updateCell("Simulation " + simId, 3 , String.valueOf(progress));
-		
-		// 4 Average Steps Per Second
-		updateCell("Simulation " + simId, 4 , Integer.toString(asps));
-		
-		// 5 Run Time
-		updateCell("Simulation " + simId, 5 , longTimeToString(time));
-		
+		updateCells("Simulation " + simId, new int[]{2,4,5},new String[]{ Integer.toString(stepNo),Integer.toString(asps), longTimeToString(time) });	
 	}
 
 	@Override
 	public void simulationStateChanged(int simId, SimState state)
 	{
 		// Simulation State
-		updateCell("Simulation " + simId, 1 , state.toString());
+		updateCell("Simulation " + simId, 1 , state.toString());		
 	}
 	
 	public String longTimeToString(long time)

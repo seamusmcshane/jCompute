@@ -18,6 +18,8 @@ public class SimulationsManager
 
 	/* Max Concurrent Simulations */
 	private final int maxSims;
+	private int activeSims;
+	
 	
 	/* Simulation Storage Structure */
 	private HashMap<Integer, Simulation> simulations;
@@ -42,6 +44,7 @@ public class SimulationsManager
 		simulations = new HashMap<Integer, Simulation>();
 		
 		this.simulationNum = 0;
+		this.activeSims = 0;
 		
 		System.out.println("Max Active Sims : " + maxSims);		
 	}
@@ -50,16 +53,29 @@ public class SimulationsManager
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
-		simulationNum++;
-		
-		// add sim to struct - index on id & let sim know its id
-		simulations.put(simulationNum, new Simulation(simulationNum));		
-		
-		simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
+		if( activeSims < maxSims)
+		{
+			simulationNum++;
+			activeSims++;
+			
+			// add sim to struct - index on id & let sim know its id
+			simulations.put(simulationNum, new Simulation(simulationNum));		
+			
+			simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
 
-		simulationsManagerLock.release();
-		
-		return simulationNum;
+			simulationsManagerLock.release();
+			
+			return simulationNum;
+		}
+		else
+		{
+			System.out.println("Too Many Sims");
+
+			simulationsManagerLock.release();
+
+			return -1;
+		}
+
 	}
 	
 	public void removeSimulation(int simId)
@@ -67,12 +83,8 @@ public class SimulationsManager
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.remove(simId);
-		
-		// Clear the Active Simulation Reference
-		if(sim == activeSim && simView!=null)
-		{
-			simView.setSim(null);
-		}
+				
+		activeSims--;
 		
 		if(sim!=null)
 		{
@@ -82,6 +94,12 @@ public class SimulationsManager
 			
 			if(activeSim == sim)
 			{
+				// Clear the Active Simulation View  Reference
+				if(simView!=null)
+				{
+					simView.setSim(null);
+				}
+				
 				activeSim = null;
 			}
 		}
@@ -99,14 +117,17 @@ public class SimulationsManager
 		
 		simulationsManagerLock.release();		
 	}
-	
+		
 	public void pauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
 
-		sim.pauseSim();
+		if(sim!=null)
+		{
+			sim.pauseSim();
+		}
 		
 		simulationsManagerLock.release();		
 	}
@@ -320,9 +341,12 @@ public class SimulationsManager
 	{
 		return maxSims;
 	}
-	
 
-		
+	public int getActiveSims()
+	{
+		return activeSims;
+	}
+	
 	public void addSimulationManagerListener(SimulationsManagerEventListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();

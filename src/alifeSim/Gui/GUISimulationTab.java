@@ -1,36 +1,24 @@
 package alifeSim.Gui;
 
 import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
-
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-
 import javax.swing.SwingConstants;
-
 import java.awt.Color;
-
 import javax.swing.JSlider;
-
 import java.awt.Dimension;
-
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -52,17 +40,13 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import java.awt.Font;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
 import alifeSim.Gui.Charts.GlobalStatChartPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
@@ -74,8 +58,6 @@ import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationsManager;
-import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
-import alifeSim.Simulation.SimulationsManagerEventListenerInf;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;
 
@@ -85,10 +67,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private String tabTitle = "New";
 	
-	// Graphs
-	private JTabbedPane simulationTabPane;
-	private LinkedList<GlobalStatChartPanel> charts;
-
 	// Editor Related
 	private RSyntaxTextArea scenarioEditor;
 	private JLabel lblFilePath;
@@ -99,7 +77,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private boolean scenarioLoaded = false;
 	private Color normalMode;
 	private Color editMode;
-
 	private boolean saved = true;
 
 	// Sim Control
@@ -114,48 +91,56 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private JLabel lblSimRunTime;
 	private JLabel lblRequestedStepRate;
 
+	// Because the values in the GUI are only updated on a time interval we latch the values and update it using them
+	private long latchTime = 0;
+	private int latchStepNo = 0;
+	private int latchASPS = 0;
+	
 	// Sim Related
 	private boolean generatingSim = false;
 	private boolean simGenerated = false;
 
+	/* Tabs */
+	private JTabbedPane simulationTabPane;
+	private LinkedList<GlobalStatChartPanel> charts;
 	private JPanel simulationScenarioTab;
 	private SimulationStatsListPanel simulationStatsListPanel;
 
 	private SimulationsManager simsManager;
+	private StatManager statManager;
 	
+	/* This Sim */
 	private int simId = -1;
 
 	private Timer updateTimer = new Timer();
 	
+	/* Tab Status Icons */
 	private ImageIcon simRunningIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-start.png"));
 	private ImageIcon simPausedIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-pause.png"));
 	private ImageIcon newTabIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/dialog-warning.png"));
 	private ImageIcon simNewIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-stop.png"));
 	private ImageIcon simFinishedIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/task-complete.png"));
 	
-	/** Scenario Editor Icons */
+	/* Scenario Editor Icons */
 	private ImageIcon openScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-open.png"));
 	private ImageIcon saveScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-save.png"));
 	private ImageIcon closeScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-close.png"));
 	
+	/* Button Icons */
 	private ImageIcon generateSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/grid.png"));
 	private ImageIcon startSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/play.png"));
 	private ImageIcon resumeSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/resume.png"));
 	private ImageIcon pauseSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/pause.png"));
 
+	/* Chart Tab Icons */
 	private ImageIcon simulationStatsExportIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kspread.png"));
 	private ImageIcon scenarioEditorIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/accessories-text-editor.png"));
 	private ImageIcon simulationStatChartIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kchart.png"));
-		
+
+	// Tab Related
+	private GUITabManager tabManager;
 	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);
-	
-	// Because the values in the GUI are only updated on a time interval we latch the values and update it using them
-	private long latchTime = 0;
-	private int latchStepNo = 0;
-	private int latchASPS = 0;
-	
-	private GUITabManager tabManager;
 	private TabButton title;
 	
 	public GUISimulationTab(GUITabManager tabManager,SimulationsManager simsManager, int simId)
@@ -165,7 +150,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		this.simsManager = simsManager;
 
 		this.simId = simId;
-
+				
 		title = new TabButton(tabManager,this);	
 		// Layout
 		setLayout(new BorderLayout(0, 0));
@@ -198,7 +183,21 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		checkTabState();
 
-		setUpPanels();			
+		/* Pause the active sim or the GUI will compete for every semaphore lock */
+		SimState simState = simsManager.getState(simId);
+		if(simState == SimState.RUNNING)
+		{
+			simsManager.pauseSim(simId);
+		}
+		
+		setUpPanels();
+		
+		/* If the Sim was Running then resume */
+		if(simState == SimState.RUNNING)
+		{
+			simsManager.unPauseSim(simId);
+		}
+		
 	}
 
 	public void checkTabState()
@@ -209,6 +208,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			SimulationScenarioManagerInf simulationScenario = simsManager.getScenarioManager(simId);
 			
 			SimState state = simsManager.getState(simId);
+			
+			statManager = simsManager.getStatManager(simId);
 			
 			// 
 			//if(simulationScenario!=null)
@@ -519,8 +520,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	{
 		simulationTabPane.addTab("Supported Statistics", simulationStatsListPanel);
 		simulationStatsListPanel.clearTable();
-
-		StatManager statManager = simsManager.getStatManager(simId);
 		
 		if(statManager!=null)
 		{
@@ -618,14 +617,16 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 					generatingSim = true;
 					
 					/* Create the new Simulation */
-					newSim(scenarioEditor.getText());
+					if(newSim(scenarioEditor.getText()))
+					{
 
-					generatingSim = false;
+						simGenerated = true;
+						
+						clearStats();
+					}
 
-					simGenerated = true;
-					
-					clearStats();
 				}
+				generatingSim = false;
 			}
 
 		}
@@ -879,9 +880,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	}
 
 	private void addChartTabs()
-	{
-		StatManager statManager = simsManager.getStatManager(simId);
-		
+	{		
 		if(statManager!=null)
 		{
 			Set<String> statGroups = statManager.getGroupList();
@@ -893,7 +892,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				
 				if(statGroup.getGroupSettings().graphEnabled())
 				{
-					
 					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleWindow());
 					
 					charts.add(chart);
@@ -930,8 +928,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simsManager.resetActiveSimCamera();
 	}
 	
-	private void newSim(String scenario)
+	private boolean newSim(String scenario)
 	{
+		boolean status = false;
 		ScenarioInf simScenario = null;
 
 		cleanUp();
@@ -940,31 +939,44 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				
 		// Add a new sim and direct its performance stats to this panel.
 		simId = simsManager.addSimulation();
-						
-		tabTitle = "Simulation " + simId;
 		
-		simScenario = determinScenarios(scenario);
-
-		if (simScenario != null)
+		// > 1 if we added a sim
+		if(simId!=-1)
 		{
-			System.out.println("Creating Sim");
+			tabTitle = "Simulation " + simId;
 			
-			registerListeners();
-
-			simsManager.createSimScenario(simId,simScenario);
-			
-			setSimView();
-			
-			setUpPanels();
-
-			setStepRate(sliderSimStepRate.getValue());
-			
+			simScenario = determinScenarios(scenario);
+	
+			if (simScenario != null)
+			{
+				System.out.println("Creating Sim");
+				
+				registerListeners();
+	
+				simsManager.createSimScenario(simId,simScenario);
+	
+				statManager = simsManager.getStatManager(simId);
+				
+				setSimView();
+				
+				setUpPanels();
+	
+				setStepRate(sliderSimStepRate.getValue());
+				
+				status = true;
+				
+			}
+			else
+			{
+				System.out.println("Scenario Failed to Load");
+			}
 		}
 		else
 		{
-			System.out.println("Scenario Failed to Load");
+			JOptionPane.showMessageDialog(this, "The Limit of " + simsManager.getMaxSims() + " active sims has been reached.");
 		}
 
+		return status;
 	}
 
 	private int spsToSliderVal(int reqSps)
@@ -1191,9 +1203,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	}
 
 	private void removeChartTabs()
-	{
-		StatManager statManager = simsManager.getStatManager(simId);
-		
+	{		
 		Iterator<GlobalStatChartPanel> itr = charts.iterator();
 		
 		// Remove ChartPanels and Unset listeners

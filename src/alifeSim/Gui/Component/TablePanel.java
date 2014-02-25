@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Semaphore;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,8 +23,6 @@ public class TablePanel extends JPanel
 	private JLabel lblTitle;		
 	private JTable table;
 	private TableModel model;
-
-	private Semaphore tableLock = new Semaphore(1, false);
 	
 	/**
 	 * Creates a Panel with a table - needs Title and a List of column names (column titles)
@@ -127,13 +123,8 @@ public class TablePanel extends JPanel
 	}
 	
 	public void addMouseListener(MouseAdapter adaptor)
-	{
-		tableLock.acquireUninterruptibly();
-		
+	{		
 		table.addMouseListener(adaptor);
-		
-		tableLock.release();
-
 	}
 	
 	/**
@@ -143,15 +134,11 @@ public class TablePanel extends JPanel
 	 * @return
 	 */
 	public String getValueAt(int row,int column)
-	{
-		tableLock.acquireUninterruptibly();
-		
+	{		
 		String value;
 
 		value = (String) model.getValueAt(row, column);
-		
-		tableLock.release();
-		
+				
 		return value;
 	}
 	
@@ -162,41 +149,29 @@ public class TablePanel extends JPanel
 	 */
 	public int getRowsCount()
 	{
-		tableLock.acquireUninterruptibly();
-
 		int rowCount = model.getRowCount();
 		
-		tableLock.release();
-
 		return rowCount;
 	}
 	
 	public void clearSelection()
 	{
-		tableLock.acquireUninterruptibly();
-
-		table.clearSelection();	
-		
-		tableLock.release();
+		table.clearSelection();			
 	}
 
 	public void updateCell(String rowKey, int column, String columnValue)
 	{
-		tableLock.acquireUninterruptibly();
-		
 		model.updateCell(rowKey,column, columnValue);
-		
-		tableLock.release();
-
+	}
+	
+	public void updateCells(String rowKey, int columns[], String columnValues[])
+	{		
+		model.updateCells(rowKey,columns, columnValues);
 	}
 	
 	public void RedrawTable()
 	{
-		tableLock.acquireUninterruptibly();
-
 		model.dataSync(); 
-		
-		tableLock.release();
 	}
 	
 	
@@ -225,7 +200,17 @@ public class TablePanel extends JPanel
             
         }
 		
-        public void updateCell(String rowKey, int column, String columnValue)
+        public void updateCells(String rowKey, int[] columns, String[] columnValues)
+		{
+    		TableRow row = tableRowIndex.get(rowKey);
+    		
+    		for(int i=0;i<columns.length;i++)
+    		{
+        		row.updateColumn(columns[i], columnValues[i]);	
+    		}
+		}
+
+		public void updateCell(String rowKey, int column, String columnValue)
 		{
     		TableRow row = tableRowIndex.get(rowKey);
     		
