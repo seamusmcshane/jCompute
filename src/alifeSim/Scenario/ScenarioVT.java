@@ -23,6 +23,8 @@ public class ScenarioVT
 {
 	private XMLConfiguration scenario;
 	private List<StatGroupSetting> statSettingsList;
+	protected String scenarioText;
+	
 	
 	/** Simulation End Events */
 	private HashMap<String,Integer>endEvents;	
@@ -53,10 +55,11 @@ public class ScenarioVT
 	
 	public void loadConfig(String text)
 	{
+		this.scenarioText = text;
 		InputStream stream;
 		
 		try
-		{			
+		{
 			stream = new ByteArrayInputStream(text.getBytes());
 			scenario = new XMLConfiguration();
 			scenario.setSchemaValidation(true);
@@ -69,24 +72,6 @@ public class ScenarioVT
 		{
 			System.out.println("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
-	}
-	
-	public void loadConfig(File file)
-	{
-		try
-		{
-			scenario = new XMLConfiguration();
-			scenario.setSchemaValidation(true);
-			scenario.load(file);
-			
-			readScenarioEndEvents();
-			
-		}
-		catch (ConfigurationException e)
-		{
-			System.out.println("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
-		}
-		
 	}
 	
 	public int getSubListSize(String section,String value)

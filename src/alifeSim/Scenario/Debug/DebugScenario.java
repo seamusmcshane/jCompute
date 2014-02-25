@@ -77,9 +77,15 @@ public class DebugScenario extends ScenarioVT implements ScenarioInf
 	}
 
 	@Override
-	public SimulationScenarioManagerInf getSimManager()
+	public SimulationScenarioManagerInf getSimulationScenarioManager()
 	{
 		return simManager;
+	}
+	
+	
+	public String getScenarioText()
+	{
+		return super.scenarioText;
 	}
 
 }

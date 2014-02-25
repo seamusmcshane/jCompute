@@ -1,6 +1,7 @@
 package alifeSim.Scenario.Math;
 
 import java.util.HashMap;
+
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -111,8 +112,13 @@ public class LVScenario extends ScenarioVT implements ScenarioInf
 	}
 	
 	@Override
-	public SimulationScenarioManagerInf getSimManager()
+	public SimulationScenarioManagerInf getSimulationScenarioManager()
 	{
 		return simManager;
+	}
+	
+	public String getScenarioText()
+	{
+		return super.scenarioText;
 	}
 }

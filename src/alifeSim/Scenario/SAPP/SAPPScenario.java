@@ -46,16 +46,6 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		simManager = new SAPPSimulationManager(this);
 	}
 	
-	@Override
-	public void loadConfig(File file)
-	{
-		super.loadConfig(file);
-		
-		readScenarioSettings();
-		
-		simManager = new SAPPSimulationManager(this);
-	}
-	
 	public boolean readScenarioSettings()
 	{
 		
@@ -165,7 +155,8 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 
 	}
 	
-	public SimulationScenarioManagerInf getSimManager()
+	@Override
+	public SimulationScenarioManagerInf getSimulationScenarioManager()
 	{
 		return simManager;		
 	}
@@ -173,6 +164,11 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 	public List<SimpleAgentSetupSettings> getAgentSettingsList()
 	{
 		return agentSettingsList;
+	}
+	
+	public String getScenarioText()
+	{
+		return super.scenarioText;
 	}
 	
 }

@@ -1,14 +1,11 @@
 package alifeSim.Scenario;
 
-import java.io.File;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 import alifeSim.Simulation.SimulationScenarioManagerInf;
-import alifeSim.Simulation.SimulationState;
 import alifeSim.Stats.StatGroupSetting;
-import alifeSim.Stats.StatManager;
 
 public interface ScenarioInf
 {
@@ -23,13 +20,13 @@ public interface ScenarioInf
 	public double getScenarioVersion();
 
 	public String getScenarioType();
-
-	public void loadConfig(File file);
 	
 	public void loadConfig(String text);
 	
 	public List<StatGroupSetting> getStatGroupSettingsList();
 	
-	public SimulationScenarioManagerInf getSimManager();
+	public SimulationScenarioManagerInf getSimulationScenarioManager();
+	
+	public String getScenarioText();
 
 }
