@@ -122,7 +122,8 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	public void displayTab(int simId)
 	{
 		int tabSimId = -1;
-		
+			
+		System.out.println(simId);
 		
 		// Check incase the tab is already added
 		for(int i=0;i<maxTabs;i++)
@@ -136,6 +137,8 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 					this.setSelectedComponent(simulationTabs[i]);
 					
 					tabSimId = simulationTabs[i].getSimulationId();
+					
+					return;
 				}
 			}
 		}
@@ -144,7 +147,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		if(tabSimId == -1)
 		{
 			addTab(simId);
-		}
+		} 
 		else
 		{
 			this.setSelectedIndex(0);

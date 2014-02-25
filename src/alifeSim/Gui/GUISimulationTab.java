@@ -1330,7 +1330,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	}
 	
 	@Override
-	public void simulationStatChanged(int simId, long time, int stepNo, int asps)
+	public void simulationStatChanged(int simId, long time, int stepNo, int progress, int asps)
 	{
 		latchTime = time;
 		latchStepNo = stepNo;

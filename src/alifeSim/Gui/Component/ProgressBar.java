@@ -42,7 +42,7 @@ public class ProgressBar extends JComponent
 	
 	public void setProgress(int value)
 	{
-		if(value < 100f)
+		if(value < 100)
 		{
 			progress = value;	
 		}

@@ -9,6 +9,8 @@ public class SimulationStats
 	private long stepStartTime = 0;
 	private long stepEndTime = 0;
 	private long stepTotalTime = 0; // Total Simulation run-time is the time taken per step for each step	
+		
+	private int progress = -1;
 	
 	/** Simulation Step Counter */
 	private int simulationSteps;
@@ -69,12 +71,17 @@ public class SimulationStats
 	
 	private void simCallBack()
 	{
-		sim.statChanged(stepTotalTime,simulationSteps,getAverageStepRate());
+		sim.statChanged(stepTotalTime,simulationSteps,progress,getAverageStepRate());
 	}
 	
 	/** Interface for call back */
 	public interface statChangedInf
 	{
-		public void statChanged(long time,int stepNo,int asps);
+		public void statChanged(long time,int stepNo, int progress, int asps);
+	}
+	
+	public void updateProgress(int endStepNum)
+	{
+		progress = (int) ((float)(simulationSteps+1)/(float)endStepNum*100f);
 	}
 }

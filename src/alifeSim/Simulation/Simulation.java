@@ -366,13 +366,13 @@ public class Simulation implements stateChangedInf, statChangedInf
 	}
 
 	@Override
-	public void statChanged(long time, int stepNo, int asps)
+	public void statChanged(long time, int stepNo, int progress, int asps)
 	{
 		listenersLock.acquireUninterruptibly();
 
 		for (SimulationStatListenerInf listener : simStatListeners)
 	    {
-	    	listener.simulationStatChanged(simId, time, stepNo, asps);
+	    	listener.simulationStatChanged(simId, time, stepNo,progress,asps);
 	    }
 		
 		listenersLock.release();

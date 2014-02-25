@@ -16,6 +16,8 @@ public class ScenarioStepCountEndEvent implements ScenarioEndEventInf
 	@Override
 	public boolean checkEvent()
 	{
+		stat.updateProgress(endStepNum);
+		
 		return (stat.getSimulationSteps() == endStepNum);
 	}
 }

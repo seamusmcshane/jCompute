@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
 
 import javax.swing.border.TitledBorder;
 
@@ -106,7 +105,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	private void setUpTable()
 	{
 		table = new TablePanel("Simulation List",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
-		
+				
 		// Progress Column uses a progress bar for display
 		table.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		this.add(table);
@@ -379,9 +378,9 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	}
 
 	@Override
-	public void simulationStatChanged(int simId, long time, int stepNo, int asps)
+	public void simulationStatChanged(int simId, long time, int stepNo, int progress, int asps)
 	{
-		updateCells("Simulation " + simId, new int[]{2,4,5},new String[]{ Integer.toString(stepNo),Integer.toString(asps), longTimeToString(time) });	
+		updateCells("Simulation " + simId, new int[]{2,3,4,5},new String[]{ Integer.toString(stepNo), Integer.toString(progress), Integer.toString(asps), longTimeToString(time) });	
 	}
 
 	@Override

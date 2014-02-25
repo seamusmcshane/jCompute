@@ -1,12 +1,14 @@
 package alifeSim.Gui.Component;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -110,6 +112,8 @@ public class TablePanel extends JPanel
 		
 		table = new JTable(model);
 		
+		table.setBackground(Color.white);
+		
 		table.setRowSelectionAllowed(false);		
 		table.setBorder(null);
 		scrollPane.setViewportView(table);
@@ -119,7 +123,7 @@ public class TablePanel extends JPanel
 		table.setCellSelectionEnabled(false);	
 		table.setColumnSelectionAllowed(false);
 		table.setRowSelectionAllowed(true);
-				
+		
 	}
 	
 	public void addMouseListener(MouseAdapter adaptor)
