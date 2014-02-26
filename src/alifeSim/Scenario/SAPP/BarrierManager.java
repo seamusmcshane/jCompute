@@ -62,6 +62,8 @@ public class BarrierManager extends Thread
 	 */
 	public BarrierManager(Semaphore barrierControllerSemaphore, int numThreads)
 	{
+		super("Barrier Manager");
+		
 		this.barrierControllerSemaphore = barrierControllerSemaphore;
 
 		this.numThreads = numThreads;
@@ -76,7 +78,7 @@ public class BarrierManager extends Thread
 		setUpSemaphores();
 
 		setUpThreads();
-
+		
 	}
 
 	/**

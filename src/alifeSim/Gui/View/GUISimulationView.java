@@ -100,6 +100,8 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		canvas.getInput().setInputProcessor(null);
 		canvas.stop();		
 		Display.destroy();
+		
+		System.out.println("Exited Simulation View");
 	}
 	
 	public Canvas getAwtCanvas()

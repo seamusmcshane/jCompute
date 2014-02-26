@@ -163,7 +163,7 @@ public class StatGroup
 		listenersLock.acquireUninterruptibly();
 		
 		if(notifiyCalls % setting.getStatSampleRate() == 0)
-		{
+		{			
 			for (StatGroupListenerInf listener : statGroupListeners)
 		    {
 		    	listener.groupStatsUpdated(statList);

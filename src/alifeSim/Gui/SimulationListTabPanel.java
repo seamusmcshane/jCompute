@@ -50,7 +50,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	private SimulationsManager simsManger;
 		
 	// The update time used to redraw the table and graphs at a slower rate than the data rate.
-	private Timer updateTimer = new Timer();
+	private Timer statUpdateTimer;
 	private int traceAdds=0;
 	
 	// Chart and ChartPanel Objects
@@ -85,7 +85,8 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		createHistoryChart2DST();
 		
 		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-		updateTimer.schedule(new TimerTask()
+		statUpdateTimer = new Timer("Simulation List Stat Update Timer");
+		statUpdateTimer.schedule(new TimerTask()
 		{
 			@Override
 			public void run() 

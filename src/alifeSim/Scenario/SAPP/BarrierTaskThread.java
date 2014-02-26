@@ -69,6 +69,7 @@ public class BarrierTaskThread extends Thread
 	 */
 	public BarrierTaskThread(int id, Semaphore startSem, Semaphore endSem)
 	{
+		super("BarrierTaskThread");
 		this.myId =id;
 		this.start = startSem;
 		this.end = endSem;

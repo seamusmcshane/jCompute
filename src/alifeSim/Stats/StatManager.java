@@ -5,11 +5,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JOptionPane;
+
+import alifeSim.Gui.Charts.GlobalStatChartPanel;
 
 import com.sun.org.apache.xerces.internal.util.XMLChar;
 
@@ -31,7 +34,7 @@ public class StatManager
 	
 	// Add a new stat to the stat manager
 	public void registerGroup(StatGroup group)
-	{
+	{		
 		statsManagerLock.acquireUninterruptibly();
 			map.put(group.getName(), group);
 		statsManagerLock.release();
@@ -82,6 +85,36 @@ public class StatManager
 	{
 		return managerName;
 	}
+	
+	/*public LinkedList<GlobalStatChartPanel> getEnabledCharts()
+	{
+		statsManagerLock.acquireUninterruptibly();
+
+		LinkedList<GlobalStatChartPanel> enabledCharts = new LinkedList<GlobalStatChartPanel>();
+		
+		Set<String> statGroups =  map.keySet();
+
+		// Collect the enabled Charts
+		for (String group : statGroups)
+		{
+			StatGroup statGroup = map.get(group);
+			
+			if(statGroup.getGroupSettings().graphEnabled())
+			{
+				GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleWindow());
+				
+				enabledCharts.add(chart);
+				
+				statGroup.addStatGroupListener(chart);
+			}
+
+		}
+		
+		statsManagerLock.release();
+
+		
+		return enabledCharts;
+	}*/
 	
 	public boolean containsGroup(String name)
 	{

@@ -50,6 +50,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	
 	/* asyncUpdateThread exit condition */
 	private boolean running = true;
+	private boolean exited = false;
 
 	/* Busy wait inter-step delay toggle */
 	private boolean realtime = true;
@@ -102,14 +103,23 @@ public class Simulation implements stateChangedInf, statChangedInf
 	{
 		// Ensure we have the simulation in a state where it is not active.
 		
-		if ( simState.getState() == SimState.RUNNING)
+		/*if ( simState.getState() == SimState.RUNNING)
 		{
 			System.out.println("Pausing... (state|"+simState.getState().toString()+")");
 
 			pauseSim();
-		}
+		}*/
 		
-		System.out.println("Destroying...");
+		pause.release();
+		
+		// Exit the Async Thread
+		running = false;
+		
+		while(!exited)
+		{
+			System.out.println("Destroying...");
+
+		}
 
 		if(simManager!=null)
 		{
@@ -119,6 +129,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 			/* Set it to null so the garbage collector can get to work */
 			simManager=null;
 		}			
+		
+		
 	}
 	
 	/* Simulation Main Thread - The step update loop */
@@ -128,6 +140,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 		{
 			public void run()
 			{
+				Thread thisThread = Thread.currentThread();
+				thisThread.setName("Async Update Thread");
 				//Thread thisThread = Thread.currentThread();
 
 				/* Top Priority to the simulation thread */
@@ -138,6 +152,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 					simUpdate();
 					//asyncUpdateThread.yield();
 				}
+				
+				exited = true;
 			}
 		}, "Simulation Update Thread"
 

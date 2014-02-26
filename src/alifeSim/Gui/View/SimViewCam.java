@@ -18,12 +18,13 @@ public class SimViewCam
 	private A2DVector2f camPos;
 	private float camZoom;
 
-	private Timer viewTimer = new Timer();
+	private Timer viewTimer;
 	
 	public SimViewCam(A2DVector2f camPos, float camZoom, A2DVector2f camOffset)
 	{
 		super();
 		
+		viewTimer = new Timer("View Animator Timer");
 
 		this.camPos = camPos;
 		
@@ -40,6 +41,8 @@ public class SimViewCam
 		
 		camPos = new A2DVector2f(0,0);
 		camZoom = zoomDefault;
+		
+		viewTimer = new Timer("View Animator Timer");
 	}
 
 	public void setCamOffset(A2DVector2f camOffset)

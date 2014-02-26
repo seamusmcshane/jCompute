@@ -112,7 +112,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	/* This Sim */
 	private int simId = -1;
 
-	private Timer updateTimer = new Timer();
+	private Timer updateTimer;
 	
 	/* Tab Status Icons */
 	private ImageIcon simRunningIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-start.png"));
@@ -167,8 +167,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 		// Simulation Control GUI
 		setUpSimulationContolPanel();
-		
+	
 		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+		updateTimer = new Timer("GUI Stat Update Timer");
 		updateTimer.schedule(new TimerTask()
 		{
 			@Override
@@ -1192,6 +1193,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	public void cleanUp()
 	{
+		updateTimer.cancel();
+		
 		// Clean up our tabs which are listening to state groups
 		removeChartTabs();		
 		
@@ -1378,6 +1381,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				{
 					tabManager.setSelectedComponent(tab);
 					tabManager.removeTab();
+					
+					//System.gc();
 				}
 			});
 			
