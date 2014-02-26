@@ -167,21 +167,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 		// Simulation Control GUI
 		setUpSimulationContolPanel();
-	
-		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-		updateTimer = new Timer("GUI Stat Update Timer");
-		updateTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run() 
-			{
-				setTime(latchTime);
-				setStepNo(latchStepNo);
-				setASPS(latchASPS);
-			}
-			  
-		},0,1000);
-		
+			
 		checkTabState();
 
 		/* Pause the active sim or the GUI will compete for every semaphore lock */
@@ -226,6 +212,20 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				tabTitle = "Simulation " + simId;
 				
 				setGuiState(state);
+				
+				// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+				updateTimer = new Timer("GUI Stat Update Timer");
+				updateTimer.schedule(new TimerTask()
+				{
+					@Override
+					public void run() 
+					{
+						setTime(latchTime);
+						setStepNo(latchStepNo);
+						setASPS(latchASPS);
+					}
+					  
+				},0,1000);
 				
 			}
 			
@@ -624,6 +624,20 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 						simGenerated = true;
 						
 						clearStats();
+						
+						// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+						updateTimer = new Timer("GUI Stat Update Timer");
+						updateTimer.schedule(new TimerTask()
+						{
+							@Override
+							public void run() 
+							{
+								setTime(latchTime);
+								setStepNo(latchStepNo);
+								setASPS(latchASPS);
+							}
+							  
+						},0,1000);
 					}
 
 				}
@@ -916,6 +930,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	private void registerListeners()
 	{
+		System.out.println("Register Listeners");
 		// State / Stats
 		simsManager.addSimulationStateListener(simId, this);
 		simsManager.addSimulationStatListener(simId, this);
@@ -951,13 +966,11 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			if (simScenario != null)
 			{
 				System.out.println("Creating Sim");
-				
-				registerListeners();
-	
+					
 				simsManager.createSimScenario(simId,simScenario);
 	
 				statManager = simsManager.getStatManager(simId);
-				
+					
 				setSimView();
 				
 				setUpPanels();
@@ -965,6 +978,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				setStepRate(sliderSimStepRate.getValue());
 				
 				status = true;
+				
+				registerListeners();
 				
 			}
 			else
@@ -1193,7 +1208,11 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	public void cleanUp()
 	{
-		updateTimer.cancel();
+		if(updateTimer!=null)
+		{
+			updateTimer.cancel();
+			updateTimer = null;
+		}
 		
 		// Clean up our tabs which are listening to state groups
 		removeChartTabs();		
