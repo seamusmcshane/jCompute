@@ -1236,7 +1236,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			group.removeStatGroupListener(chartPanel);
 			
 			System.out.println("Removing " + chartPanel.getName() + " Chart Panel");
-			simulationTabPane.remove(chartPanel);			
+			simulationTabPane.remove(chartPanel);
+			
+			chartPanel.destroy();
 		}
 		
 		// Clear the Chart List
