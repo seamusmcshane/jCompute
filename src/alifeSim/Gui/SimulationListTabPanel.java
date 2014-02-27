@@ -143,11 +143,11 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 					{
 						// Get the String "Simulation (int)" and remove "Simulation "
 						String simId = ((String) table.getValueAt(row, 0)).replace("Simulation ", "");
-						
-						// Get the sim id from the selected row and display a tab for it
-						tabManager.displayTab(Integer.parseInt(simId));						
-						
-						System.out.println("Button " + e.getButton() + " Clicked " + row);
+
+						//System.out.println("Button " + e.getButton() + " Clicked " + row);
+
+						tabManager.displayTab(Integer.parseInt(simId));	
+
 					}
 				}
 				else
