@@ -300,6 +300,18 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		removeTab();
 	}
 
+	public void removeAllSimTabs()
+	{
+		for(int i=0;i<maxTabs;i++)
+		{
+			if(simulationTabs[i]!=null)
+			{
+				this.setSelectedComponent(simulationTabs[i]);
+				removeTab();
+			}
+		}
+	}
+	
 	public void removeSim(int simId)
 	{
 		String title = "Confirm Simulation Removal";
