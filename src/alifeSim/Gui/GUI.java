@@ -151,7 +151,7 @@ public class GUI  implements ActionListener, ItemListener, WindowListener
 		
 		/* Split Pane */
 		splitPane = new JSplitPane();
-		splitPane.setDividerSize(10);
+		splitPane.setDividerSize(8);
 		splitPane.setDoubleBuffered(true);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setContinuousLayout(true);

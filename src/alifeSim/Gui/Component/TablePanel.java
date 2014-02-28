@@ -112,6 +112,8 @@ public class TablePanel extends JPanel
 		
 		table = new JTable(model);
 		
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		
 		table.setBackground(Color.white);
 		
 		table.setRowSelectionAllowed(false);		
@@ -337,6 +339,11 @@ public class TablePanel extends JPanel
 		{
 			rowColumns.set(column, value);
 		}
+	}
+
+	public void setColumWidth(int column, int pref)
+	{
+		table.getColumnModel().getColumn(column).setPreferredWidth(pref);		
 	}
 
 }

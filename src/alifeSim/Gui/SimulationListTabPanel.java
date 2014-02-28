@@ -78,7 +78,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		this.simsManger = simsManager;
 				
 		setLayout(new BorderLayout(0, 0));
-		this.setMinimumSize(new Dimension(350, 400));
 		
 		setUpTable();
 				
@@ -106,11 +105,18 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	private void setUpTable()
 	{
 		table = new TablePanel("Simulation List",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
-				
+			
+		table.setColumWidth(0,65);
+		table.setColumWidth(1,50);
+		table.setColumWidth(2,50);
+		table.setColumWidth(3,65);
+		table.setColumWidth(4,50);
+		//table.setColumWidth(5,25);		
+		
 		// Progress Column uses a progress bar for display
 		table.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		this.add(table);
-		
+
 		registerTableMouseListener();
 		
 		/* Debug
@@ -177,7 +183,9 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		
 		chartPanelST.setBorder(new TitledBorder(null, "Simulation Performance Graph (30 seconds)", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
 		chartPanelST.setBackground(Color.white);
-		chartPanelST.setPreferredSize(new Dimension(350,250));
+
+		chartPanelST.setPreferredSize(new Dimension(400,250));
+		chartPanelST.setMinimumSize(new Dimension(400,250));
 		
 		add(chartPanelST, BorderLayout.NORTH);
 		
@@ -271,52 +279,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		
 	}
 	
-	/*private void refresh()
-	{
-		  simulationInfoTab.clearTable();
-		  
-		  for(int i = 0;i<getTabCount();i++)
-		  {
-			  if(getComponentAt (i)!=null)
-			  {
-				  if(getComponentAt(i).getClass().equals(SimulationTabPanel.class))
-				  {
-					  	SimulationTabPanel temp = (SimulationTabPanel) getComponentAt (i);
-
-					  	int simId = temp.getSimulationId();
-					  	
-					  	SimulationState state = simsManager.getSimState(simId);
-					  	
-					  	if(state == SimulationState.RUNNING)
-					  	{
-							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-start.png")));							
-							this.setTitleAt(i, temp.getTitle());
-							simulationInfoTab.addRow(getTitleAt(i), new String[]{state.toString(), temp.getStepNo(),temp.getASPS(), temp.getTime()});
-					  		
-					  	}
-					  	else if(state == SimulationState.PAUSED)
-					  	{
-							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-pause.png")));
-							this.setTitleAt(i, temp.getTitle());					  		
-					  	}
-					  	else if(state == SimulationState.NEW)
-					  	{
-							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/media-playback-stop.png")));
-							this.setTitleAt(i, temp.getTitle());
-					  	}
-					  	else // Finished
-					  	{
-							setIconAt(i, new ImageIcon(SimulationTabPanel.class.getResource("/alifeSim/icons/task-complete.png")));
-							this.setTitleAt(i, temp.getTitle());
-					  	}
-				  }	
-			  }  
-		  }
-		  
-		  simulationInfoTab.update();
-	}*/
-	
-	
 	public String getTabName()
 	{
 		return name;
@@ -335,7 +297,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		    {
 		        public void run() 
 		        {	
-		        	// Add teh R
+		        	// Add the row
 		        	simulationListTabPanel.addRow("Simulation " + simId, new String[] {"New", "0", "0","0","0"});
 					
 					// Add Trace
@@ -359,7 +321,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		        	// UnRegisterStatsListerner
 		        	simsManger.removeSimulationStatListener(simId, simulationListTabPanel);
 		        	
-					// UnRegiserStateListener
+					// UnRegisterStateListener
 					simsManger.removeSimulationStateListener(simId, simulationListTabPanel);
 					
 					// RemoveTrace

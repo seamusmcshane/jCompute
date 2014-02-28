@@ -53,10 +53,10 @@ public class SimulationState
 	/** State Enum */
 	public enum SimState
 	{
-		NEW ("NEW"),
-		RUNNING ("RUNNING"),
-		PAUSED ("PAUSED"),
-		FINISHED ("FINISHED");
+		NEW ("New"),
+		RUNNING ("Running"),
+		PAUSED ("Paused"),
+		FINISHED ("Finished");
 
 	    private final String name;
 
