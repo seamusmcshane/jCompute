@@ -62,11 +62,6 @@ public class ProgressBar extends JComponent
 		return Integer.toString(progress) + " %";
 	}
 	
-	private Rectangle2D calcStringBounds(Graphics g, String string)
-	{
-		return g.getFontMetrics(g.getFont()).getStringBounds(string, g);
-	}
-	
 	@Override protected void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
