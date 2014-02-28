@@ -33,15 +33,6 @@ public class BarrierTaskThread extends Thread
 	private KNNInf<SimpleAgent> agentKDTree;
 	private KNNInf<GenericPlant> plantKDTree;
 
-	/** The Plant List Iterator. */
-	private ListIterator<GenericPlant> plantListItr;
-
-	/** The distance function object. */
-	private final SquareEuclideanDistanceFunction distanceKD = new SquareEuclideanDistanceFunction();
-
-	/** The agents and plants neighbor list. */
-	private MaxHeap<GenericPlant> plantNeighborList;
-
 	/** The start and end semaphores for this thread */
 	private Semaphore start;
 	private Semaphore end;
@@ -49,7 +40,7 @@ public class BarrierTaskThread extends Thread
 	private boolean running=true;
 	
 	// benchmark
-	private boolean debugtasks=false;
+	private final boolean debugtasks=false;
 	private long taskStartTime = 0;
 	private long taskEndTime = 0;
 	private long taskTime = 0;
@@ -87,12 +78,6 @@ public class BarrierTaskThread extends Thread
 		this.agentList = agentList;
 		this.plantList = plantList;
 		
-		/*System.out.println("plantList " + plantList.size());
-		System.out.println("plantKDTree " + plantKDTree.size());*/
-		
-		//this.agentListItr = agentList.listIterator();
-		//this.plantListItr = plantList.listIterator();
-
 		/* KD Trees */
 		this.agentKDTree = agentKDTree;
 		this.plantKDTree = plantKDTree;
@@ -137,15 +122,11 @@ public class BarrierTaskThread extends Thread
 					/** Section 1 - Process Plants*/
 					for (GenericPlant currentPlant : plantList) 
 					{	
-						if (!currentPlant.body.stats.isDead())
-						{
-							// Parallel plant calculations
-							currentPlant.body.stats.increment();
-						}	
+						// Parallel plant calculations
+						currentPlant.body.stats.increment();
 					}
 				}
-				/* Reset the iterator reference to start form the start of the list */
-				//agentListItr = agentList.listIterator();				
+
 				/** Section 2 */
 				if(agentList!=null)
 				{
@@ -162,10 +143,8 @@ public class BarrierTaskThread extends Thread
 		
 						if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
 						{
-							//plantNeighborList = plantKDTree.findNearestNeighbors(currentAgent.body.getBodyPosKD(), 1, distanceKD);
-							//nearestPlant = plantNeighborList.getMax();
 							GenericPlant nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
-													
+							
 							/*
 							 * calculate if the Nearest Plants are in the view Range of
 							 * the current agent
@@ -179,11 +158,11 @@ public class BarrierTaskThread extends Thread
 					
 					for (SimpleAgent currentAgent : agentList) 
 					{
-		
 						// Parallel Agent Thinking
 						currentAgent.brain.think();
 					}
 				}
+				
 				/* benchmarking */
 				if(debugtasks)
 				{
@@ -245,15 +224,11 @@ public class BarrierTaskThread extends Thread
 				< currentAgent.brain.view.getFovDiameterSquared())											  // Part 3			
 		{
 			currentAgent.brain.view.setAgentView(nearestAgent);
-			// Highlight the View Type the state machines will react similarly to this. 
-			currentAgent.brain.view.setViewDrawMode(currentAgent.body.stats.getType().strongerThan(nearestAgent.body.stats.getType()));
 		}
 		else
 		// Clear the view 
 		{
 			currentAgent.brain.view.setAgentView(null);
-
-			currentAgent.brain.view.setViewDrawMode(null);
 		}
 	}
 

@@ -367,7 +367,9 @@ public class SimpleAgentView
 		aDis = 0;
 		pDis = 0;
 		
-		
+		// Highlight the View Type
+		setViewDrawMode(body.stats.getType().strongerThan(inViewAgentStats.getAgentType()));
+
 		if (inViewMode != null)
 		{
 			switch (inViewMode)

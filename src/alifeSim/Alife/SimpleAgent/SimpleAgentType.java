@@ -51,6 +51,11 @@ public class SimpleAgentType
 	{
 		AgentEval eval = AgentEval.SAME;
 
+		if(type == null)
+		{
+			return null;
+		}
+		
 		if ((this.type == AgentType.PREDATOR) && (type.getType() == AgentType.PREDATOR))
 		{
 			eval = AgentEval.SAME;
