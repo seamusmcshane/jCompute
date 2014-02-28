@@ -33,7 +33,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -102,10 +101,12 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	/* Tabs */
 	private JTabbedPane simulationTabPane;
-	private LinkedList<GlobalStatChartPanel> charts;
+
 	private JPanel simulationScenarioTab;
 	private SimulationStatsListPanel simulationStatsListPanel;
-
+	
+	private GraphsTabPanel graphsTabPanel;
+	
 	private SimulationsManager simsManager;
 	private StatManager statManager;
 	
@@ -152,12 +153,14 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		this.simId = simId;
 				
 		title = new TabButton(tabManager,this);	
+		
 		// Layout
 		setLayout(new BorderLayout(0, 0));
 
 		// Tab Pane
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
 		simulationTabPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
+		
 		add(simulationTabPane, BorderLayout.CENTER);
 		
 		// Scenario Editor
@@ -165,9 +168,11 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		simulationStatsListPanel = new SimulationStatsListPanel();
 
+		graphsTabPanel = new GraphsTabPanel();		
+
 		// Simulation Control GUI
 		setUpSimulationContolPanel();
-			
+					
 		checkTabState();
 
 		/* Pause the active sim or the GUI will compete for every semaphore lock */
@@ -177,7 +182,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			simsManager.pauseSim(simId);
 		}
 		
-		setUpPanels();
+		addPanels();
 		
 		/* If the Sim was Running then resume */
 		if(simState == SimState.RUNNING)
@@ -879,17 +884,23 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		return simScenario;
 	}
 
-	private void setUpPanels()
-	{
-		// Clear the Chart List
-		charts = new LinkedList<GlobalStatChartPanel>();
-		
+	private void addPanels()
+	{		
 		// Re-add the Scenario Tab.
 		addScenarioTab();
 
 		// Re-add the Scenario Tab
 		addSimulationStatsListTab();
 
+		addGraphsPanel();
+		
+	}
+
+	private void addGraphsPanel()
+	{		
+		simulationTabPane.addTab("Charts", graphsTabPanel);
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, simulationStatChartIcon);
+		
 		// Re-add the ChartTabs
 		addChartTabs();
 	}
@@ -900,6 +911,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		{
 			Set<String> statGroups = statManager.getGroupList();
 
+			LinkedList<GlobalStatChartPanel> charts = new  LinkedList<GlobalStatChartPanel>();
+			
 			// Collect the enabled Charts
 			for (String group : statGroups)
 			{
@@ -908,22 +921,15 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				if(statGroup.getGroupSettings().graphEnabled())
 				{
 					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleWindow());
+													
+					statGroup.addStatGroupListener(chart);
 					
 					charts.add(chart);
-					
-					statGroup.addStatGroupListener(chart);
 				}
 
 			}
 			
-		}
-
-		// Add the detected Panels
-		for (GlobalStatChartPanel chartPanel : charts)
-		{
-			System.out.println("Adding " + chartPanel.getName() + " Chart Panel");
-			simulationTabPane.addTab(chartPanel.getName(), null, chartPanel);
-			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, simulationStatChartIcon);
+			graphsTabPanel.addCharts(charts);			
 		}
 		
 	}
@@ -973,7 +979,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 					
 				setSimView();
 				
-				setUpPanels();
+				addPanels();
 	
 				setStepRate(sliderSimStepRate.getValue());
 				
@@ -1214,8 +1220,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			updateTimer = null;
 		}
 		
-		// Clean up our tabs which are listening to state groups
-		removeChartTabs();		
+		removeChartPanel();
 		
 		removeTabStatusListener(title);
 		
@@ -1224,26 +1229,19 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simsManager.removeSimulationStatListener(simId, this);
 	}
 
+	private void removeChartPanel()
+	{				
+		// Clean up our tabs which are listening to state groups
+		removeChartTabs();
+		
+		simulationTabPane.remove(graphsTabPanel);
+	}
+	
 	private void removeChartTabs()
 	{		
-		Iterator<GlobalStatChartPanel> itr = charts.iterator();
+		graphsTabPanel.clearCharts(statManager);
 		
-		// Remove ChartPanels and Unset listeners
-		for (GlobalStatChartPanel chartPanel : charts)
-		{
-			StatGroup group = statManager.getStatGroup(chartPanel.getName());
-			
-			group.removeStatGroupListener(chartPanel);
-			
-			System.out.println("Removing " + chartPanel.getName() + " Chart Panel");
-			simulationTabPane.remove(chartPanel);
-			
-			chartPanel.destroy();
-		}
-		
-		// Clear the Chart List
-		charts = new LinkedList<GlobalStatChartPanel>();
-		
+		return;		
 	}
 
 	@Override
