@@ -2,6 +2,8 @@ package alifeSim.Gui.Charts;
 
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroupListenerInf;
+
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +13,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -72,14 +76,26 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	private void createBarChart()
 	{
 		statDataset = new DefaultCategoryDataset();
-		statBarChart = ChartFactory.createBarChart3D(null, null, null, statDataset, PlotOrientation.VERTICAL, true, false, false);
+		statBarChart = ChartFactory.createBarChart(null, null, null, statDataset, PlotOrientation.VERTICAL, true, false, false);
 		statBarChartPanel = new org.jfree.chart.ChartPanel(statBarChart);
 		statBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		
+		statBarChart.getCategoryPlot().setBackgroundPaint(Color.white);
+		statBarChart.getCategoryPlot().setRangeGridlinePaint(Color.LIGHT_GRAY);
+		statBarChart.getCategoryPlot().setDomainGridlinePaint(Color.LIGHT_GRAY);
+
+		statBarChart.getCategoryPlot().getDomainAxis().setLowerMargin(0);
+		statBarChart.getCategoryPlot().getDomainAxis().setUpperMargin(0);
+		statBarChart.getCategoryPlot().getDomainAxis().setCategoryMargin(0);
+		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setItemMargin(0);		
+		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBarPainter(new StandardBarPainter());	
+		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setDrawBarOutline(true);
+				
 		if(totalStatEnabled)
 		{
 			statDataset.setValue(0, totalStatName, category);
 			statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,Color.black);
+			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlinePaint(series, Color.black);
 		}
 		
 		add(statBarChartPanel);
@@ -98,7 +114,6 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
         historyChart.getXYPlot().setDomainGridlinePaint(Color.LIGHT_GRAY);
         historyChart.getXYPlot().getDomainAxis().setLowerMargin(0);
         historyChart.getXYPlot().getDomainAxis().setUpperMargin(0);
-                
         historyChartPanel = new  ChartPanel(historyChart);
         
 		if(totalStatEnabled)
@@ -168,6 +183,12 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 				// Update the series in the bar chart with the new stats color
 				statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series,color);
 				
+				// Set the outline on the bar
+				statBarChart.getCategoryPlot().getRenderer().setSeriesOutlinePaint(series, Color.black);
+
+				// Outline the bars
+				statBarChart.getCategoryPlot().getRenderer().setSeriesOutlineStroke(series, new BasicStroke(1));
+
 				// Update series totals
 				series++;				
 			}
