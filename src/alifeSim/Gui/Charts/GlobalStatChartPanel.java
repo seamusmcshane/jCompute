@@ -2,7 +2,6 @@ package alifeSim.Gui.Charts;
 
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroupListenerInf;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -12,6 +11,7 @@ import javax.swing.border.TitledBorder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
@@ -89,6 +89,10 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		statBarChart.getCategoryPlot().getDomainAxis().setCategoryMargin(0);
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setItemMargin(0);		
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBarPainter(new StandardBarPainter());	
+		
+		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBaseItemLabelsVisible(true);
+		
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setDrawBarOutline(true);
 				
 		if(totalStatEnabled)
