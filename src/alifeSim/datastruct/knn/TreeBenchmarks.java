@@ -3,6 +3,7 @@ package alifeSim.datastruct.knn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
@@ -10,7 +11,7 @@ public class TreeBenchmarks
 {
 	static int MaxLogLevel = 1;
 	
-	static int threads = Runtime.getRuntime().availableProcessors()*Runtime.getRuntime().availableProcessors();
+	static int threads = 48;
 	
 	static int minList = 0;
 	
@@ -31,6 +32,8 @@ public class TreeBenchmarks
 	
 	static long[][] results;		
 	
+	static Scanner scanner;
+	
 	public static void main(String []args)
 	{
 		if(threads==1)
@@ -38,7 +41,10 @@ public class TreeBenchmarks
 			threads=2;
 		}
 				
-		int runs = 10;
+		
+	    System.out.print("Enter Max Object Count as 2^n : n=");
+	    scanner = new Scanner(System.in);
+	    int runs = scanner.nextInt()+1;
 		
 		logger(1,"Benchmark\tThreads\tRuns\tIterations");
 		logger(1,"\t\t"+threads+"\t"+runs+"\t"+iterations);
@@ -69,11 +75,11 @@ public class TreeBenchmarks
 			
 			results[i] = benchMarkThirdGenTree();
 						
-			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
+			logger(1, i + "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
 
 		}
 		
-		logger(1, "benchMarkjkMegaKDObjectKDTree");
+		/*logger(1, "benchMarkjkMegaKDObjectKDTree");
 		for(i=0;i<runs;i++)
 		{		
 			//logger(1,"Iteration\t"+i+"\tObjects\t"+(startObjects<<i));
@@ -94,7 +100,7 @@ public class TreeBenchmarks
 						
 			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
 
-		}
+		}*/
 
 	}
 	
