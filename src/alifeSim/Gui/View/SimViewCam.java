@@ -2,7 +2,6 @@ package alifeSim.Gui.View;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
 import alifeSimGeom.A2DVector2f;
 
 public class SimViewCam
@@ -128,8 +127,6 @@ public class SimViewCam
 				@Override
 				public void run()
 				{
-					System.out.println("Resting Zoom");
-
 					if (camZoom > zoomDefault)
 					{
 						if (camZoom - aniZoomIncr < zoomDefault)
@@ -168,49 +165,35 @@ public class SimViewCam
 		boolean resetX = true;
 		boolean resetY = true;
 
-		System.out.println("ResetCam");
-		
 		finalX = x - camOffset.getX();
 		finalY = y - camOffset.getY();
 
 		if (camPos.getX() > finalX)
 		{
 			aniXreset = Math.abs(camPos.getX() / animationSteps);
-			
-			System.out.println(">"+aniXreset);
-
 		}
 		else if (camPos.getX() < finalX)
 		{
 			aniXreset = finalX / animationSteps;
-			
-			System.out.println("<" + aniXreset);
-
 		}
 		else
 		{
 			resetX = false;
 		}
-		
+
 		if (camPos.getY() > finalY)
 		{
 			aniYreset = Math.abs(camPos.getY() / animationSteps);
-			
-			System.out.println(">"+aniYreset);
-
 		}
 		else if (camPos.getY() < finalY)
 		{
 			aniYreset = finalY / animationSteps;
-			
-			System.out.println("<" + aniYreset);
-
 		}
 		else
 		{
 			resetY = false;
 		}
-		
+
 		if (resetX)
 		{
 			centerX = new Timer("Center Animator Timer");
@@ -220,8 +203,6 @@ public class SimViewCam
 				@Override
 				public void run()
 				{
-					System.out.println("Center X");
-
 					if (camPos.getX() > finalX)
 					{
 						if (camPos.getX() - aniXreset < finalX)
@@ -229,9 +210,8 @@ public class SimViewCam
 							camPos.setX(finalX);
 							centerX.cancel();
 						}
-						
-						camPos.setX(camPos.getX()-aniXreset);
 
+						camPos.setX(camPos.getX() - aniXreset);
 					}
 
 					if (camPos.getX() < finalX)
@@ -241,15 +221,15 @@ public class SimViewCam
 							camPos.setX(finalX);
 							centerX.cancel();
 						}
-						
-						camPos.setX(camPos.getX()+aniXreset);
+
+						camPos.setX(camPos.getX() + aniXreset);
 					}
 
 				}
 
 			}, 0, 250 / animationSteps);
 		}
-		
+
 		if (resetY)
 		{
 			centerY = new Timer("Center Animator Timer");
@@ -259,8 +239,6 @@ public class SimViewCam
 				@Override
 				public void run()
 				{
-					System.out.println("Center Y");
-
 					if (camPos.getY() > finalY)
 					{
 						if (camPos.getY() - aniYreset < finalY)
@@ -268,8 +246,8 @@ public class SimViewCam
 							camPos.setY(finalY);
 							centerY.cancel();
 						}
-						
-						camPos.setY(camPos.getY()-aniYreset);
+
+						camPos.setY(camPos.getY() - aniYreset);
 
 					}
 
@@ -280,12 +258,11 @@ public class SimViewCam
 							camPos.setY(finalY);
 							centerY.cancel();
 						}
-						
-						camPos.setY(camPos.getY()+aniYreset);
+
+						camPos.setY(camPos.getY() + aniYreset);
 					}
-
 				}
-
+				
 			}, 0, 250 / animationSteps);
 		}
 
