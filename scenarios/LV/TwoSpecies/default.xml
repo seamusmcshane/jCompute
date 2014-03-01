@@ -15,7 +15,7 @@
 			<Value>0</Value>
 		</Event>
 		<Event>
-			<Name>AllPredatorLTE</Name>
+			<Name>AllPredatorsLTE</Name>
 			<Value>0</Value>
 		</Event>
 	</EndEvents>
