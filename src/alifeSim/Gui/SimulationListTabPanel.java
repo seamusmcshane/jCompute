@@ -70,6 +70,8 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	// Lenght of the graph in samples
 	private int stSamWin = 300;
 	
+	private int selectedRowIndex = -1;
+	
 	public SimulationListTabPanel(GUITabManager tabManager, SimulationsManager simsManager) 
 	{
 		super();
@@ -90,8 +92,8 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 			@Override
 			public void run() 
 			{
-				table.RedrawTable();
-				
+				table.RedrawTable(selectedRowIndex);
+								
 				updateGraph();
 			}
 			  
@@ -143,12 +145,12 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 					JTable table =(JTable) e.getSource();
 					Point p = e.getPoint();
 					
-					int row = table.rowAtPoint(p);
+					selectedRowIndex = table.rowAtPoint(p);
 					
 					if (e.getClickCount() == 2) 
 					{
 						// Get the String "Simulation (int)" and remove "Simulation "
-						String simId = ((String) table.getValueAt(row, 0)).replace("Simulation ", "");
+						String simId = ((String) table.getValueAt(selectedRowIndex, 0)).replace("Simulation ", "");
 
 						//System.out.println("Button " + e.getButton() + " Clicked " + row);
 
@@ -158,6 +160,8 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 				}
 				else
 				{
+					selectedRowIndex = -1;
+					
 					table.clearSelection();
 				}
 			}

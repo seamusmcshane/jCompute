@@ -175,9 +175,14 @@ public class TablePanel extends JPanel
 		model.updateCells(rowKey,columns, columnValues);
 	}
 	
-	public void RedrawTable()
+	public void RedrawTable(int selectedRowIndex)
 	{
 		model.dataSync(); 
+		
+		if((table.getRowCount() > 0) && (selectedRowIndex >= 0))
+		{
+			table.setRowSelectionInterval(selectedRowIndex, selectedRowIndex);
+		}
 	}
 	
 	
