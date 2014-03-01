@@ -18,6 +18,8 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
+import org.jfree.util.UnitType;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -84,6 +86,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		statBarChart.getCategoryPlot().setRangeGridlinePaint(Color.LIGHT_GRAY);
 		statBarChart.getCategoryPlot().setDomainGridlinePaint(Color.LIGHT_GRAY);
 
+		// JFree Chart does not account for item labels (get cut off) and does not scale the margin to the panel size (gets large/smaller), this value is good for height 600px <> 1080px.
+		statBarChart.getCategoryPlot().getRangeAxis().setUpperMargin(0.15);
+		
 		statBarChart.getCategoryPlot().getDomainAxis().setLowerMargin(0);
 		statBarChart.getCategoryPlot().getDomainAxis().setUpperMargin(0);
 		statBarChart.getCategoryPlot().getDomainAxis().setCategoryMargin(0);
