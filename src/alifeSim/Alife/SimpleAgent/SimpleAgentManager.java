@@ -8,6 +8,8 @@ import java.util.Random;
 
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.View.GUISimulationView;
+import alifeSim.Scenario.EndEvents.ScenarioAllPredatorsLTEEndEventInf;
+import alifeSim.Scenario.EndEvents.ScenarioAllPreyLTEEndEventInf;
 import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Stats.SingleStat;
 import alifeSim.World.WorldInf;
@@ -23,7 +25,7 @@ import alifeSim.World.WorldInf;
  * @version $Revision: 1.0 $
  */
 
-public class SimpleAgentManager
+public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,ScenarioAllPreyLTEEndEventInf
 {
 
 	/** The agent Actions Linked Lists */

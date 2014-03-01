@@ -641,11 +641,19 @@ public class StatManager
 		return statGroupList;
 	}
 	
-	public void update()
+	public void notifiyStatListeners()
 	{
 		for (StatGroup group : getStatGroupList()) 
 		{
 			group.notifyStatGroupListeners();
+		}
+	}
+	
+	public void endEventNotifiyStatListeners()
+	{
+		for (StatGroup group : getStatGroupList()) 
+		{
+			group.endEventNotifyStatGroupListeners();
 		}
 	}
 

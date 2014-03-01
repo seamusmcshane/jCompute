@@ -153,7 +153,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 			// Draw 
 			addDrawVal(i);	
 			
-			statManager.update();
+			statManager.notifiyStatListeners();
 		}
 	}
 	
@@ -198,7 +198,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 			// Draw 
 			addDrawVal(i);
 			
-			statManager.update();
+			statManager.notifiyStatListeners();
 			
 		}
 		

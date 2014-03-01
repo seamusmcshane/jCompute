@@ -3,13 +3,14 @@ package alifeSim.Scenario.SAPP;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.EndEvents.ScenarioAllPredatorsLTEEndEvent;
 import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
+import alifeSim.Scenario.EndEvents.ScenarioAllPreyLTEEndEvent;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationState;
@@ -250,7 +251,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		simpleAgentManager.stage3();
 		
 		// 
-		statManager.update();
+		statManager.notifiyStatListeners();
 	}
 
 	
@@ -326,8 +327,8 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		endEvents = new ArrayList<ScenarioEndEventInf>();	
 				
-
-
+		setScenarioLTEEndEvents();
+		
 	}
 	
 	@Override
@@ -341,6 +342,11 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 			{
 				eventOccurred = true;
 				
+				// Output the final update
+				statManager.endEventNotifiyStatListeners();
+				
+				System.out.println("Event Event Occurred : " + event.getName() + " - " + event.getValue());
+				
 				break;	// No need to check other events
 			}
 		}
@@ -348,14 +354,31 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		return eventOccurred;
 	}
 
+	public void setScenarioLTEEndEvents()
+	{
+		if(scenario.endEventIsSet("AllPreyLTE"))
+		{
+			int triggerValue = scenario.getEventValue("AllPreyLTE");
+			
+			endEvents.add(new ScenarioAllPreyLTEEndEvent(simpleAgentManager,triggerValue));
+		}
+		
+		if(scenario.endEventIsSet("AllPredatorsLTE"))
+		{
+			int triggerValue = scenario.getEventValue("AllPredatorsLTE");
+			
+			endEvents.add(new ScenarioAllPredatorsLTEEndEvent(simpleAgentManager,triggerValue));
+		}
+	}
+	
 	@Override
 	public void setScenarioStepCountEndEvent(SimulationStats simState)
 	{
 		if(scenario.endEventIsSet("StepCount"))
 		{
-			int endStep = scenario.getEventValue("StepCount");
+			int triggerValue = scenario.getEventValue("StepCount");
 			
-			endEvents.add(new ScenarioStepCountEndEvent(simState,endStep));
+			endEvents.add(new ScenarioStepCountEndEvent(simState,triggerValue));
 		}		
 	}
 	

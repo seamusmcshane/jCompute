@@ -163,7 +163,7 @@ public class StatGroup
 		listenersLock.acquireUninterruptibly();
 		
 		if(notifiyCalls % setting.getStatSampleRate() == 0)
-		{			
+		{
 			for (StatGroupListenerInf listener : statGroupListeners)
 		    {
 		    	listener.groupStatsUpdated(statList);
@@ -173,6 +173,21 @@ public class StatGroup
 		notifiyCalls++;
 		
 	    listenersLock.release();
+	}
+
+	/*
+	 * Bypass the sample rate so that the last stat output update always happens
+	 */
+	public void endEventNotifyStatGroupListeners()
+	{
+		listenersLock.acquireUninterruptibly();
+		
+		for (StatGroupListenerInf listener : statGroupListeners)
+	    {
+	    	listener.groupStatsUpdated(statList);
+	    }
+				
+	    listenersLock.release();		
 	}
 	
 }

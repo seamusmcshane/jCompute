@@ -204,6 +204,11 @@ public class LVSimulationManager implements SimulationScenarioManagerInf
 			{
 				eventOccurred = true;
 				
+				// Output the final update
+				statManager.endEventNotifiyStatListeners();
+				
+				System.out.println("Event Event Occurred : " + event.getName() + " - " + event.getValue());
+				
 				break;	// No need to check other events
 			}
 		}
