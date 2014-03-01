@@ -7,42 +7,49 @@ import alifeSimGeom.A2DVector2f;
 
 public class SimViewCam
 {
-	private final float minZoom = 0.1f;
-	private final float maxZoom = 10f;
+	int animationSteps = 250;
+
+	private final float minZoom = 0.125f;
+	private final float maxZoom = 12.5f;
 	private final float zoomIncr = 0.125f;
-	
+
+	private Timer zoomTimer;
 	private float zoomDefault = 1f;
-	
-	private A2DVector2f camOffset; 
-	
+	float aniZoomIncr = 0;
+
+	private A2DVector2f camOffset;
+
 	private A2DVector2f camPos;
 	private float camZoom;
 
-	private Timer viewTimer;
-	
+	float finalX = 0;
+	private Timer centerX;
+	private float aniXreset = 0;
+
+	float finalY = 0;
+	private Timer centerY;
+	private float aniYreset = 0;
+
 	public SimViewCam(A2DVector2f camPos, float camZoom, A2DVector2f camOffset)
 	{
 		super();
-		
-		viewTimer = new Timer("View Animator Timer");
 
 		this.camPos = camPos;
-		
+
 		this.zoomDefault = camZoom;
 		this.camZoom = zoomDefault;
-		
+
 		this.camOffset = camOffset;
 
 	}
 
 	public SimViewCam()
 	{
-		camOffset = new A2DVector2f(0,0);
-		
-		camPos = new A2DVector2f(0,0);
+		camOffset = new A2DVector2f(0, 0);
+
+		camPos = new A2DVector2f(0, 0);
 		camZoom = zoomDefault;
-		
-		viewTimer = new Timer("View Animator Timer");
+
 	}
 
 	public void setCamOffset(A2DVector2f camOffset)
@@ -62,133 +69,230 @@ public class SimViewCam
 
 	public void adjCamZoom(float zoomAdj)
 	{
-		this.camZoom += zoomAdj*zoomIncr;
-		
-		if(camZoom < minZoom)
+		if (zoomAdj > 0)
+		{
+			this.camZoom += zoomIncr;
+
+		}
+		else
+		{
+			this.camZoom -= zoomIncr;
+		}
+
+		if (camZoom < minZoom)
 		{
 			camZoom = minZoom;
 		}
-		
-		if(camZoom > maxZoom)
+
+		if (camZoom > maxZoom)
 		{
 			camZoom = maxZoom;
 		}
-		
+
 	}
 
 	public float getCamPosX()
 	{
 		return camPos.getX();
 	}
-	
+
 	public float getCamPosY()
 	{
 		return camPos.getY();
 	}
-	
+
 	public void resetCamZoom()
 	{
-		viewTimer.schedule(new TimerTask() 
-		{
-			  @Override
-			  public void run() 
-			  {
-				try
-				{
-				  while(camZoom>zoomDefault)
-				  {
-					  camZoom-=(zoomIncr/25);
-					  Thread.sleep(1);
+		boolean zoom = true;
 
-				  }	
-				  
-				  while(camZoom<zoomDefault)
-				  {
-					  camZoom+=(zoomIncr/25);
-					  Thread.sleep(1);
-				  }	
-				  
-				  camZoom = zoomDefault;
-				  
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-			  }
-			}, 0);		
-		
-	}
-	
-	public void resetCamPos(final float x, final float y)
-	{
-		viewTimer.schedule(new TimerTask() 
+		if (camZoom > zoomDefault)
 		{
-			  @Override
-			  public void run() 
-			  {
-				float finalX = x-camOffset.getX();
-				float finalY = y-camOffset.getY();
-				
-				float currentX = camPos.getX();
-				float currentY = camPos.getY();
-				
-				boolean XFinished = false;
-				boolean YFinished = false;
-					
-				float incr = 1f;
-				
-				try
+			aniZoomIncr = Math.abs(camZoom) / animationSteps;
+		}
+		else if (camZoom < zoomDefault)
+		{
+			aniZoomIncr = zoomDefault / animationSteps;
+		}
+		else
+		{
+			zoom = false;
+		}
+
+		if (zoom)
+		{
+			zoomTimer = new Timer("Zoom Animator Timer");
+
+			zoomTimer.schedule(new TimerTask()
+			{
+
+				@Override
+				public void run()
 				{
-					while(!XFinished || !YFinished)
+					System.out.println("Resting Zoom");
+
+					if (camZoom > zoomDefault)
 					{
-						
-						if( currentX < finalX)
+						if (camZoom - aniZoomIncr < zoomDefault)
 						{
-							currentX+=incr;
-						}
-						
-						if( currentY < finalY)
-						{
-							currentY+=incr;
-						}	
-						
-						if( currentX > finalX)
-						{
-							currentX-=incr;
-						}
-						
-						if( currentY > finalY)
-						{
-							currentY-=incr;
-						}	
-						
-						if(currentX==finalX)
-						{
-							XFinished=true;
-						}
-						
-						if(currentY==finalY)
-						{
-							YFinished=true;
+							camZoom = zoomDefault;
+
+							zoomTimer.cancel();
 						}
 
-						camPos.set(currentX,currentY);
-						
-						Thread.sleep(1);
+						camZoom -= aniZoomIncr;
+					}
+
+					if (camZoom < zoomDefault)
+					{
+						if (camZoom + aniZoomIncr > zoomDefault)
+						{
+							camZoom = zoomDefault;
+
+							zoomTimer.cancel();
+						}
+						else
+						{
+							camZoom += aniZoomIncr;
+						}
+
 					}
 
 				}
-				catch (InterruptedException e)
+
+			}, 0, 250 / animationSteps);
+		}
+	}
+
+	public void resetCamPos(final float x, final float y)
+	{
+		boolean resetX = true;
+		boolean resetY = true;
+
+		System.out.println("ResetCam");
+		
+		finalX = x - camOffset.getX();
+		finalY = y - camOffset.getY();
+
+		if (camPos.getX() > finalX)
+		{
+			aniXreset = Math.abs(camPos.getX() / animationSteps);
+			
+			System.out.println(">"+aniXreset);
+
+		}
+		else if (camPos.getX() < finalX)
+		{
+			aniXreset = finalX / animationSteps;
+			
+			System.out.println("<" + aniXreset);
+
+		}
+		else
+		{
+			resetX = false;
+		}
+		
+		if (camPos.getY() > finalY)
+		{
+			aniYreset = Math.abs(camPos.getY() / animationSteps);
+			
+			System.out.println(">"+aniYreset);
+
+		}
+		else if (camPos.getY() < finalY)
+		{
+			aniYreset = finalY / animationSteps;
+			
+			System.out.println("<" + aniYreset);
+
+		}
+		else
+		{
+			resetY = false;
+		}
+		
+		if (resetX)
+		{
+			centerX = new Timer("Center Animator Timer");
+
+			centerX.schedule(new TimerTask()
+			{
+				@Override
+				public void run()
 				{
-					e.printStackTrace();
+					System.out.println("Center X");
+
+					if (camPos.getX() > finalX)
+					{
+						if (camPos.getX() - aniXreset < finalX)
+						{
+							camPos.setX(finalX);
+							centerX.cancel();
+						}
+						
+						camPos.setX(camPos.getX()-aniXreset);
+
+					}
+
+					if (camPos.getX() < finalX)
+					{
+						if (camPos.getX() + aniXreset > finalX)
+						{
+							camPos.setX(finalX);
+							centerX.cancel();
+						}
+						
+						camPos.setX(camPos.getX()+aniXreset);
+					}
+
 				}
-			  }
-		}, 0);	
+
+			}, 0, 250 / animationSteps);
+		}
+		
+		if (resetY)
+		{
+			centerY = new Timer("Center Animator Timer");
+
+			centerY.schedule(new TimerTask()
+			{
+				@Override
+				public void run()
+				{
+					System.out.println("Center Y");
+
+					if (camPos.getY() > finalY)
+					{
+						if (camPos.getY() - aniYreset < finalY)
+						{
+							camPos.setY(finalY);
+							centerY.cancel();
+						}
+						
+						camPos.setY(camPos.getY()-aniYreset);
+
+					}
+
+					if (camPos.getY() < finalY)
+					{
+						if (camPos.getY() + aniYreset > finalY)
+						{
+							camPos.setY(finalY);
+							centerY.cancel();
+						}
+						
+						camPos.setY(camPos.getY()+aniYreset);
+					}
+
+				}
+
+			}, 0, 250 / animationSteps);
+		}
+
 	}
 
 	public void moveCam(float x, float y)
 	{
-		camPos.set(x,y);				
-	}	
+		camPos.set(x, y);
+	}
 }
