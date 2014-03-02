@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
-
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.datastruct.knn.KNNInf;

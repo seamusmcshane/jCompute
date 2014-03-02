@@ -1,11 +1,7 @@
 package alifeSim.Scenario.SAPP;
 
 import java.util.List;
-import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
-
-import ags.utils.dataStructures.MaxHeap;
-import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
 import alifeSim.datastruct.knn.KNNInf;

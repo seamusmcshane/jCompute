@@ -1,7 +1,6 @@
 package alifeSim.Alife.SimpleAgent;
 
-import java.util.Random;
-
+import java.util.concurrent.ThreadLocalRandom;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentEval;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentState;
 
@@ -26,7 +25,6 @@ public class SimpleAgentBrain
 
 	/* Movement */
 	private float direction;
-	private Random r;
 
 	/* Move counters */
 	private int roamMoves = 0; // Starts at the exit of roaming state
@@ -55,10 +53,8 @@ public class SimpleAgentBrain
 
 		view = new SimpleAgentView(body);
 
-		r = new Random();
-
 		/* Agent starts moving in a random direction */
-		direction = r.nextInt(360);
+		direction = randomIntNumber(360);
 
 	}
 
@@ -78,7 +74,7 @@ public class SimpleAgentBrain
 
 		if (!learnToMoveCounterPassed())
 		{
-			direction = r.nextInt(360);
+			direction = randomIntNumber(360);
 		}
 
 		myBody.move(direction);
@@ -215,7 +211,7 @@ public class SimpleAgentBrain
 
 		if (roamMoves > roamMaxMoves) // Have i been roaming for a while...  change direction..
 		{
-			direction = r.nextInt(360);
+			direction = randomIntNumber(360);
 			roamMoves = 0;
 		}
 
@@ -237,7 +233,7 @@ public class SimpleAgentBrain
 
 			if(twiddle)
 			{
-				direction+=randomNumber(twiddleFactor);
+				direction+=randomIntNumber(twiddleFactor);
 			}
 			
 			// Try to eat the agent
@@ -251,7 +247,7 @@ public class SimpleAgentBrain
 	{
 		if (huntExitWait > huntExitMaxWait)
 		{
-			direction = r.nextInt(360);
+			direction = randomIntNumber(360);
 			huntMoves = 0;
 			huntExitWait = 0;
 
@@ -281,14 +277,13 @@ public class SimpleAgentBrain
 		direction = view.awayfromAgentDirection(myBody);
 		if(twiddle)
 		{
-			direction+=randomNumber(twiddleFactor);
+			direction+=randomIntNumber(twiddleFactor);
 		}
 	}
 	
-	private int randomNumber(int range)
+	private int randomIntNumber(int range)
 	{
-	    Random r = new Random();
-	    return  r.nextInt(range) - (range/2);
+	    return  ThreadLocalRandom.current().nextInt(range)  - (range/2);
 	}
 
 }

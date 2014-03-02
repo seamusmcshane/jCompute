@@ -8,7 +8,6 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DCircle;
 import alifeSimGeom.A2DLine;
-import alifeSimGeom.A2DRectangle;
 import alifeSimGeom.A2DVector2f;
 import alifeSimGeom.A2RGBA;
 

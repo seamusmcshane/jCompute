@@ -13,7 +13,6 @@ import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioAllPreyLTEEndEvent;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
-import alifeSim.Simulation.SimulationState;
 import alifeSim.Simulation.SimulationStats;
 import alifeSim.Stats.StatGroup;
 import alifeSim.Stats.StatManager;

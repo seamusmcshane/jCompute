@@ -2,7 +2,6 @@ package alifeSim.Alife.SimpleAgent;
 
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
-import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSimGeom.A2DVector2f;
 import alifeSimGeom.A2RGBA;

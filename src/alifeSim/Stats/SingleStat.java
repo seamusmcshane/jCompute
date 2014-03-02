@@ -3,6 +3,7 @@ package alifeSim.Stats;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SingleStat
 {	
@@ -25,7 +26,7 @@ public class SingleStat
 	public SingleStat(String name)
 	{
 		this.name = name;
-		statColor = new Color(Color.HSBtoRGB((float)Math.random(),0.9f,1f));
+		statColor = new Color(Color.HSBtoRGB(ThreadLocalRandom.current().nextFloat(),0.9f,1f));
 		resetStats();
 	}
 	

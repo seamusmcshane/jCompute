@@ -1,7 +1,5 @@
 package alifeSim.Alife.SimpleAgent;
 
-import java.util.Random;
-
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 
 /**

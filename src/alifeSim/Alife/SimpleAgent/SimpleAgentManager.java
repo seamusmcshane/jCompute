@@ -4,8 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
-
+import java.util.concurrent.ThreadLocalRandom;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.EndEvents.ScenarioAllPredatorsLTEEndEventInf;
@@ -126,20 +125,17 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	private void addAgents(WorldInf world, SimpleAgentSetupSettings setttings)
 	{	
 		/* Random Starting Position */
-		Random xr = new Random();
-		Random yr = new Random();
-
 		int x, y;
 
 		for (int i = 0; i < setttings.getInitalNumbers(); i++)
 		{
-			x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
-			y = yr.nextInt(world.getWorldBoundingSquareSize()) + 1;
+			x = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;
+			y = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;
 
 			while(world.isInvalidPosition(x, y))
 			{
-				x = xr.nextInt(world.getWorldBoundingSquareSize()) + 1;
-				y = yr.nextInt(world.getWorldBoundingSquareSize()) + 1;				
+				x = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;
+				y = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;				
 			}			
 			//public SimpleAgentStats(SimpleAgentType type, float maxSpeed, float size, float startingEnergy,float maxEnergy, float hungryThreshold,float viewRange, float baseMoveCost, float baseReproductionCost, float energyConsumptionRate, float digestiveEfficency, float reproductionEnergyDivision)
 			addNewAgent(new SimpleAgent(world,0, x, y, new SimpleAgentStats(new SimpleAgentType(setttings.getType()), setttings.getSpeed(), setttings.getSize(), setttings.getStartingEnergy(), 100f, setttings.getHungerThres(), setttings.getViewRange(), setttings.getMoveCost(), setttings.getReproductionCost(), setttings.getConsumptionRate(), setttings.getDigestiveEfficiency(), setttings.getREDiv())));

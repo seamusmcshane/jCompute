@@ -6,8 +6,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Random;
-
+import java.util.concurrent.ThreadLocalRandom;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.SAPP.BarrierManager;
@@ -41,8 +40,8 @@ public class GenericPlantManager
 
 	/** The size of the world, needed for correctly placing new plants */
 	private int worldSize;
-	private WorldInf world;
 		
+	private WorldInf world;
 	/** The initial Number of plants */
 	private int initalNumber;
 
@@ -218,20 +217,17 @@ public class GenericPlantManager
 		{
 			
 			/* Random Starting Position */
-			Random xr = new Random();
-			Random yr = new Random();
-
 			int x, y;
 
 			for (int i = 0; i < plantNumber; i++)
 			{
-				x = xr.nextInt(worldSize) + 1;
-				y = yr.nextInt(worldSize) + 1;
+				x = ThreadLocalRandom.current().nextInt(worldSize) + 1;
+				y = ThreadLocalRandom.current().nextInt(worldSize) + 1;
 
 				while(world.isInvalidPosition(x, y))
 				{
-					x = xr.nextInt(worldSize) + 1;
-					y = yr.nextInt(worldSize) + 1;				
+					x = ThreadLocalRandom.current().nextInt(worldSize) + 1;
+					y = ThreadLocalRandom.current().nextInt(worldSize) + 1;				
 				}
 				
 				addNewPlant(new GenericPlant(x, y, plantStartingEnergy, 100f, basePlantEnergyAbsorptionRate, basePlantReproductionCost));
