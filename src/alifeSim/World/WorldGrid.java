@@ -1,5 +1,6 @@
 package alifeSim.World;
 
+import java.util.ArrayList;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DLine;
 import alifeSimGeom.A2RGBA;
@@ -7,31 +8,12 @@ import alifeSimGeom.A2RGBA;
 /**
  * This class contains the methods needed to create 
  * and draw the background grid for the world.
- * - No external interactions other than draw which draws an image of the grid.
- * @author Seamus McShane
- * @version $Revision: 1.0 $
  */
 public class WorldGrid
 {
-
-	/** The Horizontal Lines. */
-	private A2DLine[] hlines;
-
-	/** The Vertical Lines. */
-	private A2DLine[] vlines;
-
-	/** Number of lines (generated) */
-	private int num;
-
-	/** The size of the grid. */
-	private int size;
-
-	/** The step at which to draw each line. */
-	private int step;
-
-	/** The division at which to draw major lines. */
-	private int major_div; /* TODO make world grid Adjustable */
-
+	private ArrayList<A2DLine> standardGridLines;
+	private ArrayList<A2DLine> majorGridLines;
+	
 	/**
 	 * Instantiates a new world grid.
 	 *
@@ -40,61 +22,61 @@ public class WorldGrid
 	 */
 	public WorldGrid(int size, int step)
 	{
-		this.size = size;
-
-		this.step = step;
-
-		generateGrid();
-
+		generateGrid(size,step);
 	}
 
 	/** 
-	 * Generation Method 
-	 * Calculates the positions of all the lines.
+	 * Grid Generation 
 	 */
-	private void generateGrid()
+	private void generateGrid(int size, int step)
 	{
-		num = 1 + (size / step); /* ie if size = 1024 then lines every 8 */
+		
+		///If step = 8 then this will be every 64 lines 
+		int major_div = step * step; 
 
-		major_div = step * 8; /* If step = 8 then this will be every 64 lines */
-
-		hlines = new A2DLine[num];
-		vlines = new A2DLine[num];
-
-		int x = 0;
-		for (int i = 0; i < num; i++)
-		{
-			hlines[i] = new A2DLine(x, 0, x, size);
-			vlines[i] = new A2DLine(0, x, size, x);
-			x = x + step;
+		// ie if size = 1024 then lines every 8
+		int standardLineNum = size / step; 
+		
+		// The major ines
+		int majorLineNum = size / major_div;
+		
+		// Stores horz and vert
+		standardGridLines	= new ArrayList<A2DLine>(standardLineNum*2);
+		majorGridLines	= new ArrayList<A2DLine>(majorLineNum*2);
+		
+		A2RGBA major = new A2RGBA(0.2f,0.2f,0.2f,1f);
+		A2RGBA minor = new A2RGBA(0.1f,0.1f,0.1f,1f);
+		
+		int pos = 0;
+		for (int i = 0; i < standardLineNum; i++)
+		{					
+			if (i % major_div == 0)
+			{				
+				majorGridLines.add(new A2DLine(pos, 0, pos, size,major));
+				majorGridLines.add(new A2DLine(0, pos, size, pos,major));
+			}
+			else
+			{
+				standardGridLines.add(new A2DLine(pos, 0, pos, size,minor));
+				standardGridLines.add(new A2DLine(0, pos, size, pos,minor));
+			}
+			pos = pos + step;
 		}
-
 	}
 
 	/** 
 	 * Draws the grid method on the image object 
-	 * @param g Graphics
+	 * @param GUISimulationView simView
 	 */
 	public void draw(GUISimulationView simView)
-	{		
-		A2RGBA major = new A2RGBA(0.2f,0.2f,0.2f,1f);
-
-		A2RGBA minor = new A2RGBA(0.1f,0.1f,0.1f,1f);
-		
-		A2RGBA color;
-
-		for (int i = 0; i < num; i++)
+	{	
+		for(A2DLine line : standardGridLines)
 		{
-			if (i % major_div == 0)
-			{
-				color = major;
-			}
-			else
-			{
-				color = minor;
-			}
-			simView.drawLine(hlines[i],color,2f,false);
-			simView.drawLine(vlines[i],color,2f,false);
+			simView.drawLine(line,line.getColor(),2f,false);
+		}
+		for(A2DLine line : majorGridLines)
+		{
+			simView.drawLine(line,line.getColor(),2f,false);
 		}
 	}
 
