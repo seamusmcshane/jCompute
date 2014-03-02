@@ -1,5 +1,7 @@
 package alifeSimGeom;
 
+import java.awt.Color;
+
 public class A2DRectangle
 {
 	private float x;
@@ -8,13 +10,28 @@ public class A2DRectangle
 	private float y2;
 	private float width;
 	private float height;
-	
+	private A2RGBA color;
+		
 	public A2DRectangle(float x, float y, float width, float height)
 	{
 		super();
 
 		this.width = width;
 		this.height = height;
+		
+		setColor(new A2RGBA(Color.white));
+		
+		setLocation(x,y);
+	}
+	
+	public A2DRectangle(float x, float y, float width, float height,A2RGBA color)
+	{
+		super();
+
+		this.width = width;
+		this.height = height;
+		
+		this.setColor(color);
 		
 		setLocation(x,y);
 	}
@@ -74,6 +91,16 @@ public class A2DRectangle
 		
 		this.x2 = x+width;
 		this.y2 = y+height;		
+	}
+
+	public A2RGBA getColor()
+	{
+		return color;
+	}
+
+	public void setColor(A2RGBA color)
+	{
+		this.color = color;
 	}
 	
 }
