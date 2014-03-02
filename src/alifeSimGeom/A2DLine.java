@@ -1,5 +1,7 @@
 package alifeSimGeom;
 
+import java.awt.Color;
+
 public class A2DLine
 {
 	private float x1;
@@ -10,6 +12,8 @@ public class A2DLine
 
 	private float y2;
 
+	private A2RGBA color;
+	
 	public A2DLine(float x1, float y1, float x2, float y2)
 	{
 		super();
@@ -17,8 +21,19 @@ public class A2DLine
 		this.y1 = y1;
 		this.x2 = x2;
 		this.y2 = y2;
+		color = new A2RGBA(Color.white);
 	}
 
+	public A2DLine(float x1, float y1, float x2, float y2, A2RGBA color)
+	{
+		super();
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.setColor(color);
+	}
+	
 	public A2DLine(A2DVector2f vec1, A2DVector2f vec2)
 	{
 		this.x1 = vec1.getX();
@@ -70,6 +85,16 @@ public class A2DLine
 	public float length()
 	{
 		return (float)Math.sqrt(Math.abs((((x1)-x2)*(x1-x2)) + ((y1-y2)*(y1-y2))));
+	}
+
+	public A2RGBA getColor()
+	{
+		return color;
+	}
+
+	public void setColor(A2RGBA color)
+	{
+		this.color = color;
 	}
 
 }
