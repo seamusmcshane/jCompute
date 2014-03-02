@@ -440,60 +440,35 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	}
 	
 	// Outlined Rectangle
-	public void drawRectangle(A2DRectangle rectangle,A2RGBA color,float lineWidth)
+	public void drawRectangle(A2DRectangle rectangle)
 	{
-		drawRectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(),color,lineWidth);
+		drawRectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(),rectangle.getColor().getRed(),rectangle.getColor().getGreen(),rectangle.getColor().getBlue(),rectangle.getColor().getAlpha(),defaultLineWidth);
 	}
 	
-	// Outlined Rectangle
-	public void drawRectangle(A2DRectangle rectangle,A2RGBA color)
+	public void drawRectangle(A2DRectangle rectangle, float lineWidth)
 	{
-		drawRectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(),color);
+		drawRectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(),rectangle.getColor().getRed(),rectangle.getColor().getGreen(),rectangle.getColor().getBlue(),rectangle.getColor().getAlpha(),lineWidth);
 	}
 
-	public void drawRectangle(float x,float y,float width,float height,A2RGBA color,float lineWidth)
-	{
-		boolean pos00View = true;
-		boolean pos01View = true;
-		boolean pos11View = true;
-		boolean pos10View = true;
-
-		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y,0)))
-		{
-			pos00View = false;
-		}
-		
-		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y,0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y+height,0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!viewCam.frustum.pointInFrustum(new Vector3(x+width,y+height,0)))
-		{
-			pos11View = false;
-		}
-		
-		if(!pos00View && !pos10View && !pos01View && !pos11View)
-		{
-			return;
-		}
-		
-		Gdx.gl20.glLineWidth(lineWidth);
-
-		currentShapeRenderer.begin(ShapeType.Line);
-		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		currentShapeRenderer.rect(x,  y, width, height);
-		currentShapeRenderer.end();
-	}
-	
 	public void drawRectangle(float x,float y,float width,float height,A2RGBA color)
 	{
-		Gdx.gl20.glLineWidth(defaultLineWidth);
+		drawRectangle(x,y,width,height,color.getRed(),color.getGreen(), color.getBlue(), color.getAlpha(),defaultLineWidth);
+	}
+	
+	public void drawRectangle(float x,float y,float width,float height,A2RGBA color,float lineWidth)
+	{
+		drawRectangle(x,y,width,height,color.getRed(),color.getGreen(), color.getBlue(), color.getAlpha(),lineWidth);
+	}
+		
+	
+	public void drawRectangle(float x,float y,float width,float height,float r,float g, float b, float a)
+	{
+		drawRectangle(x,y,width,height,r,g, b, a, defaultLineWidth);
+	}
+	
+	public void drawRectangle(float x,float y,float width,float height,float r,float g, float b, float a, float lineWidth)
+	{
+		Gdx.gl20.glLineWidth(lineWidth);
 
 		boolean pos00View = true;
 		boolean pos01View = true;
@@ -526,7 +501,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		}
 		
 		currentShapeRenderer.begin(ShapeType.Line);
-		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		currentShapeRenderer.setColor(r, g, b, a);
 		currentShapeRenderer.rect(x,  y, width, height);
 		currentShapeRenderer.end();
 	}
