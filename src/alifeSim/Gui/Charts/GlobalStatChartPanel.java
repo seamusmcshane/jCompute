@@ -2,12 +2,16 @@ package alifeSim.Gui.Charts;
 
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroupListenerInf;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.GridLayout;
+
 import javax.swing.border.TitledBorder;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -20,6 +24,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.UnitType;
+
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -78,16 +83,13 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	private void createBarChart()
 	{
 		statDataset = new DefaultCategoryDataset();
-		statBarChart = ChartFactory.createBarChart(null, null, null, statDataset, PlotOrientation.VERTICAL, true, false, false);
+		statBarChart = ChartFactory.createBarChart3D(null, null, null, statDataset, PlotOrientation.VERTICAL, true, false, false);
 		statBarChartPanel = new org.jfree.chart.ChartPanel(statBarChart);
 		statBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		
 		statBarChart.getCategoryPlot().setBackgroundPaint(Color.white);
 		statBarChart.getCategoryPlot().setRangeGridlinePaint(Color.LIGHT_GRAY);
 		statBarChart.getCategoryPlot().setDomainGridlinePaint(Color.LIGHT_GRAY);
-
-		// JFree Chart does not account for item labels (get cut off) and does not scale the margin to the panel size (gets large/smaller), this value is good for height 600px <> 1080px.
-		statBarChart.getCategoryPlot().getRangeAxis().setUpperMargin(0.15);
 		
 		statBarChart.getCategoryPlot().getDomainAxis().setLowerMargin(0);
 		statBarChart.getCategoryPlot().getDomainAxis().setUpperMargin(0);
@@ -96,6 +98,10 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBarPainter(new StandardBarPainter());	
 		
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+		
+        Font font = new Font("SansSerif", Font.PLAIN, 9);
+		
+		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBaseItemLabelFont(font);
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setBaseItemLabelsVisible(true);
 		
 		((BarRenderer)statBarChart.getCategoryPlot().getRenderer()).setDrawBarOutline(true);
