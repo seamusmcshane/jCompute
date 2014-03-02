@@ -548,6 +548,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 			if (value == JOptionPane.YES_OPTION)
 			{
+				simGenerated = false;
+				
 				return true;
 			}
 			else
