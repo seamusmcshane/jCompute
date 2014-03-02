@@ -11,9 +11,11 @@ public class TreeBenchmarks
 {
 	static int MaxLogLevel = 1;
 	
-	static int threads = 48;
+	static int threadsPerProcessor = 1;
+	static int processors = Runtime.getRuntime().availableProcessors();
+	static int threads;
 	
-	static int minList = 0;
+	static int minList = 1;
 	
 	static int iterations = 100000;
 	static int startObjects = 1;
@@ -35,38 +37,74 @@ public class TreeBenchmarks
 	static Scanner scanner;
 	
 	public static void main(String []args)
-	{
-		if(threads==1)
+	{		
+		threads = processors*threadsPerProcessor;
+		if(threads == 1)
 		{
-			threads=2;
+			// Do not support single threaded operation
+			System.out.println("Detected Single Core Processor (Threads Per Processor increased to 2)");
+			threadsPerProcessor = 2;
+			threads = processors*threadsPerProcessor;
 		}
-				
 		
-	    System.out.print("Enter Max Object Count as 2^n : n=");
-	    scanner = new Scanner(System.in);
-	    int runs = scanner.nextInt()+1;
+		System.out.println("Processors\t: " + processors);
+		System.out.println("Threads per Processor\t: " + threadsPerProcessor);
+		System.out.println("Total Threads\t: " + threads);
+		System.out.println("Max Memory\t: " + Runtime.getRuntime().maxMemory()/1024/1024);
+		System.out.println("Total Memory\t: " + Runtime.getRuntime().totalMemory()/1024/1024);
+		System.out.println("Avail Memory\t: " + Runtime.getRuntime().freeMemory()/1024/1024);
+		System.out.println("Used Memory\t: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1024/1024);
 		
+		scanner = new Scanner(System.in);
+		
+		System.out.println("Choose Benchmark");
+		System.out.println("1 : 5 Runs @ 16384 objects with various list sizes splits from 32 to 1024 at ^2 increments ");
+		System.out.println("2: (r) Runs at various object sizes with list size (l)");
+		
+		System.out.print("Choose Option : ");
+		int option = scanner.nextInt();
+		
+		if(option == 1)
+		{
+			startObjects = 16384;
+			for(int i=5;i<10;i++)
+			{
+				minList = 1<<i;
+				runThirdGenBench(1);
+			}
+		}
+		else if(option == 2)
+		{
+		    System.out.print("Enter Max Object Count as 2^n : n=");
+		    int runs = scanner.nextInt()+1;
+		    System.out.print("Enter min list size : ");
+		    minList = scanner.nextInt();
+		    runThirdGenBench(runs);
+		}
+		else
+		{
+			System.out.println("Exiting");
+			System.exit(-1);;
+		}
+		
+	}
+	
+	private static void runThirdGenBench(int runs)
+	{
+
 		logger(1,"Benchmark\tThreads\tRuns\tIterations");
 		logger(1,"\t\t"+threads+"\t"+runs+"\t"+iterations);
 		
 		results = new long[runs][3];
 		
-		int i=0;
-
 		logger(1, "benchMarkThirdGenTree");
-		logger(1,"Run\tObjects\tAddTime\t(%)\tSearch Time\t(%)\tTotal Time");
+		logger(1,"Run\tObjects\tAddTime\t(%)\tSearch Time\t(%)\tTotal Time\tMin List");
 
 		
-		for(i=0;i<runs;i++)
-		{		
+		for(int i=0;i<runs;i++)
+		{
 			//logger(1,"Iteration\t"+i+"\tObjects\t"+(startObjects<<i));
-			minList = (( startObjects<<i)/threads);//+1;
-			
-			if(minList < threads)
-			{
-				minList = threads;
-			}
-			
+
 			//logger(1,"Min List" + minList);
 			
 			generateObjectList( startObjects<<i,areaSize);
@@ -75,12 +113,18 @@ public class TreeBenchmarks
 			
 			results[i] = benchMarkThirdGenTree();
 						
-			logger(1, i + "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
-
+			logger(1, i + "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2] + "\t\t" + minList);
+			
 		}
 		
-		/*logger(1, "benchMarkjkMegaKDObjectKDTree");
-		for(i=0;i<runs;i++)
+
+
+	}
+	
+	private static void runjkMegaBench(int runs)
+	{
+		logger(1, "benchMarkjkMegaKDObjectKDTree");
+		for(int i=0;i<runs;i++)
 		{		
 			//logger(1,"Iteration\t"+i+"\tObjects\t"+(startObjects<<i));
 			minList = (( startObjects<<i)/threads);//+1;
@@ -100,8 +144,7 @@ public class TreeBenchmarks
 						
 			logger(1, i+ "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2]);
 
-		}*/
-
+		}
 	}
 	
 	private static void generateObjectList(int num,int size)
