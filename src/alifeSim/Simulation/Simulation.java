@@ -115,11 +115,26 @@ public class Simulation implements stateChangedInf, statChangedInf
 		// Exit the Async Thread
 		running = false;
 		
+		System.out.println("Destroying...");
+		
+		// Get our current thread.
+		Thread thisThread = Thread.currentThread();
+		
+		// We must until the simulation thread is gone.
 		while(!exited)
 		{
-			System.out.println("Destroying...");
-
+			try
+			{
+				// Go to sleep or our busy wait will cause problems
+				thisThread.sleep(1);
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		System.out.println("Destroyed");
 
 		if(simManager!=null)
 		{
