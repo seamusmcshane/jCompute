@@ -38,8 +38,10 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	/** Simulation Tabs */
 	private GUISimulationTab simulationTabs[];
 	
-	/** Remove Popup Menu */
-	private JPopupMenu tabRemovePopUpMenu;
+	/** Tab Popup Menu */
+	private JPopupMenu tabPopUpMenu;
+	private JMenuItem menuCloseItem;
+	private JMenuItem menuRemoveItem;
 
 	/** Current Selected Tab Index ID */
 	private int selectedTabIndex;
@@ -113,7 +115,17 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		});
 
 		// The remove tab popup menu
-		tabRemovePopUpMenu  = new JPopupMenu();
+		tabPopUpMenu  = new JPopupMenu();
+		
+		menuCloseItem = new JMenuItem("Close Tab ");
+		menuRemoveItem = new JMenuItem("Remove Tab");
+		
+		// Add a new menu item
+		menuCloseItem.addActionListener(this);
+		menuRemoveItem.addActionListener(this);
+	    tabPopUpMenu.add(menuCloseItem);
+	    tabPopUpMenu.add(menuRemoveItem);
+	    
 		this.addMouseListener(this);
 
 	}
@@ -215,7 +227,36 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	
 	
 	/** 
-	 * Removes a Tab
+	 * Close a Tab when can later be re-opened
+	 */
+	public void closeTab()
+	{				
+		// Find the selected component
+		for(int i=0;i<maxTabs;i++)
+		{
+			if(simulationTabs[i] == this.getSelectedComponent())
+			{
+				selectedTabIndex=i;
+			}
+		}
+		
+		// Select the Simulation List
+		this.setSelectedIndex(0);
+		
+		// Tell the tab to detach up
+		simulationTabs[selectedTabIndex].detachTabFromSim();
+		
+		// Remove this tab from the TabPane
+		this.remove(simulationTabs[selectedTabIndex]);
+		
+		// Clear the slot in the tab list
+		simulationTabs[selectedTabIndex] = null;
+		tabCount--;
+		
+	}
+	
+	/** 
+	 * Removes a Tab permanently
 	 */
 	public void removeTab()
 	{				
@@ -232,7 +273,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		this.setSelectedIndex(0);
 		
 		// Tell the tab to clean up
-		simulationTabs[selectedTabIndex].cleanUp();
+		simulationTabs[selectedTabIndex].destroy();
 		
 		// Remove this tab from the TabPane
 		this.remove(simulationTabs[selectedTabIndex]);
@@ -251,17 +292,9 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	 * @param e
 	 */
 	private void showPopUP(MouseEvent e)
-	{
-		// Clear the contents of the popup menu
-		tabRemovePopUpMenu.removeAll();
-		JMenuItem menuItem = new JMenuItem("Close Tab " + this.getTitleAt(this.getSelectedIndex()));
-		
-		// Add a new menu item
-	    menuItem.addActionListener(this);
-	    tabRemovePopUpMenu.add(menuItem);
-	    
+	{	    
 	    // Show the popup
-	    tabRemovePopUpMenu.show(e.getComponent(), e.getX(), e.getY());
+	    tabPopUpMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	@Override
@@ -297,22 +330,30 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{		
-		removeTab();
+		if(e.getSource() == menuCloseItem)
+		{
+			closeTab();
+		}	
+		else if(e.getSource() == menuRemoveItem)
+		{
+			removeTab();
+		}
+		
 	}
 
-	public void removeAllSimTabs()
+	public void closeAllSimTabs()
 	{
 		for(int i=0;i<maxTabs;i++)
 		{
 			if(simulationTabs[i]!=null)
 			{
 				this.setSelectedComponent(simulationTabs[i]);
-				removeTab();
+				closeTab();
 			}
 		}
 	}
 	
-	public void removeSim(int simId)
+	/*public void removeSim(int simId)
 	{
 		String title = "Confirm Simulation Removal";
 		String message = "Remove \"" + this.getTitleAt(this.getSelectedIndex()) + "\" ?";
@@ -337,8 +378,8 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			
 			//simulationTabs[selectedTabIndex].removeTabStatusListener(this);
 			
-			// Tell the tab to clean up
-			simulationTabs[selectedTabIndex].cleanUp();
+			// Tell the tab to detach up
+			simulationTabs[selectedTabIndex].detachSimfromTab();
 			
 			// Remove this tab from the TabPane
 			this.remove(simulationTabs[selectedTabIndex]);
@@ -347,6 +388,6 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			simulationTabs[selectedTabIndex] = null;
 			tabCount--;
 		}
-	}
+	}*/
 	
 }

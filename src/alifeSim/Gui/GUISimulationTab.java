@@ -71,7 +71,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private JLabel lblFilePath;
 	private JButton btnOpen;
 	private JButton btnSave;
-	private JButton btnClose;
 	private JCheckBox chckbxEditMode;
 	private boolean scenarioLoaded = false;
 	private Color normalMode;
@@ -125,7 +124,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	/* Scenario Editor Icons */
 	private ImageIcon openScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-open.png"));
 	private ImageIcon saveScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-save.png"));
-	private ImageIcon closeScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-close.png"));
 	
 	/* Button Icons */
 	private ImageIcon generateSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/grid.png"));
@@ -139,28 +137,25 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private ImageIcon simulationStatChartIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kchart.png"));
 
 	// Tab Related
-	private GUITabManager tabManager;
 	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);
 	private TabButton title;
 	
 	public GUISimulationTab(GUITabManager tabManager,SimulationsManager simsManager, int simId)
 	{
-		this.tabManager = tabManager;
-		
 		this.simsManager = simsManager;
 
 		this.simId = simId;
 				
+		// Tab Close Button
 		title = new TabButton(tabManager,this);	
 		
 		// Layout
 		setLayout(new BorderLayout(0, 0));
 
-		// Tab Pane
+		// Tab Top = Tab Pane
 		simulationTabPane = new JTabbedPane(JTabbedPane.TOP);
 		simulationTabPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
-		
 		add(simulationTabPane, BorderLayout.CENTER);
 		
 		// Scenario Editor
@@ -203,37 +198,32 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			
 			statManager = simsManager.getStatManager(simId);
 			
-			// 
-			//if(simulationScenario!=null)
-			{
-				scenarioEditor.setText(simulationScenario.getScenario().getScenarioText());		
-				
-				scenarioLoaded = true;
-				
-				registerListeners();
-				
-				setSimView();
-								
-				tabTitle = "Simulation " + simId;
-				
-				setGuiState(state);
-				
-				// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-				updateTimer = new Timer("GUI Stat Update Timer");
-				updateTimer.schedule(new TimerTask()
-				{
-					@Override
-					public void run() 
-					{
-						setTime(latchTime);
-						setStepNo(latchStepNo);
-						setASPS(latchASPS);
-					}
-					  
-				},0,1000);
-				
-			}
+			scenarioEditor.setText(simulationScenario.getScenario().getScenarioText());		
 			
+			scenarioLoaded = true;
+			
+			registerListeners();
+			
+			setSimView();
+							
+			tabTitle = "Simulation " + simId;
+			
+			setGuiState(state);
+			
+			// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+			updateTimer = new Timer("GUI Stat Update Timer");
+			updateTimer.schedule(new TimerTask()
+			{
+				@Override
+				public void run() 
+				{
+					setTime(latchTime);
+					setStepNo(latchStepNo);
+					setASPS(latchASPS);
+				}
+				  
+			},0,1000);
+
 		}
 	}
 	
@@ -431,10 +421,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 		gbl_scenarioEditorButtonPanel.rowHeights = new int[]
 		{0};
-		gbl_scenarioEditorButtonPanel.columnWidths = new int[]
-		{0, 0, 0};
+		gbl_scenarioEditorButtonPanel.columnWidths = new int[] {0, 0};
 		gbl_scenarioEditorButtonPanel.columnWeights = new double[]
-		{1.0, 1.0, 1.0};
+		{1.0, 1.0};
 		gbl_scenarioEditorButtonPanel.rowWeights = new double[]
 		{1.0};
 		scenarioEditorButtonPanel.setLayout(gbl_scenarioEditorButtonPanel);
@@ -458,16 +447,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		gbc_btnSave.gridy = 0;
 		scenarioEditorButtonPanel.add(btnSave, gbc_btnSave);
 		btnSave.setEnabled(false);
-
-		btnClose = new JButton("Close");
-		btnClose.setIcon(closeScenarioIcon);
-		btnClose.addActionListener(this);
-		btnClose.setEnabled(false);
-		GridBagConstraints gbc_btnClose = new GridBagConstraints();
-		gbc_btnClose.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnClose.gridx = 2;
-		gbc_btnClose.gridy = 0;
-		scenarioEditorButtonPanel.add(btnClose, gbc_btnClose);
 
 		JPanel scenarioEditorPanel = new JPanel();
 		scenarioEditorContainerPanel.add(scenarioEditorPanel, BorderLayout.CENTER);
@@ -615,40 +594,43 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		}
 		else if (e.getSource() == btnGenerateSim)
 		{
-			if (scenarioLoaded)
+			if(discardCurrentSimGenerated())
 			{
-				/* Not already generating Sim */
-				if (!generatingSim)
+				if (scenarioLoaded)
 				{
-					generatingSim = true;
-					
-					/* Create the new Simulation */
-					if(newSim(scenarioEditor.getText()))
+					/* Not already generating Sim */
+					if (!generatingSim)
 					{
-
-						simGenerated = true;
+						generatingSim = true;
 						
-						clearStats();
-						
-						// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-						updateTimer = new Timer("GUI Stat Update Timer");
-						updateTimer.schedule(new TimerTask()
+						/* Create the new Simulation */
+						if(newSim(scenarioEditor.getText()))
 						{
-							@Override
-							public void run() 
+
+							simGenerated = true;
+							
+							clearStats();
+							
+							// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
+							updateTimer = new Timer("GUI Stat Update Timer");
+							updateTimer.schedule(new TimerTask()
 							{
-								setTime(latchTime);
-								setStepNo(latchStepNo);
-								setASPS(latchASPS);
-							}
-							  
-						},0,1000);
+								@Override
+								public void run() 
+								{
+									setTime(latchTime);
+									setStepNo(latchStepNo);
+									setASPS(latchASPS);
+								}
+								  
+							},0,1000);
+						}
+
 					}
-
+					generatingSim = false;
 				}
-				generatingSim = false;
 			}
-
+			
 		}
 		else if (e.getSource() == btnPauseSim)
 		{
@@ -661,10 +643,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		else if (e.getSource() == btnSave)
 		{
 			saveScenario();
-		}
-		else if (e.getSource() == btnClose)
-		{
-			closeScenario();
 		}
 		else
 		{
@@ -689,7 +667,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			{
 				System.out.println("New Scenario Choosen");
 				
-				cleanUp();
+				detachTabFromSim();
 				
 				removeSimulation();
 				
@@ -724,7 +702,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				}
 
 				scenarioLoaded = true;
-				btnClose.setEnabled(true);
 				btnSave.setEnabled(true);
 				
 				// Set the Startup State
@@ -735,49 +712,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			}
 		}
 
-	}
-
-	private void closeScenario()
-	{
-		String message;
-		message = "Close Scenario?";
-
-		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-		// Center Dialog on the GUI
-		JDialog dialog = pane.createDialog(this, "Close Scenario");
-
-		dialog.pack();
-		dialog.setVisible(true);
-
-		int value = ((Integer) pane.getValue()).intValue();
-
-		if (value == JOptionPane.YES_OPTION)
-		{
-
-			if (discardCurrentSimGenerated())
-			{
-				checkSaved();
-				
-				cleanUp();
-				
-				removeSimulation();
-				
-				scenarioEditor.setText("");
-				lblFilePath.setText("No File");
-				chckbxEditMode.setSelected(false);
-				saved = true;
-				simGenerated = false;
-
-				// We have no scenario therefore no sim.
-				btnGenerateSim.setEnabled(false);
-				btnStartSim.setEnabled(false);
-				btnPauseSim.setEnabled(false);
-				btnClose.setEnabled(false);
-				btnSave.setEnabled(false);
-
-			}
-		}
 	}
 
 	private void saveScenario()
@@ -892,8 +826,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		// Re-add the Scenario Tab
 		addSimulationStatsListTab();
 
-		addGraphsPanel();
-		
+		addGraphsPanel();		
 	}
 
 	private void addGraphsPanel()
@@ -955,7 +888,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		boolean status = false;
 		ScenarioInf simScenario = null;
 
-		cleanUp();
+		detachTabFromSim();
 		
 		removeSimulation();
 				
@@ -1075,8 +1008,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			{
 				scenarioEditor.setEditable(true);
 				scenarioEditor.setBackground(editMode);
-
-				btnClose.setEnabled(true);
 
 				saved = false;
 				btnSave.setEnabled(true);
@@ -1212,8 +1143,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
     	listenersLock.release();
 	}
 
-	public void cleanUp()
+	public void detachTabFromSim()
 	{
+		System.out.println("Detaching Tab from Simulation");
 		if(updateTimer!=null)
 		{
 			updateTimer.cancel();
@@ -1399,7 +1331,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				public void mouseClicked(MouseEvent e)
 				{
 					tabManager.setSelectedComponent(tab);
-					tabManager.removeTab();
+					tabManager.closeTab();
 					
 					//System.gc();
 				}
@@ -1445,6 +1377,14 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		  	this.repaint();
 		}
 
+	}
+
+	public void destroy()
+	{
+		System.out.println("Destroying Tab for Sim " + simId);
+		detachTabFromSim();
+	
+		removeSimulation();
 	}
 	
 }
