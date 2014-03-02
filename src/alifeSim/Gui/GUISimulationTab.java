@@ -923,7 +923,14 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			}
 			else
 			{
+				JOptionPane.showMessageDialog(this, "Failed to generate simulation.\nCheck XML Syntax.");
+				
 				System.out.println("Scenario Failed to Load");
+				
+				detachTabFromSim();
+				
+				removeSimulation();
+				
 			}
 		}
 		else
