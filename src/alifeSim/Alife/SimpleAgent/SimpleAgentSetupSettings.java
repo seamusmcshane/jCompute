@@ -65,12 +65,7 @@ public class SimpleAgentSetupSettings
 	{
 		return this.viewRange;
 	}
-/*	
-	public float getViewRange()
-	{
-		return viewRange;
-	}
-*/
+
 	public void setViewRange(float viewRange)
 	{
 		this.viewRange = viewRange;
