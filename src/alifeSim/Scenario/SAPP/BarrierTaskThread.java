@@ -178,15 +178,6 @@ public class BarrierTaskThread extends Thread
 	}
 
 	/** 
-	 * 
-	 * Part 1 : Get Squared Distance between two agents positions
-	 * This distance is from the center of the agents,  
-	 * 
-	 * Part 2: Square the size of the bodies -
-	 * We also need to subtract the square of the body sizes, so distance is on the body edges of each agent
-	 *
-	 * Part 3: Square the view distance (range) of the current agent
-	 * 
 	 * Pseudo Code : 
 	 * If the distance between the closest agents surface is less than the view range of the current agent then it is in view 
 	 * True - add it to the Agent to the current agents view.
@@ -194,11 +185,6 @@ public class BarrierTaskThread extends Thread
 	 */
 	private void agentViewRangeKDSQAgents(SimpleAgent currentAgent,SimpleAgent nearestAgent)
 	{
-		
-		/*System.out.println("Current Agent :" + currentAgent );
-
-		System.out.println("Nearest Agent :" + nearestAgent );*/
-
 		/* Agent alone in the world */
 		if (currentAgent.equals(nearestAgent))
 		{
@@ -206,18 +192,19 @@ public class BarrierTaskThread extends Thread
 
 			return;
 		}
-				
+		
+		float dis = currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos());
+		float radiusSize = (currentAgent.brain.view.getFovRadius()+ nearestAgent.body.getSize());
+		radiusSize = radiusSize*radiusSize;
+		
 		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
 		System.out.print(":");
-		System.out.print("Nx "+ nearestAgent.body.getBodyPos().getX()+ " Ny " +nearestAgent.body.getBodyPos().getY());
+		System.out.print("Px "+ nearestAgent.body.getBodyPos().getX()+ " Py " +nearestAgent.body.getBodyPos().getY());
 		System.out.println("");
-		System.out.println("Distance SQ " + (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos())));
-		System.out.println("Body Sizes" + (nearestAgent.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()));
-		System.out.println("FOV " + currentAgent.brain.view.getFovDiameterSquared());*/		
-		
-		if ( (currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos()) 				  // Part 1
-				- (nearestAgent.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()) ) // Part 2
-				< currentAgent.brain.view.getFovDiameterSquared())											  // Part 3			
+		System.out.println("Dis : " + dis);
+		System.out.println("Radius : " + radiusSize);*/
+
+		if ( dis < radiusSize )
 		{
 			currentAgent.brain.view.setAgentView(nearestAgent);
 		}
@@ -239,17 +226,18 @@ public class BarrierTaskThread extends Thread
 			return;
 		}
 
+		float dis = currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos());
+		float radiusSize = (currentAgent.brain.view.getFovRadius()+ nearestPlant.body.getSize());
+		radiusSize = radiusSize*radiusSize;
+		
 		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
 		System.out.print(":");
 		System.out.print("Px "+ nearestPlant.body.getBodyPos().getX()+ " Py " +nearestPlant.body.getBodyPos().getY());
 		System.out.println("");
-		System.out.println("Distance SQ " + (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos())));
-		System.out.println("Body Sizes" + (nearestPlant.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()));
-		System.out.println("FOV " + currentAgent.brain.view.getFovDiameterSquared());*/
-		
-		if ( (currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos()) 				  // Part 1
-				- (nearestPlant.body.getTrueSizeSQRDiameter() + currentAgent.body.getTrueSizeSQRDiameter()) ) // Part 2
-				< currentAgent.brain.view.getFovDiameterSquared())											  // Part 3			
+		System.out.println("Dis : " + dis);
+		System.out.println("Radius : " + radiusSize);*/
+
+		if ( dis < radiusSize )
 		{
 			currentAgent.brain.view.setPlantView(nearestPlant);
 		}

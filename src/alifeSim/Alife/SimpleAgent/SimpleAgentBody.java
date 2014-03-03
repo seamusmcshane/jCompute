@@ -2,6 +2,7 @@ package alifeSim.Alife.SimpleAgent;
 
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
+import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSimGeom.A2DVector2f;
 import alifeSimGeom.A2RGBA;
@@ -177,8 +178,12 @@ public class SimpleAgentBody extends AlifeBody
 	 * @return boolean */
 	private boolean isAgentCloseEnoughToEat(SimpleAgentView view)
 	{
+		float dis = view.distanceTo(getBodyPos(), view.getOriginalAgentRef().body.getBodyPos());
+		float sizes = this.getSize() + view.getOriginalAgentRef().body.getSize();
+		sizes = sizes * sizes;
+		
 		// If the distance between the position of the agent and other agent is less than the "true size" of the two bodies... ie are the agent and other agent touching
-		if ((view.distanceTo(getBodyPos(), view.getOriginalAgentRef().body.getBodyPos())) < (this.getTrueSizeSQRDiameter() + view.getOriginalAgentRef().body.getTrueSizeSQRDiameter()))
+		if ( dis  < sizes )
 		{
 			return true;
 		}
@@ -217,8 +222,17 @@ public class SimpleAgentBody extends AlifeBody
 	 * @return boolean */
 	private boolean isPlantCloseEnoughToEat(SimpleAgentView view)
 	{
+		float dis = view.distanceTo(getBodyPos(), view.getOriginalPlantRef().body.getBodyPos());
+		float sizes = this.getSize() + view.getOriginalPlantRef().body.getSize();
+		sizes = sizes * sizes;
+		
+		/*System.out.println("BodyPos - X : " + getBodyPos().getX() + "  Y : " + getBodyPos().getY());
+		System.out.println("ViewPos - X : " + view.getOriginalPlantRef().body.getBodyPos().getX() + "  Y : " + view.getOriginalPlantRef().body.getBodyPos().getY());
+		System.out.println("Dis : " + dis);
+		System.out.println("Sizes" + sizes);*/
+		
 		// If the distance between the position of the agent and plant is less than the size of the two bodies... ie are the agent and plant touching
-		if ((view.distanceTo(getBodyPos(), view.getOriginalPlantRef().body.getBodyPos())) < (this.getTrueSizeSQRDiameter() + view.getOriginalPlantRef().body.getTrueSizeSQRDiameter()))
+		if ( dis  < sizes )
 		{
 			return true;
 		}

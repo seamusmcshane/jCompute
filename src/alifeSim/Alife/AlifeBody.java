@@ -1,10 +1,7 @@
 package alifeSim.Alife;
 
-import java.awt.Color;
-
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSimGeom.A2DCircle;
-import alifeSimGeom.A2DRectangle;
 import alifeSimGeom.A2DVector2f;
 import alifeSimGeom.A2RGBA;
 
@@ -83,23 +80,6 @@ public class AlifeBody
 	{
 		return size;
 	}
-
-	
-	/** 
-	 * Returns the true size squared as a radius for use in KNN. 
-	 * @return float */
-	public float getTrueSizeSQRRadius()
-	{
-		return size * size;
-	}
-	
-	/** 
-	 * Returns the true size squared as a diameter for use in collision detection. 
-	 * @return float */
-	public float getTrueSizeSQRDiameter()
-	{
-		return (size * size) * 2;
-	}		
 	
 /*
  * 

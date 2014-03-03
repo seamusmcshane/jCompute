@@ -26,7 +26,6 @@ public class SimpleAgentView
 	private float aDis = 0;
 	private float pDis = 0;
 	private float fovRadius;
-	private float fovDiameter;
 
 	/** Agent in View Range mode */
 	private AgentEval inViewMode = null;
@@ -60,11 +59,8 @@ public class SimpleAgentView
 	 */
 	private void setUpView()
 	{
-
 		fovRadius = body.stats.getViewRange();
-		fovDiameter = fovRadius * 2;
-
-		fov = new A2DCircle(body.getBodyPos().getX(), body.getBodyPos().getY(), fovDiameter);
+		fov = new A2DCircle(body.getBodyPos().getX(), body.getBodyPos().getY(), fovRadius);
 	}
 
 	/**
@@ -218,8 +214,8 @@ public class SimpleAgentView
 	}
 
 	/** Returns the squared distances between two vectors
-	 * @param from Vector2f
-	 * @param posTo Vector2f
+	 * @param from A2DVector2f
+	 * @param posTo A2DVector2f
 	 * @return float */
 	public float distanceTo(A2DVector2f from, A2DVector2f posTo)
 	{
@@ -244,30 +240,21 @@ public class SimpleAgentView
 	/** 
 	 * Updates the location of the representation of View position 
 	 */
-	private void upDateViewLocation(float fovDiam)
+	private void upDateViewLocation(float radius)
 	{
 		fov.setLocation(body.getBodyPos().getX(), body.getBodyPos().getY());
-		fov.setRadius(fovDiam);
+		fov.setRadius(radius);
 	}
-
+	
 	/**
 	 * Method getFovRadiusSquared.
 	 * @return float
 	 */
-	public float getFovRadiusSquared()
+	public float getFovRadius()
 	{
-		return fovRadius * fovRadius;
+		return fovRadius;
 	}
-
-	/**
-	 * Method getFovDiameterSquared.
-	 * @return float
-	 */
-	public float getFovDiameterSquared()
-	{
-		return fovDiameter * fovDiameter;
-	}
-
+	
 	/**
 	 * Method setViewDrawMode.
 	 * @param mode AgentEval
@@ -306,7 +293,7 @@ public class SimpleAgentView
 			color = new A2RGBA(1,1,1,1);
 		}
 		
-		upDateViewLocation(fovDiameter);
+		upDateViewLocation(fovRadius);
 		
 		simView.drawCircle(fov, color);
 		
@@ -321,9 +308,9 @@ public class SimpleAgentView
 	{
 		float fovd;
 		
-		float rings = (fovDiameter/20);
+		float rings = (fovRadius/20);
 		
-		float spacing = fovDiameter/rings;
+		float spacing = fovRadius/rings;
 				
 		A2RGBA color = new A2RGBA(1,1,1,1);
 		
@@ -403,6 +390,10 @@ public class SimpleAgentView
 			
 			upDateViewLocation(pDis);
 			simView.drawCircle(fov, color);
+			
+			/*System.out.println("Bx " + body.getBodyPos().getX() + " By " + body.getBodyPos().getY());
+			System.out.println("Px " + getNearestPlantPos().getX() + " Py " + getNearestPlantPos().getY());
+			System.out.println("PLinesQ " + pDis*pDis);*/
 			
 			simView.drawLine(line, color, lineWidth,true);
 		}
