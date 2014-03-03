@@ -23,8 +23,6 @@ public class SimpleAgentView
 
 	/** Agent View Range */
 	private A2DCircle fov;
-	private float aDis = 0;
-	private float pDis = 0;
 	private float fovRadius;
 
 	/** Agent in View Range mode */
@@ -37,7 +35,10 @@ public class SimpleAgentView
 	/** Statistics of plants and agents in view */
 	private SimpleAgentViewStats inViewAgentStats;
 	private GenericPlantViewStats inViewPlantStats;
-
+	
+	private A2RGBA stronger = new A2RGBA(1,0,0,1);
+	private A2RGBA weaker = new A2RGBA(0,0,1,1);
+	private A2RGBA neutral = new A2RGBA(1,1,1,1);
 	/**
 	 * Creates an agent view.
 	 * @param body SimpleAgentBody
@@ -279,23 +280,23 @@ public class SimpleAgentView
 			
 			if (body.stats.getType().getType() == AgentType.PREDATOR )
 			{
-				color = new A2RGBA(1,0,0,1);	// Same is treated as inactive as Agents of same type ignore each other		
+				color = stronger;	// Same is treated as inactive as Agents of same type ignore each other		
 			}
 			else
 			{
-				color = new A2RGBA(0,0,1f,1);	// The current Agent is Stronger i.e Predator 		
+				color = weaker;	// The current Agent is Stronger i.e Predator 		
 			}
 		}
 		else
 		{
 			lineWidth = 0.25f;
 			
-			color = new A2RGBA(1,1,1,1);
+			color = neutral;
 		}
 		
 		upDateViewLocation(fovRadius);
 		
-		simView.drawCircle(fov, color);
+		simView.drawCircle(fov, color,lineWidth);
 		
 		if(distanceRings)
 		{
@@ -312,7 +313,7 @@ public class SimpleAgentView
 		
 		float spacing = fovRadius/rings;
 				
-		A2RGBA color = new A2RGBA(1,1,1,1);
+		A2RGBA color = neutral;
 		
 		for(int i=1; i<=rings; i++)
 		{
@@ -349,9 +350,7 @@ public class SimpleAgentView
 	public void drawViews(GUISimulationView simView)
 	{
 		float lineWidth = 0.25f;
-		A2RGBA color = new A2RGBA(1,1,1,1);
-		aDis = 0;
-		pDis = 0;
+		A2RGBA color = neutral;
 		
 		// Highlight the View Type
 		setViewDrawMode(body.stats.getType().strongerThan(inViewAgentStats.getAgentType()));
@@ -361,41 +360,35 @@ public class SimpleAgentView
 			switch (inViewMode)
 			{
 				case STRONGER :
-					color = new A2RGBA(1f,0,0,1);				// The current Agent is Stronger i.e Predator 		
+					color = stronger;				// The current Agent is Stronger i.e Predator 		
 					break;
 				case WEAKER :
-					color = new A2RGBA(0,0,1f,1f);			// The current Agent is Weaker i.e Prey 	
+					color = weaker;			// The current Agent is Weaker i.e Prey 	
 					break;
 			}
 		}		
 		
-		
 		if(getNearestAgentPos() != null)
-		{
-			A2DLine line = new A2DLine(body.getBodyPos(), getNearestAgentPos());
-			aDis = line.length();
-			
-			upDateViewLocation(aDis);
+		{			
+			upDateViewLocation((float) Math.sqrt(distanceTo(body.getBodyPos(),getNearestAgentPos())));
 			simView.drawCircle(fov, color);
 			
-			simView.drawLine(line, color, lineWidth,true);
+			simView.drawLine(body.getBodyPos(),getNearestAgentPos(), color, lineWidth,true);
 			
 		}
 		
 		if(getNearestPlantPos() != null)
 		{
 			color = new A2RGBA(0,1f,0,1f);
-			A2DLine line = new A2DLine(body.getBodyPos(), getNearestPlantPos());
-			pDis = line.length();
 			
-			upDateViewLocation(pDis);
+			upDateViewLocation((float) Math.sqrt(distanceTo(body.getBodyPos(),getNearestPlantPos())));
 			simView.drawCircle(fov, color);
 			
 			/*System.out.println("Bx " + body.getBodyPos().getX() + " By " + body.getBodyPos().getY());
 			System.out.println("Px " + getNearestPlantPos().getX() + " Py " + getNearestPlantPos().getY());
 			System.out.println("PLinesQ " + pDis*pDis);*/
 			
-			simView.drawLine(line, color, lineWidth,true);
+			simView.drawLine(body.getBodyPos(),getNearestPlantPos(), color, lineWidth,true);
 		}
 
 	}
