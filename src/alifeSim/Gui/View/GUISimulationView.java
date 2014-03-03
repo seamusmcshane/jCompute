@@ -311,12 +311,19 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	public void drawCircle(A2DCircle circle,A2RGBA color)
 	{	
+		Gdx.gl20.glLineWidth(defaultLineWidth);
+		
+		drawCircle(circle,color, defaultLineWidth);
+	}
+	
+	public void drawCircle(A2DCircle circle,A2RGBA color, float lineWidth)
+	{	
 		if(!viewCam.frustum.pointInFrustum(new Vector3(circle.getX(),circle.getY(),0)))
 		{
 			return;
 		}
 	
-		Gdx.gl20.glLineWidth(defaultLineWidth);
+		Gdx.gl20.glLineWidth(lineWidth);
 		
 		currentShapeRenderer.begin(ShapeType.Line);
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -335,6 +342,12 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		currentShapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
 		currentShapeRenderer.end();
+	}
+	
+
+	public void drawLine(A2DVector2f pos1, A2DVector2f pos2, A2RGBA color, float lineWidth, boolean clipCheck)
+	{
+		drawLine(pos1.getX(),pos1.getY(), pos2.getX(), pos2.getY(),color,lineWidth,clipCheck);		
 	}
 	
 	// Line
