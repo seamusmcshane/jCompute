@@ -92,6 +92,8 @@ public class GUI  implements ActionListener, ItemListener, WindowListener
 				guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 				guiFrame.setVisible(true);
 				guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+				
+				System.out.println("Created GUI");
 		    }
 		});    
 	}
