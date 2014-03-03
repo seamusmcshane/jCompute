@@ -266,8 +266,6 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		agentAges = new int[ageBuckets];
 		agentViewSizes = new float[viewBuckets];
 				
-		//StatsPanel.statsDensityPanel.resetStats();
-		
 		for (SimpleAgent temp : doList) 
 		{
 			// If agent not dead ..	
@@ -300,7 +298,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 
 				// Add to donelist  - agents not added get removed by java.
 				addAgent(temp);
-				//StatsPanel.statsDensityPanel.incrementAgentNum(temp.body.getBodyPos().getX(),temp.body.getBodyPos().getY(),temp.body.stats.getType().getType());
+
 				temp.body.stats.incrementAge();
 				
 			}
@@ -313,7 +311,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 				else
 				{
 					preyDeaths++; 
-				}	
+				}
 			}
 			
 			recordEnergy(temp);
@@ -334,7 +332,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		
 		for(int i=0;i<viewBuckets;i++)
 		{
-			statAgentViewSizes[i].addSample((int)agentViewSizes[i]);
+			statAgentViewSizes[i].addSample(agentViewSizes[i]);
 		}
 		
 		statAgentTotal.addSample(agentTotal);
