@@ -10,14 +10,6 @@
 			<Name>StepCount</Name>
 			<Value>50</Value>
 		</Event>
-		<Event>
-			<Name>AllPreyLTE</Name>
-			<Value>0</Value>
-		</Event>
-		<Event>
-			<Name>AllPredatorsLTE</Name>
-			<Value>0</Value>
-		</Event>
 	</EndEvents>
 	<View>
 		<Scale>1.00</Scale>

@@ -1,4 +1,4 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.awt.Color;
 import java.util.LinkedList;
@@ -10,7 +10,7 @@ import alifeSim.Stats.StatManager;
 import alifeSimGeom.A2DPoint2d;
 import alifeSimGeom.A2RGBA;
 
-public class LVTwoSpeciesManager implements LVSubTypeInf
+public class LotkaVolterraTwoSpeciesManager implements LotkaVolterraSubTypeInf
 {
 	/* Defaults */
 	private double initial_prey_population;
@@ -56,7 +56,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	
 	private StatManager statManager;
 	
-	public LVTwoSpeciesManager(LVSettings settings)
+	public LotkaVolterraTwoSpeciesManager(LotkaVolterraTwoAndThreeSpeciesSettings settings)
 	{
 		values = new LinkedList<A2DPoint2d>();
 				
@@ -247,7 +247,7 @@ public class LVTwoSpeciesManager implements LVSubTypeInf
 	/* LOTKA-VOLTERA - PREDATOR */
 	private double calculate_predator(double prey_population,double predator_population)
 	{
-		return -predator_death_rate*predator_population+predator_conversion_rate*prey_population*predator_population; 
+		return predator_conversion_rate*prey_population*predator_population - predator_death_rate*predator_population;
 	}
 	
 	private void setUpStats()

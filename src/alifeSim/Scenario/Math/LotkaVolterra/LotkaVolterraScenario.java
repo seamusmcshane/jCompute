@@ -1,4 +1,4 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.util.HashMap;
 
@@ -6,15 +6,15 @@ import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 
-public class LVScenario extends ScenarioVT implements ScenarioInf
+public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 {
 	private SimulationScenarioManagerInf simManager;
 	
 	private HashMap <String, Double>parameters;
 	
-	public LVSettings settings;
+	public LotkaVolterraTwoAndThreeSpeciesSettings settings;
 	
-	public LVScenario()
+	public LotkaVolterraScenario()
 	{		
 		super();
 	}
@@ -28,19 +28,22 @@ public class LVScenario extends ScenarioVT implements ScenarioInf
 		
 		readStatSettings();
 		
-		simManager = new LVSimulationManager(this);
+		simManager = new LotkaVolterraSimulationManager(this);
 	}
 	
 	public boolean readScenarioSettings()
 	{
-		settings = new LVSettings();
-		
-		loadSettings();
-		
-		/* Sub Type */
+		/* Read sub type */
 		String section = "Header";				
+		String subType = super.getStringValue(section,"SubType");
+
+		settings = new LotkaVolterraTwoAndThreeSpeciesSettings();
+
 		settings.setSubType(super.getStringValue(section,"SubType"));
 		System.out.println("SubType : " + settings.getSubType());
+
+		// Load in all the settings
+		loadSettings();	
 		
 		/* View */
 		section = "View";				
@@ -90,6 +93,32 @@ public class LVScenario extends ScenarioVT implements ScenarioInf
 		{
 			settings.setPreyGrowth(parameters.get("prey_growth"));
 			System.out.println("PreyGrowth : " + settings.getPreyGrowth());
+		}
+		
+		/* Three Species */
+		
+		if(parameters.containsKey("initial_plant_population"))
+		{
+			settings.setInitialPlantPopulation(parameters.get("initial_plant_population"));
+			System.out.println("Initial Plant Population : " + settings.getInitialPlantPopulation());
+		}
+		
+		if(parameters.containsKey("plant_growth_rate"))
+		{
+			settings.setPlantGrowthRate(parameters.get("plant_growth_rate"));
+			System.out.println("Plant Growth Rate : " + settings.getPlantGrowthRate());
+		}
+		
+		if(parameters.containsKey("prey_plant_conversion_rate"))
+		{
+			settings.setPreyPlantConversionRate(parameters.get("prey_plant_conversion_rate"));
+			System.out.println("Prey to Plant Consumption Rate : " + settings.getPreyPlantConversionRate());
+		}
+		
+		if(parameters.containsKey("prey_death_rate"))
+		{
+			settings.setPreyDeathRate(parameters.get("prey_death_rate"));
+			System.out.println("Prey Death Rate : " + settings.getPreyDeathRate());
 		}
 		
 		return true;

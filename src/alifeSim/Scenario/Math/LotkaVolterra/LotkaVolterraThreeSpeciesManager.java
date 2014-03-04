@@ -1,7 +1,8 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,10 +11,11 @@ import com.badlogic.gdx.graphics.Pixmap;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;
+import alifeSimGeom.A2DPoint2d;
 import alifeSimGeom.A2RGBA;
 import alifeSimGeom.A3DVector3f;
 
-public class LVThreeSpeciesManager implements LVSubTypeInf
+public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 {
 	/* Initial */
 	private double initial_prey_population;
@@ -23,24 +25,27 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 	/* Constants */
 	private double predator_death_rate;
 	private double predator_conversion_rate;
-	
-	private double prey_growth_rate;
+	private double prey_plant_conversion_rate;
+
 	private double predation_rate;
-	private double prey_plant_consumption_rate;
 	private double prey_death_rate;
 	
 	private double plant_growth_rate;
 	
 	/* Supported Stats */
-	private double predator_population;
-	private SingleStat stat_predator_population;
-	
-	private double prey_population;
-	private SingleStat stat_prey_population;	
-
 	private double plant_population;
 	private SingleStat stat_plant_population;
 
+	private SingleStat stat_prey_population;	
+	private double prey_min_population;
+	private double prey_population;
+	private double prey_max_population;	
+	
+	private SingleStat stat_predator_population;
+	private double predator_population;
+	private double predator_min_population;
+	private double predator_max_population;	
+	
 	private int t = 0;
 	//private int max_t = 10000;
 	
@@ -53,42 +58,49 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 	
 	private double dt;
 	
-	private List<A3DVector3f> values;
+	private LinkedList<A3DVector3f> values;
 	
 	/* Previous Point */
 	A3DVector3f previous;
-	
-	private boolean resize = true;
-	
-	/* This will be too large on old graphics hardware */
-	private int bufferWidth = 2048;
-	private int bufferHeight = 2048;
-	
-	Pixmap pixmap = new Pixmap(bufferWidth,bufferHeight, Pixmap.Format.RGBA8888);
-	
+		
+	private int maxPoints;
+		
 	private float pointsHue=0f;
+	private float scale;
 	
-	private double scale;
 	private StatManager statManager;
 	
-	public LVThreeSpeciesManager(LVSettings settings)
+	public LotkaVolterraThreeSpeciesManager(LotkaVolterraTwoAndThreeSpeciesSettings settings)
 	{
 		values = new LinkedList<A3DVector3f>();
+		
+		prey_min_population = Double.POSITIVE_INFINITY;
+		prey_max_population = Double.NEGATIVE_INFINITY;;
+		predator_min_population = Double.POSITIVE_INFINITY;
+		predator_max_population = Double.NEGATIVE_INFINITY;
 		
 		scale = settings.getViewScale();
 		
 		initial_prey_population = settings.getInitialPreyPopulation();
 		initial_predator_population = settings.getInitialPredatorPopulation();
-		
+		initial_plant_population = settings.getInitialPlantPopulation();
+
 		prey_population = initial_prey_population;
 		predator_population = initial_predator_population;
-		
-		prey_growth_rate = settings.getPreyGrowth();
+		plant_population = initial_plant_population;
+
 		predation_rate = settings.getPredationRate();
-		predator_death_rate = settings.getPredatorDeathRate();
 		predator_conversion_rate = settings.getPredatorConversionRate();
 		
+		plant_growth_rate = settings.getPlantGrowthRate();
+		prey_plant_conversion_rate = settings.getPreyPlantConversionRate();
+
+		predator_death_rate = settings.getPredatorDeathRate();
+		prey_death_rate = settings.getPreyDeathRate();
+		
 		sub_steps = settings.getSubSteps();
+		
+		maxPoints = sub_steps*10;
 		
 		dt = 1/(double)sub_steps;
 		
@@ -96,11 +108,8 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 		
 		setUpStats();
 		
-		System.out.println("Time"+"\t\t"+"Predators"+"\t\t"+"Prey");
-		System.out.printf("%d\t\t%5.2f\t\t%5.2f\n",t,initial_prey_population,initial_predator_population);
-		
-        pixmap.setColor(0,0,0,0);
-        pixmap.fill();
+		System.out.println(predator_population + " " + prey_population + " " + plant_population);
+
 	}
 
 	private int setIntMethod(String settingValue)
@@ -121,20 +130,18 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 	
 	public void doStep()
 	{
-		//if(t<max_t)
+
+		switch(intMethod)
 		{
-			//switch(intMethod)
-			{
-				//case 0:
-					predator_prey_euler();
-				//break;
-				/*case 1:
-					predator_prey_rk4();
-				break;*/
-			}
-				
-			t++;
+			case 0:
+				predator_prey_euler();
+			break;
+			case 1:
+				predator_prey_rk4();
+			break;
 		}
+			
+		t++;
 		
 		pointsHue=pointsHue+0.001f;
 		
@@ -154,6 +161,7 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 		
 		for(int i=1;i<sub_steps;i++)
 		{			
+
 			/* Prey */
 			dx = calculate_prey(predator_population,prey_population,plant_population);
 			
@@ -170,13 +178,17 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 			stat_predator_population.addSample(predator_population);
 			stat_prey_population.addSample(prey_population);
 			stat_plant_population.addSample(plant_population);
-			
+
 			// Draw 
-			//addDrawVal(i);			
+			addDrawVal(i);		
+			
+			statManager.notifiyStatListeners();
+
 		}
+		
 	}
 	
-	/*public void predator_prey_rk4()
+	public void predator_prey_rk4()
 	{
 
 		double pdk1;
@@ -188,45 +200,83 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 		double pyk2;
 		double pyk3;
 		double pyk4;
+		
+		double plk1;
+		double plk2;
+		double plk3;
+		double plk4;
 
 		for(int i=1;i<sub_steps;i++)
-		{			
+		{
+			
+			
 			// K1
-			pdk1 = calculate_predator(prey_population,predator_population);
-			pyk1 = calculate_prey(prey_population,predator_population);
+			pdk1 =  calculate_predator(predator_population,prey_population,plant_population);
+			pyk1 =  calculate_prey(predator_population,prey_population,plant_population);
+			plk1 =  calculate_plants(predator_population,prey_population,plant_population);
 			
 			// K2 - calculate a half step based on k1 delta
-			pdk2 = calculate_predator(prey_population+(pyk1*0.5*dt),predator_population+(pdk1*0.5*dt));
-			pyk2 = calculate_prey(prey_population+(pyk1*0.5*dt),predator_population+(pdk1*0.5*dt));
+			pdk2 = calculate_predator(predator_population+(pdk1*0.5*dt),prey_population+(pyk1*0.5*dt),plant_population+(plk1*0.5*dt));
+			pyk2 = calculate_prey(predator_population+(pdk1*0.5*dt),prey_population+(pyk1*0.5*dt),plant_population+(plk1*0.5*dt));
+			plk2 = calculate_plants(predator_population+(pdk1*0.5*dt),prey_population+(pyk1*0.5*dt),plant_population+(plk1*0.5*dt));
 			
 			// K3+ (t*0.5) - calculate again based on k2 delta
-			pdk3 = calculate_predator(prey_population+(pyk2*0.5*dt),predator_population+(pdk2*0.5*dt));
-			pyk3 = calculate_prey(prey_population+(pyk2*0.5*dt),predator_population+(pdk2*0.5*dt));
+			pdk3 = calculate_predator(predator_population+(pdk2*0.5*dt),prey_population+(pyk2*0.5*dt),plant_population+(plk2*0.5*dt));
+			pyk3 = calculate_prey(predator_population+(pdk2*0.5*dt),prey_population+(pyk2*0.5*dt),plant_population+(plk2*0.5*dt));
+			plk3 = calculate_plants(predator_population+(pdk2*0.5*dt),prey_population+(pyk2*0.5*dt),plant_population+(plk2*0.5*dt));
 			
 			// K4+ (t*0.5) - calculate full step based on k3 delta
-			pdk4 = calculate_predator(prey_population+pyk3*dt,predator_population+pdk3*dt);
-			pyk4 = calculate_prey(prey_population+pyk3*dt,predator_population+pdk3*dt);
+			pdk4 = calculate_predator(predator_population+pdk3*dt,prey_population+pyk3*dt,plant_population+plk3*dt);
+			pyk4 = calculate_prey(predator_population+pdk3*dt,prey_population+pyk3*dt,plant_population+plk3*dt);
+			plk4 = calculate_plants(predator_population+pdk3*dt,prey_population+pyk3*dt,plant_population+plk3*dt);
 			 
 			predator_population		+= (pdk1 + (2.0 * pdk2) + (2.0 * pdk3) + pdk4)*(1.0/6.0)*dt;
 			prey_population			+= (pyk1 + (2.0 * pyk2) + (2.0 * pyk3) + pyk4)*(1.0/6.0)*dt;
+			plant_population		+= (plk1 + (2.0 * plk2) + (2.0 * plk3) + plk4)*(1.0/6.0)*dt;
 			
 			// Stats
 			stat_predator_population.addSample(predator_population);
 			stat_prey_population.addSample(prey_population);
+			stat_plant_population.addSample(plant_population);
 			
 			// Draw 
 			addDrawVal(i);
 			
+			statManager.notifiyStatListeners();			
 		}
 		
-	}*/
+	}
 	
 	private void addDrawVal(int i)
 	{
+		A2RGBA color = new A2RGBA(new Color(Color.HSBtoRGB(pointsHue,1f,1f)));
+		
+		/* predator_population */
+		if(predator_population > predator_max_population)
+		{
+			predator_max_population = predator_population;
+		}
+		
+		if(predator_population < predator_min_population)
+		{
+			predator_min_population = predator_population;
+		}
+		
+		/* prey_population */
+		if(prey_population > prey_max_population)
+		{
+			prey_max_population = prey_population;
+		}
+		
+		if(prey_population < prey_min_population)
+		{
+			prey_min_population = prey_population;
+		}
+		
 		if(i%draw_mod == 0)
 		{
 			// Draw 
-			values.add(new A3DVector3f(predator_population,prey_population,plant_population));			
+			values.add(new A3DVector3f(predator_population,prey_population,plant_population,color));	
 		}
 
 	}
@@ -242,13 +292,13 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 	/* Modified LOTKA-VOLTERA - PREY */
 	private double calculate_prey(double predator_population,double prey_population,double plant_population)
 	{
-		return (prey_growth_rate*prey_population*plant_population) - (prey_death_rate*prey_population) - (predation_rate*prey_population*predator_population);
+		return (prey_plant_conversion_rate*prey_population*plant_population) - (prey_death_rate*prey_population) - (predation_rate*prey_population*predator_population);
 	}
 	
 	/* Modified LOTKA-VOLTERA - PLANT */
 	private double calculate_plants(double predator,double prey_population,double plant_population)
 	{
-		return plant_growth_rate - (prey_plant_consumption_rate*prey_population*plant_population);
+		return plant_growth_rate*plant_population - (prey_plant_conversion_rate*prey_population*plant_population);
 	}
 	
 	private void setUpStats()
@@ -275,31 +325,19 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 	}
 	
 	public void draw(GUISimulationView simView)
-	{	
+	{			
 		drawPoints(simView);
-		
-		simView.drawPixMap(pixmap, 0, 0);
-		
-		simView.drawRectangle(0,0,bufferWidth,bufferHeight,new A2RGBA(1f,1f,1f,1f));
 	}
 	
-	private void drawLAPoint(GUISimulationView simView, float x, float y, float z)
-	{
-	    double px = x*(-10*x+10*y);
-	    double py = y*(28*x-y-x*z);
-	    double pz = z*(-8*z/3+x*y);	    
-	}
-	
+
 	private void drawPoints(GUISimulationView simView)
 	{			
-		float xscale = (float) scale;
-		float yscale = (float) scale;
+		float xscale = scale;
+		float yscale = scale;
 		
 		float xmax = 0;
 		float ymax = 0;
-		
-		Color color;
-		
+
 		if(values!=null)
 		{
 			if(values.size() > 0)
@@ -309,12 +347,10 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 					previous = values.get(0);
 				}
 
-				for (A3DVector3f point : values) 
-				{											
-					color = new Color(Color.HSBtoRGB(pointsHue,1f,1f));
-					
-					float x = (float)point.getX();
-					float y =(float)point.getY();
+				for (A3DVector3f vector : values) 
+				{																
+					float x = (float)vector.getX();
+					float y =(float)vector.getY();
 
 					if(x>xmax)
 					{
@@ -325,17 +361,27 @@ public class LVThreeSpeciesManager implements LVSubTypeInf
 					{
 						ymax = y;
 					}
-						
-					pixmap.setColor(1f/255f*(float)color.getRed(),1f/255f*(float)color.getGreen(),1f/255f*(float)color.getBlue(),1f/255f*(float)color.getAlpha());
+
+					float lx =  (vector.getX()/vector.getZ())*xscale;
+					float ly =  (vector.getY()/vector.getZ())*yscale;
+					float plx = (previous.getX()/previous.getZ())*xscale;
+					float ply = (previous.getY()/previous.getZ())*yscale;
 					
-					pixmap.drawLine((int)(previous.getX()*xscale),(int)(previous.getY()*yscale),(int)(x*xscale),(int)(y*yscale));
+					simView.drawLine(lx,ly, plx,ply,new A2RGBA(new Color(vector.getColor().getRed(),vector.getColor().getGreen(),vector.getColor().getBlue(),vector.getColor().getAlpha())),false);
 					
-					previous = point;
+					previous = vector;
 					
 				}
+								
+				if(values.size() > maxPoints)
+				{			
+					while(values.size() > maxPoints)
+					{
+						values.remove(0);
+					}
+				}
 				
-				values = new LinkedList<A3DVector3f>();
-				
+				previous = null;
 			}
 		}
 	}

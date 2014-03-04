@@ -1,6 +1,6 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
-public class LVTest
+public class LotkaVolterraTest
 {
 	// A = prey_growth
 	// B = predation_rate

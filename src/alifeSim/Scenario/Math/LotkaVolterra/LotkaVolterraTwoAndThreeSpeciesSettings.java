@@ -1,6 +1,6 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
-public class LVSettings
+public class LotkaVolterraTwoAndThreeSpeciesSettings
 {
 	private String subType;
 	
@@ -12,6 +12,12 @@ public class LVSettings
 	private double predator_death_rate = 0.8;
 	private double predator_conversion_rate = 0.2;
 
+	/* Three Species */
+	private double prey_death_rate = 1;
+	private double initial_plant_population = 200;
+	private double plant_growth_rate = 0.5;
+	private double prey_plant_conversion_rate = 0.2;	
+	
 	private int sub_steps = 256;
 	private String intType = "RK4";
 	
@@ -115,6 +121,43 @@ public class LVSettings
 	public void setSubType(String subType)
 	{
 		this.subType = subType;
+	}
+
+	/* Three Species */
+	
+	public double getInitialPlantPopulation()
+	{
+		return initial_plant_population;
+	}
+	public void setInitialPlantPopulation(double initial_plant_population)
+	{
+		this.initial_plant_population = initial_plant_population;
+	}
+	public double getPlantGrowthRate()
+	{
+		return plant_growth_rate;
+	}
+	public void setPlantGrowthRate(double plant_growth_rate)
+	{
+		this.plant_growth_rate = plant_growth_rate;
+	}
+	public double getPreyPlantConversionRate()
+	{
+		return prey_plant_conversion_rate;
+	}
+	public void setPreyPlantConversionRate(double prey_plant_conversion_rate)
+	{
+		this.prey_plant_conversion_rate = prey_plant_conversion_rate;
+	}
+
+	public void setPreyDeathRate(double prey_death_rate)
+	{
+		this.prey_death_rate = prey_death_rate;
+	}
+	
+	public double getPreyDeathRate()
+	{
+		return prey_death_rate;
 	}
 
 }

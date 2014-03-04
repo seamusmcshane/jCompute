@@ -1,4 +1,4 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,30 +15,30 @@ import alifeSim.Stats.StatManager;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
-import alifeSim.Scenario.Math.LVScenario;
+import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSimGeom.A2DVector2f;
 
-public class LVSimulationManager implements SimulationScenarioManagerInf
+public class LotkaVolterraSimulationManager implements SimulationScenarioManagerInf
 {
 	private Semaphore lock = new Semaphore(1, false);
 	
-	private LVScenario scenario;
+	private LotkaVolterraScenario scenario;
 
 	private StatManager statManager;
 	
-	private LVSubTypeInf lv;
+	private LotkaVolterraSubTypeInf lv;
 	
-	private LVSettings settings;
+	private LotkaVolterraTwoAndThreeSpeciesSettings settings;
 	
 	private SimViewCam simViewCam;
 
 	private ArrayList<ScenarioEndEventInf> endEvents;
 	
-	public LVSimulationManager(LVScenario scenario)
+	public LotkaVolterraSimulationManager(LotkaVolterraScenario scenario)
 	{
 		simViewCam = new SimViewCam();
 		
-		simViewCam.setCamOffset(new A2DVector2f(250f,100f));
+		simViewCam.setCamOffset(new A2DVector2f(252.125f,50));
 		
 		this.scenario = scenario;	
 				
@@ -52,17 +52,17 @@ public class LVSimulationManager implements SimulationScenarioManagerInf
 		
 	}
 	
-	private LVSubTypeInf setSimSubType(String text,LVSettings settings)
+	private LotkaVolterraSubTypeInf setSimSubType(String text,LotkaVolterraTwoAndThreeSpeciesSettings settings)
 	{
-		LVSubTypeInf subType;
+		LotkaVolterraSubTypeInf subType;
 		
 		if(text.equalsIgnoreCase("Three"))
 		{
-			subType = new LVThreeSpeciesManager(settings);
+			subType = new LotkaVolterraThreeSpeciesManager(settings);
 		}
 		else // Two
 		{
-			subType = new LVTwoSpeciesManager(settings);
+			subType = new LotkaVolterraTwoSpeciesManager(settings);
 		}
 		
 		return subType;		

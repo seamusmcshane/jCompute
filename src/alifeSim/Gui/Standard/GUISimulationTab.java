@@ -68,7 +68,7 @@ import alifeSim.Gui.Charts.GlobalStatChartPanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
-import alifeSim.Scenario.Math.LVScenario;
+import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationStatListenerInf;
@@ -830,7 +830,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
 			{
 				System.out.println("LV File");
-				simScenario = new LVScenario();
+				simScenario = new LotkaVolterraScenario();
 
 				simScenario.loadConfig(text);
 			}

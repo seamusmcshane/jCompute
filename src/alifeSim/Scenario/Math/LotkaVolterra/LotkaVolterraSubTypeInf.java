@@ -1,4 +1,4 @@
-package alifeSim.Scenario.Math;
+package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;
 
-public interface LVSubTypeInf
+public interface LotkaVolterraSubTypeInf
 {
 
 	public void doStep();
