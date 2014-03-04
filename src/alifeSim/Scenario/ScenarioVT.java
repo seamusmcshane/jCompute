@@ -41,14 +41,12 @@ public class ScenarioVT
 		endEvents = new HashMap<String, Integer>();
 		
 		String section;
-		
+			
 		for(int i=0;i<numEvent;i++)
 		{
 			section = "EndEvents.Event("+i+")";
 			
 			endEvents.put(getStringValue(section,"Name"), getIntValue(section,"Value"));
-			
-			System.out.println(i);
 		}
 		
 	}
@@ -225,6 +223,47 @@ public class ScenarioVT
 	public int getEventValue(String eventName)
 	{
 		return endEvents.get(eventName);
+	}
+	
+	/* Overloaded methods for changing values in the xml */
+	public void changeValue(String section,String field, int value)
+	{
+		if(getStringValue(section,field).equals(field))
+		{
+			scenario.setProperty(section+"."+field,value);
+			
+			System.out.println(section);
+		}
+	}
+	
+	public void changeValue(String section,String field, float value)
+	{
+		if(getStringValue(section,field).equals(field))
+		{
+			scenario.setProperty(section+"."+field,value);
+			
+			System.out.println(section);
+		}
+	}
+	
+	public void changeValue(String section,String field, double value)
+	{
+		if(getStringValue(section,field).equals(field))
+		{
+			scenario.setProperty(section+"."+field,value);
+			
+			System.out.println(section);
+		}
+	}
+	
+	public void changeValue(String section,String field, String value)
+	{
+		if(getStringValue(section,field).equals(field))
+		{
+			scenario.setProperty(section+"."+field,value);
+			
+			System.out.println(section);
+		}
 	}
 	
 }
