@@ -30,8 +30,8 @@ public class SimpleAgentManagerTests
 	WorldSetupSettings worldSettings = new WorldSetupSettings();
 	
 	List<SimpleAgentSetupSettings> agentSettingsList = new ArrayList(2);
-	SimpleAgentSetupSettings predatorAgentSettings = new SimpleAgentSetupSettings();
-	SimpleAgentSetupSettings preyAgentSettings = new SimpleAgentSetupSettings();
+	SimpleAgentSetupSettings predatorAgentSettings = new SimpleAgentSetupSettings("TEST");
+	SimpleAgentSetupSettings preyAgentSettings = new SimpleAgentSetupSettings("TEST");
 	
 	int agentPreyNumbers = 512;
 	int agentPredatorNumbers = 256;

@@ -1,4 +1,7 @@
 package alifeSim.Alife.SimpleAgent;
+
+import java.awt.Color;
+
 /**
  * This class holds the stats for an individual agent.
  * It manages the energy of the agent.
@@ -9,6 +12,8 @@ package alifeSim.Alife.SimpleAgent;
  */
 public class SimpleAgentStats
 {
+	private Color color;
+	
 	/** The movement cost of the agent before modification */
 	private final float baseMoveCost;
 
@@ -78,8 +83,10 @@ public class SimpleAgentStats
 	 * @param digestiveEfficency float
 	 * @param reproductionEnergyDivision float
 	 */
-	public SimpleAgentStats(SimpleAgentType type, float maxSpeed, float size, float startingEnergy, float maxEnergy, float hungryThreshold, float viewRange, float baseMoveCost, float baseReproductionCost, float energyConsumptionRate, float digestiveEfficency, float reproductionEnergyDivision)
+	public SimpleAgentStats(SimpleAgentType type, Color color, float maxSpeed, float size, float startingEnergy, float maxEnergy, float hungryThreshold, float viewRange, float baseMoveCost, float baseReproductionCost, float energyConsumptionRate, float digestiveEfficency, float reproductionEnergyDivision)
 	{
+		this.color = color;
+		
 		this.dead = false;
 
 		this.type = type;
@@ -340,4 +347,8 @@ public class SimpleAgentStats
 		return age;
 	}
 	
+	public Color getColor()
+	{
+		return color;
+	}
 }

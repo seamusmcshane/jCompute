@@ -1,5 +1,7 @@
 package alifeSim.Alife.SimpleAgent;
 
+import java.awt.Color;
+
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 
 /**
@@ -11,8 +13,12 @@ import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
  */
 public class SimpleAgentSetupSettings
 {
+	private String name = "Name-Not-Set";
+	
 	/* Internal Defaults */
 	private AgentType type = AgentType.PREDATOR;
+	
+	private Color color;
 	
 	private int initalNumbers=0;
 	
@@ -35,12 +41,12 @@ public class SimpleAgentSetupSettings
 	private float reproductionCost=0.9f;
 
 	private float startingEnergy=0.25f;
-
-	public SimpleAgentSetupSettings()
+	
+	public SimpleAgentSetupSettings(String name)
 	{
-
+		this.name = name;
 	}
-
+	
 	public AgentType getType()
 	{
 		return type;
@@ -49,6 +55,16 @@ public class SimpleAgentSetupSettings
 	public void setType(AgentType type)
 	{
 		this.type = type;
+	}
+	
+	public void setColor(int r,int g,int b)
+	{
+		this.color = new Color(r,g,b);
+	}
+	
+	public Color getColor()
+	{
+		return color;
 	}
 	
 	public float getSpeed()

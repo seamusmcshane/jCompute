@@ -122,12 +122,12 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	 * @param agentPreyNumbers
 	 * @param agentPredatorNumbers
 	 */
-	private void addAgents(WorldInf world, SimpleAgentSetupSettings setttings)
+	private void addAgents(WorldInf world, SimpleAgentSetupSettings settings)
 	{	
 		/* Random Starting Position */
 		int x, y;
 
-		for (int i = 0; i < setttings.getInitalNumbers(); i++)
+		for (int i = 0; i < settings.getInitalNumbers(); i++)
 		{
 			x = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;
 			y = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;
@@ -138,7 +138,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 				y = ThreadLocalRandom.current().nextInt(world.getWorldBoundingSquareSize()) + 1;				
 			}			
 			//public SimpleAgentStats(SimpleAgentType type, float maxSpeed, float size, float startingEnergy,float maxEnergy, float hungryThreshold,float viewRange, float baseMoveCost, float baseReproductionCost, float energyConsumptionRate, float digestiveEfficency, float reproductionEnergyDivision)
-			addNewAgent(new SimpleAgent(world,0, x, y, new SimpleAgentStats(new SimpleAgentType(setttings.getType()), setttings.getSpeed(), setttings.getSize(), setttings.getStartingEnergy(), 100f, setttings.getHungerThres(), setttings.getViewRange(), setttings.getMoveCost(), setttings.getReproductionCost(), setttings.getConsumptionRate(), setttings.getDigestiveEfficiency(), setttings.getREDiv())));
+			addNewAgent(new SimpleAgent(world,0, x, y, new SimpleAgentStats(new SimpleAgentType(settings.getType()), settings.getColor(), settings.getSpeed(), settings.getSize(), settings.getStartingEnergy(), 100f, settings.getHungerThres(), settings.getViewRange(), settings.getMoveCost(), settings.getReproductionCost(), settings.getConsumptionRate(), settings.getDigestiveEfficiency(), settings.getREDiv())));
 
 		}
 			
@@ -283,7 +283,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 					 * way of Calculating/Mutating the next generation agent
 					 * stats here.
 					 */
-					addNewAgent(new SimpleAgent(world,0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getMaxSpeed(), temp.body.stats.getSize(), temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
+					addNewAgent(new SimpleAgent(world,0, temp.body.getBodyPos().getX() + 0.01f, temp.body.getBodyPos().getY() - 0.01f, new SimpleAgentStats(new SimpleAgentType(temp.body.stats.getType().getType()), temp.body.stats.getColor(),temp.body.stats.getMaxSpeed(), temp.body.stats.getSize(), temp.body.stats.getStartingEnergy(), 100f, temp.body.stats.getHungryThreshold(), temp.body.stats.getBaseViewRange(), temp.body.stats.getBaseMoveCost(), temp.body.stats.getBaseReproductionCost(), temp.body.stats.getEnergyConsumptionRate(), temp.body.stats.getDigestiveEfficency(), temp.body.stats.getReproductionEnergyDivision())));
 					
 					if(temp.body.stats.getType().getType() == AgentType.PREDATOR)
 					{

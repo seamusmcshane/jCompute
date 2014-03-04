@@ -1,20 +1,14 @@
 package alifeSim.Scenario.SAPP;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
 import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentType;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Scenario.ScenarioKeyValuePair;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
-import alifeSim.Stats.StatGroupSetting;
 import alifeSim.World.WorldSetupSettings;
 
 public class SAPPScenario extends ScenarioVT implements ScenarioInf
@@ -75,7 +69,7 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		plantSettings.setPlantRegenRate(super.getIntValue(section,"PlantRegeratonRate"));
 			
 		plantSettings.setPlantRegenerationNSteps(super.getIntValue(section,"PlantRegenerationNSteps"));
-				
+		
 	}
 		
 	private void readAgentsSettings()
@@ -86,16 +80,25 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		
 		SimpleAgentSetupSettings agentSettings;
 		String section;
-		for(int i=0;i<agentGroups;i++)
+		for(int a=0;a<agentGroups;a++)
 		{
-			agentSettings = new SimpleAgentSetupSettings();
-			section = "Agents.SimpleAgent("+i+")";
+			System.out.println("SimpleAgent Group : " + a);
+			section = "Agents.SimpleAgent("+a+")";
+
+			/* Create the settings and the Name */			
+			agentSettings = new SimpleAgentSetupSettings(super.getStringValue(section, "Name"));
 			
-			System.out.println("SimpleAgent Group : " + i);
+			/* Set the color */
+			int red 	= super.getIntValue(section, "Color.Red");
+			int green 	= super.getIntValue(section, "Color.Green");
+			int blue 	= super.getIntValue(section, "Color.Blue");			
+			
+			agentSettings.setColor(red, green, blue);
+			System.out.println("Color : " + red+" "+green+" "+blue);
 			
 			/* Set the Type */
 			SimpleAgentType type = new SimpleAgentType(AgentType.INVALID);
-			agentSettings.setType(type.typeFromString(super.getStringValue(section, "Type")));
+			agentSettings.setType(type.typeFromString(super.getStringValue(section, "AgentType")));
 			System.out.println("Agent Type : " + agentSettings.getType());
 				
 			agentSettings.setInitalNumbers(super.getIntValue(section,"InitialNumbers"));

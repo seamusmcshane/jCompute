@@ -27,7 +27,7 @@ public class SimpleAgentManagementSetupParamTests
 	@Before
 	public void setUp() throws Exception
 	{
-		agentSettings = new SimpleAgentSetupSettings();
+		agentSettings = new SimpleAgentSetupSettings("TEST");
 		r = new Random();
 		value = r.nextInt(maxValue) + 1;
 		System.out.println("====================================================");

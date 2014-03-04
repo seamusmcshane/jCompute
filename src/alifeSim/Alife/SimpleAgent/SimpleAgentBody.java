@@ -1,5 +1,7 @@
 package alifeSim.Alife.SimpleAgent;
 
+import java.awt.Color;
+
 import alifeSim.Alife.AlifeBody;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.World.World;
@@ -46,7 +48,7 @@ public class SimpleAgentBody extends AlifeBody
 
 		forwardVector = new A2DVector2f(0, -stats.getMaxSpeed()); /* Forward 1 up */
 
-		initAgentBody(stats.getSize());
+		initAgentBody(stats.getSize(),stats.getColor());
 
 		setIntialPos(pos);
 	}
@@ -54,11 +56,11 @@ public class SimpleAgentBody extends AlifeBody
 	/** 
 	 * Initialises the two body representations 
 	 */
-	private void initAgentBody(float size)
+	private void initAgentBody(float size,Color color)
 	{
 		setSize(size);
 		
-		setAgentColor();
+		setAgentColor(color);
 	}
 
 	/** 
@@ -251,16 +253,17 @@ public class SimpleAgentBody extends AlifeBody
 	/** 
 	 * Sets the Body Color
 	 */
-	private void setAgentColor()
+	private void setAgentColor(Color color)
 	{
-		if (stats.getType().getType() == AgentType.PREY)
+		/*if (stats.getType().getType() == AgentType.PREY)
 		{
 			setColor(new A2RGBA(0,0,1f,0));
 		}
 		else // Predator
 		{
 			setColor(new A2RGBA(1f,0,0f,0));
-		}
+		}*/
+		setColor(new A2RGBA(color));
 	}
 
 

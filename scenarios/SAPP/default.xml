@@ -68,7 +68,13 @@
 	</World>
 	<Agents>
 		<SimpleAgent>
-			<Type>Predator</Type>
+			<Name>Predator</Name>
+			<Color>
+				<Red>255</Red>
+				<Green>0</Green>
+				<Blue>0</Blue>
+			</Color>
+			<AgentType>Predator</AgentType>
 			<InitialNumbers>100</InitialNumbers>
 			<Size>3.5</Size>
 			<Speed>1.00</Speed>
@@ -82,7 +88,13 @@
 			<ReproductionCost>0.55</ReproductionCost>
 		</SimpleAgent>
 		<SimpleAgent>
-			<Type>Prey</Type>
+			<Name>Prey</Name>
+			<Color>
+				<Red>0</Red>
+				<Green>0</Green>
+				<Blue>255</Blue>
+			</Color>
+			<AgentType>Prey</AgentType>
 			<InitialNumbers>800</InitialNumbers>
 			<Size>3.5</Size>
 			<Speed>0.90</Speed>
