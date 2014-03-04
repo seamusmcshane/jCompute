@@ -2,6 +2,8 @@ package unitTests.AlifeSim;
 
 import static org.junit.Assert.*;
 
+import java.awt.Color;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,7 +79,7 @@ public class SimpleAgentViewTests
 	public void setUp() throws Exception
 	{
 		/* The Nearest Agent */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 
 		nearestAgent = new SimpleAgent(null,0, x, y, stats);
 
@@ -99,7 +101,7 @@ public class SimpleAgentViewTests
 		System.out.println("----------------------------------------------------");
 
 		/* The Current Agents Body */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(0, -1);
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		
@@ -153,7 +155,7 @@ public class SimpleAgentViewTests
 		 * Towards Above
 		 */
 
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(0, 1);
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		
@@ -170,7 +172,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Towards Left
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0), maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(-1, 0); // Left
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 90; // Left
@@ -183,7 +185,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Towards Right
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(1, 0); // Right
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 270; // Right
@@ -195,7 +197,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Towards below
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(0, -1); // we are above
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 180; // Below
@@ -223,7 +225,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Away from Above
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(0, 1); // Below
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		
@@ -240,7 +242,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Away from Right
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(-1, 0); // we are Left
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 270; // away from Right is left
@@ -253,7 +255,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Away from Right
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(1, 0); // we are Right
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 90; // away from left is right
@@ -266,7 +268,7 @@ public class SimpleAgentViewTests
 		/*
 		 * Away from below
 		 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(0, 1); // we are Below
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 		value = 180; // away from up is down	
@@ -286,7 +288,7 @@ public class SimpleAgentViewTests
 	public void distanceToAgent()
 	{
 		/* The Current Agents Body - below 0,0 */
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType, new Color(255,0,0),maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		bodyPos = new A2DVector2f(0, -1); // Below
 		currentAgentBody = new SimpleAgentBody(null,bodyPos, stats);
 

@@ -48,6 +48,8 @@ public class SimpleAgentManagerTests
 		
 		predatorAgentSettings.setType(AgentType.PREDATOR);
 		
+		predatorAgentSettings.setColor(255, 0, 0);
+		
 		predatorAgentSettings.setInitalNumbers(agentPredatorNumbers);
 		
 		predatorAgentSettings.setSpeed(1);
@@ -72,6 +74,8 @@ public class SimpleAgentManagerTests
 		
 		preyAgentSettings.setType(AgentType.PREY);
 		
+		preyAgentSettings.setColor(255, 0, 0);
+
 		preyAgentSettings.setSpeed(1);
 
 		preyAgentSettings.setViewRange(2);

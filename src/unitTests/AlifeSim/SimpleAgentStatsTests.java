@@ -60,8 +60,8 @@ public class SimpleAgentStatsTests
 	@Before
 	public void setUp() throws Exception
 	{
-		agentPredatorStats = new SimpleAgentStats(predatorType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
-		agentPreyStats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		agentPredatorStats = new SimpleAgentStats(predatorType,null, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		agentPreyStats = new SimpleAgentStats(preyType, null,maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 		System.out.println("====================================================");
 		System.out.println("----------------------------------------------------");
 	}

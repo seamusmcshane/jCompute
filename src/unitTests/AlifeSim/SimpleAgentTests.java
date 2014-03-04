@@ -2,6 +2,8 @@ package unitTests.AlifeSim;
 
 import static org.junit.Assert.*;
 
+import java.awt.Color;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,7 +70,7 @@ public class SimpleAgentTests
 	@Before
 	public void setUp() throws Exception
 	{
-		stats = new SimpleAgentStats(preyType, maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
+		stats = new SimpleAgentStats(preyType,new Color(255,0,0), maxSpeed, size, energy, maxEnergy, hungryThreshold, viewRange, baseMoveCost, baseReproductionCost, energyConsumptionRate, digestiveEfficency, reproductionEnergyDivision);
 
 		statsRef = stats;
 
