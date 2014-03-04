@@ -1,7 +1,6 @@
 package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.util.HashMap;
-
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -39,7 +38,7 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 
 		settings = new LotkaVolterraTwoAndThreeSpeciesSettings();
 
-		settings.setSubType(super.getStringValue(section,"SubType"));
+		settings.setSubType(subType);
 		System.out.println("SubType : " + settings.getSubType());
 
 		// Load in all the settings

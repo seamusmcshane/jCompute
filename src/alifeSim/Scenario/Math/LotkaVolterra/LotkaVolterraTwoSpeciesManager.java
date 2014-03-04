@@ -3,7 +3,6 @@ package alifeSim.Scenario.Math.LotkaVolterra;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
-
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;

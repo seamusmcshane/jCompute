@@ -1,17 +1,11 @@
 package alifeSim.Scenario.Math.LotkaVolterra;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.badlogic.gdx.graphics.Pixmap;
-
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;
-import alifeSimGeom.A2DPoint2d;
 import alifeSimGeom.A2RGBA;
 import alifeSimGeom.A3DVector3f;
 

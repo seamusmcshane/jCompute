@@ -1,33 +1,27 @@
 package alifeSim.Scenario;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-
-import alifeSim.Scenario.Math.LVScenario;
-import alifeSim.Scenario.SAPP.SAPPScenario;
+import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 
 public class XMLTESTER
 {
 	public static void main(String []args)
 	{
 		System.out.println("XML TESTER");
-		File file = new File("scenarios/LV/default.xml");		
+		File file = new File("scenarios/LV/TwoSpecies/default.xml");		
 		
 		XMLConfiguration scenario = new XMLConfiguration();
 
 		scenario.setSchemaValidation(true);
 		//SAPPScenario sapp = new SAPPScenario();
-		LVScenario lv = new LVScenario();
+		LotkaVolterraScenario lv = new LotkaVolterraScenario();
 		
 		
 		BufferedReader bufferedReader = null;
