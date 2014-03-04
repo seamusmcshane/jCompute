@@ -1,4 +1,4 @@
-package alifeSim.Gui;
+package alifeSim.Gui.Standard;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

@@ -2,8 +2,8 @@ package alifeSim.Main;
 
 import java.util.HashMap;
 import java.util.Set;
-
-import alifeSim.Gui.GUI;
+import alifeSim.Gui.Batch.BatchGUI;
+import alifeSim.Gui.Standard.StandardGUI;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.WebInterface.WebInterface;
 
@@ -13,13 +13,13 @@ public class Launcher
 	private static SimulationsManager simsManager;
 
 	// Standard GUI
-	private static GUI standardGUI;
+	private static StandardGUI standardGUI;
 
 	// WebInterface
 	private static WebInterface webInterface;
 
 	// Batch GUI
-	// private static BatchGUI batchGUI;
+	private static BatchGUI batchGUI;
 
 	// Command Line HasMap
 	private static HashMap<String, CommandLineArg> opts;
@@ -76,7 +76,7 @@ public class Launcher
 		
 		if(opts.get("guiInt").getValue() == 1)
 		{
-			standardGUI = new GUI(simsManager);
+			standardGUI = new StandardGUI(simsManager);
 		}
 		
 		if(opts.get("webInt").getValue() == 1)
@@ -86,7 +86,7 @@ public class Launcher
 		
 		if(opts.get("batchInt").getValue() == 1)
 		{
-			// batchGUI = new BatchGUI(simsManager);
+			batchGUI = new BatchGUI(simsManager);
 		}
 
 	}

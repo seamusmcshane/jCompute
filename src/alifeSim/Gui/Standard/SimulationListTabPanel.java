@@ -1,4 +1,4 @@
-package alifeSim.Gui;
+package alifeSim.Gui.Standard;
 
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.ITrace2D;

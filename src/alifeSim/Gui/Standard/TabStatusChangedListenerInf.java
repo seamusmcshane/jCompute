@@ -1,4 +1,4 @@
-package alifeSim.Gui;
+package alifeSim.Gui.Standard;
 
 import alifeSim.Simulation.SimulationState.SimState;
 

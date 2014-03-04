@@ -1,4 +1,4 @@
-package alifeSim.Gui;
+package alifeSim.Gui.Standard;
 
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -25,7 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 
-public class GUI  implements ActionListener, ItemListener, WindowListener
+public class StandardGUI  implements ActionListener, ItemListener, WindowListener
 {
 	// Main Frame
 	private JFrame guiFrame;
@@ -56,7 +56,7 @@ public class GUI  implements ActionListener, ItemListener, WindowListener
 	// Menu Check Boxes
 	private JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
 		
-	public GUI(SimulationsManager simsManager)
+	public StandardGUI(SimulationsManager simsManager)
 	{
 		this.simsManager = simsManager;
 
