@@ -3,6 +3,7 @@ package alifeSim.Scenario.Math.LotkaVolterra;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
+
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatManager;
@@ -16,7 +17,7 @@ public class LotkaVolterraTwoSpeciesManager implements LotkaVolterraSubTypeInf
 	private double initial_predator_population;
 		
 	private double prey_growth;
-	private double predation_rate;
+	private double predator_predation_rate;
 	private double predator_death_rate;
 	private double predator_conversion_rate;
 	
@@ -73,9 +74,15 @@ public class LotkaVolterraTwoSpeciesManager implements LotkaVolterraSubTypeInf
 		predator_population = initial_predator_population;
 		
 		prey_growth = settings.getPreyGrowth();
-		predation_rate = settings.getPredationRate();
+		predator_predation_rate = settings.getPredatorPredationRate();
 		predator_death_rate = settings.getPredatorDeathRate();
 		predator_conversion_rate = settings.getPredatorConversionRate();
+		
+		System.out.println("prey_population : " + prey_population);
+		System.out.println("predator_population : " + predator_population);
+		System.out.println("predator_predation_rate : " + predator_predation_rate);
+		System.out.println("predator_conversion_rate : " + predator_conversion_rate);
+		System.out.println("predator_death_rate : " + predator_death_rate);
 		
 		sub_steps = settings.getSubSteps();
 		
@@ -240,7 +247,7 @@ public class LotkaVolterraTwoSpeciesManager implements LotkaVolterraSubTypeInf
 	/* LOTKA-VOLTERA - PREY */
 	private double calculate_prey(double prey_population,double predator_population)
 	{
-		return prey_growth*prey_population - predation_rate*prey_population*predator_population;
+		return prey_growth*prey_population - predator_predation_rate*prey_population*predator_population;
 	}
 
 	/* LOTKA-VOLTERA - PREDATOR */
