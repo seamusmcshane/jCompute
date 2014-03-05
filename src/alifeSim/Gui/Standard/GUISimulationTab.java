@@ -115,7 +115,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	// Sim Related
 	private boolean generatingSim = false;
 	private JCheckBox chckbxWarn;
-	private boolean warnOnGenerate;
+	private boolean warnOnGenerate = true;
 	private boolean simGenerated = false;
 
 	/* Tabs */
