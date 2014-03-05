@@ -114,6 +114,8 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	// Sim Related
 	private boolean generatingSim = false;
+	private JCheckBox chckbxWarn;
+	private boolean warnOnGenerate;
 	private boolean simGenerated = false;
 
 	/* Tabs */
@@ -258,7 +260,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		gbl_simulationControlPanel.columnWeights = new double[]
 		{1.0, 1.0, 1.0};
 		gbl_simulationControlPanel.rowWeights = new double[]
-		{0.0, 0.0, 0.0, 0.0};
+		{0.0, 0.0, 0.0, 1.0};
 		simulationControlPanel.setLayout(gbl_simulationControlPanel);
 
 		JLabel lblAverageStepRate = new JLabel("Average Step Rate");
@@ -385,17 +387,25 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		gbc_sliderSimStepRate.gridy = 2;
 		simulationControlPanel.add(sliderSimStepRate, gbc_sliderSimStepRate);
 
+		JPanel generatePanel = new JPanel(new BorderLayout());
 		btnGenerateSim = new JButton("Generate");
 		btnGenerateSim.setIcon(generateSimIcon);
 		btnGenerateSim.addActionListener(this);
 		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
 		btnGenerateSim.setEnabled(false);
 		GridBagConstraints gbc_btnGenerateSim = new GridBagConstraints();
-		gbc_btnGenerateSim.fill = GridBagConstraints.BOTH;
-		gbc_btnGenerateSim.insets = new Insets(0, 0, 0, 5);
-		gbc_btnGenerateSim.gridx = 0;
-		gbc_btnGenerateSim.gridy = 3;
-		simulationControlPanel.add(btnGenerateSim, gbc_btnGenerateSim);
+		/*gbc_btnGenerateSim.fill = GridBagConstraints.BOTH;*/
+		generatePanel.add(btnGenerateSim, BorderLayout.CENTER);
+		GridBagConstraints gbc_generatePanel = new GridBagConstraints();
+		gbc_generatePanel.fill = GridBagConstraints.BOTH;
+		gbc_generatePanel.gridy = 3;
+		gbc_generatePanel.gridx = 0;
+		simulationControlPanel.add(generatePanel, gbc_generatePanel);
+		
+		chckbxWarn = new JCheckBox("Warn");
+		chckbxWarn.addChangeListener(this);
+		chckbxWarn.setSelected(true);
+		generatePanel.add(chckbxWarn, BorderLayout.WEST);
 
 		btnStartSim = new JButton("Start");
 		btnStartSim.setIcon(startSimIcon);
@@ -549,32 +559,35 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	private boolean discardCurrentSimGenerated()
 	{
-		if (simGenerated)
+		if(warnOnGenerate)
 		{
-			// prompt to save
-			String message = "Discard Running Simulation?";
-
-			JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-			// Center Dialog on the GUI
-			JDialog dialog = pane.createDialog(this, "Discard Running Simulation");
-
-			dialog.pack();
-			dialog.setVisible(true);
-
-			int value = ((Integer) pane.getValue()).intValue();
-
-			if (value == JOptionPane.YES_OPTION)
+			if (simGenerated)
 			{
-				simGenerated = false;
-				
-				return true;
+				// prompt to save
+				String message = "Discard Running Simulation?";
+	
+				JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+	
+				// Center Dialog on the GUI
+				JDialog dialog = pane.createDialog(this, "Discard Running Simulation");
+	
+				dialog.pack();
+				dialog.setVisible(true);
+	
+				int value = ((Integer) pane.getValue()).intValue();
+	
+				if (value == JOptionPane.YES_OPTION)
+				{
+					simGenerated = false;
+					
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+	
 			}
-			else
-			{
-				return false;
-			}
-
 		}
 		return true;
 	}
@@ -1049,6 +1062,17 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				scenarioEditor.setEditable(false);
 				scenarioEditor.setBackground(normalMode);
 
+			}
+		}
+		else if(e.getSource() == chckbxWarn)
+		{
+			if (chckbxWarn.isSelected())
+			{
+				warnOnGenerate = true;
+			}
+			else
+			{
+				warnOnGenerate = false;
 			}
 		}
 		else
