@@ -17,11 +17,12 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 	private double initial_plant_population;
 		
 	/* Constants */
-	private double predator_death_rate;
+	private double predator_predation_rate;
 	private double predator_conversion_rate;
 	private double prey_plant_conversion_rate;
-
-	private double predation_rate;
+	private double prey_plant_consumption_rate;
+	
+	private double predator_death_rate;
 	private double prey_death_rate;
 	
 	private double plant_growth_rate;
@@ -29,7 +30,9 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 	/* Supported Stats */
 	private double plant_population;
 	private SingleStat stat_plant_population;
-
+	private double plant_min_population;
+	private double plant_max_population;	
+	
 	private SingleStat stat_prey_population;	
 	private double prey_min_population;
 	private double prey_population;
@@ -83,14 +86,27 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 		predator_population = initial_predator_population;
 		plant_population = initial_plant_population;
 
-		predation_rate = settings.getPredationRate();
+		predator_predation_rate = settings.getPredatorPredationRate();		
 		predator_conversion_rate = settings.getPredatorConversionRate();
 		
-		plant_growth_rate = settings.getPlantGrowthRate();
+		prey_plant_consumption_rate = settings.getPreyPlantConsumptionRate();
 		prey_plant_conversion_rate = settings.getPreyPlantConversionRate();
+
+		plant_growth_rate = settings.getPlantGrowthRate();
 
 		predator_death_rate = settings.getPredatorDeathRate();
 		prey_death_rate = settings.getPreyDeathRate();
+		
+		System.out.println("prey_population : " + prey_population);
+		System.out.println("predator_population : " + predator_population);
+		System.out.println("plant_population : " + plant_population);
+		System.out.println("predator_predation_rate : " + predator_predation_rate);
+		System.out.println("predator_conversion_rate : " + predator_conversion_rate);
+		System.out.println("prey_plant_consumption_rate : " + prey_plant_consumption_rate);
+		System.out.println("prey_plant_conversion_rate : " + prey_plant_conversion_rate);
+		System.out.println("plant_growth_rate : " + plant_growth_rate);
+		System.out.println("predator_death_rate : " + predator_death_rate);
+		System.out.println("prey_death_rate : " + prey_death_rate);
 		
 		sub_steps = settings.getSubSteps();
 		
@@ -239,38 +255,57 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 			statManager.notifiyStatListeners();			
 		}
 		
+		System.out.println("PR " + predator_population + " PY " + prey_population + " PL " + plant_population);
+		
+	}
+	
+	private void findMinMax()
+	{
+		for (A3DVector3f vector : values) 
+		{
+			/* predator_population */
+			if(predator_population > predator_max_population)
+			{
+				predator_max_population = predator_population;
+			}
+			
+			if(predator_population < predator_min_population)
+			{
+				predator_min_population = predator_population;
+			}
+			
+			/* prey_population */
+			if(prey_population > prey_max_population)
+			{
+				prey_max_population = prey_population;
+			}
+			
+			if(prey_population < prey_min_population)
+			{
+				prey_min_population = prey_population;
+			}
+			
+			/* plant_population */
+			if(plant_population > plant_max_population)
+			{
+				plant_max_population = plant_population;
+			}
+			
+			if(plant_population < plant_min_population)
+			{
+				plant_min_population = plant_population;
+			}
+		}
 	}
 	
 	private void addDrawVal(int i)
-	{
-		A2RGBA color = new A2RGBA(new Color(Color.HSBtoRGB(pointsHue,1f,1f)));
-		
-		/* predator_population */
-		if(predator_population > predator_max_population)
-		{
-			predator_max_population = predator_population;
-		}
-		
-		if(predator_population < predator_min_population)
-		{
-			predator_min_population = predator_population;
-		}
-		
-		/* prey_population */
-		if(prey_population > prey_max_population)
-		{
-			prey_max_population = prey_population;
-		}
-		
-		if(prey_population < prey_min_population)
-		{
-			prey_min_population = prey_population;
-		}
+	{		
+
 		
 		if(i%draw_mod == 0)
 		{
 			// Draw 
-			values.add(new A3DVector3f(predator_population,prey_population,plant_population,color));	
+			values.add(new A3DVector3f(predator_population,prey_population,plant_population,null));	
 		}
 
 	}
@@ -286,13 +321,13 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 	/* Modified LOTKA-VOLTERA - PREY */
 	private double calculate_prey(double predator_population,double prey_population,double plant_population)
 	{
-		return (prey_plant_conversion_rate*prey_population*plant_population) - (prey_death_rate*prey_population) - (predation_rate*prey_population*predator_population);
+		return (prey_plant_conversion_rate*prey_population*plant_population) - (prey_death_rate*prey_population) - (predator_predation_rate*prey_population*predator_population);
 	}
 	
 	/* Modified LOTKA-VOLTERA - PLANT */
-	private double calculate_plants(double predator,double prey_population,double plant_population)
+	private double calculate_plants(double predator_population,double prey_population,double plant_population)
 	{
-		return plant_growth_rate*plant_population - (prey_plant_conversion_rate*prey_population*plant_population);
+		return plant_growth_rate*plant_population - (prey_plant_consumption_rate*prey_population*plant_population);
 	}
 	
 	private void setUpStats()
@@ -336,6 +371,8 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 		{
 			if(values.size() > 0)
 			{
+				findMinMax();
+				
 				if(previous==null)
 				{
 					previous = values.get(0);
@@ -356,10 +393,15 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 						ymax = y;
 					}
 
+					
+					
 					float lx =  (vector.getX()/vector.getZ())*xscale;
 					float ly =  (vector.getY()/vector.getZ())*yscale;
 					float plx = (previous.getX()/previous.getZ())*xscale;
 					float ply = (previous.getY()/previous.getZ())*yscale;
+					
+					A2RGBA color = new A2RGBA(new Color(Color.HSBtoRGB((float) ((1f/(plant_max_population*scale))*(vector.getZ()*scale))*0.5f ,1f,(float) ((1f/(plant_max_population*scale))*(vector.getZ()*scale))*0.5f )));
+					vector.setColor(color);
 					
 					simView.drawLine(lx,ly, plx,ply,new A2RGBA(new Color(vector.getColor().getRed(),vector.getColor().getGreen(),vector.getColor().getBlue(),vector.getColor().getAlpha())),false);
 					
