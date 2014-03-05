@@ -45,6 +45,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -986,7 +987,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		switch(reqSps)
 		{
 			case 1:
-				sliderVal = 1;
+				sliderVal = 0;
 			break;
 			case 5:
 				sliderVal = 4;
@@ -1012,7 +1013,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	{		
 		switch(sliderVal)
 		{
-			case 1:
+			case 0:
 				lblRequestedStepRate.setText("1");
 				simsManager.setReqSimStepRate(simId,1);
 			break;
@@ -1029,7 +1030,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 				simsManager.setReqSimStepRate(simId,60);
 			break;
 			case 16:
-				lblRequestedStepRate.setText("Unli");
+				lblRequestedStepRate.setText(new DecimalFormatSymbols().getInfinity());
 				simsManager.setReqSimStepRate(simId,0);
 			break;
 			default :
