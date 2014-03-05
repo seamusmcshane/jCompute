@@ -2,27 +2,30 @@ package alifeSim.Scenario.Math.LotkaVolterra;
 
 public class LotkaVolterraTwoAndThreeSpeciesSettings
 {
-	private String subType;
+	private String subType = "NONE";
 	
-	private double initial_prey_population = 800;
-	private double initial_predator_population = 100;
+	private double initial_prey_population = -1;
+	private double initial_predator_population = -1;
 		
-	private double prey_growth = 0.5;
-	private double predation_rate = 0.008;
-	private double predator_death_rate = 0.8;
-	private double predator_conversion_rate = 0.2;
+	private double prey_growth = -1;
+	private double predator_predation_rate = -1;
+	private double predator_death_rate = -1;
+	private double predator_conversion_rate = -1;
 
 	/* Three Species */
-	private double prey_death_rate = 1;
-	private double initial_plant_population = 200;
-	private double plant_growth_rate = 0.5;
-	private double prey_plant_conversion_rate = 0.2;	
+	private double initial_plant_population = -1;
+	private double plant_growth_rate = -1;
 	
-	private int sub_steps = 256;
-	private String intType = "RK4";
+
+	private double prey_plant_consumption_rate = -1;	
+	private double prey_plant_conversion_rate = -1;	
+	private double prey_death_rate = 1;
+	
+	private int sub_steps = -1;
+	private String intType = "NONE";
 	
 	private float viewScale = 1f;
-		
+	
 	public double getInitialPreyPopulation()
 	{
 		return initial_prey_population;
@@ -55,12 +58,12 @@ public class LotkaVolterraTwoAndThreeSpeciesSettings
 
 	public double getPredationRate()
 	{
-		return predation_rate;
+		return predator_predation_rate;
 	}
 
-	public void setPredationRate(double predation_rate)
+	public void setPredationRate(double predator_predation_rate)
 	{
-		this.predation_rate = predation_rate;
+		this.predator_predation_rate = predator_predation_rate;
 	}
 
 	public double getPredatorDeathRate()
@@ -158,6 +161,26 @@ public class LotkaVolterraTwoAndThreeSpeciesSettings
 	public double getPreyDeathRate()
 	{
 		return prey_death_rate;
+	}
+
+	public double getPredatorPredationRate()
+	{
+		return predator_predation_rate;
+	}
+	
+	public void setPredatorPredationRate(double predator_predation_rate)
+	{
+		this.predator_predation_rate = predator_predation_rate;
+	}
+
+	public double getPreyPlantConsumptionRate()
+	{
+		return prey_plant_consumption_rate;
+	}
+
+	public void setPreyPlantConsumptionRate(double prey_plant_consumption_rate)
+	{
+		this.prey_plant_consumption_rate = prey_plant_consumption_rate;
 	}
 
 }
