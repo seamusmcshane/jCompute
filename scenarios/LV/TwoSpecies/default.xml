@@ -42,7 +42,7 @@
 			<Value>1</Value>
 		</Parameter>
 		<Parameter>
-			<Name>predation_rate</Name>
+			<Name>predator_predation_rate</Name>
 			<Value>0.008</Value>
 		</Parameter>
 		<Parameter>

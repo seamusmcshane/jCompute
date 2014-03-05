@@ -30,40 +30,44 @@
 	</Integration>
 	<Parameters>
 		<Parameter>
-			<Name>initial_prey_population</Name>
-			<Value>2500</Value>
-		</Parameter>
-		<Parameter>
-			<Name>initial_predator_population</Name>
-			<Value>1250</Value>
-		</Parameter>
-		<Parameter>
 			<Name>initial_plant_population</Name>
 			<Value>10000</Value>
-		</Parameter>
-		<Parameter>
-			<Name>predation_rate</Name>
-			<Value>0.0001</Value>
-		</Parameter>
-		<Parameter>
-			<Name>predator_conversion_rate</Name>
-			<Value>0.0001</Value>
 		</Parameter>
 		<Parameter>
 			<Name>plant_growth_rate</Name>
 			<Value>1</Value>
 		</Parameter>
 		<Parameter>
+			<Name>initial_prey_population</Name>
+			<Value>5000</Value>
+		</Parameter>
+		<Parameter>
+			<Name>prey_plant_consumption_rate</Name>
+			<Value>0.000125</Value>
+		</Parameter>	
+		<Parameter>
 			<Name>prey_plant_conversion_rate</Name>
-			<Value>0.0001</Value>
+			<Value>0.000075</Value>
+		</Parameter>	
+		<Parameter>
+			<Name>prey_death_rate</Name>
+			<Value>1</Value>
+		</Parameter>		
+		<Parameter>
+			<Name>initial_predator_population</Name>
+			<Value>2500</Value>
+		</Parameter>
+		<Parameter>
+			<Name>predator_predation_rate</Name>
+			<Value>0.00025</Value>
+		</Parameter>
+		<Parameter>
+			<Name>predator_conversion_rate</Name>
+			<Value>0.000125</Value>
 		</Parameter>
 		<Parameter>
 			<Name>predator_death_rate</Name>
 			<Value>1</Value>
-		</Parameter>
-		<Parameter>
-			<Name>prey_death_rate</Name>
-			<Value>2</Value>
 		</Parameter>
 	</Parameters>
 </Scenario>
