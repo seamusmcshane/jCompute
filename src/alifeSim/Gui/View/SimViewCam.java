@@ -38,7 +38,7 @@ public class SimViewCam
 		this.zoomDefault = camZoom;
 		this.camZoom = zoomDefault;
 
-		this.camOffset = camOffset;
+		this.camOffset = new A2DVector2f((int)camOffset.getX(),(int)camOffset.getY());
 
 	}
 
@@ -110,7 +110,7 @@ public class SimViewCam
 		}
 		else if (camZoom < zoomDefault)
 		{
-			aniZoomIncr = zoomDefault / animationSteps;
+			aniZoomIncr = Math.abs(zoomDefault / animationSteps);
 		}
 		else
 		{
@@ -119,6 +119,8 @@ public class SimViewCam
 
 		if (zoom)
 		{
+			//System.out.println("Zoom");
+
 			zoomTimer = new Timer("Zoom Animator Timer");
 
 			zoomTimer.schedule(new TimerTask()
@@ -134,8 +136,8 @@ public class SimViewCam
 							camZoom = zoomDefault;
 
 							zoomTimer.cancel();
-						}
-
+						}					
+						
 						camZoom -= aniZoomIncr;
 					}
 
@@ -160,13 +162,10 @@ public class SimViewCam
 		}
 	}
 
-	public void resetCamPos(final float x, final float y)
+	public void resetCamX(final float x)
 	{
 		boolean resetX = true;
-		boolean resetY = true;
-
 		finalX = x - camOffset.getX();
-		finalY = y - camOffset.getY();
 
 		if (camPos.getX() > finalX)
 		{
@@ -174,37 +173,40 @@ public class SimViewCam
 		}
 		else if (camPos.getX() < finalX)
 		{
-			aniXreset = finalX / animationSteps;
+			aniXreset = Math.abs(finalX / animationSteps);
 		}
 		else
 		{
 			resetX = false;
 		}
-
-		if (camPos.getY() > finalY)
-		{
-			aniYreset = Math.abs(camPos.getY() / animationSteps);
-		}
-		else if (camPos.getY() < finalY)
-		{
-			aniYreset = finalY / animationSteps;
-		}
-		else
-		{
-			resetY = false;
-		}
-
+		
 		if (resetX)
 		{
+			//System.out.println("Center X");
+
+			if(centerX!=null)
+			{
+				centerX.cancel();
+			}
 			centerX = new Timer("Center Animator Timer");
 
 			centerX.schedule(new TimerTask()
 			{
 				@Override
 				public void run()
-				{
+				{	
+					if( (camPos.getX() > (finalX - 10) ) && (camPos.getX() < (finalX + 10) ))
+					{
+						//System.out.println("Center Snap X");
+
+						camPos.setX(finalX);
+						centerX.cancel();
+					}
+					
 					if (camPos.getX() > finalX)
 					{
+						//System.out.println("Center X >");
+
 						if (camPos.getX() - aniXreset < finalX)
 						{
 							camPos.setX(finalX);
@@ -216,6 +218,9 @@ public class SimViewCam
 
 					if (camPos.getX() < finalX)
 					{
+						//System.out.println("Center X <");
+						//System.out.println("Center X <" + camPos.getX() + " " + finalX + " " + aniXreset);
+
 						if (camPos.getX() + aniXreset > finalX)
 						{
 							camPos.setX(finalX);
@@ -229,16 +234,52 @@ public class SimViewCam
 
 			}, 0, 250 / animationSteps);
 		}
+		
+	}
+	
+	public void resetCamY(final float y)
+	{
+		boolean resetY = true;
+		finalY = y - camOffset.getY();
 
+		if (camPos.getY() > finalY)
+		{
+			aniYreset = Math.abs(camPos.getY() / animationSteps);
+		}
+		else if (camPos.getY() < finalY)
+		{
+			aniYreset = finalY / animationSteps;
+		}
+		else
+		{
+			resetY = false;
+		}
+		
 		if (resetY)
 		{
+			if(centerY!=null)
+			{
+				centerY.cancel();
+			}
 			centerY = new Timer("Center Animator Timer");
 
+			//System.out.println("Center Y");
+			
 			centerY.schedule(new TimerTask()
 			{
 				@Override
 				public void run()
 				{
+					//System.out.println("camPos : " + camPos.getX() + " " + camPos.getY());
+					//System.out.println("Final : " + finalX + " " + finalY);
+					
+					// Snap the last pixel incase we get a floating point error
+					if( (camPos.getY() > (finalY - 1) ) && (camPos.getY() < (finalY + 1) ))
+					{
+						camPos.setY(finalY);
+						centerY.cancel();
+					}
+					
 					if (camPos.getY() > finalY)
 					{
 						if (camPos.getY() - aniYreset < finalY)
@@ -265,11 +306,17 @@ public class SimViewCam
 				
 			}, 0, 250 / animationSteps);
 		}
-
+	}
+	
+	public void resetCamPos(float x,float y)
+	{
+		resetCamX(x);
+		resetCamY(y);
 	}
 
 	public void moveCam(float x, float y)
 	{
 		camPos.set(x, y);
 	}
+
 }
