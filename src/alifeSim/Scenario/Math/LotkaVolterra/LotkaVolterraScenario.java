@@ -82,20 +82,20 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 			System.out.println("PredatorDeathRate : " + settings.getPredatorDeathRate());
 		}
 		
-		if(parameters.containsKey("predation_rate"))
+		if(parameters.containsKey("predator_predation_rate"))
 		{
-			settings.setPredationRate(parameters.get("predation_rate"));
-			System.out.println("PredationRate : " + settings.getPredationRate());
+			settings.setPredatorPredationRate(parameters.get("predator_predation_rate"));
+			System.out.println("PredationRate : " + settings.getPredatorPredationRate());
 		}
 		
+		/* Not used when three species */
 		if(parameters.containsKey("prey_growth"))
 		{
 			settings.setPreyGrowth(parameters.get("prey_growth"));
 			System.out.println("PreyGrowth : " + settings.getPreyGrowth());
 		}
 		
-		/* Three Species */
-		
+		/* Three Species */		
 		if(parameters.containsKey("initial_plant_population"))
 		{
 			settings.setInitialPlantPopulation(parameters.get("initial_plant_population"));
@@ -108,10 +108,16 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 			System.out.println("Plant Growth Rate : " + settings.getPlantGrowthRate());
 		}
 		
+		if(parameters.containsKey("prey_plant_consumption_rate"))
+		{
+			settings.setPreyPlantConsumptionRate(parameters.get("prey_plant_consumption_rate"));
+			System.out.println("Prey Plant Consumption Rate : " + settings.getPreyPlantConsumptionRate());
+		}
+		
 		if(parameters.containsKey("prey_plant_conversion_rate"))
 		{
 			settings.setPreyPlantConversionRate(parameters.get("prey_plant_conversion_rate"));
-			System.out.println("Prey to Plant Consumption Rate : " + settings.getPreyPlantConversionRate());
+			System.out.println("Prey to Plant Conversion Rate : " + settings.getPreyPlantConversionRate());
 		}
 		
 		if(parameters.containsKey("prey_death_rate"))
@@ -119,7 +125,7 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 			settings.setPreyDeathRate(parameters.get("prey_death_rate"));
 			System.out.println("Prey Death Rate : " + settings.getPreyDeathRate());
 		}
-		
+
 		return true;
 	}
 	
