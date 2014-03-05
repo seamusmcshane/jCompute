@@ -56,16 +56,6 @@ public class LotkaVolterraTwoAndThreeSpeciesSettings
 		this.prey_growth = prey_growth;
 	}
 
-	public double getPredationRate()
-	{
-		return predator_predation_rate;
-	}
-
-	public void setPredationRate(double predator_predation_rate)
-	{
-		this.predator_predation_rate = predator_predation_rate;
-	}
-
 	public double getPredatorDeathRate()
 	{
 		return predator_death_rate;
