@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:complexType name="BatchParameter">
+	<xs:sequence>
+		<xs:element name="Type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="Path" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="GroupName" type="xs:string" minOccurs="0" maxOccurs="1"/>										
+		<xs:element name="ParameterName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="Intial" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="Increment" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="Combinations" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+	<xs:element name="Batch">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Header">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Version" type="xs:string"/>
+							<xs:element name="Type" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="BaseScenario">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="FileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Parameters" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Parameter"  type="BatchParameter"  minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element> 
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element> 
+</xs:schema> 
