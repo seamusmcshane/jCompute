@@ -11,7 +11,7 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element> 
-		<xs:element name="EndEvents" minOccurs="1" maxOccurs="1">
+		<xs:element name="EndEvents" minOccurs="0" maxOccurs="1">
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="Event" minOccurs="1" maxOccurs="unbounded">
@@ -25,7 +25,7 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element> 
-		<xs:element name="Statistics" minOccurs="1" maxOccurs="1">
+		<xs:element name="Statistics" minOccurs="0" maxOccurs="1">
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="Stat" minOccurs="0" maxOccurs="unbounded">
@@ -87,7 +87,24 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element> 		
-		<xs:element name="Plants">
+		<xs:element name="Plants" minOccurs="1" maxOccurs="1">
+			<xs:complexType>
+				<xs:sequence>
+						<xs:element name="GenericPlant" minOccurs="1" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Type" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="InitialNumbers" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="StartingEnergy" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="PlantRegeratonRate" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="PlantRegenerationNSteps" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="EnergyAbsorptionRate" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="ReproductionAndSurvivalDivisor" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+				</xs:sequence>
+			</xs:complexType>
 		</xs:element>
     </xs:sequence>
   </xs:complexType>

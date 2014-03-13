@@ -31,7 +31,7 @@
 	<Parameters>
 		<Parameter>
 			<Name>initial_plant_population</Name>
-			<Value>10000</Value>
+			<Value>50000</Value>
 		</Parameter>
 		<Parameter>
 			<Name>plant_growth_rate</Name>
@@ -39,7 +39,7 @@
 		</Parameter>
 		<Parameter>
 			<Name>initial_prey_population</Name>
-			<Value>5000</Value>
+			<Value>25000</Value>
 		</Parameter>
 		<Parameter>
 			<Name>prey_plant_consumption_rate</Name>

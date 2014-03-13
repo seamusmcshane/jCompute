@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<Scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/sapp-schema.xmls">
+<Scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/sapp-schema.xsd">
 	<Header>
 		<Version>0.04</Version>
 		<Type>SAPP</Type>
@@ -68,7 +68,13 @@
 	</World>
 	<Agents>
 		<SimpleAgent>
-			<Type>Predator</Type>
+			<Name>Predator</Name>
+			<Color>
+				<Red>255</Red>
+				<Green>0</Green>
+				<Blue>0</Blue>
+			</Color>
+			<AgentType>Predator</AgentType>
 			<InitialNumbers>4000</InitialNumbers>
 			<Size>3.5</Size>
 			<Speed>1.00</Speed>
@@ -82,7 +88,13 @@
 			<ReproductionCost>0.55</ReproductionCost>
 		</SimpleAgent>
 		<SimpleAgent>
-			<Type>Prey</Type>
+			<Name>Prey</Name>
+			<Color>
+				<Red>0</Red>
+				<Green>0</Green>
+				<Blue>255</Blue>
+			</Color>
+			<AgentType>Prey</AgentType>
 			<InitialNumbers>4000</InitialNumbers>
 			<Size>3.5</Size>
 			<Speed>0.90</Speed>
