@@ -7,21 +7,25 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.configuration.XMLConfiguration;
+
 import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
+import alifeSim.Scenario.SAPP.SAPPScenario;
 
 public class XMLTESTER
 {
 	public static void main(String []args)
 	{
 		System.out.println("XML TESTER");
-		File file = new File("scenarios/LV/TwoSpecies/default.xml");		
+		//File file = new File("scenarios/SAPP/batch/BatchRun-ViewRange.xml");		
+		File file = new File("scenarios/SAPP/batch/BatchViewRangeScenario.xml");		
 		
 		XMLConfiguration scenario = new XMLConfiguration();
 
 		scenario.setSchemaValidation(true);
-		//SAPPScenario sapp = new SAPPScenario();
-		LotkaVolterraScenario lv = new LotkaVolterraScenario();
+		ScenarioVT sc = new ScenarioVT();
+		//LotkaVolterraScenario lv = new LotkaVolterraScenario();
 		
 		
 		BufferedReader bufferedReader = null;
@@ -59,9 +63,13 @@ public class XMLTESTER
 		}
 		System.out.println(editor);
 							
-		lv.loadConfig(editor);
+		sc.loadConfig(editor);
 
 		
+		//sc.getScenarioXMLText();
+		sc.dumpXML();
+		
+		System.exit(0);
 	}
 	
 }
