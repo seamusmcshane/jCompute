@@ -255,7 +255,7 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 			statManager.notifiyStatListeners();			
 		}
 		
-		System.out.println("PR " + predator_population + " PY " + prey_population + " PL " + plant_population);
+		//System.out.println("PR " + predator_population + " PY " + prey_population + " PL " + plant_population);
 		
 	}
 	
