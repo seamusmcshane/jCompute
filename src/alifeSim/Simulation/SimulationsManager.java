@@ -9,6 +9,10 @@ import java.util.concurrent.Semaphore;
 
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
+import alifeSim.Scenario.ScenarioVT;
+import alifeSim.Scenario.Debug.DebugScenario;
+import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
+import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Stats.StatManager;
 
@@ -217,19 +221,162 @@ public class SimulationsManager
 		
 	}
 
-	public void createSimScenario(int simId, ScenarioInf simScenario)
+	public boolean createSimScenario(int simId, String scenarioText)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
+		boolean created = false;
+		
 		Simulation sim = simulations.get(simId);
 		
-		if(sim!=null)
+		ScenarioInf scenario = determinScenarios(scenarioText);
+
+		if(sim!=null && scenario!=null)
 		{
-			sim.createSimScenario(simScenario);
+			sim.createSimScenario(scenario);
+			created = true;
 		}
 		
 		simulationsManagerLock.release();
+		
+		return created;
 	}
+	
+	private ScenarioInf determinScenarios(String text)
+	{
+		ScenarioVT scenarioParser = null;
+
+		ScenarioInf simScenario = null;
+
+		scenarioParser = new ScenarioVT();
+
+		// To get the type of Scenario object to create.
+		scenarioParser.loadConfig(text);
+
+		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
+
+		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
+		{
+			System.out.println("Debug File");
+			simScenario = new DebugScenario(text);
+		}
+		else
+		{
+			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
+			{
+				System.out.println("SAPP File");
+				simScenario = new SAPPScenario();
+
+				simScenario.loadConfig(text);
+
+			}
+			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
+			{
+				System.out.println("LV File");
+				simScenario = new LotkaVolterraScenario();
+
+				simScenario.loadConfig(text);
+			}
+			else
+			{
+				System.out.println("DeterminScenarios :UKNOWN");
+			}
+		}
+
+		return simScenario;
+	}
+	
+	/*
+	public int addSimulation(String scenarioText)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		if( activeSims < maxSims)
+		{
+			// Determine Scenario Type
+			ScenarioInf scenario = determinScenarios(scenarioText);
+			
+			// Valid type in scenario
+			if(scenario!=null)
+			{
+				Simulation sim = new Simulation(simulationNum);
+
+				simulationNum++;
+				
+				activeSims++;
+				
+				sim.createSimScenario(scenario);
+				
+				// add sim to struct - index on id & let sim know its id
+				simulations.put(simulationNum,sim);		
+				
+				
+				simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);				
+			}
+			else
+			{
+				simulationNum = -2;
+			}
+
+			simulationsManagerLock.release();
+			
+			return simulationNum;
+		}
+		else
+		{
+			System.out.println("Too Many Sims");
+
+			simulationsManagerLock.release();
+
+			return -1;
+		}
+
+	}
+
+	private ScenarioInf determinScenarios(String text)
+	{
+		ScenarioVT scenarioParser = null;
+
+		ScenarioInf simScenario = null;
+
+		scenarioParser = new ScenarioVT();
+
+		// To get the type of Scenario object to create.
+		scenarioParser.loadConfig(text);
+
+		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
+
+		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
+		{
+			System.out.println("Debug File");
+			simScenario = new DebugScenario(text);
+		}
+		else
+		{
+			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
+			{
+				System.out.println("SAPP File");
+				simScenario = new SAPPScenario();
+
+				simScenario.loadConfig(text);
+
+			}
+			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
+			{
+				System.out.println("LV File");
+				simScenario = new LotkaVolterraScenario();
+
+				simScenario.loadConfig(text);
+			}
+			else
+			{
+				System.out.println("DeterminScenarios :UKNOWN");
+			}
+		}
+
+		return simScenario;
+	}
+	*/
 	
 	public void setActiveSim(int simId)
 	{

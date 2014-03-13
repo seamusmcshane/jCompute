@@ -1,35 +1,24 @@
 package alifeSim.Gui.Standard;
 
 import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
-
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-
 import javax.swing.SwingConstants;
-
 import java.awt.Color;
-
 import javax.swing.JSlider;
-
 import java.awt.Dimension;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -53,24 +42,14 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
-import java.util.zip.GZIPOutputStream;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import java.awt.Font;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
 import alifeSim.Gui.Charts.GlobalStatChartPanel;
-import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Scenario.ScenarioVT;
-import alifeSim.Scenario.Debug.DebugScenario;
-import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
-import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationState.SimState;
@@ -640,7 +619,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 						/* Create the new Simulation */
 						if(newSim(scenarioEditor.getText()))
 						{
-
 							simGenerated = true;
 							
 							clearStats();
@@ -813,50 +791,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	}
 
-	private ScenarioInf determinScenarios(String text)
-	{
-		ScenarioVT scenarioParser = null;
-
-		ScenarioInf simScenario = null;
-
-		scenarioParser = new ScenarioVT();
-
-		// To get the type of Scenario object to create.
-		scenarioParser.loadConfig(text);
-
-		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
-
-		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
-		{
-			System.out.println("Debug File");
-			simScenario = new DebugScenario(text);
-		}
-		else
-		{
-			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
-			{
-				System.out.println("SAPP File");
-				simScenario = new SAPPScenario();
-
-				simScenario.loadConfig(text);
-
-			}
-			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
-			{
-				System.out.println("LV File");
-				simScenario = new LotkaVolterraScenario();
-
-				simScenario.loadConfig(text);
-			}
-			else
-			{
-				System.out.println("DeterminScenarios :UKNOWN");
-			}
-		}
-
-		return simScenario;
-	}
-
 	private void addPanels()
 	{		
 		// Re-add the Scenario Tab.
@@ -925,7 +859,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private boolean newSim(String scenario)
 	{
 		boolean status = false;
-		ScenarioInf simScenario = null;
 
 		detachTabFromSim();
 		
@@ -938,15 +871,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		if(simId!=-1)
 		{
 			tabTitle = "Simulation " + simId;
-			
-			simScenario = determinScenarios(scenario);
-	
-			if (simScenario != null)
+				
+			if(simsManager.createSimScenario(simId,scenario))
 			{
-				System.out.println("Creating Sim");
-					
-				simsManager.createSimScenario(simId,simScenario);
-	
 				statManager = simsManager.getStatManager(simId);
 					
 				setSimView();
