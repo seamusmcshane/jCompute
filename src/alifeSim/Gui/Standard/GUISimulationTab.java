@@ -511,7 +511,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
         InputStream in; 
 		try
 		{
-			in = new FileInputStream(new File("S:/AlifeSimWorkSpace/alifesim/editor-themes/dark-mod.xml"));
+			in = new FileInputStream(new File("editor-themes/dark-mod.xml"));
 			theme = Theme.load(in);
 			theme.apply(scenarioEditor);
 		}
