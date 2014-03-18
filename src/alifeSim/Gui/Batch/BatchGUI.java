@@ -186,20 +186,22 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		gbc_queuedItemsListTable.gridx = 0;
 		gbc_queuedItemsListTable.gridy = 0;
 		
-		queuedItemsListTable = new TablePanel("Queued Items",new String[]{"Item Id","Batch Id","Hash"});
-		queuedItemsListTable.setColumWidth(0,15);
-		queuedItemsListTable.setColumWidth(1,15);
-		queuedItemsListTable.setColumWidth(2,250);
+		queuedItemsListTable = new TablePanel("Queued Items",new String[]{"Item Id","Batch Id","Name","Hash"});
+		queuedItemsListTable.setColumWidth(0,10);
+		queuedItemsListTable.setColumWidth(1,10);
+		queuedItemsListTable.setColumWidth(2,120);
+		queuedItemsListTable.setColumWidth(3,120);
 		
 		/* Bottom */
 		GridBagConstraints gbc_activeSimulationListTable = new GridBagConstraints();
 		gbc_activeSimulationListTable.fill = GridBagConstraints.BOTH;
 		gbc_activeSimulationListTable.gridx = 0;
 		gbc_activeSimulationListTable.gridy = 1;
-		activeItemsListTable = new TablePanel("Active Items",new String[]{"Item Id","Batch Id","Hash"});
-		activeItemsListTable.setColumWidth(0,15);
-		activeItemsListTable.setColumWidth(1,15);
-		activeItemsListTable.setColumWidth(2,250);	
+		activeItemsListTable = new TablePanel("Active Items",new String[]{"Item Id","Batch Id","Name","Hash"});
+		activeItemsListTable.setColumWidth(0,10);
+		activeItemsListTable.setColumWidth(1,10);
+		activeItemsListTable.setColumWidth(2,120);
+		activeItemsListTable.setColumWidth(3,120);	
 
 		batchInfoPanel.add(queuedItemsListTable, gbc_queuedItemsListTable);
 		batchInfoPanel.add(activeItemsListTable, gbc_activeSimulationListTable);			
@@ -263,13 +265,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		for(int q=0;q<queued.length;q++)
 		{
 			//queued
-			queuedItemsListTable.addRow(String.valueOf(queued[q].getItemId()), new String[]{ String.valueOf(queued[q].getBatchId()), queued[q].getItemHash()});
+			queuedItemsListTable.addRow(String.valueOf(queued[q].getItemId()), new String[]{ String.valueOf(queued[q].getBatchId()),queued[q].getItemName(), queued[q].getItemHash()});
 		}
 		
 		for(int a=0;a<active.length;a++)
 		{
 			//active
-			activeItemsListTable.addRow(String.valueOf(active[a].getItemId()), new String[]{ String.valueOf(active[a].getBatchId()), active[a].getItemHash()});
+			activeItemsListTable.addRow(String.valueOf(active[a].getItemId()), new String[]{ String.valueOf(active[a].getBatchId()), active[a].getItemName(), active[a].getItemHash()});
 		}
 		
 		activeItemsListTable.RedrawTable(-1);
