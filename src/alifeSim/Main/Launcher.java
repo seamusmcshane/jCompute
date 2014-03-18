@@ -2,6 +2,8 @@ package alifeSim.Main;
 
 import java.util.HashMap;
 import java.util.Set;
+
+import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.Batch.BatchGUI;
 import alifeSim.Gui.Standard.StandardGUI;
 import alifeSim.Simulation.SimulationsManager;
@@ -31,7 +33,8 @@ public class Launcher
 	private static CommandLineArg defaultsList[] =
 	{
 			new CommandLineArg("mcs", 8,"Max Concurrent Simulations"), new CommandLineArg("guiInt", 1, "Enable Disable Standard GUI (0/1)"), 
-			new CommandLineArg("webInt", 0, "Enable Disable Web Interface (0/1)"), new CommandLineArg("batchInt", 0,"Enable Disable Batch Interface (0/1)")
+			new CommandLineArg("webInt", 0, "Enable Disable Web Interface (0/1)"), new CommandLineArg("batchInt", 0,"Enable Disable Batch Interface (0/1)"),
+			new CommandLineArg("debug", 0,"Enable Disable Debug (0/1)")
 	};
 
 	public static void main(String args[])
@@ -70,6 +73,11 @@ public class Launcher
 	}
 	private static void implementOpts()
 	{	
+		if(opts.get("debug").getValue() == 1)
+		{
+			DebugLogger.setDebug(true);
+		}
+		
 		/* Simulation Manager */
 		simsManager = new SimulationsManager(opts.get("mcs").getValue());
 
