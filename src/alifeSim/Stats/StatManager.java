@@ -1,6 +1,7 @@
 package alifeSim.Stats;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -273,7 +274,7 @@ public class StatManager
 	
 	private void writeFiles(String directory,String fileName,String fileData,String extension)
 	{
-		String filePath = directory+"\\"+fileName+"."+extension;
+		String filePath = directory+File.separator+fileName+"."+extension;
 		System.out.print(filePath + "\n");
 	
 		try

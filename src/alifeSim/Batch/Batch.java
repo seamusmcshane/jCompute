@@ -142,13 +142,19 @@ public class Batch
 		String batchDirName = batchConfigProcessor.getStringValue(section, "BatchDirName");
 				
 		testAndCreateDir(baseExportDir);
-		testAndCreateDir(baseExportDir+"/"+date);
+		testAndCreateDir(baseExportDir+File.separator+date);
+		testAndCreateDir(baseExportDir+File.separator+date+File.separator+"Batch "+batchId);
 		
-		String batchStatsExportDir = baseExportDir+"/"+date+"/"+"Batch "+batchId+" "+batchDirName+"@"+time;
+		batchStatsExportDir = baseExportDir+File.separator+date+File.separator+"Batch "+batchId+File.separator+batchDirName+"@"+time;
 		
 		testAndCreateDir(batchStatsExportDir);
 		
 		DebugLogger.output("Batch Stats Export Dir : " + batchStatsExportDir);
+	}
+	
+	public String getBatchStatsExportDir()
+	{
+		return batchStatsExportDir;
 	}
 	
 	private void setBatchDescription()
