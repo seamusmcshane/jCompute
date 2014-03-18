@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Semaphore;
+
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.Debug.DebugLogger;
 import alifeSim.datastruct.knn.KNNInf;
 import alifeSim.datastruct.knn.thirdGenKDWrapper;
 /**
@@ -86,9 +88,9 @@ public class BarrierManager extends Thread
 	 */
 	public void run()
 	{
-		System.out.println("Barrier Manager Started");
+		DebugLogger.output("Barrier Manager Started");
 		
-		System.out.println("Started Barrier");
+		DebugLogger.output("Started Barrier");
 		
 		while (running)
 		{
@@ -96,7 +98,7 @@ public class BarrierManager extends Thread
 			
 			if(running)
 			{
-				//System.out.println("Barrier");
+				//DebugLogger.output("Barrier");
 				splitPlantList();
 				splitAgentList();
 								
@@ -109,13 +111,13 @@ public class BarrierManager extends Thread
 				/* Prepare the barrier */
 				waitThreadsEnd();
 	
-				//System.out.println("End Barrier");			
+				//DebugLogger.output("End Barrier");			
 			}			
 
 			barrierControllerSemaphore.release();
 
 		}
-		System.out.println("Exited Barrier");			
+		DebugLogger.output("Exited Barrier");			
 
 	}
 
@@ -276,15 +278,15 @@ public class BarrierManager extends Thread
 		
 		if(div>numThreads)
 		{
-			//System.out.println("Div " + div + " numThreads " + numThreads);
+			//DebugLogger.output("Div " + div + " numThreads " + numThreads);
 
 			for (i = 0; i < numThreads; i++)
 			{
 				end=(div*i)+div-1;
 				start=(div*i);
 				
-				//System.out.println("Start : " + start);
-				//System.out.println("End : " + end);
+				//DebugLogger.output("Start : " + start);
+				//DebugLogger.output("End : " + end);
 				
 				if(i != (numThreads -1))
 				{
@@ -336,7 +338,7 @@ public class BarrierManager extends Thread
 		int div = agentList.size() / numThreads;
 		int end=0;		
 		
-		//System.out.println("Size : " + agentList.size());
+		//DebugLogger.output("Size : " + agentList.size());
 		
 		if(div>numThreads)
 		{
@@ -353,8 +355,8 @@ public class BarrierManager extends Thread
 					start=(div*i);
 
 				}
-				//System.out.println(i + "Start : " + start);
-				//System.out.println(i + "End : " + end);
+				//DebugLogger.output(i + "Start : " + start);
+				//DebugLogger.output(i + "End : " + end);
 				agentTaskLists[i] = agentList.subList(start,end);
 
 			}

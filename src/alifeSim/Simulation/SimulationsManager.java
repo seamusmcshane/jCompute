@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
@@ -36,12 +37,12 @@ public class SimulationsManager
 	private Simulation activeSim;	
 	
 	/* SimulationsManger Listeners */
-	private List<SimulationsManagerEventListenerInf> simulationsMangerListeners = new ArrayList<SimulationsManagerEventListenerInf>();
+	private List<SimulationsManagerEventListenerInf> simulationsManagerListeners = new ArrayList<SimulationsManagerEventListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);	
 	
 	public SimulationsManager(int maxSims)
 	{
-		System.out.println("Created Simulations Manager");
+		DebugLogger.output("Created Simulations Manager");
 		
 		this.maxSims = maxSims;
 		
@@ -50,7 +51,7 @@ public class SimulationsManager
 		this.simulationNum = 0;
 		this.activeSims = 0;
 		
-		System.out.println("Max Active Sims : " + maxSims);		
+		DebugLogger.output("Max Active Sims : " + maxSims);		
 	}
 
 	public int addSimulation()
@@ -73,7 +74,7 @@ public class SimulationsManager
 		}
 		else
 		{
-			System.out.println("Too Many Sims");
+			DebugLogger.output("Too Many Sims");
 
 			simulationsManagerLock.release();
 
@@ -94,6 +95,8 @@ public class SimulationsManager
 		{
 			sim.destroySim();
 			
+			DebugLogger.output("simulationManagerListenerEventNotification");
+
 			simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
 			
 			if(activeSim == sim)
@@ -253,18 +256,18 @@ public class SimulationsManager
 		// To get the type of Scenario object to create.
 		scenarioParser.loadConfig(text);
 
-		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
+		DebugLogger.output("Scenario Type : " + scenarioParser.getScenarioType());
 
 		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
 		{
-			System.out.println("Debug File");
+			DebugLogger.output("Debug File");
 			simScenario = new DebugScenario(text);
 		}
 		else
 		{
 			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
 			{
-				System.out.println("SAPP File");
+				DebugLogger.output("SAPP File");
 				simScenario = new SAPPScenario();
 
 				simScenario.loadConfig(text);
@@ -272,14 +275,14 @@ public class SimulationsManager
 			}
 			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
 			{
-				System.out.println("LV File");
+				DebugLogger.output("LV File");
 				simScenario = new LotkaVolterraScenario();
 
 				simScenario.loadConfig(text);
 			}
 			else
 			{
-				System.out.println("DeterminScenarios :UKNOWN");
+				DebugLogger.output("DeterminScenarios :UKNOWN");
 			}
 		}
 
@@ -324,7 +327,7 @@ public class SimulationsManager
 		}
 		else
 		{
-			System.out.println("Too Many Sims");
+			DebugLogger.output("Too Many Sims");
 
 			simulationsManagerLock.release();
 
@@ -344,18 +347,18 @@ public class SimulationsManager
 		// To get the type of Scenario object to create.
 		scenarioParser.loadConfig(text);
 
-		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
+		DebugLogger.output("Scenario Type : " + scenarioParser.getScenarioType());
 
 		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
 		{
-			System.out.println("Debug File");
+			DebugLogger.output("Debug File");
 			simScenario = new DebugScenario(text);
 		}
 		else
 		{
 			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
 			{
-				System.out.println("SAPP File");
+				DebugLogger.output("SAPP File");
 				simScenario = new SAPPScenario();
 
 				simScenario.loadConfig(text);
@@ -363,14 +366,14 @@ public class SimulationsManager
 			}
 			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
 			{
-				System.out.println("LV File");
+				DebugLogger.output("LV File");
 				simScenario = new LotkaVolterraScenario();
 
 				simScenario.loadConfig(text);
 			}
 			else
 			{
-				System.out.println("DeterminScenarios :UKNOWN");
+				DebugLogger.output("DeterminScenarios :UKNOWN");
 			}
 		}
 
@@ -384,7 +387,7 @@ public class SimulationsManager
 		
 		Simulation sim = simulations.get(simId);
 		
-		System.out.println("Active Sim : " + simId);
+		DebugLogger.output("Active Sim : " + simId);
 		
 		if(simView!=null)
 		{
@@ -497,20 +500,20 @@ public class SimulationsManager
 	public void addSimulationManagerListener(SimulationsManagerEventListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
-			simulationsMangerListeners.add(listener);
+			simulationsManagerListeners.add(listener);
 	    listenersLock.release();
 	}
 	
 	public void removeSimulationManagerListener(SimulationsManagerEventListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
-			simulationsMangerListeners.remove(listener);
+			simulationsManagerListeners.remove(listener);
 	    listenersLock.release();
 	}
 	
 	private void simulationManagerListenerEventNotification(int simId,SimulationManagerEvent event)
 	{
-	    for (SimulationsManagerEventListenerInf listener : simulationsMangerListeners)
+	    for (SimulationsManagerEventListenerInf listener : simulationsManagerListeners)
 	    {
 	    	listener.SimulationsManagerEvent(simId,event);
 	    }

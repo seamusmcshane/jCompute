@@ -2,8 +2,10 @@ package alifeSim.Scenario.SAPP;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
+
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgent;
+import alifeSim.Debug.DebugLogger;
 import alifeSim.datastruct.knn.KNNInf;
 
 /**
@@ -99,7 +101,7 @@ public class BarrierTaskThread extends Thread
 	 */
 	public void run()
 	{
-		System.out.println("Created Task Thread : " + myId);
+		DebugLogger.output("Created Task Thread : " + myId);
 
 		while (running)
 		{
@@ -174,7 +176,7 @@ public class BarrierTaskThread extends Thread
 			end.release();
 
 		}
-		System.out.println("Exited Thread : " + myId);
+		DebugLogger.output("Exited Thread : " + myId);
 	}
 
 	/** 
@@ -200,9 +202,9 @@ public class BarrierTaskThread extends Thread
 		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
 		System.out.print(":");
 		System.out.print("Px "+ nearestAgent.body.getBodyPos().getX()+ " Py " +nearestAgent.body.getBodyPos().getY());
-		System.out.println("");
-		System.out.println("Dis : " + dis);
-		System.out.println("Radius : " + radiusSize);*/
+		DebugLogger.output("");
+		DebugLogger.output("Dis : " + dis);
+		DebugLogger.output("Radius : " + radiusSize);*/
 
 		if ( dis < radiusSize )
 		{
@@ -233,9 +235,9 @@ public class BarrierTaskThread extends Thread
 		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
 		System.out.print(":");
 		System.out.print("Px "+ nearestPlant.body.getBodyPos().getX()+ " Py " +nearestPlant.body.getBodyPos().getY());
-		System.out.println("");
-		System.out.println("Dis : " + dis);
-		System.out.println("Radius : " + radiusSize);*/
+		DebugLogger.output("");
+		DebugLogger.output("Dis : " + dis);
+		DebugLogger.output("Radius : " + radiusSize);*/
 
 		if ( dis < radiusSize )
 		{
@@ -252,9 +254,9 @@ public class BarrierTaskThread extends Thread
 	{		
 		if(debugtasks)
 		{
-			System.out.println("Task ID " + myId + " Total Time :" + taskTotalTime);
-			System.out.println("Task ID " + myId + " Task Count :" + taskCount);
-			System.out.println("Task ID " + myId + " Avg Time   :" + taskAvgTime);
+			DebugLogger.output("Task ID " + myId + " Total Time :" + taskTotalTime);
+			DebugLogger.output("Task ID " + myId + " Task Count :" + taskCount);
+			DebugLogger.output("Task ID " + myId + " Avg Time   :" + taskAvgTime);
 		}
 
 

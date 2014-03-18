@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Simulation.SimulationState.SimState;
@@ -80,14 +81,14 @@ public class Simulation implements stateChangedInf, statChangedInf
 	{
 		if(scenario!=null)
 		{
-			System.out.println("Assigning Sim Manager");
+			DebugLogger.output("Assigning Sim Manager");
 			
 			simManager = scenario.getSimulationScenarioManager();
 			
 			// This is a special external end event based on the simulation step count.
 			simManager.setScenarioStepCountEndEvent(simStats);
 			
-			System.out.println("Scenario Type : " + scenario.getScenarioType());
+			DebugLogger.output("Scenario Type : " + scenario.getScenarioType());
 
 		}
 		
@@ -105,17 +106,18 @@ public class Simulation implements stateChangedInf, statChangedInf
 		
 		/*if ( simState.getState() == SimState.RUNNING)
 		{
-			System.out.println("Pausing... (state|"+simState.getState().toString()+")");
+			DebugLogger.output("Pausing... (state|"+simState.getState().toString()+")");
 
 			pauseSim();
 		}*/
 		
-		pause.release();
 		
 		// Exit the Async Thread
 		running = false;
 		
-		System.out.println("Destroying...");
+		pause.release();
+		
+		DebugLogger.output("Destroying... SimId : " + simId);
 		
 		// Get our current thread.
 		Thread thisThread = Thread.currentThread();
@@ -125,6 +127,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 		{
 			try
 			{
+				DebugLogger.output("Waiting on SimId : " + simId);
 				// Go to sleep or our busy wait will cause problems
 				thisThread.sleep(1);
 			}
@@ -134,7 +137,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Destroyed");
+		DebugLogger.output("Destroyed");
 
 		if(simManager!=null)
 		{
@@ -214,9 +217,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 					
 			// Check for an End Event
 			if(simManager.hasEndEventOccurred())
-			{
-				System.out.println("Simulation End Occurrred");
-				
+			{				
 				simState.finishState();
 				
 				// Effectively a dead lock under any other circumstance.
@@ -274,7 +275,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 		}
 		else
 		{
-			System.out.println("ATTEMPT to PAUSE Simulation in :" + simState.getState());
+			DebugLogger.output("ATTEMPT to PAUSE Simulation in :" + simState.getState());
 		}
 		
 		return simState.getState();
@@ -393,6 +394,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 		for (SimulationStateListenerInf listener : simStateListeners)
 	    {
+			DebugLogger.output("SimulationStateChanged - " + simId);
+
 	    	listener.simulationStateChanged(simId, state);
 	    }
 		

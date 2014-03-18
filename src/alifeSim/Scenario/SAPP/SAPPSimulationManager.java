@@ -3,8 +3,10 @@ package alifeSim.Scenario.SAPP;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
+import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Scenario.ScenarioInf;
@@ -128,7 +130,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 			}
 			else
 			{
-				System.out.println("Stat Group / Setting " + statSetting.getName() + " Does not EXIST!");
+				DebugLogger.output("Stat Group / Setting " + statSetting.getName() + " Does not EXIST!");
 			}
 			
 		}
@@ -172,7 +174,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU threads we can run in parallel
 		
-		System.out.println("Threads to use for Barrier Tasks : " + numThreads);
+		DebugLogger.output("Threads to use for Barrier Tasks : " + numThreads);
 
 		barrierControllerSemaphore = new Semaphore(1, true);
 
@@ -271,7 +273,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		}
 		catch (InterruptedException e)
 		{
-			// Debug System.out.println("Never Got Lock");
+			// Debug DebugLogger.output("Never Got Lock");
 		}
 	}
 
@@ -344,7 +346,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 				// Output the final update
 				statManager.endEventNotifiyStatListeners();
 				
-				System.out.println("Event Event Occurred : " + event.getName() + " - " + event.getValue());
+				DebugLogger.output("Event Event Occurred : " + event.getName() + " - " + event.getValue());
 				
 				break;	// No need to check other events
 			}

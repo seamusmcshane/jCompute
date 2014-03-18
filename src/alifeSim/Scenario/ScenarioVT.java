@@ -31,6 +31,7 @@ import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
+import alifeSim.Debug.DebugLogger;
 import alifeSim.Stats.StatGroupSetting;
 
 /**
@@ -81,8 +82,6 @@ public class ScenarioVT
 			scenario.setSchemaValidation(true);
 			scenario.load(stream);
 
-			System.out.println();
-
 			XmlSchemaCollection schemaCol = new XmlSchemaCollection();
 			schema = schemaCol.read(new StreamSource(new FileInputStream((String) scenario.getRoot().getAttribute(1).getValue())), null);
 			
@@ -91,11 +90,11 @@ public class ScenarioVT
 		}
 		catch (ConfigurationException e)
 		{
-			System.out.println("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
+			DebugLogger.output("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
 		catch (FileNotFoundException e)
 		{
-			System.out.println("Schema File Not Found : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
+			DebugLogger.output("Schema File Not Found : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
 	}
 
@@ -228,7 +227,7 @@ public class ScenarioVT
 			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section, "TotalStat"), getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
 		}
 
-		System.out.println("Statistics " + statisticsGroups);
+		DebugLogger.output("Statistics " + statisticsGroups);
 	}
 
 	public List<StatGroupSetting> getStatGroupSettingsList()
@@ -275,7 +274,7 @@ public class ScenarioVT
 		catch (ConfigurationException e)
 		{
 			baos = null;
-			System.out.println("Error getting scenario XML");
+			DebugLogger.output("Error getting scenario XML");
 		}
 		
 		if(baos == null)
@@ -288,14 +287,14 @@ public class ScenarioVT
 	
 	public void dumpXML()
 	{
-		System.out.println("TODO");
+		DebugLogger.output("TODO");
 
 		ConfigurationNode rootNode = scenario.getRoot();
 
 		String rootName = rootNode.getName();
 
-		System.out.println("Root Element :" + rootName);
-		System.out.println("Schema : " + rootNode.getAttribute(1).getValue());
+		DebugLogger.output("Root Element :" + rootName);
+		DebugLogger.output("Schema : " + rootNode.getAttribute(1).getValue());
 
 		Iterator<String> itr = scenario.getKeys();
 		
@@ -304,7 +303,7 @@ public class ScenarioVT
 			 
 			String field = itr.next();
 			
-			System.out.println(rootName+"."+field);
+			DebugLogger.output(rootName+"."+field);
 			System.out.print(stripXMLPath(field) + " : ");
 			
 			XmlSchemaType type = findSubNodeDataType(rootName,field);
@@ -318,20 +317,20 @@ public class ScenarioVT
 			}
 
 		}
-		System.out.println("");
+		DebugLogger.output("");
 
 		// XmlSchemaElement element = schema.getElementByName(new
 		// QName("","Scenario"));
-		// System.out.println(element.getName());
+		// DebugLogger.output(element.getName());
 
 		/*XmlSchemaType type = findDataType("ReproductionAndSurvivalDivisor");
 
-		System.out.println(type.toString());*/
+		DebugLogger.output(type.toString());*/
 		
 		
-		//System.out.println(schema.getElementByName(test));
+		//DebugLogger.output(schema.getElementByName(test));
 
-		//System.out.println(test.getLocalPart());
+		//DebugLogger.output(test.getLocalPart());
 		
 		// schema.write(System.out);
 	}
@@ -390,12 +389,12 @@ public class ScenarioVT
 		{
 			XmlSchemaElement element = itr2.next();
 			
-			/*System.out.println("NAME  : " + element.getName());
-			System.out.println("TYPE  : " + element.getSchemaTypeName());*/
+			/*DebugLogger.output("NAME  : " + element.getName());
+			DebugLogger.output("TYPE  : " + element.getSchemaTypeName());*/
 						
 			if(element.getSchemaType().getClass().equals(XmlSchemaComplexType.class))
 			{
-				//System.out.println("NAME  : " + element.getName());
+				//DebugLogger.output("NAME  : " + element.getName());
 				dataType = transverseComplexType(targetPath,element.getName(),element);
 				
 				if(dataType!=null)
@@ -421,14 +420,14 @@ public class ScenarioVT
 	private boolean isSimpleTypeTarget(String target, String path,XmlSchemaElement schemaElement)
 	{
 		//XmlSchemaType type = null;
-		/*System.out.println("QNAME : " + schemaElement.getQName().toString());
-		System.out.println("NAME  : " + schemaElement.getName());
-		System.out.println("TYPE  : " + schemaElement.getSchemaTypeName());
+		/*DebugLogger.output("QNAME : " + schemaElement.getQName().toString());
+		DebugLogger.output("NAME  : " + schemaElement.getName());
+		DebugLogger.output("TYPE  : " + schemaElement.getSchemaTypeName());
 		
-		System.out.println("NS	  : " + schemaElement.getQName().getNamespaceURI());
-		System.out.println("LC	  : " + schemaElement.getQName().getLocalPart());
-		System.out.println("PX	  : " + schemaElement.getQName().getPrefix());*/
-		//System.out.println("Path : " + path + " Target : " + target);
+		DebugLogger.output("NS	  : " + schemaElement.getQName().getNamespaceURI());
+		DebugLogger.output("LC	  : " + schemaElement.getQName().getLocalPart());
+		DebugLogger.output("PX	  : " + schemaElement.getQName().getPrefix());*/
+		//DebugLogger.output("Path : " + path + " Target : " + target);
 
 		if(path.equals(target))
 		{
@@ -464,13 +463,13 @@ public class ScenarioVT
 			{
 				if(isSimpleTypeTarget(target,path+"."+element.getName(),element))
 				{					
-					/*System.out.println(element.getName());
+					/*DebugLogger.output(element.getName());
 					
-					System.out.println(target);*/
+					DebugLogger.output(target);*/
 					
 					dataType = element.getSchemaType();
 					
-					//System.out.println( element.getSchemaTypeName());
+					//DebugLogger.output( element.getSchemaTypeName());
 
 					break;
 				}

@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
+import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.EndEvents.ScenarioAllPredatorsLTEEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioAllPreyLTEEndEventInf;
@@ -112,7 +114,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 			addAgents(world, agentSettingsList.get(i));	
 		}		
 
-		System.out.println("SimpleAgent Manager Setup Complete");
+		DebugLogger.output("SimpleAgent Manager Setup Complete");
 		
 	}
 	
@@ -274,7 +276,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 				// can this agent reproduce...
 				if (temp.body.stats.canReproduce())
 				{
-					//System.out.println("Agent temp.body.stats.canReproduce()" + temp.body.stats.canReproduce() );
+					//DebugLogger.output("Agent temp.body.stats.canReproduce()" + temp.body.stats.canReproduce() );
 					temp.body.stats.decrementReproductionCost();
 
 					/*

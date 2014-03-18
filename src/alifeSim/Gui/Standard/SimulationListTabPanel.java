@@ -47,7 +47,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	
 	// References to the needed objects
 	private GUITabManager tabManager;
-	private SimulationsManager simsManger;
+	private SimulationsManager simsManager;
 		
 	// The update time used to redraw the table and graphs at a slower rate than the data rate.
 	private Timer statUpdateTimer;
@@ -77,7 +77,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		super();
 		
 		this.tabManager = tabManager;
-		this.simsManger = simsManager;
+		this.simsManager = simsManager;
 				
 		setLayout(new BorderLayout(0, 0));
 		
@@ -120,15 +120,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		this.add(table);
 
 		registerTableMouseListener();
-		
-		/* Debug
-			this.addRow("TEST Sim 1", new String[] {"Running", "100", "25","1","100"});
-			this.addRow("TEST Sim 2", new String[] {"Running", "100", "50","1","100"});
-			this.addRow("TEST Sim 3", new String[] {"Running", "100", "75","1","100"});
-			this.addRow("TEST Sim 4", new String[] {"Running", "100", "0","1","100"});
-			this.addRow("TEST Sim 5", new String[] {"Running", "100", "100","1","100"});
-			this.addRow("TEST Sim 6", new String[] {"Running", "100", "-1","1","100"});
-		 */
+
 	}
 	
 	/*
@@ -291,7 +283,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	@Override
 	public void SimulationsManagerEvent(final int simId, SimulationManagerEvent event)
 	{
-		// Getting access to simulationListTabPanel via this is not possible in the runnables
+		// Getting access to simulationListTabPanel via this is not possible in the runnable
 		final SimulationListTabPanel simulationListTabPanel = this;
 		
 		if(event == SimulationManagerEvent.AddedSim)
@@ -308,10 +300,10 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 					addTrace("Simulation " + simId);
 		        	
 					// RegiserStateListener
-					simsManger.addSimulationStateListener(simId, simulationListTabPanel);
+					simsManager.addSimulationStateListener(simId, simulationListTabPanel);
 					
 					// RegisterStatsListerner
-					simsManger.addSimulationStatListener(simId, simulationListTabPanel);
+					simsManager.addSimulationStatListener(simId, simulationListTabPanel);
 		        }
 		    });
 			
@@ -323,10 +315,10 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		        public void run() 
 		        {						
 		        	// UnRegisterStatsListerner
-		        	simsManger.removeSimulationStatListener(simId, simulationListTabPanel);
+		        	simsManager.removeSimulationStatListener(simId, simulationListTabPanel);
 		        	
 					// UnRegisterStateListener
-					simsManger.removeSimulationStateListener(simId, simulationListTabPanel);
+					simsManager.removeSimulationStateListener(simId, simulationListTabPanel);
 					
 					// RemoveTrace
 					clearTrace("Simulation " + simId);
