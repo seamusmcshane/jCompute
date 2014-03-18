@@ -24,10 +24,13 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="BaseScenario">
+				<xs:element name="Config">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="FileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+							<xs:element name="BatchDescription" type="xs:string" minOccurs="1" maxOccurs="1"/>
+							<xs:element name="BaseScenarioFileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+							<xs:element name="BatchStatsExportDir" type="xs:string" minOccurs="1" maxOccurs="1"/>
+							<xs:element name="BatchDirName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

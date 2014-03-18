@@ -7,19 +7,21 @@ public class BatchItem
 {
 	private int itemId;
 	private int batchId;
+	private String name;
 	private String configText;
 	
 	private int simId;
 	
 	private String itemHash;
 	
-	public BatchItem(int itemId,int batchId,String configText)
+	public BatchItem(int itemId,int batchId,String name,String configText)
 	{
 		this.itemId = itemId;
 		this.batchId = batchId;
+		this.name = name;
 		this.configText = configText;
 		
-		String toHash = String.valueOf(itemId)+String.valueOf(batchId)+configText;
+		String toHash = name+configText;
 		
 		try
 		{
@@ -49,6 +51,11 @@ public class BatchItem
 	public String getItemHash()
 	{
 		return itemHash;
+	}
+	
+	public String getItemName()
+	{
+		return name;
 	}
 	
 	public String getConfigText()

@@ -7,9 +7,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Deque;
+import java.util.GregorianCalendar;
 
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.Component.TablePanel;
@@ -25,6 +28,7 @@ public class Batch
 	private int batchId;
 	private String type;
 	private String baseScenarioFile;
+	private String batchDescription;
 	private int batchItems = 0;
 	private int completedItems = 0;
 		
@@ -86,6 +90,10 @@ public class Batch
 		
 		batchConfigProcessor.dumpXML();
 		
+		setBatchDescription();
+
+		setBatchStatExportDir();
+
 		setBaseFilePath(fileText);
 		
 		baseScenarioText = new StringBuilder();
@@ -100,12 +108,63 @@ public class Batch
 		generateCombos();
 		
 	}
+
+	private void testAndCreateDir(String dir)
+	{
+		File directory = new File(dir);
+
+		if (!directory.exists())
+		{
+			if (directory.mkdir())
+			{
+				DebugLogger.output("Created " + dir);
+			}
+			else
+			{
+				DebugLogger.output("Failed to Create " + dir);
+			}
+		}
 		
+	}
+	
+	private void setBatchStatExportDir()
+	{	
+		Calendar calender = Calendar.getInstance();
+		
+		String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
+		String time = new SimpleDateFormat("HHmm").format(calender.getTime());
+
+		DebugLogger.output(date +"+"+  time);
+		
+		String section = "Config";
+
+		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
+		String batchDirName = batchConfigProcessor.getStringValue(section, "BatchDirName");
+				
+		testAndCreateDir(baseExportDir);
+		testAndCreateDir(baseExportDir+"/"+date);
+		
+		String batchStatsExportDir = baseExportDir+"/"+date+"/"+"Batch "+batchId+" "+batchDirName+"@"+time;
+		
+		testAndCreateDir(batchStatsExportDir);
+		
+		DebugLogger.output("Batch Stats Export Dir : " + batchStatsExportDir);
+	}
+	
+	private void setBatchDescription()
+	{
+		String section = "Config";
+
+		batchDescription = batchConfigProcessor.getStringValue(section, "BatchDescription");
+				
+		DebugLogger.output("Batch Description : " + batchDescription);
+	}
+	
 	private void setBaseFilePath(String fileText)
 	{
-		String section = "BaseScenario";
+		String section = "Config";
 
-		baseScenarioFile = batchConfigProcessor.getStringValue(section, "FileName");
+		baseScenarioFile = batchConfigProcessor.getStringValue(section, "BaseScenarioFileName");
 		
 		baseScenaroFilePath = basePath + "\\" + baseScenarioFile;
 		
@@ -285,6 +344,8 @@ public class Batch
 		// The temp scenario used to generate the xml.
 		ScenarioVT temp;
 
+		String itemName = "";
+		
 		// Set the combination Values
 		for(int combo=1; combo<combinations+1;combo++)
 		{
@@ -292,9 +353,10 @@ public class Batch
 			temp = new ScenarioVT();
 			temp.loadConfig(baseScenarioText.toString());
 			
-			// Start of log line
+			// Start of log line + itemName
 			System.out.print("Combo : " + combo + " ");
-
+			itemName = "Combo " + combo + " ";
+			
 			// Change the value for each parameter group
 			for(int p=0;p<parameterGroups;p++)
 			{
@@ -304,6 +366,7 @@ public class Batch
 				{
 					// Log line middle
 					System.out.print(Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p] + " ");
+					itemName = itemName + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p] + " ";
 
 					int groups = temp.getSubListSize(Path[p]);
 
@@ -371,6 +434,7 @@ public class Batch
 				{
 					// Log line middle
 					System.out.print(Path[p]+"."+ParameterName[p] + " " + currentValues[p] + " ");
+					itemName = itemName + Path[p]+"."+ParameterName[p] + " " + currentValues[p] + " ";
 
 					// Fine the datatype for this parameter
 					String dtype = temp.findDataType(Path[p]+"."+ParameterName[p]);
@@ -428,7 +492,7 @@ public class Batch
 			//DebugLogger.output(temp.getScenarioXMLText());
 			
 			// Add the new Batch Item combo used for batch item id, getScenarioXMLText is the new scenario xml configuration
-			addBatchItem(combo,temp.getScenarioXMLText());
+			addBatchItem(combo,itemName,temp.getScenarioXMLText());
 			
 		}
 		
@@ -456,9 +520,9 @@ public class Batch
 	}
 	
 	// Small wrapper around queue add
-	private void addBatchItem(int id,String configText)
+	private void addBatchItem(int id,String name,String configText)
 	{
-		queuedItems.add(new BatchItem(id,batchId,configText));
+		queuedItems.add(new BatchItem(id,batchId,name,configText));
 		
 		batchItems++;
 	}

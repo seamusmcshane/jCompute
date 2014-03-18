@@ -3,9 +3,12 @@
 		<Version>0.01</Version>
 		<Type>Batch</Type>
 	</Header>
-	<BaseScenario>
-		<FileName>BatchViewRangeScenario.xml</FileName>
-	</BaseScenario>
+	<Config>
+		<BatchDescription>Two species simulations with all view ranges combinations from 5-100 at steps of 5</BatchDescription>
+		<BaseScenarioFileName>BatchViewRangeScenario.xml</BaseScenarioFileName>
+		<BatchStatsExportDir>stats/</BatchStatsExportDir>
+		<BatchDirName>ViewRange-(2-Species-5-100)</BatchDirName>
+	</Config>
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>
@@ -27,4 +30,3 @@
 		</Parameter>
 	</Parameters>
 </Batch>
-	
