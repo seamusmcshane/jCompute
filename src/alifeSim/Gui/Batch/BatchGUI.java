@@ -59,8 +59,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	// Main Frame
 	private JFrame guiFrame;
 	
-	// Open Batch
+	// File Menu Items
 	private JMenuItem mntmOpenBatch;
+	private JMenuItem mntmQuit;
 	
 	// Container Split Pane
 	private JSplitPane splitPaneOuterNSSplit;
@@ -148,8 +149,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		mntmOpenBatch.addActionListener(this);
 		mnFileMenu.add(mntmOpenBatch);
 		
-		JMenuItem mntmQuit = new JMenuItem("Quit");
+		mntmQuit = new JMenuItem("Quit");
 		mnFileMenu.add(mntmQuit);
+		mntmQuit.addActionListener(this);
 
 		/* Window Closing */
 		guiFrame.addWindowListener(this);
@@ -296,15 +298,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	@Override
 	public void windowClosing(WindowEvent arg0)
 	{
-		javax.swing.SwingUtilities.invokeLater(new Runnable() 
-		{
-		    public void run() 
-		    {
-				// Exit the sim
-				doProgramExit();	
-		    }
-		}
-		);		
+		// Exit the sim
+		doProgramExit();
 	}
 
 	@Override
@@ -368,31 +363,42 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 				
 			}
 		}
+		if(e.getSource() == mntmQuit)
+		{
+			doProgramExit();
+		}
 		
 	}
 	
 	/* Ensure the user wants to exit then exit the program */
 	private void doProgramExit()
 	{
-		String message;
-		message = "Do you want to quit?";
-
-		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-		// Center Dialog on the GUI
-		JDialog dialog = pane.createDialog(guiFrame, "Close Application");
-
-		dialog.pack();
-		dialog.setVisible(true);
-
-		int value = ((Integer) pane.getValue()).intValue();
-
-		if (value == JOptionPane.YES_OPTION)
+		javax.swing.SwingUtilities.invokeLater(new Runnable() 
 		{
-			// Do EXIT
-			System.exit(0);
-		}
+		    public void run() 
+		    {
+				String message;
+				message = "Do you want to quit?";
 
+				JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+				// Center Dialog on the GUI
+				JDialog dialog = pane.createDialog(guiFrame, "Close Application");
+
+				dialog.pack();
+				dialog.setVisible(true);
+
+				int value = ((Integer) pane.getValue()).intValue();
+
+				if (value == JOptionPane.YES_OPTION)
+				{
+					// Do EXIT
+					System.exit(0);
+				}
+		    }
+		}
+		);
+		
 	}
 	
 	/* Use the java provided system look and feel */
