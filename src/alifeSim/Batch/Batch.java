@@ -360,8 +360,8 @@ public class Batch
 			temp.loadConfig(baseScenarioText.toString());
 			
 			// Start of log line + itemName
-			System.out.print("Combo : " + combo + " ");
-			itemName = "Combo " + combo + " ";
+			System.out.print("Combo : " + combo);
+			itemName = "Combo " + combo;
 			
 			// Change the value for each parameter group
 			for(int p=0;p<parameterGroups;p++)
@@ -371,8 +371,8 @@ public class Batch
 				if(ParameterType[p].equalsIgnoreCase("Group"))
 				{
 					// Log line middle
-					System.out.print(Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p] + " ");
-					itemName = itemName + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p] + " ";
+					System.out.print(" " + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p]);
+					itemName = itemName + " " + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p];
 
 					int groups = temp.getSubListSize(Path[p]);
 
@@ -439,8 +439,8 @@ public class Batch
 				else
 				{
 					// Log line middle
-					System.out.print(Path[p]+"."+ParameterName[p] + " " + currentValues[p] + " ");
-					itemName = itemName + Path[p]+"."+ParameterName[p] + " " + currentValues[p] + " ";
+					System.out.print(" " + Path[p]+"."+ParameterName[p] + " " + currentValues[p]);
+					itemName = itemName + " " + Path[p]+"."+ParameterName[p] + " " + currentValues[p];
 
 					// Fine the datatype for this parameter
 					String dtype = temp.findDataType(Path[p]+"."+ParameterName[p]);
