@@ -8,8 +8,11 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 
+import alifeSim.Debug.DebugLogger;
+import alifeSim.Gui.Component.TablePanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
@@ -18,8 +21,18 @@ import alifeSim.Scenario.SAPP.SAPPScenario;
 
 public class Batch
 {
-	// Our Queue of Simulation Configs
-	private Deque<BatchItem> simulationConfigs;
+	/* Batch Attributes */
+	private int batchId;
+	private String type;
+	private String baseScenarioFile;
+	private int batchItems = 0;
+	private int completedItems = 0;
+		
+	// Our Queue of Items yet to be processed
+	private Deque<BatchItem> queuedItems;
+	
+	// The active Items currently being processed.
+	private ArrayList<BatchItem> activeItems;
 	
 	// The Batch Configuration Text
 	private StringBuilder batchConfigText;
@@ -37,25 +50,29 @@ public class Batch
 	// The Base scenario
 	private ScenarioInf baseScenario;
 	
-	public Batch(String fileName) throws IOException
+	public Batch(int batchId,String fileName) throws IOException
 	{
-		simulationConfigs = new ArrayDeque<BatchItem>();
+		this.batchId = batchId;
+		
+		queuedItems = new ArrayDeque<BatchItem>();
 			
+		activeItems = new ArrayList<BatchItem>();
+		
 		batchConfigText = new StringBuilder();
 		
 		basePath = getPath(fileName);
 		
-		System.out.println("Base Path : " + basePath);	
+		DebugLogger.output("Base Path : " + basePath);	
 		
 		// Put the file text into the string builder
 		readFile(fileName,batchConfigText);
 		
-		System.out.println("New Batch based on : " + fileName);
+		DebugLogger.output("New Batch based on : " + fileName);
 		
 		processBatchConfig(batchConfigText.toString());
 
 	}
-	
+		
 	private String getPath(String fileName)
 	{
 		return Paths.get(fileName).getParent().toString();
@@ -77,17 +94,93 @@ public class Batch
 			
 		baseScenario = determinScenarios(baseScenarioText.toString());		
 				
-		System.out.println(baseScenario.getScenarioType());
+		type = baseScenario.getScenarioType();
+		DebugLogger.output(type);
 		
 		generateCombos();
 		
 	}
+		
+	private void setBaseFilePath(String fileText)
+	{
+		String section = "BaseScenario";
+
+		baseScenarioFile = batchConfigProcessor.getStringValue(section, "FileName");
+		
+		baseScenaroFilePath = basePath + "\\" + baseScenarioFile;
+		
+		DebugLogger.output("Base Scenario File : " + baseScenaroFilePath);
+	}
 	
+	private void readFile(String fileName, StringBuilder destination) throws IOException
+	{
+		BufferedReader bufferedReader;
+
+		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"ISO_8859_1"));
+		
+		String sCurrentLine;
+		
+		while ((sCurrentLine = bufferedReader.readLine()) != null)
+		{
+			destination.append(sCurrentLine);
+		}
+
+		bufferedReader.close();
+		
+	}
+	
+	private ScenarioInf determinScenarios(String text)
+	{
+		ScenarioVT scenarioParser = null;
+
+		ScenarioInf simScenario = null;
+
+		scenarioParser = new ScenarioVT();
+
+		// To get the type of Scenario object to create.
+		scenarioParser.loadConfig(text);
+
+		DebugLogger.output("Scenario Type : " + scenarioParser.getScenarioType());
+
+		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
+		{
+			DebugLogger.output("Debug File");
+			simScenario = new DebugScenario(text);
+		}
+		else
+		{
+			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
+			{
+				DebugLogger.output("SAPP File");
+				simScenario = new SAPPScenario();
+
+				simScenario.loadConfig(text);
+
+			}
+			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
+			{
+				DebugLogger.output("LV File");
+				simScenario = new LotkaVolterraScenario();
+
+				simScenario.loadConfig(text);
+			}
+			else
+			{
+				DebugLogger.output("DeterminScenarios :UKNOWN");
+			}
+		}
+
+		return simScenario;
+	}
+	
+	/*
+	 * This method generates all the configuration combinations.
+	 */
 	private void generateCombos()
 	{
 		// Get a count of the parameter groups.
 		int parameterGroups = batchConfigProcessor.getSubListSize("Parameters","Parameter");
-		System.out.println("Number of Parameter Groups : " + parameterGroups);
+		DebugLogger.output("Number of Parameter Groups : " + parameterGroups);
 		
 		// Array to hold the parameter type (group/single)
 		String ParameterType[] = new String[parameterGroups];
@@ -121,7 +214,7 @@ public class Batch
 		for(int p=0;p<parameterGroups;p++)
 		{
 			// Generate the parameter path in the xml array (0),(1) etc
-			System.out.println("Parameter Group : " + p);
+			DebugLogger.output("Parameter Group : " + p);
 			section = "Parameters.Parameter("+p+")";
 			
 			// Get the type (group/single)
@@ -153,14 +246,14 @@ public class Batch
 			IncrementMaxValue[p] = Intial[p] + ((Combinations[p]-1) * Increment[p]);
 			
 			// Logging
-			System.out.println("ParameterType : " + ParameterType[p]);
-			System.out.println("Path : " + Path[p]);
-			System.out.println("GroupName : " + GroupName[p]);
-			System.out.println("ParameterName : " + ParameterName[p]);
-			System.out.println("Intial : " + Intial[p]);
-			System.out.println("Increment : " + Increment[p]);
-			System.out.println("Combinations : " + Combinations[p]);
-			System.out.println("IncrementMaxValue : " + IncrementMaxValue[p]);
+			DebugLogger.output("ParameterType : " + ParameterType[p]);
+			DebugLogger.output("Path : " + Path[p]);
+			DebugLogger.output("GroupName : " + GroupName[p]);
+			DebugLogger.output("ParameterName : " + ParameterName[p]);
+			DebugLogger.output("Intial : " + Intial[p]);
+			DebugLogger.output("Increment : " + Increment[p]);
+			DebugLogger.output("Combinations : " + Combinations[p]);
+			DebugLogger.output("IncrementMaxValue : " + IncrementMaxValue[p]);
 
 		}
 
@@ -184,10 +277,10 @@ public class Batch
 				// P[0] always increments
 				IncrementMod[p]=1;
 			}
-			System.out.println("Group "+p+ " Increments @Combo%"+IncrementMod[p]);
+			DebugLogger.output("Group "+p+ " Increments @Combo%"+IncrementMod[p]);
 			
 		}
-		System.out.println("Combinations " + combinations);
+		DebugLogger.output("Combinations " + combinations);
 		
 		// The temp scenario used to generate the xml.
 		ScenarioVT temp;
@@ -225,16 +318,16 @@ public class Batch
 						if(searchGroupName.equalsIgnoreCase(GroupName[p]))
 						{
 							// Combo / targetGroupName / Current GroupName
-							//System.out.println(c + " " + targetGroupName + " " + GroupName[p]);
+							//DebugLogger.output(c + " " + targetGroupName + " " + GroupName[p]);
 							
 							// The parameter we want
-							//System.out.println(ParameterName[p]);
+							//DebugLogger.output(ParameterName[p]);
 							
 							//String target = Path[p]+"."+ParameterName[p];
 							//String target = groupSection+"."+ParameterName[p];								
 							
 							// Current Value in XML
-							//System.out.println("Current Value " + temp.getIntValue(groupSection,ParameterName[p]));
+							//DebugLogger.output("Current Value " + temp.getIntValue(groupSection,ParameterName[p]));
 							
 							// Find the datatype to change
 							String dtype = temp.findDataType(Path[p]+"."+ParameterName[p]);
@@ -259,12 +352,12 @@ public class Batch
 							else
 							{
 								// This will not happen unless there is a new datatype added to the XML standards schema.
-								System.out.println("DTYPE : " + dtype);
+								DebugLogger.output("DTYPE : " + dtype);
 							}
 							/*
-							System.out.println("New Value " + temp.getIntValue(groupSection,ParameterName[p]));
-							System.out.println("Target : " + target);
-							System.out.println("Value : " + temp.getValueToString(target, temp.findDataType(target)));
+							DebugLogger.output("New Value " + temp.getIntValue(groupSection,ParameterName[p]));
+							DebugLogger.output("Target : " + target);
+							DebugLogger.output("Value : " + temp.getValueToString(target, temp.findDataType(target)));
 							*/
 							
 							// Group was found and value was changed now exit search
@@ -302,7 +395,7 @@ public class Batch
 					else
 					{
 						// This will not happen unless there is a new datatype added to the XML standards schema.
-						System.out.println("DTYPE : " + dtype);
+						DebugLogger.output("DTYPE : " + dtype);
 					}
 					
 				}
@@ -332,93 +425,101 @@ public class Batch
 				
 			}
 
-			//System.out.println(temp.getScenarioXMLText());
+			//DebugLogger.output(temp.getScenarioXMLText());
 			
 			// Add the new Batch Item combo used for batch item id, getScenarioXMLText is the new scenario xml configuration
-			simulationConfigs.add(new BatchItem(combo,temp.getScenarioXMLText()));
+			addBatchItem(combo,temp.getScenarioXMLText());
 			
 		}
-		
-	}
-	
-	private void setBaseFilePath(String fileText)
-	{
-		String section = "BaseScenario";
-
-		baseScenaroFilePath = basePath + "\\" + batchConfigProcessor.getStringValue(section, "FileName");
-		
-		System.out.println("Base Scenario File : " + baseScenaroFilePath);
-	}
-	
-	private void readFile(String fileName, StringBuilder destination) throws IOException
-	{
-		BufferedReader bufferedReader;
-
-		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"ISO_8859_1"));
-		
-		String sCurrentLine;
-		
-		while ((sCurrentLine = bufferedReader.readLine()) != null)
-		{
-			destination.append(sCurrentLine);
-		}
-
-		bufferedReader.close();
 		
 	}
 	
 	public BatchItem getNext()
 	{
-		return simulationConfigs.remove();
+		BatchItem temp = queuedItems.remove();
+		
+		activeItems.add(temp);
+
+		return temp;
+	}
+	
+	public void setComplete(BatchItem item)
+	{
+		activeItems.remove(item);
+		
+		completedItems++;		
 	}
 	
 	public int getRemaining()
 	{
-		return simulationConfigs.size();
-	}
-
-	private ScenarioInf determinScenarios(String text)
-	{
-		ScenarioVT scenarioParser = null;
-
-		ScenarioInf simScenario = null;
-
-		scenarioParser = new ScenarioVT();
-
-		// To get the type of Scenario object to create.
-		scenarioParser.loadConfig(text);
-
-		System.out.println("Scenario Type : " + scenarioParser.getScenarioType());
-
-		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
-		{
-			System.out.println("Debug File");
-			simScenario = new DebugScenario(text);
-		}
-		else
-		{
-			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
-			{
-				System.out.println("SAPP File");
-				simScenario = new SAPPScenario();
-
-				simScenario.loadConfig(text);
-
-			}
-			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
-			{
-				System.out.println("LV File");
-				simScenario = new LotkaVolterraScenario();
-
-				simScenario.loadConfig(text);
-			}
-			else
-			{
-				System.out.println("DeterminScenarios :UKNOWN");
-			}
-		}
-
-		return simScenario;
+		return queuedItems.size();
 	}
 	
+	// Small wrapper around queue add
+	private void addBatchItem(int id,String configText)
+	{
+		queuedItems.add(new BatchItem(id,batchId,configText));
+		
+		batchItems++;
+	}
+	
+	public int getBatchId()
+	{
+		return batchId;
+	}
+
+	public void setBatchId(int batchId)
+	{
+		this.batchId = batchId;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	public String getBaseScenarioFile()
+	{
+		return baseScenarioFile;
+	}
+
+	public void setBaseScenarioFile(String baseScenarioFile)
+	{
+		this.baseScenarioFile = baseScenarioFile;
+	}
+
+	public int getBatchItems()
+	{
+		return batchItems;
+	}
+
+	public void setBatchItems(int batchItems)
+	{
+		this.batchItems = batchItems;
+	}
+
+	public int getProgress()
+	{
+		return (int) (((float)completedItems/(float)batchItems)*100f);
+	}
+
+	public int getCompletedItems()
+	{
+		return completedItems;
+	}
+	
+	public BatchItem[] getQueuedItems()
+	{
+		return queuedItems.toArray(new BatchItem[queuedItems.size()]);
+	}
+	
+	public BatchItem[] getActiveItems()
+	{
+		return activeItems.toArray(new BatchItem[activeItems.size()]);
+	}
 }
