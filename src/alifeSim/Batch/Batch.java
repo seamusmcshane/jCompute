@@ -32,6 +32,8 @@ public class Batch
 	private int batchItems = 0;
 	private int completedItems = 0;
 		
+	private String batchStatsExportDir;
+	
 	// Our Queue of Items yet to be processed
 	private Deque<BatchItem> queuedItems;
 	
@@ -516,6 +518,9 @@ public class Batch
 	public void setComplete(BatchItem item)
 	{
 		activeItems.remove(item);
+		
+		// Create our export dir ready for export
+		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemName());
 		
 		completedItems++;		
 	}

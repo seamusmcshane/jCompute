@@ -1,5 +1,6 @@
 package alifeSim.Batch;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -201,10 +202,11 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			
 			batch.setComplete(item);	
 			
+			simsManager.getStatManager(item.getSimId()).exportStatsToCSV(batch.getBatchStatsExportDir()+File.separator+item.getItemName());
+			
 			simsManager.removeSimulationStateListener(item.getSimId(), this);
 
-			simsManager.removeSimulation(item.getSimId());
-			
+			simsManager.removeSimulation(item.getSimId());			
 			
 			batchManagerListenerBatchProgressNotification(batch);
 
