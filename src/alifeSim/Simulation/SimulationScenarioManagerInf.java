@@ -33,6 +33,8 @@ public interface SimulationScenarioManagerInf
 	
 	public boolean hasEndEventOccurred();
 
+	public String getEndEvent();
+
 	public void setScenarioStepCountEndEvent(SimulationStats simState);
 	
 	public ScenarioInf getScenario();

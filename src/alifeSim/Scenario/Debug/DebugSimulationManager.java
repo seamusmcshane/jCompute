@@ -182,5 +182,11 @@ public class DebugSimulationManager implements SimulationScenarioManagerInf
 	public ScenarioInf getScenario()
 	{
 		return scenario;
+	}
+
+	@Override
+	public String getEndEvent()
+	{
+		return "NONE";
 	}	
 }

@@ -612,6 +612,25 @@ public class SimulationsManager
 		
 	}
 	
+	public String getEndEvent(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		String endEvent = null;
+
+		if(sim!=null)
+		{	
+			endEvent = sim.getSimManager().getEndEvent();
+		}
+		
+		simulationsManagerLock.release();	
+		
+		return endEvent;
+		
+	}
+	
 	public int getReqSps(int simId)
 	{
 		int reqSps = -1;

@@ -64,6 +64,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	private SimViewCam simViewCam;
 		
 	private List<ScenarioEndEventInf> endEvents;
+	private String endEvent = "NONE";
 		
 	/**
 	 * Constructor for SimulationManager.
@@ -341,6 +342,8 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		{
 			if(event.checkEvent())
 			{
+				endEvent = event.getName();
+				
 				eventOccurred = true;
 				
 				// Output the final update
@@ -387,5 +390,11 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	public ScenarioInf getScenario()
 	{
 		return scenario;
+	}
+
+	@Override
+	public String getEndEvent()
+	{
+		return endEvent;
 	}	
 }

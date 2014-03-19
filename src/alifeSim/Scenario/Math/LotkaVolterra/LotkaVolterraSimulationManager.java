@@ -3,6 +3,7 @@ package alifeSim.Scenario.Math.LotkaVolterra;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -31,6 +32,7 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 	private SimViewCam simViewCam;
 
 	private ArrayList<ScenarioEndEventInf> endEvents;
+	private String endEvent = "None";
 	
 	public LotkaVolterraSimulationManager(LotkaVolterraScenario scenario)
 	{
@@ -200,6 +202,8 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 		{
 			if(event.checkEvent())
 			{
+				endEvent = event.getName();
+				
 				eventOccurred = true;
 				
 				// Output the final update
@@ -229,6 +233,12 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 	public ScenarioInf getScenario()
 	{
 		return scenario;
+	}
+
+	@Override
+	public String getEndEvent()
+	{
+		return endEvent;
 	}	
 	
 }
