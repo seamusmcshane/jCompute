@@ -1,21 +1,20 @@
 package alifeSim.Batch;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Deque;
-import java.util.GregorianCalendar;
-
 import alifeSim.Debug.DebugLogger;
-import alifeSim.Gui.Component.TablePanel;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Debug.DebugScenario;
@@ -31,8 +30,12 @@ public class Batch
 	private String batchDescription;
 	private int batchItems = 0;
 	private int completedItems = 0;
-		
+
+	/* Log - total time calc */
+	private long startTime;
+	
 	private String batchStatsExportDir;
+	private PrintWriter logFile;
 	
 	// Our Queue of Items yet to be processed
 	private Deque<BatchItem> queuedItems;
@@ -76,7 +79,6 @@ public class Batch
 		DebugLogger.output("New Batch based on : " + fileName);
 		
 		processBatchConfig(batchConfigText.toString());
-
 	}
 		
 	private String getPath(String fileName)
@@ -95,7 +97,7 @@ public class Batch
 		setBatchDescription();
 
 		setBatchStatExportDir();
-
+		
 		setBaseFilePath(fileText);
 		
 		baseScenarioText = new StringBuilder();
@@ -111,6 +113,33 @@ public class Batch
 		
 	}
 
+	private void startBatchLog()
+	{
+		try
+		{
+			logFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir+File.separator+"batch.log", true)));
+
+			// For run time calc
+			startTime = System.currentTimeMillis();
+
+			Calendar calender = Calendar.getInstance();
+			
+			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
+			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+			
+			logFile.println("Batch\t" + batchId);
+			logFile.println("Started\t"+date + " " + time);			
+			logFile.println("Scenario Type\t" + type);
+			logFile.println("Description\t"+batchDescription);
+			logFile.println("Base File\t"+baseScenarioFile);
+			logFile.flush();			
+		}
+		catch (IOException e)
+		{
+			System.out.println("Could not created log file");
+		}
+	}
+	
 	private void testAndCreateDir(String dir)
 	{
 		File directory = new File(dir);
@@ -145,9 +174,8 @@ public class Batch
 				
 		testAndCreateDir(baseExportDir);
 		testAndCreateDir(baseExportDir+File.separator+date);
-		testAndCreateDir(baseExportDir+File.separator+date+File.separator+"Batch "+batchId);
 		
-		batchStatsExportDir = baseExportDir+File.separator+date+File.separator+"Batch "+batchId+File.separator+batchDirName+"@"+time;
+		batchStatsExportDir = baseExportDir+File.separator+date+File.separator+"Batch "+batchId+" "+batchDirName+"@"+time;
 		
 		testAndCreateDir(batchStatsExportDir);
 		
@@ -512,17 +540,41 @@ public class Batch
 		
 		activeItems.add(temp);
 
+		// Is this the first Item
+		if(temp.getItemId() == 1)
+		{			
+			startBatchLog();
+		}
+		
 		return temp;
 	}
 	
-	public void setComplete(BatchItem item)
+	public void setComplete(BatchItem item,long runTime)
 	{
 		activeItems.remove(item);
 		
 		// Create our export dir ready for export
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemName());
 		
-		completedItems++;		
+		logFile.println(item.getItemName().replace(' ', '\t') + "\t:\t" + alifeSim.util.Text.longTimeToDHMS(runTime));
+		logFile.flush();
+		
+		completedItems++;	
+		
+		if(completedItems == batchItems)
+		{			
+			// For run time calc
+			Calendar calender = Calendar.getInstance();
+			
+			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
+			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());	
+			
+			logFile.println("Finished\t"+date + " " + time);			
+			logFile.println("Total Time\t " + alifeSim.util.Text.longTimeToDHMS(System.currentTimeMillis()-startTime));
+			
+			logFile.flush();
+			logFile.close();
+		}
 	}
 	
 	public int getRemaining()
