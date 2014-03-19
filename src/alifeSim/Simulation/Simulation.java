@@ -416,6 +416,11 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 	}
 
+	public long getTotalTime()
+	{
+		return simStats.getTotalTime();
+	}
+	
 	public SimState getState()
 	{
 		return simState.getState();

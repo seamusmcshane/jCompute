@@ -157,6 +157,24 @@ public class SimulationsManager
 		return statManager;
 	}
 	
+	public long getSimRunTime(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		long runTime = 0;
+		
+		if(sim!=null)
+		{
+			runTime = sim.getTotalTime();
+		}
+		
+		simulationsManagerLock.release();
+		
+		return runTime;
+	}
+	
 	public SimulationScenarioManagerInf getScenarioManager(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
