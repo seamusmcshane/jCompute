@@ -25,7 +25,7 @@ public class BatchItem
 		
 		try
 		{
-			byte[] data = MessageDigest.getInstance("SHA-256").digest(toHash.getBytes());
+			byte[] data = MessageDigest.getInstance("MD5").digest(toHash.getBytes());
 			
 	        StringBuffer buffer = new StringBuffer();
 	        for (int d = 0; d < data.length; d++) 
