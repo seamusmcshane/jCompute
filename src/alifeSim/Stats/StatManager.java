@@ -132,7 +132,7 @@ public class StatManager
      * zzz,yyy,xxx CRLF
 	 * @param directory
 	 */
-	public void exportStatsToCSV(String directory)
+	public void exportStatsToCSV(String directory,String fileNameSuffix)
 	{
 		statsManagerLock.acquireUninterruptibly();
 				
@@ -165,7 +165,14 @@ public class StatManager
 			List<String> statList = statGroup.getStatList();
 			
 			// Set the File Name
-			fileNames[groupIndex] = group;
+			if(!fileNameSuffix.equals(""))
+			{
+				fileNames[groupIndex] = group + " " + fileNameSuffix;
+			}
+			else
+			{
+				fileNames[groupIndex] = group;
+			}
 			System.out.println("Group : " + fileNames[groupIndex]);
 						
 			// The Header Row			
