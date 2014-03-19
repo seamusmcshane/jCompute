@@ -549,14 +549,14 @@ public class Batch
 		return temp;
 	}
 	
-	public void setComplete(BatchItem item,long runTime,String endEvent)
+	public void setComplete(BatchItem item,long runTime,String endEvent, long stepCount)
 	{
 		activeItems.remove(item);
 		
 		// Create our export dir ready for export
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemName());
 		
-		logFile.println(item.getItemName().replace(' ', '\t') + "\t:\t" + alifeSim.util.Text.longTimeToDHMS(runTime) + "\t" + endEvent);
+		logFile.println(item.getItemName().replace(' ', '\t') + "\t:\t" + alifeSim.util.Text.longTimeToDHMS(runTime) + "\t" + endEvent + "\t" + stepCount);
 		logFile.flush();
 		
 		completedItems++;	
