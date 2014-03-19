@@ -161,7 +161,7 @@ public class SimulationStatsListPanel extends JPanel implements ActionListener
 
 			if(fileFormat.equals("Comma-Separated Values"))
 			{
-				statManager.exportStatsToCSV(exportDirectory);
+				statManager.exportStatsToCSV(exportDirectory,"");
 			}
 			else if(fileFormat.equals("Attribute-Relation File Format"))
 			{
