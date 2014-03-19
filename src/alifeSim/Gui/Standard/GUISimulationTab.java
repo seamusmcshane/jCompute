@@ -1066,20 +1066,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		lblStepCount.setText(Integer.toString(stepNo));
 	}
 
-	/**
-	 * Displays the current run time of the simulation from a long count in
-	 * milliseconds
-	 * @param time
-	 */
 	private void setTime(long time)
 	{
-		time = time / 1000; // seconds
-		int days = (int) (time / 86400); // to days
-		int hrs = (int) (time / 3600) % 24; // to hrs
-		int mins = (int) ((time / 60) % 60);	// to seconds
-		int sec = (int) (time % 60);
-
-		lblSimRunTime.setText(String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec));
+		lblSimRunTime.setText(alifeSim.util.Text.longTimeToDHMS(time));
 	}
 	
 	private void notifiyTabStatusChangedListeners(SimState state)

@@ -476,7 +476,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	@Override
 	public void simulationStatChanged(int simId, long time, int stepNo, int progress, int asps)
 	{
-		activeSimulationsListTable.updateCells("Simulation " + simId, new int[]{2,3,4,5},new String[]{ Integer.toString(stepNo), Integer.toString(progress), Integer.toString(asps), longTimeToString(time) });
+		activeSimulationsListTable.updateCells("Simulation " + simId, new int[]{2,3,4,5},new String[]{ Integer.toString(stepNo), Integer.toString(progress), Integer.toString(asps), alifeSim.util.Text.longTimeToDHMS(time) });
 	}
 
 	@Override
@@ -484,17 +484,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	{
 		// Simulation State
 		activeSimulationsListTable.updateCell("Simulation " + simId, 1 , state.toString());		
-	}
-	
-	public String longTimeToString(long time)
-	{
-		time = time / 1000; // seconds
-		int days = (int) (time / 86400); // to days
-		int hrs = (int) (time / 3600) % 24; // to hrs
-		int mins = (int) ((time / 60) % 60);	// to seconds
-		int sec = (int) (time % 60);
-	
-		return String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec);
 	}
 		
 	@Override

@@ -67,7 +67,7 @@ public class XMLHandler extends AbstractHandler
 					// Sim Values
 					response.getWriter().print("<ID>");response.getWriter().print(id);response.getWriter().print("</ID>");
 					response.getWriter().print("<Status>");response.getWriter().print(simStatus);response.getWriter().print("</Status>");
-					//response.getWriter().print("<TotalTime>");response.getWriter().print(formatTime(perfStats.getTotalTime()));response.getWriter().print("</TotalTime>");
+					//response.getWriter().print("<TotalTime>");response.getWriter().print(alifeSim.util.Text.longTimeToDHMS(perfStats.getTotalTime()));response.getWriter().print("</TotalTime>");
 					//response.getWriter().print("<Steps>");response.getWriter().print(perfStats.getSimulationSteps());response.getWriter().print("</Steps>");
 					//response.getWriter().print("<AvgSPS>");response.getWriter().print(perfStats.getAverageStepRate());response.getWriter().print("</AvgSPS>");
 					
@@ -85,15 +85,5 @@ public class XMLHandler extends AbstractHandler
 			System.out.println("IOException - : " + e.getStackTrace()[0].getMethodName());
 		}*/
 	}
-	
-	private String formatTime(long time)
-	{
-		time = time / 1000; // seconds
-		int days = (int) (time / 86400); // to days
-		int hrs = (int) (time / 3600) % 24; // to hrs
-		int mins = (int) ((time / 60) % 60);	// to seconds
-		int sec = (int) (time % 60);
 
-		return String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec);
-	}
 }
