@@ -175,6 +175,24 @@ public class SimulationsManager
 		return runTime;
 	}
 	
+	public long getSimStepCount(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		long stepCount = 0;
+		
+		if(sim!=null)
+		{
+			stepCount = sim.getTotalSteps();
+		}
+		
+		simulationsManagerLock.release();
+		
+		return stepCount;
+	}
+	
 	public SimulationScenarioManagerInf getScenarioManager(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();

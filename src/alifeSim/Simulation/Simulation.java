@@ -430,4 +430,9 @@ public class Simulation implements stateChangedInf, statChangedInf
 	{
 		return reqSps;
 	}
+
+	public long getTotalSteps()
+	{
+		return simStats.getSimulationSteps();
+	}
 }
