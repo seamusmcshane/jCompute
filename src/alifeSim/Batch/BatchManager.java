@@ -204,7 +204,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			
 			batch.setComplete(item,simsManager.getSimRunTime(simId),simsManager.getEndEvent(simId),simsManager.getSimStepCount(simId));	
 			
-			simsManager.getStatManager(item.getSimId()).exportStatsToCSV(batch.getBatchStatsExportDir()+File.separator+item.getItemName(),String.valueOf(item.getItemId()+" "+item.getItemHash()));
+			simsManager.getStatManager(item.getSimId()).exportStatsToCSV(batch.getBatchStatsExportDir()+File.separator+item.getItemId(),String.valueOf(item.getItemId()+" "+item.getItemHash()));
 			
 			simsManager.removeSimulationStateListener(item.getSimId(), this);
 

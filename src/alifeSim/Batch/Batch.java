@@ -554,7 +554,7 @@ public class Batch
 		activeItems.remove(item);
 		
 		// Create our export dir ready for export
-		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemName());
+		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
 		
 		logFile.println(item.getItemName().replace(' ', '\t') + "\t:\t" + alifeSim.util.Text.longTimeToDHMS(runTime) + "\t" + endEvent + "\t" + stepCount);
 		logFile.flush();
