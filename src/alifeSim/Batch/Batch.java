@@ -556,13 +556,26 @@ public class Batch
 		// Create our export dir ready for export
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
 		
-		logFile.println(item.getItemName().replace(' ', '\t') + "\t:\t" + alifeSim.util.Text.longTimeToDHMS(runTime) + "\t" + endEvent + "\t" + stepCount);
+		logFile.println(item.getItemId() + "\t" + item.getItemHash() + "\t" + alifeSim.util.Text.longTimeToDHMS(runTime) + "\t" + endEvent + "\t" + stepCount + "\t" + item.getItemName().replace(' ', '\t') );
 		logFile.flush();
+		
+		try
+		{
+			PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir+File.separator+item.getItemId()+File.separator+"itemconfig-"+item.getItemHash()+".xml", true)));
+			
+			configFile.write(item.getConfigText());
+			configFile.flush();
+			configFile.close();
+		}
+		catch (IOException e)
+		{
+			System.out.println("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId() +")");
+		}	
 		
 		completedItems++;	
 		
 		if(completedItems == batchItems)
-		{			
+		{
 			// For run time calc
 			Calendar calender = Calendar.getInstance();
 			
