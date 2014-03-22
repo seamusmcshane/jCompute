@@ -35,7 +35,8 @@ public class Batch
 	private long startTime;
 	
 	private String batchStatsExportDir;
-	private PrintWriter logFile;
+	private PrintWriter itemLog;
+	private PrintWriter infoLog;
 	
 	// Our Queue of Items yet to be processed
 	private Deque<BatchItem> queuedItems;
@@ -117,8 +118,22 @@ public class Batch
 	{
 		try
 		{
-			logFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir+File.separator+"batch.log", true)));
+			infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir+File.separator+"InfoLog.xml", true)));
+			itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir+File.separator+"ItemLog.xml", true)));
 
+			itemLog.println("<!DOCTYPE ItemLog");
+			itemLog.println("[");
+			itemLog.println("<!ELEMENT Items (Item)>");
+			itemLog.println("<!ELEMENT Item (Hash,RunTime,EndEvent,StepCount)>");
+			itemLog.println("<!ATTLIST Item id ID #REQUIRED>");
+			itemLog.println("<!ELEMENT Hash (#PCDATA)>");
+			itemLog.println("<!ELEMENT RunTime (#PCDATA)>");
+			itemLog.println("<!ELEMENT EndEvent (#PCDATA)>");
+			itemLog.println("<!ELEMENT StepCount (#PCDATA)>");
+			itemLog.println("]>");
+			
+			itemLog.println("<Items>");
+			
 			// For run time calc
 			startTime = System.currentTimeMillis();
 
@@ -127,12 +142,14 @@ public class Batch
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
 			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
 			
-			logFile.println("Batch\t" + batchId);
-			logFile.println("Started\t"+date + " " + time);			
-			logFile.println("Scenario Type\t" + type);
-			logFile.println("Description\t"+batchDescription);
-			logFile.println("Base File\t"+baseScenarioFile);
-			logFile.flush();			
+			// XML Log File Header
+			infoLog.println("<Batch>");		
+			infoLog.println("<ID>" + batchId + "</ID>");
+			infoLog.println("<ScenarioType>" + type + "</ScenarioType>");
+			infoLog.println("<Description>" + batchDescription + "</Description>");
+			infoLog.println("<BaseFile>" + baseScenarioFile + "</BaseFile>");	
+			infoLog.println("<Start>" + date + " " + time + "</Start>");		
+			infoLog.flush();
 		}
 		catch (IOException e)
 		{
@@ -556,9 +573,15 @@ public class Batch
 		// Create our export dir ready for export
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
 		
-		logFile.println(item.getItemId() + "\t" + item.getItemHash() + "\t" + alifeSim.util.Text.longTimeToDHMS(runTime) + "\t" + endEvent + "\t" + stepCount );
+		itemLog.println("<Item id=" + "'" + item.getItemId() + "'"+ ">");
+		itemLog.println("<Hash>"+item.getItemHash()+"</Hash>");
+		itemLog.println("<RunTime>"+alifeSim.util.Text.longTimeToDHMS(runTime)+"</RunTime>");
+		itemLog.println("<EndEvent>"+endEvent+"</EndEvent>");
+		itemLog.println("<StepCount>"+stepCount+"</StepCount>");		
+		itemLog.println("</Item>");
+
 		//+ "\t" + item.getItemName().replace(' ', '\t')
-		logFile.flush();
+		itemLog.flush();
 		
 		try
 		{
@@ -583,11 +606,16 @@ public class Batch
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
 			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());	
 			
-			logFile.println("Finished\t"+date + " " + time);			
-			logFile.println("Total Time\t " + alifeSim.util.Text.longTimeToDHMS(System.currentTimeMillis()-startTime));
+			infoLog.println("<Finished>"+date + " " + time+"</Finished>");
+			infoLog.println("<TotalTime>"+alifeSim.util.Text.longTimeToDHMS(System.currentTimeMillis()-startTime)+"+</TotalTime>");
+			infoLog.println("<Batch>");
 			
-			logFile.flush();
-			logFile.close();
+			infoLog.flush();
+			infoLog.close();
+			
+			itemLog.println("</Items>");
+			itemLog.flush();
+			itemLog.close();
 		}
 	}
 	
@@ -663,4 +691,5 @@ public class Batch
 	{
 		return activeItems.toArray(new BatchItem[activeItems.size()]);
 	}
+	
 }
