@@ -102,5 +102,11 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/alifesim/libs/apache-commons/commons-xmlschema/commons-xmlschema-1.4.7/XmlSchema-1.4.7-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/log4j/apache-log4j-1.2.17/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="libs/jogamp-all-platforms/jogamp-all-platforms-2.1.5/jar/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/jogamp-all-platforms/jogamp-all-platforms-2.1.5/jar/jogl-all.jar"/>
+	<classpathentry kind="lib" path="libs/jogamp-all-platforms/jogamp-all-platforms-2.1.5/jar/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="libs/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
+	<classpathentry kind="lib" path="libs/jzy3d/jzy3d-api-0.9.1/jzy3d-depthpeeling-0.9.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
