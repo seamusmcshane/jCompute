@@ -2,6 +2,10 @@ package alifeSim.Batch;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+import com.badlogic.gdx.scenes.scene2d.ui.List;
 
 public class BatchItem
 {
@@ -10,16 +14,20 @@ public class BatchItem
 	private String name;
 	private String configText;
 	
+	// position within the combination space of this items combo.
+	private ArrayList<Integer> coordinates;
 	private int simId;
 	
 	private String itemHash;
 	
-	public BatchItem(int itemId,int batchId,String name,String configText)
+	public BatchItem(int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates)
 	{
 		this.itemId = itemId;
 		this.batchId = batchId;
 		this.name = name;
 		this.configText = configText;
+		
+		this.coordinates = coordinates;
 		
 		String toHash = name+configText;
 		
@@ -43,6 +51,11 @@ public class BatchItem
 		
 	}
 	
+	public ArrayList<Integer> getCoordinates()
+	{
+		return coordinates;
+	}
+		
 	public int getBatchId()
 	{
 		return batchId;

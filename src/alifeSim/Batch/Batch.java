@@ -14,6 +14,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Deque;
+import java.util.LinkedList;
+
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
@@ -36,6 +38,8 @@ public class Batch
 	
 	private String batchStatsExportDir;
 	private PrintWriter itemLog;
+	private String ParameterName[];
+	private String GroupName[];
 	private PrintWriter infoLog;
 	
 	// Our Queue of Items yet to be processed
@@ -114,7 +118,7 @@ public class Batch
 		
 	}
 
-	private void startBatchLog()
+	private void startBatchLog(int numCordinates)
 	{
 		try
 		{
@@ -123,10 +127,33 @@ public class Batch
 
 			itemLog.println("<!DOCTYPE ItemLog");
 			itemLog.println("[");
+			
 			itemLog.println("<!ELEMENT Items (Item)>");
-			itemLog.println("<!ELEMENT Item (Hash,RunTime,EndEvent,StepCount)>");
-			itemLog.println("<!ATTLIST Item id ID #REQUIRED>");
+			itemLog.print("<!ELEMENT Item (ID,Hash,RunTime,EndEvent,StepCount,");
+			
+			for(int c=1;c<numCordinates+1;c++)
+			{
+				itemLog.print("Coordinate"+c);
+			}
+			for(int c=1;c<numCordinates+1;c++)
+			{
+				itemLog.print("CoordinateName"+c);
+				if(c<(numCordinates))
+				{
+					itemLog.print(",");
+				}
+			}
+			itemLog.print(")>\n");			
+			
+			itemLog.println("<!ELEMENT ID (#PCDATA)>");
 			itemLog.println("<!ELEMENT Hash (#PCDATA)>");
+			
+
+			for(int c=1;c<numCordinates+1;c++)
+			{
+				itemLog.println("<!ELEMENT Coordinate" + c + " (#PCDATA)>");
+				itemLog.println("<!ELEMENT CoordinateName" + c + " (#PCDATA)>");
+			}
 			itemLog.println("<!ELEMENT RunTime (#PCDATA)>");
 			itemLog.println("<!ELEMENT EndEvent (#PCDATA)>");
 			itemLog.println("<!ELEMENT StepCount (#PCDATA)>");
@@ -301,10 +328,10 @@ public class Batch
 		String Path[] = new String[parameterGroups];
 		
 		// Array to hold the unique identifier for the group.
-		String GroupName[] = new String[parameterGroups];
+		GroupName = new String[parameterGroups];
 		
 		// Array to hold the parameter name that will be changed.
-		String ParameterName[] = new String[parameterGroups];
+		ParameterName = new String[parameterGroups];
 		
 		// Initial values of each parameter
 		int Intial[] = new int[parameterGroups];
@@ -398,6 +425,14 @@ public class Batch
 		ScenarioVT temp;
 
 		String itemName = "";
+		
+		// Combination space coordinates X,Y,Z..
+		ArrayList<Integer> comboCoordinates = new ArrayList<Integer>(parameterGroups);
+		for(int p=0;p<parameterGroups;p++)
+		{
+			// Initialise the coordinates (1 base)
+			comboCoordinates.add(1);
+		}
 		
 		// Set the combination Values
 		for(int combo=1; combo<combinations+1;combo++)
@@ -521,6 +556,23 @@ public class Batch
 			// Log line end
 			System.out.print("\n");
 			
+			//DebugLogger.output(temp.getScenarioXMLText());
+			System.out.print("ComboPos : " );
+			ArrayList<Integer> tempCoord = new ArrayList<Integer>();
+			for(int p=0;p<parameterGroups;p++)
+			{
+				System.out.print(comboCoordinates.get(p));
+				if(p<(parameterGroups-1))
+				{
+					System.out.print('x');
+				}
+				
+				tempCoord.add(comboCoordinates.get(p));
+			}
+			System.out.print('\n');
+			
+			// Add the new Batch Item combo used for batch item id, getScenarioXMLText is the new scenario xml configuration
+			addBatchItem(combo,itemName,temp.getScenarioXMLText(),tempCoord);
 			
 			// Increment the combinatorics values.
 			for(int p=0;p<parameterGroups;p++)
@@ -538,15 +590,22 @@ public class Batch
 						currentValues[p] = Intial[p];
 					}
 					
+					// P[0] increments 1 each time, wrap it by the roll over value of its combinations number
+					if(p==0)
+					{
+						// Increment the coordinate by 1
+						comboCoordinates.set(p, (comboCoordinates.get(p)%Combinations[p])+1 );
+					}
+					else
+					{
+						// Increment the coordinate by 1
+						comboCoordinates.set(p, comboCoordinates.get(p)+1);
+					}
+					
 				}
 				
 			}
 
-			//DebugLogger.output(temp.getScenarioXMLText());
-			
-			// Add the new Batch Item combo used for batch item id, getScenarioXMLText is the new scenario xml configuration
-			addBatchItem(combo,itemName,temp.getScenarioXMLText());
-			
 		}
 		
 	}
@@ -560,7 +619,7 @@ public class Batch
 		// Is this the first Item
 		if(temp.getItemId() == 1)
 		{			
-			startBatchLog();
+			startBatchLog(temp.getCoordinates().size());
 		}
 		
 		return temp;
@@ -573,7 +632,15 @@ public class Batch
 		// Create our export dir ready for export
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
 		
-		itemLog.println("<Item id=" + "'" + item.getItemId() + "'"+ ">");
+		itemLog.println("<Item>");
+		itemLog.println("<ID>" + item.getItemId() + "</ID>");	
+		ArrayList<Integer> coords = item.getCoordinates();
+		for(int c=1;c<coords.size()+1;c++)
+		{
+			itemLog.println("<Coordinate"+c+">" + coords.get(c-1) + "</Coordinate"+c+">");
+			itemLog.println("<CoordinateName"+c+">" + GroupName[c-1]+ParameterName[c-1] + "</CoordinateName"+c+">");
+
+		}	
 		itemLog.println("<Hash>"+item.getItemHash()+"</Hash>");
 		itemLog.println("<RunTime>"+alifeSim.util.Text.longTimeToDHMS(runTime)+"</RunTime>");
 		itemLog.println("<EndEvent>"+endEvent+"</EndEvent>");
@@ -607,7 +674,7 @@ public class Batch
 			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());	
 			
 			infoLog.println("<Finished>"+date + " " + time+"</Finished>");
-			infoLog.println("<TotalTime>"+alifeSim.util.Text.longTimeToDHMS(System.currentTimeMillis()-startTime)+"+</TotalTime>");
+			infoLog.println("<TotalTime>"+alifeSim.util.Text.longTimeToDHMS(System.currentTimeMillis()-startTime)+"</TotalTime>");
 			infoLog.println("<Batch>");
 			
 			infoLog.flush();
@@ -625,9 +692,9 @@ public class Batch
 	}
 	
 	// Small wrapper around queue add
-	private void addBatchItem(int id,String name,String configText)
+	private void addBatchItem(int id,String name,String configText,ArrayList<Integer> coordinates)
 	{
-		queuedItems.add(new BatchItem(id,batchId,name,configText));
+		queuedItems.add(new BatchItem(id,batchId,name,configText,coordinates));
 		
 		batchItems++;
 	}
