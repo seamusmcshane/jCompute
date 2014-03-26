@@ -17,12 +17,14 @@ public class BatchItem
 	
 	// position within the combination space of this items combo.
 	private ArrayList<Integer> coordinates;
+	
+	// Real Values
+	private ArrayList<Integer> coordinatesValues;
 	private int simId;
 	
 	private String itemHash;
 	
 	public BatchItem(int sampleId,int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates,ArrayList<Integer> coordinatesValues)
-	public BatchItem(int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates)
 	{
 		this.sampleId = sampleId;
 		this.itemId = itemId;
@@ -31,6 +33,7 @@ public class BatchItem
 		this.configText = configText;
 		
 		this.coordinates = coordinates;
+		this.coordinatesValues = coordinatesValues;
 		
 		String toHash = name+configText;
 		
@@ -57,6 +60,11 @@ public class BatchItem
 	public ArrayList<Integer> getCoordinates()
 	{
 		return coordinates;
+	}
+	
+	public ArrayList<Integer> getCoordinatesValues()
+	{
+		return coordinatesValues;
 	}
 		
 	public int getBatchId()
