@@ -6,8 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
 import javax.swing.JDialog;
@@ -15,19 +21,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.chart.factories.IChartComponentFactory;
-import org.jzy3d.chart.factories.IChartComponentFactory.Toolkit;
-import org.jzy3d.chart.factories.SwingChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
-import org.jzy3d.colors.colormaps.ColorMapHotCold;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.colors.colormaps.ColorMapWhiteBlue;
-import org.jzy3d.colors.colormaps.ColorMapWhiteRed;
-import org.jzy3d.plot3d.builder.Mapper;
 import org.jzy3d.io.glsl.GLSLProgram;
 import org.jzy3d.io.glsl.GLSLProgram.Strictness;
 import org.jzy3d.maths.Range;
@@ -55,9 +57,12 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 	
 	private static Shape surface;
 	private static Chart chart;
+	private JMenuItem mntmExportImage;
 	
 	public SurfacePlotterUtil()
 	{
+		lookandFeel();
+		
 		DebugLogger.setDebug(true);
 		
 		gui = new JFrame();
@@ -77,6 +82,10 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		
 		mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(this);
+		
+		mntmExportImage = new JMenuItem("Export Image");
+		mntmExportImage.addActionListener(this);
+		mnFile.add(mntmExportImage);
 		mnFile.add(mntmExit);
 		
 		gui.addWindowListener(this);
@@ -141,9 +150,9 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		        GLCapabilities capabilities = new GLCapabilities(profile);
 		        capabilities.setHardwareAccelerated(true);
 		        
-		        chart = new Chart(factory, Quality.Fastest);
+		        //chart = new Chart(factory, Quality.Fastest);
 		        
-		        //chart = AWTChartComponentFactory.chart(Quality.Intermediate,"awt");
+		        chart = AWTChartComponentFactory.chart(Quality.Advanced,"awt");
 		        
 		        chart.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
 		        chart.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
@@ -153,9 +162,13 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		        AWTColorbarLegend colorBar = new AWTColorbarLegend(surface, chart.getView().getAxe().getLayout());
 		        surface.setLegend(colorBar);
 		        
+		        // Tick mapping
+		        chart.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
+		        chart.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
+		        		        
 		        chart.addMouseController();
 
-		        gui.add((Component)chart.getCanvas());
+		        gui.getContentPane().add((Component)chart.getCanvas());
 		        gui.validate();
 		        
 			}
@@ -163,6 +176,58 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		if(e.getSource() == mntmExit)
 		{
 			doProgramExit();
+		}
+		
+		if(e.getSource() == mntmExportImage)
+		{
+			
+			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+
+
+			int val = filechooser.showSaveDialog(filechooser);
+			
+			
+			if (val == JFileChooser.APPROVE_OPTION)
+			{
+				File file = filechooser.getSelectedFile();
+
+				String fileName = file.getAbsolutePath().toString();
+				
+		        try
+				{
+		        	// Convert Texture to file...
+			        File tempFile = new File(System.getProperty("java.io.tmpdir")+"temp.png");
+					chart.screenshot(tempFile);
+
+					// Read file to BufferedImage
+			        BufferedImage img = ImageIO.read(tempFile);
+
+			        // Flip the image vertically
+			        AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+			        tx.translate(0, -img.getHeight(null));
+			        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+			        img = op.filter(img, null);
+
+					if (fileName.indexOf(".") > 0)
+					{
+						fileName = fileName.substring(0, fileName.lastIndexOf("."));
+					}
+			        
+			        // Save the screenshot
+					File outputfile = new File(fileName+".png");
+					ImageIO.write(img, "png", outputfile);
+			        
+					// Remove Temp File
+					tempFile.delete();
+
+				}
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			
 		}
 		
 	}
@@ -244,6 +309,31 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/* Use the java provided system look and feel */
+	private void lookandFeel()
+	{
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (ClassNotFoundException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (InstantiationException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (IllegalAccessException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (UnsupportedLookAndFeelException e1)
+		{
+			e1.printStackTrace();
+		}
 	}
 	
 }
