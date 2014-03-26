@@ -11,6 +11,7 @@ public class BatchItem
 {
 	private int itemId;
 	private int batchId;
+	private int sampleId;
 	private String name;
 	private String configText;
 	
@@ -20,8 +21,10 @@ public class BatchItem
 	
 	private String itemHash;
 	
+	public BatchItem(int sampleId,int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates,ArrayList<Integer> coordinatesValues)
 	public BatchItem(int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates)
 	{
+		this.sampleId = sampleId;
 		this.itemId = itemId;
 		this.batchId = batchId;
 		this.name = name;
@@ -89,6 +92,11 @@ public class BatchItem
 	public int getSimId()
 	{
 		return simId;
+	}
+
+	public int getSampleId()
+	{
+		return sampleId;
 	}
 	
 }

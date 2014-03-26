@@ -32,7 +32,8 @@ public class Batch
 	private String batchDescription;
 	private int batchItems = 0;
 	private int completedItems = 0;
-
+	private int itemSamples;
+	
 	/* Log - total time calc */
 	private long startTime;
 	
@@ -320,6 +321,9 @@ public class Batch
 		// Get a count of the parameter groups.
 		int parameterGroups = batchConfigProcessor.getSubListSize("Parameters","Parameter");
 		DebugLogger.output("Number of Parameter Groups : " + parameterGroups);
+
+		// How many times to run each batchItem.
+		itemSamples = batchConfigProcessor.getIntValue( "Config", "ItemSamples");
 		
 		// Array to hold the parameter type (group/single)
 		String ParameterType[] = new String[parameterGroups];
@@ -702,11 +706,15 @@ public class Batch
 	}
 	
 	// Small wrapper around queue add
-	private void addBatchItem(int id,String name,String configText,ArrayList<Integer> coordinates)
+	private void addBatchItem(int samples,int id,String name,String configText,ArrayList<Integer> coordinates,ArrayList<Integer> coordinatesValues)
 	{
-		queuedItems.add(new BatchItem(id,batchId,name,configText,coordinates));
+		//SID/SampleId is 1 base/ 1=first sample
+		for(int sid=1;sid<samples+1;sid++)
+		{
+			queuedItems.add(new BatchItem(sid,id,batchId,name,configText,coordinates,coordinatesValues));	
+		}
 		
-		batchItems++;
+		batchItems=batchItems+(1*samples);
 	}
 	
 	public int getBatchId()
