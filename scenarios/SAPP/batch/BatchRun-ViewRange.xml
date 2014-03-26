@@ -8,6 +8,7 @@
 		<BaseScenarioFileName>BatchViewRangeScenario.xml</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchDirName>ViewRange-(2-Species-5-100)</BatchDirName>
+		<ItemSamples>10</ItemSamples>
 	</Config>
 	<Parameters>
 		<Parameter>
