@@ -625,12 +625,22 @@ public class Batch
 		return temp;
 	}
 	
-	public void setComplete(BatchItem item,long runTime,String endEvent, long stepCount)
+	public void setComplete(SimulationsManager simsManager,BatchItem item,long runTime,String endEvent, long stepCount)
 	{
 		activeItems.remove(item);
-		
-		// Create our export dir ready for export
+
+		// Create the item export dir
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
+
+		String fullExportPath = batchStatsExportDir+File.separator+item.getItemId()+File.separator+item.getSampleId();
+		
+		// Create the item sample full export path dir
+		testAndCreateDir(fullExportPath);
+		
+		// Export Stats
+		//simsManager.getStatManager(item.getSimId()).exportStats(fullExportPath,String.valueOf(item.getItemHash()),"csv");
+		simsManager.getStatManager(item.getSimId()).exportStats(fullExportPath,String.valueOf(item.getItemHash()),"xml");
+		//simsManager.getStatManager(item.getSimId()).exportStats(fullExportPath,String.valueOf(item.getItemHash()),"arff");
 		
 		itemLog.println("<Item>");
 		itemLog.println("<ID>" + item.getItemId() + "</ID>");	
