@@ -152,7 +152,7 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		        
 		        //chart = new Chart(factory, Quality.Fastest);
 		        
-		        chart = AWTChartComponentFactory.chart(Quality.Advanced,"awt");
+		        chart = AWTChartComponentFactory.chart(Quality.Intermediate,"awt");
 		        
 		        chart.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
 		        chart.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
