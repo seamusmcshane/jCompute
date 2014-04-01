@@ -261,10 +261,7 @@ public class BarrierManager extends Thread
 		{	
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
-				double[] pos = new double[2];
-				pos[0] = temp.body.getBodyPos().getX();
-				pos[1] = temp.body.getBodyPos().getY();
-				plantKDTree.add(pos, temp);
+				plantKDTree.add(temp.body.getBodyPosKD(), temp);
 			}
 		}
 		
@@ -324,9 +321,6 @@ public class BarrierManager extends Thread
 		{				
 			/* This Section adds each plant and its coordinates to the kd tree */
 			{
-				double[] pos = new double[2];
-				pos[0] = temp.body.getBodyPos().getX();
-				pos[1] = temp.body.getBodyPos().getY();
 				agentKDTree.add(temp.body.getBodyPosKD(),temp);
 			}
 		}
