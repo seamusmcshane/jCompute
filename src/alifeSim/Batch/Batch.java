@@ -785,4 +785,16 @@ public class Batch
 		return activeItems.toArray(new BatchItem[activeItems.size()]);
 	}
 	
+	public long getRunTime()
+	{
+		return System.currentTimeMillis()-startTime;
+	}
+	
+	public long getECT()
+	{
+		long timePerItem = getRunTime()/completedItems;
+		
+		return timePerItem*(batchItems-completedItems);
+	}
+	
 }

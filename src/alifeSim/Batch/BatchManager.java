@@ -438,7 +438,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	{
 	    for (BatchManagerEventListenerInf listener : batchManagerListeners)
 	    {
-	    	listener.batchProgress(batch.getBatchId(),batch.getProgress(),batch.getCompletedItems());
+	    	listener.batchProgress(batch.getBatchId(),batch.getProgress(),batch.getCompletedItems(),batch.getRunTime(),batch.getECT());
 	    }
 	}
 

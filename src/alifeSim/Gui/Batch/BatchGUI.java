@@ -168,7 +168,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		splitPaneBatches.setResizeWeight(0.5);
 		splitPaneBatches.setEnabled(false);
 		splitPaneBatches.setContinuousLayout(true);
-		batchListTable = new TablePanel("Batches", new String[]{"Batch Id","Base File","Type","Items","Progress","Completed"});
+		batchListTable = new TablePanel("Batches", new String[]{"Batch Id","Base File","Type","Items","Progress","Completed","Run Time","ECT"});
 		// Progress Column uses a progress bar for display
 		batchListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 4);
 		splitPaneBatches.setLeftComponent(batchListTable);
@@ -490,7 +490,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	public void batchAdded(int batchId, String baseFile, String scenarioType, int batchItems, int progress, int completedItems)
 	{
 		// add new row
-		batchListTable.addRow("Batch " + batchId, new String[] {baseFile, scenarioType, Integer.toString(batchItems),Integer.toString(progress),Integer.toString(completedItems)});
+		batchListTable.addRow("Batch " + batchId, new String[] {baseFile, scenarioType, Integer.toString(batchItems),Integer.toString(progress),Integer.toString(completedItems),"0","0"});
 
 	}
 
@@ -517,10 +517,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	}
 
 	@Override
-	public void batchProgress(int batchId, int progress, int completedItems)
+	public void batchProgress(int batchId, int progress, int completedItems,long runTime, long ect)
 	{
 		batchListTable.updateCell("Batch " + batchId, 4, Integer.toString(progress));
 		batchListTable.updateCell("Batch " + batchId, 5, Integer.toString(completedItems));	
+		batchListTable.updateCell("Batch " + batchId, 6, alifeSim.util.Text.longTimeToDHMS(runTime));	
+		batchListTable.updateCell("Batch " + batchId, 7, alifeSim.util.Text.longTimeToDHMS(ect));	
 	}
 	
 }
