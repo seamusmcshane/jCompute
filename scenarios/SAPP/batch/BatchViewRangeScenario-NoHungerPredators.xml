@@ -82,7 +82,7 @@
 			<MovementCost>0.033</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
 			<DigestiveEfficiency>0.5</DigestiveEfficiency>
-			<HungerThreshold>50</HungerThreshold>
+			<HungerThreshold>100</HungerThreshold>
 			<EnergyConsumptionRate>100</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.55</ReproductionCost>

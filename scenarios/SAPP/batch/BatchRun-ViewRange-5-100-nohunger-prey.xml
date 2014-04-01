@@ -5,9 +5,9 @@
 	</Header>
 	<Config>
 		<BatchDescription>Two species simulations with all view ranges combinations from 5-100 at steps of 5</BatchDescription>
-		<BaseScenarioFileName>BatchViewRangeScenario.xml</BaseScenarioFileName>
+		<BaseScenarioFileName>BatchViewRangeScenario-NoHungerPrey.xml</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>ViewRange-(2-Species-5-100)</BatchDirName>
+		<BatchDirName>ViewRange-(2-Species-5-100)-nohunger-prey</BatchDirName>
 		<ItemSamples>20</ItemSamples>
 	</Config>
 	<Parameters>
