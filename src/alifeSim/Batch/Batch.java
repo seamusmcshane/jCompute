@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.concurrent.Semaphore;
 
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Scenario.ScenarioInf;
@@ -66,6 +67,8 @@ public class Batch
 	// The Base scenario
 	private ScenarioInf baseScenario;
 	
+	private Semaphore batchLock = new Semaphore(1, false);	
+	
 	public Batch(int batchId,String fileName) throws IOException
 	{
 		this.batchId = batchId;
@@ -95,6 +98,8 @@ public class Batch
 
 	private void processBatchConfig(String fileText) throws IOException
 	{
+		batchLock.acquireUninterruptibly();
+		
 		batchConfigProcessor = new ScenarioVT();
 		
 		batchConfigProcessor.loadConfig(batchConfigText.toString());
@@ -118,6 +123,7 @@ public class Batch
 		
 		generateCombos();
 		
+		batchLock.release();		
 	}
 
 	private void startBatchLog(int numCordinates)
@@ -605,21 +611,27 @@ public class Batch
 	
 	public BatchItem getNext()
 	{
+		batchLock.acquireUninterruptibly();
+		
 		BatchItem temp = queuedItems.remove();
 		
 		activeItems.add(temp);
 
-		// Is this the first Item
-		if(temp.getItemId() == 1)
+		// Is this the first Item && Sample
+		if(temp.getItemId() == 1 && temp.getSampleId() == 1)
 		{			
 			startBatchLog(temp.getCoordinates().size());
 		}
+		
+		batchLock.release();
 		
 		return temp;
 	}
 	
 	public void setComplete(SimulationsManager simsManager,BatchItem item,long runTime,String endEvent, long stepCount)
 	{
+		batchLock.acquireUninterruptibly();
+		
 		activeItems.remove(item);
 
 		// Create the item export dir
@@ -692,6 +704,8 @@ public class Batch
 			itemLog.flush();
 			itemLog.close();
 		}
+		
+		batchLock.release();
 	}
 	
 	public int getRemaining()
