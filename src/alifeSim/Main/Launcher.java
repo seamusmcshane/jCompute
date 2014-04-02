@@ -7,7 +7,6 @@ import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.Batch.BatchGUI;
 import alifeSim.Gui.Standard.StandardGUI;
 import alifeSim.Simulation.SimulationsManager;
-import alifeSim.WebInterface.WebInterface;
 
 public class Launcher
 {
@@ -16,9 +15,6 @@ public class Launcher
 
 	// Standard GUI
 	private static StandardGUI standardGUI;
-
-	// WebInterface
-	private static WebInterface webInterface;
 
 	// Batch GUI
 	private static BatchGUI batchGUI;
@@ -33,8 +29,7 @@ public class Launcher
 	private static CommandLineArg defaultsList[] =
 	{
 			new CommandLineArg("mcs", 8,"Max Concurrent Simulations"), new CommandLineArg("guiInt", 1, "Enable Disable Standard GUI (0/1)"), 
-			new CommandLineArg("webInt", 0, "Enable Disable Web Interface (0/1)"), new CommandLineArg("batchInt", 0,"Enable Disable Batch Interface (0/1)"),
-			new CommandLineArg("debug", 0,"Enable Disable Debug (0/1)")
+			new CommandLineArg("batchInt", 0,"Enable Disable Batch Interface (0/1)"), new CommandLineArg("debug", 0,"Enable Disable Debug (0/1)")
 	};
 
 	public static void main(String args[])
@@ -86,12 +81,7 @@ public class Launcher
 		{
 			standardGUI = new StandardGUI(simsManager);
 		}
-		
-		if(opts.get("webInt").getValue() == 1)
-		{
-			webInterface = new WebInterface(simsManager);
-		}
-		
+				
 		if(opts.get("batchInt").getValue() == 1)
 		{
 			batchGUI = new BatchGUI(simsManager);
