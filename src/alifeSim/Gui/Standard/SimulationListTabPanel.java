@@ -1,28 +1,17 @@
 package alifeSim.Gui.Standard;
 
-import info.monitorenter.gui.chart.Chart2D;
-import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.pointpainters.PointPainterDisc;
-import info.monitorenter.gui.chart.traces.Trace2DLtd;
-import info.monitorenter.gui.chart.views.ChartPanel;
-
 import javax.swing.JPanel;
-
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-
 import javax.swing.JTable;
-
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.swing.border.TitledBorder;
-
 import alifeSim.Gui.Component.ProgressBarTableCellRenderer;
 import alifeSim.Gui.Component.TablePanel;
 import alifeSim.Simulation.SimulationStatListenerInf;
@@ -31,7 +20,6 @@ import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationsManager;
 import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationsManagerEventListenerInf;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -51,24 +39,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		
 	// The update time used to redraw the table and graphs at a slower rate than the data rate.
 	private Timer statUpdateTimer;
-	private int traceAdds=0;
-	
-	// Chart and ChartPanel Objects
-	private Chart2D chart2dST;
-	private ChartPanel chartPanelST;
-	private Font chartFont = new Font("Sans", Font.BOLD, 12);
-
-	// Hash Map of graph traces
-	private HashMap<String,ITrace2D> traceMapST;
-	
-	// Trace for the run time (also ensures graph moves when nothing is present)
-	private ITrace2D runTime;
-	
-	// Initial Color Hue offset
-	private float cOffset=0.8f;
-	
-	// Lenght of the graph in samples
-	private int stSamWin = 300;
 	
 	private int selectedRowIndex = -1;
 	
@@ -82,8 +52,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		setLayout(new BorderLayout(0, 0));
 		
 		setUpTable();
-				
-		createHistoryChart2DST();
 		
 		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
 		statUpdateTimer = new Timer("Simulation List Stat Update Timer");
@@ -92,9 +60,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 			@Override
 			public void run() 
 			{
-				table.RedrawTable(selectedRowIndex);
-								
-				updateGraph();
+				table.RedrawTable(selectedRowIndex);								
 			}
 			  
 		},0,1000);
@@ -159,40 +125,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 			}
 		});
 	}
-	
-	private void createHistoryChart2DST()
-	{
-		traceMapST = new HashMap<String,ITrace2D>();
-		chart2dST = new Chart2D();
-		chart2dST.setUseAntialiasing(true);
-		//chart2dST.enablePointHighlighting(false);
-		//chart2dST.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
-		chart2dST.getAxisY().getAxisTitle().setTitle("Step Rate");
-		chart2dST.getAxisY().getAxisTitle().setTitleFont(chartFont);
-		chart2dST.getAxisX().getAxisTitle().setTitle("");
-		chart2dST.getAxisX().getAxisTitle().setTitleFont(chartFont);
-		chart2dST.setGridColor(new Color(192,192,192));
-		chart2dST.getAxisY().setPaintGrid(true);
-		chart2dST.getAxisX().setPaintGrid(true);
-		chart2dST.setBackground(Color.white);
-		chartPanelST = new ChartPanel(chart2dST);
 		
-		chartPanelST.setBorder(new TitledBorder(null, "Simulation Performance Graph (30 seconds)", TitledBorder.CENTER, TitledBorder.TOP, null, null)); 	
-		chartPanelST.setBackground(Color.white);
-
-		chartPanelST.setPreferredSize(new Dimension(400,250));
-		chartPanelST.setMinimumSize(new Dimension(400,250));
-		
-		add(chartPanelST, BorderLayout.NORTH);
-		
-		runTime = new Trace2DLtd(stSamWin);
-		runTime.setName("Run Time");
-		
-		chart2dST.addTrace(runTime);
-		chart2dST.setMinPaintLatency(1000);
-		
-	}
-	
 	private void clearTable()
 	{
 		table.clearTable();
@@ -223,58 +156,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		table.removeRow(rowKey);
 	}
 	
-	private void updateGraph()
-	{
-		for (int row=0;row<table.getRowsCount();row++) 
-		{
-				String tabName = table.getValueAt(row,0);
-				String value = table.getValueAt(row,4);
-				ITrace2D tempT = traceMapST.get(tabName);
-			
-				// Set the values
-				tempT.addPoint(traceAdds,Integer.parseInt(value));		
-			
-		}
-		
-		runTime.addPoint(traceAdds,0);
-		
-		traceAdds++;
-	}
-	
-	/*
-	 * Add a trace.
-	 */
-	private void addTrace(String name)
-	{
-		ITrace2D tempT = traceMapST.get(name);
-				
-		if(tempT == null)
-		{
-			tempT = new Trace2DLtd(stSamWin);
-			tempT.setName(name);
-		
-			cOffset+=0.13f;
-			cOffset=cOffset%1f;
-			tempT.setColor( new Color(Color.HSBtoRGB(cOffset,0.9f,1f)));
-			tempT.setStroke(new BasicStroke(1));
-			traceMapST.put(name,tempT);
-			chart2dST.addTrace(tempT);
-			tempT.setPointHighlighter(new PointPainterDisc(4));
-		}
-		
-	}
-	
-	private void clearTrace(String name)
-	{
-		ITrace2D tempT = traceMapST.remove(name);
-		
-		if(tempT!=null)
-		{
-			chart2dST.removeTrace(tempT);		
-		}
-		
-	}
-	
 	public String getTabName()
 	{
 		return name;
@@ -295,9 +176,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		        {	
 		        	// Add the row
 		        	simulationListTabPanel.addRow("Simulation " + simId, new String[] {"New", "0", "0","0","0"});
-					
-					// Add Trace
-					addTrace("Simulation " + simId);
 		        	
 					// RegiserStateListener
 					simsManager.addSimulationStateListener(simId, simulationListTabPanel);
@@ -319,9 +197,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		        	
 					// UnRegisterStateListener
 					simsManager.removeSimulationStateListener(simId, simulationListTabPanel);
-					
-					// RemoveTrace
-					clearTrace("Simulation " + simId);
 					
 					// Remove the Row
 					simulationListTabPanel.removeRow("Simulation " + simId);
