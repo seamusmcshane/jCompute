@@ -20,7 +20,6 @@ import java.util.concurrent.Semaphore;
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
-import alifeSim.Scenario.Debug.DebugScenario;
 import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.SimulationsManager;
@@ -275,32 +274,24 @@ public class Batch
 
 		DebugLogger.output("Scenario Type : " + scenarioParser.getScenarioType());
 
-		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
+		if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
 		{
-			DebugLogger.output("Debug File");
-			simScenario = new DebugScenario(text);
+			DebugLogger.output("SAPP File");
+			simScenario = new SAPPScenario();
+
+			simScenario.loadConfig(text);
+
+		}
+		else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
+		{
+			DebugLogger.output("LV File");
+			simScenario = new LotkaVolterraScenario();
+
+			simScenario.loadConfig(text);
 		}
 		else
 		{
-			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
-			{
-				DebugLogger.output("SAPP File");
-				simScenario = new SAPPScenario();
-
-				simScenario.loadConfig(text);
-
-			}
-			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
-			{
-				DebugLogger.output("LV File");
-				simScenario = new LotkaVolterraScenario();
-
-				simScenario.loadConfig(text);
-			}
-			else
-			{
-				DebugLogger.output("DeterminScenarios :UKNOWN");
-			}
+			DebugLogger.output("DeterminScenarios :UKNOWN");
 		}
 
 		return simScenario;
