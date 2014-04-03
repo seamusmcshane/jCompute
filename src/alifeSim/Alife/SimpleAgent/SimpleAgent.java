@@ -10,10 +10,10 @@ import alifeSimGeom.A2DVector2f;
 public class SimpleAgent
 {
 	/** Agent Body */
-	public SimpleAgentBody body;
+	public final SimpleAgentBody body;
 
 	/** Agent Brain */
-	public SimpleAgentBrain brain;
+	public final SimpleAgentBrain brain;
 
 	/** Agent Unique ID */
 	private int uid;
@@ -29,28 +29,10 @@ public class SimpleAgent
 	{
 		this.uid = uid;
 
-		addAgentBody(world,new A2DVector2f(x, y), stats);
+		body = new SimpleAgentBody(world,new A2DVector2f(x, y), stats);
 
-		addAgentBrain();
-
-	}
-
-	/** 
-	 * Gives this agent a body with the set stats 
-	 * @param pos Vector2f
-	 * @param stats SimpleAgentStats
-	 */
-	private void addAgentBody(WorldInf world, A2DVector2f pos, SimpleAgentStats stats)
-	{
-		body = new SimpleAgentBody(world,pos, stats);
-	}
-
-	/** 
-	 * Gives this agent a brain 
-	 */
-	private void addAgentBrain()
-	{
 		brain = new SimpleAgentBrain(body);
+
 	}
 
 	/** 
