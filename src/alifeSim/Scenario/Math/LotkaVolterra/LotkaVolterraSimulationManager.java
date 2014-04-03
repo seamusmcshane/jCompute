@@ -116,12 +116,6 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 		return 0;
 	}
 
-	@Override
-	public void displayDebug()
-	{
-	
-	}
-
 	private void setUpStatManager()
 	{
 		statManager = new StatManager("LV");

@@ -43,15 +43,6 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	
 	/** Simulation Plant Manager */
 	private GenericPlantManager genericPlantManager;
-
-	/** Threads used for processing */
-	private int numThreads = 0;
-
-	/** The threaded/barrier manager */
-	private BarrierManager barrierManager;
-
-	/** Controls when the barrier is released **/
-	private Semaphore barrierControllerSemaphore;
 		
 	/* The Simulation World. */
 	private WorldInf world;
@@ -77,13 +68,11 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		
 		this.scenario = scenario;
 		
-		setUpBarrierManager();
-
 		setUpWorld();
 		
-		setUpPlantManager();
+		genericPlantManager = new GenericPlantManager(world,scenario.plantSettings);
 
-		setUpAgentManager();	
+		simpleAgentManager = new SimpleAgentManager(world, scenario.getAgentSettingsList());
 		
 		setUpStatManager();
 		
@@ -142,50 +131,6 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		return statManager;
 	}
-	
-	/**
-	 * Method setUpPlantManager.
-	 * @param worldSize int
-	 * @param plantNumbers int
-	 * @param plantRegenRate int
-	 * @param plantStartingEnergy int
-	 * @param plantEnergyAbsorptionRate int
-	 */
-	private void setUpPlantManager()
-	{
-		genericPlantManager = new GenericPlantManager(world,barrierManager, scenario.plantSettings);
-	}
-
-	/**
-	 * Method setUpAgentManager.
-	 * @param worldSize int
-	 * @param agentPreyNumbers int
-	 * @param agentPredatorNumbers int
-	 * @param agentSettings SimpleAgentManagementSetupParam
-	 */
-	private void setUpAgentManager()
-	{
-		simpleAgentManager = new SimpleAgentManager(world,barrierManager, scenario.getAgentSettingsList());
-	}
-
-	/**
-	 * Sets up the barrier with the auto detected number of threads per processor.
-	 */
-	private void setUpBarrierManager()
-	{
-		this.numThreads = Runtime.getRuntime().availableProcessors(); // Ask Java how many CPU threads we can run in parallel
-		
-		DebugLogger.output("Threads to use for Barrier Tasks : " + numThreads);
-
-		barrierControllerSemaphore = new Semaphore(1, true);
-
-		barrierControllerSemaphore.acquireUninterruptibly();
-
-		barrierManager = new BarrierManager(barrierControllerSemaphore, numThreads);
-
-		barrierManager.start();
-	}
-
 
 	private void setUpWorld()
 	{
@@ -199,12 +144,6 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		lock.acquireUninterruptibly();
 		
-		/* Clean up */
-		barrierManager.cleanUp();
-		
-		/* Set to null so garbage collector can get to work */
-		barrierManager=null;
-		
 		lock.release();
 		
 	}
@@ -215,47 +154,13 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		// Get a lock managers to prevent dual access by draw methods
 		lock.acquireUninterruptibly();
 
-		// Prepare
-		stage1();
-
-		// Distribute
-		stage2();
-
-		// Collect
-		stage3();
-
+		simpleAgentManager.doStep(genericPlantManager.doStep());
+		
+		statManager.notifiyStatListeners();
+		
 		// Release the lock on the managers
 		lock.release();
 	}
-
-	private void stage1()
-	{
-		genericPlantManager.stage1();
-		simpleAgentManager.stage1();
-	}
-
-	// View barrier operates in this method timeslot
-	private void stage2()
-	{
-		// Prepare views
-		genericPlantManager.stage2();
-		simpleAgentManager.stage2();
-
-		barrierControllerSemaphore.release();
-
-		barrierControllerSemaphore.acquireUninterruptibly();
-
-	}
-
-	private void stage3()
-	{
-		genericPlantManager.stage3();
-		simpleAgentManager.stage3();
-		
-		// 
-		statManager.notifiyStatListeners();
-	}
-
 	
 	public void drawSim(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
@@ -282,11 +187,6 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	public int getWorldSize()
 	{
 		return world.getWorldBoundingSquareSize();
-	}
-	
-	public void displayDebug()
-	{
-		barrierManager.displayBarrierTaskDebugStats();
 	}
 
 	@Override
@@ -396,5 +296,6 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	public String getEndEvent()
 	{
 		return endEvent;
-	}	
+	}
+	
 }

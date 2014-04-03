@@ -11,7 +11,6 @@ import org.junit.Test;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Alife.SimpleAgent.SimpleAgentSetupSettings;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
-import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 /**
@@ -24,7 +23,6 @@ public class SimpleAgentManagerTests
 {
 	SimpleAgentManager agentManger;
 
-	BarrierManager barrierManager = null;;
 	int worldSize = 1024;
 
 	WorldSetupSettings worldSettings = new WorldSetupSettings();
@@ -97,7 +95,7 @@ public class SimpleAgentManagerTests
 		agentSettingsList.add(predatorAgentSettings);
 		agentSettingsList.add(preyAgentSettings);
 		
-		agentManger = new SimpleAgentManager(world,barrierManager,agentSettingsList );
+		agentManger = new SimpleAgentManager(world,agentSettingsList );
 
 	}
 

@@ -6,14 +6,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentType;
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.EndEvents.ScenarioAllPredatorsLTEEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioAllPreyLTEEndEventInf;
-import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Stats.SingleStat;
 import alifeSim.World.WorldInf;
+import alifeSim.datastruct.knn.KNNInf;
+import alifeSim.datastruct.knn.thirdGenKDWrapper;
 
 /**
  * 
@@ -62,9 +64,6 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	
 	private int predatorDeaths;
 	private SingleStat statPredatorDeaths;
-		
-	/** Reference for setting barrier tasks */
-	private BarrierManager barrierManager;
 
 	/** Agent Settings */
 	List<SimpleAgentSetupSettings> agentSettingsList;
@@ -95,7 +94,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	 * @param agentPredatorNumbers
 	 * @param agentSettings
 	 */
-	public SimpleAgentManager(WorldInf world, BarrierManager barrierManager, List<SimpleAgentSetupSettings> agentSettingsList)
+	public SimpleAgentManager(WorldInf world, List<SimpleAgentSetupSettings> agentSettingsList)
 	{
 		
 		/* All the intial agent settings are contained in this struct */
@@ -104,15 +103,13 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		this.world = world;
 		
 		setUpStats();
-			
-		this.barrierManager = barrierManager;
 
 		setUpLists();
 
 		for(int i=0;i<agentSettingsList.size();i++)
 		{
 			addAgents(world, agentSettingsList.get(i));	
-		}		
+		}
 
 		DebugLogger.output("SimpleAgent Manager Setup Complete");
 		
@@ -226,27 +223,127 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	}
 
 	/** Agent List preparation for the barrier */
-	public void stage1()
+	public void doStep(KNNInf<GenericPlant> plantKDTree)
 	{
+		KNNInf<SimpleAgent> agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
+
 		/* Safe starting position */
 		setUpLists();
+		
+		for (SimpleAgent temp : doList) 
+		{				
+			/* This Section adds each plant and its coordinates to the kd tree */
+			{
+				agentKDTree.add(temp.body.getBodyPosKD(),temp);
+			}
+		}
+		
+		// Do Views
+		for (SimpleAgent currentAgent : doList) 
+		{
+				
+			SimpleAgent nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
 
-		/* Remove bias from agents order in list */
-		randomizeListOrder();
-	}
+			/*
+			 * calculate if the Nearest Agents are in the view Range of the
+			 * current agent
+			 */
+			agentViewRangeKDSQAgents(currentAgent,nearestAgent);
 
-	/** Sets the barrier task for agents */
-	public void stage2()
-	{
-		barrierManager.setBarrierAgentTask(doList, agentTotal);
-	}
-
-	/** This stage performs the list updating and stats updates. */
-	public void stage3()
-	{
+			if (plantKDTree.size() > 0) // Plants can die out and thus tree can be empty.. (Heap exception avoidance)
+			{
+				GenericPlant nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
+				
+				/*
+				 * calculate if the Nearest Plants are in the view Range of
+				 * the current agent
+				 */
+				agentViewRangeKDSQPlants(currentAgent,nearestPlant);
+			}
+		}	
+		
+		// Do Think
+		for (SimpleAgent currentAgent : doList) 
+		{
+			currentAgent.brain.think();
+		}
+		
 		updateDoneList();
+
+
 	}
 
+	/** 
+	 * Pseudo Code : 
+	 * If the distance between the closest agents surface is less than the view range of the current agent then it is in view 
+	 * True - add it to the Agent to the current agents view.
+	 * False- clear the view.
+	 */
+	private void agentViewRangeKDSQAgents(SimpleAgent currentAgent,SimpleAgent nearestAgent)
+	{
+		/* Agent alone in the world */
+		if (currentAgent.equals(nearestAgent))
+		{
+			currentAgent.brain.view.setAgentView(null);
+
+			return;
+		}
+		
+		float dis = currentAgent.body.getBodyPos().distanceSquared(nearestAgent.body.getBodyPos());
+		float radiusSize = (currentAgent.brain.view.getFovRadius()+ nearestAgent.body.getSize());
+		radiusSize = radiusSize*radiusSize;
+		
+		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
+		System.out.print(":");
+		System.out.print("Px "+ nearestAgent.body.getBodyPos().getX()+ " Py " +nearestAgent.body.getBodyPos().getY());
+		DebugLogger.output("");
+		DebugLogger.output("Dis : " + dis);
+		DebugLogger.output("Radius : " + radiusSize);*/
+
+		if ( dis < radiusSize )
+		{
+			currentAgent.brain.view.setAgentView(nearestAgent);
+		}
+		else
+		// Clear the view 
+		{
+			currentAgent.brain.view.setAgentView(null);
+		}
+	}
+
+	/** 
+	 * As above but for plants - with the logical exception that plants can be extinct and thus the list empty.
+	 */
+	private void agentViewRangeKDSQPlants(SimpleAgent currentAgent,GenericPlant nearestPlant)
+	{
+		if (nearestPlant == null) // All plants are extinct..
+		{
+			currentAgent.brain.view.setPlantView(null); // Cannot see plants
+			return;
+		}
+
+		float dis = currentAgent.body.getBodyPos().distanceSquared(nearestPlant.body.getBodyPos());
+		float radiusSize = (currentAgent.brain.view.getFovRadius()+ nearestPlant.body.getSize());
+		radiusSize = radiusSize*radiusSize;
+		
+		/*System.out.print("Ax "+ currentAgent.body.getBodyPos().getX()+ " Ay " +currentAgent.body.getBodyPos().getY());
+		System.out.print(":");
+		System.out.print("Px "+ nearestPlant.body.getBodyPos().getX()+ " Py " +nearestPlant.body.getBodyPos().getY());
+		DebugLogger.output("");
+		DebugLogger.output("Dis : " + dis);
+		DebugLogger.output("Radius : " + radiusSize);*/
+
+		if ( dis < radiusSize )
+		{
+			currentAgent.brain.view.setPlantView(nearestPlant);
+		}
+		else // Clear the view 
+		{
+			currentAgent.brain.view.setPlantView(null); // not in range
+		}		
+		
+	}
+	
 	/**
 	 * This method moves agents between the do and done lists
 	 * It is in effect managing the births and deaths of agents.

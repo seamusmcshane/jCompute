@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.GenericPlant.GenericPlantSetupSettings;
-import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldSetupSettings;
 
@@ -20,8 +19,6 @@ import alifeSim.World.WorldSetupSettings;
 public class GenericPlantManagerTests
 {
 	GenericPlantManager plantManager;
-
-	BarrierManager barrierManager = null;
 
 	GenericPlantSetupSettings plantSettings;
 	
@@ -53,7 +50,7 @@ public class GenericPlantManagerTests
 		plantSettings.setPlantStartingEnergy(plantStartingEnergy);
 				
 		System.out.println("Create a plant manager.");
-		plantManager = new GenericPlantManager(world,barrierManager, plantSettings);
+		plantManager = new GenericPlantManager(world,plantSettings);
 	}
 
 	/*

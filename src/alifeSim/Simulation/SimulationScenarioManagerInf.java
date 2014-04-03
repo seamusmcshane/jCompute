@@ -16,8 +16,6 @@ public interface SimulationScenarioManagerInf
 	public void drawSim(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing);
 
 	public int getWorldSize();
-
-	public void displayDebug();
 	
 	public void resetCamPos(float x, float y);
 	

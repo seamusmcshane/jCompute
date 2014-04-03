@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ThreadLocalRandom;
+
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Scenario.ScenarioInf;
-import alifeSim.Scenario.SAPP.BarrierManager;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Stats.SingleStat;
 import alifeSim.Stats.StatGroup;
@@ -17,6 +17,8 @@ import alifeSim.Stats.StatManager;
 import alifeSim.World.World;
 import alifeSim.World.WorldInf;
 import alifeSim.World.WorldSetupSettings;
+import alifeSim.datastruct.knn.KNNInf;
+import alifeSim.datastruct.knn.thirdGenKDWrapper;
 /**
  * This class manages the plants in the simulation.
  * Drawing, adding, removing and regeneration.
@@ -59,9 +61,6 @@ public class GenericPlantManager
 	
 	/** Regern plants every n step */
 	private int plantRegenerationNSteps;
-
-	/** Reference for setting task in the */
-	private BarrierManager barrierManager;
 	
 	/*
 	 * Internal
@@ -81,15 +80,13 @@ public class GenericPlantManager
 	 * @param barrierManager BarrierManager
 	 * @param scenario 
 	 */
-	public GenericPlantManager(WorldInf world, BarrierManager barrierManager, GenericPlantSetupSettings plantSettings)
+	public GenericPlantManager(WorldInf world, GenericPlantSetupSettings plantSettings)
 	{
 		setUpStats();
 		
 		this.world = world;
 		
 		this.initalNumber = plantSettings.getInitialPlantNumbers();
-
-		this.barrierManager = barrierManager;
 
 		this.worldSize = world.getWorldBoundingSquareSize();
 
@@ -137,28 +134,29 @@ public class GenericPlantManager
 
 	}
 
-	/** 
-	 * Plant List preparation for the barrier
-	 */
-	public void stage1()
+	public KNNInf<GenericPlant> doStep()
 	{
 		setUpLists();
-	}
+		
+		/* 2d - KD-Tree */
+		KNNInf<GenericPlant> plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
 
-	/** Sets the barrier task for plants */
-	public void stage2()
-	{
-		barrierManager.setBarrierPlantTask(doList, plantTotal);
-	}
+		for (GenericPlant currentPlant : doList) 
+		{	
+			/* This Section adds each plant and its coordinates to the kd tree */
+			plantKDTree.add(currentPlant.body.getBodyPosKD(), currentPlant);
+			
+			currentPlant.body.stats.increment();
 
-	/** This stage performs the list updating, addition of new plants and stats updates. */
-	public void stage3()
-	{
+		}
+		
 		// The removal of dead plants
 		updateDoneList();
 
 		/* Plant Growth per Step - adds this many plants per step */
 		addPlants(plantRegenRate,false);	// log2(512) - +9... log2(1024)+10...
+		
+		return plantKDTree;
 	}
 
 	/** Updates the Done list. 
