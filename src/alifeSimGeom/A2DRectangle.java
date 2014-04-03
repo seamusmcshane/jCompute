@@ -4,10 +4,7 @@ import java.awt.Color;
 
 public class A2DRectangle
 {
-	private float x;
-	private float y;
-	private float x2;
-	private float y2;
+	private float[] coords;
 	private float width;
 	private float height;
 	private A2RGBA color;
@@ -39,24 +36,24 @@ public class A2DRectangle
 	public boolean contains(float x, float y)
 	{
 		// outside left wall?
-		if(x<this.x)
+		if(x<coords[0])
 		{
 			return false;
 		}
 		
 		// outside bottom wall
-		if(y<this.y)
+		if(y<coords[1])
 		{
 			return false;
 		}
 		
 		// outside right wall
-		if(x>x2)
+		if(x>coords[2])
 		{
 			return false;
 		}
 		
-		if(y>y2)
+		if(y>coords[3])
 		{
 			return false;
 		}
@@ -66,12 +63,12 @@ public class A2DRectangle
 	
 	public float getX()
 	{
-		return x;
+		return coords[0];
 	}
 	
 	public float getY()
 	{
-		return y;
+		return coords[1];
 	}
 	
 	public float getWidth()
@@ -86,11 +83,11 @@ public class A2DRectangle
 	
 	public void setLocation(float x,float y)
 	{
-		this.x = x;
-		this.y = y;
-		
-		this.x2 = x+width;
-		this.y2 = y+height;		
+		coords = new float[4];
+		coords[0] = x;
+		coords[1] = y;
+		coords[2] = x+width;
+		coords[3] = y+height;		
 	}
 
 	public A2RGBA getColor()
@@ -103,4 +100,77 @@ public class A2DRectangle
 		this.color = color;
 	}
 	
+	public float getAxisMin(int axis)
+	{
+		if(axis == 0)
+		{
+			return getXAxisMin();
+		}
+		else
+		{
+			return getYAxisMin();
+		}
+	}
+	
+	public float getAxisMax(int axis)
+	{
+		if(axis == 0)
+		{
+			return getXAxisMax();
+		}
+		else
+		{
+			return getYAxisMax();
+		}
+	}
+	
+	public float getXAxisMin()
+	{
+		if(coords[0]<coords[2])
+		{
+			return coords[0];
+		}
+		else
+		{
+			return coords[2];
+
+		}		
+	}
+	
+	public float getYAxisMin()
+	{
+		if(coords[1]<coords[3])
+		{
+			return coords[1];
+		}
+		else
+		{
+			return coords[3];
+		}		
+	}
+
+	public float getXAxisMax()
+	{
+		if(coords[0]>coords[2])
+		{
+			return coords[0];
+		}
+		else
+		{
+			return coords[2];
+
+		}		
+	}
+	
+	public float getYAxisMax()
+	{
+		if(coords[1]>coords[3])
+		{
+			return coords[1];
+		}
+		else
+		{
+			return coords[3];
+		}		
+	}
 }
