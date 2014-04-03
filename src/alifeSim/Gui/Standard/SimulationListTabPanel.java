@@ -51,6 +51,8 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 				
 		setLayout(new BorderLayout(0, 0));
 		
+		setMinimumSize(new Dimension(400,600));
+		
 		setUpTable();
 		
 		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
