@@ -2,51 +2,49 @@ package alifeSimGeom;
 
 public class A2DVector2f
 {
-	private float x;
-	private float y;
+	private float pos[];
 
 	public A2DVector2f(float x,float y)
 	{
-		this.x = x;
-		this.y = y;
+		pos = new float[]{x,y};
 	}
 
 	public A2DVector2f()
 	{
-		this.x=0;
-		this.y=0;
+		pos = new float[]{0,0};
+
 	}
 
 	public float getX()
 	{
-		return x;
+		return pos[0];
 	}
 
 	public void setX(float x)
 	{
-		this.x = x;
+		pos[0] = x;
 	}
 
 	public float getY()
 	{
-		return y;
+		return pos[1];
 	}
 
 	public void setY(float y)
 	{
-		this.y = y;
+		pos[1] = y;
 	}
 
 	public void set(A2DVector2f vector)
 	{
-		this.x = vector.getX();
-		this.y = vector.getY();
+		pos[0] = vector.getX();
+		pos[1] = vector.getY();
 	}
 
 	public A2DVector2f add(A2DVector2f vector)
 	{
-		this.x += vector.getX();
-		this.y += vector.getY();
+		pos[0] += vector.getX();
+		pos[1] += vector.getY();
 		
 		return this;
 	}
@@ -65,7 +63,8 @@ public class A2DVector2f
 	*/
 	public double getTheta() 
 	{
-		double theta = StrictMath.toDegrees(StrictMath.atan2(y, x));
+		// Y/X
+		double theta = StrictMath.toDegrees(StrictMath.atan2(pos[1], pos[0]));
 		if ((theta < -360) || (theta > 360)) 
 		{
 			theta = theta % 360;
@@ -107,8 +106,8 @@ public class A2DVector2f
 		}
 		
 		float len = length();
-		x = len * (float) cos(StrictMath.toRadians(theta));
-		y = len * (float) sin(StrictMath.toRadians(theta));
+		pos[0] = len * (float) cos(StrictMath.toRadians(theta));
+		pos[1] = len * (float) sin(StrictMath.toRadians(theta));
 	
 	} 
 	
@@ -180,7 +179,7 @@ public class A2DVector2f
 	*/
 	public float lengthSquared() 
 	{
-		return (x * x) + (y * y);
+		return (pos[0] * pos[0]) + (pos[1] * pos[1]);
 	}
 
 	/**
@@ -201,8 +200,13 @@ public class A2DVector2f
 
 	public void set(float x, float y)
 	{
-		this.x = x;
-		this.y = y;
+		pos[0] = x;
+		pos[1] = y;
+	}
+	
+	public float[] getArray()
+	{
+		return pos;
 	}
 	
 }
