@@ -1,7 +1,10 @@
 package alifeSim.Alife.GenericPlant;
 
 
-import alifeSim.Alife.AlifeBody;
+import alifeSim.Alife.AlifeBodyInf;
+import alifeSim.Gui.View.GUISimulationView;
+import alifeSimGeom.A2DCircle;
+import alifeSimGeom.A2DRectangle;
 import alifeSimGeom.A2DVector2f;
 import alifeSimGeom.A2RGBA;
 /**
@@ -11,18 +14,22 @@ import alifeSimGeom.A2RGBA;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class GenericPlantBody extends AlifeBody
+public class GenericPlantBody implements AlifeBodyInf
 {
 	public final GenericPlantStats stats;
 
-	/**
-	 * Constructor for GenericPlantBody.
-	 * @param pos Vector2f
-	 * @param startingEnergy float
-	 * @param maxEnergy float
-	 * @param absorptionRate float
-	 * @param basePlantReproductionCost float
-	 */
+	/** Agent Body */
+	protected A2DCircle body;
+	
+	/** Color of this agent */
+	protected A2RGBA color;
+	
+	/** Current Body Pos */
+	protected A2DVector2f bodyPos;	
+
+	/** The size of this body */
+	private float size;
+	
 	public GenericPlantBody(A2DVector2f pos, float startingEnergy, float maxEnergy, float absorptionRate, float basePlantReproductionCost)
 	{
 		stats = new GenericPlantStats(startingEnergy, maxEnergy, absorptionRate, basePlantReproductionCost);
@@ -43,13 +50,69 @@ public class GenericPlantBody extends AlifeBody
 	}
 
 	/** 
-	 * Sets the Color of the Body of this plant.
-	 * 
+	 * Initial Cartesian X/Y Position 
+	 * @param pos Vector2f
 	 */
+	private void setIntialPos(A2DVector2f pos)
+	{
+		bodyPos = pos;
+	}	
+	
+	private void initBody(float size)
+	{
+		this.size = size;
+
+		body = new A2DCircle(0, 0, size);
+	}
+	
+	private void setIntialPos(double pos[])
+	{
+		bodyPos = new A2DVector2f((float)pos[0], (float)pos[1]);
+	}
+	
+	/** 
+	 * Returns the position of the body
+	 * @return Vector2f  */
+	public A2DVector2f getBodyPos()
+	{
+		return bodyPos;
+	}
+	
+	/** 
+	 * Returns the position of the body
+	 * */
+	public double[] getBodyPosKD()
+	{		
+		return new double[] {(double) bodyPos.getX(),(double) bodyPos.getY()};
+	}	
+	
+	public void setSize(float size)
+	{
+		this.size = size;
+		
+		initBody(size);		
+	}
+	
+	public float getSize()
+	{
+		return size;
+	}
+	
 	public void setColor(A2RGBA color)
 	{
 		this.color = color;
-	}
+	}	
 
+	public void draw(GUISimulationView simView)
+	{
+		body.setLocation(bodyPos.getX(), bodyPos.getY());
+
+		simView.drawFilledCircle(body, color);
+	}
+	
+	public A2DRectangle getBoundingRectangle()
+	{
+		return new A2DRectangle(0,0,0,0);
+	}
 
 }
