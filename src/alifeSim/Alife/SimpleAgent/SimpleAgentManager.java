@@ -2,6 +2,7 @@ package alifeSim.Alife.SimpleAgent;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -451,13 +452,9 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	{
 		doList = doneList;
 		doneList = new ArrayList<SimpleAgent>(agentCountMax);
-	}
-
-	/** Randomise the doList */
-	private void randomizeListOrder()
-	{
-		// TODO randomizeListOrder
-		//Collections.shuffle(doList);
+		
+		// Remove bias from Agents that happen to be at the start of the list.
+		Collections.shuffle(doList);
 	}
 
 	/**
