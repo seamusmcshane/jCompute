@@ -31,7 +31,8 @@ import alifeSim.datastruct.knn.thirdGenKDWrapper;
 
 public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,ScenarioAllPreyLTEEndEventInf
 {
-
+	KNNInf<SimpleAgent> agentKDTree;
+	
 	/** The agent Actions Linked Lists */
 	ArrayList<SimpleAgent> doList;
 	ArrayList<SimpleAgent> doneList;	
@@ -104,14 +105,19 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		this.world = world;
 		
 		setUpStats();
+		
+		agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
 
-		setUpLists();
+		doneList = new ArrayList<SimpleAgent>(agentCountMax);
 
 		for(int i=0;i<agentSettingsList.size();i++)
 		{
 			addAgents(world, agentSettingsList.get(i));	
 		}
 
+		doList = doneList;
+		doneList = new ArrayList<SimpleAgent>(agentCountMax);
+		
 		DebugLogger.output("SimpleAgent Manager Setup Complete");
 		
 	}
@@ -152,6 +158,9 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	{
 		doneList.add(agent);
 
+		/* This Section adds each plant and its coordinates to the kd tree */
+		agentKDTree.add(agent.body.getBodyPosKD(),agent);
+		
 		if (agent.body.stats.getType().getType() == AgentType.PREDATOR)
 		{
 			predatorTotal++;
@@ -194,6 +203,9 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		agent.setId(agentIdCount);
 
 		doneList.add(agent);
+		
+		agentKDTree.add(agent.body.getBodyPosKD(),agent);
+
 	}
 
 	/**
@@ -205,7 +217,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 	public void draw(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 
-		for (SimpleAgent tAgentDrawAI : doneList) 
+		for (SimpleAgent tAgentDrawAI : doList) 
 		{
 			tAgentDrawAI.body.draw(simView);
 			
@@ -225,23 +237,13 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 
 	/** Agent List preparation for the barrier */
 	public void doStep(KNNInf<GenericPlant> plantKDTree)
-	{
-		KNNInf<SimpleAgent> agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
-
-		/* Safe starting position */
-		setUpLists();
-		
-		for (SimpleAgent temp : doList) 
-		{				
-			/* This Section adds each plant and its coordinates to the kd tree */
-			{
-				agentKDTree.add(temp.body.getBodyPosKD(),temp);
-			}
-		}
-		
+	{		
 		// Do Views
-		for (SimpleAgent currentAgent : doList) 
+		int size = doList.size();
+		
+		for (int a=0;a<size;a++)
 		{
+			SimpleAgent currentAgent = doList.get(a);
 				
 			SimpleAgent nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(),2);
 
@@ -263,13 +265,8 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 			}
 		}	
 		
-		// Do Think
-		for (SimpleAgent currentAgent : doList) 
-		{
-			currentAgent.brain.think();
-		}
-		
-		updateDoneList();
+		// Do second part of Step.			
+		part2();
 
 		// Remove bias from Agents that happen to be at the start of the list.
 		Collections.shuffle(doList);
@@ -346,14 +343,18 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		}		
 		
 	}
-	
-	/**
-	 * This method moves agents between the do and done lists
-	 * It is in effect managing the births and deaths of agents.
-	 * If an agent can reproduce it does (deterministic), new agents get added to the done list (first action is being born).
-	 * Agents that are dead stay in the do list which gets nullified at the start next step. */
-	private void updateDoneList()
+
+	/*
+	 * Optimised method
+	 * Integrates agent step, 
+	 * Agent Reproduction
+	 * Next step kd-tree generation
+	 * and Stat collection
+	 */
+	private void part2()
 	{
+		agentKDTree = new thirdGenKDWrapper<SimpleAgent>(2);
+
 		agentTotal = 0;
 		preyTotal = 0;
 		predatorTotal = 0;
@@ -368,11 +369,19 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		agentAges = new int[ageBuckets];
 		agentViewSizes = new float[viewBuckets];
 				
-		for (SimpleAgent temp : doList) 
+		int size = doList.size();
+		
+		for (int a=0;a<size;a++)
 		{
+			SimpleAgent temp = doList.get(a);
+
 			// If agent not dead ..	
 			if (!temp.body.stats.isDead())
 			{
+				// Do agent Step
+				temp.brain.think();
+
+				
 				// can this agent reproduce...
 				if (temp.body.stats.canReproduce())
 				{
@@ -446,14 +455,11 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf,Sc
 		
 		statPreyDeaths.addSample(preyDeaths);
 		statPredatorDeaths.addSample(predatorDeaths);
-
-	}
-
-	/** Sets up the safe starting position for the lists */
-	private void setUpLists()
-	{
+		
+		// Swap List
 		doList = doneList;
 		doneList = new ArrayList<SimpleAgent>(agentCountMax);
+
 	}
 
 	/**

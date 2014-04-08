@@ -62,6 +62,8 @@ public class GenericPlantManager
 	/** Regern plants every n step */
 	private int plantRegenerationNSteps;
 	
+	private KNNInf<GenericPlant> plantKDTree;
+	
 	/*
 	 * Internal
 	 */
@@ -99,6 +101,8 @@ public class GenericPlantManager
 		this.basePlantEnergyAbsorptionRate = plantSettings.getPlantEnergyAbsorptionRate();
 
 		setUpLists();
+		
+		plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
 		
 		addPlants(initalNumber,true);
 
@@ -138,20 +142,34 @@ public class GenericPlantManager
 	{
 		setUpLists();
 		
+		plantTotal = 0;
+		
 		/* 2d - KD-Tree */
-		KNNInf<GenericPlant> plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
+		plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
 
-		for (GenericPlant currentPlant : doList) 
+		int size = doList.size();
+		
+		for (int p=0;p<size;p++) 
 		{	
-			/* This Section adds each plant and its coordinates to the kd tree */
-			plantKDTree.add(currentPlant.body.getBodyPosKD(), currentPlant);
-			
-			currentPlant.body.stats.increment();
+			GenericPlant currentPlant = doList.get(p);
+
+			if (!currentPlant.body.stats.isDead())
+			{
+				/* This Section adds each plant and its coordinates to the kd tree */
+				plantKDTree.add(currentPlant.body.getBodyPosKD(), currentPlant);
+				
+				// Do the plants step
+				currentPlant.body.stats.increment();
+
+				/** Plant is not dead add it to the done list */
+				doneList.add(currentPlant);
+				plantTotal++;
+			}
 
 		}
-		
-		// The removal of dead plants
-		updateDoneList();
+
+		/* Add a sample to the stat recorder */
+		statPlantTotal.addSample(plantTotal);
 
 		/* Plant Growth per Step - adds this many plants per step */
 		addPlants(plantRegenRate,false);	// log2(512) - +9... log2(1024)+10...
@@ -240,6 +258,8 @@ public class GenericPlantManager
 	 */
 	private void addNewPlant(GenericPlant plant)
 	{
+		plantKDTree.add(plant.body.getBodyPosKD(), plant);
+
 		doneList.add(plant);
 		plantTotal++;
 	}
