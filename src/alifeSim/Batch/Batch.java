@@ -239,7 +239,7 @@ public class Batch
 
 		baseScenarioFile = batchConfigProcessor.getStringValue(section, "BaseScenarioFileName");
 		
-		baseScenaroFilePath = basePath + "\\" + baseScenarioFile;
+		baseScenaroFilePath = basePath + File.separator + baseScenarioFile;
 		
 		DebugLogger.output("Base Scenario File : " + baseScenaroFilePath);
 	}
