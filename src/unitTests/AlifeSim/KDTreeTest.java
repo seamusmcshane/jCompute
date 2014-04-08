@@ -1,7 +1,6 @@
 package unitTests.AlifeSim;
 import alifeSim.datastruct.knn.KNNInf;
-import alifeSim.datastruct.knn.KDTree;
-
+import alifeSim.datastruct.knn.kdtree.KDTreeSeq;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -21,7 +20,7 @@ public class KDTreeTest
 	@Before
 	public void setUp() throws Exception
 	{
-		KDTree = new KDTree<Integer>(2);
+		KDTree = new KDTreeSeq<Integer>(2);
 		
 		pos = new double[2];
 		

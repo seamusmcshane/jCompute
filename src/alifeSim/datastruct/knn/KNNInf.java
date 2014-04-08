@@ -13,9 +13,7 @@ import alifeSim.Alife.SimpleAgent.SimpleAgent;
  */
 public interface KNNInf <Datatype>
 {
-	
-	/* Init the Tree */
-	//void KNNInf(int dim);
+
 	
 	/* Add Item to Tree */
 	void add(double pos[],Datatype data);

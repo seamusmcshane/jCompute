@@ -1,6 +1,8 @@
 package alifeSim.datastruct.knn;
 
-public class TreeBenchObject
+import alifeSim.datastruct.knn.kdtree.KNNNodeInf;
+
+public class TreeBenchObject implements KNNNodeInf
 {
 	
 	private int id;
@@ -11,7 +13,7 @@ public class TreeBenchObject
 	private int nearestObjectID;
 	private float nearestObjectDistance;
 	
-	public TreeBenchObject(int id,float x, float y)
+	public TreeBenchObject(int id,float x, float y) 
 	{
 		this.id = id;
 		this.x = x;
@@ -74,6 +76,18 @@ public class TreeBenchObject
 	public void setNearestObjectID(int nearestObjectID)
 	{
 		this.nearestObjectID = nearestObjectID;
+	}
+
+	@Override
+	public double[] getPos()
+	{
+		return new double[]{x,y};
+	}
+
+	@Override
+	public TreeBenchObject getObject()
+	{
+		return this;
 	}
 	
 }

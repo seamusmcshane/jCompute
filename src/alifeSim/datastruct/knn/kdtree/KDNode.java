@@ -1,4 +1,4 @@
-package alifeSim.datastruct.knn;
+package alifeSim.datastruct.knn.kdtree;
 
 public class KDNode<Datatype>
 {
@@ -11,11 +11,11 @@ public class KDNode<Datatype>
 	KDNode<Datatype> leftChild;
 	KDNode<Datatype> rightChild;
 	
-	public KDNode(int kd,int depth,double pos[], Datatype data)
+	public KDNode(int depth,double pos[], Datatype object)
 	{
 		this.pos = pos;
 		this.nodeDepth = depth;
-		this.data = data;
+		this.data = object;
 		
 		parentNode = null;
 		leftChild = null;
