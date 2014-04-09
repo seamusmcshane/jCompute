@@ -86,37 +86,7 @@ public class StatManager
 	{
 		return managerName;
 	}
-	
-	/*public LinkedList<GlobalStatChartPanel> getEnabledCharts()
-	{
-		statsManagerLock.acquireUninterruptibly();
-
-		LinkedList<GlobalStatChartPanel> enabledCharts = new LinkedList<GlobalStatChartPanel>();
 		
-		Set<String> statGroups =  map.keySet();
-
-		// Collect the enabled Charts
-		for (String group : statGroups)
-		{
-			StatGroup statGroup = map.get(group);
-			
-			if(statGroup.getGroupSettings().graphEnabled())
-			{
-				GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleWindow());
-				
-				enabledCharts.add(chart);
-				
-				statGroup.addStatGroupListener(chart);
-			}
-
-		}
-		
-		statsManagerLock.release();
-
-		
-		return enabledCharts;
-	}*/
-	
 	public boolean containsGroup(String name)
 	{
 		statsManagerLock.acquireUninterruptibly();
