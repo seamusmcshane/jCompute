@@ -2,6 +2,7 @@ package alifeSim.Gui.Standard;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -9,18 +10,25 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.BorderLayout;
+
 import javax.swing.JPanel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
 import javax.swing.JSplitPane;
+
 import alifeSim.Gui.View.GUISimulationView;
-import alifeSim.Simulation.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -42,7 +50,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 	// Simulation View (Right Split)
 	private GUISimulationView simView;
 	
-	private SimulationsManager simsManager;
+	private SimulationsManagerInf simsManager;
 
 	// Menu Bar
 	private JMenuBar menuBar;
@@ -56,7 +64,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 	// Menu Check Boxes
 	private JCheckBoxMenuItem chckbxmntmDisplaySimulation,chckbxmntmDrawFieldOf,chckbxmntDrawAgentViews;
 		
-	public StandardGUI(SimulationsManager simsManager)
+	public StandardGUI(SimulationsManagerInf simsManager)
 	{
 		this.simsManager = simsManager;
 

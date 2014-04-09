@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -13,7 +14,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import alifeSim.Simulation.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
 {
@@ -46,9 +48,9 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	private int selectedTabIndex;
 
 	/** A Reference to the Simulations Manager */
-	private SimulationsManager simsManager;
+	private SimulationsManagerInf simsManager;
 
-	public GUITabManager(final SimulationsManager simsManager)
+	public GUITabManager(final SimulationsManagerInf simsManager)
 	{
 		/* Tabs on the Left */
 		super(TOP);
@@ -351,42 +353,5 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			}
 		}
 	}
-	
-	/*public void removeSim(int simId)
-	{
-		String title = "Confirm Simulation Removal";
-		String message = "Remove \"" + this.getTitleAt(this.getSelectedIndex()) + "\" ?";
-
-		JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-		// Center Dialog on the GUI and Display
-		JDialog dialog = pane.createDialog(this, title);
-		dialog.pack();
-		dialog.setVisible(true);
-
-		int value = ((Integer) pane.getValue()).intValue();
-
-		// If the user has confirmed
-		if (value == JOptionPane.YES_OPTION)
-		{
-			// Remove the Simulation Matching the Current Tabs SimId
-			simsManager.removeSimulation(simulationTabs[selectedTabIndex].getSimulationId());		
-			
-			// Select the Simulation List
-			this.setSelectedIndex(0);
-			
-			//simulationTabs[selectedTabIndex].removeTabStatusListener(this);
-			
-			// Tell the tab to detach up
-			simulationTabs[selectedTabIndex].detachSimfromTab();
-			
-			// Remove this tab from the TabPane
-			this.remove(simulationTabs[selectedTabIndex]);
-			
-			// Clear the slot in the tab list
-			simulationTabs[selectedTabIndex] = null;
-			tabCount--;
-		}
-	}*/
 	
 }

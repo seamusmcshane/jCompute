@@ -12,16 +12,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Debug.DebugLogger;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
-import alifeSim.Simulation.SimulationsManager;
-import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
-import alifeSim.Simulation.SimulationsManagerEventListenerInf;
 
 public class BatchManager implements SimulationsManagerEventListenerInf,SimulationStateListenerInf
 {
 	// Simulations Manager
-	private SimulationsManager simsManager;
+	private SimulationsManagerInf simsManager;
 
 	// The queue of batches
 	private Queue<Batch> batches;
@@ -51,7 +52,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	
 	private int batchScheduleMode = fifo;
 	
-	public BatchManager(SimulationsManager simsManager)
+	public BatchManager(SimulationsManagerInf simsManager)
 	{
 		this.simsManager = simsManager;
 		

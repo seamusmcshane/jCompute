@@ -1,25 +1,32 @@
 package alifeSim.Gui.Standard;
 
 import javax.swing.JPanel;
+
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+
 import javax.swing.JTable;
+
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.swing.border.TitledBorder;
+
 import alifeSim.Gui.Component.ProgressBarTableCellRenderer;
 import alifeSim.Gui.Component.TablePanel;
 import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
-import alifeSim.Simulation.SimulationsManager;
-import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
-import alifeSim.Simulation.SimulationsManagerEventListenerInf;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -35,14 +42,14 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	
 	// References to the needed objects
 	private GUITabManager tabManager;
-	private SimulationsManager simsManager;
+	private SimulationsManagerInf simsManager;
 		
 	// The update time used to redraw the table and graphs at a slower rate than the data rate.
 	private Timer statUpdateTimer;
 	
 	private int selectedRowIndex = -1;
 	
-	public SimulationListTabPanel(GUITabManager tabManager, SimulationsManager simsManager) 
+	public SimulationListTabPanel(GUITabManager tabManager, SimulationsManagerInf simsManager) 
 	{
 		super();
 		

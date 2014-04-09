@@ -19,10 +19,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationStateListenerInf;
-import alifeSim.Simulation.SimulationsManager;
-import alifeSim.Simulation.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
-import alifeSim.Simulation.SimulationsManager.SimulationManagerEvent;
 
 import java.awt.BorderLayout;
 import java.io.File;
@@ -54,7 +55,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	private BatchManager batchManager;
 	
 	// Simulations Manager
-	private SimulationsManager simsManager;
+	private SimulationsManagerInf simsManager;
 	
 	// Main Frame
 	private JFrame guiFrame;
@@ -79,7 +80,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	
 	private Timer activeSimulationsListTableUpdateTimer;
 	
-	public BatchGUI(SimulationsManager simsManager)
+	public BatchGUI(SimulationsManagerInf simsManager)
 	{
 		this.simsManager = simsManager;
 		
@@ -433,7 +434,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		final BatchGUI batchGUI = this;
 		
 		if(event == SimulationManagerEvent.AddedSim)
-		{	
+		{
 		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
 		    {
 		        public void run() 

@@ -1,18 +1,22 @@
 package alifeSim.Gui.Standard;
 
 import java.awt.BorderLayout;
-import java.util.Iterator;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.LinkedList;
 
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
 import alifeSim.Gui.Charts.GlobalStatChartPanel;
-import alifeSim.Stats.StatGroup;
-import alifeSim.Stats.StatManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
-public class GraphsTabPanel extends JPanel
+public class GraphsTabPanel extends JPanel implements MouseListener, ActionListener
 {	
 	private ImageIcon simulationStatChartIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kchart.png"));
 
@@ -20,6 +24,10 @@ public class GraphsTabPanel extends JPanel
 	
 	private LinkedList<GlobalStatChartPanel> charts;
 
+	private JPopupMenu tabPopUpMenu;
+	private JMenuItem menuExportStat;
+	private JMenuItem menuExportAllStats;	
+	
 	public GraphsTabPanel()
 	{
 		// Layout
@@ -27,7 +35,22 @@ public class GraphsTabPanel extends JPanel
 				
 		chartTabs = new JTabbedPane();
 		
+		chartTabs.addMouseListener(this);
+		
 		add(chartTabs,BorderLayout.CENTER);
+		
+		// Export Pop up
+		tabPopUpMenu  = new JPopupMenu();
+		
+		menuExportStat = new JMenuItem("Export Stat");
+		menuExportAllStats = new JMenuItem("Export All Stats");
+		
+		// Add a new menu item
+		menuExportStat.addActionListener(this);
+		menuExportAllStats.addActionListener(this);
+		
+	    tabPopUpMenu.add(menuExportStat);
+	    tabPopUpMenu.add(menuExportAllStats);
 	}
 	
 	public void addCharts(LinkedList<GlobalStatChartPanel> charts)
@@ -43,7 +66,7 @@ public class GraphsTabPanel extends JPanel
 		
 	}
 	
-	public void clearCharts(StatManager statManager)
+	public void clearCharts(SimulationsManagerInf simsManager, int simId)
 	{
 		if(charts!=null)
 		{
@@ -52,14 +75,11 @@ public class GraphsTabPanel extends JPanel
 			// Remove ChartPanels and Unset listeners
 			for (GlobalStatChartPanel chartPanel : charts)
 			{
-				StatGroup group = statManager.getStatGroup(chartPanel.getName());
-				
-				group.removeStatGroupListener(chartPanel);
-				
+				simsManager.removeStatGroupListener(simId, chartPanel.getName(), chartPanel);
+								
 				System.out.println("Removing " + chartPanel.getName() + " Chart Panel");
 				
 				chartTabs.remove(chartPanel);
-				
 				
 				chartPanel.destroy();
 			}
@@ -67,7 +87,57 @@ public class GraphsTabPanel extends JPanel
 			// Clear the Chart List
 			charts = null;			
 		}
-
 	}
 
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+		if((e.getButton() == 3))
+		{
+		    tabPopUpMenu.show(e.getComponent(), e.getX(), e.getY());
+		}	
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		if(e.getSource() == menuExportStat)
+		{
+			System.out.println("Export Stat");
+		}	
+		else if(e.getSource() == menuExportAllStats)
+		{
+			System.out.println("Export All Stats");
+		}		
+	}
+	
 }

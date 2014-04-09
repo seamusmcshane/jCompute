@@ -1,4 +1,4 @@
-package alifeSim.Simulation;
+package alifeSim.Simulation.SimulationManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,10 +13,16 @@ import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
+import alifeSim.Simulation.Simulation;
+import alifeSim.Simulation.SimulationScenarioManagerInf;
+import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationState;
+import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Stats.StatGroupListenerInf;
 import alifeSim.Stats.StatManager;
 
-public class SimulationsManager
+public class SimulationsManager implements SimulationsManagerInf
 {
 	private static Semaphore simulationsManagerLock = new Semaphore(1);
 
@@ -192,24 +198,29 @@ public class SimulationsManager
 		return stepCount;
 	}
 	
-	public SimulationScenarioManagerInf getScenarioManager(int simId)
+	public String getScenarioText(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
+
+		String scenarioText = "NONE";
 		
 		Simulation sim = simulations.get(simId);
 		
-		 SimulationScenarioManagerInf scenarioManager = null;
+		SimulationScenarioManagerInf scenarioManager = null;
 		
 		if(sim!=null)
 		{			
 			scenarioManager = simulations.get(simId).getSimManager();	
+			
+			scenarioText = scenarioManager.getScenario().getScenarioText();
+
 		}
 		
-		simulationsManagerLock.release();
+		simulationsManagerLock.release();	
 		
-		return scenarioManager;
+		return scenarioText;
 	}
-
+	
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -602,6 +613,34 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
+	public void addStatGroupListener (int simId,String group)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{
+			//sim.addSimulationStatListener(listener);
+		}
+		
+		simulationsManagerLock.release();
+	}
+	
+	public void removeStatGroupListener (int simId,String group)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{
+			//sim.addSimulationStatListener(listener);
+		}
+		
+		simulationsManagerLock.release();
+	}
+
 	public SimState getState(int simId)
 	{
 		SimState simState = null;
@@ -640,6 +679,114 @@ public class SimulationsManager
 		
 	}
 	
+	@Override
+	public Set<String> getStatGroupNames(int simId)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		Set<String> statGroupNames = null;
+		
+		if(sim!=null)
+		{
+			statGroupNames = sim.getSimManager().getStatmanger().getGroupList();
+		}
+		
+		simulationsManagerLock.release();	
+
+		return statGroupNames;
+	}
+	
+	@Override
+	public boolean isStatGroupGraphingEnabled(int simId, String group)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		boolean enabled = false;
+		
+		if(sim!=null)
+		{
+			enabled = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled();
+		}
+		
+		simulationsManagerLock.release();	
+
+		return enabled;
+	}
+	
+	@Override
+	public int getStatGroupGraphSampleWindowSize(int simId, String group)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		int window = -1;
+		
+		if(sim!=null)
+		{
+			window = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
+		}
+		
+		simulationsManagerLock.release();	
+
+		return window;
+	}
+	
+	@Override
+	public boolean hasStatGroupTotalStat(int simId, String group)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		boolean globalStat = false;
+		
+		if(sim!=null)
+		{
+			globalStat = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().hasTotalStat();
+		}
+		
+		simulationsManagerLock.release();	
+
+		return globalStat;
+	}
+	
+	@Override
+	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{
+			sim.getSimManager().getStatmanger().getStatGroup(group).addStatGroupListener(listener);
+		}
+		
+		simulationsManagerLock.release();	
+
+	}
+	
+	@Override
+	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{
+			sim.getSimManager().getStatmanger().getStatGroup(group).removeStatGroupListener(listener);
+		}
+		
+		simulationsManagerLock.release();	
+
+	}
+	
 	public int getReqSps(int simId)
 	{
 		int reqSps = -1;
@@ -675,6 +822,8 @@ public class SimulationsManager
 	    {
 	       return name;
 	    }
-	};
+	}
+
+
 	
 }

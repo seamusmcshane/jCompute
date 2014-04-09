@@ -6,12 +6,13 @@ import java.util.Set;
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.Batch.BatchGUI;
 import alifeSim.Gui.Standard.StandardGUI;
-import alifeSim.Simulation.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
 public class Launcher
 {
 	// Simulations Manager
-	private static SimulationsManager simsManager;
+	private static SimulationsManagerInf simsManager;
 
 	// Standard GUI
 	private static StandardGUI standardGUI;
@@ -72,18 +73,20 @@ public class Launcher
 		{
 			DebugLogger.setDebug(true);
 		}
-		
-		/* Simulation Manager */
-		simsManager = new SimulationsManager(opts.get("mcs").getValue());
 
-		
 		if(opts.get("guiInt").getValue() == 1)
 		{
+			/* Local Simulation Manager */
+			simsManager = new SimulationsManager(opts.get("mcs").getValue());
+			
 			standardGUI = new StandardGUI(simsManager);
 		}
-				
+		
 		if(opts.get("batchInt").getValue() == 1)
 		{
+			/* Network Simulation Manager */
+			simsManager = new SimulationsManager(opts.get("mcs").getValue());
+			
 			batchGUI = new BatchGUI(simsManager);
 		}
 

@@ -28,12 +28,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -50,13 +48,10 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import alifeSim.Gui.Charts.GlobalStatChartPanel;
-import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
-import alifeSim.Simulation.SimulationsManager;
-import alifeSim.Stats.StatGroup;
-import alifeSim.Stats.StatManager;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener, SimulationStateListenerInf, SimulationStatListenerInf
 {
@@ -106,8 +101,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private GraphsTabPanel graphsTabPanel;
 	
-	private SimulationsManager simsManager;
-	private StatManager statManager;
+	private SimulationsManagerInf simsManager;
 	
 	/* This Sim */
 	private int simId = -1;
@@ -141,7 +135,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private Semaphore listenersLock = new Semaphore(1, false);
 	private TabButton title;
 	
-	public GUISimulationTab(GUITabManager tabManager,SimulationsManager simsManager, int simId)
+	public GUISimulationTab(GUITabManager tabManager,SimulationsManagerInf simsManager, int simId)
 	{
 		this.simsManager = simsManager;
 
@@ -192,20 +186,18 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		// We may be a tab for an active simulation 
 		if(simId!=-1)
 		{
-			SimulationScenarioManagerInf simulationScenario = simsManager.getScenarioManager(simId);
+			String scenarioText = simsManager.getScenarioText(simId);
 			
 			SimState state = simsManager.getState(simId);
 			
-			statManager = simsManager.getStatManager(simId);
-			
-			scenarioEditor.setText(simulationScenario.getScenario().getScenarioText());		
+			scenarioEditor.setText(scenarioText);		
 			
 			scenarioLoaded = true;
 			
 			registerListeners();
 			
 			setSimView();
-							
+			
 			tabTitle = "Simulation " + simId;
 			
 			setGuiState(state);
@@ -509,28 +501,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 	}
 	
-	public void addSimulationStatsListTab()
-	{
-		simulationTabPane.addTab("Supported Statistics", simulationStatsListPanel);
-		simulationStatsListPanel.clearTable();
-		
-		if(statManager!=null)
-		{
-			Set<String> statGroups = statManager.getGroupList();
-			
-			for (String group : statGroups)
-			{
-				simulationStatsListPanel.addRow(group,new String[]{Integer.toString(statManager.getStatGroup(group).getStatList().size()), String.valueOf(statManager.getStatGroup(group).getGroupSettings().statsEnabled()),String.valueOf(statManager.getStatGroup(group).getGroupSettings().graphEnabled())});
-			}
-			
-			// Give the List Panel a reference to the simulations stat manager - so it can initiate an export.
-			simulationStatsListPanel.setStatManager(statManager);
-		
-			simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, simulationStatsExportIcon);			
-		}
-
-	}
-
 	public void addScenarioTab()
 	{
 		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
@@ -796,9 +766,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		// Re-add the Scenario Tab.
 		addScenarioTab();
 
-		// Re-add the Scenario Tab
-		addSimulationStatsListTab();
-
 		addGraphsPanel();		
 	}
 
@@ -813,31 +780,36 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 	private void addChartTabs()
 	{		
-		if(statManager!=null)
-		{
-			Set<String> statGroups = statManager.getGroupList();
 
-			LinkedList<GlobalStatChartPanel> charts = new  LinkedList<GlobalStatChartPanel>();
-			
+		Set<String> statGroups = simsManager.getStatGroupNames(simId);
+
+		LinkedList<GlobalStatChartPanel> charts = new  LinkedList<GlobalStatChartPanel>();
+		
+		if(statGroups!=null)
+		{
 			// Collect the enabled Charts
 			for (String group : statGroups)
 			{
-				StatGroup statGroup = statManager.getStatGroup(group);
-				
-				if(statGroup.getGroupSettings().graphEnabled())
+				//StatGroup statGroup = statManager.getStatGroup(group);
+				boolean enabled = simsManager.isStatGroupGraphingEnabled(simId, group);
+						
+				if(enabled)
 				{
-					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,statGroup.getGroupSettings().hasTotalStat(),statGroup.getGroupSettings().getGraphSampleWindow());
-													
-					statGroup.addStatGroupListener(chart);
+					boolean totalStatEnabled = simsManager.hasStatGroupTotalStat(simId, group);
+					int sampleWindow = simsManager.getStatGroupGraphSampleWindowSize(simId, group);
+					
+					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,totalStatEnabled,sampleWindow);
+					
+					simsManager.addStatGroupListener(simId,group,chart);
 					
 					charts.add(chart);
 				}
-
+	
 			}
 			
-			graphsTabPanel.addCharts(charts);			
+			graphsTabPanel.addCharts(charts);	
 		}
-		
+
 	}
 
 	private void registerListeners()
@@ -873,9 +845,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			tabTitle = "Simulation " + simId;
 				
 			if(simsManager.createSimScenario(simId,scenario))
-			{
-				statManager = simsManager.getStatManager(simId);
-					
+			{					
 				setSimView();
 				
 				addPanels();
@@ -1144,7 +1114,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private void removeChartTabs()
 	{		
-		graphsTabPanel.clearCharts(statManager);
+		graphsTabPanel.clearCharts(simsManager,simId);
 		
 		return;		
 	}

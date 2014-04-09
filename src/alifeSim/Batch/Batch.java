@@ -22,7 +22,8 @@ import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
-import alifeSim.Simulation.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
 public class Batch
 {
@@ -619,7 +620,7 @@ public class Batch
 		return temp;
 	}
 	
-	public void setComplete(SimulationsManager simsManager,BatchItem item,long runTime,String endEvent, long stepCount)
+	public void setComplete(SimulationsManagerInf simsManager,BatchItem item,long runTime,String endEvent, long stepCount)
 	{
 		batchLock.acquireUninterruptibly();
 		
