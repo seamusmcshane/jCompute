@@ -635,9 +635,9 @@ public class Batch
 		testAndCreateDir(fullExportPath);
 		
 		// Export Stats
-		//simsManager.getStatManager(item.getSimId()).exportStats(fullExportPath,String.valueOf(item.getItemHash()),"csv");
-		simsManager.getStatManager(item.getSimId()).exportStats(fullExportPath,String.valueOf(item.getItemHash()),"xml");
-		//simsManager.getStatManager(item.getSimId()).exportStats(fullExportPath,String.valueOf(item.getItemHash()),"arff");
+		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),"csv");
+		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),"xml");
+		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),"arff");
 		
 		itemLog.println("<Item>");
 		itemLog.println("<IID>" + item.getItemId() + "</IID>");	
