@@ -97,7 +97,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private JTabbedPane simulationTabPane;
 
 	private JPanel simulationScenarioTab;
-	private SimulationStatsListPanel simulationStatsListPanel;
 	
 	private GraphsTabPanel graphsTabPanel;
 	
@@ -155,8 +154,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		// Scenario Editor
 		setUpScenarioEditorTab();
 		
-		simulationStatsListPanel = new SimulationStatsListPanel();
-
 		graphsTabPanel = new GraphsTabPanel();		
 
 		// Simulation Control GUI
@@ -1170,8 +1167,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 		sliderSimStepRate.setEnabled(true);
 		
-		simulationStatsListPanel.setExportEnabled(false);
-	
 	}
 	
 	private void simPausedState()
@@ -1183,8 +1178,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		btnGenerateSim.setEnabled(true);	
 
 		btnPauseSim.setIcon(resumeSimIcon);
-		
-		simulationStatsListPanel.setExportEnabled(true);
 		
 	}
 	
@@ -1222,8 +1215,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		sliderSimStepRate.setEnabled(false);
 		btnPauseSim.setEnabled(false);
 		btnGenerateSim.setEnabled(true);
-						
-		simulationStatsListPanel.setExportEnabled(true);
+		
 	}
 	
 	@Override

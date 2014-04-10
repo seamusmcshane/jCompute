@@ -97,5 +97,6 @@ public interface SimulationsManagerInf
 	public Set<String> getStatGroupNames(int simId);
 	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener);
+	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, String format);
 	
 }

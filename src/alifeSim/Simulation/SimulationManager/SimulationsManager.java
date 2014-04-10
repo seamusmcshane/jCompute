@@ -28,8 +28,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 	/* Max Concurrent Simulations */
 	private final int maxSims;
-	private int activeSims;
-	
+	private int activeSims;	
 	
 	/* Simulation Storage Structure */
 	private HashMap<Integer, Simulation> simulations;
@@ -142,24 +141,6 @@ public class SimulationsManager implements SimulationsManagerInf
 		}
 		
 		simulationsManagerLock.release();		
-	}
-
-	public StatManager getStatManager(int simId)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		StatManager statManager = null;
-		
-		if(sim!=null)
-		{
-			statManager = simulations.get(simId).getSimManager().getStatmanger();	
-		}
-		
-		simulationsManagerLock.release();
-		
-		return statManager;
 	}
 	
 	public long getSimRunTime(int simId)
@@ -326,98 +307,6 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		return simScenario;
 	}
-	
-	/*
-	public int addSimulation(String scenarioText)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		if( activeSims < maxSims)
-		{
-			// Determine Scenario Type
-			ScenarioInf scenario = determinScenarios(scenarioText);
-			
-			// Valid type in scenario
-			if(scenario!=null)
-			{
-				Simulation sim = new Simulation(simulationNum);
-
-				simulationNum++;
-				
-				activeSims++;
-				
-				sim.createSimScenario(scenario);
-				
-				// add sim to struct - index on id & let sim know its id
-				simulations.put(simulationNum,sim);		
-				
-				
-				simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);				
-			}
-			else
-			{
-				simulationNum = -2;
-			}
-
-			simulationsManagerLock.release();
-			
-			return simulationNum;
-		}
-		else
-		{
-			DebugLogger.output("Too Many Sims");
-
-			simulationsManagerLock.release();
-
-			return -1;
-		}
-
-	}
-
-	private ScenarioInf determinScenarios(String text)
-	{
-		ScenarioVT scenarioParser = null;
-
-		ScenarioInf simScenario = null;
-
-		scenarioParser = new ScenarioVT();
-
-		// To get the type of Scenario object to create.
-		scenarioParser.loadConfig(text);
-
-		DebugLogger.output("Scenario Type : " + scenarioParser.getScenarioType());
-
-		if (scenarioParser.getScenarioType().equalsIgnoreCase("DEBUG"))
-		{
-			DebugLogger.output("Debug File");
-			simScenario = new DebugScenario(text);
-		}
-		else
-		{
-			if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
-			{
-				DebugLogger.output("SAPP File");
-				simScenario = new SAPPScenario();
-
-				simScenario.loadConfig(text);
-
-			}
-			else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
-			{
-				DebugLogger.output("LV File");
-				simScenario = new LotkaVolterraScenario();
-
-				simScenario.loadConfig(text);
-			}
-			else
-			{
-				DebugLogger.output("DeterminScenarios :UKNOWN");
-			}
-		}
-
-		return simScenario;
-	}
-	*/
 	
 	public void setActiveSim(int simId)
 	{
@@ -698,6 +587,29 @@ public class SimulationsManager implements SimulationsManagerInf
 		return statGroupNames;
 	}
 	
+	@Override 
+	public void exportAllStatsToDir(int simId,String directory,String fileNameSuffix, String format)
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		if(sim!=null)
+		{
+			/* Pause the sim as it will be updating its internal data structures
+			 * Only pause sim if running or it will dead lock.
+			 */
+			if(sim.getState() == SimState.RUNNING)
+			{
+				sim.pauseSim();
+			}
+			sim.getSimManager().getStatmanger().exportAllStatsToDir(directory, fileNameSuffix, format);
+
+		}
+		
+		simulationsManagerLock.release();
+	}
+	
 	@Override
 	public boolean isStatGroupGraphingEnabled(int simId, String group)
 	{
@@ -823,7 +735,5 @@ public class SimulationsManager implements SimulationsManagerInf
 	       return name;
 	    }
 	}
-
-
 	
 }

@@ -4,8 +4,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -13,8 +17,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
-import alifeSim.Simulation.SimulationManager.SimulationsManager;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
@@ -43,6 +47,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	private JPopupMenu tabPopUpMenu;
 	private JMenuItem menuCloseItem;
 	private JMenuItem menuRemoveItem;
+	private JMenuItem menuExportAllStats;	
 
 	/** Current Selected Tab Index ID */
 	private int selectedTabIndex;
@@ -120,12 +125,16 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		
 		menuCloseItem = new JMenuItem("Close Tab ");
 		menuRemoveItem = new JMenuItem("Remove Tab");
-		
+		menuExportAllStats = new JMenuItem("Export All Stats");
+
 		// Add a new menu item
 		menuCloseItem.addActionListener(this);
 		menuRemoveItem.addActionListener(this);
+		menuExportAllStats.addActionListener(this);
+
 	    tabPopUpMenu.add(menuCloseItem);
 	    tabPopUpMenu.add(menuRemoveItem);
+	    tabPopUpMenu.add(menuExportAllStats);
 	    
 		this.addMouseListener(this);
 
@@ -300,12 +309,16 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 
 	@Override
 	public void mouseClicked(MouseEvent e)
-	{		
-		// If the right mouse is click on a tab
-		if((e.getButton() == 3))
+	{	
+		if(this.getSelectedComponent() instanceof GUISimulationTab)
 		{
-			showPopUP(e);
-		}		
+			// If the right mouse is click on a tab
+			if((e.getButton() == 3))
+			{
+				showPopUP(e);
+			}	
+		}
+	
 	}
 
 	@Override
@@ -331,6 +344,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{		
+
 		if(e.getSource() == menuCloseItem)
 		{
 			closeTab();
@@ -338,6 +352,10 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		else if(e.getSource() == menuRemoveItem)
 		{
 			removeTab();
+		}
+		else if(e.getSource() == menuExportAllStats)
+		{			
+			chooseExport();
 		}
 		
 	}
@@ -352,6 +370,109 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 				closeTab();
 			}
 		}
+	}
+	
+	
+	private void chooseExport()
+	{
+		System.out.println("Choose Export Directory");
+
+		String exportDirectory = "";
+		String fileFormat = "";
+		
+		JFileChooser filechooser = new JFileChooser(new File("./stats"));
+
+		filechooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
+		filechooser.setDialogTitle("Choose Export Directory");
+		
+		filechooser.setSelectedFile(new File("./"));
+		
+		// Allowable file formats
+		filechooser.setAcceptAllFileFilterUsed(false);
+
+		// Comma-Separated Values
+		filechooser.addChoosableFileFilter(new ExportFileFilter("csv","Comma-Separated Values") );
+
+		// Attribute-Relation File Format (WEKA)
+		filechooser.addChoosableFileFilter(new ExportFileFilter("arff","Attribute-Relation File Format") );
+		
+		// XML
+		filechooser.addChoosableFileFilter(new ExportFileFilter("xml","XML") );
+		
+		int val = filechooser.showSaveDialog(filechooser);
+
+		if (val == JFileChooser.APPROVE_OPTION)
+		{
+			try
+			{
+				exportDirectory = filechooser.getSelectedFile().getCanonicalPath();
+				fileFormat = filechooser.getFileFilter().getDescription();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+
+		}
+		else
+		{
+			System.out.println("Export Cancelled");
+			
+			exportDirectory = "CANCELLED";
+		}
+
+		// Export File format
+		if(!exportDirectory.equals("CANCELLED"))
+		{
+			int simId = ((GUISimulationTab)getSelectedComponent()).getSimulationId();
+			
+			System.out.println("Directory Choosen : " + exportDirectory);
+
+			if(fileFormat.equals("Comma-Separated Values"))
+			{
+				simsManager.exportAllStatsToDir(simId,exportDirectory,"","csv");
+			}
+			else if(fileFormat.equals("Attribute-Relation File Format"))
+			{
+				simsManager.exportAllStatsToDir(simId,exportDirectory,"","arff");
+			}
+			else if(fileFormat.equals("XML"))
+			{
+				simsManager.exportAllStatsToDir(simId,exportDirectory,"","xml");
+			}
+			else
+			{
+				System.out.println(fileFormat + " Not Implemented");
+			}			
+
+		}
+
+	}
+	
+	private class ExportFileFilter extends FileFilter 
+	{
+		String extension;
+		String description;
+		
+		public ExportFileFilter(String extension, String description)
+		{
+			this.extension = extension;
+			this.description = description;
+		}
+		
+		@Override
+		public boolean accept(File file)
+		{
+			return file.getName().toLowerCase().endsWith(extension) || file.isDirectory();
+		}
+
+		@Override
+		public String getDescription()
+		{
+			return description;
+		}
+		
 	}
 	
 }

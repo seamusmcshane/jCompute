@@ -96,12 +96,12 @@ public class StatManager
 		return status;
 	}
 	
-	private void addFileExportHeaderCSV(StringBuilder[] fileData,int groupIndex,List<String> statList)
+	private void addFileExportHeaderCSV(StringBuilder fileData,List<String> statList)
 	{
 		// CSV Header Row			
 		int statCount = statList.size();
 		int statIndex = 0;
-		fileData[groupIndex].append(statList.get(statIndex) + ",");
+		fileData.append(statList.get(statIndex) + ",");
 		
 		System.out.print("Categories : " + statList.get(statIndex));
 		
@@ -109,32 +109,32 @@ public class StatManager
 		{
 			System.out.print(", " + statList.get(statIndex));
 
-			fileData[groupIndex].append(statList.get(statIndex));
+			fileData.append(statList.get(statIndex));
 			
 			if(statIndex<(statCount-1))
 			{
-				fileData[groupIndex].append(",");
+				fileData.append(",");
 			}
 			else
 			{
-				fileData[groupIndex].append("\n");
+				fileData.append("\n");
 			}
 			
 		}
 		System.out.print("\n");
 	}
 	
-	public void addFileExportHeaderARFF(StringBuilder[] fileData,int groupIndex,String group,List<String> statList)
+	public void addFileExportHeaderARFF(StringBuilder fileData,String group,List<String> statList)
 	{
 		// The ARFF HEADER
-		fileData[groupIndex].append("% 1. Title : " + group + " Database\n");
-		fileData[groupIndex].append("%\n");
-		fileData[groupIndex].append("% 2. Sources :\n");
-		fileData[groupIndex].append("%		(a) Alife Sim\n");
-		fileData[groupIndex].append("%\n");
+		fileData.append("% 1. Title : " + group + " Database\n");
+		fileData.append("%\n");
+		fileData.append("% 2. Sources :\n");
+		fileData.append("%		(a) Alife Sim\n");
+		fileData.append("%\n");
 
 		// Add Relation Field
-		fileData[groupIndex].append("@RELATION "+group+"\n");
+		fileData.append("@RELATION "+group+"\n");
 		
 		int statCount = statList.size();
 		
@@ -142,53 +142,162 @@ public class StatManager
 		for(int statIndex=0;statIndex<statCount;statIndex++)
 		{
 			// All Assumed Numeric (All stats currently numeric)
-			fileData[groupIndex].append("@ATTRIBUTE '"+ statList.get(statIndex) + "' NUMERIC\n");
+			fileData.append("@ATTRIBUTE '"+ statList.get(statIndex) + "' NUMERIC\n");
 		}	
 		
 		// Begin Data Section
-		fileData[groupIndex].append("@DATA\n");
+		fileData.append("@DATA\n");
 		
 	}
 	
-	public void addFileExportHeaderXML(StringBuilder[] fileData,int groupIndex,String group,List<String> statList)
+	public void addFileExportHeaderXML(StringBuilder fileData,String group,List<String> statList)
 	{
 		int statCount = statList.size();
 		
 		// DOCTYPE (DTD)
-		fileData[groupIndex].append("<!DOCTYPE "+ xmlString(group) +"\n[\n");
+		fileData.append("<!DOCTYPE "+ xmlString(group) +"\n[\n");
 
 		// Group contains Steps
-		fileData[groupIndex].append("<!ELEMENT "+ xmlString(group)+" (Step)>\n");
+		fileData.append("<!ELEMENT "+ xmlString(group)+" (Step)>\n");
 		
 		// Step Contains Stat Types
-		fileData[groupIndex].append("<!ELEMENT Step (");
+		fileData.append("<!ELEMENT Step (");
 		for(int statIndex=0;statIndex< statCount;statIndex++)
 		{
-			fileData[groupIndex].append(xmlString(statList.get(statIndex)));
+			fileData.append(xmlString(statList.get(statIndex)));
 			if(statIndex<(statCount-1))
 			{
-				fileData[groupIndex].append(",");
+				fileData.append(",");
 			}
 		}
-		fileData[groupIndex].append(")>\n");
+		fileData.append(")>\n");
 		
 		// Each Step has an attribute which is a unique id
-		fileData[groupIndex].append("<!ATTLIST Step id ID #REQUIRED>\n");
+		fileData.append("<!ATTLIST Step id ID #REQUIRED>\n");
 		
 		// Each Stat is an ELEMENT
 		for(int statIndex=0;statIndex< statCount;statIndex++)
 		{
-			fileData[groupIndex].append("<!ELEMENT "+ xmlString(statList.get(statIndex))+" (#PCDATA)>\n");
+			fileData.append("<!ELEMENT "+ xmlString(statList.get(statIndex))+" (#PCDATA)>\n");
 		}
 			
 		// End DOCTYPE
-		fileData[groupIndex].append("]>\n");
+		fileData.append("]>\n");
 		
 		// XML ROOT NODE OPEN
-		fileData[groupIndex].append("<" + xmlString(group) + ">\n");		
+		fileData.append("<" + xmlString(group) + ">\n");		
 	}
 	
-	public void exportStats(String directory,String fileNameSuffix, String format)
+	
+	public String[] getStats(String format)
+	{
+		return new String[]{""};
+	}
+	
+	public void exportAllStatsToDir(String directory,String fileNameSuffix, String format)
+	{
+		statsManagerLock.acquireUninterruptibly();
+
+		Set<String> groupList = getGroupList();
+		
+		for(String group : groupList)
+		{
+			System.out.println("Group : " + group);
+
+			// Set the File Name
+			String fileName;
+			if(!fileNameSuffix.equals(""))
+			{
+				fileName = group + " " + fileNameSuffix;
+			}
+			else
+			{
+				fileName = group;
+			}
+			
+			
+			// File Data
+			String data = createStatExportString(group,format);
+			
+			// Now send the strings to the output writer
+			System.out.println("Writing File : " + fileName);
+			
+			writeFiles(directory,fileName,data,format.toLowerCase());
+			
+		}
+		
+		statsManagerLock.release();
+	}
+	
+	private String createStatExportString(String group,String format)
+	{
+		StringBuilder data = new StringBuilder();		
+		
+		// Get the Stat Group for export
+		StatGroup statGroup = map.get(group);
+		
+		if(statGroup!=null)
+		{
+
+			List<String> statList = statGroup.getStatList();
+	
+			if(format.equalsIgnoreCase("csv"))
+			{
+				// Write File Header
+				addFileExportHeaderCSV(data,statList);
+			}
+			else if(format.equalsIgnoreCase("arff"))
+			{
+				addFileExportHeaderARFF(data,group,statList);
+			}
+			else
+			{
+				addFileExportHeaderXML(data,group,statList);
+			}			
+			
+			// Get the history length of the stats (which are all the same length in steps)
+			int historyLength = statGroup.getStat(statList.get(0)).getHistoryLength();
+			
+			int statCount = statList.size();
+			
+			StatSample[][] statHistorys = new StatSample[statCount][historyLength];			
+			// Convert each Linked list to arrays - so we can look up individual indexes quicker later.
+			for(int statIndex=0;statIndex< statCount;statIndex++)
+			{
+				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
+			}
+	
+			int history =0;
+			
+			// Loop for the length of the stat history (sim run length)
+			while(history<historyLength)
+			{
+				// Write Data Row
+				if(format.equalsIgnoreCase("csv") || format.equalsIgnoreCase("arff"))
+				{
+					appendCSVStyleRow(data,statHistorys,history,statList);
+				}
+				else
+				{
+					appendXMLRow(data,statHistorys,history,statList);
+				}	
+				
+				history++;
+			}
+	
+			// File Footer
+			if(format.equalsIgnoreCase("xml"))
+			{
+				data.append("</" + xmlString(group) + ">\n");
+			}
+		
+		}
+		
+		return data.toString();
+	}
+	
+	
+	/* private void createStatExportFile(String fileNameSuffix, String format)
 	{
 		statsManagerLock.acquireUninterruptibly();
 		
@@ -325,44 +434,44 @@ public class StatManager
 		}
 		
 		statsManagerLock.release();		
-	}
+	} */
 		
-	private void appendXMLRow(StringBuilder[] fileData,int groupIndex,StatSample[][] statHistorys,int history, List<String> statList)
+	private void appendXMLRow(StringBuilder data,StatSample[][] statHistorys,int history, List<String> statList)
 	{
 		int statCount = statList.size();
 		
 		// Each Row is a Step
-		fileData[groupIndex].append("\t<Step id='"+history+"'>\n");
+		data.append("\t<Step id='"+history+"'>\n");
 		
 		// Do the same for every history, append , after each sample or a new line after each history
 		for(int statIndex=0;statIndex< statCount;statIndex++)
 		{
-			fileData[groupIndex].append("\t\t<"+ xmlString(statList.get(statIndex))+">"+statHistorys[statIndex][history].getSample()+"</"+ xmlString(statList.get(statIndex))+">\n");					
+			data.append("\t\t<"+ xmlString(statList.get(statIndex))+">"+statHistorys[statIndex][history].getSample()+"</"+ xmlString(statList.get(statIndex))+">\n");					
 		}
 		
 		// End Step
-		fileData[groupIndex].append("\t</Step>\n");
+		data.append("\t</Step>\n");
 	}
 	
-	private void appendCSVStyleRow(StringBuilder[] fileData,int groupIndex,StatSample[][] statHistorys,int history, List<String> statList)
+	private void appendCSVStyleRow(StringBuilder data,StatSample[][] statHistorys,int history, List<String> statList)
 	{
 		int statCount = statList.size();
 		
 		// Append the sample from the first stat with a , appended				
-		fileData[groupIndex].append(statHistorys[0][history].getSample() + ",");
+		data.append(statHistorys[0][history].getSample() + ",");
 
 		// Do the same for every history, append , after each sample or a new line after each history
 		for(int statIndex=1;statIndex< statCount;statIndex++)
 		{
-			fileData[groupIndex].append(statHistorys[statIndex][history].getSample());
+			data.append(statHistorys[statIndex][history].getSample());
 			
 			if(statIndex<(statCount-1))
 			{
-				fileData[groupIndex].append(",");
+				data.append(",");
 			}
 			else
 			{
-				fileData[groupIndex].append("\n");
+				data.append("\n");
 			}
 			
 		}
