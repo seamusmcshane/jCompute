@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -16,7 +17,11 @@ import alifeSimGeom.A2DPoint2d;
 
 public class BatchLogProcessorMapper extends Mapper
 {
-	double pos[][];	
+	double values[][][];
+	
+	double plotValues[][];
+	
+	
 	private int samplesPerItem;
 		
 	private File file;
@@ -41,8 +46,18 @@ public class BatchLogProcessorMapper extends Mapper
 	
 	private String zAxisName = "Step";
 	
-	public BatchLogProcessorMapper(String fileName)
+	public BatchLogProcessorMapper(String fileName,int mode)
 	{
+		boolean stdDev = false;
+		if(mode == 0)
+		{
+			stdDev = false;
+		}
+		else
+		{
+			stdDev = true;
+		}
+		
 		file = new File(fileName);		
 		logFile = new XMLConfiguration();
 		logFile.setSchemaValidation(false);
@@ -56,11 +71,11 @@ public class BatchLogProcessorMapper extends Mapper
 		}
 		
 
-		readItems();
+		readItems(stdDev);
 		
 	}
 	
-	private void readItems()
+	private void readItems(boolean doStdDev)
 	{
 		String path = "";
 		
@@ -68,12 +83,36 @@ public class BatchLogProcessorMapper extends Mapper
 
 		System.out.println("ItemTotal : " + itemTotal);
 		
-		pos = new double[itemTotal][itemTotal];
 		
 		xAxisName = logFile.getString("Header."+"AxisLabels.AxisLabel("+0+").Name","X");
 		yAxisName = logFile.getString("Header."+"AxisLabels.AxisLabel("+1+").Name","Y");
 		
 		samplesPerItem = logFile.getInt("Header.SamplesPerItem");
+		
+		int matrixDim = itemTotal / samplesPerItem;
+		
+		System.out.println("Samples Per Item : " + samplesPerItem);
+		
+		System.out.println("Creating Plot Array");
+		plotValues = new double[matrixDim][matrixDim];
+		
+		System.out.println("Creating Values Array");
+		values = new double[matrixDim][matrixDim][samplesPerItem];
+		
+		System.out.println("Initialising Values");
+
+		for(int x=0;x<matrixDim;x++)
+		{
+			for(int y=0;y<matrixDim;y++)
+			{
+				for(int s=0;s<samplesPerItem;s++)
+				{
+					// A value to detect the slot is not filled
+					values[x][y][s] = Double.NEGATIVE_INFINITY;
+				}
+				
+			}
+		}
 		
 		System.out.println(xAxisName);
 		System.out.println(yAxisName);
@@ -92,10 +131,19 @@ public class BatchLogProcessorMapper extends Mapper
 				int val = Integer.parseInt(logFile.getString(path+"."+"StepCount"));
 			//}
 
-			pos[x][y] += val;
 			
-			System.out.println("pos["+x+"]["+y+"] : " + pos[x][y]);
+			// Loop through the sample array and find the next free slot
+			int s = 0;
+			for(s=0;s<samplesPerItem;s++)
+			{
+				if(values[x][y][s] == Double.NEGATIVE_INFINITY)
+				{
+					break;
+				}
+			}
+			values[x][y][s] = val;
 			
+			// System.out.println("pos["+x+"]["+y+"] : " + pos[x][y]);
 			
 			if(x > xPosMax)
 			{
@@ -132,13 +180,41 @@ public class BatchLogProcessorMapper extends Mapper
 		}		
 				
 		// Average the samples
-		for(int x=0;x<itemTotal;x++)
-		{
-			for(int y=0;y<itemTotal;y++)
+
+			for(int x=0;x<matrixDim;x++)
 			{
-				pos[x][y] = pos[x][y] / samplesPerItem;
-			}
-		}
+				for(int y=0;y<matrixDim;y++)
+				{
+					double total = 0;
+					double avg = 0;
+					for(int i=0;i<samplesPerItem;i++)
+					{
+						total += values[x][y][i];
+					}
+					avg = total / samplesPerItem;
+					
+					if(!doStdDev)
+					{
+						plotValues[x][y] = avg;
+					}
+					else
+					{
+						double stdDevTotal = 0;
+						for(int i=0;i<samplesPerItem;i++)
+						{
+							stdDevTotal += (avg-values[x][y][i]) * (avg-values[x][y][i]) ;
+						}
+						
+						// StdDev
+						plotValues[x][y] = Math.sqrt(stdDevTotal/samplesPerItem);
+						
+						// variance
+						// plotValues[x][y] = stdDevTotal/samplesPerItem;
+						
+					}
+					
+				}
+			}	
 		
 		xSteps = xPosMax;
 		ySteps = yPosMax;
@@ -193,7 +269,7 @@ public class BatchLogProcessorMapper extends Mapper
 	@Override
 	public double f(double x, double y)
 	{
-		return pos[(int) x][(int) y];
+		return plotValues[(int) x][(int) y];
 	}
 	
 	public String getXAxisName()

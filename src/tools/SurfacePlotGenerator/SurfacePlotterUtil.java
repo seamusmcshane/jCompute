@@ -46,6 +46,9 @@ import alifeSim.Debug.DebugLogger;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JComboBox;
+import java.awt.BorderLayout;
+import javax.swing.DefaultComboBoxModel;
 
 public class SurfacePlotterUtil implements ActionListener,WindowListener
 {
@@ -58,6 +61,7 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 	private static Shape surface;
 	private static Chart chart;
 	private JMenuItem mntmExportImage;
+	private JComboBox comboBox;
 	
 	public SurfacePlotterUtil()
 	{
@@ -87,6 +91,11 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		mntmExportImage.addActionListener(this);
 		mnFile.add(mntmExportImage);
 		mnFile.add(mntmExit);
+		
+		comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Avg", "StdDev"}));
+		comboBox.setSelectedIndex(0);
+		gui.getContentPane().add(comboBox, BorderLayout.NORTH);
 		
 		gui.addWindowListener(this);
 		gui.setVisible(true);	
@@ -133,7 +142,7 @@ public class SurfacePlotterUtil implements ActionListener,WindowListener
 		        	surface = null;
 		        }
 		        
-		        BatchLogProcessorMapper mapper = new BatchLogProcessorMapper(file);
+		        BatchLogProcessorMapper mapper = new BatchLogProcessorMapper(file,comboBox.getSelectedIndex());
 		        Range xRange = new Range(mapper.getXmin(),mapper.getXmax());
 		        Range yRange = new Range(mapper.getYmin(),mapper.getYmax());
 		        
