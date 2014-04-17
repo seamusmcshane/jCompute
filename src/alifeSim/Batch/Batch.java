@@ -13,8 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Debug.DebugLogger;
@@ -22,7 +24,6 @@ import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
-import alifeSim.Simulation.SimulationManager.SimulationsManager;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
 public class Batch
@@ -32,12 +33,18 @@ public class Batch
 	private String type;
 	private String baseScenarioFile;
 	private String batchDescription;
+	
+	private int itemsRequested = 0;
+	
 	private int batchItems = 0;
 	private int completedItems = 0;
 	private int itemSamples;
 	
 	/* Log - total time calc */
 	private long startTime;
+	
+	/* Completed Items avg */
+	private long completedItemRunTime;
 	
 	private String batchStatsExportDir;
 	private PrintWriter itemLog;
@@ -46,10 +53,11 @@ public class Batch
 	private PrintWriter infoLog;
 	
 	// Our Queue of Items yet to be processed
-	private Deque<BatchItem> queuedItems;
+	private LinkedList<BatchItem> queuedItems;
 	
 	// The active Items currently being processed.
 	private ArrayList<BatchItem> activeItems;
+	private int active;
 	
 	// The Batch Configuration Text
 	private StringBuilder batchConfigText;
@@ -71,9 +79,12 @@ public class Batch
 	
 	public Batch(int batchId,String fileName) throws IOException
 	{
+		completedItemRunTime = 0;
+		active = 0;
+		
 		this.batchId = batchId;
 		
-		queuedItems = new ArrayDeque<BatchItem>();
+		queuedItems = new LinkedList<BatchItem>();
 			
 		activeItems = new ArrayList<BatchItem>();
 		
@@ -155,13 +166,13 @@ public class Batch
 			itemLog.println("</Header>");
 			itemLog.println("<Items>");
 			
-			// For run time calc
-			startTime = System.currentTimeMillis();
-
 			Calendar calender = Calendar.getInstance();
 			
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
 			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+			
+			// For run time calc			
+			startTime = System.currentTimeMillis();
 			
 			// XML Log File Header
 			infoLog.println("<Batch>");		
@@ -599,6 +610,8 @@ public class Batch
 
 		}
 		
+		// All the items need to get processed, but the ett is influenced by the order (randomise it in an attempt to reduce influence)
+		Collections.shuffle(queuedItems);		
 	}
 	
 	public BatchItem getNext()
@@ -608,12 +621,19 @@ public class Batch
 		BatchItem temp = queuedItems.remove();
 		
 		activeItems.add(temp);
+		
+		if(activeItems.size() > 0)
+		{
+			active = activeItems.size();
+		}
 
 		// Is this the first Item && Sample
-		if(temp.getItemId() == 1 && temp.getSampleId() == 1)
-		{			
+		if(itemsRequested == 0)
+		{
 			startBatchLog(temp.getCoordinates().size());
 		}
+		
+		itemsRequested++;
 		
 		batchLock.release();
 		
@@ -625,7 +645,10 @@ public class Batch
 		batchLock.acquireUninterruptibly();
 		
 		activeItems.remove(item);
-
+		
+		// For estimated complete time calculation
+		completedItemRunTime+=runTime;
+		
 		// Create the item export dir
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
 
@@ -782,11 +805,9 @@ public class Batch
 		return System.currentTimeMillis()-startTime;
 	}
 	
-	public long getECT()
+	public long getETT()
 	{
-		long timePerItem = getRunTime()/completedItems;
-		
-		return timePerItem*(batchItems-completedItems);
+		return getRunTime() + ( ( (completedItemRunTime / completedItems) * (batchItems - completedItems) ) / active);
 	}
 	
 }

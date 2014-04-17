@@ -12,10 +12,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Debug.DebugLogger;
-import alifeSim.Simulation.SimulationManager.SimulationsManager;
-import alifeSim.Simulation.SimulationManager.SimulationsManagerEventListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
 
@@ -439,7 +439,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	{
 	    for (BatchManagerEventListenerInf listener : batchManagerListeners)
 	    {
-	    	listener.batchProgress(batch.getBatchId(),batch.getProgress(),batch.getCompletedItems(),batch.getRunTime(),batch.getECT());
+	    	listener.batchProgress(batch.getBatchId(),batch.getProgress(),batch.getCompletedItems(),batch.getRunTime(),batch.getETT());
 	    }
 	}
 

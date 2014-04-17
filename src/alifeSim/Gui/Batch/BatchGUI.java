@@ -19,10 +19,10 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationStateListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationsManager;
-import alifeSim.Simulation.SimulationManager.SimulationsManagerEventListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationManager.Network.NetworkSimulationsManager;
 import alifeSim.Simulation.SimulationState.SimState;
 
 import java.awt.BorderLayout;
@@ -102,7 +102,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 				
 				displayBatchInfo();
 			}
-			  
+			
 		},0,1500);
 		
 		batchManager.addBatchManagerListener(this);
@@ -169,7 +169,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		splitPaneBatches.setResizeWeight(0.5);
 		splitPaneBatches.setEnabled(false);
 		splitPaneBatches.setContinuousLayout(true);
-		batchListTable = new TablePanel("Batches", new String[]{"Batch Id","Base File","Type","Items","Progress","Completed","Run Time","ECT"});
+		batchListTable = new TablePanel("Batches", new String[]{"Batch Id","Base File","Type","Items","Progress","Completed","Run Time","ETT"});
 		// Progress Column uses a progress bar for display
 		batchListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 4);
 		splitPaneBatches.setLeftComponent(batchListTable);
@@ -518,12 +518,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	}
 
 	@Override
-	public void batchProgress(int batchId, int progress, int completedItems,long runTime, long ect)
+	public void batchProgress(int batchId, int progress, int completedItems,long runTime, long ett)
 	{
 		batchListTable.updateCell("Batch " + batchId, 4, Integer.toString(progress));
 		batchListTable.updateCell("Batch " + batchId, 5, Integer.toString(completedItems));	
 		batchListTable.updateCell("Batch " + batchId, 6, alifeSim.util.Text.longTimeToDHMS(runTime));	
-		batchListTable.updateCell("Batch " + batchId, 7, alifeSim.util.Text.longTimeToDHMS(ect));	
+		batchListTable.updateCell("Batch " + batchId, 7, alifeSim.util.Text.longTimeToDHMS(ett));	
 	}
 	
 }
