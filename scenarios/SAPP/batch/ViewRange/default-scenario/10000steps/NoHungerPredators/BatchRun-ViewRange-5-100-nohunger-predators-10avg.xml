@@ -4,10 +4,10 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>Two species simulations with all view ranges combinations from 2-40 at steps of 2</BatchDescription>
-		<BaseScenarioFileName>BatchViewRangeScenario.xml</BaseScenarioFileName>
+		<BatchDescription>Two species simulations with all view ranges combinations from 5-100 at steps of 5</BatchDescription>
+		<BaseScenarioFileName>BatchViewRangeScenario-NoHungerPredators.xml</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>ViewRange-(2-Species-2-40)</BatchDirName>
+		<BatchDirName>ViewRange-(2-Species-5-100)-nohunger-predators</BatchDirName>
 		<ItemSamples>10</ItemSamples>
 	</Config>
 	<Parameters>
@@ -16,8 +16,8 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Predator</GroupName>
 			<ParameterName>ViewRange</ParameterName>
-			<Intial>2</Intial>
-			<Increment>2</Increment>
+			<Intial>5</Intial>
+			<Increment>5</Increment>
 			<Combinations>20</Combinations>
 		</Parameter>
 		<Parameter>
@@ -25,8 +25,8 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Prey</GroupName>
 			<ParameterName>ViewRange</ParameterName>
-			<Intial>2</Intial>
-			<Increment>2</Increment>
+			<Intial>5</Intial>
+			<Increment>5</Increment>
 			<Combinations>20</Combinations>
 		</Parameter>
 	</Parameters>
