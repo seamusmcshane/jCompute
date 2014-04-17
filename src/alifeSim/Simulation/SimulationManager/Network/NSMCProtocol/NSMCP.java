@@ -1,10 +1,10 @@
-package alifeSim.Network.SMNMP;
+package alifeSim.Simulation.SimulationManager.Network.NSMCProtocol;
 
 /*
  * Simulation Manager Network Protocol
  */
 
-public class Protocol
+public class NSMCP
 {
 	/* Invalid Frame */
     public static final byte SMNP_INVALID		= 0;	/* Included for Error Checking - A zero type should be ignore by client and server */
@@ -57,6 +57,5 @@ public class Protocol
     public static final byte MaxSimManNodes		= 16;
     
     // The standard ports
-    public static final int StandardNodePort 	= 1001;
-    public static final int StandardControlPort = 1000;
+    public static final int StandardServerPort = 1000;
 }

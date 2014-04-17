@@ -1,4 +1,4 @@
-package alifeSim.Simulation.SimulationManager;
+package alifeSim.Simulation.SimulationManager.Local;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,7 @@ import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationState;
 import alifeSim.Simulation.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Stats.StatGroupListenerInf;
 import alifeSim.Stats.StatManager;

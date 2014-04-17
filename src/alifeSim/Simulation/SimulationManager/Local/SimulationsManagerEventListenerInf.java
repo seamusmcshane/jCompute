@@ -1,6 +1,6 @@
-package alifeSim.Simulation.SimulationManager;
+package alifeSim.Simulation.SimulationManager.Local;
 
-import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationState.SimState;
 
 public interface SimulationsManagerEventListenerInf

@@ -26,8 +26,8 @@ import java.awt.event.WindowListener;
 import javax.swing.JSplitPane;
 
 import alifeSim.Gui.View.GUISimulationView;
-import alifeSim.Simulation.SimulationManager.SimulationsManager;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

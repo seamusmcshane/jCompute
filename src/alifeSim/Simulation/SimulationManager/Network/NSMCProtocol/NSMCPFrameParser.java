@@ -1,18 +1,21 @@
-package alifeSim.Network.SMNMP;
+package alifeSim.Simulation.SimulationManager.Network.NSMCProtocol;
 
 import java.nio.ByteBuffer;
 
-public class FrameParser
+public class NSMCPFrameParser
 {
+	// An incremented unique id for each frame.
+	private int frameId;
+	
 	private ByteBuffer buffer;
 	private int frameSize;
 	
-	public FrameParser()
+	public NSMCPFrameParser()
 	{
 		//buffer = ByteBuffer.allocate(SNCPProtocol.MaxMessageSize);
 	}
 	
-	public void putFrame(byte[] frame) throws SMNPException
+	public void putFrame(byte[] frame) throws NSMCPException
 	{
 
         buffer = ByteBuffer.wrap(frame,0,frame.length);
@@ -20,20 +23,21 @@ public class FrameParser
         frameSize = buffer.capacity();
 
         // The first int is the message length field, it cannot be greater than the size of the buffer.
-        if(frameSize > Protocol.MaxFrameSize)
+        if(frameSize > NSMCP.MaxFrameSize)
         {
-        	throw new SMNPException("Frame Size Invalid");
+        	throw new NSMCPException("Frame Size Invalid");
         }
         
         System.out.println("New Frame : " + frameSize);
 	}
+	
 	
 	 /*
      * Returns the type of frame, always at position 0.
      * [Used by Server or Client]
      */
     public int getFrameType()
-    {        
+    {
         return buffer.getInt();
     }
 	

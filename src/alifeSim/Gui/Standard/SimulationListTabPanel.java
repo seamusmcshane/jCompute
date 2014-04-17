@@ -20,10 +20,10 @@ import javax.swing.border.TitledBorder;
 import alifeSim.Gui.Component.ProgressBarTableCellRenderer;
 import alifeSim.Gui.Component.TablePanel;
 import alifeSim.Simulation.SimulationStatListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationsManager;
-import alifeSim.Simulation.SimulationManager.SimulationsManagerEventListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
 

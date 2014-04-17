@@ -7,6 +7,7 @@ import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Stats.StatGroupListenerInf;
