@@ -5,7 +5,7 @@
 	</Header>
 	<Config>
 		<BatchDescription>Two species simulations with all view ranges combinations from 5-100 at steps of 5</BatchDescription>
-		<BaseScenarioFileName>BatchViewRangeScenario-NoHunger.xml</BaseScenarioFileName>
+		<BaseScenarioFileName>noinital-popboom-nohunger.xml</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchDirName>ViewRange-(2-Species-5-100)-nohunger</BatchDirName>
 		<ItemSamples>10</ItemSamples>
