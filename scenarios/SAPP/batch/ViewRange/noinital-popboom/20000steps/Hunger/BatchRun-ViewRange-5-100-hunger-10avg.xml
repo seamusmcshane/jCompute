@@ -1,0 +1,33 @@
+<Batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/batch.xsd">
+	<Header>
+		<Version>0.01</Version>
+		<Type>Batch</Type>
+	</Header>
+	<Config>
+		<BatchDescription>Two species simulations with all view ranges combinations from 5-100 at steps of 5</BatchDescription>
+		<BaseScenarioFileName>noinital-popboom-hunger.xml</BaseScenarioFileName>
+		<BatchStatsExportDir>stats/</BatchStatsExportDir>
+		<BatchDirName>ViewRange-(2-Species-5-100)</BatchDirName>
+		<ItemSamples>10</ItemSamples>
+	</Config>
+	<Parameters>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Predator</GroupName>
+			<ParameterName>ViewRange</ParameterName>
+			<Intial>5</Intial>
+			<Increment>5</Increment>
+			<Combinations>20</Combinations>
+		</Parameter>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Prey</GroupName>
+			<ParameterName>ViewRange</ParameterName>
+			<Intial>5</Intial>
+			<Increment>5</Increment>
+			<Combinations>20</Combinations>
+		</Parameter>
+	</Parameters>
+</Batch>
