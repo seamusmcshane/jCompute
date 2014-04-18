@@ -3,6 +3,7 @@ package alifeSim.Gui.View;
 import java.awt.Canvas;
 import java.util.concurrent.Semaphore;
 
+import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
 
 import alifeSim.Simulation.Simulation;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -83,7 +85,10 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	{
 		System.out.println("Created Simulation View");
 		
+		LwjglApplicationConfiguration.disableAudio = true;
+		
 		canvas = new LwjglAWTCanvas(this, true);
+
 		Display.setVSyncEnabled(true);
 		Display.setSwapInterval(1);
 		
