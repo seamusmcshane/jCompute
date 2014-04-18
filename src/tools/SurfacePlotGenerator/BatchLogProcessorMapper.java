@@ -67,6 +67,7 @@ public class BatchLogProcessorMapper extends Mapper
 		}
 		catch (ConfigurationException e)
 		{
+			System.out.print("Error");
 			e.printStackTrace();
 		}
 		
