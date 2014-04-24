@@ -605,21 +605,10 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 							
 							clearStats();
 							
-							// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-							updateTimer = new Timer("GUI Stat Update Timer");
-							updateTimer.schedule(new TimerTask()
-							{
-								@Override
-								public void run() 
-								{
-									setTime(latchTime);
-									setStepNo(latchStepNo);
-									setASPS(latchASPS);
-								}
-								  
-							},0,1000);
-						}
+							checkTabState();
 
+						}
+						
 					}
 					generatingSim = false;
 				}
@@ -847,44 +836,35 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		detachTabFromSim();
 		
 		removeSimulation();
-				
-		// Add a new sim and direct its performance stats to this panel.
-		simId = simsManager.addSimulation();
 		
-		// > 1 if we added a sim
+		this.simId = simsManager.addSimulation(scenario);
+		
 		if(simId!=-1)
 		{
 			tabTitle = "Simulation " + simId;
-				
-			if(simsManager.createSimScenario(simId,scenario))
-			{					
-				setSimView();
-				
-				addPanels();
-	
-				setStepRate(sliderSimStepRate.getValue());
-				
-				status = true;
-				
-				registerListeners();
-				
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(this, "Failed to generate simulation.\nCheck XML Syntax.");
-				
-				System.out.println("Scenario Failed to Load");
-				
-				detachTabFromSim();
-				
-				removeSimulation();
-				
-			}
+
+			setSimView();
+			
+			addPanels();
+
+			setStepRate(sliderSimStepRate.getValue());
+			
+			status = true;
+			
+			registerListeners();
+			
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(this, "The Limit of " + simsManager.getMaxSims() + " active sims has been reached.");
-		}
+			JOptionPane.showMessageDialog(this, "Failed to generate simulation.\nCheck XML Syntax.");
+			
+			System.out.println("Scenario Failed to Load");
+			
+			detachTabFromSim();
+			
+			removeSimulation();
+			
+		}		
 
 		return status;
 	}
@@ -1111,9 +1091,13 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		removeTabStatusListener(title);
 		
-		simsManager.removeSimulationStateListener(simId, this);
-		
-		simsManager.removeSimulationStatListener(simId, this);
+		if(simId!=-1)
+		{
+			simsManager.removeSimulationStateListener(simId, this);
+			
+			simsManager.removeSimulationStatListener(simId, this);
+		}
+
 	}
 
 	private void removeChartPanel()

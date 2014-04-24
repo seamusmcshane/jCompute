@@ -14,9 +14,7 @@ import alifeSim.Stats.StatGroupListenerInf;
 import alifeSim.Stats.StatManager;
 
 public interface SimulationsManagerInf
-{
-	public int addSimulation();
-	
+{	
 	public void removeSimulation(int simId);
 
 	public void startSim(int simId);
@@ -35,7 +33,7 @@ public interface SimulationsManagerInf
 	
 	public void unPauseSim(int simId);
 
-	public boolean createSimScenario(int simId, String scenarioText);
+	public int addSimulation(String scenarioText);
 		
 	public void setActiveSim(int simId);
 

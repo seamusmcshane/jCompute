@@ -58,8 +58,9 @@ public class SimulationsManager implements SimulationsManagerInf
 		
 		DebugLogger.output("Max Active Sims : " + maxSims);		
 	}
-
-	public int addSimulation()
+	
+	@Override
+	public int addSimulation(String scenarioText)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -68,9 +69,29 @@ public class SimulationsManager implements SimulationsManagerInf
 			simulationNum++;
 			activeSims++;
 			
-			// add sim to struct - index on id & let sim know its id
-			simulations.put(simulationNum, new Simulation(simulationNum));		
+			// Create a sim & let sim know its id
+			Simulation sim = new Simulation(simulationNum);
 			
+			// Validate Scenario
+			ScenarioInf scenario = determinScenarios(scenarioText);
+
+			if(sim!=null && scenario!=null)
+			{
+				sim.createSimScenario(scenario);
+				
+				// add sim to struct - index on simId
+				simulations.put(simulationNum, sim);
+			}
+			else
+			{
+				sim.destroySim();
+				simulationNum--;
+				
+				simulationsManagerLock.release();
+				
+				return -1;
+			}
+
 			simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
 
 			simulationsManagerLock.release();
@@ -88,6 +109,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 	}
 	
+	@Override
 	public void removeSimulation(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -119,6 +141,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 	
+	@Override
 	public void startSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -130,6 +153,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();		
 	}
 		
+	@Override
 	public void pauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -144,6 +168,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();		
 	}
 	
+	@Override
 	public long getSimRunTime(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -162,6 +187,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		return runTime;
 	}
 	
+	@Override
 	public long getSimStepCount(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -180,6 +206,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		return stepCount;
 	}
 	
+	@Override
 	public String getScenarioText(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -203,6 +230,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		return scenarioText;
 	}
 	
+	@Override
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -218,6 +246,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		
 	}
 
+	@Override
 	public SimState togglePause(int simId)
 	{
 		SimState simState = null;
@@ -237,6 +266,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		
 	}
 	
+	@Override
 	public void unPauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -250,27 +280,6 @@ public class SimulationsManager implements SimulationsManagerInf
 		
 		simulationsManagerLock.release();
 		
-	}
-
-	public boolean createSimScenario(int simId, String scenarioText)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		boolean created = false;
-		
-		Simulation sim = simulations.get(simId);
-		
-		ScenarioInf scenario = determinScenarios(scenarioText);
-
-		if(sim!=null && scenario!=null)
-		{
-			sim.createSimScenario(scenario);
-			created = true;
-		}
-		
-		simulationsManagerLock.release();
-		
-		return created;
 	}
 	
 	private ScenarioInf determinScenarios(String text)
@@ -309,6 +318,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		return simScenario;
 	}
 	
+	@Override
 	public void setActiveSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -329,6 +339,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 
+	@Override
 	public void setSimView(GUISimulationView simView)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -349,6 +360,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 	
+	@Override
 	public void clearActiveSim()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -363,6 +375,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 
 	/* Will Reset the Camera of the active */
+	@Override
 	public void resetActiveSimCamera()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -375,6 +388,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 	
+	@Override
 	public List<Simulation> getSimList()
 	{
 		simulationsManagerLock.acquireUninterruptibly();		
@@ -396,6 +410,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		return list;
 	}	
 	
+	@Override
 	public List<Integer> getSimIdList()
 	{
 		simulationsManagerLock.acquireUninterruptibly();		
@@ -415,16 +430,19 @@ public class SimulationsManager implements SimulationsManagerInf
 		return list;
 	}
 		
+	@Override
 	public int getMaxSims()
 	{
 		return maxSims;
 	}
 
+	@Override
 	public int getActiveSims()
 	{
 		return activeSims;
 	}
 	
+	@Override
 	public void addSimulationManagerListener(SimulationsManagerEventListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
@@ -432,6 +450,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	    listenersLock.release();
 	}
 	
+	@Override
 	public void removeSimulationManagerListener(SimulationsManagerEventListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
@@ -446,7 +465,8 @@ public class SimulationsManager implements SimulationsManagerInf
 	    	listener.SimulationsManagerEvent(simId,event);
 	    }
 	}
-		
+	
+	@Override
 	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -461,6 +481,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 	
+	@Override
 	public void removeSimulationStateListener(int simId,SimulationStateListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -475,6 +496,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 	
+	@Override
 	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -489,6 +511,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 	}
 	
+	@Override
 	public void removeSimulationStatListener(int simId,SimulationStatListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
