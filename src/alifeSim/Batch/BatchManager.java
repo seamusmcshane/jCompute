@@ -223,6 +223,9 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	{
 		batchesQueueLock.acquireUninterruptibly();		
 		
+		
+		DebugLogger.output("Schedule");
+
 		processCompletedItems();
 		
 		// Is there a free slot
@@ -247,6 +250,8 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	
 	private void scheduleFifo()
 	{
+		DebugLogger.output("Schedule Fifo Tick");
+		
 		// Get the first batch
 		Batch batch = batches.peek();
 		

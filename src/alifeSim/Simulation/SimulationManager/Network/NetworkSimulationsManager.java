@@ -3,8 +3,13 @@ package alifeSim.Simulation.SimulationManager.Network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
@@ -12,6 +17,7 @@ import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
+import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Simulation.SimulationStateListenerInf;
@@ -20,22 +26,116 @@ import alifeSim.Stats.StatGroupListenerInf;
 
 public class NetworkSimulationsManager implements SimulationsManagerInf
 {
+	// Dynamic based on total of active nodes max sims
+	private int maxSims = 0;
+	private int activeSims = 0;
+	private int simulationNum = 0;
+	
 	/* Server Listening Socket */
 	private ServerSocket listenSocket; 
-	
-	/* Active Connections */ 
-	private int activeConnections = 0;
-	
+
 	/* Connections Processed */
 	private int connectionNumber = 0;
 	
-	/* Mapping between nodes and Simulations */
-	// Nodes
+	/* Active Nodes indexed by nodeId */ 
+	private HashMap<Integer,RemoteNodeManager> activeNodes;
+	
+	/* Connecting Nodes List */
+	private ArrayList<RemoteNodeManager> connectingNodes;
+	private Timer NSCPTimer;
+	
+	/* List of priority re-scheduled Simulations
+	 * (recovered from nodes that disappear)
+	 */
+	
+	/* Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by simId */
+	private HashMap<Integer,RemoteSimulationMapping> simulationsMap;
+	
+	private Semaphore networkSimulationsManagerLock = new Semaphore(1,false);
+	
+	// Nodes/Sockets
 	// Simulations
 	
 	public NetworkSimulationsManager()
 	{
 		DebugLogger.output("Started NetworkSimulationsManager");
+		
+		simulationsMap = new HashMap<Integer,RemoteSimulationMapping>();
+		
+		// List of simulation nodes.
+		activeNodes = new HashMap<Integer,RemoteNodeManager>();
+		connectingNodes = new ArrayList<RemoteNodeManager>();
+		
+		createAndStartRecieveThread();
+		
+		startNSMCPTimer();		
+
+	}
+	
+	private void startNSMCPTimer()
+	{
+		NSCPTimer = new Timer("NSCPTimer");
+		NSCPTimer.schedule(new TimerTask()
+		{
+			@Override
+			public void run() 
+			{
+				networkSimulationsManagerLock.acquireUninterruptibly();
+				
+				System.out.println("NSMCPTimer");
+				
+				if(connectingNodes.size() > 0)
+				{
+					RemoteNodeManager node = connectingNodes.get(0);
+					
+					if(node.isReady())
+					{
+						connectingNodes.remove(node);
+						
+						activeNodes.put(node.getUid(),node);
+						
+						maxSims += node.getMaxSims();
+						
+						System.out.println("Node " + node.getUid() + " now Active (Max Sims " + maxSims + ")" );
+					}
+					else
+					{
+						node.incrementTimeOut();
+					}
+					
+					if(node.getReadyStateTimeOutValue() == NSMCP.ReadyStateTimeOut)
+					{
+						connectingNodes.remove(node);
+						node.destroy("Ready State Timeout");
+					}
+				}
+				
+				
+				if(activeNodes.size() > 0)
+				{
+					RemoteNodeManager node = activeNodes.get(0);
+					
+					// System.out.println("Node " + node.getUid() + " Active " + node.isActive());
+					
+					if(!node.isActive())
+					{
+						node.destroy("Node not Active");
+						activeNodes.remove(node);
+						
+						maxSims -= node.getMaxSims();
+						
+						System.out.println("Node " + node.getUid() + " no longer Active");
+					}
+				}
+				
+				networkSimulationsManagerLock.release();
+			}
+			
+		},0,1000);
+	}
+
+	private void createAndStartRecieveThread()
+	{
 		try
 		{
 			listenSocket = new ServerSocket(NSMCP.StandardServerPort);
@@ -51,25 +151,30 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					{
 						System.out.println("Listening for Connection");
 
-						// Accept new Connections
-						Socket nodeSocket;
-						
 						try
-						{
-							nodeSocket = listenSocket.accept();
+						{							
+							// Accept new Connections
+							Socket nodeSocket = listenSocket.accept();
 							
-							DebugLogger.output("New Connection from : " + nodeSocket.getRemoteSocketAddress());
-
-							// Handle Connection
-							// ConnectionHandler connection = new ConnectionHandler(connectionNumber,connectionSocket);
+							DebugLogger.output("New Connection from : " + nodeSocket.getRemoteSocketAddress());	
+							
+							RemoteNodeManager tNode = new RemoteNodeManager(connectionNumber,nodeSocket);
+							
+							networkSimulationsManagerLock.acquireUninterruptibly();
+							
+							// Add to NodeManager list of connecting node
+							connectingNodes.add(tNode);
+							
+							networkSimulationsManagerLock.release();
+							
+							System.out.println("Connection " + connectionNumber + " Processed");
 							
 							connectionNumber++;
-
+							
 						}
 						catch (IOException e)
 						{
-							
-							// TODO - rebind server socket
+							// TODO - rebind server socket?
 							DebugLogger.output("Server socket Closed");
 						}
 						
@@ -83,20 +188,120 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		}
 		catch(Exception e)
 		{
-			DebugLogger.output("Server Exited : " + e.getMessage()); 
+			DebugLogger.output("Server Recieve Thread Exited : " + e.getMessage()); 
+		}
+	}
+	
+	/* Simulation Manager Logic */
+	
+	@Override
+	public int addSimulation()
+	{		
+		networkSimulationsManagerLock.acquireUninterruptibly();
+
+		DebugLogger.output("Add Sim");
+		
+		boolean simAdded = false;
+		
+		if( activeSims < maxSims)
+		{
+			DebugLogger.output("activeSims < maxSims");
+			
+			// Find a node with a free slot
+			for(int n=0;n<activeNodes.size();n++)
+			{
+				DebugLogger.output(" Find a node ");
+
+				RemoteNodeManager node = activeNodes.get(n);
+				
+				if(node.hasFreeSlot())
+				{
+					DebugLogger.output(" hasFreeSlot ");
+
+					int remoteSimId = node.addSim();
+					
+					// Incase the remove node goes down while in this method
+					if(remoteSimId > 0)
+					{
+						DebugLogger.output("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
+						
+						// Locally cache the mapping
+						simulationsMap.put(simulationNum,new RemoteSimulationMapping(simulationNum,remoteSimId,node.getUid()));
+						
+						simAdded = true;
+						
+						simulationNum++;
+						activeSims++;
+						
+						break;
+					}
+					else
+					{
+						DebugLogger.output("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
+					}
+
+				}
+
+			}
+			
+			// Most likely A node has gone down mid method - or other network problem.
+			if(!simAdded)
+			{
+				DebugLogger.output("Could not add Simulation - no nodes accepted ");
+				
+				networkSimulationsManagerLock.release();
+
+				return -1;
+			}
+			else
+			{
+				networkSimulationsManagerLock.release();
+				
+				return simulationNum;
+			}
+
+		}
+		else
+		{
+			DebugLogger.output("Max Simulations Reached");
+
+			networkSimulationsManagerLock.release();
+
+			return -1;
 		}
 		
 	}
 
-	/* Simulation Manager */
-	
 	@Override
-	public int addSimulation()
+	public boolean createSimScenario(int simId, String scenarioText)
 	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+		networkSimulationsManagerLock.acquireUninterruptibly();
 
+		// Locate the mapping for the simId
+		RemoteSimulationMapping mapping = simulationsMap.get(simId);
+		
+		if(mapping!=null)
+		{
+			// Get the nodeId
+			int nodeId = mapping.getNodeUid();
+			
+			// Locate the node mannager
+			RemoteNodeManager node = activeNodes.get(nodeId);	
+
+			// If we have created a scenario on the remote node
+			if(node.createSimScenario(mapping.remoteSimId,scenarioText))
+			{
+				networkSimulationsManagerLock.release();		
+				
+				return true;
+			}
+		}
+		
+		networkSimulationsManagerLock.release();		
+		
+		return false;
+	}
+	
 	@Override
 	public void removeSimulation(int simId)
 	{
@@ -159,14 +364,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public boolean createSimScenario(int simId, String scenarioText)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public void setActiveSim(int simId)
 	{
@@ -212,15 +410,17 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	@Override
 	public int getMaxSims()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		DebugLogger.output("Max Sims " + maxSims);
+
+		return maxSims;
 	}
 
 	@Override
 	public int getActiveSims()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		DebugLogger.output("Active Sims " + activeSims);
+
+		return activeSims;
 	}
 
 	@Override
