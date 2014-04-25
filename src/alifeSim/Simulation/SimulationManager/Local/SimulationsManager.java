@@ -60,7 +60,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 	
 	@Override
-	public int addSimulation(String scenarioText)
+	public int addSimulation(String scenarioText, int intialStepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -78,6 +78,8 @@ public class SimulationsManager implements SimulationsManagerInf
 			if(sim!=null && scenario!=null)
 			{
 				sim.createSimScenario(scenario);
+				
+				sim.setReqStepRate(intialStepRate);
 				
 				// add sim to struct - index on simId
 				simulations.put(simulationNum, sim);

@@ -837,7 +837,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		removeSimulation();
 		
-		this.simId = simsManager.addSimulation(scenario);
+		this.simId = simsManager.addSimulation(scenario,getSPSfromSlider(sliderSimStepRate.getValue()));
 		
 		if(simId!=-1)
 		{
@@ -896,6 +896,34 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		}	
 		
 		return sliderVal;
+	}
+	
+	private int getSPSfromSlider(int sliderVal)
+	{		
+		int value;
+		switch(sliderVal)
+		{
+			case 0:
+				value = 1 ;
+			break;
+			case 4:
+				value = 5;
+			break;
+			case 8:
+				value = 15;
+			break;
+			case 12:
+				value = 60;
+			break;
+			case 16:
+				value = 0;
+			break;
+			default :
+				value = 15;
+			break;
+		}
+		
+		return value;
 	}
 	
 	private void setStepRate(int sliderVal)

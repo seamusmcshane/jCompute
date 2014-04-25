@@ -33,7 +33,7 @@ public interface SimulationsManagerInf
 	
 	public void unPauseSim(int simId);
 
-	public int addSimulation(String scenarioText);
+	public int addSimulation(String scenarioText,int intialStepRate);
 		
 	public void setActiveSim(int simId);
 
