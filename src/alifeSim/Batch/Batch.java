@@ -614,6 +614,20 @@ public class Batch
 		Collections.shuffle(queuedItems);		
 	}
 	
+	public void returnItemToQueue(BatchItem item)
+	{
+		batchLock.acquireUninterruptibly();
+		
+		queuedItems.add(item);
+		
+		activeItems.remove(item);
+		
+		active = activeItems.size();
+		
+		batchLock.release();
+
+	}
+	
 	public BatchItem getNext()
 	{
 		batchLock.acquireUninterruptibly();
@@ -622,10 +636,7 @@ public class Batch
 		
 		activeItems.add(temp);
 		
-		if(activeItems.size() > 0)
-		{
-			active = activeItems.size();
-		}
+		active = activeItems.size();
 
 		// Is this the first Item && Sample
 		if(itemsRequested == 0)

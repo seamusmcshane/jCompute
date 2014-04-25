@@ -58,11 +58,6 @@ public class RemoteNodeManager
     private int addSimTick = 0;  
     private int addSimId = -1;
     
-    // Create sim vars
-    private boolean creatingScenario = false;
-    private int createScenarioTick = 0;  
-    private boolean createdScenario = false;    
-
 	public RemoteNodeManager(int uid,Socket socket) throws IOException
 	{
 		nodeConfig = new NodeConfiguration(); 
@@ -99,17 +94,6 @@ public class RemoteNodeManager
 					if(addSimTick == timeoutSecs)
 					{
 						addSimId = -1;	
-						nodeWait.release();
-					}
-				}
-				
-				if(creatingScenario)
-				{
-					createScenarioTick++;
-					
-					if(createScenarioTick == timeoutSecs)
-					{
-						createdScenario = false;	
 						nodeWait.release();
 					}
 				}
@@ -344,7 +328,7 @@ public class RemoteNodeManager
 		return false;
 	}
 
-	public int addSim()
+	public int addSim(String scenarioText,int initialStepRate)
 	{
 		nodeLock.acquireUninterruptibly();
 		
@@ -358,7 +342,7 @@ public class RemoteNodeManager
 			addSimId = -1;
 			
 			// Send add sim frame
-			byte[] frame = frameParser.createAddSimReq();
+			byte[] frame = frameParser.createAddSimReq(scenarioText,initialStepRate);
 			output.write(frame);
 			
 			// Start timer
@@ -398,47 +382,6 @@ public class RemoteNodeManager
 			return -1;
 		}
 
-	}
-
-	public boolean createSimScenario(int remoteSimId, String scenarioText)
-	{
-		nodeLock.acquireUninterruptibly();
-		
-		DebugLogger.output("Node " + nodeConfig.getUid() + " Create Sim Scenario SimId " + remoteSimId);
-		
-		try
-		{
-			msgBoxVarLock.acquireUninterruptibly();
-			
-			// Shared variable
-			createdScenario = false;
-			
-			// Send add sim frame
-			byte[] frame = frameParser.createAddSimReq();
-			output.write(frame);
-			
-			// Start timer
-		    createScenarioTick = 0; 
-		    creatingScenario = true;
-		    
-		    msgBoxVarLock.release();
-		    
-		    // Wait until we are released (by timer or receive thread)
-		    nodeWait.acquireUninterruptibly();
-			
-		    //msgBoxVarLock.acquireUninterruptibly();
-		    //msgBoxVarLock.release();
-			nodeLock.release();
-			
-			return createdScenario;		    
-		}
-		catch (IOException e)
-		{
-			nodeLock.release();
-
-			return false;
-		}
-		
 	}
 	
 }

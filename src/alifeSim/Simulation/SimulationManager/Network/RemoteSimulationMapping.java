@@ -2,9 +2,9 @@ package alifeSim.Simulation.SimulationManager.Network;
 
 public class RemoteSimulationMapping
 {
-	int localSimId;
-	int remoteSimId;
-	int nodeUid;
+	private int localSimId;
+	private int remoteSimId;
+	private int nodeUid;
 	
 	public RemoteSimulationMapping(int localSimId,int remoteSimId,int nodeUid)
 	{

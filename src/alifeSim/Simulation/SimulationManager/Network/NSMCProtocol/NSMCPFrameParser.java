@@ -89,12 +89,6 @@ public class NSMCPFrameParser
 		return simpleTypeFrame(NSMCP.ConfReq);
 	}
 	
-    /* Node Configuration Request */
-	public byte[] createAddSimReq()
-	{		
-		return simpleTypeFrame(NSMCP.AddSimReq);
-	}
-	
 	/*
 	 * Generic method for frames that only have a type
 	 */
@@ -107,6 +101,33 @@ public class NSMCPFrameParser
 		
 		// Nothing follows
 		tbuffer.putInt(0);
+		
+		return tbuffer.array();
+	}
+	
+    /* Node Configuration Request */
+	public byte[] createAddSimReq(String scenarioText, int initialStepRate)
+	{	
+		int slen = scenarioText.length();
+		
+		// Unicode 16 -2bytes chart
+		ByteBuffer tbuffer = ByteBuffer.allocate((slen*2)+8); 
+		
+		// AddSim Req
+		tbuffer.putInt(NSMCP.AddSimReq);
+		
+		// Intial Step Rate
+		tbuffer.putInt(initialStepRate);
+		
+		// Config follows (len is chars)
+		tbuffer.putInt(slen);
+		
+		for(int c=0;c<slen;c++)
+		{
+			tbuffer.putChar(scenarioText.charAt(c));
+		}
+		
+		System.out.println("slen " + slen);
 		
 		return tbuffer.array();
 	}

@@ -56,6 +56,9 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	// Nodes/Sockets
 	// Simulations
 	
+	// State Listeners indexed by simId
+	private HashMap<Integer,SimulationStateListenerInf> simStateListeners = new HashMap<Integer,SimulationStateListenerInf>();
+	
 	public NetworkSimulationsManager()
 	{
 		DebugLogger.output("Started NetworkSimulationsManager");
@@ -195,7 +198,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	/* Simulation Manager Logic */
 	
 	@Override
-	public int addSimulation()
+	public int addSimulation(String scenarioText, int initialStepRate)
 	{		
 		networkSimulationsManagerLock.acquireUninterruptibly();
 
@@ -218,7 +221,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				{
 					DebugLogger.output(" hasFreeSlot ");
 
-					int remoteSimId = node.addSim();
+					int remoteSimId = node.addSim(scenarioText,initialStepRate);
 					
 					// Incase the remove node goes down while in this method
 					if(remoteSimId > 0)
@@ -271,35 +274,30 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		}
 		
 	}
+	
+	@Override
+	public void addSimulationStateListener(int simId, SimulationStateListenerInf listener)
+	{
+		networkSimulationsManagerLock.acquireUninterruptibly();
+		
+		RemoteSimulationMapping node = simulationsMap.get(simId);
+		
+		if(node!=null)
+		{
+			simStateListeners.put(simId, listener);
+		}		
+		
+		networkSimulationsManagerLock.acquireUninterruptibly();
+	}
 
 	@Override
-	public boolean createSimScenario(int simId, String scenarioText)
+	public void removeSimulationStateListener(int simId, SimulationStateListenerInf listener)
 	{
 		networkSimulationsManagerLock.acquireUninterruptibly();
 
-		// Locate the mapping for the simId
-		RemoteSimulationMapping mapping = simulationsMap.get(simId);
-		
-		if(mapping!=null)
-		{
-			// Get the nodeId
-			int nodeId = mapping.getNodeUid();
-			
-			// Locate the node mannager
-			RemoteNodeManager node = activeNodes.get(nodeId);	
+		simStateListeners.remove(simId);
 
-			// If we have created a scenario on the remote node
-			if(node.createSimScenario(mapping.remoteSimId,scenarioText))
-			{
-				networkSimulationsManagerLock.release();		
-				
-				return true;
-			}
-		}
-		
-		networkSimulationsManagerLock.release();		
-		
-		return false;
+		networkSimulationsManagerLock.release();
 	}
 	
 	@Override
@@ -335,13 +333,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	{
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void setReqSimStepRate(int simId, int stepRate)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -438,20 +429,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void addSimulationStateListener(int simId, SimulationStateListenerInf listener)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeSimulationStateListener(int simId, SimulationStateListenerInf listener)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void addSimulationStatListener(int simId, SimulationStatListenerInf listener)
 	{
 		// TODO Auto-generated method stub
@@ -533,6 +510,12 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	{
 		// TODO Auto-generated method stub
 		
-	}	
+	}
+
+	@Override
+	public void setReqSimStepRate(int simId, int stepRate)
+	{
+		// NOT Implemented		
+	}
 	
 }

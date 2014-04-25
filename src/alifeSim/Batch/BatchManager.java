@@ -277,18 +277,13 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		// While there are items to add and the simulations manager can add them
 		while( (batch.getRemaining() > 0))
 		{
-			int simId = -1;
-
-			simId = simsManager.addSimulation();
+			// dequeue the next item in the batch
+			BatchItem item = batch.getNext();
 			
-			// If the simulations manager has add a simulations slot for us
-			if(simId > 0)
+			// Schedule it
+			if(!scheduleBatchItem(item))
 			{
-				// dequeue the next item in the batch and schedule it.
-				scheduleBatchItem(batch.getNext(),simId);
-			}
-			else
-			{
+				batch.returnItemToQueue(item);
 				break;
 			}
 		
@@ -296,19 +291,31 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	
 	}
 	
-	private void scheduleBatchItem(BatchItem item, int simId)
+	private boolean scheduleBatchItem(BatchItem item)
 	{
+		DebugLogger.output("Schedule Batch");
+
 		activeItemsLock.acquireUninterruptibly();
 			activeItems.add(item);
 		activeItemsLock.release();
 		
-		item.setSimId(simId);
+		int simId = simsManager.addSimulation(item.getConfigText(),-1);
 		
-		simsManager.createSimScenario(simId, item.getConfigText());
-		simsManager.setReqSimStepRate(simId, -1);
-		simsManager.addSimulationStateListener(simId, this);
+		// If the simulations manager has added a simulation for us
+		if(simId>0)
+		{
+			DebugLogger.output("Settings ID");
+			
+			item.setSimId(simId);
+			
+			simsManager.addSimulationStateListener(simId, this);
+			
+			simsManager.startSim(simId);	
+			
+			return true;
+		}
 		
-		simsManager.startSim(simId);		
+		return false;
 	}
 	
 	@Override

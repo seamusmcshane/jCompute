@@ -88,7 +88,7 @@ public class NetworkSimulationManagerNode
 					byte[] frame;
 					
 					int type = input.readInt();
-					int len = input.read();
+					int len = input.readInt();
 					
 					switch (type)
 					{
@@ -96,8 +96,21 @@ public class NetworkSimulationManagerNode
 
 						System.out.println("Got AddSimReq");
 
-							
-						int simId = simsManager.addSimulation();
+						int stepRate = input.readInt();
+						
+						System.out.println("Step Rate" + stepRate);
+						
+						System.out.println("Config Length : " + len);
+						StringBuffer config = new StringBuffer();
+						
+						for(int c=0;c<len;c++)
+						{
+							config.append(input.readChar());
+						}
+						
+						System.out.println(config.toString());
+						
+						int simId = simsManager.addSimulation(config.toString(),stepRate);
 						
 						frame = frameParser.createAddSimReply(simId);
 						
