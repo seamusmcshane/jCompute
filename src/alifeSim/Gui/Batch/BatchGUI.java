@@ -17,8 +17,8 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import alifeSim.Simulation.SimulationStatListenerInf;
-import alifeSim.Simulation.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;

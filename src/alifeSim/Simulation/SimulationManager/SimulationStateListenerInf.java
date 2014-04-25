@@ -1,5 +1,6 @@
-package alifeSim.Simulation;
+package alifeSim.Simulation.SimulationManager;
 
+import alifeSim.Simulation.SimulationState;
 import alifeSim.Simulation.SimulationState.SimState;
 
 public interface SimulationStateListenerInf

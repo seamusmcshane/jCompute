@@ -19,7 +19,7 @@ public class SimulationState
 	{
 		state = SimState.NEW;
 		
-		simCallBack();
+		//simCallBack();
 		
 	}
 	

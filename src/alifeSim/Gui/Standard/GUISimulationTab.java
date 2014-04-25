@@ -63,10 +63,10 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import alifeSim.Gui.Charts.GlobalStatChartPanel;
-import alifeSim.Simulation.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
-import alifeSim.Simulation.SimulationStateListenerInf;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener, SimulationStateListenerInf, SimulationStatListenerInf
 {

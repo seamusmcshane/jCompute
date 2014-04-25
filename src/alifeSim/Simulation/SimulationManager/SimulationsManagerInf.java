@@ -6,10 +6,8 @@ import java.util.Set;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
-import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import alifeSim.Simulation.SimulationState.SimState;
-import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Stats.StatGroupListenerInf;
 import alifeSim.Stats.StatManager;
 
@@ -33,7 +31,7 @@ public interface SimulationsManagerInf
 	
 	public void unPauseSim(int simId);
 
-	public int addSimulation(String scenarioText);
+	public int addSimulation(String scenarioText, int initialStepRate);	
 		
 	public void setActiveSim(int simId);
 
@@ -97,5 +95,5 @@ public interface SimulationsManagerInf
 	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, String format);
-	
+
 }

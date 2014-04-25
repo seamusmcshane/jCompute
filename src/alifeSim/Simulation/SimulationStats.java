@@ -19,7 +19,7 @@ public class SimulationStats
 	{		
 		this.sim = sim;
 		
-		clearSimulationStats();
+		//clearSimulationStats();
 	}
 		
 	public int getSimulationSteps()

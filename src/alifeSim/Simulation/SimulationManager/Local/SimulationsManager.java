@@ -14,16 +14,18 @@ import alifeSim.Scenario.ScenarioVT;
 import alifeSim.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import alifeSim.Scenario.SAPP.SAPPScenario;
 import alifeSim.Simulation.Simulation;
+import alifeSim.Simulation.Simulation.simStatChangedCInf;
+import alifeSim.Simulation.Simulation.simStateChangedCInf;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
-import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationState;
-import alifeSim.Simulation.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationStatListenerInf;
+import alifeSim.Simulation.SimulationManager.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationState.SimState;
 import alifeSim.Stats.StatGroupListenerInf;
 import alifeSim.Stats.StatManager;
 
-public class SimulationsManager implements SimulationsManagerInf
+public class SimulationsManager implements SimulationsManagerInf,simStatChangedCInf,simStateChangedCInf
 {
 	private static Semaphore simulationsManagerLock = new Semaphore(1);
 
@@ -45,6 +47,10 @@ public class SimulationsManager implements SimulationsManagerInf
 	private List<SimulationsManagerEventListenerInf> simulationsManagerListeners = new ArrayList<SimulationsManagerEventListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);	
 	
+	// Listeners for each simulation (hash map of arrays list indexed by simId)
+	private HashMap<Integer, ArrayList<SimulationStatListenerInf>> simStatListeners;
+	private HashMap<Integer, ArrayList<SimulationStateListenerInf>> simStateListeners;
+	
 	public SimulationsManager(int maxSims)
 	{
 		DebugLogger.output("Created Simulations Manager");
@@ -53,6 +59,10 @@ public class SimulationsManager implements SimulationsManagerInf
 		
 		simulations = new HashMap<Integer, Simulation>();
 		
+		simStatListeners = new HashMap<Integer, ArrayList<SimulationStatListenerInf>>();
+
+		simStateListeners = new HashMap<Integer, ArrayList<SimulationStateListenerInf>>();
+		
 		this.simulationNum = 0;
 		this.activeSims = 0;
 		
@@ -60,7 +70,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 	
 	@Override
-	public int addSimulation(String scenarioText)
+	public int addSimulation(String scenarioText, int initalStepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -69,8 +79,8 @@ public class SimulationsManager implements SimulationsManagerInf
 			simulationNum++;
 			activeSims++;
 			
-			// Create a sim & let sim know its id
-			Simulation sim = new Simulation(simulationNum);
+			// Create a sim & let sim know its id and set us as the call back
+			Simulation sim = new Simulation(simulationNum,this,this);
 			
 			// Validate Scenario
 			ScenarioInf scenario = determinScenarios(scenarioText);
@@ -81,6 +91,17 @@ public class SimulationsManager implements SimulationsManagerInf
 				
 				// add sim to struct - index on simId
 				simulations.put(simulationNum, sim);
+				
+				// Set the initial step rate
+				sim.setReqStepRate(initalStepRate);
+				
+				listenersLock.acquireUninterruptibly();
+					// Index these listeners by simId
+					simStatListeners.put(simulationNum, new ArrayList<SimulationStatListenerInf>());
+					simStateListeners.put(simulationNum, new ArrayList<SimulationStateListenerInf>());
+					
+				listenersLock.release();
+				
 			}
 			else
 			{
@@ -125,6 +146,14 @@ public class SimulationsManager implements SimulationsManagerInf
 			DebugLogger.output("simulationManagerListenerEventNotification");
 
 			simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
+			
+			listenersLock.acquireUninterruptibly();
+			
+			// Remove Listeners
+			simStatListeners.remove(simulationNum);
+			simStateListeners.remove(simulationNum);
+			
+			listenersLock.release();
 			
 			if(activeSim == sim)
 			{
@@ -469,61 +498,55 @@ public class SimulationsManager implements SimulationsManagerInf
 	@Override
 	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
 	{
-		simulationsManagerLock.acquireUninterruptibly();
+		listenersLock.acquireUninterruptibly();
 		
-		Simulation sim = simulations.get(simId);
+		ArrayList<SimulationStateListenerInf> listeners =  simStateListeners.get(simId);
+				
+		listeners.add(listener);
 		
-		if(sim!=null)
-		{
-			sim.addSimulationStateListener(listener);
-		}
-		
-		simulationsManagerLock.release();
-	}
-	
-	@Override
-	public void removeSimulationStateListener(int simId,SimulationStateListenerInf listener)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			sim.removeSimulationStateListener(listener);
-		}
-		
-		simulationsManagerLock.release();
+		listenersLock.release();
 	}
 	
 	@Override
 	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
 	{
-		simulationsManagerLock.acquireUninterruptibly();
+		listenersLock.acquireUninterruptibly();
 		
-		Simulation sim = simulations.get(simId);
+		ArrayList<SimulationStatListenerInf> listeners =  simStatListeners.get(simId);
 		
-		if(sim!=null)
-		{
-			sim.addSimulationStatListener(listener);
-		}
+		listeners.add(listener);
 		
-		simulationsManagerLock.release();
+		listenersLock.release();
 	}
 	
 	@Override
-	public void removeSimulationStatListener(int simId,SimulationStatListenerInf listener)
+	public void removeSimulationStateListener(int simId,SimulationStateListenerInf listener)
 	{
-		simulationsManagerLock.acquireUninterruptibly();
+		listenersLock.acquireUninterruptibly();
 		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
+		ArrayList<SimulationStateListenerInf> listeners =  simStateListeners.get(simId);
+
+		if(listeners!=null)
 		{
-			sim.removeSimulationStatListener(listener);
+			listeners.remove(listener);
 		}
 		
-		simulationsManagerLock.release();
+		listenersLock.release();
+	}
+
+	@Override
+	public void removeSimulationStatListener(int simId,SimulationStatListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+		ArrayList<SimulationStatListenerInf> listeners =  simStatListeners.get(simId);
+		
+		if(listeners!=null)
+		{
+			listeners.remove(listener);
+		}
+
+		listenersLock.release();
 	}
 	
 	public void addStatGroupListener (int simId,String group)
@@ -758,6 +781,38 @@ public class SimulationsManager implements SimulationsManagerInf
 	    {
 	       return name;
 	    }
+	}
+
+	@Override
+	public void simStateChanged(int simId, SimState state)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+		ArrayList<SimulationStateListenerInf> listeners =  simStateListeners.get(simId);
+
+		for(SimulationStateListenerInf listener : listeners)
+		{
+			listener.simulationStateChanged(simId, state);
+		}	
+		
+		listenersLock.release();
+		
+	}
+
+	@Override
+	public void simStatChanged(int simId, long time, int stepNo, int progress, int asps)
+	{
+		listenersLock.acquireUninterruptibly();
+
+		ArrayList<SimulationStatListenerInf> listeners =  simStatListeners.get(simId);
+
+		for(SimulationStatListenerInf listener : listeners)
+		{
+			listener.simulationStatChanged(simId, time, stepNo, progress, asps);
+		}	
+		
+		listenersLock.release();
+
 	}
 	
 }

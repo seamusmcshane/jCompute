@@ -1,4 +1,4 @@
-package alifeSim.Simulation;
+package alifeSim.Simulation.SimulationManager;
 
 public interface SimulationStatListenerInf
 {
