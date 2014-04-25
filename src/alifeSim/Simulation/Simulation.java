@@ -23,8 +23,13 @@ public class Simulation implements stateChangedInf, statChangedInf
 {
 	/* Simulation State */
 	private SimulationState simState;
+	private List<SimulationStateListenerInf> simStateListeners = new ArrayList<SimulationStateListenerInf>();
 		
 	private SimulationStats simStats;
+	private List<SimulationStatListenerInf> simStatListeners = new ArrayList<SimulationStatListenerInf>();
+
+	// Lock for the listeners
+	private Semaphore listenersLock = new Semaphore(1, false);
 	
 	// Inter-step delay Calculations
 	private long stepTimeNow;
@@ -54,17 +59,9 @@ public class Simulation implements stateChangedInf, statChangedInf
 	/* Simulation Id */
 	private int simId = -1;
 	
-	/* Call backs */
-	simStatChangedCInf statC;
-	simStateChangedCInf stateC;
-	
-	public Simulation(int simId,simStatChangedCInf statC,simStateChangedCInf stateC)
+	public Simulation(int simId)
 	{
 		this.simId = simId;
-		
-		this.statC = statC;
-		
-		this.stateC = stateC;
 		
 		pause = new Semaphore(0, true); // Starts Paused
 		
@@ -95,6 +92,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 		}
 		
+		simStats.clearSimulationStats();
 		simState.newState();
 		
 	}
@@ -345,6 +343,79 @@ public class Simulation implements stateChangedInf, statChangedInf
 		}
 	}
 	
+	public void addSimulationStateListener(SimulationStateListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+			simStateListeners.add(listener);
+			
+			listener.simulationStateChanged(simId, simState.getState());
+		
+		listenersLock.release();	
+	}
+	
+	public void removeSimulationStateListener(SimulationStateListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+			simStateListeners.remove(listener);
+		
+		listenersLock.release();	
+	}
+	
+	public void addSimulationStatListener(SimulationStatListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+			simStatListeners.add(listener);
+		
+		listenersLock.release();
+	}
+
+	public void removeSimulationStatListener(SimulationStatListenerInf listener)
+	{
+		listenersLock.acquireUninterruptibly();
+		
+			simStatListeners.remove(listener);
+		
+		listenersLock.release();
+	}
+	
+	/*
+	 * Call Backs from state + stat objects
+	 * (non-Javadoc)
+	 * @see alifeSim.Simulation.SimulationState.stateChangedInf#stateChanged(alifeSim.Simulation.SimulationState.SimState)
+	 */
+	
+	@Override
+	public void stateChanged(SimState state)
+	{
+		listenersLock.acquireUninterruptibly();
+
+		for (SimulationStateListenerInf listener : simStateListeners)
+	    {
+			DebugLogger.output("SimulationStateChanged - " + simId);
+
+	    	listener.simulationStateChanged(simId, state);
+	    }
+		
+		listenersLock.release();
+	}
+
+	@Override
+	public void statChanged(long time, int stepNo, int progress, int asps)
+	{
+		listenersLock.acquireUninterruptibly();
+
+		for (SimulationStatListenerInf listener : simStatListeners)
+	    {
+	    	listener.simulationStatChanged(simId, time, stepNo,progress,asps);
+	    }
+		
+		listenersLock.release();
+
+	}
+
 	public long getTotalTime()
 	{
 		return simStats.getTotalTime();
@@ -363,36 +434,5 @@ public class Simulation implements stateChangedInf, statChangedInf
 	public long getTotalSteps()
 	{
 		return simStats.getSimulationSteps();
-	}
-	
-	/*
-	 * Call Backs from state + stat objects
-	 * (non-Javadoc)
-	 * @see alifeSim.Simulation.SimulationState.stateChangedInf#stateChanged(alifeSim.Simulation.SimulationState.SimState)
-	 */
-	
-	@Override
-	public void stateChanged(SimState state)
-	{
-		DebugLogger.output("SimulationStateChanged - " + simId);
-
-		stateC.simStateChanged(simId, state);		
-	}
-
-	@Override
-	public void statChanged(long time, int stepNo, int progress, int asps)
-	{
-		statC.simStatChanged(simId, time, stepNo,progress,asps);
-	}
-	
-	/** Interfaces for call backs to simulations manager */
-	public interface simStateChangedCInf
-	{
-		public void simStateChanged(int id,SimState state);
-	}
-	
-	public interface simStatChangedCInf
-	{
-		public void simStatChanged(int simId, long time, int stepNo, int progress, int asps);
 	}
 }

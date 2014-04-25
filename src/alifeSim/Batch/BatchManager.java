@@ -12,12 +12,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Debug.DebugLogger;
-import alifeSim.Simulation.SimulationManager.SimulationStateListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationStateListenerInf;
 
 public class BatchManager implements SimulationsManagerEventListenerInf,SimulationStateListenerInf
 {

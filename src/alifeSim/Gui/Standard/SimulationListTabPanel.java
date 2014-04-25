@@ -19,13 +19,13 @@ import javax.swing.border.TitledBorder;
 
 import alifeSim.Gui.Component.ProgressBarTableCellRenderer;
 import alifeSim.Gui.Component.TablePanel;
-import alifeSim.Simulation.SimulationManager.SimulationStatListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationStateListenerInf;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

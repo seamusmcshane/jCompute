@@ -14,13 +14,13 @@ import java.util.concurrent.Semaphore;
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Simulation.Simulation;
-import alifeSim.Simulation.SimulationManager.SimulationStatListenerInf;
-import alifeSim.Simulation.SimulationManager.SimulationStateListenerInf;
+import alifeSim.Simulation.SimulationStatListenerInf;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import alifeSim.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
 import alifeSim.Simulation.SimulationState.SimState;
+import alifeSim.Simulation.SimulationStateListenerInf;
 import alifeSim.Stats.StatGroupListenerInf;
 
 
