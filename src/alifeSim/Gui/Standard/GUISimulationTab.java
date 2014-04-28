@@ -494,7 +494,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
         InputStream in; 
 		try
 		{
-			in = new FileInputStream(new File("editor-themes/dark-mod.xml"));
+			in = new FileInputStream(new File("editor-themes" + File.separator + "dark-mod.xml"));
 			theme = Theme.load(in);
 			theme.apply(scenarioEditor);
 		}
@@ -702,7 +702,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		System.out.println("Save Scenario");
 		chckbxEditMode.setSelected(false);
 
-		final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+		final JFileChooser filechooser = new JFileChooser(new File("." + File.separator + "scenarios"));
 
 		String fileName = lblFilePath.getText();
 
@@ -710,7 +710,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		{
 			fileName = "NewScenario";
 		}
-		filechooser.setSelectedFile(new File("./scenarios/" + fileName));
+		filechooser.setSelectedFile(new File("." + File.separator + "scenarios" + File.separator + fileName));
 
 		System.out.println("Choose File");
 		int val = filechooser.showSaveDialog(filechooser);

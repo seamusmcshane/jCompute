@@ -33,6 +33,9 @@ public class Launcher
 
 	public static void main(String args[])
 	{
+	    String tmpDir = System.getProperty("java.io.tmpdir");
+	    System.out.println("Temp dir provided by OS : " + tmpDir);
+	    
 		indexDefaults();
 
 		parseCommandLine(args);
