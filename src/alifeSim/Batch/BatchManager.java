@@ -223,7 +223,6 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	{
 		batchesQueueLock.acquireUninterruptibly();		
 		
-		
 		DebugLogger.output("Schedule");
 
 		processCompletedItems();

@@ -222,9 +222,9 @@ public class Batch
 		String batchDirName = batchConfigProcessor.getStringValue(section, "BatchDirName");
 				
 		testAndCreateDir(baseExportDir);
-		testAndCreateDir(baseExportDir+File.separator+date);
+		//testAndCreateDir(baseExportDir+File.separator+date);
 		
-		batchStatsExportDir = baseExportDir+File.separator+date+File.separator+"Batch "+batchId+" "+batchDirName+"@"+time;
+		batchStatsExportDir = baseExportDir+File.separator+File.separator+date+" "+"Batch "+batchId+" "+batchDirName+"@"+time;
 		
 		testAndCreateDir(batchStatsExportDir);
 		
