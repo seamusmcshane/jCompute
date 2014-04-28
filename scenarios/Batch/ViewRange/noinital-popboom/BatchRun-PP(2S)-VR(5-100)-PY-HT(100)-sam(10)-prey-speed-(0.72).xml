@@ -4,13 +4,33 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>Two species simulations with all view ranges combinations from 5-100 at steps of 5</BatchDescription>
-		<BaseScenarioFileName>noinital-popboom-nohunger.xml</BaseScenarioFileName>
+		<BatchDescription>
+		Predator-Prey scenario with evenly matched species, hunger enabled - varing view range.
+		</BatchDescription>
+		<BaseScenarioFileName>scenario-prey-speed-(0.72).xml</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>ViewRange-(2-Species-5-100)-nohunger</BatchDirName>
+		<BatchDirName>PP(2S)-VR(5-100)-PY-HT(100)-sam(10)-prey-speed-(0.72)</BatchDirName>
 		<ItemSamples>10</ItemSamples>
 	</Config>
 	<Parameters>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Predator</GroupName>
+			<ParameterName>HungerThreshold</ParameterName>
+			<Intial>50</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
+		</Parameter>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Prey</GroupName>
+			<ParameterName>HungerThreshold</ParameterName>
+			<Intial>100</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
+		</Parameter>
 		<Parameter>
 			<Type>Group</Type>
 			<Path>Agents.SimpleAgent</Path>

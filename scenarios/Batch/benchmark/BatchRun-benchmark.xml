@@ -4,10 +4,10 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>Predator/Prey with intiial numbers from 100 to 1000</BatchDescription>
-		<BaseScenarioFileName>BatchBenchmarkScenario.xml</BaseScenarioFileName>
+		<BatchDescription>Predator/Prey with intial numbers from 100 to 1000</BatchDescription>
+		<BaseScenarioFileName>scenario.xml</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>IntialNumbers-(Predator-Prey-100-1000)</BatchDirName>
+		<BatchDirName>Benchmark</BatchDirName>
 		<ItemSamples>10</ItemSamples>
 	</Config>
 	<Parameters>

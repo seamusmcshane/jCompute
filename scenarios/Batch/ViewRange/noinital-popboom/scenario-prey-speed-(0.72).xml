@@ -7,7 +7,7 @@
 	<EndEvents>
 		<Event>
 			<Name>StepCount</Name>
-			<Value>20000</Value>
+			<Value>10000</Value>
 		</Event>
 		<Event>
 			<Name>AllPreyLTE</Name>
@@ -82,7 +82,7 @@
 			<MovementCost>0.033</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
 			<DigestiveEfficiency>0.5</DigestiveEfficiency>
-			<HungerThreshold>100</HungerThreshold>
+			<HungerThreshold>50</HungerThreshold>
 			<EnergyConsumptionRate>100</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.50</ReproductionCost>
@@ -97,12 +97,12 @@
 			<AgentType>Prey</AgentType>
 			<InitialNumbers>800</InitialNumbers>
 			<Size>3.5</Size>
-			<Speed>0.9</Speed>
+			<Speed>0.72</Speed>
 			<ViewRange>10</ViewRange>
 			<MovementCost>0.033</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
 			<DigestiveEfficiency>0.5</DigestiveEfficiency>
-			<HungerThreshold>100</HungerThreshold>
+			<HungerThreshold>50</HungerThreshold>
 			<EnergyConsumptionRate>10</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.50</ReproductionCost>
