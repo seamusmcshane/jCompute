@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -59,6 +61,7 @@ import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.ScrollPaneConstants;
+
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Font;
@@ -94,7 +97,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	
 	private Timer activeSimulationsListTableUpdateTimer;
 	private JPanel bottomSplitContainer;
-	private JTextArea consoleTextArea;
+	private JTextPane consoleTextPane;
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
@@ -124,6 +127,48 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		batchManager.addBatchManagerListener(this);
 	}
 
+	private void appendToConsole(final String text)
+	{
+		final int maxConsoleLength = 10000;
+		
+		Calendar calender = Calendar.getInstance();
+		
+		final String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
+		final String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+		
+		final String output;
+		
+		if(text.length()>2)
+		{
+			output = "["+date+"@"+time+"] : "+ text;
+		}
+		else
+		{
+			output = text;
+		}
+		
+		SwingUtilities.invokeLater(new Runnable() 
+		{
+			public void run() 
+			{
+				try
+				{
+					if(consoleTextPane.getDocument().getLength() > maxConsoleLength)
+					{
+						consoleTextPane.getDocument().remove(consoleTextPane.getDocument().getDefaultRootElement().getElement(0).getStartOffset(), consoleTextPane.getDocument().getDefaultRootElement().getElement(0).getEndOffset());
+					}
+					consoleTextPane.getDocument().insertString(consoleTextPane.getDocument().getLength(), output, null);
+				}
+				catch (BadLocationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+	}
+	
 	private void setUpFrame()
 	{
 		lookandFeel();
@@ -157,46 +202,28 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		OutputStream out = new OutputStream()
 		{
 			@Override
-			public void write(final int integer) throws IOException
+			public void write(int integer) throws IOException
 			{				
-				SwingUtilities.invokeLater(new Runnable() 
-				{
-					public void run() 
-					{
-						consoleTextArea.append(String.valueOf((char)integer));
-					}
-				});
-				
+				appendToConsole(String.valueOf((char)integer));
 			}
 
 			@Override
 			public void write(final byte[] bytes, final int off, final int len) throws IOException
 			{				
-				SwingUtilities.invokeLater(new Runnable() 
-				{
-					public void run() 
-					{					
-						consoleTextArea.append(new String(bytes,off,len));
-					}
-				});
+				appendToConsole(new String(bytes,off,len));
 			}
 
 			@Override
 			public void write(final byte[] bytes) throws IOException
 			{
-				SwingUtilities.invokeLater(new Runnable() 
-				{
-					public void run() 
-					{
-						consoleTextArea.append(new String(bytes, 0, bytes.length));
-					}
-				});
+				appendToConsole(new String(bytes, 0, bytes.length));
 			}
 		};
 
-		//System.setOut(new PrintStream(out, true));
-		//System.setErr(new PrintStream(out, true));
-		//
+		System.setOut(new PrintStream(out, true));
+		System.setErr(new PrintStream(out, true));
+		
+		
 		splitPaneOuterNSSplit.setRightComponent(bottomSplitContainer);
 		
 		activeSimulationsListTable = new TablePanel("Active Simulations",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
@@ -215,21 +242,17 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		gbc_activeSimulationsListTable.gridy = 0;
 		bottomSplitContainer.add(activeSimulationsListTable, gbc_activeSimulationsListTable);
 		JScrollPane consoleTextAreaScrollPane = new JScrollPane();
-		
 		GridBagConstraints gbc_consoleTextAreaScrollPane = new GridBagConstraints();
 		gbc_consoleTextAreaScrollPane.insets = new Insets(0, 0, 0, 0);
 		gbc_consoleTextAreaScrollPane.fill = GridBagConstraints.BOTH;
 		gbc_consoleTextAreaScrollPane.gridx = 0;
 		gbc_consoleTextAreaScrollPane.gridy = 1;
 		
-		consoleTextArea = new JTextArea();
-		consoleTextArea.setWrapStyleWord(true);
-		consoleTextArea.setFont(new Font("Monospaced", Font.PLAIN, 10));
-		consoleTextArea.setTabSize(0);
+		consoleTextPane = new JTextPane();
 		
-		consoleTextAreaScrollPane.setViewportView(consoleTextArea);
-		
-		consoleTextArea.setEditable(false);
+		consoleTextAreaScrollPane.setViewportView(consoleTextPane);
+		// consoleTextAreaScrollPane.setAutoscrolls(false);
+		consoleTextPane.setEditable(false);
 		bottomSplitContainer.add(consoleTextAreaScrollPane, gbc_consoleTextAreaScrollPane);
 
 		JMenuBar menuBar = new JMenuBar();
