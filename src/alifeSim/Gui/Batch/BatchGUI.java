@@ -13,7 +13,10 @@ import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -27,6 +30,9 @@ import alifeSim.Simulation.SimulationState.SimState;
 
 import java.awt.BorderLayout;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -48,6 +54,14 @@ import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
+
+import javax.swing.JTextArea;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.ScrollPaneConstants;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Font;
 
 public class BatchGUI implements ActionListener, ItemListener, WindowListener, SimulationsManagerEventListenerInf,SimulationStateListenerInf,SimulationStatListenerInf,BatchManagerEventListenerInf
 {
@@ -79,6 +93,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 	private TablePanel activeSimulationsListTable;
 	
 	private Timer activeSimulationsListTableUpdateTimer;
+	private JPanel bottomSplitContainer;
+	private JTextArea consoleTextArea;
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
@@ -107,7 +123,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		
 		batchManager.addBatchManagerListener(this);
 	}
-	
+
 	private void setUpFrame()
 	{
 		lookandFeel();
@@ -121,6 +137,68 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		
 		setUpBatchesPane();
 		
+		splitPaneOuterNSSplit = new JSplitPane();
+		splitPaneOuterNSSplit.setEnabled(false);
+		splitPaneOuterNSSplit.setContinuousLayout(true);
+		splitPaneOuterNSSplit.setResizeWeight(0.5);
+		splitPaneOuterNSSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		guiFrame.getContentPane().add(splitPaneOuterNSSplit,BorderLayout.CENTER);
+		
+		splitPaneOuterNSSplit.setLeftComponent(splitPaneBatches);
+		
+		bottomSplitContainer = new JPanel();
+		GridBagLayout gbl_bottomSplitContainer = new GridBagLayout();
+		gbl_bottomSplitContainer.columnWidths = new int[] {0, 0};
+		gbl_bottomSplitContainer.rowHeights = new int[] {0, 0};
+		gbl_bottomSplitContainer.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_bottomSplitContainer.rowWeights = new double[]{1.0, 1.0};
+		bottomSplitContainer.setLayout(gbl_bottomSplitContainer);
+		
+		OutputStream out = new OutputStream()
+		{
+			@Override
+			public void write(final int integer) throws IOException
+			{				
+				SwingUtilities.invokeLater(new Runnable() 
+				{
+					public void run() 
+					{
+						consoleTextArea.append(String.valueOf((char)integer));
+					}
+				});
+				
+			}
+
+			@Override
+			public void write(final byte[] bytes, final int off, final int len) throws IOException
+			{				
+				SwingUtilities.invokeLater(new Runnable() 
+				{
+					public void run() 
+					{					
+						consoleTextArea.append(new String(bytes,off,len));
+					}
+				});
+			}
+
+			@Override
+			public void write(final byte[] bytes) throws IOException
+			{
+				SwingUtilities.invokeLater(new Runnable() 
+				{
+					public void run() 
+					{
+						consoleTextArea.append(new String(bytes, 0, bytes.length));
+					}
+				});
+			}
+		};
+
+		//System.setOut(new PrintStream(out, true));
+		//System.setErr(new PrintStream(out, true));
+		//
+		splitPaneOuterNSSplit.setRightComponent(bottomSplitContainer);
+		
 		activeSimulationsListTable = new TablePanel("Active Simulations",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
 		activeSimulationsListTable.setColumWidth(0,65);
 		activeSimulationsListTable.setColumWidth(1,50);
@@ -130,16 +208,30 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		// Progress Column uses a progress bar for display
 		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		
-		splitPaneOuterNSSplit = new JSplitPane();
-		splitPaneOuterNSSplit.setEnabled(false);
-		splitPaneOuterNSSplit.setContinuousLayout(true);
-		splitPaneOuterNSSplit.setResizeWeight(0.85);
-		splitPaneOuterNSSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		guiFrame.getContentPane().add(splitPaneOuterNSSplit,BorderLayout.CENTER);
+		GridBagConstraints gbc_activeSimulationsListTable = new GridBagConstraints();
+		gbc_activeSimulationsListTable.insets = new Insets(0, 0, 0, 0);
+		gbc_activeSimulationsListTable.fill = GridBagConstraints.BOTH;
+		gbc_activeSimulationsListTable.gridx = 0;
+		gbc_activeSimulationsListTable.gridy = 0;
+		bottomSplitContainer.add(activeSimulationsListTable, gbc_activeSimulationsListTable);
+		JScrollPane consoleTextAreaScrollPane = new JScrollPane();
 		
-		splitPaneOuterNSSplit.setLeftComponent(splitPaneBatches);
-		splitPaneOuterNSSplit.setRightComponent(activeSimulationsListTable);
+		GridBagConstraints gbc_consoleTextAreaScrollPane = new GridBagConstraints();
+		gbc_consoleTextAreaScrollPane.insets = new Insets(0, 0, 0, 0);
+		gbc_consoleTextAreaScrollPane.fill = GridBagConstraints.BOTH;
+		gbc_consoleTextAreaScrollPane.gridx = 0;
+		gbc_consoleTextAreaScrollPane.gridy = 1;
 		
+		consoleTextArea = new JTextArea();
+		consoleTextArea.setWrapStyleWord(true);
+		consoleTextArea.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		consoleTextArea.setTabSize(0);
+		
+		consoleTextAreaScrollPane.setViewportView(consoleTextArea);
+		
+		consoleTextArea.setEditable(false);
+		bottomSplitContainer.add(consoleTextAreaScrollPane, gbc_consoleTextAreaScrollPane);
+
 		JMenuBar menuBar = new JMenuBar();
 		guiFrame.setJMenuBar(menuBar);
 		
