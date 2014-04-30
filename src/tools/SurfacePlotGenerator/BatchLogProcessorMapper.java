@@ -308,4 +308,9 @@ public class BatchLogProcessorMapper extends Mapper
 		
 	}
 	
+	public double getValueMax()
+	{
+		return Math.max(xValMax, yValMax);
+	}
+	
 }

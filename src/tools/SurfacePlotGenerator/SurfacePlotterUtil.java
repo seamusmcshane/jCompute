@@ -31,6 +31,8 @@ import org.jzy3d.chart.factories.IChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.contour.DefaultContourColoringPolicy;
+import org.jzy3d.contour.MapperContourPictureGenerator;
 import org.jzy3d.io.glsl.GLSLProgram;
 import org.jzy3d.io.glsl.GLSLProgram.Strictness;
 import org.jzy3d.maths.Coord3d;
@@ -39,6 +41,8 @@ import org.jzy3d.maths.Scale;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.ContourAxeBox;
+import org.jzy3d.plot3d.primitives.axes.IAxe;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.ddp.PeelingComponentFactory;
 import org.jzy3d.plot3d.rendering.ddp.algorithms.PeelingMethod;
@@ -85,7 +89,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private JPanel panel_2;
 	private JButton btnTop;
 	private JButton btnLeft;
-	private JButton btnReset;
+	private JButton btnISO;
 	private JButton btnRight;
 
 	private float rotateTick = (float) (Math.PI*(45f/2f));
@@ -101,7 +105,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		gui.setMinimumSize(new Dimension(800, 400));
+		gui.setMinimumSize(new Dimension(800, 300));
 
 		menuBar = new JMenuBar();
 		gui.setJMenuBar(menuBar);
@@ -137,8 +141,17 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		btnTop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{
-				chartAvg.getView().setViewPoint(new Coord3d(0,2f,0));								
-				chartStdDev.getView().setViewPoint(new Coord3d(0,2f,0));								
+				Coord3d coord = new Coord3d(0,2f,0);
+
+				chartAvg.getView().setViewPoint(coord);								
+				chartAvg.getAxeLayout().setZAxeLabelDisplayed(false);
+				chartAvg.getAxeLayout().setZTickLabelDisplayed(false);
+
+				chartStdDev.getView().setViewPoint(coord);	
+				chartStdDev.getAxeLayout().setZAxeLabelDisplayed(false);
+				chartStdDev.getAxeLayout().setZTickLabelDisplayed(false);
+
+				
 			}
 		});
 		panel_2.add(btnTop, BorderLayout.NORTH);
@@ -159,16 +172,25 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		});
 		panel_2.add(btnLeft, BorderLayout.WEST);
 
-		btnReset = new JButton("Iso");
-		btnReset.addActionListener(new ActionListener()
+		btnISO = new JButton("Iso");
+		btnISO.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				chartAvg.getView().setViewPoint(new Coord3d(defaultPos.x,defaultPos.y,defaultPos.z));				
-				chartStdDev.getView().setViewPoint(new Coord3d(defaultPos.x,defaultPos.y,defaultPos.z));				
+				Coord3d coord = new Coord3d(defaultPos.x,defaultPos.y,defaultPos.z);
+				
+				chartAvg.getView().setViewPoint(coord);	
+				chartAvg.getAxeLayout().setZAxeLabelDisplayed(true);
+				chartAvg.getAxeLayout().setZTickLabelDisplayed(true);
+				
+				chartStdDev.getView().setViewPoint(coord);				
+				chartStdDev.getAxeLayout().setZAxeLabelDisplayed(true);
+				chartStdDev.getAxeLayout().setZTickLabelDisplayed(true);
+
+
 			}
 		});
-		panel_2.add(btnReset, BorderLayout.CENTER);
+		panel_2.add(btnISO, BorderLayout.CENTER);
 
 		btnRight = new JButton("Right");
 		btnRight.addActionListener(new ActionListener() {
@@ -256,12 +278,13 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				Range stdDevXRange = new Range(stdDevMapper.getXmin(), stdDevMapper.getXmax());
 				Range stdDevYRange = new Range(stdDevMapper.getYmin(), stdDevMapper.getYmax());
-
+				
 				surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, avgMapper.getXSteps(), avgYRange, avgMapper.getYSteps()), avgMapper);
 				surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), surfaceAvg.getBounds().getZmin(), surfaceAvg.getBounds().getZmax(), new Color(1, 1, 1, 0.95f)));
 				surfaceAvg.setFaceDisplayed(true);
 				surfaceAvg.setWireframeDisplayed(true);
 				surfaceAvg.setWireframeColor(Color.BLACK);
+				
 				
 				surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, stdDevMapper.getXSteps(), stdDevYRange, stdDevMapper.getYSteps()), stdDevMapper);
 				surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(), surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 0.95f)));
@@ -286,7 +309,14 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				// Tick mapping
 				chartAvg.getAxeLayout().setXTickRenderer(avgMapper.getXTickMapper());
 				chartAvg.getAxeLayout().setYTickRenderer(avgMapper.getYTickMapper());
+				
+				//MapperContourPictureGenerator avgContour = new MapperContourPictureGenerator(avgMapper, avgXRange, avgYRange);
+				//ContourAxeBox avgCab = new ContourAxeBox(chartAvg.getView().getAxe().getBoxBounds());
+				//avgCab.setContourImg(avgContour.getHeightMap(new DefaultContourColoringPolicy(new ColorMapper(new ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(), surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 0.95f))), (int)avgXRange.getMax(), (int)avgYRange.getMax(), (int)avgMapper.getValueMax()), avgXRange, avgYRange);
+				//chartAvg.getView().setAxe(avgCab);
+				
 				chartAvg.addMouseController();
+				
 				
 				
 				chartStdDev = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
@@ -317,8 +347,11 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				chartContainerPanel.add((Component) chartStdDev.getCanvas(), gbcStdev);			
 				
 				gui.validate();
-				chartAvg.getView().setViewPoint(new Coord3d(defaultPos.x,defaultPos.y,defaultPos.z));				
-				chartStdDev.getView().setViewPoint(new Coord3d(defaultPos.x,defaultPos.y,defaultPos.z));				
+				
+				Coord3d coord = new Coord3d(defaultPos.x,defaultPos.y,defaultPos.z);
+				
+				chartAvg.getView().setViewPoint(coord);				
+				chartStdDev.getView().setViewPoint(coord);				
 
 			}
 		}
