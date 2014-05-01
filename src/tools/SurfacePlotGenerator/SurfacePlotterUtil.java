@@ -250,7 +250,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				DebugLogger.output("New File Choosen");
 
 				String file = filechooser.getSelectedFile().getAbsolutePath();
-
+				
+				gui.setTitle(filechooser.getSelectedFile().getName());
+				
 				DebugLogger.output(file);
 
 				if (surfaceAvg != null)
