@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="libs/kdtree/SkilgannonKDTree"/>
 	<classpathentry kind="src" path="libs/kdtree/rednaxela-knn-benchmark"/>
 	<classpathentry kind="src" path="libs/fastMath"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
