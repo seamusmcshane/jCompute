@@ -296,7 +296,9 @@ public class SimpleAgentView
 		
 		upDateViewLocation(fovRadius);
 		
-		simView.drawCircle(fov, color,lineWidth);
+		//simView.drawCircle(fov, color,lineWidth);
+		
+		simView.drawTransparentFilledCircle(fov, color,0.25f);
 		
 		if(distanceRings)
 		{
