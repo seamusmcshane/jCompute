@@ -349,6 +349,25 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		currentShapeRenderer.end();
 	}
 	
+	public void drawTransparentFilledCircle(A2DCircle circle,A2RGBA color, float transparency)
+	{
+		if(!viewCam.frustum.pointInFrustum(new Vector3(circle.getX(),circle.getY(),0)))
+		{
+			return;
+		}
+		
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+		currentShapeRenderer.begin(ShapeType.Filled);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), transparency);
+		currentShapeRenderer.circle(circle.getX(),circle.getY(),circle.getRadius());
+		currentShapeRenderer.end();
+		
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+
+	}
+	
 
 	public void drawLine(A2DVector2f pos1, A2DVector2f pos2, A2RGBA color, float lineWidth, boolean clipCheck)
 	{
