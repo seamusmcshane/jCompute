@@ -352,7 +352,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 
 				String file = filechooser.getSelectedFile().getAbsolutePath();
 				
-				openCD = filechooser.getSelectedFile().getAbsolutePath();
+				openCD = filechooser.getCurrentDirectory().getAbsolutePath();
 				
 				gui.setTitle(filechooser.getSelectedFile().getName());
 				
@@ -400,7 +400,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			{
 				File file = filechooser.getSelectedFile();
 
-				saveCD = filechooser.getSelectedFile().getAbsolutePath();
+				saveCD = filechooser.getCurrentDirectory().getAbsolutePath();
 				
 				String fileName = file.getAbsolutePath().toString();
 
