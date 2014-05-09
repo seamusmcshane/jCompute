@@ -1,15 +1,21 @@
 package alifeSim.Stats;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.JOptionPane;
 
@@ -295,147 +301,7 @@ public class StatManager
 		
 		return data.toString();
 	}
-	
-	
-	/* private void createStatExportFile(String fileNameSuffix, String format)
-	{
-		statsManagerLock.acquireUninterruptibly();
-		
-		System.out.println("Exporting Stats");
-		
-		// The Stats Groups
-		Set<String> groupList = getGroupList();
-		
-		// Each stat group is a new file to output
-		String[] fileNames = new String[groupList.size()];
-		for(String fileName: fileNames)
-		{
-			fileName = new String();
-		}
-		
-		// For efficient concatenation we use StringBuilder to build up the output file
-		StringBuilder[] fileData = new StringBuilder[groupList.size()];
-		for(int i=0;i<fileData.length;i++)
-		{
-			fileData[i] = new StringBuilder();
-		}
-		
-		System.out.println("Processing Statistic Groups");
-		int groupIndex = 0;
-		
-		// Loop over each stat group
-		for (String group : groupList) 
-		{
-			// Get the Stat Group for export
-			StatGroup statGroup = map.get(group);
-			List<String> statList = statGroup.getStatList();
-			
-			// Set the File Name
-			if(!fileNameSuffix.equals(""))
-			{
-				fileNames[groupIndex] = group + " " + fileNameSuffix;
-			}
-			else
-			{
-				fileNames[groupIndex] = group;
-			}
-			System.out.println("Group : " + fileNames[groupIndex]);
-						
 
-			if(format.equalsIgnoreCase("csv"))
-			{
-				// Write File Header
-				addFileExportHeaderCSV(fileData,groupIndex,statList);
-			}
-			else if(format.equalsIgnoreCase("arff"))
-			{
-				addFileExportHeaderARFF(fileData,groupIndex,group,statList);
-			}
-			else
-			{
-				addFileExportHeaderXML(fileData,groupIndex,group,statList);
-			}			
-			
-			// The Data Rows
-			
-			// Get the history length of the stats (which are all the same length in steps)
-			int historyLength = statGroup.getStat(statList.get(0)).getHistoryLength();
-			
-			int statCount = statList.size();
-			
-			StatSample[][] statHistorys = new StatSample[statCount][historyLength];			
-			// Convert each Linked list to arrays - so we can look up individual indexes quicker later.
-			for(int statIndex=0;statIndex< statCount;statIndex++)
-			{
-				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
-			}
-
-			int history =0;
-			System.out.print("DataRows for " + group + " Progress :");
-			
-			// For progress output
-			int percentage = 0;
-			
-			// So we don't spam more than once.
-			boolean progressTrigger = false;
-			
-			// Loop for the length of the stat history (sim run length)
-			while(history<historyLength)
-			{
-				// Calculate the %progress
-				percentage = (int)(( ((float)history) / ((float)historyLength))*100);				
-				
-				// Output every 10%
-				if( ((percentage%10) == 0) )
-				{
-					// Dont spam for each sub interval  i.e. 10.0% to 10.9%
-					if(!progressTrigger)
-					{	
-						System.out.print(" " + percentage);
-						progressTrigger = true;
-					}
-				}
-				else
-				{
-					progressTrigger = false;
-				}
-				
-
-				// Write Data Row
-				if(format.equalsIgnoreCase("csv") || format.equalsIgnoreCase("arff"))
-				{
-					appendCSVStyleRow(fileData,groupIndex,statHistorys,history,statList);
-				}
-				else
-				{
-					appendXMLRow(fileData,groupIndex,statHistorys,history,statList);
-				}	
-				
-				history++;
-			}
-
-			// File Footer
-			if(format.equalsIgnoreCase("xml"))
-			{
-				fileData[groupIndex].append("</" + xmlString(group) + ">\n");
-			}
-			
-			System.out.print(" 100\n");
-			groupIndex++;
-		}
-
-		// Now send the strings to the output writer
-		System.out.println("Writing Files");
-		for(int i=0;i<fileNames.length;i++)
-		{
-			System.out.print(fileNames[i] + " ");			
-			//System.out.print(fileData[i]);
-			writeFiles(directory,fileNames[i],fileData[i].toString(),format.toLowerCase());
-		}
-		
-		statsManagerLock.release();		
-	} */
-		
 	private void appendXMLRow(StringBuilder data,StatSample[][] statHistorys,int history, List<String> statList)
 	{
 		int statCount = statList.size();
@@ -479,17 +345,61 @@ public class StatManager
 	
 	private void writeFiles(String directory,String fileName,String fileData,String extension)
 	{
-		String filePath = directory+File.separator+fileName+"."+extension;
-		System.out.print(filePath + "\n");
+
 	
 		try
 		{
-			FileWriter fileWriter = new FileWriter(filePath);
+			String filePath;
 			
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+			// Compress XML Output into a zip
+			if(extension.equalsIgnoreCase("xml"))
+			{
+				//GZIPOutputStream gzip = new GZIPOutputStream(new FileOutputStream(new File(filePath)));
+				//bufferedWriter = new BufferedWriter(new OutputStreamWriter(gzip, "UTF-8"));
 
-			bufferedWriter.write(fileData);
-			bufferedWriter.close();
+				filePath = directory+File.separator+fileName+"."+"zip";
+
+				FileOutputStream fileOutput = new FileOutputStream(filePath);
+				
+				BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutput);
+				
+				// Create Archive
+				ZipOutputStream zipOutput = new ZipOutputStream(bufferedOutput);
+				
+				// Compressed or Store
+				zipOutput.setMethod(ZipOutputStream.DEFLATED);
+				
+				// Compression level
+				zipOutput.setLevel(9);
+				
+				// Entry start
+				zipOutput.putNextEntry(new ZipEntry(fileName+"."+extension));
+				
+				//Data
+				zipOutput.write(fileData.getBytes());
+				
+				// Entry end
+				zipOutput.closeEntry();
+				
+				// Archive end
+				zipOutput.close();				
+				
+			}
+			else
+			{
+
+				filePath = directory+File.separator+fileName+"."+extension;
+				
+				FileWriter fileWriter = new FileWriter(filePath);
+				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+				
+				bufferedWriter.write(fileData);
+				bufferedWriter.close();
+
+			}
+
+			System.out.print(filePath + "\n");
+
 		}
 		catch (IOException e)
 		{
