@@ -460,6 +460,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 		{
 			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
 
+			filechooser.setMultiSelectionEnabled(true);
+			
 			DebugLogger.output("Batch Open Dialog");
 
 			int val = filechooser.showOpenDialog(filechooser);
@@ -468,15 +470,28 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 			{
 				DebugLogger.output("New Batch Choosen");
 				
-				String batchFile = filechooser.getSelectedFile().getAbsolutePath();
-
-				DebugLogger.output(batchFile);
+				File[] files = filechooser.getSelectedFiles();
 				
-				if(!batchManager.addBatch(batchFile))
+				for(File file : files)
 				{
-					DebugLogger.output("Error Creating Batch from : " + batchFile);
+
+				    javax.swing.SwingUtilities.invokeLater(new Runnable() 
+				    {
+				        public void run() 
+				        {	
+							String batchFile = filechooser.getSelectedFile().getAbsolutePath();
+
+							DebugLogger.output(batchFile);
+							
+							if(!batchManager.addBatch(batchFile))
+							{
+								DebugLogger.output("Error Creating Batch from : " + batchFile);
+							}
+				        }
+				    });
+				    
 				}
-				
+
 			}
 		}
 		if(e.getSource() == mntmQuit)
