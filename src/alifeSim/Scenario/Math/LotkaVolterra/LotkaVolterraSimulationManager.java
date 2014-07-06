@@ -233,6 +233,12 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 	public String getEndEvent()
 	{
 		return endEvent;
+	}
+
+	@Override
+	public boolean needsGLCanvas()
+	{
+		return true;
 	}	
 	
 }

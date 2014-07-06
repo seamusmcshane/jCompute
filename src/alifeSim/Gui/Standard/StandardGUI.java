@@ -121,7 +121,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 					simsManager.setSimView(simView);
 					
 					/* Add the View to the right split pane */
-					splitPane.setRightComponent(simView.getAwtCanvas());
+					splitPane.setRightComponent(simView.getCanvas());
 				}
 		    }
 		});

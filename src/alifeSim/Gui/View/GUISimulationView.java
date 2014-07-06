@@ -1,11 +1,28 @@
 package alifeSim.Gui.View;
 
+import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 
+import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotConstants;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSimGeom.A2DCircle;
@@ -24,6 +41,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -35,8 +53,15 @@ import com.badlogic.gdx.math.Vector3;
 
 public class GUISimulationView implements ApplicationListener, InputProcessor
 {
-	/** The Drawing Canvas */
-	private LwjglAWTCanvas canvas;
+	private JPanel basePanel;
+	
+	/** The Drawing Canvas's */
+	private LwjglAWTCanvas glCanvas;
+	
+	private JPanel javaCanvas;
+	private Timer javaCanvasTimer;
+	private BufferedImage image;
+	
 	private int width;
 	private int height;
 	
@@ -78,21 +103,68 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	private SpriteBatch fboSpriteBatch;
 	private ShapeRenderer fboShapeRenderer;
 
+	private Texture pixMapTexture;
+	private Sprite spritePixMapTexture;
+	
 	private SpriteBatch currentSpriteBatch;
 	private ShapeRenderer currentShapeRenderer;
-	
+		
 	public GUISimulationView()
 	{
 		System.out.println("Created Simulation View");
 		
 		LwjglApplicationConfiguration.disableAudio = true;
 		
-		canvas = new LwjglAWTCanvas(this, true);
+		basePanel = new JPanel();
+		
+		// For inners
+		final GUISimulationView simView = this;
 
+		javaCanvas = new JPanel()
+		{
+			private static final long serialVersionUID = 1L;
+			
+			int margin = 50;
+			Font font = new Font("Sans Serif", Font.BOLD, 22);			
+			
+			@Override
+			public void paintComponent(Graphics g)
+			{
+				viewLock.acquireUninterruptibly();		
+
+				Graphics2D g2 = (Graphics2D)g;
+				
+				//g2.setColor(new java.awt.Color(240,240,240));
+				g2.setColor(new java.awt.Color(0,0,0));
+				g2.fillRect(0, 0,(int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+				
+				// Link up with the render method.
+				if(sim!=null)
+				{
+					sim.drawSim(simView, false, false);
+				}
+				
+				// Update Canvas
+				if(image!=null)
+				{
+					int min = Math.min(javaCanvas.getWidth(), javaCanvas.getHeight());
+			        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+					g2.drawImage(image, 0, 0, min, min, this);
+				}
+				
+				viewLock.release();
+			}
+		};
+		basePanel.setPreferredSize(new Dimension(1024, 1024));
+
+		basePanel.setLayout(new BorderLayout());
+		
+		glCanvas = new LwjglAWTCanvas(this, true);	
+		
 		Display.setVSyncEnabled(true);
 		Display.setSwapInterval(1);
 		
-		canvas.getInput().setInputProcessor(this);
+		glCanvas.getInput().setInputProcessor(this);
 		
 		viewCam = new OrthographicCamera(640, 480);
 		
@@ -102,23 +174,78 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	public void exitDisplay()
 	{
-		canvas.getInput().setInputProcessor(null);
-		canvas.stop();		
+		glCanvas.getInput().setInputProcessor(null);
+		glCanvas.stop();		
 		Display.destroy();
 		
 		System.out.println("Exited Simulation View");
 	}
 	
-	public Canvas getAwtCanvas()
+	private void hideGLCanvas()
 	{
-		return canvas.getCanvas();
+		//glCanvas.getCanvas().setVisible(false);		
+		basePanel.removeAll();
+		basePanel.add(javaCanvas,BorderLayout.CENTER);
+		
+		if(javaCanvasTimer!=null)
+		{
+			javaCanvasTimer.cancel();
+		}
+		
+		javaCanvasTimer = new Timer();
+		javaCanvasTimer.schedule(new TimerTask()
+		{
+			@Override
+			public void run() 
+			{
+				javaCanvas.repaint();				
+			}
+		}, 0,(long) (1000f/60f));
+	}
+	
+	private void showGLCanvas()
+	{
+		basePanel.removeAll();
+
+		basePanel.repaint();
+
+		basePanel.add(glCanvas.getCanvas(),BorderLayout.CENTER);
+		if(javaCanvasTimer!=null)
+		{
+			javaCanvasTimer.cancel();
+		}
+	}
+		
+	public JComponent getCanvas()
+	{
+		return basePanel;
 	}
 
 	public void setSim(Simulation simIn)
 	{
 		//System.out.println("Simulation Set");
-		viewLock.acquireUninterruptibly();
-		sim = simIn;		
+		viewLock.acquireUninterruptibly();		
+		sim = simIn;
+		
+		if(sim!=null)
+		{
+			if(sim.getSimManager().needsGLCanvas() == true)
+			{
+				image = null;
+				showGLCanvas();
+			}
+			else
+			{
+				hideGLCanvas();
+			}
+
+		}
+		else
+		{
+			image = null;
+			hideGLCanvas();
+		}
+		
 		viewLock.release();
 	}
 	
@@ -135,13 +262,15 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		
 		currentSpriteBatch = bboSpriteBatch;
         
-        font = new BitmapFont();
+		font = new BitmapFont();
         font.setColor(Color.WHITE);
-        
-        fbo = new FrameBuffer(Pixmap.Format.RGBA8888,Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),false);
+
+		pixMapTexture = new Texture(1024, 1024, Format.RGBA8888);
+		spritePixMapTexture = new Sprite(pixMapTexture);
+
+        fbo = new FrameBuffer(Pixmap.Format.RGBA8888,2048, 2048,false);
         
 		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
 	}
 
 	@Override
@@ -187,8 +316,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		
 		viewLock.acquireUninterruptibly();
 		
-
-		
 		if(sim!=null)
 		{
 			if(sim.getSimManager()!=null)
@@ -201,6 +328,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 			viewCam.update();
 			
 			sim.drawSim(this,viewRangeDrawing,viewsDrawing);
+
 		}
 		
 		viewLock.release();
@@ -300,22 +428,47 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
         
 	}
 	
+	public void drawPixMapFBO2(int textureSize, int[] buffer, float x, float y)
+	{	
+		blankBBO();
+		targetFBOStart();
+
+    	Pixmap pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
+
+    	ByteBuffer pixels = pTemp.getPixels();
+		
+    	pixels.asIntBuffer().put(buffer);
+    	
+		fbo.getColorBufferTexture().draw(pTemp, 0, pTemp.getHeight());
+		
+		targetFBOStop();
+		
+		pTemp.dispose();
+
+	}
+	
+	public void drawPixMapFBO(Pixmap pixmap, float x, float y)
+	{
+		fbo.getColorBufferTexture().draw(pixmap, 0, pixmap.getHeight());		
+	}
+	
 	public void drawPixMap(Pixmap pixmap, float x, float y)
 	{
-		Texture texture = new Texture(pixmap);
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		Sprite sprite = new Sprite(texture);
+		//pixMapTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		currentSpriteBatch.begin();
-	        sprite.setPosition(x, y);
-	        sprite.flip(false, true);
-	        sprite.draw(currentSpriteBatch);
+			pixMapTexture.draw(pixmap, 0, 0);
+
+			spritePixMapTexture.setPosition(x,y);
+			//spritePixMapTexture.flip(false, false);
+			spritePixMapTexture.draw(currentSpriteBatch);
         currentSpriteBatch.end();
         
-        texture.dispose();
+        //texture.dispose();
+        pixmap.dispose();
 	}
 	
 	public void drawCircle(A2DCircle circle,A2RGBA color)
-	{	
+	{
 		Gdx.gl20.glLineWidth(defaultLineWidth);
 		
 		drawCircle(circle,color, defaultLineWidth);
@@ -586,7 +739,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		currentShapeRenderer.rect(x,  y, width, height);
 		currentShapeRenderer.end();
 	}
-
+	
 	@Override
 	public boolean keyDown(int arg0)
 	{
@@ -715,5 +868,10 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	{
 		viewsDrawing = inViewsDrawing;
 	}
-		
+
+	public void drawBufferedImage(BufferedImage dest)
+	{
+		image = dest;
+	}
+	
 }

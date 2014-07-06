@@ -36,5 +36,7 @@ public interface SimulationScenarioManagerInf
 	public void setScenarioStepCountEndEvent(SimulationStats simState);
 	
 	public ScenarioInf getScenario();
+	
+	public boolean needsGLCanvas();
 
 }

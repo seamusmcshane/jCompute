@@ -167,7 +167,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 		try
 		{
 			lock.acquire();
-
+			
 			world.drawWorld(simView);
 			
 			genericPlantManager.draw(simView);
@@ -296,6 +296,12 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	public String getEndEvent()
 	{
 		return endEvent;
+	}
+
+	@Override
+	public boolean needsGLCanvas()
+	{
+		return true;
 	}
 	
 }
