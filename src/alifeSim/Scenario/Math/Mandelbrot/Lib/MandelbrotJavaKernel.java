@@ -14,20 +14,18 @@ public class MandelbrotJavaKernel implements MandelbrotKernelInterface
 	
 	private long count = 0;
 	
-	public MandelbrotJavaKernel(int width,int height,int[] pallete)
+	public MandelbrotJavaKernel(int width,int height)
 	{		
 		System.out.println("Java CPU Kernel in use");
-		
-		this.pallete = pallete;
-		pSize = this.pallete.length;
-
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	}
 
-	public void setDest(int[] dest)
+	public void setDest(int[] dest,int[] pallete)
 	{
 		this.dest = dest;
+		this.pallete = pallete;
+		pSize = this.pallete.length;
 	}
 	
 	public long getCount()

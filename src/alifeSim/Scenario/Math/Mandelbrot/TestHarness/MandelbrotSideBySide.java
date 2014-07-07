@@ -49,13 +49,13 @@ public class MandelbrotSideBySide
 		System.out.println("Starting");
 		
 		/* Palette */
-		pallete = MandelbrotPallete.HUEPalete();
+		pallete = MandelbrotPallete.HUEPalete(false);
 
-		kernel1 = new MandelbrotJavaKernel(imageWidth, imageHeight,pallete);	
-		kernel1.setDest(((DataBufferInt) dest1.getRaster().getDataBuffer()).getData());
+		kernel1 = new MandelbrotJavaKernel(imageWidth, imageHeight);	
+		kernel1.setDest(((DataBufferInt) dest1.getRaster().getDataBuffer()).getData(),pallete);
 		
-		kernel2 = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), imageWidth, imageHeight,pallete);
-		kernel2.setDest(((DataBufferInt) dest2.getRaster().getDataBuffer()).getData());
+		kernel2 = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), imageWidth, imageHeight);
+		kernel2.setDest(((DataBufferInt) dest2.getRaster().getDataBuffer()).getData(),pallete);
 		
 		Thread thread1 = new Thread(new Runnable()
 		{

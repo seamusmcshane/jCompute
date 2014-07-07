@@ -2,7 +2,7 @@ package alifeSim.Scenario.Math.Mandelbrot.Lib;
 
 public interface MandelbrotKernelInterface
 {	
-	public void setDest(int[] data);
+	public void setDest(int[] dest,int[] pallete);
 	public void ComputeAndCreateImage(double targetX, double targetY, double zoom, final int iterations);
 	public void computeMandle(double targetX, double targetY, double zoom, int iterations);
 

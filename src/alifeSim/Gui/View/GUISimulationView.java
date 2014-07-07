@@ -1,7 +1,6 @@
 package alifeSim.Gui.View;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -10,7 +9,6 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
@@ -18,11 +16,8 @@ import java.util.concurrent.Semaphore;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.lwjgl.openal.AL;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
 
-import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotConstants;
 import alifeSim.Simulation.Simulation;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSimGeom.A2DCircle;
@@ -58,10 +53,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	/** The Drawing Canvas's */
 	private LwjglAWTCanvas glCanvas;
 	
-	private JPanel javaCanvas;
-	private Timer javaCanvasTimer;
-	private BufferedImage image;
-	
 	private int width;
 	private int height;
 	
@@ -77,7 +68,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	/** Records status of mouse button */
 	private boolean mouseButtonPressed = false;
 	
-	private int defaultFrameRate = 15;
+	private int defaultFrameRate = 60;
 
 	/** Draw the View range of the agents */
 	private boolean viewRangeDrawing = false;
@@ -102,12 +93,12 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	private FrameBuffer fbo;
 	private SpriteBatch fboSpriteBatch;
 	private ShapeRenderer fboShapeRenderer;
-
-	private Texture pixMapTexture;
-	private Sprite spritePixMapTexture;
 	
 	private SpriteBatch currentSpriteBatch;
 	private ShapeRenderer currentShapeRenderer;
+	
+	private Pixmap pTemp;
+	private Texture tTemp;
 		
 	public GUISimulationView()
 	{
@@ -120,46 +111,13 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		// For inners
 		final GUISimulationView simView = this;
 
-		javaCanvas = new JPanel()
-		{
-			private static final long serialVersionUID = 1L;
-			
-			int margin = 50;
-			Font font = new Font("Sans Serif", Font.BOLD, 22);			
-			
-			@Override
-			public void paintComponent(Graphics g)
-			{
-				viewLock.acquireUninterruptibly();		
-
-				Graphics2D g2 = (Graphics2D)g;
-				
-				//g2.setColor(new java.awt.Color(240,240,240));
-				g2.setColor(new java.awt.Color(0,0,0));
-				g2.fillRect(0, 0,(int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-				
-				// Link up with the render method.
-				if(sim!=null)
-				{
-					sim.drawSim(simView, false, false);
-				}
-				
-				// Update Canvas
-				if(image!=null)
-				{
-					int min = Math.min(javaCanvas.getWidth(), javaCanvas.getHeight());
-			        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-					g2.drawImage(image, 0, 0, min, min, this);
-				}
-				
-				viewLock.release();
-			}
-		};
 		basePanel.setPreferredSize(new Dimension(1024, 1024));
 
 		basePanel.setLayout(new BorderLayout());
 		
 		glCanvas = new LwjglAWTCanvas(this, true);	
+		
+		basePanel.add(glCanvas.getCanvas(),BorderLayout.CENTER);
 		
 		Display.setVSyncEnabled(true);
 		Display.setSwapInterval(1);
@@ -174,46 +132,16 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	public void exitDisplay()
 	{
+		if(pTemp==null)
+		{
+			pTemp.dispose();
+		}
+		
 		glCanvas.getInput().setInputProcessor(null);
 		glCanvas.stop();		
 		Display.destroy();
 		
 		System.out.println("Exited Simulation View");
-	}
-	
-	private void hideGLCanvas()
-	{
-		//glCanvas.getCanvas().setVisible(false);		
-		basePanel.removeAll();
-		basePanel.add(javaCanvas,BorderLayout.CENTER);
-		
-		if(javaCanvasTimer!=null)
-		{
-			javaCanvasTimer.cancel();
-		}
-		
-		javaCanvasTimer = new Timer();
-		javaCanvasTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run() 
-			{
-				javaCanvas.repaint();				
-			}
-		}, 0,(long) (1000f/60f));
-	}
-	
-	private void showGLCanvas()
-	{
-		basePanel.removeAll();
-
-		basePanel.repaint();
-
-		basePanel.add(glCanvas.getCanvas(),BorderLayout.CENTER);
-		if(javaCanvasTimer!=null)
-		{
-			javaCanvasTimer.cancel();
-		}
 	}
 		
 	public JComponent getCanvas()
@@ -226,26 +154,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		//System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();		
 		sim = simIn;
-		
-		if(sim!=null)
-		{
-			if(sim.getSimManager().needsGLCanvas() == true)
-			{
-				image = null;
-				showGLCanvas();
-			}
-			else
-			{
-				hideGLCanvas();
-			}
-
-		}
-		else
-		{
-			image = null;
-			hideGLCanvas();
-		}
-		
 		viewLock.release();
 	}
 	
@@ -265,8 +173,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-		pixMapTexture = new Texture(1024, 1024, Format.RGBA8888);
-		spritePixMapTexture = new Sprite(pixMapTexture);
 
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888,2048, 2048,false);
         
@@ -309,8 +215,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		Gdx.gl.glViewport(0, 0, width, height);
 				
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-			
-						        
+		
 		bboShapeRenderer.setProjectionMatrix(viewCam.combined);
 		bboSpriteBatch.setProjectionMatrix(viewCam.combined);
 		
@@ -322,7 +227,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 			{
 				viewCam.position.set(sim.getSimManager().getCamPos().getX(), sim.getSimManager().getCamPos().getY(),0);
 
-				viewCam.zoom = sim.getSimManager().getCamZoom();
+				viewCam.zoom = sim.getSimManager().getCamZoom();				
 			}
 
 			viewCam.update();
@@ -348,18 +253,8 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	{
 		
 	} 
-
-	/*
-	 * Drawing Methods
-	 * 
-	 */			
 	
-	public void blankBBO()
-	{
-		
-	}
-	
-	public void blankFBO()
+	private void blankFBO()
 	{
 		fbo.begin();
 		
@@ -368,7 +263,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		fbo.end();
 	}
 	
-	public void targetFBOStart()
+	private void targetFBOStart()
 	{
 		currentShapeRenderer = fboShapeRenderer;
 		
@@ -396,7 +291,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		currentSpriteBatch.end();
 	}
 	
-	public void targetFBOStop()
+	private void targetFBOStop()
 	{				
 		currentShapeRenderer = bboShapeRenderer;
 		
@@ -430,11 +325,13 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	public void drawPixMapFBO2(int textureSize, int[] buffer, float x, float y)
 	{	
-		blankBBO();
 		targetFBOStart();
-
-    	Pixmap pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
-
+		
+		if(pTemp==null)
+		{
+			pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
+		}
+		
     	ByteBuffer pixels = pTemp.getPixels();
 		
     	pixels.asIntBuffer().put(buffer);
@@ -443,28 +340,42 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		
 		targetFBOStop();
 		
-		pTemp.dispose();
+		// pTemp.dispose();
 
 	}
 	
-	public void drawPixMapFBO(Pixmap pixmap, float x, float y)
-	{
-		fbo.getColorBufferTexture().draw(pixmap, 0, pixmap.getHeight());		
-	}
-	
-	public void drawPixMap(Pixmap pixmap, float x, float y)
-	{
-		//pixMapTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		currentSpriteBatch.begin();
-			pixMapTexture.draw(pixmap, 0, 0);
+	public void drawPixMapFBO1(int textureSize, int[] buffer, float x, float y)
+	{	
+		if(pTemp == null)
+		{
+			pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
+		}
+		
+		if(tTemp == null)
+		{
+			tTemp = new Texture(pTemp);
+			//tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
+		
+		if(textureSize!=tTemp.getHeight() || textureSize!=tTemp.getWidth())
+		{
+			pTemp.dispose();
+			tTemp.dispose();
+			
+			pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
+			tTemp = new Texture(pTemp);
+			//tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
+		
+    	ByteBuffer pixels = pTemp.getPixels();
+		
+    	pixels.asIntBuffer().put(buffer);
+    	
+    	tTemp.draw(pTemp, 0,0);
 
-			spritePixMapTexture.setPosition(x,y);
-			//spritePixMapTexture.flip(false, false);
-			spritePixMapTexture.draw(currentSpriteBatch);
-        currentSpriteBatch.end();
-        
-        //texture.dispose();
-        pixmap.dispose();
+    	currentSpriteBatch.begin();
+    	currentSpriteBatch.draw(tTemp,x,y);
+    	currentSpriteBatch.end();    	
 	}
 	
 	public void drawCircle(A2DCircle circle,A2RGBA color)
@@ -867,11 +778,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	public void setViewsDrawing(boolean inViewsDrawing)
 	{
 		viewsDrawing = inViewsDrawing;
-	}
-
-	public void drawBufferedImage(BufferedImage dest)
-	{
-		image = dest;
 	}
 	
 }

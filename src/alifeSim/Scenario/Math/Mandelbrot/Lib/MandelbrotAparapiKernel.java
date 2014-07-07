@@ -12,11 +12,9 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 	
 	private int[] dest = null;
 	
-	private	int[] imageData;
-	
 	private long count = 0;
 	
-	public MandelbrotAparapiKernel(OpenCLDevice dev, int width,int height,int[] pallete)
+	public MandelbrotAparapiKernel(OpenCLDevice dev, int width,int height)
 	{
 		System.out.println("OpenCL Kernel in use");
 		
@@ -29,16 +27,15 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 			range = dev.createRange2D(width, height);
 		}
 		
-		imageData = new int[width*height];
-		
-		kernel = new ComputeKernel(pallete,imageData);
-		
-		kernel.setExplicit(true);		
 	}
 	
-	public void setDest(int[] dest)
+	public void setDest(int[] dest,int[] pallete)
 	{
 		this.dest = dest;
+		
+		kernel = new ComputeKernel(pallete,dest);
+		
+		kernel.setExplicit(true);	
 	}
 	
 	public long getCount()
@@ -67,14 +64,14 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 		
 		count++;
 		
-		//kernel.dispose();
+		kernel.dispose();
 	}
 	
 	private void createImage(int[] destRGB)
 	{
-		kernel.get(imageData);
+		kernel.get(dest);
 
-		System.arraycopy(imageData, 0, destRGB, 0, imageData.length);		
+		//System.arraycopy(imageData, 0, destRGB, 0, imageData.length);		
 	}
 	
 	private class ComputeKernel extends Kernel
@@ -136,9 +133,6 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 			if(iter!=0)
 			{
 				dataDest[gid] = pallete[(pSize-1)-(iter % pSize)];
-				//int val = pallete[(pSize-1)-(iter % pSize)];
-				//dataDest[gid] = val;
-				//dataDest[gid] = (val << 8) | ((val >> 24) & 0xFF);
 			}
 			else
 			{

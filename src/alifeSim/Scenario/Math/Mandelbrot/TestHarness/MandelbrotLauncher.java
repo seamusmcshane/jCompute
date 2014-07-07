@@ -73,18 +73,18 @@ public class MandelbrotLauncher
 		System.out.println("Starting");
 		
 		/* Palette */
-		pallete = MandelbrotPallete.HUEPalete();
+		pallete = MandelbrotPallete.HUEPalete(false);
 
 		if(Aparapi==1)
 		{
-			kernel = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), imageWidth, imageHeight,pallete);
+			kernel = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), imageWidth, imageHeight);
 		}
 		else
 		{
-			kernel = new MandelbrotJavaKernel(imageWidth, imageHeight,pallete);	
+			kernel = new MandelbrotJavaKernel(imageWidth, imageHeight);	
 		}
 		
-		kernel.setDest(((DataBufferInt) dest.getRaster().getDataBuffer()).getData());
+		kernel.setDest(((DataBufferInt) dest.getRaster().getDataBuffer()).getData(),pallete);
 		
 		Thread thread = new Thread(new Runnable()
 		{

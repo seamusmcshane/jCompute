@@ -1,26 +1,18 @@
 package alifeSim.Scenario.Math.Mandelbrot;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
 import alifeSim.Simulation.SimulationStats;
-import alifeSim.Stats.SingleStat;
-import alifeSim.Stats.StatGroup;
-import alifeSim.Stats.StatGroupSetting;
 import alifeSim.Stats.StatManager;
 import alifeSim.Scenario.ScenarioInf;
 import alifeSim.Scenario.EndEvents.ScenarioEndEventInf;
 import alifeSim.Scenario.EndEvents.ScenarioStepCountEndEvent;
 import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotAnimate;
 import alifeSim.Scenario.Math.Mandelbrot.Lib.AparapiUtil;
-import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotConstants;
 import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotKernelInterface;
 import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotJavaKernel;
 import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotAparapiKernel;
@@ -28,8 +20,8 @@ import alifeSim.Scenario.Math.Mandelbrot.Lib.MandelbrotPallete;
 import alifeSimGeom.A2DVector2f;
 
 public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
-{
-	private Semaphore lock = new Semaphore(1, true);
+{	
+	private Semaphore lock = new Semaphore(1, false);
 
 	private MandelbrotScenario scenario;
 
@@ -56,34 +48,34 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 	private int textureSize;
 	private int iterations;
 	
-	private BufferedImage dest;
+	private int[] dest;
 	
 	public MandelbrotSimulationManager(MandelbrotScenario scenario)
 	{
 		simViewCam = new SimViewCam();
-
+		
 		simViewCam.setCamOffset(new A2DVector2f(0,0));
-
+		
 		this.scenario = scenario;
 		
 		settings = scenario.getSettings();
 
 		textureSize = settings.getTextureSize();
 
-		dest = new BufferedImage(textureSize, textureSize, BufferedImage.TYPE_INT_RGB);
+		dest = new int[textureSize*textureSize];
 		
 		iterations = settings.getIterations();
 		
 		if (settings.getComputeMethod().equals("Aparapi"))
 		{
-			kernel = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), textureSize, textureSize, MandelbrotPallete.HUEPalete());
+			kernel = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), textureSize, textureSize);
 		}
 		else
 		{
-			kernel = new MandelbrotJavaKernel(textureSize, textureSize, MandelbrotPallete.HUEPalete());
+			kernel = new MandelbrotJavaKernel(textureSize, textureSize);
 		}
 
-		kernel.setDest(((DataBufferInt) dest.getRaster().getDataBuffer()).getData());
+		kernel.setDest(dest,MandelbrotPallete.HUEPalete(true));
 		
 		coords = settings.getCoordiantes();
 		zooms = settings.getZooms();
@@ -111,14 +103,12 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 
 	@Override
 	public void doSimulationUpdate()
-	{
+	{		
 		lock.acquireUninterruptibly();
-
+		
 		boolean finished = MandelbrotAnimate.animateSingleStep(kernel, coords[x], coords[y], coordinates, coords[x2], coords[y2], iterations);
 
 		kernel.computeMandle(coordinates.getCoordinateX(), coordinates.getCoordinateY(), coordinates.getCurrentZoom(), iterations);
-
-		kernel.updateBuffers();
 		
 		if (finished)
 		{
@@ -139,11 +129,11 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 			coordinates.setMotionIn(true);
 			
 			finished = false;
+			
 		}
-
-		statManager.notifiyStatListeners();
 		
 		lock.release();
+		
 	}
 
 	@Override
@@ -154,22 +144,16 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 
 	@Override
 	public void drawSim(GUISimulationView simView, boolean ignored, boolean ignored2)
-	{
-		try
-		{
-			lock.acquire();
-			
-			simView.drawBufferedImage(dest);
-			
-			lock.release();
-			
-		}
-		catch (InterruptedException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	{	
+		lock.acquireUninterruptibly();
 		
+		kernel.updateBuffers();
+		
+		simView.drawPixMapFBO1(textureSize, dest, 0, 0);
+
+		lock.release();
+		
+
 	}
 	
 	@Override
@@ -276,7 +260,7 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 	@Override
 	public boolean needsGLCanvas()
 	{
-		return false;
+		return true;
 	}
-
+	
 }
