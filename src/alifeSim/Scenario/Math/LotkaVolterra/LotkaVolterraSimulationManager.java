@@ -3,7 +3,6 @@ package alifeSim.Scenario.Math.LotkaVolterra;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -234,11 +233,5 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 	{
 		return endEvent;
 	}
-
-	@Override
-	public boolean needsGLCanvas()
-	{
-		return true;
-	}	
 	
 }

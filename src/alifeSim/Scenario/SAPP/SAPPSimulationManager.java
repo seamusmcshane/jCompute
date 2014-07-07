@@ -3,7 +3,6 @@ package alifeSim.Scenario.SAPP;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-
 import alifeSim.Alife.GenericPlant.GenericPlantManager;
 import alifeSim.Alife.SimpleAgent.SimpleAgentManager;
 import alifeSim.Debug.DebugLogger;
@@ -297,11 +296,4 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		return endEvent;
 	}
-
-	@Override
-	public boolean needsGLCanvas()
-	{
-		return true;
-	}
-	
 }

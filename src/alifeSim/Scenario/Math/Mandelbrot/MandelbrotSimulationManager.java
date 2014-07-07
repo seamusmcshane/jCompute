@@ -2,7 +2,6 @@ package alifeSim.Scenario.Math.Mandelbrot;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
-
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -255,12 +254,6 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 	public String getEndEvent()
 	{
 		return endEvent;
-	}
-
-	@Override
-	public boolean needsGLCanvas()
-	{
-		return true;
 	}
 	
 }

@@ -164,12 +164,14 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 				/* Top Priority to the simulation thread */
 				//thisThread.setPriority(Thread.MAX_PRIORITY);
-								
+				
+				
 				while (running)
 				{
 					simUpdate();
 					//asyncUpdateThread.yield();
 				}
+				
 				
 				exited = true;
 			}
