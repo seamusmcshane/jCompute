@@ -132,9 +132,14 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	public void exitDisplay()
 	{
-		if(pTemp==null)
+		if(pTemp!=null)
 		{
 			pTemp.dispose();
+		}
+		
+		if(tTemp!=null)
+		{
+			tTemp.dispose();
 		}
 		
 		glCanvas.getInput().setInputProcessor(null);
