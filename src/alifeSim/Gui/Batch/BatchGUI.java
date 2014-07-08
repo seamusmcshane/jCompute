@@ -474,12 +474,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, S
 				
 				for(File file : files)
 				{
+					final String batchFile = file.getAbsolutePath();
 
 				    javax.swing.SwingUtilities.invokeLater(new Runnable() 
 				    {
 				        public void run() 
-				        {	
-							String batchFile = filechooser.getSelectedFile().getAbsolutePath();
+				        {
 
 							DebugLogger.output(batchFile);
 							
