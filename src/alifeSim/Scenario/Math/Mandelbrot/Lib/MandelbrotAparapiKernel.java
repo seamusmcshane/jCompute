@@ -64,7 +64,7 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 		
 		count++;
 		
-		kernel.dispose();
+		//kernel.dispose();
 	}
 	
 	private void createImage(int[] destRGB)

@@ -131,17 +131,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	}
 	
 	public void exitDisplay()
-	{
-		if(pTemp!=null)
-		{
-			pTemp.dispose();
-		}
-		
-		if(tTemp!=null)
-		{
-			tTemp.dispose();
-		}
-		
+	{		
 		glCanvas.getInput().setInputProcessor(null);
 		glCanvas.stop();		
 		Display.destroy();
@@ -297,7 +287,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	}
 	
 	private void targetFBOStop()
-	{				
+	{
 		currentShapeRenderer = bboShapeRenderer;
 		
 		currentSpriteBatch = bboSpriteBatch;
@@ -327,29 +317,8 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
         currentSpriteBatch.end();
         
 	}
-	
-	public void drawPixMapFBO2(int textureSize, int[] buffer, float x, float y)
-	{	
-		targetFBOStart();
 		
-		if(pTemp==null)
-		{
-			pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
-		}
-		
-    	ByteBuffer pixels = pTemp.getPixels();
-		
-    	pixels.asIntBuffer().put(buffer);
-    	
-		fbo.getColorBufferTexture().draw(pTemp, 0, pTemp.getHeight());
-		
-		targetFBOStop();
-		
-		// pTemp.dispose();
-
-	}
-	
-	public void drawPixMapFBO1(int textureSize, int[] buffer, float x, float y)
+	public void drawPixelMap(int textureSize, int[] buffer, float x, float y)
 	{	
 		if(pTemp == null)
 		{

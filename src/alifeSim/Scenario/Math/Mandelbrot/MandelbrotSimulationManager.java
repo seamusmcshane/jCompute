@@ -2,6 +2,8 @@ package alifeSim.Scenario.Math.Mandelbrot;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import alifeSim.Gui.View.GUISimulationView;
 import alifeSim.Gui.View.SimViewCam;
 import alifeSim.Simulation.SimulationScenarioManagerInf;
@@ -20,7 +22,10 @@ import alifeSimGeom.A2DVector2f;
 
 public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 {	
-	private Semaphore lock = new Semaphore(1, false);
+	private Semaphore compute = new Semaphore(0, false);
+	private Semaphore computed = new Semaphore(0, false);
+	private long drawTimeoutLimit = 132;
+	private long computeTimeoutLimit = 1000;
 
 	private MandelbrotScenario scenario;
 
@@ -47,13 +52,14 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 	private int textureSize;
 	private int iterations;
 	
-	private int[] dest;
+	private int[] computeBuffer;
+	private int[] drawBuffer;
 	
 	public MandelbrotSimulationManager(MandelbrotScenario scenario)
 	{
 		simViewCam = new SimViewCam();
 		
-		simViewCam.setCamOffset(new A2DVector2f(0,0));
+		simViewCam.setCamOffset(new A2DVector2f(50,50));
 		
 		this.scenario = scenario;
 		
@@ -61,7 +67,8 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 
 		textureSize = settings.getTextureSize();
 
-		dest = new int[textureSize*textureSize];
+		computeBuffer = new int[textureSize*textureSize];
+		drawBuffer = new int[textureSize*textureSize];
 		
 		iterations = settings.getIterations();
 		
@@ -74,7 +81,7 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 			kernel = new MandelbrotJavaKernel(textureSize, textureSize);
 		}
 
-		kernel.setDest(dest,MandelbrotPallete.HUEPalete(true));
+		kernel.setDest(computeBuffer,MandelbrotPallete.HUEPalete(true));
 		
 		coords = settings.getCoordiantes();
 		zooms = settings.getZooms();
@@ -102,12 +109,24 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 
 	@Override
 	public void doSimulationUpdate()
-	{		
-		lock.acquireUninterruptibly();
+	{
+
+		try
+		{
+			// Wait on the display to signal we can compute, but if they don't reply in time compute anyway.
+			if(compute.tryAcquire(computeTimeoutLimit, TimeUnit.MILLISECONDS))
+			{
+			}
+		}
+		catch (InterruptedException e)
+		{
+		}
 		
 		boolean finished = MandelbrotAnimate.animateSingleStep(kernel, coords[x], coords[y], coordinates, coords[x2], coords[y2], iterations);
 
 		kernel.computeMandle(coordinates.getCoordinateX(), coordinates.getCoordinateY(), coordinates.getCurrentZoom(), iterations);
+		
+		kernel.updateBuffers();
 		
 		if (finished)
 		{
@@ -131,7 +150,11 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 			
 		}
 		
-		lock.release();
+		// Signal display to swap the buffer
+		if(!(computed.availablePermits()>0))
+		{
+			computed.release();
+		}
 		
 	}
 
@@ -143,16 +166,27 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 
 	@Override
 	public void drawSim(GUISimulationView simView, boolean ignored, boolean ignored2)
-	{	
-		lock.acquireUninterruptibly();
+	{
+		try
+		{
+			// Wait on the kernel to signal we can swap buffers, but if they don't reply in time draw the OLD buffer
+			if(computed.tryAcquire(drawTimeoutLimit, TimeUnit.MILLISECONDS))
+			{				
+				System.arraycopy(computeBuffer, 0, drawBuffer, 0, computeBuffer.length);
+			}
+		}
+		catch (InterruptedException e)
+		{
+		}
 		
-		kernel.updateBuffers();
+		simView.drawPixelMap(textureSize, drawBuffer, 0, 0);
 		
-		simView.drawPixMapFBO1(textureSize, dest, 0, 0);
-
-		lock.release();
+		// Signal kernel it can compute now
+		if(!(compute.availablePermits()>0))
+		{
+			compute.release();
+		}		
 		
-
 	}
 	
 	@Override

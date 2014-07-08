@@ -5,7 +5,7 @@
 		<Type>Mandelbrot</Type>
 	</Header>
 	<Kernel>
-		<TextureSize>1024</TextureSize>
+		<TextureSize>900</TextureSize>
 		<Iterations>1536</Iterations>
 		<ComputeMethod>Aparapi</ComputeMethod>
 	</Kernel>
