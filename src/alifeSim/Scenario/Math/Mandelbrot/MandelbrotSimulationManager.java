@@ -24,7 +24,7 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 {	
 	private Semaphore compute = new Semaphore(0, false);
 	private Semaphore computed = new Semaphore(0, false);
-	private long drawTimeoutLimit = 132;
+	private long drawTimeoutLimit = 15;
 	private long computeTimeoutLimit = 1000;
 
 	private MandelbrotScenario scenario;
