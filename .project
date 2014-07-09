@@ -14,4 +14,17 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>fastMath</name>
+			<type>2</type>
+			<locationURI>ComputeSrc/fastMath</locationURI>
+		</link>
+		<link>
+			<name>rednaxela-knn-benchmark</name>
+			<type>2</type>
+			<locationURI>ComputeSrc/rednaxela-knn-benchmark</locationURI>
+		</link>
+	</linkedResources>
+	<variableList>
 </projectDescription>
