@@ -1,6 +1,5 @@
 package alifeSim.Alife.SimpleAgent;
 
-import fastMath.fastMath;
 import alifeSim.Alife.GenericPlant.GenericPlant;
 import alifeSim.Alife.GenericPlant.GenericPlantViewStats;
 import alifeSim.Alife.SimpleAgent.SimpleAgentEnum.AgentEval;
@@ -170,7 +169,7 @@ public class SimpleAgentView
 	* @return float */
 	public float awayfromAgentDirection(SimpleAgentBody myBody)
 	{
-		double direction = Math.toDegrees(fastMath.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
+		double direction = Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
 
 		direction = direction - 180;
 
@@ -188,7 +187,7 @@ public class SimpleAgentView
 	 * @return float */
 	public float towardsAgentDirection(SimpleAgentBody myBody)
 	{
-		double direction = Math.toDegrees(fastMath.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
+		double direction = Math.toDegrees(Math.atan2(getNearestAgentPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestAgentPos().getY()));
 
 		if (direction < 0)
 		{
@@ -204,7 +203,7 @@ public class SimpleAgentView
 	 * @return float */
 	public float towardsPlantDirection(SimpleAgentBody myBody)
 	{
-		float direction = (float) Math.toDegrees(fastMath.atan2(getNearestPlantPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestPlantPos().getY()));
+		float direction = (float) Math.toDegrees(Math.atan2(getNearestPlantPos().getX() - myBody.getBodyPos().getX(), myBody.getBodyPos().getY() - getNearestPlantPos().getY()));
 
 		if (direction < 0)
 		{
