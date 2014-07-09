@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/rsyntaxtextarea/rsyntaxtextarea_2.5.1/rsyntaxtextarea.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
