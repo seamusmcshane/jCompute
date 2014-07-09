@@ -5,5 +5,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rsyntaxtextarea/rsyntaxtextarea_2.5.1/rsyntaxtextarea.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-0.9.9/gdx-backend-lwjgl-natives.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-0.9.9/gdx-backend-lwjgl.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-0.9.9/gdx-natives.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-0.9.9/gdx.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
