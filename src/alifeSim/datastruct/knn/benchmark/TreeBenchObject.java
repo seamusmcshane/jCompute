@@ -1,4 +1,4 @@
-package alifeSim.datastruct.knn;
+package alifeSim.datastruct.knn.benchmark;
 
 import alifeSim.datastruct.knn.kdtree.KNNNodeInf;
 

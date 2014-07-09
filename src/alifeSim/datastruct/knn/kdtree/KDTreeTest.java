@@ -3,7 +3,7 @@ package alifeSim.datastruct.knn.kdtree;
 import java.util.ArrayList;
 import java.util.Random;
 
-import alifeSim.datastruct.knn.TreeBenchObject;
+import alifeSim.datastruct.knn.benchmark.TreeBenchObject;
 
 public class KDTreeTest
 {

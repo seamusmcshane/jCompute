@@ -1,4 +1,4 @@
-package alifeSim.datastruct.knn;
+package alifeSim.datastruct.knn.benchmark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,9 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
+
+import alifeSim.datastruct.knn.KNNInf;
+import alifeSim.datastruct.knn.thirdGenKDWrapper;
 
 public class TreeBenchmarks
 {
