@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="fastMath"/>
-	<classpathentry kind="src" path="rednaxela-knn-benchmark"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
@@ -20,5 +19,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-logging/commons-logging-1.1.3/commons-logging-api-1.1.3.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jcommon-1.0.20.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.16.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/rednaxela-knn-benchmark-2013-03-06/rednaxela-knn-benchmark.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
