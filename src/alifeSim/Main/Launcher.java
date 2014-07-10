@@ -5,6 +5,7 @@ import java.util.Set;
 
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.Batch.BatchGUI;
+import alifeSim.Gui.Standard.IconManager;
 import alifeSim.Gui.Standard.StandardGUI;
 import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
@@ -75,6 +76,8 @@ public class Launcher
 			DebugLogger.setDebug(true);
 		}
 
+		IconManager.init("oxygen");
+		
 		if(opts.get("guiInt").getValue() == 1)
 		{
 			/* Local Simulation Manager */			
