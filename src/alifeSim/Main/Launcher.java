@@ -2,17 +2,16 @@ package alifeSim.Main;
 
 import java.util.HashMap;
 import java.util.Set;
-
 import alifeSim.Debug.DebugLogger;
 import alifeSim.Gui.Batch.BatchGUI;
 import alifeSim.Gui.Standard.IconManager;
 import alifeSim.Gui.Standard.StandardGUI;
-import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 import alifeSim.Simulation.SimulationManager.Local.SimulationsManager;
-import alifeSim.Simulation.SimulationManager.Network.NetworkSimulationsManager;
 
 public class Launcher
 {
+	private static IconManager iconManager;
+	
 	// Standard GUI
 	private static StandardGUI standardGUI;
 

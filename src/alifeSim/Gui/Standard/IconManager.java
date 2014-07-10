@@ -1,8 +1,9 @@
 package alifeSim.Gui.Standard;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
-
 import javax.swing.ImageIcon;
 
 public class IconManager
@@ -11,60 +12,73 @@ public class IconManager
 
 	private static String smallIconDirName = "16x16";
 	private static String mediumIconDirName = "32x32";
-	
+
+	@SuppressWarnings("unused")
+	private static IconManager iconManager;
+
 	public static void init(String themeName)
 	{
-		iconMap = new HashMap<String, ImageIcon>();
-		
-		System.out.println("Loading theme " + themeName);
-
-		// Force lowercase dir names.
-		String themeDir = "icons"+File.separatorChar+themeName.toLowerCase();
-		String smallIconDir = themeDir+File.separatorChar+smallIconDirName;
-		String mediumIconDir = themeDir+File.separatorChar+mediumIconDirName;
-		
-		System.out.println("Theme location " + themeDir);		
-		
-		// Check the icon dirs exist then proceed
-		if(dirExistsNow(smallIconDir) && dirExistsNow(mediumIconDir))
-		{
-			loadIcons(getFilesInDir(smallIconDir));
-			loadIcons(getFilesInDir(mediumIconDir));
-		}
-		else
-		{
-			System.out.println("Fatal - Did not load theme " + themeName);
-		}
-
+		iconManager = new IconManager(themeName);
 	}
-	
+
 	public static ImageIcon getIcon(String iconName)
 	{
-		return iconMap.get(iconName+".png");
+		return iconMap.get(iconName + ".png");
 	}
-	
-	private static void loadIcons(File[] files)
+
+	private IconManager(String themeName)
 	{
-		
-		for(int f=0;f<files.length;f++)
+		iconMap = new HashMap<String, ImageIcon>();
+
+		System.out.println("Loading theme " + themeName);
+
+		String themePath = "/icons/" + themeName + "/";
+
+		URL smallIconURL;
+		URL mediumIconURL;
+
+		smallIconURL = IconManager.class.getResource(themePath + smallIconDirName);
+		mediumIconURL = IconManager.class.getResource(themePath + mediumIconDirName);
+
+		loadIcons(getFilesInDir(smallIconURL));
+		loadIcons(getFilesInDir(mediumIconURL));
+	}
+
+	private void loadIcons(File[] files)
+	{
+		for (int f = 0; f < files.length; f++)
 		{
-			System.out.println("File : " + files[f].getName() + " " + files[f].getAbsolutePath() );
-			
+			System.out.println("File : " + files[f].getName() + " " + files[f].getAbsolutePath());
+
 			if (files[f].isFile())
 			{
-				iconMap.put(files[f].getName(), new ImageIcon(files[f].getAbsolutePath(),files[f].getName()));
+				iconMap.put(files[f].getName(), new ImageIcon(files[f].getAbsolutePath(), files[f].getName()));
 			}
-		}		
+		}
 	}
-	
-	private static File[] getFilesInDir(String dir)
+
+	private File[] getFilesInDir(URL url)
 	{
-		return new File(dir).listFiles();
-	}
-	
-	private static boolean dirExistsNow(String dir)
-	{
-		System.out.println(dir);
-		return (new File(dir).exists());
+		File file = null;
+
+		try
+		{
+			if(url!=null)
+			{
+				System.out.println(url.toURI());
+				file = new File(url.toURI());
+			}
+		}
+		catch (URISyntaxException e)
+		{
+			System.out.println(e.getCause());
+		}
+
+		if (file != null)
+		{
+			return file.listFiles();
+		}
+
+		return new File[]{};
 	}
 }

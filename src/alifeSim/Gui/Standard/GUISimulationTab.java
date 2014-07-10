@@ -780,8 +780,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	}
 
 	private void addChartTabs()
-	{		
-
+	{
 		Set<String> statGroups = simsManager.getStatGroupNames(simId);
 
 		LinkedList<GlobalStatChartPanel> charts = new  LinkedList<GlobalStatChartPanel>();
