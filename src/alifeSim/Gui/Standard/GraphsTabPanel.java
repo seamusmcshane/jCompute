@@ -22,7 +22,7 @@ import alifeSim.Simulation.SimulationManager.SimulationsManagerInf;
 
 public class GraphsTabPanel extends JPanel
 {	
-	private ImageIcon simulationStatChartIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kchart.png"));
+	private ImageIcon chartIcon = IconManager.getIcon("chartIcon");
 
 	private JTabbedPane chartTabs;
 	
@@ -45,7 +45,7 @@ public class GraphsTabPanel extends JPanel
 		{
 			System.out.println("Adding " + chartPanel.getName() + " Chart Panel");
 			chartTabs.addTab(chartPanel.getName(), null, chartPanel);
-			chartTabs.setIconAt(chartTabs.getTabCount() - 1, simulationStatChartIcon);
+			chartTabs.setIconAt(chartTabs.getTabCount() - 1, chartIcon);
 		}
 		
 		this.charts = charts;

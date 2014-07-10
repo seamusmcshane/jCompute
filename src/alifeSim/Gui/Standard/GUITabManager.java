@@ -55,10 +55,14 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	/** A Reference to the Simulations Manager */
 	private SimulationsManagerInf simsManager;
 
+	/* Icons */ 
+	ImageIcon simulationListTabIcon = IconManager.getIcon("simulationListTabIcon");
+	ImageIcon AddTabIcon = IconManager.getIcon("AddTabIcon");
+	
 	public GUITabManager(final SimulationsManagerInf simsManager)
 	{
 		/* Tabs on the Left */
-		super(TOP);
+		super(LEFT);
 		
 		this.simsManager = simsManager;
 				
@@ -72,11 +76,11 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		this.add(simulationListTab);
 		
 		this.setTitleAt(this.getTabCount()-1, simulationListTab.getTabName());
-		this.setIconAt(this.getTabCount()-1, new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/dialog-information.png")));
+		this.setIconAt(this.getTabCount()-1,simulationListTabIcon);
 	
 		/* The Special AddTab button */
 		this.add(addPanel);
-		this.setIconAt(this.getTabCount()-1, new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/tab-new-background.png")));
+		this.setIconAt(this.getTabCount()-1, AddTabIcon);
 		
 		this.addChangeListener(new ChangeListener()
 		{

@@ -123,26 +123,26 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private Timer updateTimer;
 	
 	/* Tab Status Icons */
-	private ImageIcon simRunningIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-start.png"));
-	private ImageIcon simPausedIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-pause.png"));
-	private ImageIcon newTabIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/dialog-warning.png"));
-	private ImageIcon simNewIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/media-playback-stop.png"));
-	private ImageIcon simFinishedIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/task-complete.png"));
+	private ImageIcon simRunningIcon = IconManager.getIcon("simRunningIcon");
+	private ImageIcon simPausedIcon = IconManager.getIcon("simPausedIcon");
+	//private ImageIcon newTabIcon = new ImageIcon(GUITabManager.class.getResource("/alifeSim/icons/dialog-warning.png"));
+	private ImageIcon simNewIcon = IconManager.getIcon("simNewIcon");
+	private ImageIcon simFinishedIcon = IconManager.getIcon("simFinishedIcon");
 	
 	/* Scenario Editor Icons */
-	private ImageIcon openScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-open.png"));
-	private ImageIcon saveScenarioIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/document-save.png"));
+	private ImageIcon openScenarioIcon = IconManager.getIcon("openScenarioIcon");
+	private ImageIcon saveScenarioIcon = IconManager.getIcon("saveScenarioIcon");
 	
 	/* Button Icons */
-	private ImageIcon generateSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/grid.png"));
-	private ImageIcon startSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/play.png"));
-	private ImageIcon resumeSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/resume.png"));
-	private ImageIcon pauseSimIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/pause.png"));
+	private ImageIcon generateSimIcon = IconManager.getIcon("generateSimIcon");
+	private ImageIcon startSimIcon = IconManager.getIcon("startSimIcon");
+	private ImageIcon resumeSimIcon = IconManager.getIcon("resumeSimIcon");
+	private ImageIcon pauseSimIcon = IconManager.getIcon("pauseSimIcon");
 
 	/* Chart Tab Icons */
-	private ImageIcon simulationStatsExportIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kspread.png"));
-	private ImageIcon scenarioEditorIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/accessories-text-editor.png"));
-	private ImageIcon simulationStatChartIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kchart.png"));
+	//private ImageIcon simulationStatsExportIcon = new ImageIcon(GUISimulationTab.class.getResource("/alifeSim/icons/kspread.png"));
+	private ImageIcon scenarioEditorIcon = IconManager.getIcon("scenarioEditorIcon");
+	private ImageIcon chartIcon = IconManager.getIcon("chartIcon");
 
 	// Tab Related
 	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
@@ -773,7 +773,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private void addGraphsPanel()
 	{		
 		simulationTabPane.addTab("Charts", graphsTabPanel);
-		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, simulationStatChartIcon);
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, chartIcon);
 		
 		// Re-add the ChartTabs
 		addChartTabs();
