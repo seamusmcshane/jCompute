@@ -3,17 +3,17 @@ package alifeSim.Main;
 public class CommandLineArg
 {
 	private String name;
-	private int value;
+	private String value;
 	private String description;
 	
-	public CommandLineArg(String name,int value, String description)
+	public CommandLineArg(String name,String value, String description)
 	{
 		this.name = name;
 		this.value = value;
 		this.description = description;
 	}
 
-	public int getValue()
+	public String getValue()
 	{
 		return value;
 	}

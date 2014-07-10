@@ -27,8 +27,9 @@ public class Launcher
 	// Defaults
 	private static CommandLineArg defaultsList[] =
 	{
-			new CommandLineArg("mcs", 8,"Max Concurrent Simulations"), new CommandLineArg("guiInt", 1, "Enable Disable Standard GUI (0/1)"), 
-			new CommandLineArg("batchInt", 0,"Enable Disable Batch Interface (0/1)"), new CommandLineArg("debug", 0,"Enable Disable Debug (0/1)")
+			new CommandLineArg("mcs", "8","Max Concurrent Simulations"), new CommandLineArg("guiInt", "1", "Enable Disable Standard GUI (0/1)"), 
+			new CommandLineArg("batchInt", "0","Enable Disable Batch Interface (0/1)"), new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"),
+			new CommandLineArg("iTheme", "none","Icon Theme Name")
 	};
 
 	public static void main(String args[])
@@ -70,26 +71,29 @@ public class Launcher
 	}
 	private static void implementOpts()
 	{	
-		if(opts.get("debug").getValue() == 1)
+		
+		if(Integer.parseInt(opts.get("debug").getValue())== 1)
 		{
 			DebugLogger.setDebug(true);
 		}
 
-		IconManager.init("oxygen");
+
+		IconManager.init(opts.get("iTheme").getValue());
+
 		
-		if(opts.get("guiInt").getValue() == 1)
+		if(Integer.parseInt(opts.get("guiInt").getValue()) == 1)
 		{
 			/* Local Simulation Manager */			
-			standardGUI = new StandardGUI(new SimulationsManager(opts.get("mcs").getValue()));
+			standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 		}
 		
-		if(opts.get("batchInt").getValue() == 1)
+		if(Integer.parseInt(opts.get("batchInt").getValue()) == 1)
 		{
 			/* Network Simulation Manager */			
 			//batchGUI = new BatchGUI(new NetworkSimulationsManager());
 			
 			// Local - Testing
-			batchGUI = new BatchGUI(new SimulationsManager(opts.get("mcs").getValue()));
+			batchGUI = new BatchGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 
 		}
 
@@ -130,7 +134,7 @@ public class Launcher
 				String description = opts.get(kv[0]).getDescription();
 				
 				// Name/value with name as index in map
-				opts.put(kv[0], new CommandLineArg(kv[0], Integer.parseInt(kv[1]),description));
+				opts.put(kv[0], new CommandLineArg(kv[0], kv[1],description));
 			}
 			else
 			{
@@ -150,7 +154,7 @@ public class Launcher
 					
 					for(CommandLineArg defaultItem : defaultsList)
 					{
-						System.out.println(String.format("%10s",defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", Integer.toString(defaultItem.getValue()), "     ") + "\t" + String.format("%10s",defaultItem.getDescription()));
+						System.out.println(String.format("%10s",defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ") + "\t" + String.format("%10s",defaultItem.getDescription()));
 					}
 					
 					System.exit(0);
