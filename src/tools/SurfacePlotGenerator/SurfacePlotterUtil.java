@@ -1,5 +1,7 @@
 package tools.SurfacePlotGenerator;
 
+import jCompute.Debug.DebugLogger;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -47,8 +49,6 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.ddp.PeelingComponentFactory;
 import org.jzy3d.plot3d.rendering.ddp.algorithms.PeelingMethod;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
-
-import alifeSim.Debug.DebugLogger;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
