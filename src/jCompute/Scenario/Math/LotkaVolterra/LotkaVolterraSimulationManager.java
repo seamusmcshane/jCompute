@@ -144,42 +144,6 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 		}
 		
 	}
-	
-	@Override
-	public float getCamZoom()
-	{
-		return simViewCam.getCamZoom();
-	}
-	
-	@Override
-	public void resetCamPos(float x,float y)
-	{
-		simViewCam.resetCamPos(x, y);
-	}
-	
-	@Override
-	public void adjCamZoom(float z)
-	{
-		simViewCam.adjCamZoom(z);	
-	}
-
-	@Override
-	public void resetCamZoom()
-	{
-		simViewCam.resetCamZoom();			
-	}	
-	
-	@Override
-	public A2DVector2f getCamPos()
-	{
-		return new A2DVector2f(simViewCam.getCamPosX(),simViewCam.getCamPosY());
-	}
-
-	@Override
-	public void moveCamPos(float x, float y)
-	{
-		simViewCam.moveCam(x,y);		
-	}
 
 	private void setUpEndEvents()
 	{
@@ -233,6 +197,12 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 	public String getEndEvent()
 	{
 		return endEvent;
+	}
+
+	@Override
+	public SimViewCam getSimViewCam()
+	{
+		return simViewCam;
 	}
 	
 }
