@@ -88,7 +88,7 @@ public class SimViewCam
 		{
 			camZoom = maxZoom;
 		}
-
+		
 	}
 
 	public float getCamPosX()
@@ -316,8 +316,8 @@ public class SimViewCam
 	}
 
 	public void moveCam(float x, float y)
-	{
-		camPos.set(x, y);
+	{	
+		camPos.add(x*camZoom,y*camZoom);
 	}
 
 }

@@ -10,15 +10,7 @@ import jCompute.Simulation.SimulationScenarioManagerInf;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JComponent;
@@ -39,7 +31,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -80,10 +71,12 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	/** Stores the mouse vector across updates */
 	private A2DVector2f mousePos = new A2DVector2f(0, 0);
 	
-	private boolean button0Pressed;
+	private boolean button1Pressed;
 	
-	private BitmapFont font;
+	private BitmapFont overlayFont;
+	private SpriteBatch overlaySpriteBatch;
 
+	
 	private float defaultLineWidth = 0.10f;
 		
 	/* FBO / BBO */
@@ -95,6 +88,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	private ShapeRenderer fboShapeRenderer;
 	
 	private SpriteBatch currentSpriteBatch;
+	private BitmapFont font;
 	private ShapeRenderer currentShapeRenderer;
 	
 	private Pixmap pTemp;
@@ -146,9 +140,8 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 
 	public void setSim(Simulation simIn)
 	{
-		//System.out.println("Simulation Set");
 		viewLock.acquireUninterruptibly();		
-		sim = simIn;
+		sim = simIn;	
 		viewLock.release();
 	}
 	
@@ -164,11 +157,14 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		currentShapeRenderer = bboShapeRenderer;
 		
 		currentSpriteBatch = bboSpriteBatch;
-        
 		font = new BitmapFont();
-        font.setColor(Color.WHITE);
-
-
+		font.setColor(Color.WHITE);
+        
+		overlayFont = new BitmapFont();
+		overlayFont.setColor(Color.WHITE);
+		
+		overlaySpriteBatch = new SpriteBatch();
+		
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888,2048, 2048,false);
         
 		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -220,19 +216,26 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		{
 			if(sim.getSimManager()!=null)
 			{
-				viewCam.position.set(sim.getSimManager().getCamPos().getX(), sim.getSimManager().getCamPos().getY(),0);
+				viewCam.position.set(sim.getSimManager().getSimViewCam().getCamPosX(), sim.getSimManager().getSimViewCam().getCamPosY(),0);
 
-				viewCam.zoom = sim.getSimManager().getCamZoom();				
+				viewCam.zoom = sim.getSimManager().getSimViewCam().getCamZoom();				
 			}
 
 			viewCam.update();
 			
 			sim.drawSim(this,viewRangeDrawing,viewsDrawing);
-
+			
+			simulationTitle = sim.getSimInfo();
+			
+		}
+		else
+		{
+			simulationTitle = "None";
 		}
 		
-		viewLock.release();
+		drawOverlayText(10,Gdx.graphics.getHeight()-10,simulationTitle);
 
+		viewLock.release();
 	}
 
 	@Override
@@ -268,11 +271,18 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		
 	}
 	
+	public void drawOverlayText(float x,float y,String text)
+	{
+		overlaySpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		overlaySpriteBatch.begin();
+			overlayFont.draw(overlaySpriteBatch, text, x, y);
+		overlaySpriteBatch.end();
+	}
+	
 	public void drawText(float x,float y,String text)
 	{
 		currentSpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		currentSpriteBatch.begin();
-			font.setColor(Color.WHITE);
 			font.draw(currentSpriteBatch, text, x, y);
 		currentSpriteBatch.end();
 	}
@@ -328,7 +338,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		if(tTemp == null)
 		{
 			tTemp = new Texture(pTemp);
-			//tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		}
 		
 		if(textureSize!=tTemp.getHeight() || textureSize!=tTemp.getWidth())
@@ -338,7 +348,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 			
 			pTemp = new Pixmap(textureSize, textureSize,Format.RGBA8888);
 			tTemp = new Texture(pTemp);
-			//tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		}
 		
     	ByteBuffer pixels = pTemp.getPixels();
@@ -646,16 +656,16 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 
 	@Override
 	public boolean mouseMoved(int x, int y)
-	{
-		return false;
+	{	
+		return true;
 	}
 
 	@Override
 	public boolean scrolled(int val)
 	{
 		if(sim!=null)
-		{
-			sim.getSimManager().adjCamZoom(val);
+		{			
+			sim.getSimManager().getSimViewCam().adjCamZoom(val);
 		}
 		
 		return false;
@@ -664,53 +674,63 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button)
 	{
-		if(button == 0)
+		if(button == 1)
 		{
-			button0Pressed = true;
-			mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
-			
+			button1Pressed = true;
+			resetCamera();
 		}
 		else
 		{
-			resetCamera();
+			mousePos.set(x,y);
 		}
 		
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int x, int y, int z)
-	{
-		if(button0Pressed)
+	{	
+		
+		if(!button1Pressed)
 		{
-			float camX = (-x) - mousePos.getX();
-			float camY = (y) - mousePos.getY();
-	
-			moveCamera(camX, camY);
-		}
-		else
-		{
+			// Latch the old position
+			float previousX = mousePos.getX();
+			float previousY = mousePos.getY();
 			
-		}
+			// Update newX/Y
+			mousePos.set(x,y);
+
+			// How much did the mouse move.
+			float diffX = previousX - mousePos.getX();
+			float diffY = previousY - mousePos.getY();
 			
+			// -y for when converting from screen to graphics coordinates
+			moveCamera(diffX,-diffY);
+		}
+		
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button)
-	{
-		button0Pressed = false;
+	{	
+		if(button1Pressed)
+		{
+			button1Pressed=false;
+		}
+		else
+		{
+			mousePos.set(x,y);
+		}
 		
-		mousePos.set(-x - viewCam.position.x, y - viewCam.position.y);
-				
 		return false;
 	}
 	
 	private void moveCamera(float x, float y)
 	{		
 		if(sim!=null)
-		{
-			sim.getSimManager().moveCamPos(x,y);
+		{			
+			sim.getSimManager().getSimViewCam().moveCam(x,y);
 		}
 	}
 	
@@ -725,11 +745,11 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 			// This can be null if a tab is added when no sim is generated and the window is resized
 			if(simManager!=null)
 			{
-				sim.getSimManager().resetCamZoom();	
-				sim.getSimManager().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
+				sim.getSimManager().getSimViewCam().resetCamZoom();	
+				sim.getSimManager().getSimViewCam().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
 			}
 		}
-	}	
+	}
 	
 	public void setSimulationTitle(String text)
 	{

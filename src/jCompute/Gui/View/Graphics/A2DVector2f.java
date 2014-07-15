@@ -49,6 +49,14 @@ public class A2DVector2f
 		return this;
 	}
 	
+	public A2DVector2f add(float x, float y)
+	{
+		pos[0] += x;
+		pos[1] += y;
+		
+		return this;
+	}
+	
 	public A2DVector2f add(float theta)
 	{
 		setTheta(getTheta() + theta);
