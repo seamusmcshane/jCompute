@@ -126,4 +126,32 @@ public class AparapiUtil
 
 		return dev;
 	}
+	
+	public static OpenCLDevice selectDevByVendorAndType(final String gpuVendor, final String type)
+	{
+		OpenCLDevice dev = OpenCLDevice.select(new OpenCLDevice.DeviceSelector()
+		{
+			public OpenCLDevice select(OpenCLDevice d)
+			{
+				for (OpenCLPlatform platform : d.getPlatform().getPlatforms())
+				{
+					if (platform.getName().toLowerCase().contains(gpuVendor.toLowerCase()))
+					{
+						for (OpenCLDevice dev : platform.getDevices())
+						{
+							if (dev.getType().toString().toLowerCase().contains(type.toLowerCase()))
+							{
+								System.out.println(gpuVendor + " " + type + " Detected");
+
+								return dev;
+							}
+						}
+					}
+				}
+				return null;
+			}
+		});
+		
+		return dev;
+	}
 }
