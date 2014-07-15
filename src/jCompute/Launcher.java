@@ -10,12 +10,15 @@ import java.util.Set;
 
 public class Launcher
 {
+	@SuppressWarnings("unused")
 	private static IconManager iconManager;
 	
 	// Standard GUI
+	@SuppressWarnings("unused")
 	private static StandardGUI standardGUI;
 
 	// Batch GUI
+	@SuppressWarnings("unused")
 	private static BatchGUI batchGUI;
 
 	// Command Line HasMap
@@ -24,7 +27,7 @@ public class Launcher
 	// Command Line HasMap - Defaults for faster look up
 	private static HashMap<String, CommandLineArg> optDefaults;
 
-	// Defaults
+	// Defaults ( option string, default value, option description
 	private static CommandLineArg defaultsList[] =
 	{
 			new CommandLineArg("mcs", "8","Max Concurrent Simulations"), new CommandLineArg("guiInt", "1", "Enable Disable Standard GUI (0/1)"), 
@@ -99,6 +102,7 @@ public class Launcher
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void parseCommandLine(String args[])
 	{
 		// Clone the defaults, we will used these values if the args arnt passed
