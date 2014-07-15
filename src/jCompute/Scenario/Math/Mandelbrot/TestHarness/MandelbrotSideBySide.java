@@ -51,10 +51,11 @@ public class MandelbrotSideBySide
 		/* Palette */
 		pallete = MandelbrotPallete.HUEPalete(false);
 
-		kernel1 = new MandelbrotJavaKernel(imageWidth, imageHeight);	
+		kernel1 = new MandelbrotJavaKernel(imageWidth, imageHeight);
+		//kernel1 = new MandelbrotAparapiKernel(AparapiUtil.selectDevByVendorAndType("INTEL","CPU"), imageWidth, imageHeight);
 		kernel1.setDest(((DataBufferInt) dest1.getRaster().getDataBuffer()).getData(),pallete);
 		
-		kernel2 = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), imageWidth, imageHeight);
+		kernel2 = new MandelbrotAparapiKernel(AparapiUtil.selectDevByVendorAndType("NVIDIA","GPU"), imageWidth, imageHeight);
 		kernel2.setDest(((DataBufferInt) dest2.getRaster().getDataBuffer()).getData(),pallete);
 		
 		Thread thread1 = new Thread(new Runnable()
@@ -137,8 +138,8 @@ public class MandelbrotSideBySide
 				
 				g.setColor(Color.YELLOW);
 				g.setFont(font);
-				g.drawString("Java", margin, imageHeight-margin);
-				g.drawString("Aparapi", imageWidth+margin, imageHeight-margin);
+				g.drawString(kernel1.getComputeMethodString(), margin, imageHeight-margin);
+				g.drawString(kernel2.getComputeMethodString(), imageWidth+margin, imageHeight-margin);
 				
 				g.drawString(String.valueOf(kernel1.getCount()), margin, imageHeight-margin+20);
 				g.drawString(String.valueOf(kernel2.getCount()), imageWidth+margin, imageHeight-margin+20);

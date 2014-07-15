@@ -14,9 +14,13 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 	
 	private long count = 0;
 	
+	private OpenCLDevice dev;
+	
 	public MandelbrotAparapiKernel(OpenCLDevice dev, int width,int height)
 	{
 		System.out.println("OpenCL Kernel in use");
+		
+		this.dev = dev;
 		
 		if(dev == null)
 		{
@@ -27,6 +31,16 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 			range = dev.createRange2D(width, height);
 		}
 		
+	}
+	
+	public String getComputeMethodString()
+	{
+		if(dev!=null)
+		{
+			return "Aparapi " + dev.getPlatform().getVendor() +  " " + dev.getType();
+		}
+		
+		return "No Dev";
 	}
 	
 	public void setDest(int[] dest,int[] pallete)

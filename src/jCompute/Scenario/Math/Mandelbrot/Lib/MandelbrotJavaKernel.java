@@ -28,6 +28,11 @@ public class MandelbrotJavaKernel implements MandelbrotKernelInterface
 		pSize = this.pallete.length;
 	}
 	
+	public String getComputeMethodString()
+	{
+		return "Java Threads";
+	}
+	
 	public long getCount()
 	{
 		return count;

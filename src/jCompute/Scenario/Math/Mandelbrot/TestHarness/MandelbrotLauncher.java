@@ -77,7 +77,7 @@ public class MandelbrotLauncher
 
 		if(Aparapi==1)
 		{
-			kernel = new MandelbrotAparapiKernel(AparapiUtil.chooseOpenCLDevice(), imageWidth, imageHeight);
+			kernel = new MandelbrotAparapiKernel(AparapiUtil.selectDevByVendorAndType("NVIDIA","GPU"), imageWidth, imageHeight);
 		}
 		else
 		{
@@ -144,15 +144,9 @@ public class MandelbrotLauncher
 				g.setFont(font);
 			
 				g.drawString(String.valueOf(kernel.getCount()), margin, renderer.getHeight()-margin+20);
-				
-				if(Aparapi==1)
-				{
-					g.drawString("Aparapi", margin, renderer.getHeight()-margin+40);
-				}
-				else
-				{
-					g.drawString("Java", margin, renderer.getHeight()-margin+40);
-				}
+
+				g.drawString(kernel.getComputeMethodString(), margin, renderer.getHeight()-margin+40);
+
 			}
 		};
 
