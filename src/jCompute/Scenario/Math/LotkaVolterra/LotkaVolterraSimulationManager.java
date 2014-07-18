@@ -205,4 +205,10 @@ public class LotkaVolterraSimulationManager implements SimulationScenarioManager
 		return simViewCam;
 	}
 	
+	@Override
+	public String getInfo()
+	{
+		return "|| Type " + scenario.getScenarioType();
+	}
+	
 }

@@ -259,5 +259,11 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 	{
 		return simViewCam;
 	}
+
+	@Override
+	public String getInfo()
+	{
+		return "|| Type : " + scenario.getScenarioType() + " || Compute Method : " + kernel.getComputeMethodString();
+	}
 	
 }

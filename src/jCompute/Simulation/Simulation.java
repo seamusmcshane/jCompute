@@ -446,7 +446,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 		
 		if(this.getSimManager()!=null)
 		{
-			simInfo = simInfo + " Type : " + getSimManager().getScenario().getScenarioType();
+			simInfo = simInfo + " Type : " + getSimManager().getInfo();
 		}
 		
 		return simInfo ;

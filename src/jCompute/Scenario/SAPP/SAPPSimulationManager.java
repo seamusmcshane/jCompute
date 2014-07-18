@@ -267,4 +267,10 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 	{
 		return simViewCam;
 	}
+
+	@Override
+	public String getInfo()
+	{
+		return "|| Type " + scenario.getScenarioType();
+	}
 }
