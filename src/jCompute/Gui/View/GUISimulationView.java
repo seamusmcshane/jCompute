@@ -357,8 +357,13 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
     	
     	tTemp.draw(pTemp, 0,0);
 
+
+    	float min = Math.min(Gdx.graphics.getWidth(),  Gdx.graphics.getHeight()-100);
+    	
+    	float scale = min/textureSize;
+    	
     	currentSpriteBatch.begin();
-    	currentSpriteBatch.draw(tTemp,x,y);
+    	currentSpriteBatch.draw(tTemp,x,y,textureSize*scale,textureSize*scale);
     	currentSpriteBatch.end();    	
 	}
 	
