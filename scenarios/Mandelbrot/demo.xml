@@ -5,7 +5,7 @@
 		<Type>Mandelbrot</Type>
 	</Header>
 	<Kernel>
-		<TextureSize>900</TextureSize>
+		<TextureSize>1024</TextureSize>
 		<Iterations>1536</Iterations>
 		<ComputeMethod>Aparapi</ComputeMethod>
 	</Kernel>
@@ -21,6 +21,12 @@
 			<Y>0.0</Y>
 			<StartZoom>150</StartZoom>
 			<EndZoom>150</EndZoom>
+		</Coordinate>
+		<Coordinate>
+			<X>-1.253443750</X>
+			<Y>0.0466863</Y>
+			<StartZoom>150</StartZoom>
+			<EndZoom>1000000000000000</EndZoom>
 		</Coordinate>
 		<Coordinate>
 			<X>-0.16276694186</X>
