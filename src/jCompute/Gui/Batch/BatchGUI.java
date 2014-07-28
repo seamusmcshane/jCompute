@@ -23,22 +23,14 @@ import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextPane;
 import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,8 +45,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.Toolkit;
-
-import javax.swing.text.BadLocationException;
 
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
@@ -78,23 +68,31 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	// Container Split Pane
 	private JSplitPane splitPaneOuterNSSplit;
 
-	// Top of container Split pane - Batches section
-	private JSplitPane splitPaneBatches;
-	private TablePanel batchListTable;
+	// Top of container Split pane - Batches section (Left/Right)
+	private JSplitPane splitPaneBatchInfo;
+
+	// Left Split
+	private JPanel batchQueuedAndCompletePanel;	
+	private TablePanel batchQueuedTable;
+	private TablePanel batchCompleteTable;
 	private int selectedBatchRowIndex = -1;
 
+	// Right Split
 	private JPanel batchInfoPanel;
+	private JPanel batchInfoQueuePanel;
 	private TablePanel activeItemsListTable;
 	private TablePanel queuedItemsListTable;
+	private TablePanel completedItemsListTable;
+	
 	// Bottom of container split pane
 	private TablePanel activeSimulationsListTable;
+	private JPanel bottomSplitContainer;
 
 	private Timer activeSimulationsListTableUpdateTimer;
-	private JPanel bottomSplitContainer;
-	private JTextPane consoleTextPane;
 
 	private ProgressMonitor openBatchProgressMonitor;
 	private OpenBatchFileTask openBatchProgressMonitorTask;
+	private TablePanel batchInfo;
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
@@ -115,7 +113,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			public void run()
 			{
 				activeSimulationsListTable.RedrawTable(-1);
-				batchListTable.RedrawTable(selectedBatchRowIndex);
+				batchQueuedTable.RedrawTable(selectedBatchRowIndex);
 
 				displayBatchInfo();
 			}
@@ -123,57 +121,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}, 0, 1500);
 
 		batchManager.addBatchManagerListener(this);
-	}
-
-	private void appendToConsole(final String text)
-	{
-		final int maxConsoleLength = 10000;
-
-		Calendar calender = Calendar.getInstance();
-
-		final String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-		final String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
-
-		final String output;
-
-		if (text.length() > 2)
-		{
-			output = "[" + date + "@" + time + "] : " + text;
-		}
-		else
-		{
-			output = text;
-		}
-
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				try
-				{
-					if (consoleTextPane.getDocument().getLength() > maxConsoleLength)
-					{
-						consoleTextPane.getDocument().remove(consoleTextPane.getDocument().getDefaultRootElement().getElement(0).getStartOffset(), consoleTextPane.getDocument().getDefaultRootElement().getElement(0).getEndOffset());
-					}
-					consoleTextPane.getDocument().insertString(consoleTextPane.getDocument().getLength(), output, null);
-				}
-				catch (BadLocationException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		});
-		
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				consoleTextPane.setCaretPosition(consoleTextPane.getDocument().getLength());
-			}
-		});		
-
 	}
 
 	private void setUpFrame()
@@ -190,57 +137,41 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		setUpBatchesPane();
 
 		splitPaneOuterNSSplit = new JSplitPane();
-		splitPaneOuterNSSplit.setEnabled(false);
+		splitPaneOuterNSSplit.setOneTouchExpandable(true);
 		splitPaneOuterNSSplit.setContinuousLayout(true);
 		splitPaneOuterNSSplit.setResizeWeight(0.5);
+		splitPaneOuterNSSplit.setDividerSize(10);
 		splitPaneOuterNSSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		guiFrame.getContentPane().add(splitPaneOuterNSSplit, BorderLayout.CENTER);
 
-		splitPaneOuterNSSplit.setLeftComponent(splitPaneBatches);
+		splitPaneOuterNSSplit.setLeftComponent(splitPaneBatchInfo);
+		splitPaneBatchInfo.setLeftComponent(batchQueuedAndCompletePanel);
+		
+		// Bottom Completed Batches
+		batchCompleteTable = new TablePanel("Completed Batches", new String[]
+		{
+				"Batch Id", "Base File", "Type", "Items", "Progress", "Completed", "Run Time", "ETT"
+		});
+		GridBagConstraints gbc_batchCompleteTable = new GridBagConstraints();
+		gbc_batchCompleteTable.gridx = 0;
+		gbc_batchCompleteTable.gridy = 1;
+		gbc_batchCompleteTable.fill = GridBagConstraints.BOTH;
+		
+		batchQueuedAndCompletePanel.add(batchCompleteTable, gbc_batchCompleteTable);
 
 		bottomSplitContainer = new JPanel();
 		GridBagLayout gbl_bottomSplitContainer = new GridBagLayout();
-		gbl_bottomSplitContainer.columnWidths = new int[]
-		{
-				0, 0
-		};
-		gbl_bottomSplitContainer.rowHeights = new int[]
-		{
-				0, 0
-		};
+		gbl_bottomSplitContainer.columnWidths = new int[] {0};
+		gbl_bottomSplitContainer.rowHeights = new int[] {0};
 		gbl_bottomSplitContainer.columnWeights = new double[]
 		{
-				1.0, Double.MIN_VALUE
+				1.0
 		};
 		gbl_bottomSplitContainer.rowWeights = new double[]
 		{
-				1.0, 1.0
+				1.0
 		};
 		bottomSplitContainer.setLayout(gbl_bottomSplitContainer);
-
-		OutputStream out = new OutputStream()
-		{
-			@Override
-			public void write(int integer) throws IOException
-			{
-				appendToConsole(String.valueOf((char) integer));
-			}
-
-			@Override
-			public void write(final byte[] bytes, final int off, final int len) throws IOException
-			{
-				appendToConsole(new String(bytes, off, len));
-			}
-
-			@Override
-			public void write(final byte[] bytes) throws IOException
-			{
-				appendToConsole(new String(bytes, 0, bytes.length));
-			}
-		};
-
-		System.setOut(new PrintStream(out, true));
-		System.setErr(new PrintStream(out, true));
 
 		splitPaneOuterNSSplit.setRightComponent(bottomSplitContainer);
 
@@ -255,26 +186,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		activeSimulationsListTable.setColumWidth(4, 50);
 		// Progress Column uses a progress bar for display
 		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
+		activeSimulationsListTable.setMinimumSize(new Dimension(800,200));
 
 		GridBagConstraints gbc_activeSimulationsListTable = new GridBagConstraints();
-		gbc_activeSimulationsListTable.insets = new Insets(0, 0, 0, 0);
 		gbc_activeSimulationsListTable.fill = GridBagConstraints.BOTH;
 		gbc_activeSimulationsListTable.gridx = 0;
 		gbc_activeSimulationsListTable.gridy = 0;
 		bottomSplitContainer.add(activeSimulationsListTable, gbc_activeSimulationsListTable);
-		JScrollPane consoleTextAreaScrollPane = new JScrollPane();
-		GridBagConstraints gbc_consoleTextAreaScrollPane = new GridBagConstraints();
-		gbc_consoleTextAreaScrollPane.insets = new Insets(0, 0, 0, 0);
-		gbc_consoleTextAreaScrollPane.fill = GridBagConstraints.BOTH;
-		gbc_consoleTextAreaScrollPane.gridx = 0;
-		gbc_consoleTextAreaScrollPane.gridy = 1;
-
-		consoleTextPane = new JTextPane();
-
-		consoleTextAreaScrollPane.setViewportView(consoleTextPane);
-		// consoleTextAreaScrollPane.setAutoscrolls(false);
-		consoleTextPane.setEditable(false);
-		bottomSplitContainer.add(consoleTextAreaScrollPane, gbc_consoleTextAreaScrollPane);
 
 		JMenuBar menuBar = new JMenuBar();
 		guiFrame.setJMenuBar(menuBar);
@@ -300,60 +218,111 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 	private void setUpBatchesPane()
 	{
-		/* Left */
-		splitPaneBatches = new JSplitPane();
-		splitPaneBatches.setResizeWeight(0.5);
-		splitPaneBatches.setEnabled(false);
-		splitPaneBatches.setContinuousLayout(true);
-		batchListTable = new TablePanel("Batches", new String[]
+		// Left Tables (Queue and Completed)
+		batchQueuedAndCompletePanel = new JPanel();
+		batchQueuedAndCompletePanel.setMinimumSize(new Dimension(300,200));
+
+		
+		// Top Queue Batches Table
+		GridBagLayout gbl_batchQueuedCompletePanel = new GridBagLayout();
+		gbl_batchQueuedCompletePanel.columnWidths = new int[]
+		{
+				0, 0
+		};
+		gbl_batchQueuedCompletePanel.rowHeights = new int[]
+		{
+				0, 0
+		};
+		gbl_batchQueuedCompletePanel.columnWeights = new double[]
+		{
+				1.0, Double.MIN_VALUE
+		};
+		gbl_batchQueuedCompletePanel.rowWeights = new double[]
+		{
+				1.0, 1.0
+		};
+		batchQueuedAndCompletePanel.setLayout(gbl_batchQueuedCompletePanel);
+
+		batchQueuedTable = new TablePanel("Queued Batches", new String[]
 		{
 				"Batch Id", "Base File", "Type", "Items", "Progress", "Completed", "Run Time", "ETT"
 		});
 		// Progress Column uses a progress bar for display
-		batchListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 4);
-		splitPaneBatches.setLeftComponent(batchListTable);
+		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), 4);
+		GridBagConstraints gbc_batchQueuedTable = new GridBagConstraints();
+		gbc_batchQueuedTable.fill = GridBagConstraints.BOTH;
+		gbc_batchQueuedTable.gridx = 0;
+		gbc_batchQueuedTable.gridy = 0;
+
+		batchQueuedAndCompletePanel.add(batchQueuedTable, gbc_batchQueuedTable);
+		gbc_batchQueuedTable.fill = GridBagConstraints.BOTH;
+		gbc_batchQueuedTable.gridx = 0;
+		gbc_batchQueuedTable.gridy = 0;
+		
+		/* Left */
+		splitPaneBatchInfo = new JSplitPane();
+		splitPaneBatchInfo.setOneTouchExpandable(true);
+		splitPaneBatchInfo.setContinuousLayout(true);
+		splitPaneBatchInfo.setResizeWeight(0.5);
+		splitPaneBatchInfo.setDividerSize(10);
 
 		/* Right */
 		batchInfoPanel = new JPanel();
+		batchInfoPanel.setMinimumSize(new Dimension(300,200));
+
 		GridBagLayout gbl_batchInfoPanel = new GridBagLayout();
-		gbl_batchInfoPanel.columnWidths = new int[]
-		{
-				0, 0
-		};
-		gbl_batchInfoPanel.rowHeights = new int[]
-		{
-				0, 0
-		};
+		gbl_batchInfoPanel.columnWidths = new int[] {0};
+		gbl_batchInfoPanel.rowHeights = new int[] {0};
 		gbl_batchInfoPanel.columnWeights = new double[]
 		{
-				1.0, Double.MIN_VALUE
+				1.0, 1.0
 		};
 		gbl_batchInfoPanel.rowWeights = new double[]
 		{
-				1.0, 1.0
+				1.0
 		};
 		batchInfoPanel.setLayout(gbl_batchInfoPanel);
 
 		/* Top */
-		GridBagConstraints gbc_queuedItemsListTable = new GridBagConstraints();
-		gbc_queuedItemsListTable.fill = GridBagConstraints.BOTH;
-		gbc_queuedItemsListTable.gridx = 0;
-		gbc_queuedItemsListTable.gridy = 0;
-
-		queuedItemsListTable = new TablePanel("Queued Items", new String[]
-		{
-				"Item Id", "Batch Id", "Name", "Hash"
-		});
-		queuedItemsListTable.setColumWidth(0, 10);
-		queuedItemsListTable.setColumWidth(1, 10);
-		queuedItemsListTable.setColumWidth(2, 120);
-		queuedItemsListTable.setColumWidth(3, 120);
 
 		/* Bottom */
+		
+		splitPaneBatchInfo.setRightComponent(batchInfoPanel);
+		
+		batchInfo = new TablePanel("Batch Info", new String[]
+		{
+				"Parameter", "Value"
+		});		
+		
+		GridBagConstraints gbc_batchInfo = new GridBagConstraints();
+		gbc_batchInfo.fill = GridBagConstraints.BOTH;
+		gbc_batchInfo.gridx = 0;
+		gbc_batchInfo.gridy = 0;
+		batchInfoPanel.add(batchInfo, gbc_batchInfo);
+
+		
+		batchInfoQueuePanel = new JPanel();
+		
+		GridBagConstraints gbc_batchInfoQueuePanel = new GridBagConstraints();
+		gbc_batchInfoQueuePanel.fill = GridBagConstraints.BOTH;
+		gbc_batchInfoQueuePanel.gridx = 1;
+		gbc_batchInfoQueuePanel.gridy = 0;
+		batchInfoPanel.add(batchInfoQueuePanel, gbc_batchInfoQueuePanel);
+		
+		
+		GridBagLayout gbl_batchInfoQueuePanel= new GridBagLayout();
+		
+		gbl_batchInfoQueuePanel.columnWidths = new int[] {0};
+		gbl_batchInfoQueuePanel.rowHeights = new int[] {0, 0, 0};
+		gbl_batchInfoQueuePanel.columnWeights = new double[]{1.0};
+		gbl_batchInfoQueuePanel.rowWeights = new double[]{1.0, 1.0, 0.0, 1.0};		
+		
+		batchInfoQueuePanel.setLayout(gbl_batchInfoQueuePanel);
 		GridBagConstraints gbc_activeSimulationListTable = new GridBagConstraints();
+		gbc_activeSimulationListTable.insets = new Insets(0, 0, 5, 0);
 		gbc_activeSimulationListTable.fill = GridBagConstraints.BOTH;
 		gbc_activeSimulationListTable.gridx = 0;
-		gbc_activeSimulationListTable.gridy = 1;
+		gbc_activeSimulationListTable.gridy = 0;
 		activeItemsListTable = new TablePanel("Active Items", new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
@@ -362,17 +331,44 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		activeItemsListTable.setColumWidth(1, 10);
 		activeItemsListTable.setColumWidth(2, 120);
 		activeItemsListTable.setColumWidth(3, 120);
-
-		batchInfoPanel.add(queuedItemsListTable, gbc_queuedItemsListTable);
-		batchInfoPanel.add(activeItemsListTable, gbc_activeSimulationListTable);
-		splitPaneBatches.setRightComponent(batchInfoPanel);
+		GridBagConstraints gbc_queuedItemsListTable = new GridBagConstraints();
+		gbc_queuedItemsListTable.insets = new Insets(0, 0, 5, 0);
+		gbc_queuedItemsListTable.fill = GridBagConstraints.BOTH;
+		gbc_queuedItemsListTable.gridx = 0;
+		gbc_queuedItemsListTable.gridy = 1;
+		
+		queuedItemsListTable = new TablePanel("Queued Items", new String[]
+		{
+				"Item Id", "Batch Id", "Name", "Hash"
+		});
+		queuedItemsListTable.setColumWidth(0, 10);
+		queuedItemsListTable.setColumWidth(1, 10);
+		queuedItemsListTable.setColumWidth(2, 120);
+		queuedItemsListTable.setColumWidth(3, 120);
+		
+		batchInfoQueuePanel.add(queuedItemsListTable, gbc_queuedItemsListTable);
+		batchInfoQueuePanel.add(activeItemsListTable, gbc_activeSimulationListTable);
+		
+		GridBagConstraints gbc_completedItemsListTable = new GridBagConstraints();
+		gbc_completedItemsListTable.fill = GridBagConstraints.BOTH;
+		gbc_completedItemsListTable.gridx = 0;
+		gbc_completedItemsListTable.gridy = 3;
+		completedItemsListTable = new TablePanel("Completed Items", new String[]
+		{
+				"Item Id", "Batch Id", "Name", "Hash"
+		});
+		completedItemsListTable.setColumWidth(0, 10);
+		completedItemsListTable.setColumWidth(1, 10);
+		completedItemsListTable.setColumWidth(2, 120);
+		completedItemsListTable.setColumWidth(3, 120);
+		batchInfoQueuePanel.add(completedItemsListTable, gbc_completedItemsListTable);
 
 		registerTableMouseListeners();
 	}
 
 	private void registerTableMouseListeners()
 	{
-		batchListTable.addMouseListener(new MouseAdapter()
+		batchQueuedTable.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
 			{
@@ -395,7 +391,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				{
 					selectedBatchRowIndex = -1;
 
-					batchListTable.clearSelection();
+					batchQueuedTable.clearSelection();
 
 					activeItemsListTable.clearTable();
 					queuedItemsListTable.clearTable();
@@ -412,12 +408,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		activeItemsListTable.clearTable();
 		queuedItemsListTable.clearTable();
 
-		if (!(selectedBatchRowIndex >= 0 && batchListTable.getRowsCount() > 0))
+		if (!(selectedBatchRowIndex >= 0 && batchQueuedTable.getRowsCount() > 0))
 		{
 			return;
 		}
 
-		int batchId = Integer.parseInt(((String) batchListTable.getValueAt(selectedBatchRowIndex, 0)).replace("Batch ", ""));
+		int batchId = Integer.parseInt(((String) batchQueuedTable.getValueAt(selectedBatchRowIndex, 0)).replace("Batch ", ""));
 
 		BatchItem queued[] = batchManager.getBatchQueue(batchId);
 		BatchItem active[] = batchManager.getActiveQueue(batchId);
@@ -670,7 +666,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	public void batchAdded(int batchId, String baseFile, String scenarioType, int batchItems, int progress, int completedItems)
 	{
 		// add new row
-		batchListTable.addRow("Batch " + batchId, new String[]
+		batchQueuedTable.addRow("Batch " + batchId, new String[]
 		{
 				baseFile, scenarioType, Integer.toString(batchItems), Integer.toString(progress), Integer.toString(completedItems), "0", "0"
 		});
@@ -683,10 +679,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		DebugLogger.output("Batch Removed " + batchId);
 
 		// remove row
-		batchListTable.removeRow("Batch " + batchId);
+		batchQueuedTable.removeRow("Batch " + batchId);
 
 		// If we have the first row selected, reselect it if there are more rows
-		if (selectedBatchRowIndex == 0 && batchListTable.getRowsCount() > 1)
+		if (selectedBatchRowIndex == 0 && batchQueuedTable.getRowsCount() > 1)
 		{
 			selectedBatchRowIndex = 0;
 		}
@@ -701,10 +697,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	@Override
 	public void batchProgress(int batchId, int progress, int completedItems, long runTime, long ett)
 	{
-		batchListTable.updateCell("Batch " + batchId, 4, Integer.toString(progress));
-		batchListTable.updateCell("Batch " + batchId, 5, Integer.toString(completedItems));
-		batchListTable.updateCell("Batch " + batchId, 6, jCompute.util.Text.longTimeToDHMS(runTime));
-		batchListTable.updateCell("Batch " + batchId, 7, jCompute.util.Text.longTimeToDHMS(ett));
+		batchQueuedTable.updateCell("Batch " + batchId, 4, Integer.toString(progress));
+		batchQueuedTable.updateCell("Batch " + batchId, 5, Integer.toString(completedItems));
+		batchQueuedTable.updateCell("Batch " + batchId, 6, jCompute.util.Text.longTimeToDHMS(runTime));
+		batchQueuedTable.updateCell("Batch " + batchId, 7, jCompute.util.Text.longTimeToDHMS(ett));
 	}
 
 	@Override
