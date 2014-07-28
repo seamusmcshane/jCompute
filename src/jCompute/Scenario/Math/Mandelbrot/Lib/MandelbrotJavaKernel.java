@@ -133,13 +133,31 @@ public class MandelbrotJavaKernel implements MandelbrotKernelInterface
 			{
 				int iter = iterations;
 				
-				double zx =  0, zy = 0;
-
 				double cX = (pX-(image.getWidth()/2-iCX)+0.5)/zoom;
 				double cY = (pY-(image.getHeight()/2-iCY)+0.5)/zoom;
 				
+				double zx = 0;
+				double zy = 0;
+				
 				double xTemp =0;
 				double yTemp =0;
+				
+				double cYSq = cY*cY;
+				double cX25 = cX-0.25;
+				
+				// Skip Main Cardoid infinity
+				double q = ( (cX25)*(cX25) ) + cYSq;
+				
+				if(q*(q+(cX25)) < ((0.25)*(cYSq)) )
+				{
+					iter = 0;
+				}
+				
+				// Skip P2 infinity
+				if( ((cX+1)*(cX+1)) + (cYSq) < (0.0625) )
+				{
+					iter = 0;
+				}
 				
 				while (zx * zx + zy * zy < 256 && iter > 0)
 				{

@@ -128,7 +128,24 @@ public class MandelbrotAparapiKernel implements MandelbrotKernelInterface
 
 			double xTemp =0;
 			
-			int iter =  maxIterations;		
+			int iter =  maxIterations;
+			
+			double cYSq = cY*cY;
+			double cX25 = cX-0.25;
+			
+			// Skip Main Cardoid infinity
+			double q = ( (cX25)*(cX25) ) + cYSq;
+			
+			if(q*(q+(cX25)) < ((0.25)*(cYSq)) )
+			{
+				iter = 0;
+			}
+			
+			// Skip P2 infinity
+			if( ((cX+1)*(cX+1)) + (cYSq) < (0.0625) )
+			{
+				iter = 0;
+			}
 			
 			while (zx * zx + zy * zy < 256 && iter > 0 )
 			{
