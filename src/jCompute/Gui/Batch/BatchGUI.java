@@ -165,6 +165,15 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 			}
 		});
+		
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				consoleTextPane.setCaretPosition(consoleTextPane.getDocument().getLength());
+			}
+		});		
+
 	}
 
 	private void setUpFrame()
