@@ -40,9 +40,15 @@ public class Batch
 	private int batchItems = 0;
 	private int itemSamples;
 	
+	// Ffor human readable date/time info
+	private Calendar calender;
+	private String addedDateTime = "";
+	
 	/* Log - total time calc */
 	private long startTime;
-	private String startDateTime = "";
+	private String startDateTime = "Not Started";
+	
+	private String endDateTime = "Not Finished";
 	
 	/* Completed Items avg */
 	private long completedItemRunTime;
@@ -87,6 +93,12 @@ public class Batch
 	{
 		completedItemRunTime = 0;
 		active = 0;
+		
+		calender = Calendar.getInstance();
+		String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
+		String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+		
+		addedDateTime = date + " " + time;
 		
 		this.batchId = batchId;
 		
@@ -186,13 +198,14 @@ public class Batch
 			itemLog.println("</Header>");
 			itemLog.println("<Items>");
 			
-			Calendar calender = Calendar.getInstance();
+			calender = Calendar.getInstance();
 			
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
 			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
 			
 			// For run time calc			
 			startTime = System.currentTimeMillis();
+			startDateTime = date + " " + time;
 			
 			// XML Log File Header
 			infoLog.println("<Batch>");		
@@ -200,8 +213,7 @@ public class Batch
 			infoLog.println("<ScenarioType>" + type + "</ScenarioType>");
 			infoLog.println("<Description>" + batchDescription + "</Description>");
 			infoLog.println("<BaseFile>" + baseScenarioFileName + "</BaseFile>");	
-			infoLog.println("<Start>" + date + " " + time + "</Start>");
-			startDateTime = date + " " + time;
+			infoLog.println("<Start>" + startDateTime + "</Start>");
 			infoLog.flush();
 		}
 		catch (IOException e)
@@ -230,7 +242,7 @@ public class Batch
 	
 	private void setBatchStatExportDir()
 	{	
-		Calendar calender = Calendar.getInstance();
+		calender = Calendar.getInstance();
 		
 		String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
 		String time = new SimpleDateFormat("HHmm").format(calender.getTime());
@@ -742,10 +754,13 @@ public class Batch
 		if(completed == batchItems)
 		{
 			// Close Info Log
-			Calendar calender = Calendar.getInstance();
+			calender = Calendar.getInstance();
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
 			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());	
-			infoLog.println("<Finished>"+date + " " + time+"</Finished>");
+			
+			endDateTime = date + " " + time;
+			
+			infoLog.println("<Finished>"+endDateTime+"</Finished>");
 			infoLog.println("<TotalTime>"+jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis()-startTime)+"</TotalTime>");
 			infoLog.println("<Batch>");
 			infoLog.flush();
@@ -899,8 +914,12 @@ public class Batch
 		info.add(" ");
 		info.add(" ");
 		
+		info.add("Added Time");
+		info.add(addedDateTime);
 		info.add("Start Time");
 		info.add(startDateTime);
+		info.add("End Time");
+		info.add(endDateTime);
 		info.add("Run Time");
 		info.add(Text.longTimeToDHMS(getRunTime()));
 		
