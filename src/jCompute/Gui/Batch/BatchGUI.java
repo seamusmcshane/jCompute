@@ -335,6 +335,20 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		registerTableMouseListeners();
 	}
 
+	private void clearQueuedSelection()
+	{
+		queuedSelectedBatchRowIndex = -1;
+
+		batchQueuedTable.clearSelection();
+	}
+	
+	private void clearCompletedSelection()
+	{
+		completedSelectedBatchRowIndex = -1;
+
+		batchCompletedTable.clearSelection();
+	}
+	
 	private void registerTableMouseListeners()
 	{
 		batchQueuedTable.addMouseListener(new MouseAdapter()
@@ -348,31 +362,20 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 					queuedOrCompleted = 1;
 					queuedSelectedBatchRowIndex = table.rowAtPoint(p);
+					
+					// Clear any selection in the completed table
+					clearCompletedSelection();
 
 					if (e.getClickCount() == 2)
 					{
 						displayBatchInfo(queuedOrCompleted);
-
-						// tabManager.displayTab(Integer.parseInt(simId));
-
 					}
 				}
 				else
 				{
 					queuedOrCompleted = 0;
-					queuedSelectedBatchRowIndex = -1;
 
-					batchQueuedTable.clearSelection();
-
-					batchInfo.clearTable();
-					activeItemsListTable.clearTable();
-					queuedItemsListTable.clearTable();
-					completedItemsListTable.clearTable();
-
-					batchInfo.RedrawTable(-1);
-					activeItemsListTable.RedrawTable(-1);
-					queuedItemsListTable.RedrawTable(-1);
-					completedItemsListTable.RedrawTable(-1);
+					clearQueuedSelection();
 				}
 			}
 		});
@@ -388,7 +391,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					Point p = e.getPoint();
 					
 					queuedOrCompleted = 2;
+					
 					completedSelectedBatchRowIndex = table.rowAtPoint(p);
+
+					// Clear any selection in the queued table
+					clearQueuedSelection();
 					
 					if (e.getClickCount() == 2)
 					{
@@ -398,19 +405,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				else
 				{
 					queuedOrCompleted = 0;
-					completedSelectedBatchRowIndex = -1;
 
-					batchCompletedTable.clearSelection();
-
-					batchInfo.clearTable();
-					activeItemsListTable.clearTable();
-					queuedItemsListTable.clearTable();
-					completedItemsListTable.clearTable();
-
-					batchInfo.RedrawTable(-1);
-					activeItemsListTable.RedrawTable(-1);
-					queuedItemsListTable.RedrawTable(-1);
-					completedItemsListTable.RedrawTable(-1);
+					clearCompletedSelection();
 				}
 			}
 		});
