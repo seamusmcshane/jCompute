@@ -259,12 +259,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		gbc_batchQueuedTable.gridy = 0;
 		
 		batchQueuedTable.setColumWidth(0, 25);
-		batchQueuedTable.setColumWidth(1, 100);
+		batchQueuedTable.setColumWidth(1, 200);
 		batchQueuedTable.setColumWidth(2, 50);
 		batchQueuedTable.setColumWidth(3, 50);
 		batchQueuedTable.setColumWidth(4, 50);
 		batchQueuedTable.setColumWidth(5, 50);
-		batchQueuedTable.setColumWidth(6, 75);
 		
 		batchQueuedAndCompletePanel.add(batchQueuedTable, gbc_batchQueuedTable);
 		
@@ -279,10 +278,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		gbc_batchCompleteTable.fill = GridBagConstraints.BOTH;
 		
 		batchCompletedTable.setColumWidth(0, 25);
-		batchCompletedTable.setColumWidth(1, 100);
+		batchCompletedTable.setColumWidth(1, 200);
 		batchCompletedTable.setColumWidth(2, 50);
 		batchCompletedTable.setColumWidth(3, 50);
-		batchCompletedTable.setColumWidth(4, 50);
 
 		batchQueuedAndCompletePanel.add(batchCompletedTable, gbc_batchCompleteTable);
 		
@@ -298,6 +296,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchInfoQueueTabPanel = new ItemsTabPanel();
 		
 		batchInfo = new TablePanel(new String[]{"Parameter", "Value"}, false);
+		batchInfo.setColumWidth(0, 100);
 		
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 		
@@ -309,10 +308,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
 		}, true);
-		activeItemsListTable.setColumWidth(0, 100);
-		activeItemsListTable.setColumWidth(1, 100);
-		activeItemsListTable.setColumWidth(2, 100);
-		activeItemsListTable.setColumWidth(3, 100);
+		activeItemsListTable.setColumWidth(0, 50);
+		activeItemsListTable.setColumWidth(1, 50);
+		//activeItemsListTable.setColumWidth(2, 200);
+		activeItemsListTable.setColumWidth(3, 200);
 
 		batchInfoQueueTabPanel.addTab(activeItemsListTable,"Active");
 		
@@ -320,10 +319,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
 		}, true);
-		queuedItemsListTable.setColumWidth(0, 100);
-		queuedItemsListTable.setColumWidth(1, 100);
-		queuedItemsListTable.setColumWidth(2, 100);
-		queuedItemsListTable.setColumWidth(3, 100);
+		queuedItemsListTable.setColumWidth(0, 50);
+		queuedItemsListTable.setColumWidth(1, 50);
+		queuedItemsListTable.setColumWidth(3, 200);
 		
 		batchInfoQueueTabPanel.addTab(queuedItemsListTable,"Queued");
 
@@ -331,10 +329,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
 		}, true);
-		completedItemsListTable.setColumWidth(0, 100);
-		completedItemsListTable.setColumWidth(1, 100);
-		completedItemsListTable.setColumWidth(2, 100);
-		completedItemsListTable.setColumWidth(3, 100);
+		completedItemsListTable.setColumWidth(0, 50);
+		completedItemsListTable.setColumWidth(1, 50);
+		completedItemsListTable.setColumWidth(3, 200);
 		
 		batchInfoQueueTabPanel.addTab(completedItemsListTable,"Completed");
 

@@ -398,7 +398,9 @@ public class TablePanel extends JPanel
 
 	public void setColumWidth(int column, int pref)
 	{
-		table.getColumnModel().getColumn(column).setPreferredWidth(pref);		
+		table.getColumnModel().getColumn(column).setPreferredWidth(pref);
+		table.getColumnModel().getColumn(column).setMinWidth(pref);
+		table.getColumnModel().getColumn(column).setMaxWidth(pref);
 	}
 
 	public JTable getJTable()
