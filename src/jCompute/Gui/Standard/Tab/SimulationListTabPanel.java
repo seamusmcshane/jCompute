@@ -1,7 +1,7 @@
 package jCompute.Gui.Standard.Tab;
 
-import jCompute.Gui.Component.ProgressBarTableCellRenderer;
 import jCompute.Gui.Component.TablePanel;
+import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
@@ -82,7 +82,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	 */
 	private void setUpTable()
 	{
-		table = new TablePanel("Simulation List",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"});
+		table = new TablePanel("Simulation List",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"}, true);
 			
 		table.setColumWidth(0,65);
 		table.setColumWidth(1,50);
