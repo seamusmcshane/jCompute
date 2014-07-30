@@ -2,6 +2,7 @@ package jCompute.Gui.Component;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class TablePanel extends JPanel
 	 * @param title
 	 * @param columnNames
 	 */
-	public TablePanel(String title,String columnNames[])
+	public TablePanel(String title,String columnNames[], boolean alternatingRowColors)
 	{
 		super();
 
@@ -44,7 +45,7 @@ public class TablePanel extends JPanel
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		this.add(lblTitle, BorderLayout.NORTH);
 		
-		setUpTable(this,columnNames);	
+		setUpTable(this,columnNames,alternatingRowColors);	
 
 	}
 	
@@ -56,6 +57,11 @@ public class TablePanel extends JPanel
 	public void addColumRenderer(TableCellRenderer renderer, int column)
 	{
 		table.getColumnModel().getColumn(column).setCellRenderer(renderer);
+	}
+	
+	public void setDefaultRenderer(Class<?> classType, TableCellRenderer defaultRenderer)
+	{
+		table.setDefaultRenderer(classType, defaultRenderer);
 	}
 	
 	/**
@@ -100,7 +106,7 @@ public class TablePanel extends JPanel
 	 * @param panel
 	 * @param colNames
 	 */
-	private void setUpTable(JPanel panel,String colNames[])
+	private void setUpTable(JPanel panel,String colNames[], boolean alternatingRowColors)
 	{
 		model = new TableModel(colNames);
 		
@@ -109,7 +115,36 @@ public class TablePanel extends JPanel
 		scrollPane.setViewportBorder(null);
 		panel.add(scrollPane, BorderLayout.CENTER);
 		
-		table = new JTable(model);
+		if(alternatingRowColors)
+		{
+			table = new JTable(model)
+			{
+				public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+				{
+					Component c = super.prepareRenderer(renderer, row, column);
+					
+					if (!isRowSelected(row))
+					{
+						if(row % 2 == 1)
+						{
+							c.setBackground(new Color(240,240,240));
+						}
+						else
+						{
+							c.setBackground(getBackground());
+						}
+						
+					}
+
+					return c;
+				}
+			};
+		}
+		else
+		{
+			table = new JTable(model);
+		}
+
 		
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		
