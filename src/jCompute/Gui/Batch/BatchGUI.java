@@ -105,7 +105,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 	private ProgressMonitor openBatchProgressMonitor;
 	private OpenBatchFileTask openBatchProgressMonitorTask;
-	private JPanel panel;
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
@@ -142,7 +141,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		lookandFeel();
 
 		/* Frame */
-		guiFrame = new JFrame();
+		guiFrame = new JFrame("Batch Interface");
 		guiFrame.setMinimumSize(new Dimension(800, 600));
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -244,7 +243,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		};
 		batchQueuedAndCompletePanel.setLayout(gbl_batchQueuedCompletePanel);
 
-		batchQueuedTable = new TablePanel("Queued Batches", new String[]
+		batchQueuedTable = new TablePanel(new String[]
 		{
 				"Id", "Name", "Type", "Items", " % ", "Done", "ETT"
 		},true);
@@ -270,7 +269,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchQueuedAndCompletePanel.add(batchQueuedTable, gbc_batchQueuedTable);
 		
 		// Bottom Completed Batches
-		batchCompletedTable = new TablePanel("Completed Batches", new String[]
+		batchCompletedTable = new TablePanel(new String[]
 		{
 				"Id", "Name", "Type", "Items", "Run Time"
 		}, true);
@@ -298,7 +297,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		batchInfoQueueTabPanel = new ItemsTabPanel();
 		
-		batchInfo = new TablePanel(new String[]{"Parameter", "Value"}, false,true);
+		batchInfo = new TablePanel(new String[]{"Parameter", "Value"}, false);
 		
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 		
@@ -306,7 +305,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		batchInfoQueueTabPanel.addTab(batchInfo,"Information");
 		
-		activeItemsListTable = new TablePanel("Active Items", new String[]
+		activeItemsListTable = new TablePanel(new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
 		}, true);
@@ -317,7 +316,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 		batchInfoQueueTabPanel.addTab(activeItemsListTable,"Active");
 		
-		queuedItemsListTable = new TablePanel("Queued Items", new String[]
+		queuedItemsListTable = new TablePanel(new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
 		}, true);
@@ -328,7 +327,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		batchInfoQueueTabPanel.addTab(queuedItemsListTable,"Queued");
 
-		completedItemsListTable = new TablePanel("Completed Items", new String[]
+		completedItemsListTable = new TablePanel(new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
 		}, true);
@@ -340,9 +339,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchInfoQueueTabPanel.addTab(completedItemsListTable,"Completed");
 
 		splitPaneBatchInfo.setRightComponent(batchInfoQueueTabPanel);
-		
-		panel = new JPanel();
-		batchInfoQueueTabPanel.add(panel, BorderLayout.NORTH);
 		
 		registerTableMouseListeners();
 	}
