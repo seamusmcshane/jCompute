@@ -251,13 +251,13 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 				}
 				else if(e.getSource() == mntmAbout)
 				{
-					// TODO
+					// TODO About info
 					System.out.println("About");
 				}
 				else
 				{
 					System.out.println("Unknown Event Source :" + e.getSource().getClass().getName());
-				}	
+				}
 		    }
 		});
 		

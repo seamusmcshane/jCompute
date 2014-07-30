@@ -48,7 +48,5 @@ public class A2DCircle
 		setX(x);	
 		setY(y);
 	}
-	
-	
 
 }

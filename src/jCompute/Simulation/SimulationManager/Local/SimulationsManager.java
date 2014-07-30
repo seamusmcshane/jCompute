@@ -103,7 +103,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		}
 		else
 		{
-			DebugLogger.output("Too Many Sims");
+			DebugLogger.output("Reached Max Active Sims");
 
 			simulationsManagerLock.release();
 

@@ -108,7 +108,6 @@ public class MandelbrotJavaKernel implements MandelbrotKernelInterface
 			}
 			catch (InterruptedException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

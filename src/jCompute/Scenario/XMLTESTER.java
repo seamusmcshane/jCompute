@@ -36,12 +36,10 @@ public class XMLTESTER
 		}
 		catch (FileNotFoundException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		String sCurrentLine;
@@ -58,7 +56,6 @@ public class XMLTESTER
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println(editor);

@@ -643,7 +643,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	@Override
 	public boolean keyDown(int arg0)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 

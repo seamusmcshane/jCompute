@@ -644,7 +644,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			checkSaved();
 
 			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
-
+			
 			System.out.println("Scenario Open Dialog");
 
 			int val = filechooser.showOpenDialog(filechooser);
