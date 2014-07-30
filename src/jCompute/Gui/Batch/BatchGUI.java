@@ -366,10 +366,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					// Clear any selection in the completed table
 					clearCompletedSelection();
 
-					if (e.getClickCount() == 2)
-					{
-						displayBatchInfo(queuedOrCompleted);
-					}
 				}
 				else
 				{
@@ -377,6 +373,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 					clearQueuedSelection();
 				}
+				
+				displayBatchInfo(queuedOrCompleted);
+
 			}
 		});
 		
@@ -397,17 +396,18 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					// Clear any selection in the queued table
 					clearQueuedSelection();
 					
-					if (e.getClickCount() == 2)
-					{
-						displayBatchInfo(queuedOrCompleted);
-					}
+
 				}
 				else
 				{
 					queuedOrCompleted = 0;
 
-					clearCompletedSelection();
+					clearCompletedSelection();					
 				}
+				
+				
+				displayBatchInfo(queuedOrCompleted);
+
 			}
 		});
 	}
@@ -422,6 +422,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		int batchId = 0;
 		
+		// Should the data fetch be skipped
+		boolean skipData = false;
+		
 		// find the table and batch the row relates to.
 		if(srcTable > 0)
 		{
@@ -432,10 +435,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					queuedSelectedBatchRowIndex = 0;
 					batchQueuedTable.clearSelection();
 					srcTable = 0;
-					return;
+					
+					// invalid row selected
+					skipData = true;
 				}
-				
-				batchId = Integer.parseInt(batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, 0));
+				else
+				{
+					batchId = Integer.parseInt(batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, 0));
+				}
 			}
 			else
 			{
@@ -446,67 +453,83 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					batchCompletedTable.clearSelection();
 					srcTable = 0;
 					
-					return;
+					// invalid row selected
+					skipData = true;
 				}
-				
-				batchId = Integer.parseInt(batchCompletedTable.getValueAt(completedSelectedBatchRowIndex, 0));
+				else
+				{
+					batchId = Integer.parseInt(batchCompletedTable.getValueAt(completedSelectedBatchRowIndex, 0));
+				}
 			}
 		}
 		else
 		{
-			return;
+			// No table selected
+			skipData = true;
 		}
 		
-		// Load the batch info
-		BatchItem queued[] = batchManager.getItemQueue(batchId);
-		BatchItem active[] = batchManager.getActiveItems(batchId);
-		BatchItem completed[] = batchManager.getCompletedItems(batchId);
-		// TODO getCompletedItems BatchItem completed[] = batchManager.getCompletedItems(batchId);
-		
-		// Batch Info
-		ArrayList<String> info = batchManager.getBatchInfo(batchId);
-		int batchInfoSize = info.size();
-		
-		for(int i = 0; i < batchInfoSize; i += 2) 
+		if(!skipData)
 		{
-			batchInfo.addRow(info.get(i),new String[]{info.get(i+1)});
+			// Load the batch info
+			BatchItem queued[] = batchManager.getItemQueue(batchId);
+			BatchItem active[] = batchManager.getActiveItems(batchId);
+			BatchItem completed[] = batchManager.getCompletedItems(batchId);
+			// TODO getCompletedItems BatchItem completed[] = batchManager.getCompletedItems(batchId);
+			
+			// Batch Info
+			ArrayList<String> info = batchManager.getBatchInfo(batchId);
+			int batchInfoSize = info.size();
+			
+			for(int i = 0; i < batchInfoSize; i += 2) 
+			{
+				batchInfo.addRow(info.get(i),new String[]{info.get(i+1)});
+			}
+			
+
+			// Queued Items
+			for (int q = 0; q < queued.length; q++)
+			{
+				// queued
+				queuedItemsListTable.addRow(String.valueOf(queued[q].getItemId()), new String[]
+				{
+						String.valueOf(queued[q].getBatchId()), queued[q].getItemName(), queued[q].getItemHash()
+				});
+			}
+			
+			// Active Items
+			for (int a = 0; a < active.length; a++)
+			{
+				// active
+				activeItemsListTable.addRow(String.valueOf(active[a].getItemId()), new String[]
+				{
+						String.valueOf(active[a].getBatchId()), active[a].getItemName(), active[a].getItemHash()
+				});
+			}
+			
+			// Completed Items
+			for (int a = 0; a < completed.length; a++)
+			{
+				// active
+				completedItemsListTable.addRow(String.valueOf(completed[a].getItemId()), new String[]
+				{
+						String.valueOf(completed[a].getBatchId()), completed[a].getItemName(), completed[a].getItemHash()
+				});
+			}
 		}
 		
+		// Always redraw item tables as one of the batch tables may have been deselected then item tables need to have previous data cleared
+		redrawItemTables();
+	}
+	
+	private void redrawItemTables()
+	{
 		batchInfo.RedrawTable(-1);
 
-		// Queued Items
-		for (int q = 0; q < queued.length; q++)
-		{
-			// queued
-			queuedItemsListTable.addRow(String.valueOf(queued[q].getItemId()), new String[]
-			{
-					String.valueOf(queued[q].getBatchId()), queued[q].getItemName(), queued[q].getItemHash()
-			});
-		}
 		queuedItemsListTable.RedrawTable(-1);
-		
-		// Active Items
-		for (int a = 0; a < active.length; a++)
-		{
-			// active
-			activeItemsListTable.addRow(String.valueOf(active[a].getItemId()), new String[]
-			{
-					String.valueOf(active[a].getBatchId()), active[a].getItemName(), active[a].getItemHash()
-			});
-		}
+
 		activeItemsListTable.RedrawTable(-1);
-		
-		// Completed Items
-		for (int a = 0; a < completed.length; a++)
-		{
-			// active
-			completedItemsListTable.addRow(String.valueOf(completed[a].getItemId()), new String[]
-			{
-					String.valueOf(completed[a].getBatchId()), completed[a].getItemName(), completed[a].getItemHash()
-			});
-		}
+
 		completedItemsListTable.RedrawTable(-1);
-		
 	}
 
 	@Override
