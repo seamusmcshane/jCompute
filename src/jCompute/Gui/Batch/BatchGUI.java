@@ -1,8 +1,9 @@
 package jCompute.Gui.Batch;
 
 import jCompute.Debug.DebugLogger;
-import jCompute.Gui.Component.ProgressBarTableCellRenderer;
 import jCompute.Gui.Component.TablePanel;
+import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
+import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -43,6 +44,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JPanel;
 
+import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
@@ -172,7 +174,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		activeSimulationsListTable = new TablePanel("Active Simulations", new String[]
 		{
 				"Sim Id", "Status", "Step No", "Progress", "Avg Sps", "Run Time"
-		});
+		}, true);
 		activeSimulationsListTable.setColumWidth(0, 65);
 		activeSimulationsListTable.setColumWidth(1, 50);
 		activeSimulationsListTable.setColumWidth(2, 50);
@@ -239,7 +241,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchQueuedTable = new TablePanel("Queued Batches", new String[]
 		{
 				"Id", "Name", "Type", "Items", " % ", "Done", "ETT"
-		});
+		},true);
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), 4);
 		GridBagConstraints gbc_batchQueuedTable = new GridBagConstraints();
@@ -265,7 +267,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchCompletedTable = new TablePanel("Completed Batches", new String[]
 		{
 				"Id", "Name", "Type", "Items", "Run Time"
-		});
+		}, true);
 		GridBagConstraints gbc_batchCompleteTable = new GridBagConstraints();
 		gbc_batchCompleteTable.gridx = 0;
 		gbc_batchCompleteTable.gridy = 1;
@@ -293,14 +295,16 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchInfo = new TablePanel("Information", new String[]
 		{
 			"Parameter", "Value"
-		});
+		}, false);
+		
+		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 
 		batchInfoQueueTabPanel.addTab(batchInfo, "Batch Information");
 		
 		activeItemsListTable = new TablePanel("Active Items", new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
-		});
+		}, true);
 		activeItemsListTable.setColumWidth(0, 100);
 		activeItemsListTable.setColumWidth(1, 100);
 		activeItemsListTable.setColumWidth(2, 100);
@@ -311,7 +315,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		queuedItemsListTable = new TablePanel("Queued Items", new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
-		});
+		}, true);
 		queuedItemsListTable.setColumWidth(0, 100);
 		queuedItemsListTable.setColumWidth(1, 100);
 		queuedItemsListTable.setColumWidth(2, 100);
@@ -322,7 +326,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		completedItemsListTable = new TablePanel("Completed Items", new String[]
 		{
 				"Item Id", "Batch Id", "Name", "Hash"
-		});
+		}, true);
 		completedItemsListTable.setColumWidth(0, 100);
 		completedItemsListTable.setColumWidth(1, 100);
 		completedItemsListTable.setColumWidth(2, 100);
@@ -361,19 +365,22 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					Point p = e.getPoint();
 
 					queuedOrCompleted = 1;
-					queuedSelectedBatchRowIndex = table.rowAtPoint(p);
+					
+					if(queuedSelectedBatchRowIndex == table.rowAtPoint(p))
+					{
+						queuedOrCompleted = 0;
+
+						clearQueuedSelection();
+					}
+					else
+					{
+						queuedSelectedBatchRowIndex = table.rowAtPoint(p);
+					}
 					
 					// Clear any selection in the completed table
 					clearCompletedSelection();
-
 				}
-				else
-				{
-					queuedOrCompleted = 0;
 
-					clearQueuedSelection();
-				}
-				
 				displayBatchInfo(queuedOrCompleted);
 
 			}
@@ -391,20 +398,21 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					
 					queuedOrCompleted = 2;
 					
-					completedSelectedBatchRowIndex = table.rowAtPoint(p);
+					if(completedSelectedBatchRowIndex == table.rowAtPoint(p))
+					{
+						queuedOrCompleted = 0;
 
+						clearCompletedSelection();	
+					}
+					else
+					{
+						completedSelectedBatchRowIndex = table.rowAtPoint(p);
+
+					}
+					
 					// Clear any selection in the queued table
 					clearQueuedSelection();
-					
-
 				}
-				else
-				{
-					queuedOrCompleted = 0;
-
-					clearCompletedSelection();					
-				}
-				
 				
 				displayBatchInfo(queuedOrCompleted);
 
