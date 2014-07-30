@@ -2,8 +2,9 @@ package jCompute.Gui.Batch;
 
 public interface BatchManagerEventListenerInf
 {
-	public void batchAdded(int batchId,String baseFile,String scenarioType,int batchItems,int progress,int completedItems);
-	public void batchRemoved(int batchId);
-	public void batchProgress(int batchId,int progress,int completedItems, long runTime, long ect);
+	public void batchAdded(final Batch batch);
+	// public void batchRemoved(final int batchId);
+	public void batchFinished(final Batch batch);
+	public void batchProgress(final Batch batch);
 	
 }

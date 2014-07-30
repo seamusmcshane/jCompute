@@ -6,6 +6,7 @@ import jCompute.Scenario.ScenarioVT;
 import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.util.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,13 +18,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class Batch
@@ -31,20 +29,24 @@ public class Batch
 	/* Batch Attributes */
 	private int batchId;
 	private String type;
-	private String baseScenarioFile;
+	
+	private String batchFileName;
+	private String baseScenarioFileName;
 	private String batchDescription;
 	
 	private int itemsRequested = 0;
+	private int itemsReturned = 0;
 	
 	private int batchItems = 0;
-	private int completedItems = 0;
 	private int itemSamples;
 	
 	/* Log - total time calc */
 	private long startTime;
+	private String startDateTime = "";
 	
 	/* Completed Items avg */
 	private long completedItemRunTime;
+	private long lastCompletedItemTime;
 	
 	private String batchStatsExportDir;
 	private PrintWriter itemLog;
@@ -59,6 +61,10 @@ public class Batch
 	private ArrayList<BatchItem> activeItems;
 	private int active;
 	
+	// The completed items list
+	private ArrayList<BatchItem> completedItems;
+	private int completed = 0;
+
 	// The Batch Configuration Text
 	private StringBuilder batchConfigText;
 	
@@ -77,34 +83,48 @@ public class Batch
 	
 	private Semaphore batchLock = new Semaphore(1, false);	
 	
-	public Batch(int batchId,String fileName) throws IOException
+	public Batch(int batchId,String filePath) throws IOException
 	{
 		completedItemRunTime = 0;
 		active = 0;
 		
 		this.batchId = batchId;
 		
+		this.batchFileName = getFileName(filePath);
+		
 		queuedItems = new LinkedList<BatchItem>();
 			
 		activeItems = new ArrayList<BatchItem>();
 		
+		completedItems = new ArrayList<BatchItem>();
+		
 		batchConfigText = new StringBuilder();
 		
-		basePath = getPath(fileName);
+		basePath = getPath(filePath);
 		
 		DebugLogger.output("Base Path : " + basePath);	
 		
 		// Put the file text into the string builder
-		readFile(fileName,batchConfigText);
+		readFile(filePath,batchConfigText);
 		
-		DebugLogger.output("New Batch based on : " + fileName);
+		DebugLogger.output("New Batch based on : " + filePath);
 		
 		processBatchConfig(batchConfigText.toString());
 	}
-		
-	private String getPath(String fileName)
+	
+	public String getFileName()
 	{
-		return Paths.get(fileName).getParent().toString();
+		return batchFileName;
+	}
+	
+	private String getFileName(String filePath)
+	{
+		return Paths.get(filePath).getFileName().toString();
+	}
+	
+	private String getPath(String filePath)
+	{
+		return Paths.get(filePath).getParent().toString();
 	}
 
 	private void processBatchConfig(String fileText) throws IOException
@@ -179,8 +199,9 @@ public class Batch
 			infoLog.println("<ID>" + batchId + "</ID>");
 			infoLog.println("<ScenarioType>" + type + "</ScenarioType>");
 			infoLog.println("<Description>" + batchDescription + "</Description>");
-			infoLog.println("<BaseFile>" + baseScenarioFile + "</BaseFile>");	
-			infoLog.println("<Start>" + date + " " + time + "</Start>");		
+			infoLog.println("<BaseFile>" + baseScenarioFileName + "</BaseFile>");	
+			infoLog.println("<Start>" + date + " " + time + "</Start>");
+			startDateTime = date + " " + time;
 			infoLog.flush();
 		}
 		catch (IOException e)
@@ -249,9 +270,9 @@ public class Batch
 	{
 		String section = "Config";
 
-		baseScenarioFile = batchConfigProcessor.getStringValue(section, "BaseScenarioFileName");
+		baseScenarioFileName = batchConfigProcessor.getStringValue(section, "BaseScenarioFileName");
 		
-		baseScenaroFilePath = basePath + File.separator + baseScenarioFile;
+		baseScenaroFilePath = basePath + File.separator + baseScenarioFileName;
 		
 		DebugLogger.output("Base Scenario File : " + baseScenaroFilePath);
 	}
@@ -620,6 +641,8 @@ public class Batch
 		
 		queuedItems.add(item);
 		
+		itemsReturned++;
+		
 		activeItems.remove(item);
 		
 		active = activeItems.size();
@@ -659,6 +682,8 @@ public class Batch
 		
 		// For estimated complete time calculation
 		completedItemRunTime+=runTime;
+		
+		lastCompletedItemTime = System.currentTimeMillis();
 		
 		// Create the item export dir
 		testAndCreateDir(batchStatsExportDir+File.separator+item.getItemId());
@@ -710,9 +735,11 @@ public class Batch
 				System.out.println("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId() +")");
 			}
 		}
-		completedItems++;	
+		completed++;
 		
-		if(completedItems == batchItems)
+		completedItems.add(item);
+		
+		if(completed == batchItems)
 		{
 			// Close Info Log
 			Calendar calender = Calendar.getInstance();
@@ -771,14 +798,14 @@ public class Batch
 		this.type = type;
 	}
 
-	public String getBaseScenarioFile()
+	public String getBaseScenarioFileName()
 	{
-		return baseScenarioFile;
+		return baseScenarioFileName;
 	}
 
 	public void setBaseScenarioFile(String baseScenarioFile)
 	{
-		this.baseScenarioFile = baseScenarioFile;
+		this.baseScenarioFileName = baseScenarioFile;
 	}
 
 	public int getBatchItems()
@@ -793,12 +820,12 @@ public class Batch
 
 	public int getProgress()
 	{
-		return (int) (((float)completedItems/(float)batchItems)*100f);
+		return (int) (((float)completed/(float)batchItems)*100f);
 	}
 
-	public int getCompletedItems()
+	public int getCompleted()
 	{
-		return completedItems;
+		return completed;
 	}
 	
 	public BatchItem[] getQueuedItems()
@@ -811,14 +838,73 @@ public class Batch
 		return activeItems.toArray(new BatchItem[activeItems.size()]);
 	}
 	
+	public BatchItem[] getCompletedItems()
+	{
+		return completedItems.toArray(new BatchItem[completedItems.size()]);
+	}
+	
 	public long getRunTime()
 	{
-		return System.currentTimeMillis()-startTime;
+		return lastCompletedItemTime-startTime;
 	}
 	
 	public long getETT()
 	{
-		return getRunTime() + ( ( (completedItemRunTime / completedItems) * (batchItems - completedItems) ) / active);
+		return getRunTime() + ( ( (completedItemRunTime / completed) * (batchItems - completed) ) / active);
+	}
+	
+	public ArrayList<String> getBatchInfo()
+	{
+		ArrayList<String> info = new ArrayList<String>();
+
+		info.add("Batch Id");
+		info.add(String.valueOf(batchId));
+		
+		info.add("Description");
+		info.add(batchDescription);
+		info.add("Scenario Type");
+		info.add(type);
+		
+		info.add(" ");
+		info.add(" ");
+		info.add("Unique Items");
+		info.add(String.valueOf(batchItems/itemSamples));
+		
+		info.add("Sample per Item");
+		info.add(String.valueOf(itemSamples));
+		
+		info.add("Total Items");
+		info.add(String.valueOf(batchItems));
+		
+		info.add(" ");
+		info.add(" ");
+		info.add("Items Completed");
+		info.add(String.valueOf(completed));
+		info.add("Items Requested");
+		info.add(String.valueOf(itemsRequested));
+		info.add("Items Returned");
+		info.add(String.valueOf(itemsReturned));
+		
+		info.add(" ");
+		info.add(" ");
+		info.add("Files :");
+		info.add(" ");
+		info.add("Batch");
+		info.add(batchFileName);
+		info.add("Scenario");
+		info.add(baseScenarioFileName);
+		info.add("Statistics Directory");
+		info.add(batchStatsExportDir);
+		
+		info.add(" ");
+		info.add(" ");
+		
+		info.add("Start Time");
+		info.add(startDateTime);
+		info.add("Run Time");
+		info.add(Text.longTimeToDHMS(getRunTime()));
+		
+		return info;
 	}
 	
 }
