@@ -3,6 +3,7 @@ package jCompute.Gui.Batch;
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
+import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
@@ -24,8 +25,10 @@ import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ProgressMonitor;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -45,8 +48,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JPanel;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Insets;
@@ -100,6 +105,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 	private ProgressMonitor openBatchProgressMonitor;
 	private OpenBatchFileTask openBatchProgressMonitorTask;
+	private JPanel panel;
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
@@ -292,14 +298,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		batchInfoQueueTabPanel = new ItemsTabPanel();
 		
-		batchInfo = new TablePanel("Information", new String[]
-		{
-			"Parameter", "Value"
-		}, false);
+		batchInfo = new TablePanel(new String[]{"Parameter", "Value"}, false,true);
 		
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
-
-		batchInfoQueueTabPanel.addTab(batchInfo, "Batch Information");
+		
+		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
+		
+		batchInfoQueueTabPanel.addTab(batchInfo,"Information");
 		
 		activeItemsListTable = new TablePanel("Active Items", new String[]
 		{
@@ -335,6 +340,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchInfoQueueTabPanel.addTab(completedItemsListTable,"Completed");
 
 		splitPaneBatchInfo.setRightComponent(batchInfoQueueTabPanel);
+		
+		panel = new JPanel();
+		batchInfoQueueTabPanel.add(panel, BorderLayout.NORTH);
 		
 		registerTableMouseListeners();
 	}
@@ -488,12 +496,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			ArrayList<String> info = batchManager.getBatchInfo(batchId);
 			int batchInfoSize = info.size();
 			
-			for(int i = 0; i < batchInfoSize; i += 2) 
-			{
-				batchInfo.addRow(info.get(i),new String[]{info.get(i+1)});
+			for(int i = 0; i < batchInfoSize;i+=2) 
+			{	
+				batchInfo.addRow(info.get(i),new String[]{info.get(i+1)});				
 			}
 			
-
 			// Queued Items
 			for (int q = 0; q < queued.length; q++)
 			{
@@ -532,7 +539,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	private void redrawItemTables()
 	{
 		batchInfo.RedrawTable(-1);
-
+		
 		queuedItemsListTable.RedrawTable(-1);
 
 		activeItemsListTable.RedrawTable(-1);

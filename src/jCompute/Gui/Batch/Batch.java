@@ -879,41 +879,36 @@ public class Batch
 		info.add(batchDescription);
 		info.add("Scenario Type");
 		info.add(type);
-		
-		info.add(" ");
-		info.add(" ");
+
+		info.add("");
+		info.add("");
 		info.add("Unique Items");
 		info.add(String.valueOf(batchItems/itemSamples));
-		
 		info.add("Sample per Item");
-		info.add(String.valueOf(itemSamples));
-		
+		info.add(String.valueOf(itemSamples));		
 		info.add("Total Items");
 		info.add(String.valueOf(batchItems));
-		
-		info.add(" ");
-		info.add(" ");
+
+		info.add("");
+		info.add("");
 		info.add("Items Completed");
 		info.add(String.valueOf(completed));
 		info.add("Items Requested");
 		info.add(String.valueOf(itemsRequested));
 		info.add("Items Returned");
 		info.add(String.valueOf(itemsReturned));
-		
-		info.add(" ");
-		info.add(" ");
-		info.add("Files :");
-		info.add(" ");
+
+		info.add("");
+		info.add("");
 		info.add("Batch");
 		info.add(batchFileName);
 		info.add("Scenario");
 		info.add(baseScenarioFileName);
 		info.add("Statistics Directory");
 		info.add(batchStatsExportDir);
-		
-		info.add(" ");
-		info.add(" ");
-		
+
+		info.add("");
+		info.add("");
 		info.add("Added Time");
 		info.add(addedDateTime);
 		info.add("Start Time");

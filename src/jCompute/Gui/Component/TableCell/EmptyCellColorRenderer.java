@@ -30,7 +30,7 @@ public class EmptyCellColorRenderer extends DefaultTableCellRenderer
         {
         	String text = (String)value;
         	
-        	if(text.equals("") || text.equals(" "))
+        	if(text.equals(""))
         	{
                 component.setBackground(backgroundColor);
         	}

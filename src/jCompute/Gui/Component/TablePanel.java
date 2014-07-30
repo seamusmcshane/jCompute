@@ -45,7 +45,19 @@ public class TablePanel extends JPanel
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		this.add(lblTitle, BorderLayout.NORTH);
 		
-		setUpTable(this,columnNames,alternatingRowColors);	
+		setUpTable(this,columnNames,alternatingRowColors,true);	
+
+	}
+	
+	public TablePanel(String columnNames[], boolean alternatingRowColors,boolean headers)
+	{
+		super();
+
+		setLayout(new BorderLayout(0, 0));
+
+		this.setBorder(null);
+		
+		setUpTable(this,columnNames,alternatingRowColors,headers);	
 
 	}
 	
@@ -62,6 +74,11 @@ public class TablePanel extends JPanel
 	public void setDefaultRenderer(Class<?> classType, TableCellRenderer defaultRenderer)
 	{
 		table.setDefaultRenderer(classType, defaultRenderer);
+	}
+	
+	public TableCellRenderer getTableHeaderRenderer()
+	{
+		return table.getTableHeader().getDefaultRenderer();
 	}
 	
 	/**
@@ -106,7 +123,7 @@ public class TablePanel extends JPanel
 	 * @param panel
 	 * @param colNames
 	 */
-	private void setUpTable(JPanel panel,String colNames[], boolean alternatingRowColors)
+	private void setUpTable(JPanel panel,String colNames[], boolean alternatingRowColors, boolean headers)
 	{
 		model = new TableModel(colNames);
 		
@@ -145,6 +162,11 @@ public class TablePanel extends JPanel
 			table = new JTable(model);
 		}
 
+		
+		if(!headers)
+		{	
+			table.setTableHeader(null);
+		}
 		
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		
@@ -383,6 +405,11 @@ public class TablePanel extends JPanel
 	public void setColumWidth(int column, int pref)
 	{
 		table.getColumnModel().getColumn(column).setPreferredWidth(pref);		
+	}
+
+	public JTable getJTable()
+	{
+		return table;
 	}
 
 }
