@@ -1,6 +1,10 @@
 package jCompute.Gui.Batch;
 
 import jCompute.Debug.DebugLogger;
+import jCompute.Gui.Batch.Batch.Batch;
+import jCompute.Gui.Batch.Batch.BatchItem;
+import jCompute.Gui.Batch.BatchManager.BatchManager;
+import jCompute.Gui.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
@@ -243,12 +247,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		};
 		batchQueuedAndCompletePanel.setLayout(gbl_batchQueuedCompletePanel);
 
-		batchQueuedTable = new TablePanel(new String[]
+		batchQueuedTable = new TablePanel("Queued", new String[]
 		{
-				"Id", "Name", "Type", "Items", " % ", "Done", "ETT"
+				"Id", "Name", "Type", "Priority","Items", " % ", "Done", "ETT"
 		},true);
 		// Progress Column uses a progress bar for display
-		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), 4);
+		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), 5);
 		GridBagConstraints gbc_batchQueuedTable = new GridBagConstraints();
 		gbc_batchQueuedTable.fill = GridBagConstraints.BOTH;
 		gbc_batchQueuedTable.gridx = 0;
@@ -260,15 +264,16 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		batchQueuedTable.setColumWidth(0, 25);
 		batchQueuedTable.setColumWidth(1, 200);
-		batchQueuedTable.setColumWidth(2, 50);
+		batchQueuedTable.setColumWidth(2, 40);
 		batchQueuedTable.setColumWidth(3, 50);
-		batchQueuedTable.setColumWidth(4, 50);
-		batchQueuedTable.setColumWidth(5, 50);
+		batchQueuedTable.setColumWidth(4, 40);
+		batchQueuedTable.setColumWidth(5, 40);
+		batchQueuedTable.setColumWidth(6, 40);
 		
 		batchQueuedAndCompletePanel.add(batchQueuedTable, gbc_batchQueuedTable);
 		
 		// Bottom Completed Batches
-		batchCompletedTable = new TablePanel(new String[]
+		batchCompletedTable = new TablePanel("Completed", new String[]
 		{
 				"Id", "Name", "Type", "Items", "Run Time"
 		}, true);
@@ -306,10 +311,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		activeItemsListTable = new TablePanel(new String[]
 		{
-				"Item Id", "Batch Id", "Name", "Hash"
+				"Item", "Batch", "Name", "Hash"
 		}, true);
-		activeItemsListTable.setColumWidth(0, 50);
-		activeItemsListTable.setColumWidth(1, 50);
+		activeItemsListTable.setColumWidth(0, 35);
+		activeItemsListTable.setColumWidth(1, 40);
 		//activeItemsListTable.setColumWidth(2, 200);
 		activeItemsListTable.setColumWidth(3, 200);
 
@@ -317,20 +322,20 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		queuedItemsListTable = new TablePanel(new String[]
 		{
-				"Item Id", "Batch Id", "Name", "Hash"
+				"Item", "Batch", "Name", "Hash"
 		}, true);
-		queuedItemsListTable.setColumWidth(0, 50);
-		queuedItemsListTable.setColumWidth(1, 50);
+		queuedItemsListTable.setColumWidth(0, 35);
+		queuedItemsListTable.setColumWidth(1, 40);
 		queuedItemsListTable.setColumWidth(3, 200);
 		
 		batchInfoQueueTabPanel.addTab(queuedItemsListTable,"Queued");
 
 		completedItemsListTable = new TablePanel(new String[]
 		{
-				"Item Id", "Batch Id", "Name", "Hash"
+				"Item", "Batch", "Name", "Hash"
 		}, true);
-		completedItemsListTable.setColumWidth(0, 50);
-		completedItemsListTable.setColumWidth(1, 50);
+		completedItemsListTable.setColumWidth(0, 35);
+		completedItemsListTable.setColumWidth(1, 40);
 		completedItemsListTable.setColumWidth(3, 200);
 		
 		batchInfoQueueTabPanel.addTab(completedItemsListTable,"Completed");
@@ -760,7 +765,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		// add new row
 		batchQueuedTable.addRow(String.valueOf(batch.getBatchId()), new String[]
 		{
-			batch.getFileName(), batch.getType(), Integer.toString(batch.getBatchItems()), Integer.toString(batch.getProgress()), Integer.toString(batch.getCompleted()), "0"
+			batch.getFileName(), batch.getType(),batch.getPriority(), Integer.toString(batch.getBatchItems()), Integer.toString(batch.getProgress()), Integer.toString(batch.getCompleted()), "0"
 		});
 
 	}
@@ -795,9 +800,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	public void batchProgress(final Batch batch)
 	{
 		String id  = String.valueOf(batch.getBatchId());
-		batchQueuedTable.updateCell(id, 4, Integer.toString(batch.getProgress()));
-		batchQueuedTable.updateCell(id, 5, Integer.toString(batch.getCompleted()));
-		batchQueuedTable.updateCell(id, 6, jCompute.util.Text.longTimeToDHMS(batch.getETT()));
+		batchQueuedTable.updateCell(id, 3, batch.getPriority());
+		batchQueuedTable.updateCell(id, 5, Integer.toString(batch.getProgress()));
+		batchQueuedTable.updateCell(id, 6, Integer.toString(batch.getCompleted()));
+		batchQueuedTable.updateCell(id, 7, jCompute.util.Text.longTimeToDHMS(batch.getETT()));
 	}
 
 	@Override

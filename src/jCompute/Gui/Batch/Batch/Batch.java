@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch;
+package jCompute.Gui.Batch.Batch;
 
 import jCompute.Debug.DebugLogger;
 import jCompute.Scenario.ScenarioInf;
@@ -28,6 +28,7 @@ public class Batch
 {
 	/* Batch Attributes */
 	private int batchId;
+	private BatchPriority priority;
 	private String type;
 	
 	private String batchFileName;
@@ -89,7 +90,7 @@ public class Batch
 	
 	private Semaphore batchLock = new Semaphore(1, false);	
 	
-	public Batch(int batchId,String filePath) throws IOException
+	public Batch(int batchId,BatchPriority priority,String filePath) throws IOException
 	{
 		completedItemRunTime = 0;
 		active = 0;
@@ -101,6 +102,7 @@ public class Batch
 		addedDateTime = date + " " + time;
 		
 		this.batchId = batchId;
+		this.priority = priority;
 		
 		this.batchFileName = getFileName(filePath);
 		
@@ -872,8 +874,11 @@ public class Batch
 	{
 		ArrayList<String> info = new ArrayList<String>();
 
-		info.add("Batch Id");
+		info.add("Id");
 		info.add(String.valueOf(batchId));
+		
+		info.add("Priority");
+		info.add(priority.toString());
 		
 		info.add("Description");
 		info.add(batchDescription);
@@ -921,4 +926,26 @@ public class Batch
 		return info.toArray(new String[info.size()]);
 	}
 	
+	public enum BatchPriority
+	{
+		HIGH ("HIGH"),
+		STANDARD ("Standard");
+		
+	    private final String name;
+
+	    private BatchPriority(String name) 
+	    {
+	        this.name = name;
+	    }
+
+	    public String toString()
+	    {
+	       return name;
+	    }
+	}
+
+	public String getPriority()
+	{
+		return priority.toString();
+	};
 }

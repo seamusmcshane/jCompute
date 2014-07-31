@@ -1,6 +1,9 @@
-package jCompute.Gui.Batch;
+package jCompute.Gui.Batch.BatchManager;
 
 import jCompute.Debug.DebugLogger;
+import jCompute.Gui.Batch.Batch.Batch;
+import jCompute.Gui.Batch.Batch.Batch.BatchPriority;
+import jCompute.Gui.Batch.Batch.BatchItem;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
@@ -19,14 +22,22 @@ import java.util.concurrent.Semaphore;
 
 public class BatchManager implements SimulationsManagerEventListenerInf,SimulationStateListenerInf
 {
+	// Lock
+	private Semaphore batchManagerLock = new Semaphore(1, false);	
+
+	// Batch id counter
+	private int batchId = 0;
+	
 	// Simulations Manager
 	private SimulationsManagerInf simsManager;
 
-	// The queue of batches
-	private Queue<Batch> queuedBatches;
-	private ArrayList<Batch> finishedBatches;
+	// The queues of batches
+	private Queue<Batch> fifoQueue;
+	private Queue<Batch> fairQueue;
+	private int fairQueueLast = 0;
 	
-	private Semaphore batchManagerLock = new Semaphore(1, false);	
+	// Finished Batches
+	private ArrayList<Batch> finishedBatches;
 	
 	// The active Items currently being processed from all batches.
 	private ArrayList<BatchItem> activeItems; 
@@ -34,26 +45,20 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	// Temporary list for completed items.
 	private ArrayList<BatchItem> completedItems; 
 
-	// Batch id counter
-	private int batchId = 0;
-	
 	/* Batch Manager Event Listeners */
 	private CopyOnWriteArrayList <BatchManagerEventListenerInf> batchManagerListeners = new CopyOnWriteArrayList <BatchManagerEventListenerInf>();
 	
+	// Scheduler
 	private Timer batchSchedulerTimer;
-	
-	// Batches in FIFO
-	private final int fifo = 0;
-	// Batches in fair queue (1 item from each batch until queue full)
-	private final int fq = 1;
-	
-	private int batchScheduleMode = fifo;
 	
 	public BatchManager(SimulationsManagerInf simsManager)
 	{
 		this.simsManager = simsManager;
 		
-		queuedBatches = new LinkedBlockingQueue<Batch>();
+		fifoQueue = new LinkedBlockingQueue<Batch>();
+		
+		fairQueue = new LinkedBlockingQueue<Batch>();
+		
 		finishedBatches = new ArrayList<Batch>(16);
 		
 		activeItems = new ArrayList<BatchItem>();
@@ -86,9 +91,9 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		// Try generating a batch and adding it to the queue.
 		try
 		{
-			tempBatch = new Batch(batchId,fileName);
+			tempBatch = new Batch(batchId,BatchPriority.STANDARD,fileName);
 			
-			queuedBatches.add(tempBatch);
+			fairQueue.add(tempBatch);
 			
 			added = true;
 			batchId++;
@@ -98,7 +103,6 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			batchManagerListenerBatchAddedNotification(tempBatch);
 			
 			batchManagerLock.acquireUninterruptibly();
-
 			
 		}
 		catch (IOException e)
@@ -181,30 +185,21 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		processCompletedItems();
 		
 		// Is there a free slot
-		if(simsManager.getActiveSims() < simsManager.getMaxSims() && (queuedBatches.size() > 0))
+		if(simsManager.getActiveSims() < simsManager.getMaxSims())
 		{
-			switch(batchScheduleMode)
-			{
-				case fifo:
-					scheduleFifo();
-				break;
-				case fq:
-					// TODO Alternative scheduler
-				break;
-				default:
-					DebugLogger.output("Batch schedule mode not set!!!");
-				break;
-			}
+			scheduleFifo();
+			scheduleFair();
 		}
 		
 	}
 	
+	// High Priority FIFO
 	private void scheduleFifo()
 	{
 		DebugLogger.output("Schedule Fifo");
 		
 		// Get the first batch - FIFO
-		Batch batch = queuedBatches.peek();
+		Batch batch = fifoQueue.peek();
 		
 		if(batch == null)
 		{
@@ -219,7 +214,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			finishedBatches.add(batch);
 
 			// Remove first batch as its complete.
-			queuedBatches.poll();
+			fifoQueue.poll();
 			
 			batchManagerLock.release();
 
@@ -238,21 +233,96 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			// dequeue the next item in the batch
 			BatchItem item = batch.getNext();
 			
-			batchManagerLock.release();
-			
 			// Schedule it
 			if(!scheduleBatchItem(item))
 			{
-				batchManagerLock.acquireUninterruptibly();
 				
 				batch.returnItemToQueue(item);
 				break;
 			}
 			
-			batchManagerLock.acquireUninterruptibly();
-		
 		}
 	
+	}
+	
+	private void scheduleFair()
+	{
+		DebugLogger.output("Schedule Fair");
+
+		int size = fairQueue.size();
+		int pos;
+		
+		if(size > 0)
+		{
+			pos = fairQueueLast % size;
+		}
+		else
+		{
+			// Queue Empty
+			return;
+		}
+		
+		Batch[] fairBatches = fairQueue.toArray(new Batch[fairQueue.size()]);
+		
+		DebugLogger.output("GOT ARRAY");
+		
+		Batch batch = null;
+		BatchItem item = null;
+		
+		boolean canContinue = true;
+		
+		// Cycle over the batches and add one item from each to the run queue		
+		do
+		{
+			batch = fairBatches[pos];
+			
+			// Is this batch finished
+			if(batch.getCompleted() == batch.getBatchItems())
+			{
+				// Add the batch to the completed list
+				finishedBatches.add(batch);
+
+				// Remove batch as its complete.
+				fairQueue.remove(batch);
+				
+				batchManagerLock.release();
+
+				// Notify listeners the batch is removed.
+				batchManagerListenerBatchFinishedNotification(batch);
+				
+				batchManagerLock.acquireUninterruptibly();
+				// exit this tick
+				canContinue = false;
+			}
+			else
+			{
+				if(batch.getRemaining() > 0)
+				{
+					item = batch.getNext();
+					
+					// Once we cannot add anymore, exit, and return the failed one to the queue		
+					if(!scheduleBatchItem(item))
+					{
+						batch.returnItemToQueue(item);
+						canContinue = false;
+					}
+					else
+					{
+						pos = (pos + 1) % size;
+					}
+				}
+				else
+				{
+					canContinue = false;
+				}
+
+			}
+
+		}
+		while(canContinue);
+		
+		fairQueueLast = pos;
+		
 	}
 	
 	private boolean scheduleBatchItem(BatchItem item)
@@ -261,7 +331,11 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 
 		activeItems.add(item);
 		
+		batchManagerLock.release();
+		
 		int simId = simsManager.addSimulation(item.getConfigText(),-1);
+		
+		batchManagerLock.acquireUninterruptibly();
 		
 		// If the simulations manager has added a simulation for us
 		if(simId>0)
@@ -270,9 +344,13 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			
 			item.setSimId(simId);
 			
+			batchManagerLock.release();
+			
 			simsManager.addSimulationStateListener(simId, this);
 			
-			simsManager.startSim(simId);	
+			simsManager.startSim(simId);
+			
+			batchManagerLock.acquireUninterruptibly();
 			
 			return true;
 		}
@@ -317,7 +395,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	
 	private Batch findBatch(int batchId)
 	{
-		Iterator<Batch> itr = queuedBatches.iterator();
+		Iterator<Batch> itr = fifoQueue.iterator();
 		
 		Batch batch = null;
 		Batch tBatch = null;
@@ -335,7 +413,30 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 				break;
 			}
 
-		}		
+		}
+		
+		// Search fair queue
+		if(batch == null)
+		{
+			itr = fairQueue.iterator();
+			
+			batch = null;
+			tBatch = null;
+			
+			while(itr.hasNext())
+			{
+				tBatch = itr.next();
+				
+				if(tBatch.getBatchId() == batchId)
+				{
+					
+					batch = tBatch;
+					
+					break;
+				}
+	
+			}	
+		}
 		
 		// Search finished batches
 		if(batch == null)
