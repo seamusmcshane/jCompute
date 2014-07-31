@@ -479,19 +479,19 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		if(!skipData)
 		{
-			// Load the batch info
+			String info[] = batchManager.getBatchInfo(batchId);
+			
+			// Get the Item lists
 			BatchItem queued[] = batchManager.getItemQueue(batchId);
 			BatchItem active[] = batchManager.getActiveItems(batchId);
 			BatchItem completed[] = batchManager.getCompletedItems(batchId);
 			// TODO getCompletedItems BatchItem completed[] = batchManager.getCompletedItems(batchId);
 			
 			// Batch Info
-			ArrayList<String> info = batchManager.getBatchInfo(batchId);
-			int batchInfoSize = info.size();
-			
-			for(int i = 0; i < batchInfoSize;i+=2) 
+			int batchInfoLength= info.length;			
+			for(int i = 0; i < batchInfoLength;i+=2) 
 			{	
-				batchInfo.addRow(info.get(i),new String[]{info.get(i+1)});				
+				batchInfo.addRow(info[i],new String[]{info[i+1]});				
 			}
 			
 			// Queued Items

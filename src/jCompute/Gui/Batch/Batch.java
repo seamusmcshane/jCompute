@@ -868,7 +868,7 @@ public class Batch
 		return getRunTime() + ( ( (completedItemRunTime / completed) * (batchItems - completed) ) / active);
 	}
 	
-	public ArrayList<String> getBatchInfo()
+	public String[] getBatchInfo()
 	{
 		ArrayList<String> info = new ArrayList<String>();
 
@@ -918,7 +918,7 @@ public class Batch
 		info.add("Run Time");
 		info.add(Text.longTimeToDHMS(getRunTime()));
 		
-		return info;
+		return info.toArray(new String[info.size()]);
 	}
 	
 }
