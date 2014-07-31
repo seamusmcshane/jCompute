@@ -29,18 +29,14 @@ import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ProgressMonitor;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -51,14 +47,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JPanel;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

@@ -2,7 +2,6 @@ package jCompute.Scenario.SAPP.SimpleAgent;
 
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Gui.View.Graphics.A2DCircle;
-import jCompute.Gui.View.Graphics.A2DLine;
 import jCompute.Gui.View.Graphics.A2DVector2f;
 import jCompute.Gui.View.Graphics.A2RGBA;
 import jCompute.Scenario.SAPP.Plant.GenericPlant;

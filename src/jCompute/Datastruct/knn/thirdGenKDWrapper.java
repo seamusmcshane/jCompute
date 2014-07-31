@@ -1,10 +1,7 @@
 package jCompute.Datastruct.knn;
 
-import jCompute.Scenario.SAPP.SimpleAgent.SimpleAgent;
-
 import java.util.LinkedList;
 
-import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 

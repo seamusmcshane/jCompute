@@ -203,8 +203,6 @@ public class MandelbrotAnimate
 	
 	public static void CycleIterations(MandelbrotKernelInterface kernel,int sleep)
 	{
-		int x = 0;
-		int y = 0;
 		int iters = 0;
 		
 		while(iters < 32)

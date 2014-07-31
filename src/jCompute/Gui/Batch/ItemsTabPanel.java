@@ -7,6 +7,8 @@ import javax.swing.JTabbedPane;
 
 public class ItemsTabPanel extends JPanel
 {	
+	private static final long serialVersionUID = -2568428138969029838L;
+	
 	private JTabbedPane tabs;
 	
 	public ItemsTabPanel()

@@ -16,7 +16,6 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 

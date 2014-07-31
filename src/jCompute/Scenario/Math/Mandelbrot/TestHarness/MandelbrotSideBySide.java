@@ -127,6 +127,7 @@ public class MandelbrotSideBySide
 		
 		renderer = new JComponent()
 		{
+			private static final long serialVersionUID = 2248560884884539855L;
 			int margin = 50;
 			Font font = new Font("Sans Serif", Font.BOLD, 22);
 			

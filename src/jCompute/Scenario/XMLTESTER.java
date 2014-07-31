@@ -1,8 +1,5 @@
 package jCompute.Scenario;
 
-import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
-import jCompute.Scenario.SAPP.SAPPScenario;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

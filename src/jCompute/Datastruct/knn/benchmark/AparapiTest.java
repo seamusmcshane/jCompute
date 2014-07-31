@@ -5,7 +5,6 @@ import jCompute.Scenario.Math.Mandelbrot.Lib.AparapiUtil;
 import java.util.Random;
 
 import com.amd.aparapi.OpenCLDevice;
-import com.amd.aparapi.OpenCLPlatform;
 
 public class AparapiTest
 {

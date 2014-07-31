@@ -3,7 +3,6 @@ package jCompute.Gui.Component;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,6 +135,8 @@ public class TablePanel extends JPanel
 		{
 			table = new JTable(model)
 			{
+				private static final long serialVersionUID = -3299922426578737865L;
+
 				public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
 				{
 					Component c = super.prepareRenderer(renderer, row, column);

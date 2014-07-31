@@ -1,15 +1,6 @@
 package tools.SurfacePlotGenerator;
 
-import jCompute.Gui.View.Graphics.A2DPoint2d;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.jzy3d.plot3d.builder.Mapper;

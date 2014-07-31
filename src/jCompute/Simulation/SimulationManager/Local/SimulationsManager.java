@@ -9,14 +9,11 @@ import jCompute.Scenario.Math.Mandelbrot.MandelbrotScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationScenarioManagerInf;
-import jCompute.Simulation.SimulationState;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
-import jCompute.Stats.StatManager;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;

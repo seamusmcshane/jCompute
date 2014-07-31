@@ -3,8 +3,6 @@
  */
 package jCompute.Datastruct.knn;
 
-import jCompute.Scenario.SAPP.SimpleAgent.SimpleAgent;
-
 import java.util.LinkedList;
 
 /**

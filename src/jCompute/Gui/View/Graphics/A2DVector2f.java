@@ -160,7 +160,6 @@ public class A2DVector2f
 	*/
 	private static double reduceSinAngle(double radians) 
 	{
-		double orig = radians;
 		radians %= Math.PI * 2.0; // put us in -2PI to +2PI space
 		if (Math.abs(radians) > Math.PI) 
 		{ 

@@ -65,11 +65,6 @@ public class GenericPlantBody implements BodyInf
 		body = new A2DCircle(0, 0, size);
 	}
 	
-	private void setIntialPos(double pos[])
-	{
-		bodyPos = new A2DVector2f((float)pos[0], (float)pos[1]);
-	}
-	
 	/** 
 	 * Returns the position of the body
 	 * @return Vector2f  */

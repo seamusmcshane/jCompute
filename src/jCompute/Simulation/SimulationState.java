@@ -1,7 +1,5 @@
 package jCompute.Simulation;
 
-import jCompute.Simulation.SimulationState.SimState;
-
 public class SimulationState
 {
 	/** Sim ref for call back */

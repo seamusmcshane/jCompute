@@ -2,14 +2,11 @@ package jCompute.Simulation.SimulationManager;
 
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
-import jCompute.Simulation.SimulationScenarioManagerInf;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
-import jCompute.Stats.StatManager;
-
 import java.util.List;
 import java.util.Set;
 

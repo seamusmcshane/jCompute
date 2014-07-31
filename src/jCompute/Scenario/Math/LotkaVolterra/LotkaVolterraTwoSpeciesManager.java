@@ -358,8 +358,6 @@ public class LotkaVolterraTwoSpeciesManager implements LotkaVolterraSubTypeInf
 		float xmax = 0;
 		float ymax = 0;
 		
-		Color color;
-		
 		if(values!=null)
 		{
 			if(values.size() > 0)

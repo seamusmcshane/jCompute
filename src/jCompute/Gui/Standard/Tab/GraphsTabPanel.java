@@ -5,24 +5,16 @@ import jCompute.Gui.Charts.GlobalStatChartPanel;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.filechooser.FileFilter;
 
 public class GraphsTabPanel extends JPanel
-{	
+{
+	private static final long serialVersionUID = 6906961582077427931L;
+
 	private ImageIcon chartIcon = IconManager.getIcon("chartIcon");
 
 	private JTabbedPane chartTabs;

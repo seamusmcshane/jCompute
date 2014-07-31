@@ -11,13 +11,10 @@ import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLProfile;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -27,48 +24,29 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.camera.AbstractCameraController;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
-import org.jzy3d.chart.factories.IChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.contour.DefaultContourColoringPolicy;
-import org.jzy3d.contour.MapperContourPictureGenerator;
-import org.jzy3d.io.glsl.GLSLProgram;
-import org.jzy3d.io.glsl.GLSLProgram.Strictness;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
-import org.jzy3d.maths.Scale;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
-import org.jzy3d.plot3d.primitives.axes.ContourAxeBox;
-import org.jzy3d.plot3d.primitives.axes.IAxe;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
-import org.jzy3d.plot3d.rendering.ddp.PeelingComponentFactory;
-import org.jzy3d.plot3d.rendering.ddp.algorithms.PeelingMethod;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JComboBox;
-
 import java.awt.BorderLayout;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-
-import javax.swing.JSlider;
-import javax.swing.SwingConstants;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
 {
@@ -239,7 +217,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			@Override
 			public void run()
 			{
-				SurfacePlotterUtil util = new SurfacePlotterUtil();
+				new SurfacePlotterUtil();
 			}
 		});
 

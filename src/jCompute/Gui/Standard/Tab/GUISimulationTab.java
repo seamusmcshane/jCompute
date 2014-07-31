@@ -380,7 +380,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		btnGenerateSim.addActionListener(this);
 		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
 		btnGenerateSim.setEnabled(false);
-		GridBagConstraints gbc_btnGenerateSim = new GridBagConstraints();
 		/*gbc_btnGenerateSim.fill = GridBagConstraints.BOTH;*/
 		generatePanel.add(btnGenerateSim, BorderLayout.CENTER);
 		GridBagConstraints gbc_generatePanel = new GridBagConstraints();
@@ -1263,9 +1262,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private class TabButton extends JPanel implements TabStatusChangedListenerInf
 	{
+		private static final long serialVersionUID = -6875371823998852810L;
 		private GUITabManager tabManager;
 		private GUISimulationTab tab;
-		private ImageIcon icon;
 		private JLabel title;
 		JButton closeButton;
 		

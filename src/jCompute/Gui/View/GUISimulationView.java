@@ -56,9 +56,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 
 	private String simulationTitle = "";
 	
-	/** Records status of mouse button */
-	private boolean mouseButtonPressed = false;
-	
 	private int defaultFrameRate = 60;
 
 	/** Draw the View range of the agents */
@@ -102,9 +99,6 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		
 		basePanel = new JPanel();
 		
-		// For inners
-		final GUISimulationView simView = this;
-
 		basePanel.setPreferredSize(new Dimension(1024, 1024));
 
 		basePanel.setLayout(new BorderLayout());

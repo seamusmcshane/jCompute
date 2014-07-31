@@ -1,7 +1,6 @@
 package unitTests.SAPP;
 
 import static org.junit.Assert.*;
-import jCompute.Gui.View.Graphics.A2DRectangle;
 import jCompute.Gui.View.Graphics.A2DVector2f;
 import jCompute.Scenario.SAPP.Plant.GenericPlantBody;
 

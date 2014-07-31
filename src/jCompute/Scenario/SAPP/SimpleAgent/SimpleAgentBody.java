@@ -6,8 +6,6 @@ import jCompute.Gui.View.Graphics.A2DRectangle;
 import jCompute.Gui.View.Graphics.A2DVector2f;
 import jCompute.Gui.View.Graphics.A2RGBA;
 import jCompute.Scenario.SAPP.BodyInf;
-import jCompute.Scenario.SAPP.SimpleAgent.SimpleAgentEnum.AgentType;
-import jCompute.Scenario.SAPP.World.World;
 import jCompute.Scenario.SAPP.World.WorldInf;
 
 import java.awt.Color;

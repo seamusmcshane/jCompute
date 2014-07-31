@@ -6,27 +6,20 @@ import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
 
 import javax.swing.JPanel;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Point;
 
 import javax.swing.JTable;
 
-import java.awt.Color;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.swing.border.TitledBorder;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

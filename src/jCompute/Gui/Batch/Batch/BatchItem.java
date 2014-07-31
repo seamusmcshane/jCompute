@@ -3,9 +3,6 @@ package jCompute.Gui.Batch.Batch;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-
-import com.badlogic.gdx.scenes.scene2d.ui.List;
 
 public class BatchItem
 {

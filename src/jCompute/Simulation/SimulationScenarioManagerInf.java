@@ -2,7 +2,6 @@ package jCompute.Simulation;
 
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Gui.View.SimViewCam;
-import jCompute.Gui.View.Graphics.A2DVector2f;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Stats.StatManager;
 
