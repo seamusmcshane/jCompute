@@ -1,10 +1,10 @@
 package jCompute.Gui.Batch;
 
+import jCompute.Batch.Batch;
+import jCompute.Batch.BatchItem;
+import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Debug.DebugLogger;
-import jCompute.Gui.Batch.Batch.Batch;
-import jCompute.Gui.Batch.Batch.BatchItem;
-import jCompute.Gui.Batch.BatchManager.BatchManager;
-import jCompute.Gui.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;

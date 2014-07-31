@@ -1,6 +1,6 @@
-package jCompute.Gui.Batch.BatchManager;
+package jCompute.Batch.BatchManager;
 
-import jCompute.Gui.Batch.Batch.Batch;
+import jCompute.Batch.Batch;
 
 public interface BatchManagerEventListenerInf
 {

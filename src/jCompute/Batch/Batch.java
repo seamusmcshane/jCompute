@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch.Batch;
+package jCompute.Batch;
 
 import jCompute.Debug.DebugLogger;
 import jCompute.Scenario.ScenarioInf;

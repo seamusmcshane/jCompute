@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch.Batch;
+package jCompute.Batch;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

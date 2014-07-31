@@ -1,9 +1,9 @@
-package jCompute.Gui.Batch.BatchManager;
+package jCompute.Batch.BatchManager;
 
+import jCompute.Batch.Batch;
+import jCompute.Batch.BatchItem;
+import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Debug.DebugLogger;
-import jCompute.Gui.Batch.Batch.Batch;
-import jCompute.Gui.Batch.Batch.Batch.BatchPriority;
-import jCompute.Gui.Batch.Batch.BatchItem;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
