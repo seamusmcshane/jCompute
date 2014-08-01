@@ -855,6 +855,11 @@ public class Batch
 		return activeItems.toArray(new BatchItem[activeItems.size()]);
 	}
 	
+	public int getActiveItemsCount()
+	{
+		return activeItems.size();
+	}
+	
 	public BatchItem[] getCompletedItems()
 	{
 		return completedItems.toArray(new BatchItem[completedItems.size()]);
@@ -896,6 +901,9 @@ public class Batch
 
 		info.add("");
 		info.add("");
+		info.add("Active Items");
+		info.add(String.valueOf(getActiveItemsCount()));
+
 		info.add("Items Completed");
 		info.add(String.valueOf(completed));
 		info.add("Items Requested");
