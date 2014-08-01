@@ -688,9 +688,19 @@ public class Batch
 		return temp;
 	}
 	
-	public void setComplete(SimulationsManagerInf simsManager,BatchItem item,long runTime,String endEvent, long stepCount)
+	public void setComplete(SimulationsManagerInf simsManager,BatchItem item)
 	{
+		
+		// ,simsManager.getSimRunTime(simId),simsManager.getEndEvent(simId),simsManager.getSimStepCount(simId)
+		
 		batchLock.acquireUninterruptibly();
+		
+		DebugLogger.output("Setting Completed Sim " +  item.getSimId() + " Item " + item.getItemId());
+
+		int simId = item.getSimId();
+		long runTime = simsManager.getSimRunTime(simId);
+		String endEvent = simsManager.getEndEvent(simId);
+		long stepCount = simsManager.getSimStepCount(simId);
 		
 		activeItems.remove(item);
 		
@@ -872,7 +882,12 @@ public class Batch
 	
 	public long getETT()
 	{
-		return getRunTime() + ( ( (completedItemRunTime / completed) * (batchItems - completed) ) / active);
+		if(active>0)
+		{
+			return getRunTime() + ( ( (completedItemRunTime / completed) * (batchItems - completed) ) / active);
+		}
+		
+		return 0;
 	}
 	
 	public String[] getBatchInfo()
