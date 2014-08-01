@@ -41,11 +41,9 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	
 	// The active Items currently being processed from all batches.
 	private ArrayList<BatchItem> activeItems; 
-	private Semaphore activeItemsLock = new Semaphore(1, false);	
-
-	// Temporary list for completed items.
-	private ArrayList<BatchItem> completedItems; 
-	private Semaphore completedItemsLock = new Semaphore(1, false);	
+	private Semaphore itemsLock = new Semaphore(1, false);
+	
+	private ArrayList<BatchItem> completeItems; 
 
 	/* Batch Manager Event Listeners */
 	private CopyOnWriteArrayList <BatchManagerEventListenerInf> batchManagerListeners = new CopyOnWriteArrayList <BatchManagerEventListenerInf>();
@@ -53,8 +51,13 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	// Scheduler
 	private Timer batchSchedulerTimer;
 	
+	// Self Reference
+	private BatchManager batchManager;
+	
 	public BatchManager(SimulationsManagerInf simsManager)
 	{
+		batchManager = this;
+		
 		this.simsManager = simsManager;
 		
 		fifoQueue = new LinkedBlockingQueue<Batch>();
@@ -64,7 +67,7 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		finishedBatches = new ArrayList<Batch>(16);
 		
 		activeItems = new ArrayList<BatchItem>();
-		completedItems = new ArrayList<BatchItem>();
+		completeItems = new ArrayList<BatchItem>();
 		
 		// Batch Scheduler Tick
 		batchSchedulerTimer = new Timer("Batch Scheduler Timer");
@@ -80,15 +83,15 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	}
 	
 	public boolean addBatch(String fileName)
-	{
-		batchManagerLock.acquireUninterruptibly();
-		
+	{		
 		Batch tempBatch;
 		boolean added = false;
 		
 		// Try generating a batch and adding it to the queue.
 		try
 		{
+			batchManagerLock.acquireUninterruptibly();
+
 			tempBatch = new Batch(batchId,BatchPriority.STANDARD,fileName);
 			
 			fairQueue.add(tempBatch);
@@ -100,15 +103,12 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			
 			batchManagerListenerBatchAddedNotification(tempBatch);
 			
-			batchManagerLock.acquireUninterruptibly();
-			
 		}
 		catch (IOException e)
 		{			
+
 			added = false;
 		}
-		
-		batchManagerLock.release();
 		
 		return added;
 	}
@@ -146,55 +146,34 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		}
 		
 	}
-
-	private void processCompletedItems()
-	{
-		// Dont block on the completed items
-		if(completedItemsLock.tryAcquire())
-		{
-			// If there are any completed items
-			if(completedItems.size() > 0)
-			{
-				// Processed them
-				Iterator<BatchItem> itr = completedItems.iterator();
-				
-				while(itr.hasNext())
-				{
-					BatchItem item = itr.next();
-				
-					Batch batch = findBatch(item.getBatchId());
-					
-					activeItems.remove(item);
-					DebugLogger.output("Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
-
-					int simId = item.getSimId();
-					
-					// Updates Logs/Exports Stats
-					batch.setComplete(simsManager,item,simsManager.getSimRunTime(simId),simsManager.getEndEvent(simId),simsManager.getSimStepCount(simId));	
-					
-					simsManager.removeSimulationStateListener(item.getSimId(), this);
-
-					simsManager.removeSimulation(item.getSimId());
-					
-					batchManagerListenerBatchProgressNotification(batch);
-
-				}
-				
-				DebugLogger.output("Processed " + completedItems.size() + " Completed Items");
-				
-				completedItems = new ArrayList<BatchItem>();	
-			}
-
-			completedItemsLock.release();
-		}
-		
-	}
 	
 	private void schedule()
 	{		
 		DebugLogger.output("BatchManager Schedule Tick");
+		
+		//simsManager.removeSimulationStateListener(item.getSimId(), this);
+		//simsManager.removeSimulation(item.getSimId());
+		
+		itemsLock.acquireUninterruptibly();
+		
+		Iterator<BatchItem> itr = completeItems.iterator();
+		
+		BatchItem item = null;
+		
+		while(itr.hasNext())
+		{
+			item = itr.next();
+			
+			simsManager.removeSimulationStateListener(item.getSimId(), batchManager);
+			simsManager.removeSimulation(item.getSimId());
+			
+			DebugLogger.output("Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
 
-		processCompletedItems();
+		}
+		
+		completeItems = new ArrayList<BatchItem>();
+		
+		itemsLock.release();
 		
 		// Is there a free slot
 		if(simsManager.getActiveSims() < simsManager.getMaxSims())
@@ -286,8 +265,6 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		
 		Batch[] fairBatches = fairQueue.toArray(new Batch[fairQueue.size()]);
 		
-		DebugLogger.output("GOT ARRAY");
-		
 		Batch batch = null;
 		BatchItem item = null;
 		
@@ -365,8 +342,6 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	private boolean scheduleBatchItem(BatchItem item)
 	{
 		DebugLogger.output("Schedule Batch");
-
-		activeItems.add(item);
 		
 		batchManagerLock.release();
 		
@@ -383,7 +358,11 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			
 			batchManagerLock.release();
 			
-			simsManager.addSimulationStateListener(simId, this);
+			simsManager.addSimulationStateListener(simId, batchManager);
+			
+			itemsLock.acquireUninterruptibly();
+				activeItems.add(item);
+			itemsLock.release();
 			
 			simsManager.startSim(simId);
 			
@@ -409,13 +388,29 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 				
 				DebugLogger.output("Recorded Completed Sim " + simId);
 				
-				BatchItem item = findBatchItemFromSimId(simId);
+				BatchItem item = findActiveBatchItemFromSimId(simId);			
+
+				DebugLogger.output("GOT Active item " + item.getItemId());
+
+				Batch batch = findBatch(item.getBatchId());				
+
+				DebugLogger.output("GOT Batch " + batch.getBatchId());
+
+				// Updates Logs/Exports Stats
+				batch.setComplete(simsManager,item);	
 				
-				completedItemsLock.acquireUninterruptibly();
+				//simsManager.removeSimulationStateListener(item.getSimId(), this);
+				//simsManager.removeSimulation(item.getSimId());
 				
-				completedItems.add(item);
+				itemsLock.acquireUninterruptibly();
 				
-				completedItemsLock.release();
+				activeItems.remove(item);
+				completeItems.add(item);				
+
+				itemsLock.release();
+				
+				batchManagerListenerBatchProgressNotification(batch);
+
 				
 			break;
 			case PAUSED:
@@ -434,6 +429,8 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	
 	private Batch findBatch(int batchId)
 	{
+		batchManagerLock.acquireUninterruptibly();
+		
 		Iterator<Batch> itr = fifoQueue.iterator();
 		
 		Batch batch = null;
@@ -497,11 +494,15 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 			}
 		}		
 
+		batchManagerLock.release();
+		
 		return batch;
 	}
 	
-	private BatchItem findBatchItemFromSimId(int simId)
+	private BatchItem findActiveBatchItemFromSimId(int simId)
 	{
+		itemsLock.acquireUninterruptibly();
+
 		Iterator<BatchItem> itr = activeItems.iterator();
 		
 		BatchItem item = null;
@@ -519,6 +520,8 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 
 		}
 		
+		itemsLock.release();
+
 		return item;
 	}
 	
@@ -557,15 +560,11 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 	}
 	
 	public String[] getBatchInfo(int batchId)
-	{
-		batchManagerLock.acquireUninterruptibly();
-		
+	{		
 		Batch batch = findBatch(batchId);
 		
 		String[] info = batch.getBatchInfo();
-
-		batchManagerLock.release();
-
+		
 		return info;
 	}
 
