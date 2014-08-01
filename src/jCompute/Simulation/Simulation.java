@@ -113,7 +113,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 			pauseSim();
 		}*/
 		
-		
 		// Exit the Async Thread
 		running = false;
 		
@@ -162,16 +161,55 @@ public class Simulation implements stateChangedInf, statChangedInf
 			{
 				Thread thisThread = Thread.currentThread();
 				thisThread.setName("Async Update Thread");
-				//Thread thisThread = Thread.currentThread();
-
-				/* Top Priority to the simulation thread */
-				//thisThread.setPriority(Thread.MAX_PRIORITY);
 				
+				thisThread.setPriority(Thread.MIN_PRIORITY);
 				
 				while (running)
 				{
-					simUpdate();
-					//asyncUpdateThread.yield();
+					// The pause semaphore (We do not pause half way through a step)
+					pause.acquireUninterruptibly();
+					
+					if(running)
+					{
+						simStats.setStepStartTime();
+				
+						// record step start time for inter-step delay
+						timeTotal();
+				
+						// This single method hides the rest of the sim
+						simManager.doSimulationUpdate();
+				
+						// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
+						if(realtime)
+						{
+							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
+							while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
+							{
+							// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
+							// This will only wait if the step performance level is being exceeded
+							// Waiting between steps ensures smooth animiation on the view
+							}
+						}
+						// resets the value calculated in timeTotal()
+						resetTotalTime();
+				
+						simStats.setStepEndTime();
+						
+						// Increment the Step counter
+						simStats.incrementSimulationSteps();
+								
+						// Check for an End Event
+						if(simManager.hasEndEventOccurred())
+						{
+							simState.finishState();
+							
+							// Effectively a dead lock under any other circumstance.
+							pause.acquireUninterruptibly();
+						}
+					}
+					
+					// Allow the simulation to be paused again
+					pause.release();	
 				}
 				
 				
@@ -183,54 +221,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 		asyncUpdateThread.start();
 
-	}
-
-	private void simUpdate()
-	{
-		// The pause semaphore (We do not pause half way through a step)
-		pause.acquireUninterruptibly();
-		
-		if(running)
-		{
-			simStats.setStepStartTime();
-	
-			// record step start time for inter-step delay
-			timeTotal();
-	
-			// This single method hides the rest of the sim
-			simManager.doSimulationUpdate();
-	
-			// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
-			if(realtime)
-			{
-				// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
-				while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
-				{
-				// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
-				// This will only wait if the step performance level is being exceeded
-				// Waiting between steps ensures smooth animiation on the view
-				}
-			}
-			// resets the value calculated in timeTotal()
-			resetTotalTime();
-	
-			simStats.setStepEndTime();
-			
-			// Increment the Step counter
-			simStats.incrementSimulationSteps();
-					
-			// Check for an End Event
-			if(simManager.hasEndEventOccurred())
-			{				
-				simState.finishState();
-				
-				// Effectively a dead lock under any other circumstance.
-				pause.acquireUninterruptibly();
-			}
-		}
-		
-		// Allow the simulation to be paused again
-		pause.release();	
 	}
 
 	/**
