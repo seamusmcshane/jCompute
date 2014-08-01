@@ -17,16 +17,18 @@ public class ProgressBar extends JComponent
 	private int progress;
 	private Color fg;
 	private Color bg;	
+	private Color bar;	
 	
 	public ProgressBar() 
 	{
 		progress = 0;
 		
 		fg = Color.black;
+		bar = Color.LIGHT_GRAY;
 		bg = Color.LIGHT_GRAY;
 	}
 	
-	public ProgressBar(Color fg, Color bg) 
+	public ProgressBar(Color fg, Color bg, Color bar) 
 	{
 		progress = 0;
 		
@@ -71,17 +73,24 @@ public class ProgressBar extends JComponent
 		// Draw bar
 		Rectangle clip = g.getClipBounds();
 		g.setColor(bg);
-		
+		g.fillRect(clip.x,clip.y, clip.width,clip.height);
+
 		float barWidth = ((float)progress/100);
 		
+		g.setColor(bar);
 		g.fillRect(clip.x,clip.y, (int)(clip.width*barWidth),clip.height);
 
 		FontMetrics fontMetric = g.getFontMetrics(g.getFont());
 		Rectangle2D textSize = fontMetric.getStringBounds(progressToString(), g);
 		
 		// Draw Label
-		g.setColor(fg);
+		g.setColor(fg);				
 		g.drawString(progressToString(), (int) (clip.width-textSize.getWidth())/2, (int) (clip.height - textSize.getHeight()/2) + fontMetric.getDescent());
+	}
+
+	public void setBG(Color background)
+	{
+		this.bg = background;		
 	}
 
 }

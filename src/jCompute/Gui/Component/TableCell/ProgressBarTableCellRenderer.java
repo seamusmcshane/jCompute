@@ -16,15 +16,24 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 	}
 	
 	
-	public ProgressBarTableCellRenderer(Color bg, Color fg)
+	public ProgressBarTableCellRenderer(Color bg, Color fg,Color bar)
 	{
-		pb = new ProgressBar(bg,fg);
+		pb = new ProgressBar(bg,fg,bar);
 	}
 	
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		if(isSelected)
+		{
+			pb.setBG(table.getSelectionBackground());
+		}
+		else
+		{
+			pb.setBG(table.getBackground());
+		}
+		
 		pb.setProgress(Integer.parseInt((String) value));
 		return pb;
 	}

@@ -120,9 +120,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			@Override
 			public void run()
 			{
-				activeSimulationsListTable.RedrawTable(-1);
-				batchQueuedTable.RedrawTable(queuedSelectedBatchRowIndex);
-				batchCompletedTable.RedrawTable(completedSelectedBatchRowIndex);
+				//activeSimulationsListTable.RedrawTable(-1);
+				//batchQueuedTable.RedrawTable(queuedSelectedBatchRowIndex);
+				//batchCompletedTable.RedrawTable(completedSelectedBatchRowIndex);
 
 				displayBatchInfo(queuedOrCompleted);
 			}
@@ -176,11 +176,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Sim Id", "Status", "Step No", "Progress", "Avg Sps", "Run Time"
 		}, true);
-		activeSimulationsListTable.setColumWidth(0, 65);
+		activeSimulationsListTable.setColumWidth(0, 80);
 		activeSimulationsListTable.setColumWidth(1, 50);
 		activeSimulationsListTable.setColumWidth(2, 50);
-		activeSimulationsListTable.setColumWidth(3, 65);
+		//activeSimulationsListTable.setColumWidth(3, 65);
 		activeSimulationsListTable.setColumWidth(4, 50);
+		activeSimulationsListTable.setColumWidth(5, 70);
 		// Progress Column uses a progress bar for display
 		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		activeSimulationsListTable.setMinimumSize(new Dimension(800,200));
@@ -420,12 +421,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 	private void displayBatchInfo(int srcTable)
 	{
-		// Clear Batch info tables
-		batchInfo.clearTable();
-		activeItemsListTable.clearTable();
-		queuedItemsListTable.clearTable();
-		completedItemsListTable.clearTable();
-		
 		int batchId = 0;
 		
 		// Should the data fetch be skipped
@@ -485,56 +480,65 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			// TODO getCompletedItems BatchItem completed[] = batchManager.getCompletedItems(batchId);
 			
 			// Batch Info
-			int batchInfoLength= info.length;			
-			for(int i = 0; i < batchInfoLength;i+=2) 
-			{	
-				batchInfo.addRow(info[i],new String[]{info[i+1]});				
-			}
+			int batchInfoLength= info.length;	
 			
-			// Queued Items
-			for (int q = 0; q < queued.length; q++)
+			if(batchInfo.getRowsCount()<=0)
 			{
-				// queued
-				queuedItemsListTable.addRow(String.valueOf(queued[q].getItemId()), new String[]
-				{
-						String.valueOf(queued[q].getBatchId()), queued[q].getItemName(), queued[q].getItemHash()
-				});
+				for(int i = 0; i < batchInfoLength;i+=2) 
+				{	
+					batchInfo.addRow(new String[]{info[i],info[i+1]});				
+				}
 			}
-			
+			else
+			{
+				for(int i = 0; i < batchInfoLength;i+=2) 
+				{	
+					batchInfo.updateRow(info[i], new String[]{info[i],info[i+1]});				
+				}
+			}
+
 			// Active Items
+			activeItemsListTable.clearTable();
 			for (int a = 0; a < active.length; a++)
 			{
 				// active
-				activeItemsListTable.addRow(String.valueOf(active[a].getItemId()), new String[]
+				activeItemsListTable.addRow(new String[]
 				{
-						String.valueOf(active[a].getBatchId()), active[a].getItemName(), active[a].getItemHash()
+						String.valueOf(active[a].getItemId()),String.valueOf(active[a].getBatchId()), active[a].getItemName(), active[a].getItemHash()
 				});
 			}
 			
+			// Queued Items
+			queuedItemsListTable.clearTable();
+			for (int q = 0; q < queued.length; q++)
+			{
+				// queued
+				queuedItemsListTable.addRow(new String[]
+				{
+						String.valueOf(queued[q].getItemId()),String.valueOf(queued[q].getBatchId()), queued[q].getItemName(), queued[q].getItemHash()
+				});
+			}
+
 			// Completed Items
+			completedItemsListTable.clearTable();
 			for (int a = 0; a < completed.length; a++)
 			{
 				// active
-				completedItemsListTable.addRow(String.valueOf(completed[a].getItemId()), new String[]
+				completedItemsListTable.addRow(new String[]
 				{
-						String.valueOf(completed[a].getBatchId()), completed[a].getItemName(), completed[a].getItemHash()
+						String.valueOf(completed[a].getItemId()),String.valueOf(completed[a].getBatchId()), completed[a].getItemName(), completed[a].getItemHash()
 				});
 			}
 		}
+		else
+		{
+			// Clear Batch info tables
+			batchInfo.clearTable();
+			activeItemsListTable.clearTable();
+			queuedItemsListTable.clearTable();
+			completedItemsListTable.clearTable();			
+		}
 		
-		// Always redraw item tables as one of the batch tables may have been deselected then item tables need to have previous data cleared
-		redrawItemTables();
-	}
-	
-	private void redrawItemTables()
-	{
-		batchInfo.RedrawTable(-1);
-		
-		queuedItemsListTable.RedrawTable(-1);
-
-		activeItemsListTable.RedrawTable(-1);
-
-		completedItemsListTable.RedrawTable(-1);
 	}
 
 	@Override
@@ -695,9 +699,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				public void run()
 				{
 					// Add the row
-					activeSimulationsListTable.addRow("Simulation " + simId, new String[]
+					activeSimulationsListTable.addRow(new String[]
 					{
-							"New", "0", "0", "0", "0"
+							"Simulation " + simId, "New", "0", "0", "0", "0"
 					});
 
 					// RegiserStateListener
@@ -755,9 +759,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	public void batchAdded(final Batch batch)
 	{
 		// add new row
-		batchQueuedTable.addRow(String.valueOf(batch.getBatchId()), new String[]
+		batchQueuedTable.addRow(new String[]
 		{
-			batch.getFileName(), batch.getType(),batch.getPriority(), Integer.toString(batch.getBatchItems()), Integer.toString(batch.getProgress()), Integer.toString(batch.getCompleted()), "0"
+				String.valueOf(batch.getBatchId()), batch.getFileName(), batch.getType(),batch.getPriority(), Integer.toString(batch.getBatchItems()), Integer.toString(batch.getProgress()), Integer.toString(batch.getCompleted()), "0"
 		});
 
 	}
@@ -770,9 +774,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		// remove row
 		batchQueuedTable.removeRow(String.valueOf(batch.getBatchId()));
 
-		batchCompletedTable.addRow(String.valueOf(batch.getBatchId()), new String[]
+		batchCompletedTable.addRow(new String[]
 		{
-			batch.getFileName(), batch.getType(), Integer.toString(batch.getBatchItems()), jCompute.util.Text.longTimeToDHMS(batch.getRunTime()),
+				String.valueOf(batch.getBatchId()), batch.getFileName(), batch.getType(), Integer.toString(batch.getBatchItems()), jCompute.util.Text.longTimeToDHMS(batch.getRunTime()),
 		});
 		
 		// If we have the first row selected, reselect it if there are more rows

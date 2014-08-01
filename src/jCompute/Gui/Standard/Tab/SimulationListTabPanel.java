@@ -20,7 +20,6 @@ import javax.swing.JTable;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -37,9 +36,6 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 	// References to the needed objects
 	private GUITabManager tabManager;
 	private SimulationsManagerInf simsManager;
-		
-	// The update time used to redraw the table and graphs at a slower rate than the data rate.
-	private Timer statUpdateTimer;
 	
 	private int selectedRowIndex = -1;
 	
@@ -55,19 +51,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		setMinimumSize(new Dimension(400,600));
 		
 		setUpTable();
-		
-		// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-		statUpdateTimer = new Timer("Simulation List Stat Update Timer");
-		statUpdateTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run() 
-			{
-				table.RedrawTable(selectedRowIndex);								
-			}
-			  
-		},0,1000);
-		
+
 	}
 	
 	/*
@@ -134,9 +118,9 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		table.clearTable();
 	}
 	
-	private void addRow(String rowKey,String columnValues[])
+	private void addRow(String columnValues[])
 	{
-		table.addRow(rowKey, columnValues);
+		table.addRow(columnValues);
 	}
 	
 	private void updateRow(String rowKey,String columnValues[])
@@ -178,7 +162,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		        public void run() 
 		        {	
 		        	// Add the row
-		        	simulationListTabPanel.addRow("Simulation " + simId, new String[] {"New", "0", "0","0","0"});
+		        	simulationListTabPanel.addRow(new String[] {"Simulation " + simId,"New", "0", "0","0","0"});
 		        	
 					// RegiserStateListener
 					simsManager.addSimulationStateListener(simId, simulationListTabPanel);
