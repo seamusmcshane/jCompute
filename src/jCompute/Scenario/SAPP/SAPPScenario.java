@@ -84,7 +84,7 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		String section;
 		for(int a=0;a<agentGroups;a++)
 		{
-			DebugLogger.output("SimpleAgent Group : " + a);
+			//DebugLogger.output("SimpleAgent Group : " + a);
 			section = "Agents.SimpleAgent("+a+")";
 
 			/* Create the settings and the Name */			
@@ -96,51 +96,51 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 			int blue 	= super.getIntValue(section, "Color.Blue");			
 			
 			agentSettings.setColor(red, green, blue);
-			DebugLogger.output("Color : " + red+" "+green+" "+blue);
+			//DebugLogger.output("Color : " + red+" "+green+" "+blue);
 			
 			/* Set the Type */
 			SimpleAgentType type = new SimpleAgentType(AgentType.INVALID);
 			agentSettings.setType(type.typeFromString(super.getStringValue(section, "AgentType")));
-			DebugLogger.output("Agent Type : " + agentSettings.getType());
+			//DebugLogger.output("Agent Type : " + agentSettings.getType());
 				
 			agentSettings.setInitalNumbers(super.getIntValue(section,"InitialNumbers"));
-			DebugLogger.output("InitialNumbers : " + agentSettings.getInitalNumbers());
+			//DebugLogger.output("InitialNumbers : " + agentSettings.getInitalNumbers());
 
 			agentSettings.setSize(super.getFloatValue(section,"Size"));
-			DebugLogger.output("Size : " + agentSettings.getSize());
+			//DebugLogger.output("Size : " + agentSettings.getSize());
 			
 			agentSettings.setSpeed(super.getFloatValue(section,"Speed"));
-			DebugLogger.output("Speed : " + agentSettings.getSpeed());
+			//DebugLogger.output("Speed : " + agentSettings.getSpeed());
 
 			agentSettings.setViewRange(super.getFloatValue(section,"ViewRange"));
-			DebugLogger.output("ViewRange : " + agentSettings.getViewRange());
+			//DebugLogger.output("ViewRange : " + agentSettings.getViewRange());
 
 			agentSettings.setMoveCost(super.getFloatValue(section,"MovementCost"));
-			DebugLogger.output("MovementCost : " + agentSettings.getMoveCost());
+			//DebugLogger.output("MovementCost : " + agentSettings.getMoveCost());
 
 			agentSettings.setStartingEnergy(super.getFloatValue(section,"StartingEnergy"));
-			DebugLogger.output("StartingEnergy : " + agentSettings.getStartingEnergy());
+			//DebugLogger.output("StartingEnergy : " + agentSettings.getStartingEnergy());
 
 			agentSettings.setDigestiveEfficiency(super.getFloatValue(section,"DigestiveEfficiency"));
-			DebugLogger.output("DigestiveEfficiency : " + agentSettings.getDigestiveEfficiency());
+			//DebugLogger.output("DigestiveEfficiency : " + agentSettings.getDigestiveEfficiency());
 
 			agentSettings.setHungerThres(super.getFloatValue(section,"HungerThreshold"));
-			DebugLogger.output("HungerThreshold : " + agentSettings.getHungerThres());
+			//DebugLogger.output("HungerThreshold : " + agentSettings.getHungerThres());
 
 			agentSettings.setConsumptionRate(super.getFloatValue(section,"EnergyConsumptionRate"));
-			DebugLogger.output("EnergyConsumptionRate : " + agentSettings.getConsumptionRate());
+			//DebugLogger.output("EnergyConsumptionRate : " + agentSettings.getConsumptionRate());
 
 			agentSettings.setREDiv(super.getFloatValue(section,"ReproductionAndSurvivalDivisor"));
-			DebugLogger.output("ReproductionAndSurvivalDivisor : " + agentSettings.getREDiv());
+			//DebugLogger.output("ReproductionAndSurvivalDivisor : " + agentSettings.getREDiv());
 
 
 			agentSettings.setReproductionCost(super.getFloatValue(section,"ReproductionCost"));
-			DebugLogger.output("ReproductionCost : " + agentSettings.getReproductionCost());
+			//DebugLogger.output("ReproductionCost : " + agentSettings.getReproductionCost());
 
 			agentSettingsList.add(agentSettings);
 		}
 		
-		DebugLogger.output("Loaded " + agentGroups + " AgentGroups");
+		//DebugLogger.output("Loaded " + agentGroups + " AgentGroups");
 	}
 		
 	private void readWorldSettings()
@@ -150,13 +150,13 @@ public class SAPPScenario extends ScenarioVT implements ScenarioInf
 		String section = "World";
 		
 		worldSettings.setWorldSize(super.getIntValue(section,"Size"));
-		DebugLogger.output("World Size : " + worldSettings.getWorldSize());
+		//DebugLogger.output("World Size : " + worldSettings.getWorldSize());
 		
 		worldSettings.setBarrierNum(super.getIntValue(section,"Barriers"));
-		DebugLogger.output("BarrierMode : " + worldSettings.getBarrierNum());
+		//DebugLogger.output("BarrierMode : " + worldSettings.getBarrierNum());
 		
 		worldSettings.setBarrierScenario(super.getIntValue(section,"BarriersScenario"));
-		DebugLogger.output("BarriersScenario : " + worldSettings.getBarrierScenario());
+		//DebugLogger.output("BarriersScenario : " + worldSettings.getBarrierScenario());
 
 	}
 	
