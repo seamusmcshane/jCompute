@@ -1,5 +1,7 @@
 package jCompute.Stats;
 
+import jCompute.Debug.DebugLogger;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -203,7 +205,7 @@ public class StatManager
 		
 		for(String group : groupList)
 		{
-			System.out.println("Group : " + group);
+			//System.out.println("Group : " + group);
 
 			// Set the File Name
 			String fileName;
@@ -221,7 +223,7 @@ public class StatManager
 			String data = createStatExportString(group,format);
 			
 			// Now send the strings to the output writer
-			System.out.println("Writing File : " + fileName);
+			//System.out.println("Writing File : " + fileName);
 			
 			writeFiles(directory,fileName,data,format.toLowerCase());
 			
@@ -377,7 +379,9 @@ public class StatManager
 				zipOutput.closeEntry();
 				
 				// Archive end
-				zipOutput.close();				
+				zipOutput.close();
+				
+				DebugLogger.output("Wrote File : " + fileName+"."+extension);
 				
 			}
 			else
@@ -393,7 +397,7 @@ public class StatManager
 
 			}
 
-			System.out.print(filePath + "\n");
+			//System.out.print(filePath + "\n");
 
 		}
 		catch (IOException e)
