@@ -14,6 +14,7 @@ import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -92,9 +93,9 @@ public class SimulationsManager implements SimulationsManagerInf
 				return -1;
 			}
 
-			simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
-
 			simulationsManagerLock.release();
+			
+			simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
 			
 			return simulationNum;
 		}
@@ -124,7 +125,6 @@ public class SimulationsManager implements SimulationsManagerInf
 			
 			DebugLogger.output("simulationManagerListenerEventNotification");
 
-			simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
 			
 			if(activeSim == sim)
 			{
@@ -136,9 +136,17 @@ public class SimulationsManager implements SimulationsManagerInf
 				
 				activeSim = null;
 			}
+			
+			simulationsManagerLock.release();
+			
+			simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
+			
+			return;
 		}
+
 		
 		simulationsManagerLock.release();
+
 	}
 	
 	@Override
@@ -467,10 +475,15 @@ public class SimulationsManager implements SimulationsManagerInf
 	
 	private void simulationManagerListenerEventNotification(int simId,SimulationManagerEvent event)
 	{
+		listenersLock.acquireUninterruptibly();
+
 	    for (SimulationsManagerEventListenerInf listener : simulationsManagerListeners)
 	    {
 	    	listener.SimulationsManagerEvent(simId,event);
 	    }
+	    
+		listenersLock.release();
+
 	}
 	
 	@Override
