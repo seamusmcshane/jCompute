@@ -638,6 +638,8 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		Simulation sim = simulations.get(simId);
 		
+		DebugLogger.output("Exporting Stats for " + simId);
+		
 		if(sim!=null)
 		{
 			/* Pause the sim as it will be updating its internal data structures
