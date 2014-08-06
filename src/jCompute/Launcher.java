@@ -7,6 +7,10 @@ import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.Executors;
+
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
 
 public class Launcher
 {
@@ -34,7 +38,7 @@ public class Launcher
 			new CommandLineArg("batchInt", "0","Enable Disable Batch Interface (0/1)"), new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"),
 			new CommandLineArg("iTheme", "none","Icon Theme Name")
 	};
-
+	
 	public static void main(String args[])
 	{
 	    String tmpDir = System.getProperty("java.io.tmpdir");
@@ -79,10 +83,11 @@ public class Launcher
 		{
 			DebugLogger.setDebug(true);
 		}
-
-
+		
 		IconManager.init(opts.get("iTheme").getValue());
-
+		
+		/* Init the Event bus in Async Mode */
+		JComputeEventBus.initAsync();
 		
 		if(Integer.parseInt(opts.get("guiInt").getValue()) == 1)
 		{
