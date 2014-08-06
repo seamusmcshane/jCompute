@@ -145,11 +145,14 @@ public class TablePanel extends JPanel
 		
 		int index = findRow(rowKey);
 		
-		TablePanelRow row = eventList.get(index);
-		
-		row.setValues(columnValueList);
-		
-		eventList.set(index, row);
+		if(index!=-1)
+		{
+			TablePanelRow row = eventList.get(index);
+			
+			row.setValues(columnValueList);
+			
+			eventList.set(index, row);
+		}
 		
 		eventList.getReadWriteLock().writeLock().unlock();
 	}
@@ -183,10 +186,13 @@ public class TablePanel extends JPanel
 		
 		int index = findRow(rowKey);
 		
-		TablePanelRow row = eventList.get(index);
-		
-		eventList.remove(row);
-		
+		if(index!=-1)
+		{
+			TablePanelRow row = eventList.get(index);
+			
+			eventList.remove(row);
+		}
+
 		eventList.getReadWriteLock().writeLock().unlock();
 	}
 
@@ -259,11 +265,15 @@ public class TablePanel extends JPanel
 		
 		int index = findRow(rowKey);
 		
-		TablePanelRow row = eventList.get(index);
-		
-		row.setValueAt(column,columnValue);
-		
-		eventList.set(index, row);
+		if(index!=-1)
+		{
+			TablePanelRow row = eventList.get(index);
+			
+			row.setValueAt(column,columnValue);
+			
+			eventList.set(index, row);
+		}
+
 		
 		eventList.getReadWriteLock().writeLock().unlock();
 	}
@@ -274,11 +284,15 @@ public class TablePanel extends JPanel
 		
 		int index = findRow(rowKey);
 		
-		TablePanelRow row = eventList.get(index);
-		
-		row.setValuesInColumn(columns,columnValues);
-		
-		eventList.set(index, row);
+		if(index!=-1)
+		{
+			TablePanelRow row = eventList.get(index);
+			
+			row.setValuesInColumn(columns,columnValues);
+			
+			eventList.set(index, row);
+		}
+
 		
 		eventList.getReadWriteLock().writeLock().unlock();
 	}
