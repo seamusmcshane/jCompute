@@ -58,8 +58,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.event.ChangeEvent;
@@ -120,8 +118,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	/* This Sim */
 	private int simId = -1;
-
-	private Timer updateTimer;
 	
 	/* Tab Status Icons */
 	private ImageIcon simRunningIcon = IconManager.getIcon("simRunningIcon");
@@ -1095,11 +1091,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	public void detachTabFromSim()
 	{
 		System.out.println("Detaching Tab from Simulation");
-		if(updateTimer!=null)
-		{
-			updateTimer.cancel();
-			updateTimer = null;
-		}
 		
 		removeChartPanel();
 		
