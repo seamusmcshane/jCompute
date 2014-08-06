@@ -19,11 +19,18 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jcommon-1.0.20.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.16.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/rednaxela-knn-benchmark-2013-03-06/rednaxela-knn-benchmark.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/Aparapi_2013_01_23_windows_x86_64/aparapi.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/Aparapi_2013_01_23_windows_x86_64/aparapi.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="S:/PHD/ComputeOverlay/aparapi/Aparapi_2013_01_23_windows_x86_64"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-depthpeeling-0.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.1.5/jar/gluegen-rt.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.1.5/jar/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.1.5/jar/jogl-all.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/guava/guava-17.0.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.0-javadoc.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
