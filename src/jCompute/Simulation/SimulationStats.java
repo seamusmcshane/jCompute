@@ -15,18 +15,22 @@ public class SimulationStats
 	/** Simulation Step Counter */
 	private int simulationSteps;
 	
-	/** Special Value used to moderate the event frequency and calculate progress 
-	 * If set then frequency is moderated to 1 percent of progress.
-	 * Else it will be every 100 steps;
-	 * */
-	private int endStepNum;
-	private int eventFreq = 100;
+	/** Special Value used to calculate progress */
+	private int endStepNum = -1;
+	
+	/**
+	 * Stat Event Freq Rate Limit (every valueof eventFreq in milliseconds)
+	 */
+	private int eventFreq = 250;
+	private long prevEventTimeMillis = 0;
 	
 	public SimulationStats(Simulation sim)
 	{
 		this.sim = sim;
 		
 		clearSimulationStats();
+		
+		prevEventTimeMillis = System.currentTimeMillis();
 	}
 		
 	public int getSimulationSteps()
@@ -38,7 +42,7 @@ public class SimulationStats
 	{
 		simulationSteps++;
 		
-		simCallBack(false);
+		simCallBack();
 	}
 	
 	public int getAverageStepRate()
@@ -73,19 +77,20 @@ public class SimulationStats
 		stepTotalTime = 0;
 		simulationSteps = 0;
 		
-		simCallBack(true);
+		simCallBack();
 	}
 	
-	private void simCallBack(boolean override)
+	private void simCallBack()
 	{
-		// This section is inverted we test instead if we are to abort the event trigger
-		if(!override)
+		long currentEventTimeMillis = System.currentTimeMillis();
+		long timeElapsed = currentEventTimeMillis - prevEventTimeMillis;
+		
+		if( timeElapsed < eventFreq && simulationSteps!=endStepNum)
 		{
-			if( (simulationSteps % eventFreq) != 0 )
-			{
-				return;
-			}
+			return;
 		}
+		
+		prevEventTimeMillis = currentEventTimeMillis;
 		
 		updateProgress();
 		
@@ -106,19 +111,6 @@ public class SimulationStats
 	public void setEndStep(int endStepNum)
 	{
 		this.endStepNum = endStepNum;
-		
-		calulateEventFreq(endStepNum);
 	}
-	
-	public void calulateEventFreq(int endStep)
-	{
-		if(endStep > 0)
-		{
-			eventFreq = (int) Math.ceil(endStepNum/100f);
-		}
-		else
-		{
-			eventFreq = 100;
-		}
-	}
+
 }
