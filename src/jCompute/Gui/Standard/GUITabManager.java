@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -73,7 +74,6 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	
 		/* The tab with the list of simulations */
 		simulationListTab = new SimulationListTabPanel(this,simsManager);
-		simsManager.addSimulationManagerListener(simulationListTab);
 		this.add(simulationListTab);
 		
 		this.setTitleAt(this.getTabCount()-1, simulationListTab.getTabName());

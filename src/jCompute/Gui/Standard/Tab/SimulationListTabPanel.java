@@ -1,13 +1,14 @@
 package jCompute.Gui.Standard.Tab;
 
+import jCompute.JComputeEventBus;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
 
 import javax.swing.JPanel;
@@ -18,12 +19,12 @@ import java.awt.Point;
 
 import javax.swing.JTable;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.google.common.eventbus.Subscribe;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class SimulationListTabPanel extends JPanel implements SimulationsManagerEventListenerInf,SimulationStateListenerInf,SimulationStatListenerInf
+public class SimulationListTabPanel extends JPanel implements SimulationStateListenerInf,SimulationStatListenerInf
 {
 	private static final long serialVersionUID = 76641721672552215L;
 	
@@ -51,6 +52,9 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		setMinimumSize(new Dimension(400,600));
 		
 		setUpTable();
+		
+		// Register on the event bus
+		JComputeEventBus.register(this);
 
 	}
 	
@@ -148,13 +152,20 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		return name;
 	}
 
-	@Override
-	public void SimulationsManagerEvent(final int simId, SimulationManagerEvent event)
+	/**
+	 * SimulationsManagerEvent handler method
+	 * @param e
+	 */
+	@Subscribe
+	public void SimulationsManagerEvent(SimulationsManagerEvent e)
 	{
+		SimulationsManagerEventType type = e.getEventType();
+		final int simId = e.getSimId();
+		
 		// Getting access to simulationListTabPanel via this is not possible in the runnable
 		final SimulationListTabPanel simulationListTabPanel = this;
 		
-		if(event == SimulationManagerEvent.AddedSim)
+		if(type == SimulationsManagerEventType.AddedSim)
 		{			
 			
 		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
@@ -173,7 +184,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationsManager
 		    });
 			
 		}
-		else if( event == SimulationManagerEvent.RemovedSim)
+		else if(type == SimulationsManagerEventType.RemovedSim)
 		{					
 		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
 		    {

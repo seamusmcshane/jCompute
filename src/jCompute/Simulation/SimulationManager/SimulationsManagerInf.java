@@ -4,9 +4,10 @@ import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
+
 import java.util.List;
 import java.util.Set;
 
@@ -49,10 +50,6 @@ public interface SimulationsManagerInf
 
 	public int getActiveSims();
 	
-	public void addSimulationManagerListener(SimulationsManagerEventListenerInf listener);
-	
-	public void removeSimulationManagerListener(SimulationsManagerEventListenerInf listener);
-			
 	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener);
 	
 	public void removeSimulationStateListener(int simId,SimulationStateListenerInf listener);

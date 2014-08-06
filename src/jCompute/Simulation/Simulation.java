@@ -162,7 +162,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 				Thread thisThread = Thread.currentThread();
 				thisThread.setName("Async Update Thread");
 				
-				thisThread.setPriority(Thread.MIN_PRIORITY);
+				//thisThread.setPriority(Thread.MIN_PRIORITY);
 				
 				while (running)
 				{
@@ -388,7 +388,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 		for (SimulationStateListenerInf listener : simStateListeners)
 	    {
-			DebugLogger.output("SimulationStateChanged - " + simId);
+			DebugLogger.output("[Sim] SimulationStateChanged - " + simId + " " + state.toString());
 
 	    	listener.simulationStateChanged(simId, state);
 	    }

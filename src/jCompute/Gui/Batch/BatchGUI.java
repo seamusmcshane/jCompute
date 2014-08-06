@@ -1,5 +1,6 @@
 package jCompute.Gui.Batch;
 
+import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.BatchManager.BatchManager;
@@ -9,11 +10,12 @@ import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
+import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
 
 import java.awt.Dimension;
@@ -37,6 +39,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import java.awt.BorderLayout;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,6 +50,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JPanel;
 
+import com.google.common.eventbus.Subscribe;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
@@ -54,7 +59,7 @@ import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, SimulationsManagerEventListenerInf, SimulationStateListenerInf, SimulationStatListenerInf, BatchManagerEventListenerInf
+public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, SimulationStateListenerInf, SimulationStatListenerInf, BatchManagerEventListenerInf
 {
 	// Batch Manager
 	private BatchManager batchManager;
@@ -109,9 +114,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchManager = new BatchManager(simsManager);
 
 		setUpFrame();
-
-		simsManager.addSimulationManagerListener(this);
-
+		
 		// A slow timer to update GUI at a rate independent of
 		// SimulationStatChanged notifications.
 		activeSimulationsListTableUpdateTimer = new Timer("Simulation List Stat Update Timer");
@@ -130,6 +133,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}, 0, 1000);
 
 		batchManager.addBatchManagerListener(this);
+		
+		// Register on the event bus
+		JComputeEventBus.register(this);
 	}
 
 	private void setUpFrame()
@@ -685,50 +691,50 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}
 	}
 
-	@Override
-	public void SimulationsManagerEvent(final int simId, SimulationManagerEvent event)
+	/**
+	 * SimulationsManagerEvent handler method
+	 * @param e
+	 * @return 
+	 */
+	@Subscribe
+	public void SimulationsManagerEvent(SimulationsManagerEvent e)
 	{
-		// Getting access to simulationListTabPanel via this is not possible in
-		// the runnable
-		final BatchGUI batchGUI = this;
+		SimulationsManagerEventType type = e.getEventType();
+		int simId = e.getSimId();
 
-		if (event == SimulationManagerEvent.AddedSim)
+		BatchGUI batchGUI = this;
+
+		DebugLogger.output("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + " " + "(" + simId + ")");
+		
+		if(type == SimulationsManagerEventType.AddedSim)
 		{
-			javax.swing.SwingUtilities.invokeLater(new Runnable()
+			DebugLogger.output("Add Row for " + "Simulation " + simId);
+
+			// Add the row
+			activeSimulationsListTable.addRow(new String[]
 			{
-				public void run()
-				{
-					// Add the row
-					activeSimulationsListTable.addRow(new String[]
-					{
-							"Simulation " + simId, "New", "0", "0", "0", "0"
-					});
-
-					// RegiserStateListener
-					simsManager.addSimulationStateListener(simId, batchGUI);
-
-					// RegisterStatsListerner
-					simsManager.addSimulationStatListener(simId, batchGUI);
-				}
+					"Simulation " + simId, "New", "0", "0", "0", "0"
 			});
+
+			// RegiserStateListener
+			simsManager.addSimulationStateListener(simId, batchGUI);
+
+			// RegisterStatsListerner
+			simsManager.addSimulationStatListener(simId, batchGUI);
 
 		}
-		else if (event == SimulationManagerEvent.RemovedSim)
-		{
-			javax.swing.SwingUtilities.invokeLater(new Runnable()
-			{
-				public void run()
-				{
-					// UnRegisterStatsListerner
-					simsManager.removeSimulationStatListener(simId, batchGUI);
+		else if(type == SimulationsManagerEventType.RemovedSim)
+		{	
+			// UnRegisterStatsListerner
+			simsManager.removeSimulationStatListener(simId, batchGUI);
 
-					// UnRegisterStateListener
-					simsManager.removeSimulationStateListener(simId, batchGUI);
+			// UnRegisterStateListener
+			simsManager.removeSimulationStateListener(simId, batchGUI);
 
-					// Remove the Row
-					activeSimulationsListTable.removeRow("Simulation " + simId);
-				}
-			});
+			DebugLogger.output("Removing Row for " + "Simulation " + simId);
+			// Remove the Row
+			activeSimulationsListTable.removeRow("Simulation " + simId);
+
 		}
 		else
 		{

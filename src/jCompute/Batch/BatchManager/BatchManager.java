@@ -6,8 +6,7 @@ import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManagerEventListenerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManager.SimulationManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
-public class BatchManager implements SimulationsManagerEventListenerInf,SimulationStateListenerInf
+public class BatchManager implements SimulationStateListenerInf
 {
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);	
@@ -112,40 +111,6 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		
 		return added;
 	}
-
-
-	
-	@Override
-	public void SimulationsManagerEvent(int simId, SimulationManagerEvent event)
-	{
-		
-		if(event == SimulationManagerEvent.AddedSim)
-		{
-			/*
-				// RegiserStateListener
-				simsManger.addSimulationStateListener(simId, simulationListTabPanel);
-				
-				// RegisterStatsListerner
-				simsManger.addSimulationStatListener(simId, simulationListTabPanel);
-			*/
-
-		}
-		else if( event == SimulationManagerEvent.RemovedSim)
-		{
-			/*
-	        	// UnRegisterStatsListerner
-	        	simsManger.removeSimulationStatListener(simId, simulationListTabPanel);
-	        	
-				// UnRegisterStateListener
-				simsManger.removeSimulationStateListener(simId, simulationListTabPanel);
-			*/
-		}
-		else
-		{
-			DebugLogger.output("Unhandled SimulationManagerEvent in Batch Manager");
-		}
-		
-	}
 	
 	private void schedule()
 	{		
@@ -159,16 +124,19 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 		Iterator<BatchItem> itr = completeItems.iterator();
 		
 		BatchItem item = null;
+		int i=0;
 		
 		while(itr.hasNext())
 		{
 			item = itr.next();
 			
+			DebugLogger.output("Going to remove sim " + item.getSimId());
+			
 			simsManager.removeSimulationStateListener(item.getSimId(), batchManager);
 			simsManager.removeSimulation(item.getSimId());
 			
-			DebugLogger.output("Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
-
+			DebugLogger.output(i + " Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
+			i++;
 		}
 		
 		completeItems = new ArrayList<BatchItem>();
@@ -403,6 +371,8 @@ public class BatchManager implements SimulationsManagerEventListenerInf,Simulati
 				//simsManager.removeSimulation(item.getSimId());
 				
 				itemsLock.acquireUninterruptibly();
+				
+				DebugLogger.output(">>>> [BM] simulationStateChanged ("+simId+") - item("+item.getItemId()+")");
 				
 				activeItems.remove(item);
 				completeItems.add(item);				

@@ -1,5 +1,6 @@
 package jCompute.Simulation.SimulationManager.Local;
 
+import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Scenario.ScenarioInf;
@@ -12,6 +13,8 @@ import jCompute.Simulation.SimulationScenarioManagerInf;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
 
@@ -38,11 +41,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	
 	/* Active Sims View */
 	private GUISimulationView simView;
-	private Simulation activeSim;	
-	
-	/* SimulationsManger Listeners */
-	private List<SimulationsManagerEventListenerInf> simulationsManagerListeners = new ArrayList<SimulationsManagerEventListenerInf>();
-	private Semaphore listenersLock = new Semaphore(1, false);	
+	private Simulation activeSim;
 	
 	public SimulationsManager(int maxSims)
 	{
@@ -93,10 +92,11 @@ public class SimulationsManager implements SimulationsManagerInf
 				return -1;
 			}
 
+			// simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
+			JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,SimulationsManagerEventType.AddedSim));
+			
 			simulationsManagerLock.release();
-			
-			simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
-			
+
 			return simulationNum;
 		}
 		else
@@ -116,16 +116,14 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.remove(simId);
-				
+		DebugLogger.output(">>>>>> removeSimulation ("+simId+")");
+
 		activeSims--;
 		
 		if(sim!=null)
 		{
 			sim.destroySim();
-			
-			DebugLogger.output("simulationManagerListenerEventNotification");
 
-			
 			if(activeSim == sim)
 			{
 				// Clear the Active Simulation View  Reference
@@ -137,9 +135,12 @@ public class SimulationsManager implements SimulationsManagerInf
 				activeSim = null;
 			}
 			
-			simulationsManagerLock.release();
+			DebugLogger.output(">>>>>> removeSimulation SimulationsManagerEventType.RemovedSim ("+simId+")");
+
+			// simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
+			JComputeEventBus.post(new SimulationsManagerEvent(simId,SimulationsManagerEventType.RemovedSim));
 			
-			simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
+			simulationsManagerLock.release();
 			
 			return;
 		}
@@ -458,35 +459,6 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 	
 	@Override
-	public void addSimulationManagerListener(SimulationsManagerEventListenerInf listener)
-	{
-		listenersLock.acquireUninterruptibly();
-			simulationsManagerListeners.add(listener);
-	    listenersLock.release();
-	}
-	
-	@Override
-	public void removeSimulationManagerListener(SimulationsManagerEventListenerInf listener)
-	{
-		listenersLock.acquireUninterruptibly();
-			simulationsManagerListeners.remove(listener);
-	    listenersLock.release();
-	}
-	
-	private void simulationManagerListenerEventNotification(int simId,SimulationManagerEvent event)
-	{
-		listenersLock.acquireUninterruptibly();
-
-	    for (SimulationsManagerEventListenerInf listener : simulationsManagerListeners)
-	    {
-	    	listener.SimulationsManagerEvent(simId,event);
-	    }
-	    
-		listenersLock.release();
-
-	}
-	
-	@Override
 	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -761,25 +733,6 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();	
 		
 		return reqSps;
-	}
-	
-	/** Manager Events */
-	public enum SimulationManagerEvent
-	{
-		AddedSim	("Added Sim"),
-		RemovedSim	("Removed Sim");
-
-	    private final String name;
-
-	    private SimulationManagerEvent(String name) 
-	    {
-	        this.name = name;
-	    }
-
-	    public String toString()
-	    {
-	       return name;
-	    }
 	}
 	
 }
