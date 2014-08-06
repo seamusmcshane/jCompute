@@ -4,16 +4,11 @@ import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Scenario.ScenarioInf;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
-import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.SimulationState.stateChangedInf;
 import jCompute.Simulation.SimulationStats.statChangedInf;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -30,10 +25,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 	private SimulationState simState;
 		
 	private SimulationStats simStats;
-	private List<SimulationStatListenerInf> simStatListeners = new ArrayList<SimulationStatListenerInf>();
-
-	// Lock for the listeners
-	private Semaphore listenersLock = new Semaphore(1, false);
 	
 	// Inter-step delay Calculations
 	private long stepTimeNow;
@@ -339,24 +330,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 		}
 	}
 	
-	public void addSimulationStatListener(SimulationStatListenerInf listener)
-	{
-		listenersLock.acquireUninterruptibly();
-		
-			simStatListeners.add(listener);
-		
-		listenersLock.release();
-	}
-
-	public void removeSimulationStatListener(SimulationStatListenerInf listener)
-	{
-		listenersLock.acquireUninterruptibly();
-		
-			simStatListeners.remove(listener);
-		
-		listenersLock.release();
-	}
-	
 	/*
 	 * Call Backs from state + stat objects
 	 * (non-Javadoc)
@@ -372,15 +345,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	@Override
 	public void statChanged(long time, int stepNo, int progress, int asps)
 	{
-		listenersLock.acquireUninterruptibly();
-
-		for (SimulationStatListenerInf listener : simStatListeners)
-	    {
-	    	listener.simulationStatChanged(simId, time, stepNo,progress,asps);
-	    }
-		
-		listenersLock.release();
-
+		JComputeEventBus.post(new SimulationStatChangedEvent(simId,time, stepNo, progress,  asps));
 	}
 
 	public long getTotalTime()

@@ -10,7 +10,7 @@ import jCompute.Scenario.Math.Mandelbrot.MandelbrotScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationScenarioManagerInf;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -455,36 +455,6 @@ public class SimulationsManager implements SimulationsManagerInf
 	public int getActiveSims()
 	{
 		return activeSims;
-	}
-
-	@Override
-	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			sim.addSimulationStatListener(listener);
-		}
-		
-		simulationsManagerLock.release();
-	}
-	
-	@Override
-	public void removeSimulationStatListener(int simId,SimulationStatListenerInf listener)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			sim.removeSimulationStatListener(listener);
-		}
-		
-		simulationsManagerLock.release();
 	}
 	
 	public void addStatGroupListener (int simId,String group)

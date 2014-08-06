@@ -11,8 +11,8 @@ import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -59,7 +59,7 @@ import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, SimulationStatListenerInf, BatchManagerEventListenerInf
+public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, BatchManagerEventListenerInf
 {
 	// Batch Manager
 	private BatchManager batchManager;
@@ -720,13 +720,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			//simsManager.addSimulationStateListener(simId, batchGUI);
 
 			// RegisterStatsListerner
-			simsManager.addSimulationStatListener(simId, batchGUI);
+			// simsManager.addSimulationStatListener(simId, batchGUI);
 
 		}
 		else if(type == SimulationsManagerEventType.RemovedSim)
 		{	
 			// UnRegisterStatsListerner
-			simsManager.removeSimulationStatListener(simId, batchGUI);
+			//simsManager.removeSimulationStatListener(simId, batchGUI);
 
 			// UnRegisterStateListener
 			//simsManager.removeSimulationStateListener(simId, batchGUI);
@@ -742,15 +742,15 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}
 	}
 
-	@Override
-	public void simulationStatChanged(int simId, long time, int stepNo, int progress, int asps)
+	@Subscribe
+	public void SimulationStatChanged(SimulationStatChangedEvent e)
 	{
-		activeSimulationsListTable.updateCells("Simulation " + simId, new int[]
+		activeSimulationsListTable.updateCells("Simulation " + e.getSimId(), new int[]
 		{
 				2, 3, 4, 5
 		}, new String[]
 		{
-				Integer.toString(stepNo), Integer.toString(progress), Integer.toString(asps), jCompute.util.Text.longTimeToDHMS(time)
+				Integer.toString(e.getStepNo()), Integer.toString(e.getProgress()), Integer.toString(e.getAsps()), jCompute.util.Text.longTimeToDHMS(e.getTime())
 		});
 	}
 

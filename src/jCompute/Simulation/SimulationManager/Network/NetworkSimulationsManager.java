@@ -3,7 +3,7 @@ package jCompute.Simulation.SimulationManager.Network;
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
@@ -382,20 +382,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		DebugLogger.output("Active Sims " + activeSims);
 
 		return activeSims;
-	}
-
-	@Override
-	public void addSimulationStatListener(int simId, SimulationStatListenerInf listener)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeSimulationStatListener(int simId, SimulationStatListenerInf listener)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

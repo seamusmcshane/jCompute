@@ -5,9 +5,9 @@ import jCompute.JComputeEventBus;
 import jCompute.Gui.Charts.GlobalStatChartPanel;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Gui.Standard.Listener.TabStatusChangedListenerInf;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 
 import javax.swing.JPanel;
@@ -74,7 +74,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
 
-public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener, SimulationStatListenerInf
+public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -102,11 +102,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private JLabel lblStepCount;
 	private JLabel lblSimRunTime;
 	private JLabel lblRequestedStepRate;
-
-	// Because the values in the GUI are only updated on a time interval we latch the values and update it using them
-	private long latchTime = 0;
-	private int latchStepNo = 0;
-	private int latchASPS = 0;
 	
 	// Sim Related
 	private boolean generatingSim = false;
@@ -221,21 +216,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			tabTitle = "Simulation " + simId;
 			
 			setGuiState(state);
-			
-			// A slow timer to update GUI at a rate independent of SimulationStatChanged notifications.
-			updateTimer = new Timer("GUI Stat Update Timer");
-			updateTimer.schedule(new TimerTask()
-			{
-				@Override
-				public void run() 
-				{
-					setTime(latchTime);
-					setStepNo(latchStepNo);
-					setASPS(latchASPS);
-				}
-				  
-			},0,1000);
-
 		}
 	}
 	
@@ -823,10 +803,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	{
 		System.out.println("Register Listeners");
 		// State / Stats
-		//simsManager.addSimulationStateListener(simId, this);
-
-		simsManager.addSimulationStatListener(simId, this);
-		
+		//simsManager.addSimulationStateListener(simId, this);		
 		
 		this.addTabStatusListener(title);
 	}
@@ -1128,13 +1105,13 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		removeTabStatusListener(title);
 		
-		if(simId!=-1)
+		/*if(simId!=-1)
 		{
 			//simsManager.removeSimulationStateListener(simId, this);
 			// JComputeEventBus.unregister(this);
 
 			simsManager.removeSimulationStatListener(simId, this);
-		}
+		}*/
 
 	}
 
@@ -1258,14 +1235,16 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 	}
 	
-	@Override
-	public void simulationStatChanged(int simId, long time, int stepNo, int progress, int asps)
+	@Subscribe
+	public void SimulationStatChanged(SimulationStatChangedEvent e)
 	{
-		latchTime = time;
-		latchStepNo = stepNo;
-		latchASPS = asps;	
+		if(simId == e.getSimId())
+		{
+			setTime(e.getTime());
+			setStepNo(e.getStepNo());
+			setASPS(e.getAsps());
+		}
 	}
-
 	
 	public TabButton getTabTitle()
 	{
@@ -1362,8 +1341,6 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		detachTabFromSim();
 		
-		
-	
 		removeSimulation();
 	}
 	

@@ -12,13 +12,13 @@ public class ScenarioStepCountEndEvent implements ScenarioEndEventInf
 	{
 		this.stat = stat;
 		this.triggerValue = triggerValue;
+		
+		stat.setEndStep(triggerValue);
 	}
 
 	@Override
 	public boolean checkEvent()
-	{
-		stat.updateProgress(triggerValue);
-		
+	{		
 		return (stat.getSimulationSteps() == triggerValue);
 	}
 

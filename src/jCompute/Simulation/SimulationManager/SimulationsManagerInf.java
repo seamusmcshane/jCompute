@@ -2,7 +2,7 @@ package jCompute.Simulation.SimulationManager;
 
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
@@ -48,11 +48,7 @@ public interface SimulationsManagerInf
 	public int getMaxSims();
 
 	public int getActiveSims();
-	
-	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener);
-	
-	public void removeSimulationStatListener(int simId,SimulationStatListenerInf listener);
-	
+
 	public SimState getState(int simId);
 	
 	public String getEndEvent(int simId);

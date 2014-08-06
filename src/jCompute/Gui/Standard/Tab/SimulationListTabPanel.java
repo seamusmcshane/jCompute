@@ -4,11 +4,12 @@ import jCompute.JComputeEventBus;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.GUITabManager;
-import jCompute.Simulation.Listener.SimulationStatListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
+
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
@@ -22,7 +23,7 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class SimulationListTabPanel extends JPanel implements SimulationStatListenerInf
+public class SimulationListTabPanel extends JPanel
 {
 	private static final long serialVersionUID = 76641721672552215L;
 	
@@ -178,7 +179,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationStatList
 					
 					
 					// RegisterStatsListerner
-					simsManager.addSimulationStatListener(simId, simulationListTabPanel);
+					//simsManager.addSimulationStatListener(simId, simulationListTabPanel);
 		        }
 		    });
 			
@@ -190,7 +191,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationStatList
 		        public void run() 
 		        {						
 		        	// UnRegisterStatsListerner
-		        	simsManager.removeSimulationStatListener(simId, simulationListTabPanel);
+		        	//simsManager.removeSimulationStatListener(simId, simulationListTabPanel);
 		        	
 					// UnRegisterStateListener
 					//simsManager.removeSimulationStateListener(simId, simulationListTabPanel);
@@ -208,10 +209,10 @@ public class SimulationListTabPanel extends JPanel implements SimulationStatList
 		}
 	}
 
-	@Override
-	public void simulationStatChanged(int simId, long time, int stepNo, int progress, int asps)
+	@Subscribe
+	public void SimulationStatChanged(SimulationStatChangedEvent e)
 	{
-		updateCells("Simulation " + simId, new int[]{2,3,4,5},new String[]{ Integer.toString(stepNo), Integer.toString(progress), Integer.toString(asps), jCompute.util.Text.longTimeToDHMS(time) });	
+		updateCells("Simulation " + e.getSimId(), new int[]{2,3,4,5},new String[]{ Integer.toString(e.getStepNo()), Integer.toString(e.getProgress()), Integer.toString(e.getAsps()), jCompute.util.Text.longTimeToDHMS(e.getTime()) });	
 	}
 
 	@Subscribe
