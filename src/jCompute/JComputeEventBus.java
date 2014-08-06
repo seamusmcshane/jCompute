@@ -19,10 +19,16 @@ public class JComputeEventBus
 	{
 		if(!init)
 		{
-			eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+			/*
+			 * Important -
+			 * AsyncEventBus allows events to be dispatched and not block the poster.
+			 * A fixed thread pool of 1 ensures the event orders are preserved in order of posting to the bus.
+			 * This makes the event bus - a non-blocking in-order event dispatcher.
+			 */
+			eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
 			init = true;
 			
-			launchMessage("AsyncEventBus with Cached Thread Pool");
+			launchMessage("JComputeEventBus Started");
 		}
 		
 		return init;
