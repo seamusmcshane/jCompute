@@ -1,10 +1,12 @@
 package jCompute.Gui.Component;
 
+import jCompute.Debug.DebugLogger;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,9 +15,13 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.gui.TableFormat;
+import ca.odell.glazedlists.swing.EventSelectionModel;
+import ca.odell.glazedlists.swing.EventTableModel;
 
 public class TablePanel extends JPanel
 {
@@ -23,7 +29,8 @@ public class TablePanel extends JPanel
 	private JLabel lblTitle;
 	private JTable table;
 	private JScrollPane scrollPane;
-	private DefaultTableModel model;
+
+	private BasicEventList<TablePanelRow> eventList = new BasicEventList<TablePanelRow>();
 
 	/**
 	 * Creates a Panel with a table - needs Title and a List of column names
@@ -69,55 +76,11 @@ public class TablePanel extends JPanel
 	 */
 	private void setUpTable(JPanel panel, String colNames[], boolean alternatingRowColors)
 	{
-		model = new DefaultTableModel()
-		{
-			private static final long serialVersionUID = 3096437320105476853L;
-
-			@Override
-		    public boolean isCellEditable(int row, int column) 
-		    {
-		        return false;
-		    }
-		};
-
-		for(String colName : colNames)
-		{
-			model.addColumn(colName);
-		}
-		
-		if (alternatingRowColors)
-		{
-			table = new JTable(model)
-			{
-				private static final long serialVersionUID = -3299922426578737865L;
-
-				public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
-				{
-					Component c = super.prepareRenderer(renderer, row, column);
-
-					if (!isRowSelected(row))
-					{
-						if (row % 2 == 1)
-						{
-							c.setBackground(new Color(240, 240, 240));
-						}
-						else
-						{
-							c.setBackground(getBackground());
-						}
-					}
-					else
-					{
-						c.setBackground(getSelectionBackground());
-					}
-					return c;
-				}
-			};
-		}
-		else
-		{
-			table = new JTable(model);
-		}
+		TablePanelTableFormat tableFormat = new TablePanelTableFormat(colNames);
+		EventTableModel tableModel = new EventTableModel(eventList, tableFormat);		
+		EventSelectionModel selectionModel = new EventSelectionModel(eventList);
+		table = new JTable(tableModel);
+		table.setSelectionModel(selectionModel);
 
 		scrollPane = new JScrollPane(table);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -134,7 +97,7 @@ public class TablePanel extends JPanel
 		table.setRowSelectionAllowed(true);
 
 	}
-	
+
 	/**
 	 * Sets a TableCellRenderer to be used for a column
 	 * 
@@ -164,13 +127,11 @@ public class TablePanel extends JPanel
 	 */
 	public void addRow(final String columnValueList[])
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				model.addRow(columnValueList);
-			}
-		});
+		eventList.getReadWriteLock().writeLock().lock();
+		 
+		eventList.add(new TablePanelRow(columnValueList));
+		
+		eventList.getReadWriteLock().writeLock().unlock();
 	}
 
 	/**
@@ -180,35 +141,37 @@ public class TablePanel extends JPanel
 	 */
 	public void updateRow(final String rowKey, final String columnValueList[])
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				int row = findRow(rowKey);
-				
-				for(int c=0;c<columnValueList.length;c++)
-				{
-					model.setValueAt(columnValueList[c], row, c);
-				}
-				
-			}
-		});
+		eventList.getReadWriteLock().writeLock().lock();
+		
+		int index = findRow(rowKey);
+		
+		TablePanelRow row = eventList.get(index);
+		
+		row.setValues(columnValueList);
+		
+		eventList.set(index, row);
+		
+		eventList.getReadWriteLock().writeLock().unlock();
 	}
-	
+
 	private int findRow(String rowKey)
 	{
-		int size = model.getRowCount();
+		int index = -1;
+		TablePanelRow row;
 		
-		for(int i=0;i<size;i++)
+		for(int i=0;i<eventList.size();i++)
 		{
-			if(model.getValueAt(i, 0).equals(rowKey))
+			row = eventList.get(i);
+			if(row.getColumnValue(0).equals(rowKey))
 			{
-				return i;				
+				index =i;
+				break;
 			}
 		}
-		return -1;
+		
+		return index; 
 	}
-	
+
 	/**
 	 * Removes a row
 	 * 
@@ -216,17 +179,15 @@ public class TablePanel extends JPanel
 	 */
 	public void removeRow(final String rowKey)
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				int row = findRow(rowKey);
-				
-				model.removeRow(row);
-				
-			}
-		});
+		eventList.getReadWriteLock().writeLock().lock();
 		
+		int index = findRow(rowKey);
+		
+		TablePanelRow row = eventList.get(index);
+		
+		eventList.remove(row);
+		
+		eventList.getReadWriteLock().writeLock().unlock();
 	}
 
 	/**
@@ -234,7 +195,12 @@ public class TablePanel extends JPanel
 	 */
 	public void clearTable()
 	{
-		model.setRowCount(0);
+		eventList.getReadWriteLock().writeLock().lock();
+
+		eventList.clear();
+		
+		eventList.getReadWriteLock().writeLock().unlock();
+
 	}
 
 	public void addMouseListener(MouseAdapter adaptor)
@@ -249,12 +215,18 @@ public class TablePanel extends JPanel
 	 * @param column
 	 * @return
 	 */
-	public String getValueAt(int row, int column)
+	public String getValueAt(int rowIndex, int column)
 	{
 		String value;
-
-		value = (String) model.getValueAt(row, column);
-
+		
+		eventList.getReadWriteLock().writeLock().lock();
+		
+		TablePanelRow row = eventList.get(rowIndex);
+		
+		value = row.getColumnValue(column);
+				
+		eventList.getReadWriteLock().writeLock().unlock();
+		
 		return value;
 	}
 
@@ -265,9 +237,15 @@ public class TablePanel extends JPanel
 	 */
 	public int getRowsCount()
 	{
-		int rowCount = model.getRowCount();
+		int size = 0;
+		
+		eventList.getReadWriteLock().writeLock().lock();
 
-		return rowCount;
+		size = eventList.size();
+				
+		eventList.getReadWriteLock().writeLock().unlock();
+
+		return size;
 	}
 
 	public void clearSelection()
@@ -277,33 +255,32 @@ public class TablePanel extends JPanel
 
 	public void updateCell(final String rowKey, final int column, final String columnValue)
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{				
-				int row = findRow(rowKey);
-				
-				model.setValueAt(columnValue, row, column);
-
-			}
-		});
+		eventList.getReadWriteLock().writeLock().lock();
+		
+		int index = findRow(rowKey);
+		
+		TablePanelRow row = eventList.get(index);
+		
+		row.setValueAt(column,columnValue);
+		
+		eventList.set(index, row);
+		
+		eventList.getReadWriteLock().writeLock().unlock();
 	}
 
 	public void updateCells(final String rowKey, final int columns[], final String columnValues[])
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				int row = findRow(rowKey);
-				
-				for(int c=0;c<columnValues.length;c++)
-				{
-					model.setValueAt(columnValues[c], row, columns[c]);
-				}
-				
-			}
-		});
+		eventList.getReadWriteLock().writeLock().lock();
+		
+		int index = findRow(rowKey);
+		
+		TablePanelRow row = eventList.get(index);
+		
+		row.setValuesInColumn(columns,columnValues);
+		
+		eventList.set(index, row);
+		
+		eventList.getReadWriteLock().writeLock().unlock();
 	}
 
 	public void setColumWidth(int column, int pref)
@@ -316,6 +293,87 @@ public class TablePanel extends JPanel
 	public JTable getJTable()
 	{
 		return table;
+	}
+
+	private class TablePanelTableFormat implements TableFormat
+	{
+		private String[] columnNames;
+		private int noColumns;
+		
+		public TablePanelTableFormat(String[] columnNames)
+		{
+			this.columnNames = columnNames;
+			this.noColumns = columnNames.length;
+		}
+		
+		public int getColumnCount()
+		{
+			return noColumns;
+		}
+		public String getColumnName(int column)
+		{
+			if(column < 0 || column > noColumns)
+			{
+				return null;
+			}
+
+			return columnNames[column];			
+		}
+		
+		public Object getColumnValue(Object baseObject, int column)
+		{
+			TablePanelRow row = (TablePanelRow) baseObject;
+			
+			return row.getColumnValue(column);
+		}
+	}
+	
+	private class TablePanelRow
+	{
+		private String[] columnValues;
+		private int noColumns;
+		
+		public TablePanelRow(String[] columnValues)
+		{
+			this.columnValues = columnValues;
+			this.noColumns = columnValues.length;
+		}
+
+		public void setValuesInColumn(int[] columns, String[] columnValues)
+		{
+			int len = columns.length;
+			int column = -1;
+			
+			for(int i=0;i<len;i++)
+			{
+				column = columns[i];
+				
+				setValueAt(column,columnValues[i]);
+			}			
+		}
+
+		public void setValueAt(int column,String value)
+		{			
+			columnValues[column] = value;
+		}
+		
+		public void setValues(String[] columnValues)
+		{
+			for(int i=0;i<noColumns;i++)
+			{
+				this.columnValues[i] = columnValues[i];
+			}
+		}
+		
+		public String getColumnValue(int column)
+		{
+			if(column < 0 || column > noColumns)
+			{
+				return null;
+			}
+			
+			return columnValues[column];			
+		}
 	}
 
 }
