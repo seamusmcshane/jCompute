@@ -5,12 +5,10 @@ import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
-import jCompute.Simulation.SimulationState.SimState;
-
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
@@ -24,7 +22,7 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class SimulationListTabPanel extends JPanel implements SimulationStateListenerInf,SimulationStatListenerInf
+public class SimulationListTabPanel extends JPanel implements SimulationStatListenerInf
 {
 	private static final long serialVersionUID = 76641721672552215L;
 	
@@ -176,7 +174,8 @@ public class SimulationListTabPanel extends JPanel implements SimulationStateLis
 		        	simulationListTabPanel.addRow(new String[] {"Simulation " + simId,"New", "0", "0","0","0"});
 		        	
 					// RegiserStateListener
-					simsManager.addSimulationStateListener(simId, simulationListTabPanel);
+					//simsManager.addSimulationStateListener(simId, simulationListTabPanel);
+					
 					
 					// RegisterStatsListerner
 					simsManager.addSimulationStatListener(simId, simulationListTabPanel);
@@ -194,7 +193,7 @@ public class SimulationListTabPanel extends JPanel implements SimulationStateLis
 		        	simsManager.removeSimulationStatListener(simId, simulationListTabPanel);
 		        	
 					// UnRegisterStateListener
-					simsManager.removeSimulationStateListener(simId, simulationListTabPanel);
+					//simsManager.removeSimulationStateListener(simId, simulationListTabPanel);
 					
 					// Remove the Row
 					simulationListTabPanel.removeRow("Simulation " + simId);
@@ -215,11 +214,11 @@ public class SimulationListTabPanel extends JPanel implements SimulationStateLis
 		updateCells("Simulation " + simId, new int[]{2,3,4,5},new String[]{ Integer.toString(stepNo), Integer.toString(progress), Integer.toString(asps), jCompute.util.Text.longTimeToDHMS(time) });	
 	}
 
-	@Override
-	public void simulationStateChanged(int simId, SimState state)
-	{
+	@Subscribe
+	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
+	{		
 		// Simulation State
-		updateCell("Simulation " + simId, 1 , state.toString());		
+		updateCell("Simulation " + e.getSimId(), 1 , e.getState().toString());		
 	}
 	
 }

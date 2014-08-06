@@ -4,7 +4,6 @@ import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
@@ -54,9 +53,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	// Nodes/Sockets
 	// Simulations
-	
-	// State Listeners indexed by simId
-	private HashMap<Integer,SimulationStateListenerInf> simStateListeners = new HashMap<Integer,SimulationStateListenerInf>();
 	
 	public NetworkSimulationsManager()
 	{
@@ -272,31 +268,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 			return -1;
 		}
 		
-	}
-	
-	@Override
-	public void addSimulationStateListener(int simId, SimulationStateListenerInf listener)
-	{
-		networkSimulationsManagerLock.acquireUninterruptibly();
-		
-		RemoteSimulationMapping node = simulationsMap.get(simId);
-		
-		if(node!=null)
-		{
-			simStateListeners.put(simId, listener);
-		}		
-		
-		networkSimulationsManagerLock.acquireUninterruptibly();
-	}
-
-	@Override
-	public void removeSimulationStateListener(int simId, SimulationStateListenerInf listener)
-	{
-		networkSimulationsManagerLock.acquireUninterruptibly();
-
-		simStateListeners.remove(simId);
-
-		networkSimulationsManagerLock.release();
 	}
 	
 	@Override

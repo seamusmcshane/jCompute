@@ -1,10 +1,11 @@
 package jCompute.Batch.BatchManager;
 
+import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Debug.DebugLogger;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
@@ -19,7 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
-public class BatchManager implements SimulationStateListenerInf
+import com.google.common.eventbus.Subscribe;
+
+public class BatchManager
 {
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);	
@@ -67,6 +70,9 @@ public class BatchManager implements SimulationStateListenerInf
 		
 		activeItems = new ArrayList<BatchItem>();
 		completeItems = new ArrayList<BatchItem>();
+		
+		// Register on the event bus
+		JComputeEventBus.register(this);
 		
 		// Batch Scheduler Tick
 		batchSchedulerTimer = new Timer("Batch Scheduler Timer");
@@ -132,7 +138,7 @@ public class BatchManager implements SimulationStateListenerInf
 			
 			DebugLogger.output("Going to remove sim " + item.getSimId());
 			
-			simsManager.removeSimulationStateListener(item.getSimId(), batchManager);
+			//simsManager.removeSimulationStateListener(item.getSimId(), batchManager);
 			simsManager.removeSimulation(item.getSimId());
 			
 			DebugLogger.output(i + " Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
@@ -326,7 +332,7 @@ public class BatchManager implements SimulationStateListenerInf
 			
 			batchManagerLock.release();
 			
-			simsManager.addSimulationStateListener(simId, batchManager);
+			//simsManager.addSimulationStateListener(simId, batchManager);
 			
 			itemsLock.acquireUninterruptibly();
 				activeItems.add(item);
@@ -342,10 +348,12 @@ public class BatchManager implements SimulationStateListenerInf
 		return false;
 	}
 	
-	@Override
-	public void simulationStateChanged(int simId, SimState state)
+	@Subscribe
+	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
-
+		SimState state = e.getState();
+		int simId = e.getSimId();
+		
 		switch(state)
 		{
 			case RUNNING:

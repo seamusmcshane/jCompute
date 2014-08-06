@@ -1,13 +1,14 @@
 package jCompute.Gui.Standard.Tab;
 
 import jCompute.IconManager;
+import jCompute.JComputeEventBus;
 import jCompute.Gui.Charts.GlobalStatChartPanel;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Gui.Standard.Listener.TabStatusChangedListenerInf;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 
 import javax.swing.JPanel;
 
@@ -71,7 +72,9 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener, SimulationStateListenerInf, SimulationStatListenerInf
+import com.google.common.eventbus.Subscribe;
+
+public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener, SimulationStatListenerInf
 {
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -176,7 +179,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 		// Simulation Control GUI
 		setUpSimulationContolPanel();
-					
+		
+		JComputeEventBus.register(this);
+		
 		checkTabState();
 
 		/* Pause the active sim or the GUI will compete for every semaphore lock */
@@ -818,8 +823,11 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	{
 		System.out.println("Register Listeners");
 		// State / Stats
-		simsManager.addSimulationStateListener(simId, this);
+		//simsManager.addSimulationStateListener(simId, this);
+
 		simsManager.addSimulationStatListener(simId, this);
+		
+		
 		this.addTabStatusListener(title);
 	}
 	
@@ -1122,8 +1130,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		if(simId!=-1)
 		{
-			simsManager.removeSimulationStateListener(simId, this);
-			
+			//simsManager.removeSimulationStateListener(simId, this);
+			// JComputeEventBus.unregister(this);
+
 			simsManager.removeSimulationStatListener(simId, this);
 		}
 
@@ -1144,10 +1153,13 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		return;		
 	}
 
-	@Override
-	public void simulationStateChanged(int simId, SimState state)
+	@Subscribe
+	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
-		setGuiState(state);
+		if(e.getSimId() == this.simId)
+		{
+			setGuiState(e.getState());
+		}
 	}
 
 	private void setGuiState(SimState state)
@@ -1345,7 +1357,12 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	public void destroy()
 	{
 		System.out.println("Destroying Tab for Sim " + simId);
+		
+		JComputeEventBus.unregister(this);
+		
 		detachTabFromSim();
+		
+		
 	
 		removeSimulation();
 	}

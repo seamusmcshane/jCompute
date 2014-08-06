@@ -11,7 +11,6 @@ import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationScenarioManagerInf;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -457,37 +456,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	{
 		return activeSims;
 	}
-	
-	@Override
-	public void addSimulationStateListener(int simId,SimulationStateListenerInf listener)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			sim.addSimulationStateListener(listener);
-		}
-		
-		simulationsManagerLock.release();
-	}
-	
-	@Override
-	public void removeSimulationStateListener(int simId,SimulationStateListenerInf listener)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			sim.removeSimulationStateListener(listener);
-		}
-		
-		simulationsManagerLock.release();
-	}
-	
+
 	@Override
 	public void addSimulationStatListener(int simId,SimulationStatListenerInf listener)
 	{

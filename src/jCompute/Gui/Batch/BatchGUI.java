@@ -11,8 +11,8 @@ import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -59,7 +59,7 @@ import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, SimulationStateListenerInf, SimulationStatListenerInf, BatchManagerEventListenerInf
+public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, SimulationStatListenerInf, BatchManagerEventListenerInf
 {
 	// Batch Manager
 	private BatchManager batchManager;
@@ -717,7 +717,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			});
 
 			// RegiserStateListener
-			simsManager.addSimulationStateListener(simId, batchGUI);
+			//simsManager.addSimulationStateListener(simId, batchGUI);
 
 			// RegisterStatsListerner
 			simsManager.addSimulationStatListener(simId, batchGUI);
@@ -729,7 +729,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			simsManager.removeSimulationStatListener(simId, batchGUI);
 
 			// UnRegisterStateListener
-			simsManager.removeSimulationStateListener(simId, batchGUI);
+			//simsManager.removeSimulationStateListener(simId, batchGUI);
 
 			DebugLogger.output("Removing Row for " + "Simulation " + simId);
 			// Remove the Row
@@ -754,9 +754,12 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		});
 	}
 
-	@Override
-	public void simulationStateChanged(int simId, SimState state)
+	@Subscribe
+	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
+		SimState state = e.getState();
+		int simId = e.getSimId();
+		
 		// Simulation State
 		activeSimulationsListTable.updateCell("Simulation " + simId, 1, state.toString());
 	}

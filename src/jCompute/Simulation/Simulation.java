@@ -1,10 +1,13 @@
 package jCompute.Simulation;
 
+import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Scenario.ScenarioInf;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.Listener.SimulationStatListenerInf;
-import jCompute.Simulation.Listener.SimulationStateListenerInf;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.SimulationState.stateChangedInf;
 import jCompute.Simulation.SimulationStats.statChangedInf;
@@ -25,7 +28,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 {
 	/* Simulation State */
 	private SimulationState simState;
-	private List<SimulationStateListenerInf> simStateListeners = new ArrayList<SimulationStateListenerInf>();
 		
 	private SimulationStats simStats;
 	private List<SimulationStatListenerInf> simStatListeners = new ArrayList<SimulationStatListenerInf>();
@@ -337,26 +339,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 		}
 	}
 	
-	public void addSimulationStateListener(SimulationStateListenerInf listener)
-	{
-		listenersLock.acquireUninterruptibly();
-		
-			simStateListeners.add(listener);
-			
-			listener.simulationStateChanged(simId, simState.getState());
-		
-		listenersLock.release();	
-	}
-	
-	public void removeSimulationStateListener(SimulationStateListenerInf listener)
-	{
-		listenersLock.acquireUninterruptibly();
-		
-			simStateListeners.remove(listener);
-		
-		listenersLock.release();	
-	}
-	
 	public void addSimulationStatListener(SimulationStatListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
@@ -384,16 +366,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	@Override
 	public void stateChanged(SimState state)
 	{
-		listenersLock.acquireUninterruptibly();
-
-		for (SimulationStateListenerInf listener : simStateListeners)
-	    {
-			DebugLogger.output("[Sim] SimulationStateChanged - " + simId + " " + state.toString());
-
-	    	listener.simulationStateChanged(simId, state);
-	    }
-		
-		listenersLock.release();
+		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state));
 	}
 
 	@Override

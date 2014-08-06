@@ -2,6 +2,7 @@ package jCompute.Gui.Standard;
 
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+
 import java.awt.Dimension;
 import java.awt.Frame;
 
