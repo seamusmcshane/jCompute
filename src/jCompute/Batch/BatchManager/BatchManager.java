@@ -7,12 +7,12 @@ import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +36,8 @@ public class BatchManager
 	// The queues of batches
 	private Queue<Batch> fifoQueue;
 	private Queue<Batch> fairQueue;
+	private LinkedList<Batch> stoppedBatches;
+	
 	private int fairQueueLast = 0;
 	
 	// Finished Batches
@@ -67,6 +69,8 @@ public class BatchManager
 		fairQueue = new LinkedBlockingQueue<Batch>();
 		
 		finishedBatches = new ArrayList<Batch>(16);
+		
+		stoppedBatches = new LinkedList<Batch>();
 		
 		activeItems = new ArrayList<BatchItem>();
 		completeItems = new ArrayList<BatchItem>();
@@ -176,6 +180,16 @@ public class BatchManager
 			// no batches
 			return;
 		}
+		
+		// If first batch is disabled
+		/*if(batch.getEnabled() == false)
+		{
+			stoppedBatches.add(batch);
+			
+			fifoQueue.poll();
+			
+			return;
+		}*/
 		
 		// Is this batch finished
 		if(batch.getCompleted() == batch.getBatchItems())
@@ -383,8 +397,8 @@ public class BatchManager
 				DebugLogger.output(">>>> [BM] simulationStateChanged ("+simId+") - item("+item.getItemId()+")");
 				
 				activeItems.remove(item);
-				completeItems.add(item);				
-
+				completeItems.add(item);
+				
 				itemsLock.release();
 				
 				batchManagerListenerBatchProgressNotification(batch);
@@ -414,7 +428,7 @@ public class BatchManager
 		Batch batch = null;
 		Batch tBatch = null;
 		
-		
+		// Search Fifo Queue
 		while(itr.hasNext())
 		{
 			tBatch = itr.next();
@@ -470,7 +484,30 @@ public class BatchManager
 				}
 
 			}
-		}		
+		}
+		
+		// Still Null? search stopped list
+		if(batch == null)
+		{
+			itr = stoppedBatches.iterator();
+			
+			batch = null;
+			tBatch = null;
+			
+			while(itr.hasNext())
+			{
+				tBatch = itr.next();
+				
+				if(tBatch.getBatchId() == batchId)
+				{
+					
+					batch = tBatch;
+					
+					break;
+				}
+	
+			}	
+		}
 
 		batchManagerLock.release();
 		
@@ -581,6 +618,84 @@ public class BatchManager
 	public BatchItem[] getCompletedItems(int batchId)
 	{
 		return getListItems(batchId,2);
+	}
+
+	public void setEnabled(int batchId, boolean enabled)
+	{
+		Batch batch = findBatch(batchId);
+		
+		batch.setEnabled(enabled);
+		
+		batchManagerLock.acquireUninterruptibly();		
+		
+		// Remove batch from queues if disabled and add to stop else the reverse process for enabling
+		if(enabled == false)
+		{
+			// In Fifo
+			if(batch.getPriority() == BatchPriority.HIGH)
+			{
+				fifoQueue.remove(batch);
+			}
+			else
+			{
+				// In Fair
+				fairQueue.remove(batch);
+			}
+			
+			stoppedBatches.add(batch);
+		}
+		else
+		{
+			// In Fifo
+			if(batch.getPriority() == BatchPriority.HIGH)
+			{
+				fifoQueue.add(batch);
+			}
+			else
+			{
+				// In Fair
+				fairQueue.add(batch);
+			}
+			
+			stoppedBatches.remove(batch);
+
+		}
+		
+		batchManagerLock.release();
+		
+		batchManagerListenerBatchProgressNotification(batch);
+	}
+	
+	public void setPriority(int batchId, BatchPriority priority)
+	{
+		Batch batch = findBatch(batchId);	
+		
+		batchManagerLock.acquireUninterruptibly();
+
+		// if the batch is enabled switch the queue (as its not in one if not enabled)
+		if(batch.getEnabled() == true)
+		{
+			if(batch.getPriority() == BatchPriority.STANDARD)
+			{
+				// Move to High (Standard to FIFO)
+				fairQueue.remove(batch);
+				fifoQueue.add(batch);
+			}
+			else
+			{
+				// Move To Standard (FIFO to Standard)
+				fifoQueue.remove(batch);			
+				fairQueue.add(batch);
+			}
+
+		}
+		
+		// New Priority
+		batch.setPriority(priority);	
+			
+		batchManagerLock.release();
+		
+		batchManagerListenerBatchProgressNotification(batch);
 	}
 
 }

@@ -1,5 +1,6 @@
 package jCompute.Batch;
 
+import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Debug.DebugLogger;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioVT;
@@ -29,6 +30,9 @@ public class Batch
 	/* Batch Attributes */
 	private int batchId;
 	private BatchPriority priority;
+	
+	/* Set if this batch items can be processed (stop/start) */
+	private boolean enabled = true;
 	private String type;
 	
 	private String batchFileName;
@@ -882,7 +886,7 @@ public class Batch
 	
 	public long getETT()
 	{
-		if(active>0)
+		if(active>0 && completed>0)
 		{
 			return getRunTime() + ( ( (completedItemRunTime / completed) * (batchItems - completed) ) / active);
 		}
@@ -967,8 +971,29 @@ public class Batch
 	    }
 	}
 
-	public String getPriority()
+	public BatchPriority getPriority()
 	{
-		return priority.toString();
-	};
+		return priority;
+	}
+
+	public void setPriority(BatchPriority priority)
+	{
+		this.priority = priority;	
+	}
+	
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+
+	public boolean getEnabled()
+	{
+		return enabled;
+	}
+
 }
