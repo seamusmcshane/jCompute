@@ -900,14 +900,15 @@ public class Batch
 
 		info.add("Id");
 		info.add(String.valueOf(batchId));
-		
-		info.add("Priority");
-		info.add(priority.toString());
-		
+
 		info.add("Description");
 		info.add(batchDescription);
 		info.add("Scenario Type");
 		info.add(type);
+		info.add("Priority");
+		info.add(priority.toString());
+		info.add("Enabled");
+		info.add(String.valueOf(enabled).toUpperCase());
 
 		info.add("");
 		info.add("");
