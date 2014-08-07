@@ -9,8 +9,10 @@ import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.Component.TablePanel;
+import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
+import jCompute.Gui.Component.TableCell.PriorityIconRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
@@ -116,7 +118,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	private OpenBatchFileTask openBatchProgressMonitorTask;
 	private JToolBar toolBar;
 	private JButton btnStart;
-	private JButton btnStop;
+	private JButton btnPause;
 	private JButton btnMoveForward;
 	private JButton btnMoveFirst;
 	private JButton btnMoveBackward;
@@ -242,8 +244,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		btnStart.setIcon(IconManager.getIcon("simRunningIcon"));
 		toolBar.add(btnStart);
 		
-		btnStop = new JButton();
-		btnStop.addActionListener(new ActionListener() 
+		btnPause = new JButton();
+		btnPause.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -260,8 +262,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				batchManager.setEnabled(batchId,false);
 			}
 		});
-		btnStop.setIcon(IconManager.getIcon("simNewIcon"));
-		toolBar.add(btnStop);
+		btnPause.setIcon(IconManager.getIcon("simPausedIcon"));
+		toolBar.add(btnPause);
 		
 		toolBar.addSeparator();
 		
@@ -332,7 +334,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		//if(showText)
 		{
 			btnStart.setText("Start");
-			btnStop.setText("Stop");
+			btnPause.setText("Pause");
 			btnMoveForward.setText("Forward");
 			btnMoveBackward.setText("Backward");
 			btnMoveFirst.setText("First");
@@ -395,6 +397,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Id", "Name", "Type", "Priority", "Enabled","Items", " % ", "Done", "ETT"
 		},true);
+		
+		
+		batchQueuedTable.addColumRenderer(new PriorityIconRenderer(IconManager.getIcon("highPriorityIcon"),IconManager.getIcon("standardPriorityIcon")), 3);
+
+		batchQueuedTable.addColumRenderer(new BooleanIconRenderer(IconManager.getIcon("startSimIcon"),IconManager.getIcon("pausedSimIcon")), 4);
+		
+		
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), 6);
 		GridBagConstraints gbc_batchQueuedTable = new GridBagConstraints();
