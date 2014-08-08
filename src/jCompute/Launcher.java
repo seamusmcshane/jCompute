@@ -5,15 +5,17 @@ import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Gui.Standard.StandardGUI;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.Executors;
-
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.EventBus;
 
 public class Launcher
 {
@@ -230,5 +232,63 @@ public class Launcher
 		{
 			e1.printStackTrace();
 		}
+		
+		
+		/* Because all the look and feels use different system provided fonts and sizes.
+		 * We force a common font but base it on the original size.  
+		 */
+		try
+		{
+			DebugLogger.output("Overriding System provided fonts");
+			
+			String fontFolder = "SourceCodeSansPro";
+			String fontPath = "/fonts/" + fontFolder + "/";
+			
+			String fontFile = "SourceSansPro-Regular.ttf";
+			
+			String fullPath = fontPath + fontFile;
+			
+			URL fontURL = Launcher.class.getResource(fullPath);
+			
+			Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontURL.toURI()));
+			
+			// Get all the UI Settings
+			Enumeration<Object> keys = UIManager.getDefaults().keys();
+			Object key = null;
+			String skey = null;
+			
+			Font defaultFont = null;
+			
+			// Loop over them
+			while (keys.hasMoreElements()) 
+			{
+				key = keys.nextElement();
+				
+				// If its a string setting
+				if((key.getClass().equals(String.class)) )
+				{
+					skey =  (String) key;
+					
+					// check if it is a font setting
+					if(skey.toLowerCase().contains(".font"))
+					{
+						// Get the font
+						defaultFont = UIManager.getFont(skey);
+						
+						
+						DebugLogger.output(skey + " Current " + defaultFont.getName() + "(" + defaultFont.getSize() +")" + " Replacing with Font " + font.getName() );
+						
+						// Replace the font base the replacement on its size
+						// +1 to offset the difference in source code sans
+						UIManager.put(skey, font.deriveFont(defaultFont.getStyle(),defaultFont.getSize()+1));	
+					}
+				}
+			}			
+		}
+		catch (FontFormatException | IOException | URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
 	}
 }
