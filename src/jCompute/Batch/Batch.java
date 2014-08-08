@@ -937,7 +937,7 @@ public class Batch
 		info.add(batchFileName);
 		info.add("Scenario");
 		info.add(baseScenarioFileName);
-		info.add("Statistics Directory");
+		info.add("Export Directory");
 		info.add(batchStatsExportDir);
 
 		info.add("");
