@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
@@ -88,6 +91,8 @@ public class Launcher
 		
 		/* Init the Event bus in Async Mode */
 		JComputeEventBus.initAsync();
+		
+		lookandFeel();
 		
 		if(Integer.parseInt(opts.get("guiInt").getValue()) == 1)
 		{
@@ -177,6 +182,53 @@ public class Launcher
 					System.exit(0);
 				}
 			}
+		}
+	}
+	
+	/* Use the java provided system look and feel */
+	private static void lookandFeel()
+	{
+		String os = System.getProperty("os.name");
+		
+		// Default to the system provided look and feel
+		String lookandfeel = UIManager.getSystemLookAndFeelClassName();
+		
+		DebugLogger.output(os);
+		
+		// Look for the availability of GTK look and feel
+		if(os.toLowerCase().contains("linux"))
+		{
+			UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
+			
+			for(int i=0;i<lookAndFeels.length;i++)
+			{
+				if(lookAndFeels[i].getClassName().toLowerCase().contains("gtk"))
+				{
+					lookandfeel = lookAndFeels[i].getClassName();
+					break;
+				}
+			}
+		}
+		
+		try
+		{
+			UIManager.setLookAndFeel(lookandfeel);
+		}
+		catch (ClassNotFoundException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (InstantiationException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (IllegalAccessException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (UnsupportedLookAndFeelException e1)
+		{
+			e1.printStackTrace();
 		}
 	}
 }

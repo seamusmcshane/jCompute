@@ -159,8 +159,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 	private void setUpFrame()
 	{
-		lookandFeel();
-
 		/* Frame */
 		guiFrame = new JFrame("Batch Interface");
 		guiFrame.setMinimumSize(new Dimension(800, 600));
@@ -820,31 +818,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			}
 		});
 
-	}
-
-	/* Use the java provided system look and feel */
-	private void lookandFeel()
-	{
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (ClassNotFoundException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (InstantiationException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (IllegalAccessException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (UnsupportedLookAndFeelException e1)
-		{
-			e1.printStackTrace();
-		}
 	}
 
 	/**

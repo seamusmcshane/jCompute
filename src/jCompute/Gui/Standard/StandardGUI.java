@@ -73,9 +73,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 			javax.swing.SwingUtilities.invokeAndWait(new Runnable() 
 			{
 			    public void run() 
-			    {
-					lookandFeel();
-					
+			    {					
 					createGUIComponents();
 					
 			    	registerGUIListeners();
