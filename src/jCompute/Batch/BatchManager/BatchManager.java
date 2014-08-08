@@ -4,6 +4,7 @@ import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.Batch.BatchPriority;
+import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -13,11 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import com.google.common.eventbus.Subscribe;
@@ -34,8 +33,8 @@ public class BatchManager
 	private SimulationsManagerInf simsManager;
 
 	// The queues of batches
-	private Queue<Batch> fifoQueue;
-	private Queue<Batch> fairQueue;
+	private ManagedBypassableQueue<Batch> fifoQueue;
+	private ManagedBypassableQueue<Batch> fairQueue;
 	private LinkedList<Batch> stoppedBatches;
 	
 	private int fairQueueLast = 0;
@@ -55,24 +54,20 @@ public class BatchManager
 	// Scheduler
 	private Timer batchSchedulerTimer;
 	
-	// Self Reference
-	private BatchManager batchManager;
-	
 	public BatchManager(SimulationsManagerInf simsManager)
-	{
-		batchManager = this;
-		
+	{		
 		this.simsManager = simsManager;
 		
-		fifoQueue = new LinkedBlockingQueue<Batch>();
+		fifoQueue = new ManagedBypassableQueue<Batch>();
 		
-		fairQueue = new LinkedBlockingQueue<Batch>();
+		fairQueue = new ManagedBypassableQueue<Batch>();
 		
 		finishedBatches = new ArrayList<Batch>(16);
 		
 		stoppedBatches = new LinkedList<Batch>();
 		
-		activeItems = new ArrayList<BatchItem>();
+		activeItems = new ArrayList<BatchItem>(simsManager.getActiveSims());
+		
 		completeItems = new ArrayList<BatchItem>();
 		
 		// Register on the event bus
@@ -123,7 +118,7 @@ public class BatchManager
 	}
 	
 	private void schedule()
-	{		
+	{
 		DebugLogger.output("BatchManager Schedule Tick");
 		
 		//simsManager.removeSimulationStateListener(item.getSimId(), this);
@@ -158,8 +153,11 @@ public class BatchManager
 		{
 			batchManagerLock.acquireUninterruptibly();
 
-			scheduleFifo();
-			scheduleFair();
+			// Schedule from the fifo only if it contains batches
+			if(!scheduleFifo())
+			{
+				scheduleFair();
+			}
 			
 			batchManagerLock.release();
 
@@ -168,7 +166,11 @@ public class BatchManager
 	}
 	
 	// High Priority FIFO
-	private void scheduleFifo()
+	/**
+	 * Schedule batchs from the fifo queue.
+	 * Returns true if the fifo is active.
+	 */
+	private boolean scheduleFifo()
 	{
 		DebugLogger.output("Schedule Fifo");
 		
@@ -178,18 +180,8 @@ public class BatchManager
 		if(batch == null)
 		{
 			// no batches
-			return;
+			return false;
 		}
-		
-		// If first batch is disabled
-		/*if(batch.getEnabled() == false)
-		{
-			stoppedBatches.add(batch);
-			
-			fifoQueue.poll();
-			
-			return;
-		}*/
 		
 		// Is this batch finished
 		if(batch.getCompleted() == batch.getBatchItems())
@@ -208,7 +200,17 @@ public class BatchManager
 			batchManagerLock.acquireUninterruptibly();
 			
 			// exit this tick
-			return;
+			if(fifoQueue.size() > 0)
+			{
+				// There is more batches
+				return true;
+			}
+			else
+			{
+				// There are no more batches
+				return false;
+			}
+			
 		}
 		
 		// While there are items to add and the simulations manager can add them
@@ -226,7 +228,8 @@ public class BatchManager
 			}
 			
 		}
-	
+		
+		return true;
 	}
 	
 	private void scheduleFair()
@@ -251,8 +254,6 @@ public class BatchManager
 			return;
 		}
 		
-		Batch[] fairBatches = fairQueue.toArray(new Batch[fairQueue.size()]);
-		
 		Batch batch = null;
 		BatchItem item = null;
 		
@@ -261,7 +262,7 @@ public class BatchManager
 		// Cycle over the batches and add one item from each to the run queue		
 		do
 		{
-			batch = fairBatches[pos];
+			batch = fairQueue.get(pos);
 			
 			// Is this batch finished
 			if(batch.getCompleted() == batch.getBatchItems())
@@ -326,7 +327,7 @@ public class BatchManager
 		fairQueueLast = pos;
 		
 	}
-	
+
 	private boolean scheduleBatchItem(BatchItem item)
 	{
 		DebugLogger.output("Schedule Batch");
@@ -513,7 +514,7 @@ public class BatchManager
 		
 		return batch;
 	}
-	
+
 	private BatchItem findActiveBatchItemFromSimId(int simId)
 	{
 		itemsLock.acquireUninterruptibly();
