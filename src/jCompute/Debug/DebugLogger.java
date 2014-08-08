@@ -19,4 +19,20 @@ public class DebugLogger
 		}
 	}
 	
+	public static void outputString(String text)
+	{
+		if(debug)
+		{
+			System.out.print(text);	
+		}
+	}
+	
+	public static void outputChar(char c)
+	{
+		if(debug)
+		{
+			System.out.print(c);	
+		}
+	}
+	
 }

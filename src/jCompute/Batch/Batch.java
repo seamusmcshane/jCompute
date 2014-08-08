@@ -481,7 +481,7 @@ public class Batch
 			temp.loadConfig(baseScenarioText.toString());
 			
 			// Start of log line + itemName
-			System.out.print("Combo : " + combo);
+			DebugLogger.outputString("Combo : " + combo);
 			itemName = "Combo " + combo;
 			
 			// Change the value for each parameter group
@@ -492,7 +492,7 @@ public class Batch
 				if(ParameterType[p].equalsIgnoreCase("Group"))
 				{
 					// Log line middle
-					System.out.print(" " + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p]);
+					DebugLogger.outputString(" " + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p]);
 					itemName = itemName + " " + Path[p]+"."+GroupName[p]+"."+ParameterName[p] + " " + currentValues[p];
 
 					int groups = temp.getSubListSize(Path[p]);
@@ -560,7 +560,7 @@ public class Batch
 				else
 				{
 					// Log line middle
-					System.out.print(" " + Path[p]+"."+ParameterName[p] + " " + currentValues[p]);
+					DebugLogger.outputString(" " + Path[p]+"."+ParameterName[p] + " " + currentValues[p]);
 					itemName = itemName + " " + Path[p]+"."+ParameterName[p] + " " + currentValues[p];
 
 					// Fine the datatype for this parameter
@@ -593,24 +593,24 @@ public class Batch
 				
 			}
 			// Log line end
-			System.out.print("\n");
+			//DebugLogger.outputString("\n");
 			
 			//DebugLogger.output(temp.getScenarioXMLText());
-			System.out.print("ComboPos : " );
+			DebugLogger.outputString(" ComboPos(" );
 			ArrayList<Integer> tempCoord = new ArrayList<Integer>();
 			ArrayList<Integer> tempCoordValues = new ArrayList<Integer>();
 			for(int p=0;p<parameterGroups;p++)
 			{
-				System.out.print(comboCoordinates.get(p));
+				DebugLogger.outputString(String.valueOf(comboCoordinates.get(p)));
 				if(p<(parameterGroups-1))
 				{
-					System.out.print('x');
+					DebugLogger.outputChar('x');
 				}
 				
 				tempCoord.add(comboCoordinates.get(p));
 				tempCoordValues.add(currentValues[p]);
 			}
-			System.out.print('\n');
+			DebugLogger.outputString(")\n");
 			
 			// Add the new Batch Item combo used for batch item id, getScenarioXMLText is the new scenario xml configuration - samples is the number of identical items to generate (used as a sample/average)
 			addBatchItem(itemSamples,combo,itemName,temp.getScenarioXMLText(),tempCoord,tempCoordValues);

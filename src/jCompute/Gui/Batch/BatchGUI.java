@@ -979,7 +979,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				if (openBatchProgressMonitor.isCanceled())
 				{
 					// openBatchProgressMonitorTask.cancel(true);
-					// System.out.println("Batch File loading canceled at " + progress + "%");
 					System.out.println("Cannot abort Batch File loading task");
 				}
 			}
@@ -1007,7 +1006,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 			progressInc = 100f / files.length;
 			
-			System.out.println("Requested that " + files.length + " Batch Files be loaded");
+			DebugLogger.output("Requested that " + files.length + " Batch Files be loaded");
 
 		}
 
@@ -1040,7 +1039,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		@Override
 		public void done()
 		{
-			System.out.println(files.length + " Batch Files were loaded");
+			DebugLogger.output(files.length + " Batch Files were loaded");
 		}
 	}
 

@@ -42,7 +42,7 @@ public class Launcher
 	public static void main(String args[])
 	{
 	    String tmpDir = System.getProperty("java.io.tmpdir");
-	    System.out.println("Temp dir provided by OS : " + tmpDir);
+	    DebugLogger.output("Temp dir provided by OS : " + tmpDir);
 	    
 		indexDefaults();
 
@@ -58,11 +58,11 @@ public class Launcher
 	{
 		Set<String> index = opts.keySet();
 		
-		System.out.println("Launching...");
+		DebugLogger.output("Launching...");
 		for(String name : index)
 		{
 			
-			System.out.println(String.format("%10s", name) + " = " + opts.get(name).getValue());
+			DebugLogger.output(String.format("%10s", name) + " = " + opts.get(name).getValue());
 		}
 	}
 
@@ -126,7 +126,7 @@ public class Launcher
 	// Get all the command line args and puts then in the map
 	private static void getOptions(String cmdline)
 	{
-		System.out.println("Command line was : " + cmdline);
+		DebugLogger.output("Command line was : " + cmdline);
 
 		String options[] = cmdline.split(",");
 

@@ -297,7 +297,7 @@ public class ScenarioVT
 			String field = itr.next();
 			
 			DebugLogger.output(rootName+"."+field);
-			System.out.print(stripXMLPath(field) + " : ");
+			DebugLogger.outputString(stripXMLPath(field) + " : ");
 			
 			XmlSchemaType type = findSubNodeDataType(rootName,field);
 
@@ -305,8 +305,8 @@ public class ScenarioVT
 			
 			if(type!=null)
 			{
-				System.out.print(type.getQName().getLocalPart());
-				System.out.print(" - " + getValueToString(field,type)+"\n");
+				DebugLogger.outputString(type.getQName().getLocalPart());
+				DebugLogger.outputString(" - " + getValueToString(field,type)+"\n");
 			}
 
 		}

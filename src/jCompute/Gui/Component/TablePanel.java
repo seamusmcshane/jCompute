@@ -389,5 +389,5 @@ public class TablePanel extends JPanel
 			return columnValues[column];			
 		}
 	}
-
+	
 }
