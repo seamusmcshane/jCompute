@@ -204,7 +204,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		activeSimulationsListTable.setColumWidth(1, 70);
 		activeSimulationsListTable.setColumWidth(2, 70);
 		//activeSimulationsListTable.setColumWidth(3, 65);
-		activeSimulationsListTable.setColumWidth(4, 70);
+		activeSimulationsListTable.setColumWidth(4, 80);
 		activeSimulationsListTable.setColumWidth(5, 110);
 		// Progress Column uses a progress bar for display
 		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
@@ -417,7 +417,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		batchQueuedTable.setColumWidth(0, 30);
 		//batchQueuedTable.setColumWidth(1, 175);
 		batchQueuedTable.setColumWidth(2, 60);
-		batchQueuedTable.setColumWidth(3, 60);
+		batchQueuedTable.setColumWidth(3, 70);
 		batchQueuedTable.setColumWidth(4, 60);
 		batchQueuedTable.setColumWidth(5, 120);
 		//batchQueuedTable.setColumWidth(6, 40);
@@ -469,7 +469,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Item", "Batch", "Name"
 		}, true);
-		activeItemsListTable.setColumWidth(0, 35);
+		activeItemsListTable.setColumWidth(0, 50);
 		activeItemsListTable.setColumWidth(1, 50);
 
 		batchInfoQueueTabPanel.addTab(activeItemsListTable,"Active");
@@ -478,7 +478,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Item", "Batch", "Name"
 		}, true);
-		queuedItemsListTable.setColumWidth(0, 35);
+		queuedItemsListTable.setColumWidth(0, 50);
 		queuedItemsListTable.setColumWidth(1, 50);
 		
 		batchInfoQueueTabPanel.addTab(queuedItemsListTable,"Queued");
@@ -487,7 +487,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 				"Item", "Batch", "Name"
 		}, true);
-		completedItemsListTable.setColumWidth(0, 35);
+		completedItemsListTable.setColumWidth(0, 50);
 		completedItemsListTable.setColumWidth(1, 50);
 		
 		batchInfoQueueTabPanel.addTab(completedItemsListTable,"Completed");
