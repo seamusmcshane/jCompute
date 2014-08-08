@@ -187,28 +187,20 @@ public class Launcher
 		}
 	}
 	
-	/* Use the java provided system look and feel */
+	/* Set Nimbus Look and feel */
 	private static void lookandFeel()
-	{
-		String os = System.getProperty("os.name");
-		
+	{		
 		// Default to the system provided look and feel
 		String lookandfeel = UIManager.getSystemLookAndFeelClassName();
 		
-		DebugLogger.output(os);
-		
-		// Look for the availability of GTK look and feel
-		if(os.toLowerCase().contains("linux"))
-		{
-			UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
+		UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
 			
-			for(int i=0;i<lookAndFeels.length;i++)
+		for(int i=0;i<lookAndFeels.length;i++)
+		{
+			if(lookAndFeels[i].getClassName().toLowerCase().contains("nimbus"))
 			{
-				if(lookAndFeels[i].getClassName().toLowerCase().contains("gtk"))
-				{
-					lookandfeel = lookAndFeels[i].getClassName();
-					break;
-				}
+				lookandfeel = lookAndFeels[i].getClassName();
+				break;
 			}
 		}
 		
@@ -232,63 +224,5 @@ public class Launcher
 		{
 			e1.printStackTrace();
 		}
-		
-		
-		/* Because all the look and feels use different system provided fonts and sizes.
-		 * We force a common font but base it on the original size.  
-		 */
-		try
-		{
-			DebugLogger.output("Overriding System provided fonts");
-			
-			String fontFolder = "SourceCodeSansPro";
-			String fontPath = "/fonts/" + fontFolder + "/";
-			
-			String fontFile = "SourceSansPro-Regular.ttf";
-			
-			String fullPath = fontPath + fontFile;
-			
-			URL fontURL = Launcher.class.getResource(fullPath);
-			
-			Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontURL.toURI()));
-			
-			// Get all the UI Settings
-			Enumeration<Object> keys = UIManager.getDefaults().keys();
-			Object key = null;
-			String skey = null;
-			
-			Font defaultFont = null;
-			
-			// Loop over them
-			while (keys.hasMoreElements()) 
-			{
-				key = keys.nextElement();
-				
-				// If its a string setting
-				if((key.getClass().equals(String.class)) )
-				{
-					skey =  (String) key;
-					
-					// check if it is a font setting
-					if(skey.toLowerCase().contains(".font"))
-					{
-						// Get the font
-						defaultFont = UIManager.getFont(skey);
-						
-						
-						DebugLogger.output(skey + " Current " + defaultFont.getName() + "(" + defaultFont.getSize() +")" + " Replacing with Font " + font.getName() );
-						
-						// Replace the font base the replacement on its size
-						// +1 to offset the difference in source code sans
-						UIManager.put(skey, font.deriveFont(defaultFont.getStyle(),defaultFont.getSize()+1));	
-					}
-				}
-			}			
-		}
-		catch (FontFormatException | IOException | URISyntaxException e)
-		{
-			e.printStackTrace();
-		}
-		
 	}
 }
