@@ -942,11 +942,11 @@ public class Batch
 
 		info.add("");
 		info.add("");
-		info.add("Added Time");
+		info.add("Added");
 		info.add(addedDateTime);
-		info.add("Start Time");
+		info.add("Started");
 		info.add(startDateTime);
-		info.add("End Time");
+		info.add("Finished");
 		info.add(endDateTime);
 		info.add("Run Time");
 		info.add(Text.longTimeToDHMS(getRunTime()));
@@ -995,6 +995,11 @@ public class Batch
 	public boolean getEnabled()
 	{
 		return enabled;
+	}
+
+	public String getFinished()
+	{
+		return endDateTime;
 	}
 
 }
