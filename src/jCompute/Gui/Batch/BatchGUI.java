@@ -445,10 +445,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		/* Left */
 		splitPaneBatchInfo = new JSplitPane();
-		splitPaneBatchInfo.setOneTouchExpandable(true);
+		splitPaneBatchInfo.setOneTouchExpandable(false);
 		splitPaneBatchInfo.setContinuousLayout(true);
 		splitPaneBatchInfo.setResizeWeight(0.5);
-		splitPaneBatchInfo.setDividerSize(10);
+		splitPaneBatchInfo.setDividerSize(0);
 
 		/* Right Split */
 		
