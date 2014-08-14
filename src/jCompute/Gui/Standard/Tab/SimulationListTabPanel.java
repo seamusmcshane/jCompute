@@ -1,10 +1,10 @@
 package jCompute.Gui.Standard.Tab;
 
 import jCompute.JComputeEventBus;
+import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.GUITabManager;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
@@ -35,16 +35,14 @@ public class SimulationListTabPanel extends JPanel
 	
 	// References to the needed objects
 	private GUITabManager tabManager;
-	private SimulationsManagerInf simsManager;
 	
 	private int selectedRowIndex = -1;
-	
-	public SimulationListTabPanel(GUITabManager tabManager, SimulationsManagerInf simsManager) 
+
+	public SimulationListTabPanel(GUITabManager tabManager) 
 	{
 		super();
 		
 		this.tabManager = tabManager;
-		this.simsManager = simsManager;
 				
 		setLayout(new BorderLayout(0, 0));
 		
@@ -62,7 +60,7 @@ public class SimulationListTabPanel extends JPanel
 	 */
 	private void setUpTable()
 	{
-		table = new TablePanel("Simulation List",new String[]{"Sim Id","Status","Step No","Progress","Avg Sps","Run Time"}, true);
+		table = new TablePanel(ActiveSimulationRowItem.class,0,"Active Simulations",true,true);
 			
 		table.setColumWidth(0,65);
 		table.setColumWidth(1,50);
@@ -98,11 +96,9 @@ public class SimulationListTabPanel extends JPanel
 					if (e.getClickCount() == 2) 
 					{
 						// Get the String "Simulation (int)" and remove "Simulation "
-						String simId = ((String) table.getValueAt(selectedRowIndex, 0)).replace("Simulation ", "");
-
-						//System.out.println("Button " + e.getButton() + " Clicked " + row);
-
-						tabManager.displayTab(Integer.parseInt(simId));	
+						int simId = (int) table.getValueAt(selectedRowIndex, 0);
+						
+						tabManager.displayTab(simId);	
 
 					}
 				}
@@ -114,36 +110,6 @@ public class SimulationListTabPanel extends JPanel
 				}
 			}
 		});
-	}
-		
-	private void clearTable()
-	{
-		table.clearTable();
-	}
-	
-	private void addRow(String columnValues[])
-	{
-		table.addRow(columnValues);
-	}
-	
-	private void updateRow(String rowKey,String columnValues[])
-	{
-		table.updateRow(rowKey, columnValues);
-	}
-	
-	private void updateCells(String rowKey,int columns[], String columnValues[])
-	{
-		table.updateCells(rowKey,columns,columnValues);
-	}
-	
-	private void updateCell(String rowKey,int column, String columnValue)
-	{
-		table.updateCell(rowKey, column,columnValue);
-	}
-	
-	private void removeRow(String rowKey)
-	{
-		table.removeRow(rowKey);
 	}
 	
 	public String getTabName()
@@ -158,50 +124,19 @@ public class SimulationListTabPanel extends JPanel
 	@Subscribe
 	public void SimulationsManagerEvent(SimulationsManagerEvent e)
 	{
-		SimulationsManagerEventType type = e.getEventType();
+		final SimulationsManagerEventType type = e.getEventType();
 		final int simId = e.getSimId();
 		
-		// Getting access to simulationListTabPanel via this is not possible in the runnable
-		final SimulationListTabPanel simulationListTabPanel = this;
-		
 		if(type == SimulationsManagerEventType.AddedSim)
-		{			
-			
-		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
-		    {
-		        public void run() 
-		        {	
-		        	// Add the row
-		        	simulationListTabPanel.addRow(new String[] {"Simulation " + simId,"New", "0", "0","0","0"});
-		        	
-					// RegiserStateListener
-					//simsManager.addSimulationStateListener(simId, simulationListTabPanel);
-					
-					
-					// RegisterStatsListerner
-					//simsManager.addSimulationStatListener(simId, simulationListTabPanel);
-		        }
-		    });
+		{	
+			// Add a row
+			table.addRow(new ActiveSimulationRowItem(simId));
 			
 		}
 		else if(type == SimulationsManagerEventType.RemovedSim)
 		{					
-		    javax.swing.SwingUtilities.invokeLater(new Runnable() 
-		    {
-		        public void run() 
-		        {						
-		        	// UnRegisterStatsListerner
-		        	//simsManager.removeSimulationStatListener(simId, simulationListTabPanel);
-		        	
-					// UnRegisterStateListener
-					//simsManager.removeSimulationStateListener(simId, simulationListTabPanel);
-					
-					// Remove the Row
-					simulationListTabPanel.removeRow("Simulation " + simId);
-
-		        }
-		    });
-		    
+			// Remove the Row
+			table.removeRow(simId);		    
 		}
 		else
 		{
@@ -212,14 +147,20 @@ public class SimulationListTabPanel extends JPanel
 	@Subscribe
 	public void SimulationStatChanged(SimulationStatChangedEvent e)
 	{
-		updateCells("Simulation " + e.getSimId(), new int[]{2,3,4,5},new String[]{ Integer.toString(e.getStepNo()), Integer.toString(e.getProgress()), Integer.toString(e.getAsps()), jCompute.util.Text.longTimeToDHMS(e.getTime()) });	
+		table.updateCells(e.getSimId(), new int[]
+		{
+				2, 3, 4, 5
+		}, new Object[]
+		{
+				e.getStepNo(), e.getProgress(), e.getAsps(), e.getTime()
+		});
+		
 	}
 
 	@Subscribe
 	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{		
-		// Simulation State
-		updateCell("Simulation " + e.getSimId(), 1 , e.getState().toString());		
+		table.updateCell(e.getSimId(),1,  e.getState());
 	}
 	
 }

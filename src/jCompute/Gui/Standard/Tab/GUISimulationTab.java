@@ -2,7 +2,7 @@ package jCompute.Gui.Standard.Tab;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Gui.Charts.GlobalStatChartPanel;
+import jCompute.Gui.Component.GlobalStatChartPanel;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Gui.Standard.Listener.TabStatusChangedListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;

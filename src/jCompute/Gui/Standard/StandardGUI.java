@@ -38,7 +38,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 	private JFrame guiFrame;
 	
 	// SplitPane Container
-	JPanel containerPanel;
+	private JPanel containerPanel;
 		
 	// Split Pane
 	private JSplitPane splitPane;

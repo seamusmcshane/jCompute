@@ -73,7 +73,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		simulationTabs = new GUISimulationTab[maxTabs];
 	
 		/* The tab with the list of simulations */
-		simulationListTab = new SimulationListTabPanel(this,simsManager);
+		simulationListTab = new SimulationListTabPanel(this);
 		this.add(simulationListTab);
 		
 		this.setTitleAt(this.getTabCount()-1, simulationListTab.getTabName());
