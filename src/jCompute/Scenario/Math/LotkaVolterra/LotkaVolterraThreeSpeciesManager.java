@@ -45,7 +45,6 @@ public class LotkaVolterraThreeSpeciesManager implements LotkaVolterraSubTypeInf
 	private double predator_max_population;	
 	
 	private int t = 0;
-	//private int max_t = 10000;
 	
 	/* 0 - Euler, 1 - RK4 */
 	private int intMethod; 

@@ -350,7 +350,7 @@ public class SimpleAgentView
 	public void drawViews(GUISimulationView simView)
 	{
 		float lineWidth = 0.25f;
-		A2RGBA color = neutral;
+		A2RGBA color = null;
 		
 		// Highlight the View Type
 		setViewDrawMode(body.stats.getType().strongerThan(inViewAgentStats.getAgentType()));
@@ -364,6 +364,9 @@ public class SimpleAgentView
 					break;
 				case WEAKER :
 					color = weaker;			// The current Agent is Weaker i.e Prey 	
+					break;
+				case SAME :
+					color = neutral;;			// The current Agent is Weaker i.e Prey 	
 					break;
 			}
 		}		

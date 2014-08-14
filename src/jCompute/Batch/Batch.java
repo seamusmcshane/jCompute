@@ -1,6 +1,5 @@
 package jCompute.Batch;
 
-import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Debug.DebugLogger;
 import jCompute.Scenario.ScenarioInf;
@@ -10,13 +9,10 @@ import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.util.Text;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;

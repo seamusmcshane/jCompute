@@ -1,6 +1,5 @@
 package jCompute.Scenario.SAPP;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioVT;
 import jCompute.Scenario.SAPP.Plant.GenericPlantSetupSettings;

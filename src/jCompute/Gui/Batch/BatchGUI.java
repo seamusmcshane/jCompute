@@ -19,14 +19,11 @@ import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.PriorityIconRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
-import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
-import jCompute.Simulation.SimulationState.SimState;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,19 +34,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import java.awt.BorderLayout;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -71,8 +63,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JToolBar;
 import javax.swing.JButton;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 
 public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, BatchManagerEventListenerInf
 {
@@ -365,21 +355,16 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		toolBar.addSeparator();
 		
-		boolean showText = true;
-		
-		//if(showText)
-		{
-			btnStart.setText("Start");
-			btnPause.setText("Pause");
-			btnMoveForward.setText("Forward");
-			btnMoveBackward.setText("Backward");
-			btnMoveFirst.setText("First");
-			btnMoveLast.setText("Last");
+		btnStart.setText("Start");
+		btnPause.setText("Pause");
+		btnMoveForward.setText("Forward");
+		btnMoveBackward.setText("Backward");
+		btnMoveFirst.setText("First");
+		btnMoveLast.setText("Last");
 
-			btnHighpriority.setText("High Priority");
-			btnStandardpriority.setText("Standard Priority");
-			
-		}
+		btnHighpriority.setText("High Priority");
+		btnStandardpriority.setText("Standard Priority");
+
 		
 		JMenuBar menuBar = new JMenuBar();
 		guiFrame.setJMenuBar(menuBar);
@@ -869,8 +854,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		SimulationsManagerEventType type = e.getEventType();
 		int simId = e.getSimId();
 
-		BatchGUI batchGUI = this;
-
 		DebugLogger.output("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + " " + "(" + simId + ")");
 		
 		if(type == SimulationsManagerEventType.AddedSim)
@@ -879,22 +862,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 			// Add the row
 			activeSimulationsListTable.addRow(new ActiveSimulationRowItem(simId));
-			
-			// RegiserStateListener
-			//simsManager.addSimulationStateListener(simId, batchGUI);
-
-			// RegisterStatsListerner
-			// simsManager.addSimulationStatListener(simId, batchGUI);
 
 		}
 		else if(type == SimulationsManagerEventType.RemovedSim)
-		{	
-			// UnRegisterStatsListerner
-			//simsManager.removeSimulationStatListener(simId, batchGUI);
-
-			// UnRegisterStateListener
-			//simsManager.removeSimulationStateListener(simId, batchGUI);
-
+		{
 			DebugLogger.output("Removing Row for " + "Simulation " + simId);
 			// Remove the Row
 			activeSimulationsListTable.removeRow(simId);

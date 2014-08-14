@@ -1,7 +1,5 @@
 package jCompute.Gui.Component.TableCell;
 
-import jCompute.Batch.Batch.BatchPriority;
-
 import java.awt.Component;
 
 import javax.swing.ImageIcon;

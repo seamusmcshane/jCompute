@@ -289,16 +289,6 @@ public class SimpleAgentBody implements BodyInf
 	}
 	
 	/** 
-	 * Initializes The body. 
-	 */
-	private void initPlantBody(float size)
-	{
-		setSize(size);
-		
-		setColor(new A2RGBA(0f,1f,0f,0f));
-	}
-
-	/** 
 	 * Initial Cartesian X/Y Position 
 	 * @param pos Vector2f
 	 */
@@ -312,11 +302,6 @@ public class SimpleAgentBody implements BodyInf
 		this.size = size;
 
 		body = new A2DCircle(0, 0, size);
-	}
-	
-	private void setIntialPos(double pos[])
-	{
-		bodyPos = new A2DVector2f((float)pos[0], (float)pos[1]);
 	}
 	
 	/** 

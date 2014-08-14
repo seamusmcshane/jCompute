@@ -10,7 +10,6 @@ import jCompute.Scenario.Math.Mandelbrot.MandelbrotScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationScenarioManagerInf;
-import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;

@@ -2,8 +2,6 @@ package jCompute.Simulation.SimulationManager;
 
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
-import jCompute.Simulation.Event.SimulationStatChangedEvent;
-import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
 

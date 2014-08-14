@@ -11,9 +11,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
@@ -326,31 +323,6 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 		});
 	}
 	
-	/* Use the java provided system look and feel */
-	private void lookandFeel()
-	{
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (ClassNotFoundException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (InstantiationException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (IllegalAccessException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (UnsupportedLookAndFeelException e1)
-		{
-			e1.printStackTrace();
-		}
-	}
-
 	@Override
 	public void windowActivated(WindowEvent arg0)
 	{		
