@@ -182,7 +182,6 @@ public class TablePanel extends JPanel
 			
 			if(field.compareTo(rowKey) == 0)
 			{
-				System.out.println("Index " + i + " field " + field + " rowKey " + rowKey);
 				index =i;
 				break;
 			}
@@ -296,8 +295,6 @@ public class TablePanel extends JPanel
 		activeList.getReadWriteLock().writeLock().lock();
 		
 		int index = findRow(rowKey,indexColumn);
-		
-		System.out.println("indexindexindexindexindexindex " + index);
 		
 		if(index!=-1)
 		{
