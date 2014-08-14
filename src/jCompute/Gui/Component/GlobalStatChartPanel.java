@@ -1,4 +1,4 @@
-package jCompute.Gui.Charts;
+package jCompute.Gui.Component;
 
 import jCompute.Stats.SingleStat;
 import jCompute.Stats.StatGroupListenerInf;
