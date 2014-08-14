@@ -1,6 +1,7 @@
 package jCompute.Batch;
 
 import jCompute.Batch.Batch.BatchPriority;
+import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Debug.DebugLogger;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioVT;
@@ -25,9 +26,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
-public class Batch
+public class Batch implements StoredQueuePosition
 {
 	/* Batch Attributes */
+	private int position;
 	private int batchId;
 	private BatchPriority priority;
 	
@@ -909,6 +911,8 @@ public class Batch
 		info.add(priority.toString());
 		info.add("Enabled");
 		info.add(String.valueOf(enabled).toUpperCase());
+		info.add("Queue Position");
+		info.add(String.valueOf(position));
 
 		info.add("");
 		info.add("");
@@ -1000,6 +1004,16 @@ public class Batch
 	public String getFinished()
 	{
 		return endDateTime;
+	}
+
+	public int getPosition()
+	{
+		return position;
+	}
+	
+	public void setPosition(int position)
+	{
+		this.position = position;
 	}
 
 }

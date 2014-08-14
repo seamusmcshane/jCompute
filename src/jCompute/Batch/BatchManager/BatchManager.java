@@ -5,6 +5,7 @@ import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
+import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -33,8 +34,8 @@ public class BatchManager
 	private SimulationsManagerInf simsManager;
 
 	// The queues of batches
-	private ManagedBypassableQueue<Batch> fifoQueue;
-	private ManagedBypassableQueue<Batch> fairQueue;
+	private ManagedBypassableQueue fifoQueue;
+	private ManagedBypassableQueue fairQueue;
 	private LinkedList<Batch> stoppedBatches;
 	
 	private int fairQueueLast = 0;
@@ -58,9 +59,9 @@ public class BatchManager
 	{		
 		this.simsManager = simsManager;
 		
-		fifoQueue = new ManagedBypassableQueue<Batch>();
+		fifoQueue = new ManagedBypassableQueue();
 		
-		fairQueue = new ManagedBypassableQueue<Batch>();
+		fairQueue = new ManagedBypassableQueue();
 		
 		finishedBatches = new ArrayList<Batch>(16);
 		
@@ -175,7 +176,7 @@ public class BatchManager
 		DebugLogger.output("Schedule Fifo");
 		
 		// Get the first batch - FIFO
-		Batch batch = fifoQueue.peek();
+		Batch batch = (Batch) fifoQueue.peek();
 		
 		if(batch == null)
 		{
@@ -262,7 +263,7 @@ public class BatchManager
 		// Cycle over the batches and add one item from each to the run queue		
 		do
 		{
-			batch = fairQueue.get(pos);
+			batch = (Batch) fairQueue.get(pos);
 			
 			// Is this batch finished
 			if(batch.getCompleted() == batch.getBatchItems())
@@ -424,15 +425,15 @@ public class BatchManager
 	{
 		batchManagerLock.acquireUninterruptibly();
 		
-		Iterator<Batch> itr = fifoQueue.iterator();
+		Iterator<StoredQueuePosition> qitr = fifoQueue.iterator();
 		
 		Batch batch = null;
 		Batch tBatch = null;
 		
 		// Search Fifo Queue
-		while(itr.hasNext())
+		while(qitr.hasNext())
 		{
-			tBatch = itr.next();
+			tBatch = (Batch) qitr.next();
 			
 			if(tBatch.getBatchId() == batchId)
 			{
@@ -447,14 +448,14 @@ public class BatchManager
 		// Search fair queue
 		if(batch == null)
 		{
-			itr = fairQueue.iterator();
+			qitr = fairQueue.iterator();
 			
 			batch = null;
 			tBatch = null;
 			
-			while(itr.hasNext())
+			while(qitr.hasNext())
 			{
-				tBatch = itr.next();
+				tBatch = (Batch) qitr.next();
 				
 				if(tBatch.getBatchId() == batchId)
 				{
@@ -467,14 +468,17 @@ public class BatchManager
 			}	
 		}
 		
+		Iterator<Batch> litr;
+
+		
 		// Search finished batches
 		if(batch == null)
 		{
-			itr = finishedBatches.iterator();
+			litr = finishedBatches.iterator();
 
-			while(itr.hasNext())
+			while(litr.hasNext())
 			{
-				tBatch = itr.next();
+				tBatch = litr.next();
 				
 				if(tBatch.getBatchId() == batchId)
 				{
@@ -490,14 +494,14 @@ public class BatchManager
 		// Still Null? search stopped list
 		if(batch == null)
 		{
-			itr = stoppedBatches.iterator();
+			litr = stoppedBatches.iterator();
 			
 			batch = null;
 			tBatch = null;
 			
-			while(itr.hasNext())
+			while(litr.hasNext())
 			{
-				tBatch = itr.next();
+				tBatch = litr.next();
 				
 				if(tBatch.getBatchId() == batchId)
 				{
@@ -673,6 +677,9 @@ public class BatchManager
 		
 		batchManagerLock.acquireUninterruptibly();
 
+		Iterator<StoredQueuePosition> itr;
+		ManagedBypassableQueue queue = null;
+		
 		// if the batch is enabled switch the queue (as its not in one if not enabled)
 		if(batch.getEnabled() == true)
 		{
@@ -681,12 +688,18 @@ public class BatchManager
 				// Move to High (Standard to FIFO)
 				fairQueue.remove(batch);
 				fifoQueue.add(batch);
+				
+				queue = fifoQueue;
+
 			}
 			else
 			{
 				// Move To Standard (FIFO to Standard)
 				fifoQueue.remove(batch);			
 				fairQueue.add(batch);
+				
+				queue = fairQueue;
+
 			}
 
 		}
@@ -696,7 +709,72 @@ public class BatchManager
 			
 		batchManagerLock.release();
 		
-		batchManagerListenerBatchProgressNotification(batch);
+		Batch tBatch = null;
+		itr = queue.iterator();
+		
+		// Batch Orders Changed refresh all data 
+		while(itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+			
+			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}
 	}
 
+	public void moveToFront(int batchId)
+	{
+		Batch batch = findBatch(batchId);	
+
+		batchManagerLock.acquireUninterruptibly();
+
+		DebugLogger.output("Move " + batchId + " to front");
+		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		
+		Iterator<StoredQueuePosition> itr;
+		ManagedBypassableQueue queue = null;
+		
+		if(batch.getPriority() == BatchPriority.STANDARD)
+		{
+			fairQueue.moveToFront(batch);
+			
+			queue = fairQueue;
+		}
+		else
+		{
+			fifoQueue.moveToFront(batch);
+			
+			queue = fifoQueue;
+		}
+		
+		
+		// for the temp reference
+		Batch tBatch = null;
+		itr = queue.iterator();
+		
+		DebugLogger.output("queue " + queue.size());
+		
+		// Batch Orders Changed refresh all data 
+		while(itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+			
+			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}
+		
+		batchManagerLock.release();
+
+	}
+	
+	private void batchManagerListenerBatchQueueQueuePositionChanged(Batch batch)
+	{
+	    for (BatchManagerEventListenerInf listener : batchManagerListeners)
+	    {
+	    	listener.batchQueuePositionChanged(batch);
+	    }
+	}
+	
 }

@@ -1014,4 +1014,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}
 	}
 
+	@Override
+	public void batchQueuePositionChanged(final Batch batch)
+	{
+		
+		batchQueuedTable.updateRow(batch.getBatchId(),new BatchQueueRowItem(batch));
+		
+		DebugLogger.output("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
+
+	}
+	
 }
