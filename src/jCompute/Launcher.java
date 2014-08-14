@@ -5,13 +5,6 @@ import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Gui.Standard.StandardGUI;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Set;
 import javax.swing.UIManager;
@@ -30,7 +23,7 @@ public class Launcher
 	@SuppressWarnings("unused")
 	private static BatchGUI batchGUI;
 
-	// Command Line HasMap
+	// Command Line HashMap
 	private static HashMap<String, CommandLineArg> opts;
 
 	// Command Line HasMap - Defaults for faster look up
