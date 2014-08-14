@@ -32,9 +32,8 @@ public class Launcher
 	// Defaults ( option string, default value, option description
 	private static CommandLineArg defaultsList[] =
 	{
-			new CommandLineArg("mcs", "8","Max Concurrent Simulations"), new CommandLineArg("guiInt", "1", "Enable Disable Standard GUI (0/1)"), 
-			new CommandLineArg("batchInt", "0","Enable Disable Batch Interface (0/1)"), new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"),
-			new CommandLineArg("iTheme", "none","Icon Theme Name")
+			new CommandLineArg("mcs", "8","Max Concurrent Simulations"), new CommandLineArg("gui", "0", "Standard/Batch GUI (0/1)"),
+			new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"), new CommandLineArg("iTheme", "none","Icon Theme Name")
 	};
 	
 	public static void main(String args[])
@@ -89,13 +88,15 @@ public class Launcher
 		
 		lookandFeel();
 		
-		if(Integer.parseInt(opts.get("guiInt").getValue()) == 1)
+		int guiType = Integer.parseInt(opts.get("gui").getValue());
+		
+		if(guiType == 0)
 		{
 			/* Local Simulation Manager */			
 			standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 		}
 		
-		if(Integer.parseInt(opts.get("batchInt").getValue()) == 1)
+		if(guiType == 1)
 		{
 			/* Network Simulation Manager */			
 			//batchGUI = new BatchGUI(new NetworkSimulationsManager());
