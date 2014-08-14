@@ -1,5 +1,10 @@
 package jCompute.util;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class Text
 {
 	/**
@@ -18,4 +23,28 @@ public class Text
 		return String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec);	
 	}
 	
+	/**
+	 * Reads in a text file and converts it to a string.
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
+	public static String textFileToString(String filePath) throws IOException
+	{
+		StringBuilder destination = new StringBuilder();
+		BufferedReader bufferedReader;
+
+		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath),"ISO_8859_1"));
+		
+		String sCurrentLine;
+		
+		while ((sCurrentLine = bufferedReader.readLine()) != null)
+		{
+			destination.append(sCurrentLine);
+		}
+
+		bufferedReader.close();
+		
+		return destination.toString();		
+	}
 }

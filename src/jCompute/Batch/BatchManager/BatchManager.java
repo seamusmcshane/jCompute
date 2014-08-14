@@ -11,7 +11,10 @@ import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -87,35 +90,41 @@ public class BatchManager
 		},0,1000);
 	}
 	
-	public boolean addBatch(String fileName)
+	public boolean addBatch(String filePath)
 	{		
-		Batch tempBatch;
+		Batch tempBatch = null;
 		boolean added = false;
-		
-		// Try generating a batch and adding it to the queue.
-		try
-		{
-			batchManagerLock.acquireUninterruptibly();
 
-			tempBatch = new Batch(batchId,BatchPriority.STANDARD,fileName);
+		batchManagerLock.acquireUninterruptibly();
+
+		// Try generating a batch and adding it to the queue.
+		tempBatch = new Batch(batchId,BatchPriority.STANDARD);
 			
+		if(tempBatch.loadConfig(filePath))
+		{
 			fairQueue.add(tempBatch);
 			
 			added = true;
 			batchId++;
 			
 			batchManagerLock.release();
-			
+
 			batchManagerListenerBatchAddedNotification(tempBatch);
-			
 		}
-		catch (IOException e)
-		{			
+		else
+		{
+			batchManagerLock.release();
 
 			added = false;
 		}
-		
+
 		return added;
+	}
+	
+	private boolean validateConfigText(String configText)
+	{
+		
+		return false;
 	}
 	
 	private void schedule()

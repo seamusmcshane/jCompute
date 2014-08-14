@@ -1005,6 +1005,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			int progress = 0;
 			setProgress(0);
 
+			StringBuilder errorMessage = new StringBuilder();
+			
 			// Thread.sleep(1000);
 
 			for (File file : files)
@@ -1016,12 +1018,21 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				if (!batchManager.addBatch(batchFile))
 				{
 					DebugLogger.output("Error Creating Batch from : " + batchFile);
+					
+					errorMessage.append("Error Creating Batch from : " + batchFile + "\n");
 				}
 
 				progress += Math.ceil(progressInc);
 				setProgress(Math.min(progress, 100));
 			}
 
+			
+			if(errorMessage.length() > 0)
+			{
+				JOptionPane.showMessageDialog(guiFrame, errorMessage.toString());
+			}
+			
+			
 			return null;
 		}
 

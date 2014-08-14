@@ -79,7 +79,7 @@ public class Batch implements StoredQueuePosition
 	private int completed = 0;
 
 	// The Batch Configuration Text
-	private StringBuilder batchConfigText;
+	private String batchConfigText;
 	
 	// The Configuration Processor
 	private ScenarioVT batchConfigProcessor;
@@ -89,14 +89,11 @@ public class Batch implements StoredQueuePosition
 	private String basePath;
 	
 	// Base scenario text
-	private StringBuilder baseScenarioText;
-
-	// The Base scenario
-	private ScenarioInf baseScenario;
+	private String baseScenarioText;
 	
 	private Semaphore batchLock = new Semaphore(1, false);	
 	
-	public Batch(int batchId,BatchPriority priority,String filePath) throws IOException
+	public Batch(int batchId,BatchPriority priority)
 	{
 		completedItemRunTime = 0;
 		active = 0;
@@ -110,26 +107,36 @@ public class Batch implements StoredQueuePosition
 		this.batchId = batchId;
 		this.priority = priority;
 		
-		this.batchFileName = getFileName(filePath);
-		
-		queuedItems = new LinkedList<BatchItem>();
-			
+		// Datastructs
+		queuedItems = new LinkedList<BatchItem>();			
 		activeItems = new ArrayList<BatchItem>();
-		
 		completedItems = new ArrayList<BatchItem>();
 		
-		batchConfigText = new StringBuilder();
-		
-		basePath = getPath(filePath);
-		
-		DebugLogger.output("Base Path : " + basePath);	
-		
-		// Put the file text into the string builder
-		readFile(filePath,batchConfigText);
-		
+
+	}
+	
+	public boolean loadConfig(String filePath)
+	{
+		boolean status = true;
 		DebugLogger.output("New Batch based on : " + filePath);
-		
-		processBatchConfig(batchConfigText.toString());
+		this.batchFileName = getFileName(filePath);
+		DebugLogger.output("File : " + batchFileName);
+
+		try
+		{
+			basePath = getPath(filePath);
+			DebugLogger.output("Base Path : " + basePath);	
+
+			batchConfigText = jCompute.util.Text.textFileToString(filePath);
+
+			status = processBatchConfig(batchConfigText);			
+		}
+		catch (IOException e)
+		{
+			status = false;
+		}
+
+		return status;
 	}
 	
 	public String getFileName()
@@ -147,36 +154,69 @@ public class Batch implements StoredQueuePosition
 		return Paths.get(filePath).getParent().toString();
 	}
 
-	private void processBatchConfig(String fileText) throws IOException
+	/**
+	 * Processes and Validates the batch config text
+	 * @param fileText
+	 * @return
+	 * @throws IOException
+	 */
+	private boolean processBatchConfig(String fileText) throws IOException
 	{
+		boolean status = true;
+		
 		batchLock.acquireUninterruptibly();
 		
 		batchConfigProcessor = new ScenarioVT();
 		
-		batchConfigProcessor.loadConfig(batchConfigText.toString());
+		batchConfigProcessor.loadConfig(batchConfigText);
 		
-		batchConfigProcessor.dumpXML();
+		status = checkBatchFile();		
 		
-		setBatchDescription();
-
-		setBatchStatExportDir();
-		
-		setBaseFilePath(fileText);
-		
-		baseScenarioText = new StringBuilder();
-
-		readFile(baseScenaroFilePath,baseScenarioText);
+		if(status)
+		{
+			setBatchDescription();
+			setBatchStatExportDir();		
+			setBaseFilePath(fileText);
 			
-		baseScenario = determinScenarios(baseScenarioText.toString());		
+			baseScenarioText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
 				
-		type = baseScenario.getScenarioType();
-		DebugLogger.output(type);
+			ScenarioInf baseScenario = determinScenarios(baseScenarioText);		
+			
+			if(baseScenario!=null)
+			{
+				type = baseScenario.getScenarioType();
+				DebugLogger.output(type);
+				
+				generateCombos();
+			}
+			else
+			{
+				status = false;
+			}
+		}
+
+		batchLock.release();
 		
-		generateCombos();
-		
-		batchLock.release();		
+		return status;
 	}
 
+	private boolean checkBatchFile()
+	{
+		boolean status = true;
+		
+		if(!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch") )
+		{
+			status = false;
+		}
+		else
+		{
+			DebugLogger.output("Invalid Batch File");
+			batchConfigProcessor.dumpXML();
+		}
+		
+		return status;
+	}
+	
 	private void startBatchLog(int numCordinates)
 	{
 		try
@@ -295,23 +335,6 @@ public class Batch implements StoredQueuePosition
 		baseScenaroFilePath = basePath + File.separator + baseScenarioFileName;
 		
 		DebugLogger.output("Base Scenario File : " + baseScenaroFilePath);
-	}
-	
-	private void readFile(String fileName, StringBuilder destination) throws IOException
-	{
-		BufferedReader bufferedReader;
-
-		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName),"ISO_8859_1"));
-		
-		String sCurrentLine;
-		
-		while ((sCurrentLine = bufferedReader.readLine()) != null)
-		{
-			destination.append(sCurrentLine);
-		}
-
-		bufferedReader.close();
-		
 	}
 	
 	private ScenarioInf determinScenarios(String text)
@@ -480,7 +503,7 @@ public class Batch implements StoredQueuePosition
 		{
 			// Create a copy of the base scenario
 			temp = new ScenarioVT();
-			temp.loadConfig(baseScenarioText.toString());
+			temp.loadConfig(baseScenarioText);
 			
 			// Start of log line + itemName
 			DebugLogger.outputString("Combo : " + combo);
