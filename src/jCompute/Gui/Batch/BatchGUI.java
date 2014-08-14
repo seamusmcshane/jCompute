@@ -988,7 +988,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		private File[] files;
 
 		private float progressInc;
-
+		private int loaded = 0;
+		private int error = 0;
+		
 		public OpenBatchFileTask(File[] files)
 		{
 			this.files = files;
@@ -1019,19 +1021,31 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				{
 					DebugLogger.output("Error Creating Batch from : " + batchFile);
 					
-					errorMessage.append("Error Creating Batch from : " + batchFile + "\n");
-				}
+					
+					if(error == 0)
+					{
+						errorMessage.append("Error Creating Batch(s) from - \n");
+						
+					}
 
+					errorMessage.append(error + " " + batchFile + "\n");
+					
+					error++;
+				}
+				else
+				{
+					loaded++;
+				}
+				
 				progress += Math.ceil(progressInc);
 				setProgress(Math.min(progress, 100));
 			}
 
 			
-			if(errorMessage.length() > 0)
+			if(error > 0)
 			{
 				JOptionPane.showMessageDialog(guiFrame, errorMessage.toString());
 			}
-			
 			
 			return null;
 		}
@@ -1039,7 +1053,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		@Override
 		public void done()
 		{
-			DebugLogger.output(files.length + " Batch Files were loaded");
+			DebugLogger.output(loaded + " Batch Files were loaded");
+			DebugLogger.output(error + " Batch Files were NOT loaded!");
 		}
 	}
 
