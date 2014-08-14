@@ -1,19 +1,21 @@
 package jCompute.Datastruct.List;
 
+import jCompute.Datastruct.List.Interface.StoredQueuePosition;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
+public class ManagedBypassableQueue implements Iterable
 {
-	private ArrayList<Datatype> baseList;
+	private ArrayList<StoredQueuePosition> baseList;
 
 	/**
 	 * Creates a managed bypassable queue
 	 */
 	public ManagedBypassableQueue()
 	{
-		baseList = new ArrayList<Datatype>();
+		baseList = new ArrayList<StoredQueuePosition>();
 	}
 
 	/**
@@ -22,7 +24,7 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 */
 	public ManagedBypassableQueue(int intialSize)
 	{
-		baseList = new ArrayList<Datatype>(intialSize);
+		baseList = new ArrayList<StoredQueuePosition>(intialSize);
 	}
 
 	/**
@@ -30,7 +32,7 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * 
 	 * @param object
 	 */
-	public synchronized void add(Datatype object)
+	public synchronized void add(StoredQueuePosition object)
 	{
 		if(object == null)
 		{
@@ -38,6 +40,9 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 		}
 		
 		baseList.add(object);
+		
+		// 1 indexed
+		object.setPosition(baseList.size());
 	}
 
 	/**
@@ -47,16 +52,16 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * @param object
 	 * @param insertPosition
 	 */
-	public synchronized void insert(Datatype object, int insertPosition)
+	public synchronized void insert(StoredQueuePosition object, int insertPosition)
 	{
 		if(object == null)
 		{
 			 throw new NullPointerException("Attempted to add insert object to ManagedBypassableQueue at position " + insertPosition);
 		}
 		
-		ArrayList<Datatype> baseListTemp = new ArrayList<Datatype>(baseList.size() * 2);
-		Iterator<Datatype> itr = baseList.iterator();
-		Datatype temp = null;
+		ArrayList<StoredQueuePosition> baseListTemp = new ArrayList<StoredQueuePosition>(baseList.size() * 2);
+		Iterator<StoredQueuePosition> itr = baseList.iterator();
+		StoredQueuePosition temp = null;
 		int index = 0;
 
 		boolean inserted = false;
@@ -67,7 +72,9 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 			if (index == insertPosition)
 			{
 				baseListTemp.add(object);
-
+				
+				// Set queue position
+				object.setPosition(baseListTemp.size());
 				inserted = true;
 			}
 
@@ -78,9 +85,13 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 			index++;
 		}
 
+		// Add at the end
 		if (!inserted)
 		{
 			baseListTemp.add(object);
+			
+			// Update queue position
+			object.setPosition(baseListTemp.size());
 		}
 
 		baseList = baseListTemp;
@@ -92,9 +103,9 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * 
 	 * @return
 	 */
-	public synchronized Datatype peek()
+	public synchronized StoredQueuePosition peek()
 	{
-		Datatype first = null;
+		StoredQueuePosition first = null;
 
 		if (baseList.size() > 0)
 		{
@@ -109,21 +120,24 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * 
 	 * @return
 	 */
-	public synchronized Datatype poll()
+	public synchronized StoredQueuePosition poll()
 	{
-		Datatype first = null;
+		StoredQueuePosition first = null;
 
 		if (baseList.size() > 0)
 		{
 			first = baseList.remove(0);
 		}
 
+		// Refresh queue positions as an object has been removed
+		updateQueuePositions();
+
 		return first;
 	}
 
-	public synchronized Datatype get(int pos)
+	public synchronized StoredQueuePosition get(int pos)
 	{
-		Datatype temp = null;
+		StoredQueuePosition temp = null;
 
 		if (pos >= 0 && pos < baseList.size())
 		{
@@ -133,20 +147,47 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 		return temp;
 	}
 
+	private void updateQueuePositions()
+	{
+		Iterator<StoredQueuePosition> itr = baseList.iterator();
+		StoredQueuePosition temp = null;
+
+		// Refresh queue positions as an object has been removed
+		int index=1;
+		while (itr.hasNext())
+		{
+
+			temp = itr.next();
+			
+			temp.setPosition(index);
+
+			index++;
+		}
+	}
+	
 	/**
 	 * Removes the object from the queue
 	 * 
 	 * @param object
 	 * @return
 	 */
-	public synchronized boolean remove(Datatype object)
+	public synchronized boolean remove(StoredQueuePosition object)
 	{
 		if(object == null)
 		{
 			 throw new NullPointerException("Attempted to remove null  from ManagedBypassableQueue");
 		}
 		
-		return baseList.remove(object);
+		boolean removed =  baseList.remove(object);
+		
+		
+		if(removed)
+		{
+			updateQueuePositions();
+		}
+
+		
+		return removed;
 	}
 	
 	/**
@@ -155,9 +196,13 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * @param object
 	 * @return
 	 */
-	public synchronized Datatype remove(int position)
+	public synchronized StoredQueuePosition remove(int position)
 	{		
-		return baseList.remove(position);
+		StoredQueuePosition object = baseList.remove(position);
+		
+		updateQueuePositions();
+		
+		return object;
 	}
 
 	/**
@@ -165,7 +210,7 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * 
 	 * @param object
 	 */
-	public synchronized void moveForward(Datatype object)
+	public synchronized void moveForward(StoredQueuePosition object)
 	{
 		if(object == null)
 		{
@@ -192,14 +237,51 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 		// Swap this object with the one in front of it
 		Collections.swap(baseList, currentPosition, newPosition);
 
+		updateQueuePositions();
 	}
 
+	/**
+	 * Moves the object to the front of the queue if it is possible.
+	 * 
+	 * @param object
+	 */
+	public synchronized void moveToFront(StoredQueuePosition object)
+	{
+		if(object == null)
+		{
+			 throw new NullPointerException("Attempted to move null  object forward in ManagedBypassableQueue");
+		}
+		
+		// Cannot move objects forward in queue with 0 or 1 objects
+		if (baseList.size() < 2)
+		{
+			return;
+		}
+
+		int currentPosition = findPosition(object);
+
+		// Invalid object or already at front
+		if (currentPosition == -1 || currentPosition == 0)
+		{
+			return;
+		}
+
+
+		// Remove the object from its current position
+		baseList.remove(object);
+		
+		// Insert the object at the front
+		baseList.add(0, object);
+		
+		updateQueuePositions();		
+	}
+	
 	/**
 	 * Moves the object backward in the queue if it is possible.
 	 * 
 	 * @param object
 	 */
-	public synchronized void moveBackward(Datatype object)
+	public synchronized void moveBackward(StoredQueuePosition object)
 	{
 		if(object == null)
 		{
@@ -225,7 +307,8 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 
 		// Swap this object with the one in front of it
 		Collections.swap(baseList, currentPosition, newPosition);
-
+		
+		updateQueuePositions();
 	}
 
 	/**
@@ -233,12 +316,12 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	 * 
 	 * @param object
 	 */
-	private int findPosition(Datatype object)
+	private int findPosition(StoredQueuePosition object)
 	{
 		int position = -1;
 		int index = 0;
-		Iterator<Datatype> itr = baseList.iterator();
-		Datatype temp = null;
+		Iterator<StoredQueuePosition> itr = baseList.iterator();
+		StoredQueuePosition temp = null;
 
 		while (itr.hasNext())
 		{
@@ -257,27 +340,16 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	}
 
 	/**
-	 * Returns the position of the object in the queue
-	 * 
-	 * @param object
-	 * @return
-	 */
-	public synchronized int getQueuePosition(Datatype object)
-	{
-		return findPosition(object);
-	}
-
-	/**
 	 * Searches the queue for the object and returns it if found.
 	 * 
 	 * @param object
 	 * @return
 	 */
-	public synchronized Datatype searchObject(Datatype object)
+	public synchronized StoredQueuePosition searchObject(StoredQueuePosition object)
 	{
-		Datatype temp = null;
+		StoredQueuePosition temp = null;
 
-		Iterator<Datatype> itr = baseList.iterator();
+		Iterator<StoredQueuePosition> itr = baseList.iterator();
 
 		while (itr.hasNext())
 		{
@@ -303,9 +375,9 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 	}
 
 	@Override
-	public Iterator<Datatype> iterator()
+	public Iterator<StoredQueuePosition> iterator()
 	{
-		Iterator<Datatype> itr = new Iterator<Datatype>()
+		Iterator<StoredQueuePosition> itr = new Iterator<StoredQueuePosition>()
 		{
 			private int index = 0;
 
@@ -316,7 +388,7 @@ public class ManagedBypassableQueue<Datatype> implements Iterable<Datatype>
 			}
 
 			@Override
-			public Datatype next()
+			public StoredQueuePosition next()
 			{
 				return baseList.get(index++);
 			}
