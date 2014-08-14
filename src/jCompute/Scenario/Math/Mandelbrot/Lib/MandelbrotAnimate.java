@@ -267,7 +267,7 @@ public class MandelbrotAnimate
 	
 	public static boolean animateSingleStep(MandelbrotKernelInterface kernel,double startX, double startY, MandelbrotCoordinate coordinates, double tX, double tY, int iterations)
 	{
-		if(coordinates.getCoordinateX()!=tX && coordinates.getCoordinateY()!=tY)
+		if(coordinates.getCoordinateX()!=tX || coordinates.getCoordinateY()!=tY)
 		{
 			recenterSingle(kernel,startX, startY,coordinates, tX, tY, iterations, 30);
 		}

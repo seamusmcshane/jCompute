@@ -23,6 +23,12 @@
 			<EndZoom>150</EndZoom>
 		</Coordinate>
 		<Coordinate>
+			<X>-0.75</X>
+			<Y>0.0</Y>
+			<StartZoom>150</StartZoom>
+			<EndZoom>1000000</EndZoom>
+		</Coordinate>
+		<Coordinate>
 			<X>-1.253443750</X>
 			<Y>0.046686300005</Y>
 			<StartZoom>150</StartZoom>
