@@ -21,7 +21,7 @@ public class BooleanIconRenderer extends DefaultTableCellRenderer
     
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		boolean boolValue = Boolean.valueOf((String)value);
+		boolean boolValue = (boolean)value;
 		
 		this.setHorizontalAlignment(JLabel.CENTER);
 		

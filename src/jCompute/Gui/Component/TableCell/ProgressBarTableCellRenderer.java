@@ -34,7 +34,7 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 			pb.setBG(table.getBackground());
 		}
 		
-		pb.setProgress(Integer.parseInt((String) value));
+		pb.setProgress((int)value);
 		return pb;
 	}
 }

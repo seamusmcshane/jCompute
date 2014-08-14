@@ -1,5 +1,7 @@
 package jCompute.Gui.Component.TableCell;
 
+import jCompute.Batch.Batch.BatchPriority;
+
 import java.awt.Component;
 
 import javax.swing.ImageIcon;
@@ -21,7 +23,7 @@ public class PriorityIconRenderer  extends DefaultTableCellRenderer
     
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		String priority = (String)value;
+		String priority = (String)value.toString();
 		
 		this.setHorizontalAlignment(JLabel.CENTER);		
 		
