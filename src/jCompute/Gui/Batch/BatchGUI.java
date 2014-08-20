@@ -276,6 +276,28 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		toolBar.add(btnAdd);
 		
 		btnRemove = new JButton("Remove");
+		btnRemove.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+			
+				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
+				{
+					queuedSelectedBatchRowIndex = 0;
+					
+					// invalid row selected
+					return;
+				}
+				
+				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
+								
+				clearQueuedSelection();
+				
+				batchQueuedTable.removeRow(batchId);
+				batchManager.removeBatch(batchId);
+				
+			}
+		});
 		btnRemove.setIcon(IconManager.getIcon("removeBatch"));
 		toolBar.add(btnRemove);
 		btnStart.setIcon(IconManager.getIcon("simRunningIcon"));

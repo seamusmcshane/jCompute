@@ -121,9 +121,6 @@ public class BatchManager
 	{
 		DebugLogger.output("BatchManager Schedule Tick");
 		
-		//simsManager.removeSimulationStateListener(item.getSimId(), this);
-		//simsManager.removeSimulation(item.getSimId());
-		
 		itemsLock.acquireUninterruptibly();
 		
 		Iterator<BatchItem> itr = completeItems.iterator();
@@ -137,7 +134,6 @@ public class BatchManager
 			
 			DebugLogger.output("Going to remove sim " + item.getSimId());
 			
-			//simsManager.removeSimulationStateListener(item.getSimId(), batchManager);
 			simsManager.removeSimulation(item.getSimId());
 			
 			DebugLogger.output(i + " Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
@@ -347,8 +343,6 @@ public class BatchManager
 			
 			batchManagerLock.release();
 			
-			//simsManager.addSimulationStateListener(simId, batchManager);
-			
 			itemsLock.acquireUninterruptibly();
 				activeItems.add(item);
 			itemsLock.release();
@@ -385,14 +379,19 @@ public class BatchManager
 
 				Batch batch = findBatch(item.getBatchId());				
 
-				DebugLogger.output("GOT Batch " + batch.getBatchId());
+				if(batch != null)
+				{
+					DebugLogger.output("GOT Batch " + batch.getBatchId());
 
-				// Updates Logs/Exports Stats
-				batch.setComplete(simsManager,item);	
-				
-				//simsManager.removeSimulationStateListener(item.getSimId(), this);
-				//simsManager.removeSimulation(item.getSimId());
-				
+					// Updates Logs/Exports Stats
+					batch.setComplete(simsManager,item);	
+					
+				}
+				else
+				{
+					DebugLogger.output("Simulation Event for NULL batch " + item.getBatchId());
+				}
+
 				itemsLock.acquireUninterruptibly();
 				
 				DebugLogger.output(">>>> [BM] simulationStateChanged ("+simId+") - item("+item.getItemId()+")");
@@ -402,7 +401,10 @@ public class BatchManager
 				
 				itemsLock.release();
 				
-				batchManagerListenerBatchProgressNotification(batch);
+				if(batch != null)
+				{
+					batchManagerListenerBatchProgressNotification(batch);
+				}
 
 				
 			break;
@@ -910,6 +912,39 @@ public class BatchManager
 	    {
 	    	listener.batchQueuePositionChanged(batch);
 	    }
+	}
+
+	public void removeBatch(int batchId)
+	{
+		Batch batch = findBatch(batchId);	
+		
+		batchManagerLock.acquireUninterruptibly();
+
+		boolean enabled = batch.getEnabled();
+
+		// Remove batch from one of the queues
+		if(enabled)
+		{
+			// In Fifo
+			if(batch.getPriority() == BatchPriority.HIGH)
+			{
+				fifoQueue.remove(batch);
+			}
+			else
+			{
+				// In Fair
+				fairQueue.remove(batch);
+			}
+			
+		}
+		else
+		{
+			// The batch was stoped
+			stoppedBatches.remove(batch);
+		}
+		
+		batchManagerLock.release();
+		
 	}
 
 }
