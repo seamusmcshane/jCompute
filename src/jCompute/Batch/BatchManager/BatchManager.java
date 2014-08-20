@@ -117,12 +117,6 @@ public class BatchManager
 		return added;
 	}
 	
-	private boolean validateConfigText(String configText)
-	{
-		
-		return false;
-	}
-	
 	private void schedule()
 	{
 		DebugLogger.output("BatchManager Schedule Tick");
@@ -774,6 +768,142 @@ public class BatchManager
 
 	}
 	
+	public void moveToEnd(int batchId)
+	{
+
+		Batch batch = findBatch(batchId);	
+
+		batchManagerLock.acquireUninterruptibly();
+
+		DebugLogger.output("Move " + batchId + " to end");
+		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		
+		Iterator<StoredQueuePosition> itr;
+		ManagedBypassableQueue queue = null;
+		
+		if(batch.getPriority() == BatchPriority.STANDARD)
+		{
+			fairQueue.moveToEnd(batch);
+			
+			queue = fairQueue;
+		}
+		else
+		{
+			fifoQueue.moveToEnd(batch);
+			
+			queue = fifoQueue;
+		}
+		
+		// for the temp reference
+		Batch tBatch = null;
+		itr = queue.iterator();
+		
+		DebugLogger.output("queue " + queue.size());
+		
+		// Batch Orders Changed refresh all data 
+		while(itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+			
+			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}
+		
+		batchManagerLock.release();	
+		
+	}
+	
+	public void moveForward(int batchId)
+	{
+		Batch batch = findBatch(batchId);	
+
+		batchManagerLock.acquireUninterruptibly();
+
+		DebugLogger.output("Move " + batchId + " to front");
+		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		
+		Iterator<StoredQueuePosition> itr;
+		ManagedBypassableQueue queue = null;
+		
+		if(batch.getPriority() == BatchPriority.STANDARD)
+		{
+			fairQueue.moveForward(batch);
+			
+			queue = fairQueue;
+		}
+		else
+		{
+			fifoQueue.moveForward(batch);
+			
+			queue = fifoQueue;
+		}
+		
+		
+		// for the temp reference
+		Batch tBatch = null;
+		itr = queue.iterator();
+		
+		DebugLogger.output("queue " + queue.size());
+		
+		// Batch Orders Changed refresh all data 
+		while(itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+			
+			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}
+		
+		batchManagerLock.release();
+	}
+	
+	public void moveBackward(int batchId)
+	{
+		Batch batch = findBatch(batchId);	
+
+		batchManagerLock.acquireUninterruptibly();
+
+		DebugLogger.output("Move " + batchId + " to front");
+		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		
+		Iterator<StoredQueuePosition> itr;
+		ManagedBypassableQueue queue = null;
+		
+		if(batch.getPriority() == BatchPriority.STANDARD)
+		{
+			fairQueue.moveBackward(batch);
+			
+			queue = fairQueue;
+		}
+		else
+		{
+			fifoQueue.moveBackward(batch);
+			
+			queue = fifoQueue;
+		}
+		
+		
+		// for the temp reference
+		Batch tBatch = null;
+		itr = queue.iterator();
+		
+		DebugLogger.output("queue " + queue.size());
+		
+		// Batch Orders Changed refresh all data 
+		while(itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+			
+			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}
+		
+		batchManagerLock.release();
+	}
+
 	private void batchManagerListenerBatchQueueQueuePositionChanged(Batch batch)
 	{
 	    for (BatchManagerEventListenerInf listener : batchManagerListeners)
@@ -781,5 +911,5 @@ public class BatchManager
 	    	listener.batchQueuePositionChanged(batch);
 	    }
 	}
-	
+
 }

@@ -249,7 +249,7 @@ public class ManagedBypassableQueue implements Iterable<StoredQueuePosition>
 	{
 		if(object == null)
 		{
-			 throw new NullPointerException("Attempted to move null  object forward in ManagedBypassableQueue");
+			 throw new NullPointerException("Attempted to move null  object to front in ManagedBypassableQueue");
 		}
 		
 		// Cannot move objects forward in queue with 0 or 1 objects
@@ -274,6 +274,37 @@ public class ManagedBypassableQueue implements Iterable<StoredQueuePosition>
 		baseList.add(0, object);
 		
 		updateQueuePositions();		
+	}
+	
+	public synchronized void moveToEnd(StoredQueuePosition object)
+	{
+		if(object == null)
+		{
+			 throw new NullPointerException("Attempted to move null  object to end in ManagedBypassableQueue");
+		}
+		
+		// Cannot move objects back in queue with 0 or 1 objects
+		if (baseList.size() < 2)
+		{
+			return;
+		}
+
+		int currentPosition = findPosition(object);
+
+		// Invalid object or already at front
+		if (currentPosition == -1 || currentPosition == (baseList.size()-1))
+		{
+			return;
+		}
+
+
+		// Remove the object from its current position
+		baseList.remove(object);
+		
+		// Insert the object at the end
+		baseList.add(object);
+		
+		updateQueuePositions();
 	}
 	
 	/**
@@ -407,5 +438,5 @@ public class ManagedBypassableQueue implements Iterable<StoredQueuePosition>
 		};
 		return itr;
 	}
-
+	
 }

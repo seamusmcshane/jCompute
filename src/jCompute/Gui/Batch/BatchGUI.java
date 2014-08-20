@@ -68,10 +68,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 {
 	// Batch Manager
 	private BatchManager batchManager;
-
-	// Simulations Manager
-	private SimulationsManagerInf simsManager;
-
+	
 	// Main Frame
 	private JFrame guiFrame;
 
@@ -121,9 +118,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	private JButton btnHighpriority;
 	private JButton btnStandardpriority;
 	
-	// Batch Info Table Columns
-	private int batchInfoTabTableIndexColumn = 0;
-	
 	// Queue Table Positions
 	private int positionColumn = 0;
 	private int idColumn = 1;
@@ -136,8 +130,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
-		this.simsManager = simsManager;
-
 		batchManager = new BatchManager(simsManager);
 
 		setUpFrame();
@@ -273,14 +265,86 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		toolBar.addSeparator();
 		
 		btnMoveLast = new JButton();
+		btnMoveLast.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
+				{
+					queuedSelectedBatchRowIndex = 0;
+					
+					// invalid row selected
+					return;
+				}
+				
+				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
+				
+				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToEnd...");
+				
+				batchManager.moveToEnd(batchId);
+				
+				queuedSelectedBatchRowIndex = batchQueuedTable.getRowsCount()-1;
+				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
+				
+				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
+
+			}
+		});
 		btnMoveLast.setIcon(IconManager.getIcon("moveToBack"));
 		toolBar.add(btnMoveLast);
 		
 		btnMoveBackward = new JButton();
+		btnMoveBackward.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
+				{
+					queuedSelectedBatchRowIndex = 0;
+					
+					// invalid row selected
+					return;
+				}
+				
+				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
+				
+				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToBack...");
+				
+				batchManager.moveBackward(batchId);	
+				
+				queuedSelectedBatchRowIndex = queuedSelectedBatchRowIndex+1;
+				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
+				
+				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
+
+			}
+		});
 		btnMoveBackward.setIcon(IconManager.getIcon("moveBackward"));
 		toolBar.add(btnMoveBackward);
 		
 		btnMoveForward = new JButton();
+		btnMoveForward.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
+				{
+					queuedSelectedBatchRowIndex = 0;
+					
+					// invalid row selected
+					return;
+				}
+				
+				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
+				
+				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
+				
+				batchManager.moveForward(batchId);	
+				
+				queuedSelectedBatchRowIndex = queuedSelectedBatchRowIndex-1;
+				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
+			}
+		});
 		btnMoveForward.setIcon(IconManager.getIcon("moveForward"));
 		toolBar.add(btnMoveForward);
 		
@@ -303,7 +367,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				
 				batchManager.moveToFront(batchId);
 				
-				//batchQueuedTable.clearSelection();
+				queuedSelectedBatchRowIndex = 0;
+				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
+				
+				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
+
 			}
 		});
 		btnMoveFirst.setIcon(IconManager.getIcon("moveToFront"));

@@ -324,4 +324,9 @@ public class TablePanel extends JPanel
 	{
 		return table;
 	}
+
+	public void setSelection(int row,int column)
+	{
+			table.changeSelection(row, column, false, false);
+	}
 }
