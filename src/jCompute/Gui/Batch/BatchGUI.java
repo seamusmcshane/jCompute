@@ -71,9 +71,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	
 	// Main Frame
 	private JFrame guiFrame;
-
-	// File Menu Items
-	private JMenuItem mntmOpenBatch;
 	private JMenuItem mntmQuit;
 
 	// Container Split Pane
@@ -127,6 +124,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	private int progressColumn = 5;
 	private int estimatedTimeColumn = 6;
 	private int batchQueueIndexColumn = idColumn;
+	private JButton btnAdd;
+	private JButton btnRemove;
 	
 	public BatchGUI(SimulationsManagerInf simsManager)
 	{
@@ -238,6 +237,47 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				batchManager.setEnabled(batchId,true);				
 			}
 		});
+		
+		btnAdd = new JButton("Add");
+		btnAdd.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+
+				filechooser.setMultiSelectionEnabled(true);
+
+				DebugLogger.output("Batch Open Dialog");
+
+				int val = filechooser.showOpenDialog(filechooser);
+
+				if (val == JFileChooser.APPROVE_OPTION)
+				{
+					DebugLogger.output("New Batch Choosen");
+
+					File[] files = filechooser.getSelectedFiles();
+
+					openBatchProgressMonitor = new ProgressMonitor(guiFrame, "Loading BatchFiles", "", 0, 100);
+
+					openBatchProgressMonitor.setMillisToDecideToPopup(0);
+					openBatchProgressMonitor.setMillisToPopup(0);
+					openBatchProgressMonitor.setProgress(0);
+
+					openBatchProgressMonitorTask = new OpenBatchFileTask(files);
+
+					openBatchProgressMonitorTask.addPropertyChangeListener(BatchGUI.this);
+
+					openBatchProgressMonitorTask.execute();
+					
+				}
+			}
+		});
+		btnAdd.setIcon(IconManager.getIcon("addBatch"));
+		toolBar.add(btnAdd);
+		
+		btnRemove = new JButton("Remove");
+		btnRemove.setIcon(IconManager.getIcon("removeBatch"));
+		toolBar.add(btnRemove);
 		btnStart.setIcon(IconManager.getIcon("simRunningIcon"));
 		toolBar.add(btnStart);
 		
@@ -439,10 +479,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 		JMenu mnFileMenu = new JMenu("File");
 		menuBar.add(mnFileMenu);
-
-		mntmOpenBatch = new JMenuItem("Open Batch");
-		mntmOpenBatch.addActionListener(this);
-		mnFileMenu.add(mntmOpenBatch);
 
 		mntmQuit = new JMenuItem("Quit");
 		mnFileMenu.add(mntmQuit);
@@ -844,41 +880,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if (e.getSource() == mntmOpenBatch)
-		{
-			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
-
-			filechooser.setMultiSelectionEnabled(true);
-
-			DebugLogger.output("Batch Open Dialog");
-
-			int val = filechooser.showOpenDialog(filechooser);
-
-			if (val == JFileChooser.APPROVE_OPTION)
-			{
-				DebugLogger.output("New Batch Choosen");
-
-				File[] files = filechooser.getSelectedFiles();
-
-				openBatchProgressMonitor = new ProgressMonitor(guiFrame, "Loading BatchFiles", "", 0, 100);
-
-				openBatchProgressMonitor.setMillisToDecideToPopup(0);
-				openBatchProgressMonitor.setMillisToPopup(0);
-				openBatchProgressMonitor.setProgress(0);
-
-				openBatchProgressMonitorTask = new OpenBatchFileTask(files);
-
-				openBatchProgressMonitorTask.addPropertyChangeListener(this);
-
-				openBatchProgressMonitorTask.execute();
-				
-			}
-		}
 		if (e.getSource() == mntmQuit)
 		{
 			doProgramExit();
 		}
-
 	}
 	
 	/* Ensure the user wants to exit then exit the program */
