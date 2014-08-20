@@ -126,10 +126,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	private int batchQueueIndexColumn = idColumn;
 	private JButton btnAdd;
 	private JButton btnRemove;
+	private boolean buttonText = true;
 	
-	public BatchGUI(SimulationsManagerInf simsManager)
+	public BatchGUI(SimulationsManagerInf simsManager, boolean buttonText)
 	{
 		batchManager = new BatchManager(simsManager);
+		
+		this.buttonText = buttonText;
 
 		setUpFrame();
 		
@@ -238,7 +241,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			}
 		});
 		
-		btnAdd = new JButton("Add");
+		btnAdd = new JButton();
 		btnAdd.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -275,7 +278,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		btnAdd.setIcon(IconManager.getIcon("addBatch"));
 		toolBar.add(btnAdd);
 		
-		btnRemove = new JButton("Remove");
+		btnRemove = new JButton();
 		btnRemove.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -300,6 +303,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		});
 		btnRemove.setIcon(IconManager.getIcon("removeBatch"));
 		toolBar.add(btnRemove);
+		toolBar.addSeparator();
+
 		btnStart.setIcon(IconManager.getIcon("simRunningIcon"));
 		toolBar.add(btnStart);
 		
@@ -485,17 +490,22 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		
 		toolBar.addSeparator();
 		
-		btnStart.setText("Start");
-		btnPause.setText("Pause");
-		btnMoveForward.setText("Forward");
-		btnMoveBackward.setText("Backward");
-		btnMoveFirst.setText("First");
-		btnMoveLast.setText("Last");
-
-		btnHighpriority.setText("High Priority");
-		btnStandardpriority.setText("Standard Priority");
-
 		
+		if(buttonText)
+		{
+			btnAdd.setText("Add");
+			btnRemove.setText("Remove");
+			btnStart.setText("Start");
+			btnPause.setText("Pause");
+			btnMoveForward.setText("Forward");
+			btnMoveBackward.setText("Backward");
+			btnMoveFirst.setText("First");
+			btnMoveLast.setText("Last");
+
+			btnHighpriority.setText("High");
+			btnStandardpriority.setText("Standard");
+		}
+
 		JMenuBar menuBar = new JMenuBar();
 		guiFrame.setJMenuBar(menuBar);
 
@@ -511,22 +521,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 		/* Display */
 		guiFrame.setVisible(true);
-		
-		//batchQueuedTable.addRow(new BatchQueueRowItem());
-		//batchQueuedTable.addRow(new BatchQueueRowItem(1, 2, "a", BatchPriority.STANDARD, true,0, "NONE"));
-		
-		/*activeSimulationsListTable.addRow(new ActiveSimulationRowItem(0));
-		//activeSimulationsListTable.removeRow(0);
-		activeSimulationsListTable.addRow(new ActiveSimulationRowItem(1, SimState.NEW, 0, 0, 0, 0));
-		activeSimulationsListTable.updateCells(1, new int[]
-		{
-				2, 3, 4, 5
-		}, new Object[]
-		{
-				100, 100, 100, 100L
-		});
-		activeSimulationsListTable.updateCell(1,1,  SimState.FINISHED);
-		//activeSimulationsListTable.removeRow(1);*/
 		
 	}
 

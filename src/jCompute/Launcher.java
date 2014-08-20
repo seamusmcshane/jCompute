@@ -33,7 +33,8 @@ public class Launcher
 	private static CommandLineArg defaultsList[] =
 	{
 			new CommandLineArg("mcs", "8","Max Concurrent Simulations"), new CommandLineArg("gui", "0", "Standard/Batch GUI (0/1)"),
-			new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"), new CommandLineArg("iTheme", "none","Icon Theme Name")
+			new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"), new CommandLineArg("iTheme", "none","Icon Theme Name"),
+			new CommandLineArg("bText", "1","Button Text (0,1)")
 	};
 	
 	public static void main(String args[])
@@ -81,7 +82,16 @@ public class Launcher
 			DebugLogger.setDebug(true);
 		}
 		
-		IconManager.init(opts.get("iTheme").getValue());
+		String iTheme = opts.get("iTheme").getValue();
+		IconManager.init(iTheme);
+		
+		int bText = Integer.valueOf(opts.get("bText").getValue());
+		boolean buttonText = true;
+		
+		if(bText==0)
+		{
+			buttonText = false;
+		}
 		
 		/* Init the Event bus in Async Mode */
 		JComputeEventBus.initAsync();
@@ -102,7 +112,7 @@ public class Launcher
 			//batchGUI = new BatchGUI(new NetworkSimulationsManager());
 			
 			// Local - Testing
-			batchGUI = new BatchGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+			batchGUI = new BatchGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())),buttonText);
 
 		}
 
