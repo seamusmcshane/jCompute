@@ -29,7 +29,7 @@ public class AddSimReply
 	
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(12);  
+		ByteBuffer tbuffer = ByteBuffer.allocate(8);  
 		
 		// Reg Req
 		tbuffer.putInt(NSMCP.AddSimReply);
