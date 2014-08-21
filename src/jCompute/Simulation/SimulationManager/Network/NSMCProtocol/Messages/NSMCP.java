@@ -52,6 +52,7 @@ public class NSMCP
     public static final int AddSimReply	= 32;	// Manager Node Add Simulation Acknowledgement	- reply with a sim slot id or -1 denied
     public static final int RemSimReq	= 33;	// Manager Node Remove Simulation Request - request from controller remove a simulation 
     public static final int RemSimAck	= 34;	// Manager Node Remove Simulation Acknowledgement	- reply confirming removal 
+    public static final int StartSimCMD	= 35;	// Manager Node Start Simulation Request (Command not Request)
     
     // Simulation Statistics Retrieval 
     public static final int StatsReq 		= 41;	// Manager Node Statistics Req - request from controller to retrieve the finished simulation statistics 
