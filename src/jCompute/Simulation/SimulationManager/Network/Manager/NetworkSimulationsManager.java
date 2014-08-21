@@ -285,6 +285,28 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 	}
 
+	private NodeManager findNodeManagerFromUID(int uid)
+	{
+		Iterator<NodeManager> itr = activeNodes.iterator();
+		NodeManager temp = null;
+		NodeManager nodeManager = null;
+		
+		while(itr.hasNext())
+		{
+			temp = itr.next();
+			
+			if(temp.getUid() == uid)
+			{
+				nodeManager = temp;
+				
+				break;
+			}
+			
+		}
+		
+		return nodeManager;
+	}
+	
 	@Override
 	public void pauseSim(int simId)
 	{
