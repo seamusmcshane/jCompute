@@ -7,6 +7,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 
 import java.io.DataInputStream;
@@ -353,7 +354,7 @@ public class NodeManager
 		    
 		    // Wait until we are released (by timer or receive thread)
 		    nodeWait.acquireUninterruptibly();
-			
+
 		    msgBoxVarLock.acquireUninterruptibly();
 		    
 		    if(addSimId == -1)
@@ -379,9 +380,29 @@ public class NodeManager
 			nodeLock.release();
 			
 			// Connection is gone add sim failed
+			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in add Sim");
+			
 			return -1;
 		}
 
+	}
+
+	public void startSim(int remoteSimId)
+	{
+		nodeLock.acquireUninterruptibly();
+
+		try
+		{
+			output.write(new StartSimCMD(remoteSimId).toBytes());
+		}
+		catch (IOException e)
+		{
+			// Connection is gone...
+			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in Start Sim");
+
+		}
+		
+		nodeLock.release();
 	}
 	
 }

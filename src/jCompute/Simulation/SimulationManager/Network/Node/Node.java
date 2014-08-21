@@ -9,6 +9,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReply;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -91,19 +92,29 @@ public class Node
 					{
 						case NSMCP.AddSimReq:
 
-						System.out.println("Got AddSimReq");
-
-						AddSimReq req = new AddSimReq(input);
-						
-						int simId = simsManager.addSimulation(req.getScenarioText(),req.getInitialStepRate());
-						
-						System.out.println("Added Sim " + simId);
-						
-						output.write(new AddSimReply(simId).toBytes());
+							System.out.println("AddSimReq");
+	
+							AddSimReq req = new AddSimReq(input);
 							
-						dumpSimlistToConsole();
+							int simId = simsManager.addSimulation(req.getScenarioText(),req.getInitialStepRate());
+							
+							System.out.println("Added Sim " + simId);
+							
+							output.write(new AddSimReply(simId).toBytes());
+								
+							dumpSimlistToConsole();
 						
 						break;
+						case NSMCP.StartSimCMD:
+						
+							System.out.println("StartSimCMD");
+
+							StartSimCMD cmd = new StartSimCMD(input);
+
+							simsManager.startSim(cmd.getSimid());
+							
+						break;
+						
 						case NSMCP.INVALID:
 							
 						default:

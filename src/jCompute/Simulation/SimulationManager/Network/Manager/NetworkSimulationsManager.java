@@ -281,8 +281,16 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	@Override
 	public void startSim(int simId)
 	{
-		// TODO Auto-generated method stub
+		networkSimulationsManagerLock.acquireUninterruptibly();
+
+		// Look up mapping
+		RemoteSimulationMapping mapping = simulationsMap.get(simId);
 		
+		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
+		
+		nodeManager.startSim(mapping.getRemoteSimId());
+		
+		networkSimulationsManagerLock.release();
 	}
 
 	private NodeManager findNodeManagerFromUID(int uid)
