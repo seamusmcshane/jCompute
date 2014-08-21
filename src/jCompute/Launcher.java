@@ -4,9 +4,12 @@ import jCompute.Debug.DebugLogger;
 import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Gui.Standard.StandardGUI;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
+import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
+import jCompute.Simulation.SimulationManager.Network.Node.Node;
 
 import java.util.HashMap;
 import java.util.Set;
+
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -22,6 +25,10 @@ public class Launcher
 	// Batch GUI
 	@SuppressWarnings("unused")
 	private static BatchGUI batchGUI;
+	
+	// Remote Node
+	@SuppressWarnings("unused")
+	private static Node node;
 
 	// Command Line HashMap
 	private static HashMap<String, CommandLineArg> opts;
@@ -32,9 +39,10 @@ public class Launcher
 	// Defaults ( option string, default value, option description
 	private static CommandLineArg defaultsList[] =
 	{
-			new CommandLineArg("mcs", "8","Max Concurrent Simulations"), new CommandLineArg("gui", "0", "Standard/Batch GUI (0/1)"),
-			new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"), new CommandLineArg("iTheme", "none","Icon Theme Name"),
-			new CommandLineArg("bText", "1","Button Text (0,1)")
+			new CommandLineArg("mcs", "8","Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
+			new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"), new CommandLineArg("iTheme", "none","Icon Theme Name (String)"),
+			new CommandLineArg("bText", "1","Button Text (0/1)"), new CommandLineArg("sm", "0"," Simulation Manager Local/Network(0/1)"),
+			new CommandLineArg("addr", "127.0.0.1","Listening Address (InetAddr)")
 	};
 	
 	public static void main(String args[])
@@ -98,23 +106,49 @@ public class Launcher
 		
 		lookandFeel();
 		
-		int guiType = Integer.parseInt(opts.get("gui").getValue());
+		int mode = Integer.parseInt(opts.get("mode").getValue());
 		
-		if(guiType == 0)
-		{
-			/* Local Simulation Manager */			
-			standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
-		}
 		
-		if(guiType == 1)
+		switch(mode)
 		{
-			/* Network Simulation Manager */			
-			//batchGUI = new BatchGUI(new NetworkSimulationsManager());
-			
-			// Local - Testing
-			batchGUI = new BatchGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())),buttonText);
+			case 0:
+				
+				/* Local Simulation Manager */			
+				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+				
+			break;
+			case 1:
+				int simManType = Integer.parseInt(opts.get("sm").getValue());
 
+				if(simManType==0)
+				{
+					// Local - Testing
+					batchGUI = new BatchGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())),buttonText);
+				}
+				else
+				{
+					/* Network Simulation Manager */			
+					batchGUI = new BatchGUI(new NetworkSimulationsManager(),buttonText);
+				}
+				
+			break;			
+			case 2:
+				
+				String address = opts.get("addr").getValue();
+				
+				DebugLogger.output("Creating Node : " + address);
+				
+				node = new Node(address);
+			
+			break;
+			default:
+				
+				displayHelp();
+				
+			break;
+			
 		}
+
 
 	}
 
@@ -160,24 +194,7 @@ public class Launcher
 			{
 				if(opt.equalsIgnoreCase("--help") || opt.equals("-help") || opt.equals("help") || opt.equals("\\help") || opt.equals("/help"))
 				{
-					System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
-
-					System.out.println("Help");
-					
-					for(int i=0;i<78;i++)
-					{
-						System.out.print("-");
-					}
-					System.out.print("\n");
-
-					System.out.println(String.format("%10s","option")+String.format("%10s","\t(default)")+"\tDescription");
-					
-					for(CommandLineArg defaultItem : defaultsList)
-					{
-						System.out.println(String.format("%10s",defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ") + "\t" + String.format("%10s",defaultItem.getDescription()));
-					}
-					
-					System.exit(0);
+					displayHelp();
 				}
 				else
 				{
@@ -189,6 +206,28 @@ public class Launcher
 				}
 			}
 		}
+	}
+	
+	private static void displayHelp()
+	{
+		System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
+
+		System.out.println("Help");
+		
+		for(int i=0;i<78;i++)
+		{
+			System.out.print("-");
+		}
+		System.out.print("\n");
+
+		System.out.println(String.format("%10s","option")+String.format("%10s","\t(default)")+"\tDescription");
+		
+		for(CommandLineArg defaultItem : defaultsList)
+		{
+			System.out.println(String.format("%10s",defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ") + "\t" + String.format("%10s",defaultItem.getDescription()));
+		}
+		
+		System.exit(0);
 	}
 	
 	/* Set Nimbus Look and feel */
