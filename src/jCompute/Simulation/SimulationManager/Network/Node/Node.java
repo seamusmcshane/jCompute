@@ -2,9 +2,13 @@ package jCompute.Simulation.SimulationManager.Network.Node;
 
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCPFrameParser;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP.ProtocolState;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationRequest;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReply;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,11 +16,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 
-public class NetworkSimulationManagerNode
+public class Node
 {
 	private static SimulationsManager simsManager = new SimulationsManager(Runtime.getRuntime().availableProcessors());
 
-    public static void main(String argv[])
+    public Node(String address)
 	{
     	System.out.println("Starting Node");
     	
@@ -27,9 +31,6 @@ public class NetworkSimulationManagerNode
     	
     	ProtocolState nodeState = ProtocolState.NEW;
     	
-    	NSMCPFrameParser frameParser = new NSMCPFrameParser();
-
-    	String address = "127.0.0.1";
     	
     	// Disconnect Recovery Loop
     	while(true)
@@ -44,7 +45,7 @@ public class NetworkSimulationManagerNode
 	    		System.out.println("Connecting to : " + address + "@" + port);
 	    		
 	    		// Main
-	    		mainNodeLoop(nodeConfig, frameParser,clientSocket);
+	    		mainNodeLoop(nodeConfig, clientSocket);
 	    		
 	    		// Close Connection
     			if(!clientSocket.isClosed())
@@ -62,7 +63,7 @@ public class NetworkSimulationManagerNode
 
 	}
 	
-    private static void mainNodeLoop(NodeConfiguration nodeConfig, NSMCPFrameParser frameParser, Socket clientSocket) throws IOException
+    private static void mainNodeLoop(NodeConfiguration nodeConfig, Socket clientSocket) throws IOException
     {
 
 		if(!clientSocket.isClosed())
@@ -75,7 +76,7 @@ public class NetworkSimulationManagerNode
 			// Input Stream
 			DataInputStream input = new DataInputStream (clientSocket.getInputStream());
 			
-			boolean registered = doRegistration(nodeConfig, frameParser,input,output);
+			boolean registered = doRegistration(nodeConfig, input,output);
 			
 			System.out.println("Registered    : " + registered);
 
@@ -83,11 +84,8 @@ public class NetworkSimulationManagerNode
 			{
 				
 				while(!clientSocket.isClosed())
-				{
-					byte[] frame;
-					
+				{					
 					int type = input.readInt();
-					int len = input.readInt();
 					
 					switch (type)
 					{
@@ -95,32 +93,19 @@ public class NetworkSimulationManagerNode
 
 						System.out.println("Got AddSimReq");
 
-						int stepRate = input.readInt();
+						AddSimReq req = new AddSimReq(input);
 						
-						System.out.println("Step Rate" + stepRate);
-						
-						System.out.println("Config Length : " + len);
-						StringBuffer config = new StringBuffer();
-						
-						for(int c=0;c<len;c++)
-						{
-							config.append(input.readChar());
-						}
-						
-						System.out.println(config.toString());
-						
-						int simId = simsManager.addSimulation(config.toString(),stepRate);
-						
-						frame = frameParser.createAddSimReply(simId);
+						int simId = simsManager.addSimulation(req.getScenarioText(),req.getInitialStepRate());
 						
 						System.out.println("Added Sim " + simId);
 						
-						output.write(frame);
+						output.write(new AddSimReply(simId).toBytes());
 							
 						dumpSimlistToConsole();
 						
 						break;
 						case NSMCP.INVALID:
+							
 						default:
 							
 						break;
@@ -145,58 +130,65 @@ public class NetworkSimulationManagerNode
 
     }
     
-	private static boolean doRegistration(NodeConfiguration nodeConfig, NSMCPFrameParser frameParser,DataInputStream input,DataOutputStream output) throws IOException
+	private static boolean doRegistration(NodeConfiguration nodeConfig,DataInputStream input,DataOutputStream output) throws IOException
 	{
 		boolean finished = false;
 		boolean registered = false;
 		
 		System.out.println("Attempting Registration");
 
-		byte[] frame = frameParser.createRegReq();
+		// Create a registration request and send it
+		byte[] frame = new RegistrationRequest().toBytes();
 		output.write(frame);
 
+		// Read the replies
 		while(!finished)
 		{
-
 			int type = input.readInt();
-			int len = input.readInt();
 			
 			switch(type)
 			{
+				case  NSMCP.INVALID:
+					System.out.println("Recieved Invalid Frame Type " + type);
+					registered = false;
+					finished = true;
+				break;
 				case NSMCP.RegAck : 
 					
 					System.out.println("Recieved Reg Ack");
 
-					nodeConfig.setUid(input.readInt());
+					RegistrationReqAck reqAck = new RegistrationReqAck(input);
+					
+					nodeConfig.setUid(reqAck.getUid());
 					
 					System.out.println("Recieved UID : " + nodeConfig.getUid());
+
+					// We Ack the Ack					
+					output.write(reqAck.toBytes());
 					
-					// We Ack the ack
-					frame = frameParser.createRegAck(nodeConfig.getUid());
-					
-					output.write(frame);
-					
-				break;				
+				break;
 				case NSMCP.ConfReq :
 					
 					System.out.println("Recieved Conf Req");
 
+					// Set our max sims now
 					nodeConfig.setMaxSims(simsManager.getMaxSims());
-					
-					frame = frameParser.createConfAck(nodeConfig.getMaxSims());
-					
-					System.out.println("Sent Conf Ack");
 					System.out.println("Max Sims " + nodeConfig.getMaxSims());
-					
+
+					// Create and send the Configuration ack
+					frame = new ConfigurationAck(nodeConfig.getMaxSims()).toBytes();					
 					output.write(frame);
 					
+					System.out.println("Sent Conf Ack");
+
+					// Now Registered
 					registered = true;
 					finished = true;
+					
 				break;
+				
 				default :
-					System.out.println("Type " + type);
-					registered = false;
-					finished = true;
+					System.out.println("Got Garbage");
 				break;
 				
 			}
@@ -204,6 +196,11 @@ public class NetworkSimulationManagerNode
 		}
 
 		return registered;
+	}
+	
+	private void send(byte[] bytes)
+	{
+		
 	}
 	
 	private static void dumpSimlistToConsole()

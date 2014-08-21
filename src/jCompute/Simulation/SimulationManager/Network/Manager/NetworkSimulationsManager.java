@@ -1,10 +1,10 @@
-package jCompute.Simulation.SimulationManager.Network;
+package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatGroupListenerInf;
 
@@ -13,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
@@ -34,10 +35,10 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	private int connectionNumber = 0;
 	
 	/* Active Nodes indexed by nodeId */ 
-	private HashMap<Integer,RemoteNodeManager> activeNodes;
+	private ArrayList<NodeManager> activeNodes;
 	
 	/* Connecting Nodes List */
-	private ArrayList<RemoteNodeManager> connectingNodes;
+	private ArrayList<NodeManager> connectingNodes;
 	private Timer NSCPTimer;
 	
 	/* List of priority re-scheduled Simulations
@@ -59,8 +60,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		simulationsMap = new HashMap<Integer,RemoteSimulationMapping>();
 		
 		// List of simulation nodes.
-		activeNodes = new HashMap<Integer,RemoteNodeManager>();
-		connectingNodes = new ArrayList<RemoteNodeManager>();
+		activeNodes = new ArrayList<NodeManager>();
+		connectingNodes = new ArrayList<NodeManager>();
 		
 		createAndStartRecieveThread();
 		
@@ -82,13 +83,13 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				
 				if(connectingNodes.size() > 0)
 				{
-					RemoteNodeManager node = connectingNodes.get(0);
+					NodeManager node = connectingNodes.get(0);
 					
 					if(node.isReady())
 					{
 						connectingNodes.remove(node);
 						
-						activeNodes.put(node.getUid(),node);
+						activeNodes.add(node);
 						
 						maxSims += node.getMaxSims();
 						
@@ -107,9 +108,11 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				}
 				
 				
-				if(activeNodes.size() > 0)
+				Iterator<NodeManager> itr = activeNodes.iterator();
+				
+				while(itr.hasNext())
 				{
-					RemoteNodeManager node = activeNodes.get(0);
+					NodeManager node = itr.next();
 					
 					// System.out.println("Node " + node.getUid() + " Active " + node.isActive());
 					
@@ -154,7 +157,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 							
 							DebugLogger.output("New Connection from : " + nodeSocket.getRemoteSocketAddress());	
 							
-							RemoteNodeManager tNode = new RemoteNodeManager(connectionNumber,nodeSocket);
+							NodeManager tNode = new NodeManager(++connectionNumber,nodeSocket);
 							
 							networkSimulationsManagerLock.acquireUninterruptibly();
 							
@@ -164,8 +167,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 							networkSimulationsManagerLock.release();
 							
 							System.out.println("Connection " + connectionNumber + " Processed");
-							
-							connectionNumber++;
 							
 						}
 						catch (IOException e)
@@ -208,7 +209,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 			{
 				DebugLogger.output(" Find a node ");
 
-				RemoteNodeManager node = activeNodes.get(n);
+				NodeManager node = activeNodes.get(n);
 				
 				if(node.hasFreeSlot())
 				{
@@ -216,17 +217,17 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 
 					int remoteSimId = node.addSim(scenarioText,initialStepRate);
 					
-					// Incase the remove node goes down while in this method
+					// Incase the remote node goes down while in this method
 					if(remoteSimId > 0)
 					{
-						DebugLogger.output("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
 						
 						// Locally cache the mapping
-						simulationsMap.put(simulationNum,new RemoteSimulationMapping(simulationNum,remoteSimId,node.getUid()));
+						simulationsMap.put(simulationNum,new RemoteSimulationMapping(simulationNum++,remoteSimId,node.getUid()));
 						
 						simAdded = true;
 						
-						simulationNum++;
+						DebugLogger.output("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
+
 						activeSims++;
 						
 						break;

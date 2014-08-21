@@ -1,4 +1,4 @@
-package jCompute.Simulation.SimulationManager.Network;
+package jCompute.Simulation.SimulationManager.Network.Manager;
 
 public class RemoteSimulationMapping
 {

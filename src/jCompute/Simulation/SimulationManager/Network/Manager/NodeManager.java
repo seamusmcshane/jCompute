@@ -1,9 +1,12 @@
-package jCompute.Simulation.SimulationManager.Network;
+package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.Debug.DebugLogger;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCPFrameParser;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.NSMCP.ProtocolState;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationRequest;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
 import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 
 import java.io.DataInputStream;
@@ -14,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
-public class RemoteNodeManager
+public class NodeManager
 {
 	// Locks the node
     private Semaphore nodeLock = new Semaphore(1,false);
@@ -35,8 +38,6 @@ public class RemoteNodeManager
 	
 	private ProtocolState nodeState;
 	
-    private NSMCPFrameParser frameParser;
-    
     // Counter for NSMCP state machine
     private int NSMCPReadyTimeOut;
     
@@ -58,10 +59,10 @@ public class RemoteNodeManager
     private int addSimTick = 0;  
     private int addSimId = -1;
     
-	public RemoteNodeManager(int uid,Socket socket) throws IOException
+	public NodeManager(int uid,Socket socket) throws IOException
 	{
 		nodeConfig = new NodeConfiguration(); 
-		frameParser = new NSMCPFrameParser();	
+
 		NSMCPReadyTimeOut = 0;
 		
 		System.out.println("New Node Manager " + uid);
@@ -113,21 +114,17 @@ public class RemoteNodeManager
 			{
 		        
 				try
-				{					
-					DataInputStream di = new DataInputStream (socket.getInputStream());
+				{
+					DataInputStream input = new DataInputStream (socket.getInputStream());
 					
-			        int type = 0;
-			        int len = 0;
+			        int type = -1;
 			        
 			        active = true;
 			        
 					while(active)
 					{
 						// Detect Frame
-						type = di.readInt();
-						
-						// Detect Len
-						len = di.readInt();
+						type = input.readInt();
 						
 						switch(type)
 						{
@@ -141,20 +138,18 @@ public class RemoteNodeManager
 								System.out.println("Recieved MNRegReq");
 								
 									/*
-									 * A socket has been connected and we have just received a registration reg
+									 * A socket has been connected and we have just received a registration request
 									 */
 									if(nodeState == ProtocolState.NEW)
 									{
-										// Send Reg Ack
-										byte[] frame = frameParser.createRegAck(nodeConfig.getUid());
-										
+										// Create and Send Reg Ack
+										byte[] frame = new RegistrationReqAck(nodeConfig.getUid()).toBytes();
 										output.write(frame);
 										
 										System.out.println("Sent MNRegAck UID " + nodeConfig.getUid());
 										
 										nodeState = ProtocolState.REG;
-									}
-								
+									}								
 								
 							break;
 							case NSMCP.RegAck :
@@ -167,15 +162,19 @@ public class RemoteNodeManager
 								 */
 								if(nodeState == ProtocolState.REG)
 								{
-									int ruid = di.readInt();
 									
+									RegistrationReqAck reqAck = new RegistrationReqAck(input);
+							
+									int ruid = reqAck.getUid();
+									
+									System.out.println("Recieved MNRegAck UID " + ruid);
+
+									// Check the node is sane (UID should be identical to the one we sent)
 									if(nodeConfig.getUid() == ruid)
 									{
-										System.out.println("Recieved MNRegAck UID " + ruid);
+										System.out.println("Requesting Node Configuration");
 										
-										System.out.println("Getting Node Configuration");
-										
-										byte[] frame = frameParser.createConfReq();
+										byte[] frame = new ConfigurationRequest().toBytes();
 										
 										output.write(frame);
 									
@@ -212,7 +211,9 @@ public class RemoteNodeManager
 								{
 									System.out.println("Recieved Conf Ack");
 
-									nodeConfig.setMaxSims(di.readInt());			
+									ConfigurationAck reqAck = new ConfigurationAck(input);
+									
+									nodeConfig.setMaxSims(reqAck.getMaxSims());			
 									
 									System.out.println("Node " + nodeConfig.getUid() + " Max Sims : " + nodeConfig.getMaxSims());
 									
@@ -228,7 +229,7 @@ public class RemoteNodeManager
 
 									msgBoxVarLock.acquireUninterruptibly();
 									
-									addSimId = di.readInt();
+									addSimId = input.readInt();
 									
 									nodeWait.release();
 									
@@ -341,9 +342,8 @@ public class RemoteNodeManager
 			// Shared variable
 			addSimId = -1;
 			
-			// Send add sim frame
-			byte[] frame = frameParser.createAddSimReq(scenarioText,initialStepRate);
-			output.write(frame);
+			// Create and Send add Sim Req
+			output.write(new AddSimReq(scenarioText,initialStepRate).toBytes());
 			
 			// Start timer
 		    addSimTick = 0; 

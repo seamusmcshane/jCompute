@@ -1,4 +1,4 @@
-package jCompute.Simulation.SimulationManager.Network.NSMCProtocol;
+package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages;
 
 // Simulation Manager Network Protocol
  
