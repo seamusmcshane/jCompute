@@ -119,7 +119,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					if(!node.isActive())
 					{
 						node.destroy("Node not Active");
-						activeNodes.remove(node);
+						itr.remove();
 						
 						maxSims -= node.getMaxSims();
 						
