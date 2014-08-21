@@ -220,9 +220,11 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					// Incase the remote node goes down while in this method
 					if(remoteSimId > 0)
 					{
+						// Increment the simUID values
+						simulationNum++;
 						
 						// Locally cache the mapping
-						simulationsMap.put(simulationNum,new RemoteSimulationMapping(simulationNum++,remoteSimId,node.getUid()));
+						simulationsMap.put(simulationNum,new RemoteSimulationMapping(simulationNum,remoteSimId,node.getUid()));
 						
 						simAdded = true;
 						
