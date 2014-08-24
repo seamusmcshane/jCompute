@@ -2,6 +2,7 @@ package jCompute.Gui.Batch.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.util.Text;
 
 public class ActiveSimulationRowItem implements RowItem, Comparable
 {
@@ -143,9 +144,9 @@ public class ActiveSimulationRowItem implements RowItem, Comparable
 	{
 		this.asps = asps;
 	}
-	public long getRunTime()
+	public String getRunTime()
 	{
-		return runTime;
+		return Text.longTimeToDHMS(runTime);
 	}
 	public void setRunTime(long runTime)
 	{
