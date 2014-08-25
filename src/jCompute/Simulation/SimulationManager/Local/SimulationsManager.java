@@ -559,8 +559,13 @@ public class SimulationsManager implements SimulationsManagerInf
 			{
 				sim.pauseSim();
 			}
-			sim.getSimManager().getStatmanger().exportAllStatsToDir(directory, fileNameSuffix, format);
-
+			
+			
+			// Create a stat exporter with a stat manager as data source.
+			StatExporter exporter = new StatExporter(sim.getSimManager().getStatmanger(), fileNameSuffix, format);
+			
+			// Export the stats
+			exporter.exportAllStatsToDir(directory);
 		}
 		
 		simulationsManagerLock.release();
