@@ -22,7 +22,7 @@ import com.sun.org.apache.xerces.internal.util.XMLChar;
 public class StatExporter
 {
 	// File Format for export
-	private final String format;
+	private final ExportFormat format;
 	
 	// File names
 	private String fileNames[];
@@ -37,7 +37,7 @@ public class StatExporter
 	 * @param fileNameSuffix
 	 * @param format
 	 */
-	public StatExporter(StatManager source, String fileNameSuffix, String format)
+	public StatExporter(StatManager source, String fileNameSuffix, ExportFormat format)
 	{
 		this.format = format;
 		
@@ -92,7 +92,7 @@ public class StatExporter
 	/*
 	 * Bytes
 	 */
-	public byte[] toBytes(String fileNameSuffix, String format) throws IOException
+	public byte[] toBytes(String fileNameSuffix) throws IOException
 	{
 		int numFiles = fileNames.length;
 		
@@ -161,9 +161,9 @@ public class StatExporter
 		for(int f=0;f<numFiles;f++)
 		{
 			// Now send the strings to the output writer
-			System.out.println("Writing File : " + fileNames[f]);
+			System.out.println("Writing File : " + fileNames[f]+"."+format.getExtension());
 			
-			writeFiles(directory,fileNames[f],data[f],format.toLowerCase());
+			writeFiles(directory,fileNames[f],data[f]);
 		}
 		
 	}
@@ -181,12 +181,12 @@ public class StatExporter
 
 			List<String> statList = statGroup.getStatList();
 	
-			if(format.equalsIgnoreCase("csv"))
+			if(format == ExportFormat.CSV)
 			{
 				// Write File Header
 				addFileExportHeaderCSV(data,statList);
 			}
-			else if(format.equalsIgnoreCase("arff"))
+			else if(format == ExportFormat.ARFF)
 			{
 				addFileExportHeaderARFF(data,name,statList);
 			}
@@ -213,7 +213,7 @@ public class StatExporter
 			while(history<historyLength)
 			{
 				// Write Data Row
-				if(format.equalsIgnoreCase("csv") || format.equalsIgnoreCase("arff"))
+				if(format == ExportFormat.CSV || format == ExportFormat.ARFF)
 				{
 					appendCSVStyleRow(data,statHistorys,history,statList);
 				}
@@ -226,7 +226,7 @@ public class StatExporter
 			}
 	
 			// File Footer
-			if(format.equalsIgnoreCase("xml"))
+			if(format == ExportFormat.XML)
 			{
 				data.append("</" + xmlString(name) + ">\n");
 			}
@@ -415,18 +415,17 @@ public class StatExporter
 	 * @param fileData
 	 * @param extension
 	 */
-	private void writeFiles(String directory,String fileName,String fileData,String extension)
+	private void writeFiles(String directory,String fileName,String fileData)
 	{
+		String fileExtension = format.getExtension();
+
 		try
 		{
 			String filePath;
 			
 			// Compress XML Output into a zip
-			if(extension.equalsIgnoreCase("xml"))
+			if(format == ExportFormat.XML)
 			{
-				//GZIPOutputStream gzip = new GZIPOutputStream(new FileOutputStream(new File(filePath)));
-				//bufferedWriter = new BufferedWriter(new OutputStreamWriter(gzip, "UTF-8"));
-
 				filePath = directory+File.separator+fileName+"."+"zip";
 
 				FileOutputStream fileOutput = new FileOutputStream(filePath);
@@ -443,7 +442,7 @@ public class StatExporter
 				zipOutput.setLevel(9);
 				
 				// Entry start
-				zipOutput.putNextEntry(new ZipEntry(fileName+"."+extension));
+				zipOutput.putNextEntry(new ZipEntry(fileName+"."+fileExtension));
 				
 				//Data
 				zipOutput.write(fileData.getBytes());
@@ -454,13 +453,11 @@ public class StatExporter
 				// Archive end
 				zipOutput.close();
 				
-				DebugLogger.output("Wrote File : " + fileName+"."+extension);
-				
+				DebugLogger.output("Wrote File : " + fileName+"."+fileExtension);				
 			}
 			else
 			{
-
-				filePath = directory+File.separator+fileName+"."+extension;
+				filePath = directory+File.separator+fileName+"."+fileExtension;
 				
 				FileWriter fileWriter = new FileWriter(filePath);
 				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -478,5 +475,31 @@ public class StatExporter
 	        JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
 		}
 
+	}
+	
+	public enum ExportFormat
+	{
+		XML ("Extensible Markup Language" , "xml"),
+		CSV ("Comma Separated Values" , "csv"),
+		ARFF ("Attribute-Relation File Format" , "arff");
+		
+	    private final String description;
+	    private final String extension;
+
+	    private ExportFormat(String description, String extension) 
+	    {
+	        this.description = description;
+	        this.extension = extension;
+	    }
+	    
+	    public String getDescription()
+	    {
+	       return description;
+	    }
+	    
+	    public String getExtension()
+	    {
+	       return extension;
+	    }
 	}
 }

@@ -4,6 +4,7 @@ import jCompute.IconManager;
 import jCompute.Gui.Standard.Tab.GUISimulationTab;
 import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -383,7 +384,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		System.out.println("Choose Export Directory");
 
 		String exportDirectory = "";
-		String fileFormat = "";
+		ExportFormat exportFormat = null;
 		
 		JFileChooser filechooser = new JFileChooser(new File("./stats"));
 
@@ -396,14 +397,11 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		// Allowable file formats
 		filechooser.setAcceptAllFileFilterUsed(false);
 
-		// Comma-Separated Values
-		filechooser.addChoosableFileFilter(new ExportFileFilter("csv","Comma-Separated Values") );
-
-		// Attribute-Relation File Format (WEKA)
-		filechooser.addChoosableFileFilter(new ExportFileFilter("arff","Attribute-Relation File Format") );
-		
-		// XML
-		filechooser.addChoosableFileFilter(new ExportFileFilter("xml","XML") );
+		// Add the formats
+		for (ExportFormat format : ExportFormat.values()) 
+		{
+			filechooser.addChoosableFileFilter(new ExportFileFilter(format) );
+		}
 		
 		int val = filechooser.showSaveDialog(filechooser);
 
@@ -412,7 +410,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			try
 			{
 				exportDirectory = filechooser.getSelectedFile().getCanonicalPath();
-				fileFormat = filechooser.getFileFilter().getDescription();
+				exportFormat = ((ExportFileFilter) filechooser.getFileFilter()).getFormat();
 			}
 			catch (IOException e)
 			{
@@ -434,48 +432,36 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			
 			System.out.println("Directory Choosen : " + exportDirectory);
 
-			if(fileFormat.equals("Comma-Separated Values"))
-			{
-				simsManager.exportAllStatsToDir(simId,exportDirectory,"","csv");
-			}
-			else if(fileFormat.equals("Attribute-Relation File Format"))
-			{
-				simsManager.exportAllStatsToDir(simId,exportDirectory,"","arff");
-			}
-			else if(fileFormat.equals("XML"))
-			{
-				simsManager.exportAllStatsToDir(simId,exportDirectory,"","xml");
-			}
-			else
-			{
-				System.out.println(fileFormat + " Not Implemented");
-			}			
+			simsManager.exportAllStatsToDir(simId,exportDirectory,"",exportFormat);		
 
 		}
 
 	}
 	
-	private class ExportFileFilter extends FileFilter 
+	private class ExportFileFilter extends FileFilter
 	{
-		String extension;
-		String description;
+		private ExportFormat format;
 		
-		public ExportFileFilter(String extension, String description)
+		public ExportFileFilter(ExportFormat format)
 		{
-			this.extension = extension;
-			this.description = description;
+			this.format = format;
 		}
 		
 		@Override
 		public boolean accept(File file)
 		{
-			return file.getName().toLowerCase().endsWith(extension) || file.isDirectory();
+			return file.getName().toLowerCase().endsWith(format.getExtension()) || file.isDirectory();
 		}
 
 		@Override
 		public String getDescription()
 		{
-			return description;
+			return format.getDescription();
+		}
+		
+		public ExportFormat getFormat()
+		{
+			return format;
 		}
 		
 	}

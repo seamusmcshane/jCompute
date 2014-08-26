@@ -7,6 +7,7 @@ import jCompute.Scenario.ScenarioVT;
 import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
 
 import java.io.BufferedWriter;
@@ -743,9 +744,9 @@ public class Batch implements StoredQueuePosition
 		testAndCreateDir(fullExportPath);
 		
 		// Export Stats
-		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),"csv");
-		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),"xml");
-		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),"arff");
+		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.CSV);
+		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.XML);
+		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.ARFF);
 		
 		itemLog.println("<Item>");
 		itemLog.println("<IID>" + item.getItemId() + "</IID>");	

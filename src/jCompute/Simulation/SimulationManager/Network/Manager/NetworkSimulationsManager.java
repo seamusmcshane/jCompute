@@ -6,6 +6,7 @@ import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
 
 import java.io.IOException;
@@ -489,6 +490,13 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
 		// NOT Implemented		
+	@Override
+	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
+	{
+
+		
+		
+		// exportAllStatsToBytes
 	}
 	
 }

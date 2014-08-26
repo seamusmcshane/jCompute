@@ -14,6 +14,8 @@ import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.StatExporter;
+import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
 
 import java.util.ArrayList;
@@ -542,7 +544,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 	
 	@Override 
-	public void exportAllStatsToDir(int simId,String directory,String fileNameSuffix, String format)
+	public void exportAllStatsToDir(int simId,String directory,String fileNameSuffix, ExportFormat format)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
