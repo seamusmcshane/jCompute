@@ -178,44 +178,6 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 	
 	@Override
-	public long getSimRunTime(int simId)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		long runTime = 0;
-		
-		if(sim!=null)
-		{
-			runTime = sim.getTotalTime();
-		}
-		
-		simulationsManagerLock.release();
-		
-		return runTime;
-	}
-	
-	@Override
-	public long getSimStepCount(int simId)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		long stepCount = 0;
-		
-		if(sim!=null)
-		{
-			stepCount = sim.getTotalSteps();
-		}
-		
-		simulationsManagerLock.release();
-		
-		return stepCount;
-	}
-	
-	@Override
 	public String getScenarioText(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -456,34 +418,6 @@ public class SimulationsManager implements SimulationsManagerInf
 	public int getActiveSims()
 	{
 		return activeSims;
-	}
-	
-	public void addStatGroupListener (int simId,String group)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			//sim.addSimulationStatListener(listener);
-		}
-		
-		simulationsManagerLock.release();
-	}
-	
-	public void removeStatGroupListener (int simId,String group)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{
-			//sim.addSimulationStatListener(listener);
-		}
-		
-		simulationsManagerLock.release();
 	}
 
 	public SimState getState(int simId)
