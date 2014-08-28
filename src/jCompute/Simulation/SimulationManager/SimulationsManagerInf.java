@@ -16,11 +16,7 @@ public interface SimulationsManagerInf
 	public void startSim(int simId);
 		
 	public void pauseSim(int simId);
-	
-	public long getSimRunTime(int simId);
-	
-	public long getSimStepCount(int simId);
-	
+		
 	public void setReqSimStepRate(int simId, int stepRate);
 
 	public SimState togglePause(int simId);
@@ -50,7 +46,6 @@ public interface SimulationsManagerInf
 
 	public SimState getState(int simId);
 	
-	public String getEndEvent(int simId);
 	
 	public int getReqSps(int simId);
 		
