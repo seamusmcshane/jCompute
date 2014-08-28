@@ -119,7 +119,7 @@ public class BatchManager
 	
 	private void schedule()
 	{
-		DebugLogger.output("BatchManager Schedule Tick");
+		//DebugLogger.output("BatchManager Schedule Tick");
 		
 		itemsLock.acquireUninterruptibly();
 		
@@ -168,7 +168,7 @@ public class BatchManager
 	 */
 	private boolean scheduleFifo()
 	{
-		DebugLogger.output("Schedule Fifo");
+		//DebugLogger.output("Schedule Fifo");
 		
 		// Get the first batch - FIFO
 		Batch batch = (Batch) fifoQueue.peek();
@@ -230,7 +230,7 @@ public class BatchManager
 	
 	private void scheduleFair()
 	{
-		DebugLogger.output("Schedule Fair");
+		//DebugLogger.output("Schedule Fair");
 
 		int size = fairQueue.size();
 		double maxActive = simsManager.getMaxSims()-fifoQueue.size();
@@ -384,7 +384,7 @@ public class BatchManager
 					DebugLogger.output("GOT Batch " + batch.getBatchId());
 
 					// Updates Logs/Exports Stats
-					batch.setComplete(simsManager,item);	
+					batch.setComplete(simsManager,item,e);
 					
 				}
 				else

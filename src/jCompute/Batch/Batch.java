@@ -6,6 +6,7 @@ import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioVT;
 import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
@@ -714,19 +715,15 @@ public class Batch implements StoredQueuePosition
 		return temp;
 	}
 	
-	public void setComplete(SimulationsManagerInf simsManager,BatchItem item)
+	public void setComplete(SimulationsManagerInf simsManager, BatchItem item, SimulationStateChangedEvent event)
 	{
-		
-		// ,simsManager.getSimRunTime(simId),simsManager.getEndEvent(simId),simsManager.getSimStepCount(simId)
-		
 		batchLock.acquireUninterruptibly();
 		
 		DebugLogger.output("Setting Completed Sim " +  item.getSimId() + " Item " + item.getItemId());
 
-		int simId = item.getSimId();
-		long runTime = simsManager.getSimRunTime(simId);
-		String endEvent = simsManager.getEndEvent(simId);
-		long stepCount = simsManager.getSimStepCount(simId);
+		long runTime = event.getRunTime();
+		String endEvent = event.getEndEvent();
+		long stepCount =  event.getStepCount();
 		
 		activeItems.remove(item);
 		
