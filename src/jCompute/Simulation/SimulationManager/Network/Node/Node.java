@@ -20,6 +20,8 @@ import java.util.List;
 public class Node
 {
 	private static SimulationsManager simsManager = new SimulationsManager(Runtime.getRuntime().availableProcessors());
+	// Protect the send socket
+	private Semaphore txLock = new Semaphore(1,true);
 
     public Node(String address)
 	{
@@ -209,9 +211,13 @@ public class Node
 		return registered;
 	}
 	
-	private void send(byte[] bytes)
+	private void sendMessage(byte[] bytes) throws IOException
 	{
+		txLock.acquireUninterruptibly();
 		
+		output.write(bytes);
+		
+		txLock.release();
 	}
 	
 	private static void dumpSimlistToConsole()
