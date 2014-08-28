@@ -4,14 +4,17 @@ import jCompute.JComputeEventBus;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationRequest;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStateChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReply;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 
 import java.io.DataInputStream;
@@ -34,7 +37,8 @@ public class Node
 	// To ensure receive frames and events are processed atomically
 	private Semaphore rxLockEvents = new Semaphore(1,true);
 
-    public Node(String address)
+	// Output Stream
+	private DataOutputStream output;
 	
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
@@ -46,10 +50,12 @@ public class Node
     	/* Our Configuration */
     	NodeConfiguration nodeConfig = new NodeConfiguration(); 
     	
-    	int port = NSMCP.StandardServerPort;    	
+    	int port = NSMCP.StandardServerPort;
     	
-    	
+    	this.simsManager = simsManager;
+
     	JComputeEventBus.register(this);
+    	    	
     	// Disconnect Recovery Loop
     	while(true)
     	{
@@ -97,30 +103,31 @@ public class Node
     private void process(NodeConfiguration nodeConfig, Socket clientSocket)
     {
 
-		if(!clientSocket.isClosed())
-		{
-			System.out.println("Connected");
-			
-			// Output Stream
-			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
+    	try
+    	{
+			// Link up output
+			output = new DataOutputStream(clientSocket.getOutputStream());
 			
 			// Input Stream
-			DataInputStream input = new DataInputStream (clientSocket.getInputStream());
+			final DataInputStream input = new DataInputStream (clientSocket.getInputStream());
 			
-			boolean registered = doRegistration(nodeConfig, input,output);
+			doRegistration(nodeConfig, input);
 			
-			System.out.println("Registered    : " + registered);
-
-			if(registered)
+			// if Registered successfully
+			if(state == ProtocolState.READY)
 			{
+				System.out.println("Registration complete");
 				
+				// While we have a connection
 				while(!clientSocket.isClosed())
-				{					
+				{
+					// Get the frame type
 					int type = input.readInt();
 					
 					switch (type)
 					{
 						case NSMCP.AddSimReq:
+						{
 							rxLockEvents.acquireUninterruptibly();
 
 							System.out.println("AddSimReq");
@@ -132,6 +139,7 @@ public class Node
 							System.out.println("Added Sim " + simId);
 							
 							sendMessage(new AddSimReply(simId).toBytes());
+							
 							rxLockEvents.release();
 						}
 						break;
@@ -145,22 +153,58 @@ public class Node
 							
 						break;
 						
+						// Default / Invalid
 						case NSMCP.INVALID:
+						case NSMCP.SimStatsReq:
+						
+							System.out.println("SimStatsReq");
+
+							SimulationStatsRequest statsReq = new SimulationStatsRequest(input);
+
+							System.out.println("NSMCP.SimStats");
+							sendMessage(simsManager.getStatsAsBytes(statsReq.getSimId(), statsReq.getFormat()));
 							
+						break;
+						case NSMCP.RemSimReq:
+						{
+							System.out.println("RemoveSimReq");
+							RemoveSimReq removeSimReq = new RemoveSimReq(input);
+							
+							int simId = removeSimReq.getSimid();
+							
+							simsManager.removeSimulation(simId);
+							
+							sendMessage(new RemoveSimAck(simId).toBytes());
+						}
+						break;
 						default:
+
+							System.out.println("Invalid NSMCP Message Recieved");
 							
+							state = ProtocolState.END;
+							
+							clientSocket.close();
 						break;
 					}
 					
 				}
-				
-			}
-		}
-		else
+    				
+
+    			
+    		}
+    		else
+    		{
+    			System.out.println("Registration failed");
+    		}
+    	}
+		catch (IOException e)
 		{
-			System.out.println("Failed");
+			
+			// Our connection to the remote manager is gone.
+			simsManager.removeAll();
+			
+			System.out.println("Removed all Simulations as connection lost");
 		}
-		
 
     }
     
