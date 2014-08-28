@@ -1,6 +1,5 @@
 package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
 import java.io.DataInputStream;
@@ -19,12 +18,8 @@ public class StartSimCMD
 	
 	// Construct from an input stream
 	public StartSimCMD(DataInputStream source) throws IOException
-	{
-		DebugLogger.output("StartSimCMD");
-		
-		simId = source.readInt();
-		
-		DebugLogger.output("SimId : " + simId);
+	{		
+		simId = source.readInt();		
 	}
 	
 	public int getSimid()
