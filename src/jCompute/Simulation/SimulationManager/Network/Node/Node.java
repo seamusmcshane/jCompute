@@ -24,6 +24,9 @@ public class Node
 	private Semaphore txLock = new Semaphore(1,true);
 
     public Node(String address)
+	
+	// ProtocolState
+	private ProtocolState state = ProtocolState.NEW;
 	{
     	System.out.println("Starting Node");
     	
@@ -31,8 +34,6 @@ public class Node
     	NodeConfiguration nodeConfig = new NodeConfiguration(); 
     	
     	int port = NSMCP.StandardServerPort;    	
-    	
-    	ProtocolState nodeState = ProtocolState.NEW;
     	
     	
     	// Disconnect Recovery Loop
@@ -134,16 +135,16 @@ public class Node
 
     }
     
-	private static boolean doRegistration(NodeConfiguration nodeConfig,DataInputStream input,DataOutputStream output) throws IOException
+	private void doRegistration(NodeConfiguration nodeConfig,DataInputStream input) throws IOException
 	{
 		boolean finished = false;
-		boolean registered = false;
 		
 		System.out.println("Attempting Registration");
 
+		state = ProtocolState.REG;
+		
 		// Create a registration request and send it
-		byte[] frame = new RegistrationRequest().toBytes();
-		output.write(frame);
+		sendMessage(new RegistrationRequest().toBytes());
 
 		// Read the replies
 		while(!finished)
@@ -154,7 +155,7 @@ public class Node
 			{
 				case  NSMCP.INVALID:
 					System.out.println("Recieved Invalid Frame Type " + type);
-					registered = false;
+					state = ProtocolState.END;
 					finished = true;
 				break;
 				case NSMCP.RegAck : 
@@ -168,7 +169,7 @@ public class Node
 					System.out.println("Recieved UID : " + nodeConfig.getUid());
 
 					// We Ack the Ack					
-					output.write(reqAck.toBytes());
+					sendMessage(reqAck.toBytes());
 					
 				break;
 				case NSMCP.ConfReq :
@@ -180,26 +181,26 @@ public class Node
 					System.out.println("Max Sims " + nodeConfig.getMaxSims());
 
 					// Create and send the Configuration ack
-					frame = new ConfigurationAck(nodeConfig.getMaxSims()).toBytes();					
-					output.write(frame);
+					sendMessage(new ConfigurationAck(nodeConfig.getMaxSims()).toBytes());
 					
 					System.out.println("Sent Conf Ack");
 
+					state = ProtocolState.READY;
+					
 					// Now Registered
-					registered = true;
 					finished = true;
 					
 				break;
 				
 				default :
 					System.out.println("Got Garbage");
+					state = ProtocolState.END;
 				break;
 				
 			}
 				
 		}
 
-		return registered;
 	}
 	
 	private void sendMessage(byte[] bytes) throws IOException
