@@ -103,10 +103,7 @@ public class Node
 							
 							System.out.println("Added Sim " + simId);
 							
-							output.write(new AddSimReply(simId).toBytes());
-								
-							dumpSimlistToConsole();
-						
+							sendMessage(new AddSimReply(simId).toBytes());
 						break;
 						case NSMCP.StartSimCMD:
 						
