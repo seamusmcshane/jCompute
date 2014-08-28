@@ -1,6 +1,5 @@
 package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
 import java.io.DataInputStream;
@@ -18,13 +17,8 @@ public class AddSimReply
 	
 	// Construct from an input stream
 	public AddSimReply(DataInputStream source) throws IOException
-	{
-		DebugLogger.output("Add Sim Reply");
-		
+	{		
 		simId = source.readInt();
-		
-		DebugLogger.output("SimId : " + simId);
-
 	}
 	
 	public byte[] toBytes()
