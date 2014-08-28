@@ -2,7 +2,10 @@ package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
+import jCompute.Simulation.Simulation;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
@@ -22,6 +25,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
@@ -290,9 +295,17 @@ public class NodeManager
 					// Exit // Do Node Shutdown
 					
 					active = false;
+					
+					nodeState = ProtocolState.END;
+					
+					// Explicit release of all semaphores
+					addSimWait.release();
+					remSimWait.release();
+					simStatsWait.release();
+					
 				}
 				
-			}	
+			}
 		}
 		);
 		
@@ -333,6 +346,18 @@ public class NodeManager
 
 	public void destroy(String reason)
 	{
+		   Iterator<Entry<Integer, RemoteSimulationMapping>> itr = remoteSimulationMap.entrySet().iterator();
+		   
+			while (itr.hasNext())
+			{
+				int simId = itr.next().getValue().getLocalSimId();
+				
+				// TODO Recover sims
+				JComputeEventBus.post(new SimulationsManagerEvent(simId,SimulationsManagerEventType.RemovedSim));
+				
+				itr.remove();
+			}
+			
 		try
 		{
 			System.out.println("Closing Socket for Node " + nodeConfig.getUid() + " " + reason);
@@ -479,8 +504,7 @@ public class NodeManager
 		nodeLock.acquireUninterruptibly();
 
 		try
-		{
-			
+		{			
 			// create a new exporter as format could change.
 			statExporter = new StatExporter(format,fileNameSuffix);
 
