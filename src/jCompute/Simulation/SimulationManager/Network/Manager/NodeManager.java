@@ -14,8 +14,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 public class NodeManager
@@ -48,16 +46,10 @@ public class NodeManager
     // Semaphore for methods to wait on
     private Semaphore nodeWait = new Semaphore(0,false);
     
-    // Internal Timer for timing out remote replies
-    private final int timeoutSecs = 10;
-    private Timer nodeTimer;
 
     // Protect the variables shared between the receive thread/timer and entry methods
     private Semaphore msgBoxVarLock = new Semaphore(1,false);
     
-    // Add Sim Vars
-    private boolean addingSim = false;    
-    private int addSimTick = 0;  
     private int addSimId = -1;
     
 	public NodeManager(int uid,Socket socket) throws IOException
@@ -81,28 +73,6 @@ public class NodeManager
 		
 		createRecieveThread();
 		
-		nodeTimer = new Timer("Node " + nodeConfig.getUid() + " Timer");
-		nodeTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run() 
-			{
-				msgBoxVarLock.acquireUninterruptibly();
-				
-				if(addingSim)
-				{
-					addSimTick++;
-					
-					if(addSimTick == timeoutSecs)
-					{
-						addSimId = -1;	
-						nodeWait.release();
-					}
-				}
-				
-				msgBoxVarLock.release();
-			}
-		},0,1000);
 	}
 	
 	private void createRecieveThread()
