@@ -125,13 +125,6 @@ public class Node
 						break;
 					}
 					
-					// Message to Send
-				
-					// Send message
-					// outputStream.writeBytes("Test");
-					
-					// Receive Reply
-					// inputStream.readLine();
 				}
 				
 			}
