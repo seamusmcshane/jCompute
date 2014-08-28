@@ -18,10 +18,13 @@ import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -420,6 +423,7 @@ public class SimulationsManager implements SimulationsManagerInf
 		return activeSims;
 	}
 
+	@Override
 	public SimState getState(int simId)
 	{
 		SimState simState = null;
@@ -436,25 +440,6 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();	
 		
 		return simState;
-		
-	}
-	
-	public String getEndEvent(int simId)
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-
-		Simulation sim = simulations.get(simId);
-		
-		String endEvent = null;
-
-		if(sim!=null)
-		{	
-			endEvent = sim.getSimManager().getEndEvent();
-		}
-		
-		simulationsManagerLock.release();	
-		
-		return endEvent;
 		
 	}
 	
@@ -497,14 +482,56 @@ public class SimulationsManager implements SimulationsManagerInf
 			}
 			
 			
-			// Create a stat exporter with a stat manager as data source.
-			StatExporter exporter = new StatExporter(sim.getSimManager().getStatmanger(), fileNameSuffix, format);
+			// Create a stat exporter with export format.
+			StatExporter exporter = new StatExporter(format,fileNameSuffix);
+			
+			// populate from the stat manager as data source.
+			exporter.populateFromStatManager(sim.getSimManager().getStatmanger());
 			
 			// Export the stats
 			exporter.exportAllStatsToDir(directory);
+			
 		}
 		
 		simulationsManagerLock.release();
+	}
+	
+	@Override 
+	public byte[] getStatsAsBytes(int simId,ExportFormat format) throws IOException
+	{
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Simulation sim = simulations.get(simId);
+		
+		byte[] bytes = null;
+		
+		DebugLogger.output("Exporting Stats as bytes for " + simId);
+		
+		if(sim!=null)
+		{
+			/* Pause the sim as it will be updating its internal data structures
+			 * Only pause sim if running or it will dead lock.
+			 */
+			if(sim.getState() == SimState.RUNNING)
+			{
+				sim.pauseSim();
+			}
+			
+			
+			// Create a stat exporter with export format.
+			StatExporter exporter = new StatExporter(format,"");
+			
+			// populate from the stat manager as data source.
+			exporter.populateFromStatManager(sim.getSimManager().getStatmanger());
+			
+			// Export the stats
+			bytes = exporter.toBytes();
+			
+		}
+		
+		simulationsManagerLock.release();
+		
+		return bytes;
 	}
 	
 	@Override
@@ -596,6 +623,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 	}
 	
+	@Override
 	public int getReqSps(int simId)
 	{
 		int reqSps = -1;
@@ -612,6 +640,23 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();	
 		
 		return reqSps;
+	}
+
+	@Override
+	public void removeAll()
+	{
+		simulationsManagerLock.acquireUninterruptibly();	
+		
+	   Iterator<Entry<Integer, Simulation>> itr = simulations.entrySet().iterator();
+	   
+		while (itr.hasNext())
+		{
+			itr.next().getValue().destroySim();
+			
+			itr.remove();
+		}
+		
+		simulationsManagerLock.release();	
 	}
 	
 }
