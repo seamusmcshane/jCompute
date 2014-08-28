@@ -324,20 +324,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public long getSimRunTime(int simId)
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long getSimStepCount(int simId)
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public SimState togglePause(int simId)
 	{
 		// TODO Auto-generated method stub
@@ -358,34 +344,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 	}
 	
-	@Override
-	public void setActiveSim(int simId)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSimView(GUISimulationView simView)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void clearActiveSim()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resetActiveSimCamera()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public List<Simulation> getSimList()
 	{
@@ -418,13 +376,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 
 	@Override
 	public SimState getState(int simId)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getEndEvent(int simId)
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -480,23 +431,45 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, String format)
+	public void setReqSimStepRate(int simId, int stepRate)
 	{
-		// TODO Auto-generated method stub
-		
+		// NA		
+	}
+	
+	@Override
+	public void setActiveSim(int simId)
+	{
+		// NA
 	}
 
 	@Override
-	public void setReqSimStepRate(int simId, int stepRate)
+	public void setSimView(GUISimulationView simView)
 	{
-		// NOT Implemented		
-	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
-	{
+		// NA
+	}
 
-		
-		
-		// exportAllStatsToBytes
+	@Override
+	public void clearActiveSim()
+	{
+		// NA
+	}
+
+	@Override
+	public void resetActiveSimCamera()
+	{
+		// NA
+	}
+
+	@Override
+	public byte[] getStatsAsBytes(int simId, ExportFormat format) throws IOException
+	{
+		return null;
+	}
+
+	@Override
+	public void removeAll()
+	{
+		// TODO Auto-generated method stub
 	}
 	
 }
