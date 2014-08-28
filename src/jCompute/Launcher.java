@@ -138,7 +138,7 @@ public class Launcher
 				
 				DebugLogger.output("Creating Node : " + address);
 				
-				node = new Node(address);
+				node = new Node(address,new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 			
 			break;
 			default:
