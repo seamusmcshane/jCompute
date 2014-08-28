@@ -5,11 +5,6 @@ public class NodeConfiguration
 	private int maxSims = -1;
 	private int uid = -1;
 	
-	public NodeConfiguration()
-	{
-
-	}
-	
 	public void setUid(int uid)
 	{
 		this.uid = uid;
