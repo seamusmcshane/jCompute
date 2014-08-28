@@ -6,6 +6,7 @@ import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +47,6 @@ public interface SimulationsManagerInf
 
 	public SimState getState(int simId);
 	
-	
 	public int getReqSps(int simId);
 		
 	/** Manager Events */
@@ -76,5 +76,9 @@ public interface SimulationsManagerInf
 	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format);
-	
+
+	public byte[] getStatsAsBytes(int simId,ExportFormat format) throws IOException;
+
+	void removeAll();
+
 }
