@@ -56,15 +56,23 @@ public class Node
     		// Connecting to Server
     		Socket clientSocket = null;
     		
-			try
+    		try
 			{
+    			// Only attempt to connect every 5 seconds
+    			Thread.sleep(5000);
+    			
+	    		System.out.println("Connecting to : " + address + "@" + port);	    		
+
 				clientSocket = new Socket(address, port);
-				
-	    		System.out.println("Connecting to : " + address + "@" + port);
 	    		
-	    		// Main
-	    		mainNodeLoop(nodeConfig, clientSocket);
+	    		if(!clientSocket.isClosed())
+	    		{
+	    			System.out.println("Connected to : " + clientSocket.getRemoteSocketAddress());
+	    			System.out.println("We are : " + clientSocket.getLocalSocketAddress());
+	    			
+		    		// Main
 		    		process(nodeConfig, clientSocket);
+	    		}
 	    		
 	    		// Close Connection
     			if(!clientSocket.isClosed())
@@ -73,9 +81,13 @@ public class Node
     			}
 
 			}
-			catch (IOException e)
+			catch (IOException e )
 			{
-				System.out.println("No Connection");
+				System.out.println("Connection to " + address + " failed");
+			}
+			catch (InterruptedException e)
+			{
+				System.out.println("Sleep interupted");
 			}
 			
     	}
