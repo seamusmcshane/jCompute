@@ -2,9 +2,9 @@ package jCompute.Stats;
 
 import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -26,6 +26,7 @@ public class StatExporter
 	
 	// File names
 	private String fileNames[];
+	private String fileNameSuffix;
 	
 	// Data
 	private String data[];
@@ -33,35 +34,24 @@ public class StatExporter
 	/**
 	 * An object dedicated to exporting simulation stats
 	 * Not-Thread safe.
-	 * @param source
-	 * @param fileNameSuffix
 	 * @param format
 	 */
-	public StatExporter(StatManager source, String fileNameSuffix, ExportFormat format)
+	public StatExporter(ExportFormat format,String fileNameSuffix)
 	{
 		this.format = format;
-		
-		populateFromStatManager(source,fileNameSuffix);		
+		this.fileNameSuffix = fileNameSuffix;
 	}
 	
-	private void populateFromStatManager(StatManager sm, String fileNameSuffix)
+	public void populateFromStatManager(StatManager sm)
 	{
 		Set<String> groupList = sm.getGroupList();
 		int numFiles = groupList.size();
 		
 		// FileName
 		fileNames = new String[numFiles];
-		for(int f=0;f<numFiles;f++)
-		{
-			fileNames[f]  = new String();
-		}
 		
 		// FileData
 		data = new String[numFiles];
-		for(int f=0;f<numFiles;f++)
-		{
-			data[f]  = new String();
-		}
 		
 		int file=0;
 		for(String group : groupList)
@@ -77,8 +67,7 @@ public class StatExporter
 			else
 			{
 				fileName = group;
-			}
-			
+			}			
 			
 			fileNames[file] = fileName;
 			
@@ -92,7 +81,7 @@ public class StatExporter
 	/*
 	 * Bytes
 	 */
-	public byte[] toBytes(String fileNameSuffix) throws IOException
+	public byte[] toBytes() throws IOException
 	{
 		int numFiles = fileNames.length;
 		
@@ -106,19 +95,19 @@ public class StatExporter
 			size += 4;
 			// File Name Len Field
 			size += 4;
-			// File Name Len
-			size += fileNames[f].length()*2;
+			// File Name Len in bytes
+			size += fileNames[f].getBytes().length;
 			// Data Len Field
 			size += 4;
-			// Data Len
-			size += data[f].length()*2;
+			// Data Len in bytes
+			size += data[f].getBytes().length;			
 		}
 		
 		// Unicode 16 -2bytes chart
 		ByteBuffer tbuffer = ByteBuffer.allocate(size);
 		
 		// Frame Type
-		tbuffer.putInt(NSMCP.StatsAck);
+		tbuffer.putInt(NSMCP.SimStats);
 		
 		// Total Stat Files
 		tbuffer.putInt(numFiles);
@@ -131,6 +120,60 @@ public class StatExporter
 		return tbuffer.array();
 	}
 	
+	public void populateFromStream(DataInputStream source) throws IOException
+	{
+		System.out.println("StatExporter : populating from DataInputStream");
+		
+		int numFiles = source.readInt();
+		
+		fileNames = new String[numFiles];
+		data = new String[numFiles];
+		
+		System.out.println("Num Files " + numFiles);
+		
+		for(int f=0;f<numFiles;f++)
+		{
+			int fNum = source.readInt();
+			
+			if(fNum!=f)
+			{
+				System.out.println("File Numbers not correct");
+			}
+			
+			System.out.println("File Number : " + fNum);
+			
+			int len = source.readInt();
+			byte[] stringBytes = new byte[len];
+			
+			System.out.println("File Name Len " + len );
+			
+			source.readFully(stringBytes, 0, len);
+			
+			// FileName
+			fileNames[f] = new String(stringBytes);
+			
+			/* Remote filenames are sent with out a suffix
+			 * Append one if required
+			 */
+			if(!fileNameSuffix.equals(""))
+			{
+				fileNames[f] += " " + fileNameSuffix;
+			}
+			
+			System.out.println("File Name " +  fileNames[f]);
+
+			// FileData
+			len = source.readInt();
+			stringBytes = new byte[len];
+			System.out.println("Data Len " + len );
+			
+			source.readFully(stringBytes, 0, len);
+			data[f] = new String(stringBytes);
+			//System.out.println(data[f]);
+
+		}
+		
+	}
 	
 	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, String fileData) throws IOException
 	{
@@ -138,13 +181,13 @@ public class StatExporter
 		tbuffer.putInt(fileNum);
 		
 		// File Name Len
-		tbuffer.putInt(fileName.length());
+		tbuffer.putInt(fileName.getBytes().length);
 		
 		// File Name
 		tbuffer.put(fileName.getBytes());
 		
 		// Data Lenth
-		tbuffer.putInt(fileData.length());
+		tbuffer.putInt(fileData.getBytes().length);
 		
 		// FileData
 		tbuffer.put(fileData.getBytes());
@@ -501,5 +544,29 @@ public class StatExporter
 	    {
 	       return extension;
 	    }
+	    
+		public static ExportFormat fromInt(int v)
+		{
+			ExportFormat format = null;
+			switch(v)
+			{
+				case 0:
+					format = ExportFormat.XML;
+				break;
+				case 1:
+					format = ExportFormat.CSV;
+				break;
+				case 2:
+					format = ExportFormat.ARFF;
+				break;
+				default:
+					/* Invalid Usage */
+					format = null;
+			}
+			
+			return format;
+		}
 	}
+
+
 }
