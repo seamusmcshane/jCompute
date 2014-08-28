@@ -1,6 +1,9 @@
 package jCompute.Simulation.SimulationManager.Network.Node;
 
+import jCompute.JComputeEventBus;
 import jCompute.Simulation.Simulation;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
@@ -16,17 +19,27 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+
+import com.google.common.eventbus.Subscribe;
 
 public class Node
 {
-	private static SimulationsManager simsManager = new SimulationsManager(Runtime.getRuntime().availableProcessors());
+	// Simulation Manager
+	private SimulationsManagerInf simsManager;
+
 	// Protect the send socket
 	private Semaphore txLock = new Semaphore(1,true);
+	
+	// To ensure receive frames and events are processed atomically
+	private Semaphore rxLockEvents = new Semaphore(1,true);
 
     public Node(String address)
 	
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
+	
+    public Node(String address, SimulationsManagerInf simsManager)
 	{
     	System.out.println("Starting Node");
     	
@@ -36,6 +49,7 @@ public class Node
     	int port = NSMCP.StandardServerPort;    	
     	
     	
+    	JComputeEventBus.register(this);
     	// Disconnect Recovery Loop
     	while(true)
     	{
@@ -95,6 +109,7 @@ public class Node
 					switch (type)
 					{
 						case NSMCP.AddSimReq:
+							rxLockEvents.acquireUninterruptibly();
 
 							System.out.println("AddSimReq");
 	
@@ -105,6 +120,8 @@ public class Node
 							System.out.println("Added Sim " + simId);
 							
 							sendMessage(new AddSimReply(simId).toBytes());
+							rxLockEvents.release();
+						}
 						break;
 						case NSMCP.StartSimCMD:
 						
@@ -212,16 +229,21 @@ public class Node
 		txLock.release();
 	}
 	
-	private static void dumpSimlistToConsole()
+	@Subscribe
+	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
-		List<Simulation> simList = simsManager.getSimList();
-		
-		for(Simulation sim : simList)
+		try
 		{
-			System.out.println("Simulation " + sim.getState());
+			rxLockEvents.acquireUninterruptibly();
+			
+			sendMessage(new SimulationStateChanged(e).toBytes());
+			System.out.println("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
+		
+			rxLockEvents.release();
 		}
-		
-		System.out.println("Count : " + simList.size());
-		
+		catch (IOException e1)
+		{
+			System.out.println("Failed Sending Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
+		}
 	}
 }
