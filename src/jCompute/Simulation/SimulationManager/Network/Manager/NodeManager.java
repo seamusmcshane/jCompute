@@ -31,9 +31,9 @@ public class NodeManager
     private Semaphore nodeLock = new Semaphore(1,false);
 	
 	// Node configuration
-	private static NodeConfiguration nodeConfig;
+	private NodeConfiguration nodeConfig;
 	
-	private static int activeSims = 0;
+	private int activeSims = 0;
 	
 	// This simulations connected socket
 	private final Socket socket;
