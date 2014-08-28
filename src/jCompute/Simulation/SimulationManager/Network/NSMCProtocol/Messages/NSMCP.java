@@ -25,7 +25,6 @@ public class NSMCP
 	    }
 	};
 	
-	
 	// Invalid Frame 
     public static final int INVALID	= 0;	
     
@@ -55,11 +54,11 @@ public class NSMCP
     public static final int StartSimCMD	= 35;	// Manager Node Start Simulation Request (Command not Request)
     
     // Simulation Statistics Retrieval 
-    public static final int StatsReq 		= 41;	// Manager Node Statistics Req - request from controller to retrieve the finished simulation statistics 
-    public static final int StatsAck		= 42;	// Manager Node Statistics - reply with statistics (can be multi-frame) 
+    public static final int SimStatsReq 	= 41;	// Manager Node Statistics Req - request from controller to retrieve the finished simulation statistics 
+    public static final int SimStats		= 42;	// Manager Node Statistics - reply with statistics.
     
     // Notifications 
-    public static final int SimFinNot	= 51;	// Notification containing the details of the finished simulation 
+    public static final int SimStateNoti	= 51;	// Notification of a simulation state change
     
     // Heart Beat - Connection Timeout 
     public static final int KeepAlive		= 126;   // Manager Node must sent keep alives, to the controller. Else will be assumed offline by controller and will be forcibly unregistered. 
