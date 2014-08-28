@@ -1,19 +1,28 @@
 package jCompute.Simulation.SimulationManager.Network.Manager;
 
+import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStateChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
+import jCompute.Stats.StatExporter;
+import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 public class NodeManager
@@ -43,19 +52,27 @@ public class NodeManager
     // Is the remote node active. (connection up)
     private boolean active = false;
     
-    // Semaphore for methods to wait on
-    private Semaphore nodeWait = new Semaphore(0,false);
+    // Semaphores for methods to wait on
+    private Semaphore addSimWait = new Semaphore(0,false);
+    private Semaphore remSimWait = new Semaphore(0,false);
+    private Semaphore simStatsWait = new Semaphore(0,false);
     
-
-    // Protect the variables shared between the receive thread/timer and entry methods
-    private Semaphore msgBoxVarLock = new Semaphore(1,false);
+    // Request stats MSG box vars
+    private StatExporter statExporter;
     
+    // Add Sim MSG box Vars
     private int addSimId = -1;
     
+	/* Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (REMOTE) simId */
+	private ConcurrentHashMap<Integer,RemoteSimulationMapping> remoteSimulationMap;
+	
 	public NodeManager(int uid,Socket socket) throws IOException
 	{
-		nodeConfig = new NodeConfiguration(); 
-
+		nodeConfig = new NodeConfiguration();
+		
+		
+		remoteSimulationMap = new ConcurrentHashMap<Integer,RemoteSimulationMapping>(4);
+		
 		NSMCPReadyTimeOut = 0;
 		
 		System.out.println("New Node Manager " + uid);
@@ -197,17 +214,66 @@ public class NodeManager
 								if(nodeState == ProtocolState.READY)
 								{
 									System.out.println("Recieved Add Sim Reply");
-
-									msgBoxVarLock.acquireUninterruptibly();
 									
 									addSimId = input.readInt();
 									
-									nodeWait.release();
-									
-									msgBoxVarLock.release();
-
+									addSimWait.release();
 								}
 								
+							break;
+							case NSMCP.SimStateNoti:
+								
+								if(nodeState == ProtocolState.READY)
+								{
+									// Create the state object
+									SimulationStateChanged stateChanged = new SimulationStateChanged(input);
+								
+									System.out.println(stateChanged.info());
+									
+									// find the mapping
+									RemoteSimulationMapping mapping = remoteSimulationMap.get(stateChanged.getSimId());
+									
+									System.out.println("New " + mapping.info());
+									
+									// Post the event as if from a local simulation
+									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),stateChanged.getState(),stateChanged.getRunTime(),stateChanged.getStepCount(),stateChanged.getEndEvent()));
+								}
+								
+							break;
+							case NSMCP.SimStats:
+								
+								if(nodeState == ProtocolState.READY)
+								{
+
+									System.out.println("Recieved Sim Stats");
+
+									statExporter.populateFromStream(input);
+									
+									simStatsWait.release();									
+								}
+								
+							break;
+							case NSMCP.RemSimAck:
+								if(nodeState == ProtocolState.READY)
+								{
+									RemoveSimAck removeSimAck = new RemoveSimAck(input);
+									
+									int simId = removeSimAck.getSimId();
+
+									System.out.println("Recieved RemSimAck : " + simId);
+									
+									RemoteSimulationMapping mapping = remoteSimulationMap.get(simId);
+									
+									System.out.println("Remove " + mapping.info());
+									
+									// Remove the mapping as the remote simulation is gone.
+									remoteSimulationMap.remove(simId);
+									
+									activeSims--;
+									
+									remSimWait.release();
+									
+								}
 							break;
 							default :
 								System.out.println("Got Garbage");
@@ -234,7 +300,7 @@ public class NodeManager
 		recieveThread.start();
 		
 	}
-
+	
 	/**
 	 * Returns if the node is in the ready state.
 	 * @return
@@ -300,7 +366,14 @@ public class NodeManager
 		return false;
 	}
 
-	public int addSim(String scenarioText,int initialStepRate)
+	/**
+	 * Add a Simulation - Blocking
+	 * @param scenarioText
+	 * @param initialStepRate
+	 * @param mapping
+	 * @return
+	 */
+	public int addSim(String scenarioText,int initialStepRate, RemoteSimulationMapping mapping)
 	{
 		nodeLock.acquireUninterruptibly();
 		
@@ -308,37 +381,38 @@ public class NodeManager
 		
 		try
 		{
-			msgBoxVarLock.acquireUninterruptibly();
+			//addSimMsgBoxVarLock.acquireUninterruptibly();
 			
 			// Shared variable
 			addSimId = -1;
 			
 			// Create and Send add Sim Req
 			output.write(new AddSimReq(scenarioText,initialStepRate).toBytes());
-			
-			// Start timer
-		    addSimTick = 0; 
-		    addingSim = true;
 		    
-		    msgBoxVarLock.release();
+		    //addSimMsgBoxVarLock.release();
 		    
 		    // Wait until we are released (by timer or receive thread)
-		    nodeWait.acquireUninterruptibly();
+		    addSimWait.acquireUninterruptibly();
 
-		    msgBoxVarLock.acquireUninterruptibly();
+		    //addSimMsgBoxVarLock.acquireUninterruptibly();
 		    
 		    if(addSimId == -1)
 		    {
-		    	msgBoxVarLock.release();
+		    	//addSimMsgBoxVarLock.release();
 				nodeLock.release();
 
 		    	return -1;
 		    }
 		    else
 		    {
+		    	
+		    	mapping.setRemoteSimId(addSimId);
+		    	
+		    	remoteSimulationMap.put(addSimId, mapping);
+		    	
 		    	activeSims++;
 		    	
-		    	msgBoxVarLock.release();
+		    	//addSimMsgBoxVarLock.release();
 				nodeLock.release();
 
 				return addSimId;	
@@ -357,6 +431,31 @@ public class NodeManager
 
 	}
 
+	/**
+	 * Removes a simulation.
+	 * Blocking.
+	 * @param remoteSimId
+	 */
+	public void removeSim(int remoteSimId)
+	{
+		nodeLock.acquireUninterruptibly();
+
+		try
+		{
+			output.write(new RemoveSimReq(remoteSimId).toBytes());
+			
+			remSimWait.acquireUninterruptibly();
+			
+		}
+		catch (IOException e)
+		{
+			// Connection is gone...
+			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in Start Sim");
+		}
+		
+		nodeLock.release();
+	}
+	
 	public void startSim(int remoteSimId)
 	{
 		nodeLock.acquireUninterruptibly();
@@ -364,6 +463,35 @@ public class NodeManager
 		try
 		{
 			output.write(new StartSimCMD(remoteSimId).toBytes());
+		}
+		catch (IOException e)
+		{
+			// Connection is gone...
+			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in Start Sim");
+
+		}
+		
+		nodeLock.release();
+	}
+	
+	public void exportStats(int remoteSimId, String directory, String fileNameSuffix, ExportFormat format)
+	{
+		nodeLock.acquireUninterruptibly();
+
+		try
+		{
+			
+			// create a new exporter as format could change.
+			statExporter = new StatExporter(format,fileNameSuffix);
+
+			// Send the request
+			output.write(new SimulationStatsRequest(remoteSimId,format).toBytes());
+
+			simStatsWait.acquireUninterruptibly();
+			
+			// Got reply now export the stats.
+			statExporter.exportAllStatsToDir(directory);
+			
 		}
 		catch (IOException e)
 		{
