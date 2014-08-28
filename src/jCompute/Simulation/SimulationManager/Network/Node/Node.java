@@ -49,6 +49,7 @@ public class Node
 	    		
 	    		// Main
 	    		mainNodeLoop(nodeConfig, clientSocket);
+		    		process(nodeConfig, clientSocket);
 	    		
 	    		// Close Connection
     			if(!clientSocket.isClosed())
@@ -66,7 +67,7 @@ public class Node
 
 	}
 	
-    private static void mainNodeLoop(NodeConfiguration nodeConfig, Socket clientSocket) throws IOException
+    private void process(NodeConfiguration nodeConfig, Socket clientSocket)
     {
 
 		if(!clientSocket.isClosed())
