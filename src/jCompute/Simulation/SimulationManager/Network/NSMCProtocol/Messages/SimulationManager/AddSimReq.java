@@ -1,6 +1,5 @@
 package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
 import java.io.DataInputStream;
@@ -21,24 +20,12 @@ public class AddSimReq
 
 	// Construct from an input stream
 	public AddSimReq(DataInputStream source) throws IOException
-	{
-		DebugLogger.output("Add Sim Req");
-		
+	{		
 		initialStepRate = source.readInt();
 		int len = source.readInt();		
-
-		StringBuffer config = new StringBuffer();
-		
-		for(int c=0;c<len;c++)
-		{
-			config.append(source.readChar());
-		}
-		
-		scenarioText = config.toString();
-		
-		DebugLogger.output("StepRate : " + initialStepRate);
-		DebugLogger.output("ScenarioText : " + scenarioText);
-
+		byte[] bytes= new byte[len];
+		source.readFully(bytes, 0, len);
+		scenarioText = new String(bytes);
 	}
 	
 	public String getScenarioText()
@@ -53,13 +40,9 @@ public class AddSimReq
 	
 	public byte[] toBytes()
 	{
-		int slen = scenarioText.length();
+		int len = scenarioText.getBytes().length;
 		
-		// Unicode 16 -2bytes chart
-		ByteBuffer tbuffer = ByteBuffer.allocate((slen*2)+12); 
-		
-		System.out.println("TBuffer Len " + tbuffer.limit());
-		System.out.println("scenarioText Len " + scenarioText.length());
+		ByteBuffer tbuffer = ByteBuffer.allocate(len+12); 
 		
 		// AddSim Req
 		tbuffer.putInt(NSMCP.AddSimReq);
@@ -68,14 +51,9 @@ public class AddSimReq
 		tbuffer.putInt(initialStepRate);
 		
 		// Config follows (len is chars)
-		tbuffer.putInt(slen);
+		tbuffer.putInt(len);
 		
-		for(int c=0;c<slen;c++)
-		{
-			tbuffer.putChar(scenarioText.charAt(c));
-		}
-		
-		System.out.println("slen " + slen);
+		tbuffer.put(scenarioText.getBytes());
 		
 		return tbuffer.array();
 	}
