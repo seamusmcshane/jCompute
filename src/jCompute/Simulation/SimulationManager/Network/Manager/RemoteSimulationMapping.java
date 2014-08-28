@@ -6,10 +6,8 @@ public class RemoteSimulationMapping
 	private int remoteSimId;
 	private int nodeUid;
 	
-	public RemoteSimulationMapping(int localSimId,int remoteSimId,int nodeUid)
+	public RemoteSimulationMapping(int nodeUid)
 	{
-		this.localSimId = localSimId;
-		this.remoteSimId = remoteSimId;
 		this.nodeUid = nodeUid;
 	}	
 	
@@ -26,6 +24,21 @@ public class RemoteSimulationMapping
 	public int getRemoteSimId()
 	{
 		return remoteSimId;
+	}
+
+	public void setLocalSimId(int localSimId)
+	{
+		this.localSimId = localSimId;		
+	}
+
+	public void setRemoteSimId(int remoteSimId)
+	{
+		this.remoteSimId = remoteSimId;		
+	}
+
+	public String info()
+	{
+		return "Mapping - Node : " + nodeUid + " Lsid " + localSimId + " rSid " + remoteSimId;
 	}
 
 }
