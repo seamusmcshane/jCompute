@@ -194,7 +194,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 						// Check for an End Event
 						if(simManager.hasEndEventOccurred())
 						{
-							simState.finishState();
+							simState.finishState(simStats,simManager.getEndEvent());
 							
 							// Effectively a dead lock under any other circumstance.
 							pause.acquireUninterruptibly();
@@ -273,7 +273,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	 */
 	public void unPauseSim()
 	{
-		simState.runState();
+		simState.runState(simStats);
 				
 		pause.release();					// Release the pause semaphore
 		
@@ -286,7 +286,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	{
 		pause.acquireUninterruptibly();		// Pause the sim
 
-		simState.pauseState();		
+		simState.pauseState(simStats);		
 	}
 
 	/**
@@ -337,9 +337,11 @@ public class Simulation implements stateChangedInf, statChangedInf
 	 */
 	
 	@Override
-	public void stateChanged(SimState state)
+	public void stateChanged(SimState state,SimulationStats simStats, String endEvent)
 	{
-		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state));
+		System.out.println("Posting stateChanged " + simId + " " + state.toString());
+		
+		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state,simStats.getTotalTime(),simStats.getSimulationSteps(),endEvent));
 	}
 
 	@Override
