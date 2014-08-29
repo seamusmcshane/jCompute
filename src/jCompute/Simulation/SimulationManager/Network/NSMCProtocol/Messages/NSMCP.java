@@ -61,20 +61,8 @@ public class NSMCP
     public static final int SimStateNoti	= 51;	// Notification of a simulation state change
     public static final int SimStatNoti		= 52;	// Notification of a simulation stat change
     
-    // Heart Beat - Connection Timeout 
-    public static final int KeepAlive		= 126;   // Manager Node must sent keep alives, to the controller. Else will be assumed offline by controller and will be forcibly unregistered. 
-    public static final int KeepAliveAck	= 127;   // Controller will Ack a keep alive to notify the Manager Node. 
-    
-    // Protocol Sizes - Note 16bit Uni-code is expected in all Strings 
-    public static final int DataLengthFieldSize	= 4;     // 4 bytes
-    public static final int MaxFrameSize		= (256^4)-1; // 256*256-32.
-    public static final int DataLengthMaxValue	= MaxFrameSize-DataLengthFieldSize;
-
-    // Arbitrary Node Limits 
-    public static final int MaxSimManNodes		= 16;
-    
-    // The standard ports
+    // The standard port
     public static final int StandardServerPort = 10000;
     
-    public static final int ReadyStateTimeOut = 20;	// Max time to wait for a node to enter ready state 20 Seconds 
+    public static final int ReadyStateTimeOut = 5;	// Max time to wait for a node to enter ready state 5 Seconds 
 }
