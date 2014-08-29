@@ -73,7 +73,7 @@ public class NSMCP
     public static final int MaxSimManNodes		= 16;
     
     // The standard ports
-    public static final int StandardServerPort = 1000;
+    public static final int StandardServerPort = 10000;
     
     public static final int ReadyStateTimeOut = 20;	// Max time to wait for a node to enter ready state 20 Seconds 
 }
