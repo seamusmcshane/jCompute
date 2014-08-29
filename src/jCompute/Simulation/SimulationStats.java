@@ -21,7 +21,7 @@ public class SimulationStats
 	/**
 	 * Stat Event Freq Rate Limit (every valueof eventFreq in milliseconds)
 	 */
-	private int eventFreq = 250;
+	private int eventFreq = 1000;
 	private long prevEventTimeMillis = 0;
 	
 	public SimulationStats(Simulation sim)

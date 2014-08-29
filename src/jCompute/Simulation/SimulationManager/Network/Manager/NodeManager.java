@@ -2,6 +2,7 @@ package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -10,6 +11,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStatChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStateChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimAck;
@@ -238,6 +240,28 @@ public class NodeManager
 								}
 								
 							break;
+							case NSMCP.SimStatNoti:
+								
+								if(nodeState == ProtocolState.READY)
+								{
+									// Create the state object
+									SimulationStatChanged statChanged = new SimulationStatChanged(input);
+								
+									System.out.println(statChanged.info());
+									
+									// find the mapping
+									RemoteSimulationMapping mapping = remoteSimulationMap.get(statChanged.getSimId());
+									
+									if(mapping!=null)
+									{
+										System.out.println("New " + mapping.info());
+										
+										// Post the event as if from a local simulation
+										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),statChanged.getTime(),statChanged.getStepNo(),statChanged.getProgress(),statChanged.getAsps()));
+									}
+								}
+								
+							break;							
 							case NSMCP.SimStats:
 								
 								if(nodeState == ProtocolState.READY)
@@ -256,18 +280,7 @@ public class NodeManager
 								{
 									RemoveSimAck removeSimAck = new RemoveSimAck(input);
 									
-									int simId = removeSimAck.getSimId();
-
-									System.out.println("Recieved RemSimAck : " + simId);
-									
-									RemoteSimulationMapping mapping = remoteSimulationMap.get(simId);
-									
-									System.out.println("Remove " + mapping.info());
-									
-									// Remove the mapping as the remote simulation is gone.
-									remoteSimulationMap.remove(simId);
-									
-									activeSims--;
+									System.out.println("Recieved RemSimAck : " + removeSimAck.getSimId());
 									
 									remSimWait.release();
 									
@@ -488,6 +501,11 @@ public class NodeManager
 			sendMessage(new RemoveSimReq(remoteSimId).toBytes());
 			
 			remSimWait.acquireUninterruptibly();
+			
+			// Remove the mapping as the remote simulation is gone.
+			remoteSimulationMap.remove(remoteSimId);
+			
+			activeSims--;
 			
 		}
 		catch (IOException e)

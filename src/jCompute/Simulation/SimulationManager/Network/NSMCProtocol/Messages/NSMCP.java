@@ -26,7 +26,7 @@ public class NSMCP
 	};
 	
 	// Invalid Frame 
-    public static final int INVALID	= 0;	
+    public static final int INVALID	= 0;
     
     // Registration 
     public static final int RegReq	= 01;	// Manager Node Registration Frame - register with a controller
@@ -59,6 +59,7 @@ public class NSMCP
     
     // Notifications 
     public static final int SimStateNoti	= 51;	// Notification of a simulation state change
+    public static final int SimStatNoti		= 52;	// Notification of a simulation stat change
     
     // Heart Beat - Connection Timeout 
     public static final int KeepAlive		= 126;   // Manager Node must sent keep alives, to the controller. Else will be assumed offline by controller and will be forcibly unregistered. 
