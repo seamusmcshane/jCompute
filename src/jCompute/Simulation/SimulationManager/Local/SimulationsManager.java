@@ -658,5 +658,17 @@ public class SimulationsManager implements SimulationsManagerInf
 		
 		simulationsManagerLock.release();	
 	}
+
+	@Override
+	public ArrayList<Integer> getRecoverableSimIds()
+	{
+		return null;
+	}
+
+	@Override
+	public boolean hasRecoverableSimIds()
+	{
+		return false;
+	}
 	
 }

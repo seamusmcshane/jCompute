@@ -15,6 +15,7 @@ import jCompute.Stats.StatGroupListenerInf;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,7 +49,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	/* List of priority re-scheduled Simulations
 	 * (recovered from nodes that disappear)
 	 */
-	// TODO	
+	private ArrayList<Integer> recoveredSimIds;
+	private boolean hasRecoverableSimsIds = false;
 	
 	/* Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (LOCAL) simId */
 	private HashMap<Integer,RemoteSimulationMapping> localSimulationMap;
@@ -63,6 +65,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		DebugLogger.output("Started NetworkSimulationsManager");
 		
 		localSimulationMap = new HashMap<Integer,RemoteSimulationMapping>();
+		
+		recoveredSimIds = new ArrayList<Integer>();
 		
 		// List of simulation nodes.
 		activeNodes = new LinkedList<NodeManager>();
@@ -138,6 +142,16 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					
 					if(!node.isActive())
 					{
+						
+						ArrayList<Integer> nodeRecoveredSimIds = node.getRecoverableSimsIds();
+						
+						Iterator<Integer> nRSIdsIter = nodeRecoveredSimIds.iterator();
+						while(nRSIdsIter.hasNext())
+						{
+							recoveredSimIds.add(nRSIdsIter.next());
+							activeSims--;
+						}
+						
 						node.destroy("Node not Active");
 						itr.remove();
 						
@@ -147,12 +161,45 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					}
 				}
 				
+				if(recoveredSimIds.size()>0)
+				{
+					hasRecoverableSimsIds = true;
+				}
+				
 				networkSimulationsManagerLock.release();
 			}
 			
 		},0,5000);
 	}
 
+	@Override
+	public boolean hasRecoverableSimIds()
+	{		
+		return hasRecoverableSimsIds;
+	}
+	
+	@Override
+	public ArrayList<Integer> getRecoverableSimIds()
+	{
+		networkSimulationsManagerLock.acquireUninterruptibly();
+		
+		ArrayList<Integer> simIds = new ArrayList<Integer>();
+		
+		Iterator<Integer> itr = recoveredSimIds.iterator();
+		while(itr.hasNext())
+		{
+			simIds.add(itr.next());
+		}
+		
+		recoveredSimIds = new ArrayList<Integer>();
+		
+		hasRecoverableSimsIds = false;
+		
+		networkSimulationsManagerLock.release();
+		
+		return simIds;
+	}
+	
 	private void createAndStartRecieveThread()
 	{
 		try

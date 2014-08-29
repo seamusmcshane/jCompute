@@ -25,6 +25,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -344,20 +345,28 @@ public class NodeManager
 		return NSMCPReadyTimeOut;
 	}
 
-	public void destroy(String reason)
+	public ArrayList<Integer> getRecoverableSimsIds()
 	{
-		   Iterator<Entry<Integer, RemoteSimulationMapping>> itr = remoteSimulationMap.entrySet().iterator();
-		   
-			while (itr.hasNext())
-			{
-				int simId = itr.next().getValue().getLocalSimId();
-				
-				// TODO Recover sims
-				JComputeEventBus.post(new SimulationsManagerEvent(simId,SimulationsManagerEventType.RemovedSim));
-				
-				itr.remove();
-			}
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		
+	   Iterator<Entry<Integer, RemoteSimulationMapping>> itr = remoteSimulationMap.entrySet().iterator();
+
+		while (itr.hasNext())
+		{
+			int simId = itr.next().getValue().getLocalSimId();
 			
+			list.add(simId);
+			
+			JComputeEventBus.post(new SimulationsManagerEvent(simId,SimulationsManagerEventType.RemovedSim));
+			
+			itr.remove();
+		}
+		
+		return list;
+	}
+	
+	public void destroy(String reason)
+	{			
 		try
 		{
 			System.out.println("Closing Socket for Node " + nodeConfig.getUid() + " " + reason);

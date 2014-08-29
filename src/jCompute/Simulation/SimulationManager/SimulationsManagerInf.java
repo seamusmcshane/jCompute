@@ -7,6 +7,7 @@ import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -80,5 +81,8 @@ public interface SimulationsManagerInf
 	public byte[] getStatsAsBytes(int simId,ExportFormat format) throws IOException;
 
 	void removeAll();
+
+	public ArrayList<Integer> getRecoverableSimIds();
+	public boolean hasRecoverableSimIds();
 
 }

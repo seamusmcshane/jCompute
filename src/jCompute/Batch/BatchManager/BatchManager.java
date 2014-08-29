@@ -117,9 +117,55 @@ public class BatchManager
 		return added;
 	}
 	
+	private void recoverItemsFromInactiveNodes()
+	{		
+		batchManagerLock.acquireUninterruptibly();
+
+		if(simsManager.hasRecoverableSimIds())
+		{
+			ArrayList<Integer> recoveredIds = simsManager.getRecoverableSimIds();
+						
+			Iterator<Integer> itr = recoveredIds.iterator();
+			while(itr.hasNext())
+			{
+				//simIds.add(itr.next());
+				
+				int simId = itr.next();
+				
+				BatchItem item = findActiveBatchItemFromSimId(simId);
+				
+				System.out.println("activeItems " + activeItems.size());
+
+				System.out.println("item " + item);
+
+				batchManagerLock.release();
+
+				Batch batch = findBatch(item.getBatchId());
+				
+				batchManagerLock.acquireUninterruptibly();
+
+				System.out.println("batch " + batch);
+				
+				itemsLock.acquireUninterruptibly();
+
+				activeItems.remove(item);
+				
+				itemsLock.release();
+				
+				batch.returnItemToQueue(item);
+			}
+			
+		}
+		
+		batchManagerLock.release();
+
+	}
+	
 	private void schedule()
 	{
 		//DebugLogger.output("BatchManager Schedule Tick");
+		
+		recoverItemsFromInactiveNodes();
 		
 		itemsLock.acquireUninterruptibly();
 		
@@ -218,7 +264,6 @@ public class BatchManager
 			// Schedule it
 			if(!scheduleBatchItem(item))
 			{
-				
 				batch.returnItemToQueue(item);
 				break;
 			}
@@ -373,11 +418,14 @@ public class BatchManager
 				
 				DebugLogger.output("Recorded Completed Sim " + simId);
 				
-				BatchItem item = findActiveBatchItemFromSimId(simId);			
-
-				DebugLogger.output("GOT Active item " + item.getItemId());
-
-				Batch batch = findBatch(item.getBatchId());				
+				BatchItem item = findActiveBatchItemFromSimId(simId);
+				Batch batch = null;
+				
+				if(item!=null)
+				{
+					DebugLogger.output("GOT Active item " + item.getItemId());
+					batch = findBatch(item.getBatchId());
+				}
 
 				if(batch != null)
 				{
@@ -406,7 +454,6 @@ public class BatchManager
 					batchManagerListenerBatchProgressNotification(batch);
 				}
 
-				
 			break;
 			case PAUSED:
 			break;	
