@@ -13,8 +13,10 @@ import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -204,8 +206,19 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	{
 		try
 		{
-			listenSocket = new ServerSocket(NSMCP.StandardServerPort);
-
+			listenSocket = new ServerSocket();
+			
+			try
+			{
+				listenSocket.setReceiveBufferSize(1048576);
+			}
+			catch (SocketException e1)
+			{
+				e1.printStackTrace();
+			}
+			
+			listenSocket.bind(new InetSocketAddress("0.0.0.0",NSMCP.StandardServerPort));
+			
 			Thread thread = new Thread(new Runnable()
 			{
 				@Override
@@ -216,10 +229,13 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					while (listenSocket.isBound())
 					{
 						System.out.println("Listening for Connection");
-
+						
 						try
 						{
 							Socket nodeSocket = listenSocket.accept();
+							
+							nodeSocket.setSendBufferSize(32768);
+							
 							DebugLogger.output("New Connection from : " + nodeSocket.getRemoteSocketAddress());	
 
 							// Accept new Connections

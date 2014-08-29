@@ -1,7 +1,6 @@
 package jCompute.Simulation.SimulationManager.Network.Node;
 
 import jCompute.JComputeEventBus;
-import jCompute.Simulation.Simulation;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
@@ -17,9 +16,12 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Simul
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -69,9 +71,15 @@ public class Node
     			
 	    		System.out.println("Connecting to : " + address + "@" + port);	    		
 
-				clientSocket = new Socket(address, port);
-	    		
-	    		if(!clientSocket.isClosed())
+				//clientSocket = new Socket(address, port);
+				clientSocket = new Socket();
+				
+				clientSocket.setSendBufferSize(1048576);
+				clientSocket.setReceiveBufferSize(32768);
+				
+				clientSocket.connect(new InetSocketAddress(address,port), 1000);
+				
+				if(!clientSocket.isClosed())
 	    		{
 	    			System.out.println("Connected to : " + clientSocket.getRemoteSocketAddress());
 	    			System.out.println("We are : " + clientSocket.getLocalSocketAddress());
@@ -106,10 +114,10 @@ public class Node
     	try
     	{
 			// Link up output
-			output = new DataOutputStream(clientSocket.getOutputStream());
+			output = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
 			
 			// Input Stream
-			final DataInputStream input = new DataInputStream (clientSocket.getInputStream());
+			final DataInputStream input = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
 			
 			doRegistration(nodeConfig, input);
 			
@@ -281,7 +289,8 @@ public class Node
 		txLock.acquireUninterruptibly();
 		
 		output.write(bytes);
-		
+		output.flush();
+
 		txLock.release();
 	}
 	
