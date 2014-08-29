@@ -2,12 +2,14 @@ package jCompute.Simulation.SimulationManager.Network.Node;
 
 import jCompute.JComputeEventBus;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationRequest;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStatChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStateChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReply;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
@@ -23,7 +25,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import com.google.common.eventbus.Subscribe;
@@ -159,10 +160,7 @@ public class Node
 
 							simsManager.startSim(cmd.getSimid());
 							
-						break;
-						
-						// Default / Invalid
-						case NSMCP.INVALID:
+						break;						
 						case NSMCP.SimStatsReq:
 						
 							System.out.println("SimStatsReq");
@@ -185,16 +183,20 @@ public class Node
 							sendMessage(new RemoveSimAck(simId).toBytes());
 						}
 						break;
+						// Default / Invalid
+						case NSMCP.INVALID:
 						default:
-
 							System.out.println("Invalid NSMCP Message Recieved");
 							
 							state = ProtocolState.END;
 							
-							clientSocket.close();
 						break;
 					}
 					
+					if(state == ProtocolState.END)
+					{
+						clientSocket.close();
+					}
 				}
     				
 
@@ -234,11 +236,6 @@ public class Node
 			
 			switch(type)
 			{
-				case  NSMCP.INVALID:
-					System.out.println("Recieved Invalid Frame Type " + type);
-					state = ProtocolState.END;
-					finished = true;
-				break;
 				case NSMCP.RegAck : 
 					
 					System.out.println("Recieved Reg Ack");
@@ -272,12 +269,17 @@ public class Node
 					finished = true;
 					
 				break;
-				
+				case  NSMCP.INVALID:
 				default :
-					System.out.println("Got Garbage");
+					System.out.println("Recieved Invalid Frame Type " + type);
 					state = ProtocolState.END;
 				break;
 				
+			}
+			
+			if(state == ProtocolState.END)
+			{
+				finished = true;
 			}
 				
 		}
@@ -292,6 +294,23 @@ public class Node
 		output.flush();
 
 		txLock.release();
+	}
+	
+	@Subscribe
+	public void SimulationStatChangedEvent(SimulationStatChangedEvent e)
+	{
+		try
+		{
+			rxLockEvents.acquireUninterruptibly();
+			
+			sendMessage(new SimulationStatChanged(e).toBytes());
+		
+			rxLockEvents.release();
+		}
+		catch (IOException e1)
+		{
+			System.out.println("Failed Sending Simulation Stat Changed " + e.getSimId());
+		}
 	}
 	
 	@Subscribe

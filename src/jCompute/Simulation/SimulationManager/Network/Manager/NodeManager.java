@@ -122,11 +122,6 @@ public class NodeManager
 						
 						switch(type)
 						{
-							case NSMCP.INVALID :
-								// Test Frame or Garbage
-								System.out.println("Recieved Invalid Frame");
-								
-							break;
 							case NSMCP.RegReq :
 								
 								System.out.println("Recieved MNRegReq");
@@ -278,10 +273,18 @@ public class NodeManager
 									
 								}
 							break;
+							// Test Frame or Garbage
+							case NSMCP.INVALID :
 							default :
-								System.out.println("Got Garbage");
+								System.out.println("Recieved Invalid Frame");
+								nodeState = ProtocolState.END;
 							break;
 							
+						}
+						
+						if(nodeState == ProtocolState.END)
+						{
+							active = false;
 						}
 					}
 					// Exit // Do Node Shutdown
