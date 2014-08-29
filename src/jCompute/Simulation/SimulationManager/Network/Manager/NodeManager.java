@@ -2,7 +2,6 @@ package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
 import jCompute.Debug.DebugLogger;
-import jCompute.Simulation.Simulation;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -21,6 +20,8 @@ import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class NodeManager
 	
 	// Output Stream
 	private DataOutputStream output;
-	
+	private Semaphore txLock = new Semaphore(1,false);
 	private ProtocolState nodeState;
 	
     // Counter for NSMCP state machine
@@ -76,7 +77,6 @@ public class NodeManager
 	{
 		nodeConfig = new NodeConfiguration();
 		
-		
 		remoteSimulationMap = new ConcurrentHashMap<Integer,RemoteSimulationMapping>(4);
 		
 		NSMCPReadyTimeOut = 0;
@@ -90,7 +90,7 @@ public class NodeManager
 		this.socket = socket;
 		
 		// Output Stream
-		output = new DataOutputStream(socket.getOutputStream());
+		output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 		
 		nodeState = ProtocolState.NEW;
 		
@@ -109,9 +109,9 @@ public class NodeManager
 		        
 				try
 				{
-					DataInputStream input = new DataInputStream (socket.getInputStream());
-					
-			        int type = -1;
+					DataInputStream input = new DataInputStream (new BufferedInputStream(socket.getInputStream()));
+
+					int type = -1;
 			        
 			        active = true;
 			        
@@ -137,8 +137,7 @@ public class NodeManager
 									if(nodeState == ProtocolState.NEW)
 									{
 										// Create and Send Reg Ack
-										byte[] frame = new RegistrationReqAck(nodeConfig.getUid()).toBytes();
-										output.write(frame);
+										sendMessage(new RegistrationReqAck(nodeConfig.getUid()).toBytes());
 										
 										System.out.println("Sent MNRegAck UID " + nodeConfig.getUid());
 										
@@ -168,9 +167,7 @@ public class NodeManager
 									{
 										System.out.println("Requesting Node Configuration");
 										
-										byte[] frame = new ConfigurationRequest().toBytes();
-										
-										output.write(frame);
+										sendMessage(new ConfigurationRequest().toBytes());									
 									
 									}
 									else
@@ -315,6 +312,15 @@ public class NodeManager
 		
 	}
 	
+	private void sendMessage(byte[] bytes) throws IOException
+	{
+		txLock.acquireUninterruptibly();
+		
+		output.write(bytes);
+		output.flush();
+		txLock.release();
+	}
+	
 	/**
 	 * Returns if the node is in the ready state.
 	 * @return
@@ -421,7 +427,7 @@ public class NodeManager
 			addSimId = -1;
 			
 			// Create and Send add Sim Req
-			output.write(new AddSimReq(scenarioText,initialStepRate).toBytes());
+			sendMessage(new AddSimReq(scenarioText,initialStepRate).toBytes());
 		    
 		    //addSimMsgBoxVarLock.release();
 		    
@@ -476,7 +482,7 @@ public class NodeManager
 
 		try
 		{
-			output.write(new RemoveSimReq(remoteSimId).toBytes());
+			sendMessage(new RemoveSimReq(remoteSimId).toBytes());
 			
 			remSimWait.acquireUninterruptibly();
 			
@@ -496,7 +502,7 @@ public class NodeManager
 
 		try
 		{
-			output.write(new StartSimCMD(remoteSimId).toBytes());
+			sendMessage(new StartSimCMD(remoteSimId).toBytes());
 		}
 		catch (IOException e)
 		{
@@ -518,7 +524,7 @@ public class NodeManager
 			statExporter = new StatExporter(format,fileNameSuffix);
 
 			// Send the request
-			output.write(new SimulationStatsRequest(remoteSimId,format).toBytes());
+			sendMessage(new SimulationStatsRequest(remoteSimId,format).toBytes());
 
 			simStatsWait.acquireUninterruptibly();
 			
