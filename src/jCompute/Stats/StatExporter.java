@@ -2,8 +2,10 @@ package jCompute.Stats;
 
 import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +31,9 @@ public class StatExporter
 	private String fileNameSuffix;
 	
 	// Data
-	private String data[];
+	private String textData[];
+	private byte binData[];
+	
 	
 	/**
 	 * An object dedicated to exporting simulation stats
@@ -51,7 +55,7 @@ public class StatExporter
 		fileNames = new String[numFiles];
 		
 		// FileData
-		data = new String[numFiles];
+		textData = new String[numFiles];
 		
 		int file=0;
 		for(String group : groupList)
@@ -67,14 +71,57 @@ public class StatExporter
 			else
 			{
 				fileName = group;
-			}			
+			}
 			
 			fileNames[file] = fileName;
 			
 			// File Data
-			data[file] =  createStatExportString(sm.getStatGroup(group));
+			textData[file] =  createStatExportString(sm.getStatGroup(group));
 			
 			file++;			
+		}
+		
+		// Compress the text if required
+		if(this.format == ExportFormat.ZXML)
+		{
+			try
+			{
+				String fileExtension = format.getExtension();
+				
+				// Memory Buffer
+				ByteArrayOutputStream memoryBuffer = new ByteArrayOutputStream();
+				
+				// Create Archive
+				ZipOutputStream zipOutput = new ZipOutputStream(memoryBuffer);
+				
+				// Compressed or Store
+				zipOutput.setMethod(ZipOutputStream.DEFLATED);
+				
+				// Compression level
+				zipOutput.setLevel(9);
+				
+				for(int f=0;f<numFiles;f++)
+				{
+					// Entry start
+					zipOutput.putNextEntry(new ZipEntry(fileNames[f]+"."+fileExtension));
+					
+					//Data
+					zipOutput.write(textData[f].getBytes());
+					
+					// Entry end
+					zipOutput.closeEntry();
+				}
+				
+				// Archive end
+				zipOutput.close();
+				
+				binData = memoryBuffer.toByteArray();
+			}
+			catch (IOException e)
+			{
+		        JOptionPane.showMessageDialog(null, e.getMessage(), "Compress Data to Zip Failed!!?", JOptionPane.INFORMATION_MESSAGE);
+			}
+
 		}
 	}
 	
@@ -83,40 +130,74 @@ public class StatExporter
 	 */
 	public byte[] toBytes() throws IOException
 	{
-		int numFiles = fileNames.length;
+		ByteBuffer tbuffer;
 		
 		// Frame Type + Num Files
 		int size = 8;
+		String archiveName = "stats";
 		
-		// Calculate String Size
-		for(int f=0;f<numFiles;f++)
+		if(this.format == ExportFormat.ZXML)
 		{
 			// File Num Field
 			size += 4;
 			// File Name Len Field
 			size += 4;
 			// File Name Len in bytes
-			size += fileNames[f].getBytes().length;
+			size += archiveName.getBytes().length;
+			
 			// Data Len Field
 			size += 4;
+			
 			// Data Len in bytes
-			size += data[f].getBytes().length;			
+			size += binData.length;
+			
+			// Buffer
+			tbuffer = ByteBuffer.allocate(size);
+			
+			// Stats Message
+			tbuffer.putInt(NSMCP.SimStats);
+			
+			// Total Files (Archive)
+			tbuffer.putInt(1);
+			
+			// Write the archive to the buffer
+			writeFileToByteBuffer(tbuffer,0,archiveName,binData);
+			
 		}
-		
-		// Unicode 16 -2bytes chart
-		ByteBuffer tbuffer = ByteBuffer.allocate(size);
-		
-		// Frame Type
-		tbuffer.putInt(NSMCP.SimStats);
-		
-		// Total Stat Files
-		tbuffer.putInt(numFiles);
-		
-		for(int f=0;f<numFiles;f++)
+		else
 		{
-			writeFileToByteBuffer(tbuffer,f,fileNames[f],data[f]);
+			int numFiles = fileNames.length;
+
+			// Calculate String Size
+			for(int f=0;f<numFiles;f++)
+			{
+				// File Num Field
+				size += 4;
+				// File Name Len Field
+				size += 4;
+				// File Name Len in bytes
+				size += fileNames[f].getBytes().length;
+				// Data Len Field
+				size += 4;
+				// Data Len in bytes
+				size += textData[f].getBytes().length;			
+			}
+			
+			// Unicode 16 -2bytes chart
+			tbuffer = ByteBuffer.allocate(size);
+			
+			// Frame Type
+			tbuffer.putInt(NSMCP.SimStats);
+			
+			// Total Stat Files
+			tbuffer.putInt(numFiles);
+			
+			for(int f=0;f<numFiles;f++)
+			{
+				writeFileToByteBuffer(tbuffer,f,fileNames[f],textData[f]);
+			}
 		}
-		
+
 		return tbuffer.array();
 	}
 	
@@ -126,52 +207,89 @@ public class StatExporter
 		
 		int numFiles = source.readInt();
 		
-		fileNames = new String[numFiles];
-		data = new String[numFiles];
-		
-		System.out.println("Num Files " + numFiles);
-		
-		for(int f=0;f<numFiles;f++)
+		if(this.format == ExportFormat.ZXML)
 		{
+			// Expects 1 file.			
 			int fNum = source.readInt();
 			
-			if(fNum!=f)
+			if(numFiles!=1)
+			{
+				System.out.println("More than 1 file detected in archive operaton");
+			}
+			
+			if(fNum!=0)
 			{
 				System.out.println("File Numbers not correct");
 			}
 			
-			System.out.println("File Number : " + fNum);
-			
+			// File Name Len
 			int len = source.readInt();
-			byte[] stringBytes = new byte[len];
-			
 			System.out.println("File Name Len " + len );
 			
-			source.readFully(stringBytes, 0, len);
-			
-			// FileName
-			fileNames[f] = new String(stringBytes);
-			
-			/* Remote filenames are sent with out a suffix
-			 * Append one if required
-			 */
-			if(!fileNameSuffix.equals(""))
-			{
-				fileNames[f] += " " + fileNameSuffix;
-			}
-			
-			System.out.println("File Name " +  fileNames[f]);
+			// Filename
+			byte[] fileName = new byte[len];
+			source.readFully(fileName, 0, len);
+			System.out.println("File Name " +  fileNames);
 
-			// FileData
+			// Bin Data Len
 			len = source.readInt();
-			stringBytes = new byte[len];
-			System.out.println("Data Len " + len );
-			
-			source.readFully(stringBytes, 0, len);
-			data[f] = new String(stringBytes);
-			//System.out.println(data[f]);
+			System.out.println("Data Len " + len );			
 
+			// Bin Data
+			binData = new byte[len];
+			source.readFully(binData, 0, len);
+			
 		}
+		else
+		{
+			fileNames = new String[numFiles];
+			textData = new String[numFiles];
+
+			for(int f=0;f<numFiles;f++)
+			{
+				int fNum = source.readInt();
+				
+				if(fNum!=f)
+				{
+					System.out.println("File Numbers not correct");
+				}
+				
+				System.out.println("File Number : " + fNum);
+				
+				int len = source.readInt();
+				byte[] stringBytes = new byte[len];
+				
+				System.out.println("File Name Len " + len );
+				
+				source.readFully(stringBytes, 0, len);
+				
+				// FileName
+				fileNames[f] = new String(stringBytes);
+				
+				/* Remote filenames are sent with out a suffix
+				 * Append one if required
+				 */
+				if(!fileNameSuffix.equals(""))
+				{
+					fileNames[f] += " " + fileNameSuffix;
+				}
+				
+				System.out.println("File Name " +  fileNames[f]);
+
+				// FileData
+				len = source.readInt();
+				stringBytes = new byte[len];
+				System.out.println("Data Len " + len );
+				
+				source.readFully(stringBytes, 0, len);
+				textData[f] = new String(stringBytes);
+				//System.out.println(data[f]);
+
+			}
+		}
+		System.out.println("Num Files " + numFiles);
+		
+
 		
 	}
 	
@@ -193,22 +311,103 @@ public class StatExporter
 		tbuffer.put(fileData.getBytes());
 	}
 	
+	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, byte[] binData) throws IOException
+	{
+		// FileNum
+		tbuffer.putInt(fileNum);
+		
+		// File Name Len
+		tbuffer.putInt(fileName.getBytes().length);
+		
+		// File Name
+		tbuffer.put(fileName.getBytes());
+		
+		// Data Lenth
+		tbuffer.putInt(binData.length);
+		
+		// FileData
+		tbuffer.put(binData);
+	}
+	
 	/*
 	 * File
 	 */
 	
 	public void exportAllStatsToDir(String directory)
 	{
-		int numFiles = fileNames.length;
 		
-		for(int f=0;f<numFiles;f++)
+		if(format == ExportFormat.ZXML)
 		{
-			// Now send the strings to the output writer
-			System.out.println("Writing File : " + fileNames[f]+"."+format.getExtension());
-			
-			writeFiles(directory,fileNames[f],data[f]);
+			writeZipArchive(directory,fileNameSuffix);
+		}
+		else
+		{
+			int numFiles = fileNames.length;
+
+			for(int f=0;f<numFiles;f++)
+			{
+				// Now send the strings to the output writer
+				System.out.println("Writing File : " + fileNames[f]+"."+format.getExtension());
+				
+				writeFiles(directory,fileNames[f],textData[f]);
+			}
+		}
+
+	}
+	
+	private void writeZipArchive(String directory,String name)
+	{
+		String archiveName = name;
+		
+		if(name.equals(""))
+		{
+			archiveName = "stats";
 		}
 		
+		try
+		{
+			String filePath = directory+File.separator+archiveName+"."+"zip";	
+			// Write the memory buffer out as a file
+			BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(filePath));
+			fileOut.write(binData);
+			fileOut.flush();
+			fileOut.close();
+			
+			DebugLogger.output("Wrote File : " + archiveName+".zip");
+		}
+		catch (IOException e)
+		{
+	        JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + archiveName+".zip", JOptionPane.INFORMATION_MESSAGE);
+		}
+		
+	}
+	
+	/**
+	 * Write a single file out.
+	 * @param directory
+	 * @param fileName
+	 * @param fileData
+	 * @param extension
+	 */
+	private void writeFiles(String directory,String fileName,String fileData)
+	{
+		String fileExtension = format.getExtension();
+
+		try
+		{
+			String filePath = directory+File.separator+fileName+"."+fileExtension;
+				
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filePath));
+			
+			bufferedWriter.write(fileData);
+			bufferedWriter.close();
+
+		}
+		catch (IOException e)
+		{
+	        JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
+		}
+
 	}
 	
 	/*
@@ -450,82 +649,14 @@ public class StatExporter
 		fileData.append("@DATA\n");
 		
 	}
-
-	/**
-	 * Write a single file out.
-	 * @param directory
-	 * @param fileName
-	 * @param fileData
-	 * @param extension
-	 */
-	private void writeFiles(String directory,String fileName,String fileData)
-	{
-		String fileExtension = format.getExtension();
-
-		try
-		{
-			String filePath;
-			
-			// Compress XML Output into a zip
-			if(format == ExportFormat.XML)
-			{
-				filePath = directory+File.separator+fileName+"."+"zip";
-
-				FileOutputStream fileOutput = new FileOutputStream(filePath);
-				
-				BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutput);
-				
-				// Create Archive
-				ZipOutputStream zipOutput = new ZipOutputStream(bufferedOutput);
-				
-				// Compressed or Store
-				zipOutput.setMethod(ZipOutputStream.DEFLATED);
-				
-				// Compression level
-				zipOutput.setLevel(9);
-				
-				// Entry start
-				zipOutput.putNextEntry(new ZipEntry(fileName+"."+fileExtension));
-				
-				//Data
-				zipOutput.write(fileData.getBytes());
-				
-				// Entry end
-				zipOutput.closeEntry();
-				
-				// Archive end
-				zipOutput.close();
-				
-				DebugLogger.output("Wrote File : " + fileName+"."+fileExtension);				
-			}
-			else
-			{
-				filePath = directory+File.separator+fileName+"."+fileExtension;
-				
-				FileWriter fileWriter = new FileWriter(filePath);
-				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-				
-				bufferedWriter.write(fileData);
-				bufferedWriter.close();
-
-			}
-
-			//System.out.print(filePath + "\n");
-
-		}
-		catch (IOException e)
-		{
-	        JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
-		}
-
-	}
 	
 	public enum ExportFormat
 	{
 		XML ("Extensible Markup Language" , "xml"),
 		CSV ("Comma Separated Values" , "csv"),
-		ARFF ("Attribute-Relation File Format" , "arff");
-		
+		ARFF ("Attribute-Relation File Format" , "arff"),
+		ZXML ("Extensible Markup Language in a Zip Archive" , "xml");
+
 	    private final String description;
 	    private final String extension;
 
@@ -558,6 +689,9 @@ public class StatExporter
 				break;
 				case 2:
 					format = ExportFormat.ARFF;
+				break;
+				case 3:
+					format = ExportFormat.ZXML;
 				break;
 				default:
 					/* Invalid Usage */

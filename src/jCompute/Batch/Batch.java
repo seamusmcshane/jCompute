@@ -742,7 +742,7 @@ public class Batch implements StoredQueuePosition
 		
 		// Export Stats
 		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.CSV);
-		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.XML);
+		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.ZXML);
 		//simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath,String.valueOf(item.getItemHash()),ExportFormat.ARFF);
 		
 		itemLog.println("<Item>");
