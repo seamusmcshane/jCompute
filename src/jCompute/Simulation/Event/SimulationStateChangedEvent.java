@@ -13,7 +13,6 @@ public class SimulationStateChangedEvent
 	
 	public SimulationStateChangedEvent(int simId, SimState state, long runTime, long stepCount , String endEvent)
 	{
-		DebugLogger.output("SimulationStateChangedEvent " + simId + " State " + state.toString());
 		this.simId = simId;
 		this.state = state;
 		this.runTime = runTime;
