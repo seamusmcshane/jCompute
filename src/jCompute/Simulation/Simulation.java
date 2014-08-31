@@ -156,9 +156,11 @@ public class Simulation implements stateChangedInf, statChangedInf
 							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
 							while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
 							{
-							// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
-							// This will only wait if the step performance level is being exceeded
-							// Waiting between steps ensures smooth animiation on the view
+								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
+								// This will only wait if the step performance level is being exceeded
+								// Waiting between steps ensures smooth animiation on the view
+								// Yield as we do not want max performance.
+								Thread.yield();
 							}
 						}
 						// resets the value calculated in timeTotal()
