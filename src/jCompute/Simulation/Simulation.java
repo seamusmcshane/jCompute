@@ -96,16 +96,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	 * This method initiates the thread shutdown sequence in the Simulation Manager
 	 */
 	public void destroySim()
-	{
-		// Ensure we have the simulation in a state where it is not active.
-		
-		/*if ( simState.getState() == SimState.RUNNING)
-		{
-			DebugLogger.output("Pausing... (state|"+simState.getState().toString()+")");
-
-			pauseSim();
-		}*/
-		
+	{		
 		// Exit the Async Thread
 		running = false;
 		
@@ -113,23 +104,10 @@ public class Simulation implements stateChangedInf, statChangedInf
 		
 		DebugLogger.output("Destroying... SimId : " + simId);
 		
-		// Get our current thread.
-		Thread thisThread = Thread.currentThread();
-		
 		// We must until the simulation thread is gone.
 		while(!exited)
 		{
-			try
-			{
-				DebugLogger.output("Waiting on SimId : " + simId);
-				// Go to sleep or our busy wait will cause problems
-				thisThread.sleep(1);
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Thread.yield();
 		}
 		DebugLogger.output("Destroyed");
 
