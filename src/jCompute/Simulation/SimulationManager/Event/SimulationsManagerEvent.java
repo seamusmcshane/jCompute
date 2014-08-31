@@ -1,9 +1,13 @@
 package jCompute.Simulation.SimulationManager.Event;
 
-import jCompute.Debug.DebugLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimulationsManagerEvent
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(SimulationsManagerEvent.class);
+	
 	private int simId;
 	private SimulationsManagerEventType eventType;
 	
@@ -12,7 +16,7 @@ public class SimulationsManagerEvent
 		this.simId = simId;
 		this.eventType = eventType;
 		
-		DebugLogger.output("Created new SimulationsManagerEvent : " + eventType.toString() + " " + simId);
+		log.debug("Created new SimulationsManagerEvent : " + eventType.toString() + " " + simId);
 	}
 	
 	public int getSimId()
@@ -24,6 +28,4 @@ public class SimulationsManagerEvent
 	{
 		return eventType;
 	}
-	
-
 }
