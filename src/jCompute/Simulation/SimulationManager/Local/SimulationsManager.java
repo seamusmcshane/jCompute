@@ -1,7 +1,6 @@
 package jCompute.Simulation.SimulationManager.Local;
 
 import jCompute.JComputeEventBus;
-import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioVT;
@@ -28,234 +27,235 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SimulationsManager implements SimulationsManagerInf
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(SimulationsManager.class);
+
 	private static Semaphore simulationsManagerLock = new Semaphore(1);
 
 	/* Max Concurrent Simulations */
 	private final int maxSims;
-	private int activeSims;	
-	
+	private int activeSims;
+
 	/* Simulation Storage Structure */
 	private HashMap<Integer, Simulation> simulations;
-	
+
 	/* Total Count of Simulations Ran - used for simulation ID */
 	private int simulationNum;
-	
+
 	/* Active Sims View */
 	private GUISimulationView simView;
 	private Simulation activeSim;
-	
+
 	public SimulationsManager(int maxSims)
 	{
-		DebugLogger.output("Created Simulations Manager");
-		
+		log.info("Simulations Manager Created");
+
 		this.maxSims = maxSims;
-		
+
 		simulations = new HashMap<Integer, Simulation>();
-		
+
 		this.simulationNum = 0;
 		this.activeSims = 0;
-		
-		DebugLogger.output("Max Active Sims : " + maxSims);		
+
+		log.info("Max Active Sims : " + maxSims);
 	}
-	
+
 	@Override
 	public int addSimulation(String scenarioText, int intialStepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
-		if( activeSims < maxSims)
+
+		if (activeSims < maxSims)
 		{
 			simulationNum++;
 			activeSims++;
-			
+
 			// Create a sim & let sim know its id
 			Simulation sim = new Simulation(simulationNum);
-			
+
 			// Validate Scenario
 			ScenarioInf scenario = determinScenarios(scenarioText);
 
-			if(sim!=null && scenario!=null)
+			if (sim != null && scenario != null)
 			{
 				sim.createSimScenario(scenario);
-				
+
 				sim.setReqStepRate(intialStepRate);
-				
-				// add sim to struct - index on simId
+
+				// add sim to map - index on simId
 				simulations.put(simulationNum, sim);
 			}
 			else
 			{
 				sim.destroySim();
 				simulationNum--;
-				
+
 				simulationsManagerLock.release();
-				
+
+				log.error("Tried Adding Sim but failed");
+
 				return -1;
 			}
 
-			// simulationManagerListenerEventNotification(simulationNum,SimulationManagerEvent.AddedSim);
-			JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,SimulationsManagerEventType.AddedSim));
-			
+			JComputeEventBus.post(new SimulationsManagerEvent(simulationNum, SimulationsManagerEventType.AddedSim));
+
 			simulationsManagerLock.release();
 
 			return simulationNum;
 		}
 		else
 		{
-			DebugLogger.output("Reached Max Active Sims");
+			log.info("Reached Max Active Sims");
 
 			simulationsManagerLock.release();
 
 			return -1;
 		}
-
 	}
-	
+
 	@Override
 	public void removeSimulation(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		Simulation sim = simulations.remove(simId);
-		DebugLogger.output(">>>>>> removeSimulation ("+simId+")");
 
 		activeSims--;
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			sim.destroySim();
 
-			if(activeSim == sim)
+			if (activeSim == sim)
 			{
-				// Clear the Active Simulation View  Reference
-				if(simView!=null)
+				// Clear the Active Simulation View Reference
+				if (simView != null)
 				{
 					simView.setSim(null);
 				}
-				
+
 				activeSim = null;
 			}
-			
-			DebugLogger.output(">>>>>> removeSimulation SimulationsManagerEventType.RemovedSim ("+simId+")");
 
-			// simulationManagerListenerEventNotification(simId,SimulationManagerEvent.RemovedSim);
-			JComputeEventBus.post(new SimulationsManagerEvent(simId,SimulationsManagerEventType.RemovedSim));
-			
+			JComputeEventBus.post(new SimulationsManagerEvent(simId, SimulationsManagerEventType.RemovedSim));
+
 			simulationsManagerLock.release();
-			
+
 			return;
 		}
+		else
+		{
+			log.error("Tried Removing Sim " + simId + ", but did not find it?");
+		}
 
-		
 		simulationsManagerLock.release();
-
 	}
-	
+
 	@Override
 	public void startSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		Simulation sim = simulations.get(simId);
 
 		sim.startSim();
-		
-		simulationsManagerLock.release();		
+
+		simulationsManagerLock.release();
 	}
-		
+
 	@Override
 	public void pauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		Simulation sim = simulations.get(simId);
 
-		if(sim!=null)
+		if (sim != null)
 		{
 			sim.pauseSim();
 		}
-		
-		simulationsManagerLock.release();		
+
+		simulationsManagerLock.release();
 	}
-	
+
 	@Override
 	public String getScenarioText(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		String scenarioText = "NONE";
-		
-		Simulation sim = simulations.get(simId);
-		
-		SimulationScenarioManagerInf scenarioManager = null;
-		
-		if(sim!=null)
-		{			
-			scenarioManager = simulations.get(simId).getSimManager();	
-			
-			scenarioText = scenarioManager.getScenario().getScenarioText();
 
+		Simulation sim = simulations.get(simId);
+
+		SimulationScenarioManagerInf scenarioManager = null;
+
+		if (sim != null)
+		{
+			scenarioManager = simulations.get(simId).getSimManager();
+
+			scenarioText = scenarioManager.getScenario().getScenarioText();
 		}
-		
-		simulationsManagerLock.release();	
-		
+
+		simulationsManagerLock.release();
+
 		return scenarioText;
 	}
-	
+
 	@Override
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
+
+		if (sim != null)
+		{
 			sim.setReqStepRate(stepRate);
 		}
-		
+
 		simulationsManagerLock.release();
-		
+
 	}
 
 	@Override
 	public SimState togglePause(int simId)
 	{
 		SimState simState = null;
-		
+
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
+
+		if (sim != null)
+		{
 			simState = sim.togglePause();
 		}
-		
-		simulationsManagerLock.release();	
-		
+
+		simulationsManagerLock.release();
+
 		return simState;
-		
 	}
-	
+
 	@Override
 	public void unPauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
+
+		if (sim != null)
+		{
 			sim.unPauseSim();
 		}
-		
+
 		simulationsManagerLock.release();
-		
 	}
-	
+
 	private ScenarioInf determinScenarios(String text)
 	{
 		ScenarioVT scenarioParser = null;
@@ -267,56 +267,55 @@ public class SimulationsManager implements SimulationsManagerInf
 		// To get the type of Scenario object to create.
 		scenarioParser.loadConfig(text);
 
-		DebugLogger.output("Scenario Type : " + scenarioParser.getScenarioType());
+		log.debug("Scenario Type : " + scenarioParser.getScenarioType());
 
 		if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
 		{
-			DebugLogger.output("SAPP File");
+			log.debug("SAPP File");
 			simScenario = new SAPPScenario();
 
 			simScenario.loadConfig(text);
 
 		}
-		else if(scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
+		else if (scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
 		{
-			DebugLogger.output("LV File");
+			log.debug("LV File");
 			simScenario = new LotkaVolterraScenario();
 
 			simScenario.loadConfig(text);
 		}
-		else if(scenarioParser.getScenarioType().equalsIgnoreCase("Mandelbrot"))
+		else if (scenarioParser.getScenarioType().equalsIgnoreCase("Mandelbrot"))
 		{
-			DebugLogger.output("Mandelbrot File");
+			log.debug("Mandelbrot File");
 			simScenario = new MandelbrotScenario();
 
 			simScenario.loadConfig(text);
 		}
 		else
 		{
-			DebugLogger.output("DeterminScenarios :UKNOWN");
+			log.error("DeterminScenarios :UKNOWN");
 		}
 
 		return simScenario;
 	}
-	
+
 	@Override
 	public void setActiveSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		Simulation sim = simulations.get(simId);
-		
-		DebugLogger.output("Active Sim : " + simId);
-		
-		if(simView!=null)
+
+		log.debug("Active Sim : " + simId);
+
+		if (simView != null)
 		{
 			simView.setSim(sim);
 		}
-		
+
 		// We latch the active sim incase we do add a view.
 		activeSim = sim;
-		
-		
+
 		simulationsManagerLock.release();
 	}
 
@@ -324,35 +323,34 @@ public class SimulationsManager implements SimulationsManagerInf
 	public void setSimView(GUISimulationView simView)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
+
 		this.simView = simView;
-		
-		// Assuming there has been an active sim and there is currently  a simView
-		if(simView!=null)
+
+		// Assuming there has been an active sim and there is currently a
+		// simView
+		if (simView != null)
 		{
 			// Set the latched active sim in the new view.
-			if(activeSim!=null)
+			if (activeSim != null)
 			{
 				simView.setSim(activeSim);
 			}
-			
 		}
 
 		simulationsManagerLock.release();
 	}
-	
+
 	@Override
 	public void clearActiveSim()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
-		if(simView!=null)
+
+		if (simView != null)
 		{
 			simView.setSim(null);
 		}
-		
+
 		simulationsManagerLock.release();
-		
 	}
 
 	/* Will Reset the Camera of the active */
@@ -360,57 +358,55 @@ public class SimulationsManager implements SimulationsManagerInf
 	public void resetActiveSimCamera()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
-		
-		if(simView!=null)
+
+		if (simView != null)
 		{
 			simView.resetCamera();
 		}
-		
+
 		simulationsManagerLock.release();
 	}
-	
+
 	@Override
 	public List<Simulation> getSimList()
 	{
-		simulationsManagerLock.acquireUninterruptibly();		
-		
+		simulationsManagerLock.acquireUninterruptibly();
+
 		Set<Integer> simSet = simulations.keySet();
 		List<Simulation> list = new LinkedList<Simulation>();
 
-		if(simSet!=null)
+		if (simSet != null)
 		{
-			for(Integer id : simSet)
+			for (Integer id : simSet)
 			{
 				list.add(simulations.get(id));
 			}
-
 		}
-				
+
 		simulationsManagerLock.release();
-		
+
 		return list;
-	}	
-	
+	}
+
 	@Override
 	public List<Integer> getSimIdList()
 	{
-		simulationsManagerLock.acquireUninterruptibly();		
-		
+		simulationsManagerLock.acquireUninterruptibly();
+
 		Set<Integer> simSet = simulations.keySet();
 
 		List<Integer> list = null;
 
-		if(simSet!=null)
+		if (simSet != null)
 		{
 			list = new ArrayList<Integer>(simSet);
 		}
-				
+
 		simulationsManagerLock.release();
 
-		
 		return list;
 	}
-		
+
 	@Override
 	public int getMaxSims()
 	{
@@ -427,236 +423,231 @@ public class SimulationsManager implements SimulationsManagerInf
 	public SimState getState(int simId)
 	{
 		SimState simState = null;
-		
+
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
+
+		if (sim != null)
+		{
 			simState = sim.getState();
 		}
-		
-		simulationsManagerLock.release();	
-		
+
+		simulationsManagerLock.release();
+
 		return simState;
-		
 	}
-	
+
 	@Override
 	public Set<String> getStatGroupNames(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
+
 		Set<String> statGroupNames = null;
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			statGroupNames = sim.getSimManager().getStatmanger().getGroupList();
 		}
-		
-		simulationsManagerLock.release();	
+
+		simulationsManagerLock.release();
 
 		return statGroupNames;
 	}
-	
-	@Override 
-	public void exportAllStatsToDir(int simId,String directory,String fileNameSuffix, ExportFormat format)
+
+	@Override
+	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
-		DebugLogger.output("Exporting Stats for " + simId);
-		
-		if(sim!=null)
+
+		log.info("Exporting Stats for " + simId);
+
+		if (sim != null)
 		{
-			/* Pause the sim as it will be updating its internal data structures
+			/*
+			 * Pause the sim as it will be updating its internal data structures
 			 * Only pause sim if running or it will dead lock.
 			 */
-			if(sim.getState() == SimState.RUNNING)
+			if (sim.getState() == SimState.RUNNING)
 			{
 				sim.pauseSim();
 			}
-			
-			
+
 			// Create a stat exporter with export format.
-			StatExporter exporter = new StatExporter(format,fileNameSuffix);
-			
+			StatExporter exporter = new StatExporter(format, fileNameSuffix);
+
 			// populate from the stat manager as data source.
 			exporter.populateFromStatManager(sim.getSimManager().getStatmanger());
-			
+
 			// Export the stats
 			exporter.exportAllStatsToDir(directory);
-			
 		}
-		
+
 		simulationsManagerLock.release();
 	}
-	
-	@Override 
-	public byte[] getStatsAsBytes(int simId,ExportFormat format) throws IOException
+
+	@Override
+	public byte[] getStatsAsBytes(int simId, ExportFormat format) throws IOException
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
+
 		byte[] bytes = null;
-		
-		DebugLogger.output("Exporting Stats as bytes for " + simId);
-		
-		if(sim!=null)
+
+		log.debug("Exporting Stats as bytes for " + simId);
+
+		if (sim != null)
 		{
-			/* Pause the sim as it will be updating its internal data structures
+			/*
+			 * Pause the sim as it will be updating its internal data structures
 			 * Only pause sim if running or it will dead lock.
 			 */
-			if(sim.getState() == SimState.RUNNING)
+			if (sim.getState() == SimState.RUNNING)
 			{
 				sim.pauseSim();
 			}
-			
-			
+
 			// Create a stat exporter with export format.
-			StatExporter exporter = new StatExporter(format,"");
-			
+			StatExporter exporter = new StatExporter(format, "");
+
 			// populate from the stat manager as data source.
 			exporter.populateFromStatManager(sim.getSimManager().getStatmanger());
-			
+
 			// Export the stats
 			bytes = exporter.toBytes();
-			
 		}
-		
+
 		simulationsManagerLock.release();
-		
+
 		return bytes;
 	}
-	
+
 	@Override
 	public boolean isStatGroupGraphingEnabled(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
+
 		boolean enabled = false;
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			enabled = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled();
 		}
-		
-		simulationsManagerLock.release();	
+
+		simulationsManagerLock.release();
 
 		return enabled;
 	}
-	
+
 	@Override
 	public int getStatGroupGraphSampleWindowSize(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
+
 		int window = -1;
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			window = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
 		}
-		
-		simulationsManagerLock.release();	
+
+		simulationsManagerLock.release();
 
 		return window;
 	}
-	
+
 	@Override
 	public boolean hasStatGroupTotalStat(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
+
 		boolean globalStat = false;
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			globalStat = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().hasTotalStat();
 		}
-		
-		simulationsManagerLock.release();	
+
+		simulationsManagerLock.release();
 
 		return globalStat;
 	}
-	
+
 	@Override
 	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			sim.getSimManager().getStatmanger().getStatGroup(group).addStatGroupListener(listener);
 		}
-		
-		simulationsManagerLock.release();	
 
+		simulationsManagerLock.release();
 	}
-	
+
 	@Override
 	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
+
+		if (sim != null)
 		{
 			sim.getSimManager().getStatmanger().getStatGroup(group).removeStatGroupListener(listener);
 		}
-		
-		simulationsManagerLock.release();	
 
+		simulationsManagerLock.release();
 	}
-	
+
 	@Override
 	public int getReqSps(int simId)
 	{
 		int reqSps = -1;
-		
+
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
-		
-		if(sim!=null)
-		{	
+
+		if (sim != null)
+		{
 			reqSps = sim.getReqSps();
 		}
-		
-		simulationsManagerLock.release();	
-		
+
+		simulationsManagerLock.release();
+
 		return reqSps;
 	}
 
 	@Override
 	public void removeAll()
 	{
-		simulationsManagerLock.acquireUninterruptibly();	
-		
-	   Iterator<Entry<Integer, Simulation>> itr = simulations.entrySet().iterator();
-	   
+		simulationsManagerLock.acquireUninterruptibly();
+
+		Iterator<Entry<Integer, Simulation>> itr = simulations.entrySet().iterator();
+
 		while (itr.hasNext())
 		{
 			itr.next().getValue().destroySim();
-			
+
 			itr.remove();
 		}
-		
-		simulationsManagerLock.release();	
+
+		simulationsManagerLock.release();
 	}
 
 	@Override
@@ -670,5 +661,5 @@ public class SimulationsManager implements SimulationsManagerInf
 	{
 		return false;
 	}
-	
+
 }
