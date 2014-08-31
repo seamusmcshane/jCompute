@@ -1,13 +1,17 @@
 package jCompute;
 
-import jCompute.Debug.DebugLogger;
-
 import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
 
 public class JComputeEventBus
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(JComputeEventBus.class);
+	
 	private static boolean init = false;
 	private static AsyncEventBus eventBus;
 	
@@ -28,15 +32,10 @@ public class JComputeEventBus
 			eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
 			init = true;
 			
-			launchMessage("JComputeEventBus Started");
+			log.info("JComputeEventBus Started");
 		}
 		
 		return init;
-	}
-	
-	private static void launchMessage(String message)
-	{
-		DebugLogger.output("Started " + message);
 	}
 	
 	public static void register(Object subscriber)
