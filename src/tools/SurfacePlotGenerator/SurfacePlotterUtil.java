@@ -80,9 +80,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	public SurfacePlotterUtil()
 	{
 		lookandFeel();
-
-		DebugLogger.setDebug(true);
-
+		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
