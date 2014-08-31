@@ -1,6 +1,5 @@
 package jCompute.Scenario;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Stats.StatGroupSetting;
 
 import java.io.ByteArrayInputStream;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -26,6 +26,8 @@ import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base Scenario File reader.
@@ -33,6 +35,9 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 
 public class ScenarioVT
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(ScenarioVT.class);
+	
 	XmlSchema schema;
 	private XMLConfiguration scenario;
 	private List<StatGroupSetting> statSettingsList;
@@ -83,11 +88,11 @@ public class ScenarioVT
 		}
 		catch (ConfigurationException e)
 		{
-			DebugLogger.output("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
+			log.error("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
 		catch (FileNotFoundException e)
 		{
-			DebugLogger.output("Schema File Not Found : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
+			log.error("Schema File Not Found : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
 	}
 
@@ -220,7 +225,7 @@ public class ScenarioVT
 			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section, "TotalStat"), getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
 		}
 
-		DebugLogger.output("Statistics " + statisticsGroups);
+		log.debug("Statistics " + statisticsGroups);
 	}
 
 	public List<StatGroupSetting> getStatGroupSettingsList()
@@ -267,7 +272,7 @@ public class ScenarioVT
 		catch (ConfigurationException e)
 		{
 			baos = null;
-			DebugLogger.output("Error getting scenario XML");
+			log.error("Error getting scenario XML");
 		}
 		
 		if(baos == null)
@@ -280,14 +285,12 @@ public class ScenarioVT
 	
 	public void dumpXML()
 	{
-		DebugLogger.output("TODO");
-
 		ConfigurationNode rootNode = scenario.getRoot();
 
 		String rootName = rootNode.getName();
 
-		DebugLogger.output("Root Element :" + rootName);
-		DebugLogger.output("Schema : " + rootNode.getAttribute(1).getValue());
+		log.debug("Root Element :" + rootName);
+		log.debug("Schema : " + rootNode.getAttribute(1).getValue());
 
 		Iterator<String> itr = scenario.getKeys();
 		
@@ -296,8 +299,8 @@ public class ScenarioVT
 			 
 			String field = itr.next();
 			
-			DebugLogger.output(rootName+"."+field);
-			DebugLogger.outputString(stripXMLPath(field) + " : ");
+			log.debug(rootName+"."+field);
+			log.debug(stripXMLPath(field) + " : ");
 			
 			XmlSchemaType type = findSubNodeDataType(rootName,field);
 
@@ -305,27 +308,12 @@ public class ScenarioVT
 			
 			if(type!=null)
 			{
-				DebugLogger.outputString(type.getQName().getLocalPart());
-				DebugLogger.outputString(" - " + getValueToString(field,type)+"\n");
+				log.debug(type.getQName().getLocalPart());
+				log.debug(" - " + getValueToString(field,type)+"\n");
 			}
 
 		}
-		DebugLogger.output("");
-
-		// XmlSchemaElement element = schema.getElementByName(new
-		// QName("","Scenario"));
-		// DebugLogger.output(element.getName());
-
-		/*XmlSchemaType type = findDataType("ReproductionAndSurvivalDivisor");
-
-		DebugLogger.output(type.toString());*/
-		
-		
-		//DebugLogger.output(schema.getElementByName(test));
-
-		//DebugLogger.output(test.getLocalPart());
-		
-		// schema.write(System.out);
+		log.debug("");
 	}
 		
 	public String getValueToString(String path,XmlSchemaType type)
@@ -381,13 +369,9 @@ public class ScenarioVT
 		while (itr2.hasNext())
 		{
 			XmlSchemaElement element = itr2.next();
-			
-			/*DebugLogger.output("NAME  : " + element.getName());
-			DebugLogger.output("TYPE  : " + element.getSchemaTypeName());*/
 						
 			if(element.getSchemaType().getClass().equals(XmlSchemaComplexType.class))
 			{
-				//DebugLogger.output("NAME  : " + element.getName());
 				dataType = transverseComplexType(targetPath,element.getName(),element);
 				
 				if(dataType!=null)
@@ -412,16 +396,6 @@ public class ScenarioVT
 	// Process a simple type for the target - type will not be null if found.
 	private boolean isSimpleTypeTarget(String target, String path,XmlSchemaElement schemaElement)
 	{
-		//XmlSchemaType type = null;
-		/*DebugLogger.output("QNAME : " + schemaElement.getQName().toString());
-		DebugLogger.output("NAME  : " + schemaElement.getName());
-		DebugLogger.output("TYPE  : " + schemaElement.getSchemaTypeName());
-		
-		DebugLogger.output("NS	  : " + schemaElement.getQName().getNamespaceURI());
-		DebugLogger.output("LC	  : " + schemaElement.getQName().getLocalPart());
-		DebugLogger.output("PX	  : " + schemaElement.getQName().getPrefix());*/
-		//DebugLogger.output("Path : " + path + " Target : " + target);
-
 		if(path.equals(target))
 		{
 			return schemaElement.getName().equalsIgnoreCase(stripXMLPath(target));
@@ -455,15 +429,8 @@ public class ScenarioVT
 			else
 			{
 				if(isSimpleTypeTarget(target,path+"."+element.getName(),element))
-				{					
-					/*DebugLogger.output(element.getName());
-					
-					DebugLogger.output(target);*/
-					
+				{									
 					dataType = element.getSchemaType();
-					
-					//DebugLogger.output( element.getSchemaTypeName());
-
 					break;
 				}
 			}
