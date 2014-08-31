@@ -1,7 +1,5 @@
 package jCompute;
 
-import jCompute.Debug.DebugLogger;
-
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -9,8 +7,14 @@ import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class IconManager
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(IconManager.class);
+	
 	private static HashMap<String, ImageIcon> iconMap;
 
 	private static String smallIconDirName = "16x16";
@@ -33,7 +37,7 @@ public class IconManager
 	{
 		iconMap = new HashMap<String, ImageIcon>();
 
-		DebugLogger.output("Loading icon theme " + themeName);
+		log.info("Loading icon theme " + themeName);
 
 		String themePath = "/icons/" + themeName + "/";
 
@@ -51,7 +55,7 @@ public class IconManager
 	{
 		for (int f = 0; f < files.length; f++)
 		{
-			DebugLogger.output("File : " + files[f].getName() + " " + files[f].getAbsolutePath());
+			log.debug("File : " + files[f].getName() + " " + files[f].getAbsolutePath());
 
 			if (files[f].isFile())
 			{
@@ -68,7 +72,7 @@ public class IconManager
 		{
 			if(url!=null)
 			{
-				DebugLogger.output(url.toURI().toString());
+				log.debug(url.toURI().toString());
 				file = new File(url.toURI());
 			}
 		}
