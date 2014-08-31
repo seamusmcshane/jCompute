@@ -1,7 +1,6 @@
 package jCompute.Simulation;
 
 import jCompute.JComputeEventBus;
-import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
@@ -11,6 +10,9 @@ import jCompute.Simulation.SimulationState.stateChangedInf;
 import jCompute.Simulation.SimulationStats.statChangedInf;
 
 import java.util.concurrent.Semaphore;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simulation class
@@ -22,6 +24,9 @@ import java.util.concurrent.Semaphore;
  */
 public class Simulation implements stateChangedInf, statChangedInf
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(Simulation.class);
+	
 	/* Simulation State */
 	private SimulationState simState;
 		
@@ -77,20 +82,18 @@ public class Simulation implements stateChangedInf, statChangedInf
 	{
 		if(scenario!=null)
 		{
-			DebugLogger.output("Assigning Sim Manager");
+			log.info("Assigning Sim Manager");
 			
 			simManager = scenario.getSimulationScenarioManager();
 			
 			// This is a special external end event based on the simulation step count.
 			simManager.setScenarioStepCountEndEvent(simStats);
 			
-			DebugLogger.output("Scenario Type : " + scenario.getScenarioType());
-
+			log.info("Scenario Type : " + scenario.getScenarioType());
 		}
 		
 		simStats.clearSimulationStats();
-		simState.newState();
-		
+		simState.newState();		
 	}
 
 	/**
@@ -103,14 +106,14 @@ public class Simulation implements stateChangedInf, statChangedInf
 		
 		pause.release();
 		
-		DebugLogger.output("Destroying... SimId : " + simId);
+		log.info("Destroying Simulation : " + simId);
 		
 		// We must until the simulation thread is gone.
 		while(!exited)
 		{
 			Thread.yield();
 		}
-		DebugLogger.output("Destroyed");
+		log.info("Destroyed");
 
 		if(simManager!=null)
 		{
@@ -192,7 +195,6 @@ public class Simulation implements stateChangedInf, statChangedInf
 		);
 
 		asyncUpdateThread.start();
-
 	}
 
 	/**
@@ -249,11 +251,11 @@ public class Simulation implements stateChangedInf, statChangedInf
 			break;
 			case FINISHED:
 				// This is a usage error - cannot toggle pause when finished.
-				System.out.println("Attempt to toggle pause in state " + state.toString());
+				log.error("Attempt to toggle pause in state " + state.toString());
 			break;
 			default:
-				// This is an error - this list needs updated
-				System.out.println("Attempt to toggle pause in unknown state " + state.toString());
+				// This is an error - this switch statement updated.
+				log.error("Attempt to toggle pause in unknown state " + state.toString());
 		}
 
 		// Return the NEW sim state
@@ -333,7 +335,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	@Override
 	public void stateChanged(SimState state,SimulationStats simStats, String endEvent)
 	{
-		System.out.println("Posting stateChanged " + simId + " " + state.toString());
+		log.debug("StateChanged " + simId + " " + state.toString());
 		
 		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state,simStats.getTotalTime(),simStats.getSimulationSteps(),endEvent));
 	}
