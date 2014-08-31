@@ -464,7 +464,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		Simulation sim = simulations.get(simId);
 
-		log.info("Exporting Stats for " + simId);
+		log.info("Exporting Stats for Simulation " + simId);
 
 		if (sim != null)
 		{
