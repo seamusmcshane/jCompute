@@ -6,7 +6,7 @@ import jCompute.Batch.BatchItem;
 import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
-import jCompute.Debug.DebugLogger;
+import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
@@ -19,10 +19,16 @@ import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.eventbus.Subscribe;
 
 public class BatchManager
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
+	
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);	
 
@@ -163,7 +169,7 @@ public class BatchManager
 	
 	private void schedule()
 	{
-		//DebugLogger.output("BatchManager Schedule Tick");
+		log.debug("Schedule Tick");
 		
 		recoverItemsFromInactiveNodes();
 		
@@ -178,11 +184,11 @@ public class BatchManager
 		{
 			item = itr.next();
 			
-			DebugLogger.output("Going to remove sim " + item.getSimId());
+			log.debug("Going to remove sim " + item.getSimId());
 			
 			simsManager.removeSimulation(item.getSimId());
 			
-			DebugLogger.output(i + " Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
+			log.debug(i + " Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId() + " SimId : " + item.getSimId());
 			i++;
 		}
 		
@@ -214,7 +220,7 @@ public class BatchManager
 	 */
 	private boolean scheduleFifo()
 	{
-		//DebugLogger.output("Schedule Fifo");
+		log.debug("Schedule Fifo");
 		
 		// Get the first batch - FIFO
 		Batch batch = (Batch) fifoQueue.peek();
@@ -275,7 +281,7 @@ public class BatchManager
 	
 	private void scheduleFair()
 	{
-		//DebugLogger.output("Schedule Fair");
+		log.debug("Schedule Fair");
 
 		int size = fairQueue.size();
 		double maxActive = simsManager.getMaxSims()-fifoQueue.size();
@@ -286,7 +292,7 @@ public class BatchManager
 			pos = fairQueueLast % size;
 			fairTotal = (int) Math.ceil(maxActive/size);
 			
-			DebugLogger.output("Size " + size + " maxActive " + maxActive + " fairTotal " + fairTotal);
+			log.debug("Size " + size + " maxActive " + maxActive + " fairTotal " + fairTotal);
 
 		}
 		else
@@ -327,7 +333,7 @@ public class BatchManager
 			{
 				if(batch.getRemaining() > 0)
 				{
-					DebugLogger.output("batch.getActiveItemsCount() " + batch.getActiveItemsCount() + " fairTotal" + fairTotal );
+					log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " + batch.getActiveItemsCount() + " fairTotal" + fairTotal );
 					
 					if(batch.getActiveItemsCount() < fairTotal)
 					{
@@ -371,7 +377,7 @@ public class BatchManager
 
 	private boolean scheduleBatchItem(BatchItem item)
 	{
-		DebugLogger.output("Schedule Batch");
+		log.debug("Schedule BatchItem");
 		
 		batchManagerLock.release();
 		
@@ -382,7 +388,7 @@ public class BatchManager
 		// If the simulations manager has added a simulation for us
 		if(simId>0)
 		{
-			DebugLogger.output("Setting ID");
+			log.debug("Item : " + item.getItemId() + " setting simId " + simId);
 			
 			item.setSimId(simId);
 			
@@ -408,6 +414,8 @@ public class BatchManager
 		SimState state = e.getState();
 		int simId = e.getSimId();
 		
+		log.debug("SimulationStateChangedEvent " + e.getSimId()); 
+		
 		switch(state)
 		{
 			case RUNNING:
@@ -416,33 +424,29 @@ public class BatchManager
 			break;
 			case FINISHED:
 				
-				DebugLogger.output("Recorded Completed Sim " + simId);
 				
 				BatchItem item = findActiveBatchItemFromSimId(simId);
 				Batch batch = null;
 				
 				if(item!=null)
 				{
-					DebugLogger.output("GOT Active item " + item.getItemId());
+					log.debug("Item : " + item.getItemId());
 					batch = findBatch(item.getBatchId());
 				}
 
 				if(batch != null)
 				{
-					DebugLogger.output("GOT Batch " + batch.getBatchId());
+					log.debug("Batch : " + batch.getBatchId());
 
-					// Updates Logs/Exports Stats
-					batch.setComplete(simsManager,item,e);
-					
+					// Internally Exports Stats
+					batch.setComplete(simsManager,item,e);					
 				}
 				else
 				{
-					DebugLogger.output("Simulation Event for NULL batch " + item.getBatchId());
+					log.error("Simulation Event for NULL batch " + item.getBatchId());
 				}
 
-				itemsLock.acquireUninterruptibly();
-				
-				DebugLogger.output(">>>> [BM] simulationStateChanged ("+simId+") - item("+item.getItemId()+")");
+				itemsLock.acquireUninterruptibly();				
 				
 				activeItems.remove(item);
 				completeItems.add(item);
@@ -451,6 +455,8 @@ public class BatchManager
 				
 				if(batch != null)
 				{
+					log.debug("Simulation : " + simId+" State " + state.toString() + " Batch " + batch.getBatchId() + " item "+item.getItemId());
+
 					batchManagerListenerBatchProgressNotification(batch);
 				}
 
@@ -459,9 +465,10 @@ public class BatchManager
 			break;	
 			default :
 				
+				// Ensures this is spotted
 				for(int i=0;i<100;i++)
 				{
-					DebugLogger.output("Invalid/Unhandled SimState passed to Batch Manager");
+					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + e.getSimId());
 				}
 				
 			break;
@@ -765,7 +772,7 @@ public class BatchManager
 		{
 			tBatch = (Batch) itr.next();
 			
-			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 			
 			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
 		}
@@ -777,8 +784,8 @@ public class BatchManager
 
 		batchManagerLock.acquireUninterruptibly();
 
-		DebugLogger.output("Move " + batchId + " to front");
-		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		log.debug("Move " + batchId + " to front");
+		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
 		ManagedBypassableQueue queue = null;
@@ -801,14 +808,14 @@ public class BatchManager
 		Batch tBatch = null;
 		itr = queue.iterator();
 		
-		DebugLogger.output("queue " + queue.size());
+		log.debug("queue " + queue.size());
 		
 		// Batch Orders Changed refresh all data 
 		while(itr.hasNext())
 		{
 			tBatch = (Batch) itr.next();
 			
-			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 			
 			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
 		}
@@ -824,8 +831,8 @@ public class BatchManager
 
 		batchManagerLock.acquireUninterruptibly();
 
-		DebugLogger.output("Move " + batchId + " to end");
-		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		log.debug("Move " + batchId + " to end");
+		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
 		ManagedBypassableQueue queue = null;
@@ -847,14 +854,14 @@ public class BatchManager
 		Batch tBatch = null;
 		itr = queue.iterator();
 		
-		DebugLogger.output("queue " + queue.size());
+		log.debug("queue " + queue.size());
 		
 		// Batch Orders Changed refresh all data 
 		while(itr.hasNext())
 		{
 			tBatch = (Batch) itr.next();
 			
-			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 			
 			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
 		}
@@ -869,8 +876,8 @@ public class BatchManager
 
 		batchManagerLock.acquireUninterruptibly();
 
-		DebugLogger.output("Move " + batchId + " to front");
-		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		log.debug("Move " + batchId + " to front");
+		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
 		ManagedBypassableQueue queue = null;
@@ -893,14 +900,14 @@ public class BatchManager
 		Batch tBatch = null;
 		itr = queue.iterator();
 		
-		DebugLogger.output("queue " + queue.size());
+		log.debug("queue " + queue.size());
 		
 		// Batch Orders Changed refresh all data 
 		while(itr.hasNext())
 		{
 			tBatch = (Batch) itr.next();
 			
-			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 			
 			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
 		}
@@ -914,8 +921,8 @@ public class BatchManager
 
 		batchManagerLock.acquireUninterruptibly();
 
-		DebugLogger.output("Move " + batchId + " to front");
-		DebugLogger.output("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
+		log.debug("Move " + batchId + " to front");
+		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
 		ManagedBypassableQueue queue = null;
@@ -938,14 +945,14 @@ public class BatchManager
 		Batch tBatch = null;
 		itr = queue.iterator();
 		
-		DebugLogger.output("queue " + queue.size());
+		log.debug("queue " + queue.size());
 		
 		// Batch Orders Changed refresh all data 
 		while(itr.hasNext())
 		{
 			tBatch = (Batch) itr.next();
 			
-			DebugLogger.output("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 			
 			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
 		}
