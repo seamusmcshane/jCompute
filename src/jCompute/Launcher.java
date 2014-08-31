@@ -1,6 +1,5 @@
 package jCompute;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Gui.Standard.StandardGUI;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
@@ -13,8 +12,14 @@ import java.util.Set;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Launcher
 {
+	// SL4J Logger
+	private static Logger log;
+	
 	@SuppressWarnings("unused")
 	private static IconManager iconManager;
 	
@@ -39,16 +44,21 @@ public class Launcher
 	// Defaults ( option string, default value, option description
 	private static CommandLineArg defaultsList[] =
 	{
-			new CommandLineArg("mcs", "8","Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
-			new CommandLineArg("debug", "0","Enable Disable Debug (0/1)"), new CommandLineArg("iTheme", "none","Icon Theme Name (String)"),
-			new CommandLineArg("bText", "1","Button Text (0/1)"), new CommandLineArg("sm", "0"," Simulation Manager Local/Network(0/1)"),
-			new CommandLineArg("addr", "127.0.0.1","Listening Address (InetAddr)")
+			new CommandLineArg("mcs", "8","Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)")
+			, new CommandLineArg("iTheme", "none","Icon Theme Name (String)"),new CommandLineArg("bText", "1","Button Text (0/1)")
+			, new CommandLineArg("sm", "0","Simulation Manager Local/Network(0/1)"),new CommandLineArg("addr", "127.0.0.1","Listening Address (InetAddr)")
 	};
 	
 	public static void main(String args[])
 	{
+		// Set location of log4j2 config
+		System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
+
+		// Configure the launcher logger - as it is the first class it needs to be after l4j2 conf.
+		log = LoggerFactory.getLogger(Launcher.class);
+		
 	    String tmpDir = System.getProperty("java.io.tmpdir");
-	    DebugLogger.output("Temp dir provided by OS : " + tmpDir);
+	    log.info("Temp dir provided by OS : " + tmpDir);
 	    
 		indexDefaults();
 
@@ -56,40 +66,11 @@ public class Launcher
 
 		displayValues();
 		
-		implementOpts();
-		
+		implementOpts();		
 	}
-
-	private static void displayValues()
-	{
-		Set<String> index = opts.keySet();
-		
-		DebugLogger.output("Launching...");
-		for(String name : index)
-		{
-			
-			DebugLogger.output(String.format("%10s", name) + " = " + opts.get(name).getValue());
-		}
-	}
-
-	private static void indexDefaults()
-	{
-		optDefaults = new HashMap<String,CommandLineArg>();
-		
-		for(CommandLineArg cmdLineDefault : defaultsList)
-		{
-			optDefaults.put(cmdLineDefault.getName(), cmdLineDefault);
-		}
-		
-	}
+	
 	private static void implementOpts()
-	{	
-		
-		if(Integer.parseInt(opts.get("debug").getValue())== 1)
-		{
-			DebugLogger.setDebug(true);
-		}
-		
+	{
 		String iTheme = opts.get("iTheme").getValue();
 		IconManager.init(iTheme);
 		
@@ -106,13 +87,12 @@ public class Launcher
 		
 		lookandFeel();
 		
-		int mode = Integer.parseInt(opts.get("mode").getValue());
-		
+		int mode = Integer.parseInt(opts.get("mode").getValue());		
 		
 		switch(mode)
 		{
 			case 0:
-				
+				log.info("Requested Standard GUI");
 				/* Local Simulation Manager */			
 				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 				
@@ -122,11 +102,15 @@ public class Launcher
 
 				if(simManType==0)
 				{
+					log.info("Requested Batch GUI (Local)");
+
 					// Local - Testing
 					batchGUI = new BatchGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())),buttonText);
 				}
 				else
 				{
+					log.info("Requested Batch GUI (Network)");
+
 					/* Network Simulation Manager */			
 					batchGUI = new BatchGUI(new NetworkSimulationsManager(),buttonText);
 				}
@@ -136,7 +120,7 @@ public class Launcher
 				
 				String address = opts.get("addr").getValue();
 				
-				DebugLogger.output("Creating Node : " + address);
+				log.info("Creating Node : " + address);
 				
 				node = new Node(address,new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 			
@@ -148,8 +132,7 @@ public class Launcher
 			break;
 			
 		}
-
-
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -171,7 +154,7 @@ public class Launcher
 	// Get all the command line args and puts then in the map
 	private static void getOptions(String cmdline)
 	{
-		DebugLogger.output("Command line was : " + cmdline);
+		log.info("Command line was : " + cmdline);
 
 		String options[] = cmdline.split(",");
 
@@ -208,6 +191,9 @@ public class Launcher
 		}
 	}
 	
+	/**
+	 * Help Interface
+	 */
 	private static void displayHelp()
 	{
 		System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
@@ -267,5 +253,27 @@ public class Launcher
 		{
 			e1.printStackTrace();
 		}
+	}
+	
+	private static void displayValues()
+	{
+		Set<String> index = opts.keySet();
+		
+		log.info("Launching...");
+		for(String name : index)
+		{
+			
+			log.info(String.format("%10s", name) + " = " + opts.get(name).getValue());
+		}
+	}
+
+	private static void indexDefaults()
+	{
+		optDefaults = new HashMap<String,CommandLineArg>();
+		
+		for(CommandLineArg cmdLineDefault : defaultsList)
+		{
+			optDefaults.put(cmdLineDefault.getName(), cmdLineDefault);
+		}		
 	}
 }
