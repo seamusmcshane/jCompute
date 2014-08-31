@@ -946,7 +946,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		SimulationsManagerEventType type = e.getEventType();
 		int simId = e.getSimId();
 
-		log.info("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + " " + "(" + simId + ")");
+		log.info("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + "(" + simId + ")");
 		
 		if(type == SimulationsManagerEventType.AddedSim)
 		{
@@ -954,14 +954,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 			// Add the row
 			activeSimulationsListTable.addRow(new ActiveSimulationRowItem(simId));
-
 		}
 		else if(type == SimulationsManagerEventType.RemovedSim)
 		{
 			log.debug("Removing Row for " + "Simulation " + simId);
+			
 			// Remove the Row
 			activeSimulationsListTable.removeRow(simId);
-
 		}
 		else
 		{
@@ -978,8 +977,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}, new Object[]
 		{
 				e.getStepNo(), e.getProgress(), e.getAsps(), e.getTime()
-		});
-		
+		});		
 	}
 
 	@Subscribe
@@ -1014,8 +1012,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			queuedOrCompleted=0;
 		}
 		
-		batchQueuedTable.clearSelection();
-		
+		batchQueuedTable.clearSelection();		
 	}
 	
 	@Override
@@ -1042,7 +1039,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 				openBatchProgressMonitor.setNote(message);
 			}
-
 		}
 	}
 	
