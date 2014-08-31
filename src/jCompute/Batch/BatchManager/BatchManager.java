@@ -27,7 +27,7 @@ import com.google.common.eventbus.Subscribe;
 public class BatchManager
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
+	private static Logger log = LoggerFactory.getLogger(BatchManager.class);
 	
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);	
