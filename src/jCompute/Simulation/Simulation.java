@@ -9,6 +9,7 @@ import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.SimulationState.stateChangedInf;
 import jCompute.Simulation.SimulationStats.statChangedInf;
+
 import java.util.concurrent.Semaphore;
 
 /**
@@ -118,9 +119,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 			
 			/* Set it to null so the garbage collector can get to work */
 			simManager=null;
-		}			
-		
-		
+		}
 	}
 	
 	/* Simulation Main Thread - The step update loop */
@@ -227,24 +226,37 @@ public class Simulation implements stateChangedInf, statChangedInf
 
 	/**
 	 *  Toggle Pause/UnPause
-	 */
-	
+	 *  If Simulation is paused, this will unpause it.
+	 *  If Simulation is running this will pause it.
+	 *  If Simulation is NEW this method does nothing.
+	 *  This method will log an error if called when a Simulation is finished.
+	 */	
 	public SimState togglePause()
 	{
+		SimState state = simState.getState();
 		
-		if(simState.getState() == SimState.RUNNING)
+		// Only toggle in the running or paused states (not NEW or Finished)
+		switch(state)
 		{
-			pauseSim();
+			case RUNNING:
+				pauseSim();
+			break;
+			case PAUSED:
+				unPauseSim();
+			break;
+			case NEW:
+				// This is OK, some methods can call this method during all states, we don't change the pause state during NEW.
+			break;
+			case FINISHED:
+				// This is a usage error - cannot toggle pause when finished.
+				System.out.println("Attempt to toggle pause in state " + state.toString());
+			break;
+			default:
+				// This is an error - this list needs updated
+				System.out.println("Attempt to toggle pause in unknown state " + state.toString());
 		}
-		else if(simState.getState() == SimState.PAUSED)
-		{
-			unPauseSim();
-		}
-		else
-		{
-			DebugLogger.output("ATTEMPT to PAUSE Simulation in :" + simState.getState());
-		}
-		
+
+		// Return the NEW sim state
 		return simState.getState();
 	}
 	
@@ -255,8 +267,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	{
 		simState.runState(simStats);
 				
-		pause.release();					// Release the pause semaphore
-		
+		pause.release();					// Release the pause semaphore		
 	}
 
 	/**
@@ -275,6 +286,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 	 */
 	public void setReqStepRate(int steps)
 	{
+		 togglePause();
+		
 		if (steps > 0)
 		{
 			reqSps = steps;
@@ -288,7 +301,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 			realtime=false;
 			
 		}
-
+		
+		togglePause();
 	}
 
 	public SimulationScenarioManagerInf getSimManager()
