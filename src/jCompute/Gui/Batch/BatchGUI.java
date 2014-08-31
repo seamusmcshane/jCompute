@@ -7,7 +7,6 @@ import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
-import jCompute.Debug.DebugLogger;
 import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchCompletedRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchInfoQueueRowItem;
@@ -24,6 +23,7 @@ import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
+
 import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Timer;
@@ -64,8 +65,14 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener, BatchManagerEventListenerInf
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
+	
 	// Batch Manager
 	private BatchManager batchManager;
 	
@@ -130,33 +137,30 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	
 	public BatchGUI(SimulationsManagerInf simsManager, boolean buttonText)
 	{
+		log.info("Started BatchGUI");
 		batchManager = new BatchManager(simsManager);
 		
 		this.buttonText = buttonText;
 
 		setUpFrame();
 		
-		// A slow timer to update GUI at a rate independent of
-		// SimulationStatChanged notifications.
+		// A slow timer to update GUI
 		activeSimulationsListTableUpdateTimer = new Timer("Simulation List Stat Update Timer");
 		activeSimulationsListTableUpdateTimer.schedule(new TimerTask()
 		{
 			@Override
 			public void run()
 			{
-				//activeSimulationsListTable.RedrawTable(-1);
-				//batchQueuedTable.RedrawTable(queuedSelectedBatchRowIndex);
-				//batchCompletedTable.RedrawTable(completedSelectedBatchRowIndex);
-
 				displayBatchInfo(queuedOrCompleted);
 			}
 
-		}, 0, 1000);
+		}, 0, 2000);
 
 		batchManager.addBatchManagerListener(this);
 		
 		// Register on the event bus
 		JComputeEventBus.register(this);
+		log.info("BatchGUI registered on event bus");
 	}
 
 	private void setUpFrame()
@@ -250,13 +254,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 				filechooser.setMultiSelectionEnabled(true);
 
-				DebugLogger.output("Batch Open Dialog");
+				log.info("Batch Open Dialog");
 
 				int val = filechooser.showOpenDialog(filechooser);
 
 				if (val == JFileChooser.APPROVE_OPTION)
 				{
-					DebugLogger.output("New Batch Choosen");
+					log.info("New Batch Choosen");
 
 					File[] files = filechooser.getSelectedFiles();
 
@@ -346,14 +350,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				
 				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToEnd...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToEnd...");
 				
 				batchManager.moveToEnd(batchId);
 				
 				queuedSelectedBatchRowIndex = batchQueuedTable.getRowsCount()-1;
 				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
 
 			}
 		});
@@ -375,14 +379,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				
 				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToBack...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToBack...");
 				
 				batchManager.moveBackward(batchId);	
 				
 				queuedSelectedBatchRowIndex = queuedSelectedBatchRowIndex+1;
 				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
 
 			}
 		});
@@ -404,7 +408,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				
 				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
 				
 				batchManager.moveForward(batchId);	
 				
@@ -430,14 +434,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				
 				int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex,idColumn);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
 				
 				batchManager.moveToFront(batchId);
 				
 				queuedSelectedBatchRowIndex = 0;
 				batchQueuedTable.setSelection(queuedSelectedBatchRowIndex,0);
 				
-				DebugLogger.output("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
+				log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
 
 			}
 		});
@@ -786,7 +790,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			BatchItem queued[] = batchManager.getItemQueue(batchId);
 			BatchItem active[] = batchManager.getActiveItems(batchId);
 			BatchItem completed[] = batchManager.getCompletedItems(batchId);
-			// TODO getCompletedItems BatchItem completed[] = batchManager.getCompletedItems(batchId);
 			
 			// Batch Info
 			int batchInfoLength= info.length;	
@@ -943,11 +946,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		SimulationsManagerEventType type = e.getEventType();
 		int simId = e.getSimId();
 
-		DebugLogger.output("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + " " + "(" + simId + ")");
+		log.info("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + " " + "(" + simId + ")");
 		
 		if(type == SimulationsManagerEventType.AddedSim)
 		{
-			DebugLogger.output("Add Row for " + "Simulation " + simId);
+			log.debug("Add Row for " + "Simulation " + simId);
 
 			// Add the row
 			activeSimulationsListTable.addRow(new ActiveSimulationRowItem(simId));
@@ -955,14 +958,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		}
 		else if(type == SimulationsManagerEventType.RemovedSim)
 		{
-			DebugLogger.output("Removing Row for " + "Simulation " + simId);
+			log.debug("Removing Row for " + "Simulation " + simId);
 			// Remove the Row
 			activeSimulationsListTable.removeRow(simId);
 
 		}
 		else
 		{
-			DebugLogger.output("Unhandled SimulationManagerEvent in Batch GUI");
+			log.error("Unhandled SimulationManagerEvent in Batch GUI");
 		}
 	}
 
@@ -997,7 +1000,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	@Override
 	public void batchFinished(final Batch batch)
 	{
-		DebugLogger.output("Batch Finished " + batch.getBatchId());
+		log.info("Batch Finished " + batch.getBatchId());
 
 		// remove row
 		batchQueuedTable.removeRow(batch.getBatchId());
@@ -1057,7 +1060,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 			progressInc = 100f / files.length;
 			
-			DebugLogger.output("Requested that " + files.length + " Batch Files be loaded");
+			log.info("Requested that " + files.length + " Batch Files be loaded");
 
 		}
 
@@ -1075,11 +1078,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			{
 				String batchFile = file.getAbsolutePath();
 
-				DebugLogger.output(batchFile);
+				log.info(batchFile);
 
 				if (!batchManager.addBatch(batchFile))
 				{
-					DebugLogger.output("Error Creating Batch from : " + batchFile);
+					log.error("Error Creating Batch from : " + batchFile);
 					
 					
 					if(error == 0)
@@ -1113,19 +1116,17 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		@Override
 		public void done()
 		{
-			DebugLogger.output(loaded + " Batch Files were loaded");
-			DebugLogger.output(error + " Batch Files were NOT loaded!");
+			log.info(loaded + " Batch Files were loaded");
+			log.info(error + " Batch Files were NOT loaded!");
 		}
 	}
 
 	@Override
 	public void batchQueuePositionChanged(final Batch batch)
 	{
-		
 		batchQueuedTable.updateRow(batch.getBatchId(),new BatchQueueRowItem(batch));
 		
-		DebugLogger.output("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
-
+		log.debug("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
 	}
 	
 	@Override
