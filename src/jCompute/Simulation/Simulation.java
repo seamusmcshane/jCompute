@@ -42,7 +42,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	private SimulationScenarioManagerInf simManager;
 
 	/* The default simulation update rate */
-	private int reqSps = 15;
+	private int tReqSps = 15;
 
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
@@ -137,8 +137,11 @@ public class Simulation implements stateChangedInf, statChangedInf
 				
 				//thisThread.setPriority(Thread.MIN_PRIORITY);
 				
+				int reqSps = 0;
+				
 				while (running)
 				{
+					
 					// The pause semaphore (We do not pause half way through a step)
 					pause.acquireUninterruptibly();
 					
@@ -155,6 +158,8 @@ public class Simulation implements stateChangedInf, statChangedInf
 						// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
 						if(realtime)
 						{
+							reqSps = tReqSps;
+							
 							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
 							while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
 							{
@@ -287,24 +292,17 @@ public class Simulation implements stateChangedInf, statChangedInf
 	 * @param steps int
 	 */
 	public void setReqStepRate(int steps)
-	{
-		 togglePause();
-		
+	{		
 		if (steps > 0)
 		{
-			reqSps = steps;
-			
-			realtime=true;
+			tReqSps = steps;
+			realtime=true;	
 		}
 		else
 		{
-			reqSps = 0;	
-					
 			realtime=false;
-			
+			tReqSps = 0;
 		}
-		
-		togglePause();
 	}
 
 	public SimulationScenarioManagerInf getSimManager()
@@ -358,7 +356,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 	
 	public int getReqSps()
 	{
-		return reqSps;
+		return tReqSps;
 	}
 
 	public long getTotalSteps()
