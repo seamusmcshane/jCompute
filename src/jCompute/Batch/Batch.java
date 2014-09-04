@@ -6,7 +6,6 @@ import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioVT;
 import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
 import jCompute.Scenario.SAPP.SAPPScenario;
-import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
@@ -743,20 +742,16 @@ public class Batch implements StoredQueuePosition
 		return temp;
 	}
 
-	public void setComplete(SimulationsManagerInf simsManager, BatchItem item, SimulationStateChangedEvent event)
+	public void setComplete(SimulationsManagerInf simsManager, BatchItem item)
 	{
 		batchLock.acquireUninterruptibly();
 
 		log.debug("Setting Completed Sim " + item.getSimId() + " Item " + item.getItemId());
 
-		long runTime = event.getRunTime();
-		String endEvent = event.getEndEvent();
-		long stepCount = event.getStepCount();
-
 		activeItems.remove(item);
 
 		// For estimated complete time calculation
-		completedItemRunTime += runTime;
+		completedItemRunTime += item.getRunTime();
 
 		lastCompletedItemTime = System.currentTimeMillis();
 
@@ -790,9 +785,9 @@ public class Batch implements StoredQueuePosition
 		}
 		itemLog.println("</Coordinates>");
 		itemLog.println("<Hash>" + item.getItemHash() + "</Hash>");
-		itemLog.println("<RunTime>" + jCompute.util.Text.longTimeToDHMS(runTime) + "</RunTime>");
-		itemLog.println("<EndEvent>" + endEvent + "</EndEvent>");
-		itemLog.println("<StepCount>" + stepCount + "</StepCount>");
+		itemLog.println("<RunTime>" + jCompute.util.Text.longTimeToDHMS(item.getRunTime()) + "</RunTime>");
+		itemLog.println("<EndEvent>" + item.getEndEvent() + "</EndEvent>");
+		itemLog.println("<StepCount>" + item.getStepCount() + "</StepCount>");
 		itemLog.println("</Item>");
 
 		// Only the first sample needs to save the item config (all identical

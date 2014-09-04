@@ -21,6 +21,11 @@ public class BatchItem
 	
 	private String itemHash;
 	
+	// Finished Info
+	private long runTime;
+	private String endEvent;
+	private long stepCount;
+	
 	public BatchItem(int sampleId,int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates,ArrayList<Integer> coordinatesValues)
 	{
 		this.sampleId = sampleId;
@@ -104,4 +109,26 @@ public class BatchItem
 		return sampleId;
 	}
 	
+	public void setComplete(long runTime, String endEvent, long stepCount)
+	{
+		this.runTime = runTime;
+		this.endEvent = endEvent;
+		this.stepCount = stepCount;
+	}
+
+	public long getRunTime()
+	{
+		return runTime;
+	}
+	
+	public String getEndEvent()
+	{
+		return endEvent;
+	}
+
+	public long getStepCount()
+	{
+		return stepCount;
+	}
+
 }
