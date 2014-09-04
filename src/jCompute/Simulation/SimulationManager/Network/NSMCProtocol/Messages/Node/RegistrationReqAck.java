@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
 public class RegistrationReqAck
@@ -18,12 +17,8 @@ public class RegistrationReqAck
 	
 	// Construct from an input stream
 	public RegistrationReqAck(DataInputStream source) throws IOException
-	{
-		DebugLogger.output("RegistrationReqAck");
-		
-		uid = source.readInt();
-		
-		DebugLogger.output("UID : " + uid);
+	{		
+		uid = source.readInt();		
 	}
 	
 	public int getUid()
