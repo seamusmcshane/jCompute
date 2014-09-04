@@ -1,7 +1,5 @@
 package tools.SurfacePlotGenerator;
 
-import jCompute.Debug.DebugLogger;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -318,13 +316,13 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		{
 			final JFileChooser filechooser = new JFileChooser(new File(openCD));
 
-			DebugLogger.output("Open Dialog");
+			System.out.println("Open Dialog");
 
 			int val = filechooser.showOpenDialog(filechooser);
 
 			if (val == JFileChooser.APPROVE_OPTION)
 			{
-				DebugLogger.output("New File Choosen");
+				System.out.println("New File Choosen");
 
 				String file = filechooser.getSelectedFile().getAbsolutePath();
 				
@@ -332,7 +330,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				gui.setTitle(filechooser.getSelectedFile().getName());
 				
-				DebugLogger.output(file);
+				System.out.println(file);
 
 				addAvgChart(file);
 				
