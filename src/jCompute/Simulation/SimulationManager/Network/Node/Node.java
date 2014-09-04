@@ -27,307 +27,312 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.eventbus.Subscribe;
 
 public class Node
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(Node.class);
+
 	// Simulation Manager
 	private SimulationsManagerInf simsManager;
 
 	// Protect the send socket
-	private Semaphore txLock = new Semaphore(1,true);
-	
+	private Semaphore txLock = new Semaphore(1, true);
+
 	// To ensure receive frames and events are processed atomically
-	private Semaphore rxLockEvents = new Semaphore(1,true);
+	private Semaphore rxLockEvents = new Semaphore(1, true);
 
 	// Output Stream
 	private DataOutputStream output;
-	
+
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
-	
-    public Node(String address, SimulationsManagerInf simsManager)
+
+	public Node(String address, SimulationsManagerInf simsManager)
 	{
-    	System.out.println("Starting Node");
-    	
-    	/* Our Configuration */
-    	NodeConfiguration nodeConfig = new NodeConfiguration(); 
-    	
-    	int port = NSMCP.StandardServerPort;
-    	
-    	this.simsManager = simsManager;
+		log.info("Starting Node");
 
-    	JComputeEventBus.register(this);
-    	    	
-    	// Disconnect Recovery Loop
-    	while(true)
-    	{
-    		// Connecting to Server
-    		Socket clientSocket = null;
-    		
-    		try
+		/* Our Configuration */
+		NodeConfiguration nodeConfig = new NodeConfiguration();
+
+		int port = NSMCP.StandardServerPort;
+
+		this.simsManager = simsManager;
+
+		JComputeEventBus.register(this);
+		log.info("Registered on event bus");
+
+		// Disconnect Recovery Loop
+		while (true)
+		{
+			// Connecting to Server
+			Socket clientSocket = null;
+
+			try
 			{
-    			// Only attempt to connect every 5 seconds
-    			Thread.sleep(5000);
-    			
-	    		System.out.println("Connecting to : " + address + "@" + port);	    		
+				// Only attempt to connect every 5 seconds
+				Thread.sleep(5000);
 
-				//clientSocket = new Socket(address, port);
+				log.info("Connecting to : " + address + "@" + port);
+
+				// clientSocket = new Socket(address, port);
 				clientSocket = new Socket();
-				
+
 				clientSocket.setSendBufferSize(1048576);
 				clientSocket.setReceiveBufferSize(32768);
-				
-				clientSocket.connect(new InetSocketAddress(address,port), 1000);
-				
-				if(!clientSocket.isClosed())
-	    		{
-	    			System.out.println("Connected to : " + clientSocket.getRemoteSocketAddress());
-	    			System.out.println("We are : " + clientSocket.getLocalSocketAddress());
-	    			
-		    		// Main
-		    		process(nodeConfig, clientSocket);
-	    		}
-	    		
-	    		// Close Connection
-    			if(!clientSocket.isClosed())
-    			{
-    				clientSocket.close();
-    			}
+
+				clientSocket.connect(new InetSocketAddress(address, port), 1000);
+
+				if (!clientSocket.isClosed())
+				{
+					log.info("Connected to : " + clientSocket.getRemoteSocketAddress());
+					log.info("We are : " + clientSocket.getLocalSocketAddress());
+
+					// Main
+					process(nodeConfig, clientSocket);
+				}
+
+				// Close Connection
+				if (!clientSocket.isClosed())
+				{
+					clientSocket.close();
+				}
 
 			}
-			catch (IOException e )
+			catch (IOException e)
 			{
-				System.out.println("Connection to " + address + " failed");
+				log.warn("Connection to " + address + " failed");
 			}
 			catch (InterruptedException e)
 			{
-				System.out.println("Sleep interupted");
+				log.warn("Sleep interupted");
 			}
-			
-    	}
+
+		}
 
 	}
-	
-    private void process(NodeConfiguration nodeConfig, Socket clientSocket)
-    {
 
-    	try
-    	{
+	private void process(NodeConfiguration nodeConfig, Socket clientSocket)
+	{
+
+		try
+		{
 			// Link up output
 			output = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
-			
+
 			// Input Stream
 			final DataInputStream input = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
-			
+
 			doRegistration(nodeConfig, input);
-			
+
 			// if Registered successfully
-			if(state == ProtocolState.READY)
+			if (state == ProtocolState.READY)
 			{
-				System.out.println("Registration complete");
-				
+				log.info("Registration complete");
+
 				// While we have a connection
-				while(!clientSocket.isClosed())
+				while (!clientSocket.isClosed())
 				{
 					// Get the frame type
 					int type = input.readInt();
-					
+
 					switch (type)
 					{
-						case NSMCP.AddSimReq:
+						case NSMCP.AddSimReq :
 						{
 							rxLockEvents.acquireUninterruptibly();
-
-							System.out.println("AddSimReq");
-	
+							
 							AddSimReq req = new AddSimReq(input);
-							
-							int simId = simsManager.addSimulation(req.getScenarioText(),req.getInitialStepRate());
-							
-							System.out.println("Added Sim " + simId);
-							
+
+							int simId = simsManager.addSimulation(req.getScenarioText(), req.getInitialStepRate());
+
+							log.info("Added Sim " + simId);
+
 							sendMessage(new AddSimReply(simId).toBytes());
-							
+
 							rxLockEvents.release();
 						}
-						break;
-						case NSMCP.StartSimCMD:
-						
-							System.out.println("StartSimCMD");
+							break;
+						case NSMCP.StartSimCMD :
+
 
 							StartSimCMD cmd = new StartSimCMD(input);
 
-							simsManager.startSim(cmd.getSimid());
+							log.debug("StartSimCMD " + cmd.getSimid());
 							
-						break;						
-						case NSMCP.SimStatsReq:
-						
-							System.out.println("SimStatsReq");
+							simsManager.startSim(cmd.getSimid());
+
+							break;
+						case NSMCP.SimStatsReq :
 
 							SimulationStatsRequest statsReq = new SimulationStatsRequest(input);
 
-							System.out.println("NSMCP.SimStats");
+							log.info("SimStatsReq " + statsReq.getSimId());
+
+							// NSMCP.SimStats
 							sendMessage(simsManager.getStatsAsBytes(statsReq.getSimId(), statsReq.getFormat()));
-							
-						break;
-						case NSMCP.RemSimReq:
+							log.info("Sent SimStats " + statsReq.getSimId());
+
+							break;
+						case NSMCP.RemSimReq :
 						{
-							System.out.println("RemoveSimReq");
 							RemoveSimReq removeSimReq = new RemoveSimReq(input);
-							
+
 							int simId = removeSimReq.getSimid();
-							
+
 							simsManager.removeSimulation(simId);
-							
+
+							log.info("RemoveSimReq " + simId);
+
 							sendMessage(new RemoveSimAck(simId).toBytes());
 						}
-						break;
+							break;
 						// Default / Invalid
-						case NSMCP.INVALID:
-						default:
-							System.out.println("Invalid NSMCP Message Recieved");
-							
+						case NSMCP.INVALID :
+						default :
+							log.error("Invalid NSMCP Message Recieved");
+
 							state = ProtocolState.END;
-							
-						break;
+
+							break;
 					}
-					
-					if(state == ProtocolState.END)
+
+					if (state == ProtocolState.END)
 					{
 						clientSocket.close();
 					}
 				}
-    				
 
-    			
-    		}
-    		else
-    		{
-    			System.out.println("Registration failed");
-    		}
-    	}
+			}
+			else
+			{
+				log.error("Registration failed");
+			}
+		}
 		catch (IOException e)
 		{
-			
+
 			// Our connection to the remote manager is gone.
 			simsManager.removeAll();
-			
-			System.out.println("Removed all Simulations as connection lost");
+
+			log.info("Removed all Simulations as connection lost");
 		}
 
-    }
-    
-	private void doRegistration(NodeConfiguration nodeConfig,DataInputStream input) throws IOException
+	}
+
+	private void doRegistration(NodeConfiguration nodeConfig, DataInputStream input) throws IOException
 	{
 		boolean finished = false;
-		
-		System.out.println("Attempting Registration");
+
+		log.info("Attempting Registration");
 
 		state = ProtocolState.REG;
-		
+
 		// Create a registration request and send it
 		sendMessage(new RegistrationRequest().toBytes());
 
 		// Read the replies
-		while(!finished)
+		while (!finished)
 		{
 			int type = input.readInt();
-			
-			switch(type)
+
+			switch (type)
 			{
-				case NSMCP.RegAck : 
+				case NSMCP.RegAck :
 					
-					System.out.println("Recieved Reg Ack");
-
 					RegistrationReqAck reqAck = new RegistrationReqAck(input);
-					
-					nodeConfig.setUid(reqAck.getUid());
-					
-					System.out.println("Recieved UID : " + nodeConfig.getUid());
 
-					// We Ack the Ack					
+					nodeConfig.setUid(reqAck.getUid());
+
+					log.info("RegAck Recieved UID : " + nodeConfig.getUid());
+
+					// We Ack the Ack
 					sendMessage(reqAck.toBytes());
-					
-				break;
+
+					break;
 				case NSMCP.ConfReq :
-					
-					System.out.println("Recieved Conf Req");
 
 					// Set our max sims now
 					nodeConfig.setMaxSims(simsManager.getMaxSims());
-					System.out.println("Max Sims " + nodeConfig.getMaxSims());
+					log.info("ConfReq Recieved");
 
 					// Create and send the Configuration ack
 					sendMessage(new ConfigurationAck(nodeConfig.getMaxSims()).toBytes());
-					
-					System.out.println("Sent Conf Ack");
+
+					log.info("Sent Conf Ack : Max Sims " + nodeConfig.getMaxSims());
 
 					state = ProtocolState.READY;
-					
+
 					// Now Registered
 					finished = true;
-					
-				break;
-				case  NSMCP.INVALID:
+
+					break;
+				case NSMCP.INVALID :
 				default :
-					System.out.println("Recieved Invalid Frame Type " + type);
+					log.error("Recieved Invalid Frame Type " + type);
 					state = ProtocolState.END;
-				break;
-				
+					break;
+
 			}
-			
-			if(state == ProtocolState.END)
+
+			if (state == ProtocolState.END)
 			{
+				log.info("Protocol State : " + state.toString());
 				finished = true;
 			}
-				
+
+
 		}
 
 	}
-	
+
 	private void sendMessage(byte[] bytes) throws IOException
 	{
 		txLock.acquireUninterruptibly();
-		
+
 		output.write(bytes);
 		output.flush();
 
 		txLock.release();
 	}
-	
+
 	@Subscribe
 	public void SimulationStatChangedEvent(SimulationStatChangedEvent e)
 	{
 		try
 		{
 			rxLockEvents.acquireUninterruptibly();
-			
+
 			sendMessage(new SimulationStatChanged(e).toBytes());
-		
+
 			rxLockEvents.release();
 		}
 		catch (IOException e1)
 		{
-			System.out.println("Failed Sending Simulation Stat Changed " + e.getSimId());
+			log.error("Failed Sending Simulation Stat Changed " + e.getSimId());
 		}
 	}
-	
+
 	@Subscribe
 	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
 		try
 		{
 			rxLockEvents.acquireUninterruptibly();
-			
+
 			sendMessage(new SimulationStateChanged(e).toBytes());
-			System.out.println("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
-		
+			log.debug("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
+
 			rxLockEvents.release();
 		}
 		catch (IOException e1)
 		{
-			System.out.println("Failed Sending Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
+			log.error("Failed Sending Simulation State Changed " + e.getSimId() + " "
+					+ e.getState().toString());
 		}
 	}
 }
