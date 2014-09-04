@@ -100,7 +100,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				}
 				System.out.println("------------------------------------");
 
-				if(connectingNodes.size() > 0)
+				while(connectingNodes.size() > 0)
 				{
 					NodeManager tNode = connectingNodes.getFirst();
 					
