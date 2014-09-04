@@ -212,7 +212,7 @@ public class SAPPSimulationManager implements SimulationScenarioManagerInf
 				// Output the final update
 				statManager.endEventNotifiyStatListeners();
 
-				log.info("Event Event Occurred : " + event.getName() + " - " + event.getValue());
+				log.info("Event Event Occurred " + event.getName() + "@" + event.getValue());
 
 				break;	// No need to check other events
 			}
