@@ -1,7 +1,6 @@
 package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
-import jCompute.Debug.DebugLogger;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -27,9 +26,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class NetworkSimulationsManager implements SimulationsManagerInf
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(NetworkSimulationsManager.class);
+	
 	// Dynamic based on total of active nodes max sims
 	private int maxSims = 0;
 	private int activeSims = 0;
@@ -64,7 +69,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	public NetworkSimulationsManager()
 	{
-		DebugLogger.output("Started NetworkSimulationsManager");
+		log.info("Started NetworkSimulationsManager");
 		
 		localSimulationMap = new HashMap<Integer,RemoteSimulationMapping>();
 		
@@ -224,7 +229,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				@Override
 				public void run()
 				{
-					DebugLogger.output("Listening Address : " + listenSocket.getLocalSocketAddress());
+					log.info("Listening Address : " + listenSocket.getLocalSocketAddress());
 					
 					while (listenSocket.isBound())
 					{
@@ -236,7 +241,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 							
 							nodeSocket.setSendBufferSize(32768);
 							
-							DebugLogger.output("New Connection from : " + nodeSocket.getRemoteSocketAddress());	
+							log.info("New Connection from : " + nodeSocket.getRemoteSocketAddress());	
 
 							// Accept new Connections
 							
@@ -245,22 +250,21 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 							// Add to NodeManager list of connecting node
 							connectingNodes.add(new NodeManager(++connectionNumber,nodeSocket));
 							
-							System.out.println("------------------------------------");
-							System.out.println("Added ("+connectingNodes.size()+")");
-							System.out.println("------------------------------------");
+							log.debug("------------------------------------");
+							log.debug("Added ("+connectingNodes.size()+")");
+							log.debug("------------------------------------");
 							for(NodeManager node : connectingNodes)
 							{
-								System.out.println("Node :" + node.getUid());
+								log.debug("Node :" + node.getUid());
 							}
-							System.out.println("------------------------------------");
+							log.debug("------------------------------------");
 							
 							networkSimulationsManagerLock.release();							
 							
 						}
 						catch (IOException e)
 						{
-							// TODO - rebind server socket?
-							DebugLogger.output("Server socket Closed");
+							log.error("Server socket Closed");
 						}
 						
 					}
@@ -273,7 +277,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		}
 		catch(Exception e)
 		{
-			DebugLogger.output("Server Recieve Thread Exited : " + e.getMessage()); 
+			log.error("Server Recieve Thread Exited : " + e.getMessage()); 
 		}
 	}
 	
@@ -284,22 +288,22 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	{		
 		networkSimulationsManagerLock.acquireUninterruptibly();
 
-		DebugLogger.output("Add Sim");
+		log.debug("Add Sim");
 		
 		boolean simAdded = false;
 		
-		DebugLogger.output("activeSims < maxSims");
+		log.debug("activeSims " +activeSims + " < " + "maxSims " + maxSims);
 		if( activeSims < maxSims)
 		{
 			
 			// Find a node with a free slot
-			DebugLogger.output(" Find a node ("+activeNodes.size()+")");
+			log.debug(" Find a node ("+activeNodes.size()+")");
 			for(NodeManager node : activeNodes)
 			{
-				DebugLogger.output("Node " + node.getUid());
+				log.debug("Node " + node.getUid());
 				if(node.hasFreeSlot())
 				{
-					DebugLogger.output( node.getUid() + " hasFreeSlot ");
+					log.debug( node.getUid() + " hasFreeSlot ");
 
 					/*
 					 * 
@@ -324,7 +328,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						
 						simAdded = true;
 						
-						DebugLogger.output("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
+						log.debug("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
 
 						activeSims++;
 						
@@ -334,7 +338,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					}
 					else
 					{
-						DebugLogger.output("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
+						log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
 					}
 
 				}
@@ -344,7 +348,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 			// Most likely A node has gone down mid method - or other network problem.
 			if(!simAdded)
 			{
-				DebugLogger.output("Could not add Simulation - no nodes accepted ");
+				log.error("Could not add Simulation - no nodes accepted ");
 				
 				networkSimulationsManagerLock.release();
 
@@ -360,7 +364,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		}
 		else
 		{
-			DebugLogger.output("Max Simulations Reached");
+			log.warn("Max Simulations Reached");
 
 			networkSimulationsManagerLock.release();
 
