@@ -1,6 +1,5 @@
 package jCompute.Simulation.Event;
 
-import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.SimulationState.SimState;
 
 public class SimulationStateChangedEvent
