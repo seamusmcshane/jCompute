@@ -69,7 +69,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	public NetworkSimulationsManager()
 	{
-		log.info("Started NetworkSimulationsManager");
+		log.info("Starting NetworkSimulationsManager");
 		
 		localSimulationMap = new HashMap<Integer,RemoteSimulationMapping>();
 		
@@ -95,15 +95,15 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 			{
 				networkSimulationsManagerLock.acquireUninterruptibly();
 				
-				System.out.println("NSMCPTimer");
-				System.out.println("------------------------------------");
-				System.out.println("Connecting ("+connectingNodes.size()+")");
-				System.out.println("------------------------------------");
+				log.debug("NSMCPTimer");
+				log.debug("------------------------------------");
+				log.debug("Connecting ("+connectingNodes.size()+")");
+				log.debug("------------------------------------");
 				for(NodeManager node : connectingNodes)
 				{
-					System.out.println("Node :" + node.getUid());
+					log.debug("Node :" + node.getUid());
 				}
-				System.out.println("------------------------------------");
+				log.debug("------------------------------------");
 
 				while(connectingNodes.size() > 0)
 				{
@@ -117,7 +117,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						
 						maxSims += tNode.getMaxSims();
 						
-						System.out.println("Node " + tNode.getUid() + " now Active (Max Sims " + maxSims + ")" );
+						log.debug("Node " + tNode.getUid() + " now Active (Max Sims " + maxSims + ")" );
 					}
 					else if(tNode.getReadyStateTimeOutValue() == NSMCP.ReadyStateTimeOut)
 					{
@@ -130,22 +130,20 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					}
 				}
 				
-				System.out.println("------------------------------------");
-				System.out.println("Active ("+activeNodes.size()+")");
-				System.out.println("------------------------------------");
+				log.debug("------------------------------------");
+				log.debug("Active ("+activeNodes.size()+")");
+				log.debug("------------------------------------");
 				for(NodeManager node : activeNodes)
 				{
-					System.out.println("Node :" + node.getUid());
+					log.debug("Node :" + node.getUid());
 				}
-				System.out.println("------------------------------------");
+				log.debug("------------------------------------");
 
 				Iterator<NodeManager> itr = activeNodes.iterator();
 				
 				while(itr.hasNext())
 				{
 					NodeManager node = itr.next();
-					
-					// System.out.println("Node " + node.getUid() + " Active " + node.isActive());
 					
 					if(!node.isActive())
 					{
@@ -164,7 +162,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						
 						maxSims -= node.getMaxSims();
 						
-						System.out.println("Node " + node.getUid() + " no longer Active");
+						log.debug("Node " + node.getUid() + " no longer Active");
 					}
 				}
 				
@@ -229,11 +227,20 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				@Override
 				public void run()
 				{
+					
+					try
+					{
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e1)
+					{
+						
+					}
 					log.info("Listening Address : " + listenSocket.getLocalSocketAddress());
 					
 					while (listenSocket.isBound())
 					{
-						System.out.println("Listening for Connection");
+						log.info("Ready for Connections");
 						
 						try
 						{
@@ -273,6 +280,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				
 			});
 			
+			thread.setName("Recieve Thread");
 			thread.start();
 		}
 		catch(Exception e)
