@@ -1,5 +1,7 @@
 package jCompute;
 
+import jCompute.Thread.SimpleNamedThreadFactory;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
@@ -21,29 +23,7 @@ public class JComputeEventBus
 	}
 
 	public static boolean initAsync()
-	{
-		// Simple Thread factory so Event bus threads are named
-		class SimpleNamedThreadFactory implements ThreadFactory 
-		{
-			private String name;
-			private int numThreads;
-			
-			public SimpleNamedThreadFactory(String name)
-			{
-				this.name = name;
-				numThreads = 1;
-			}
-			
-			@Override
-			public Thread newThread(Runnable r) 
-			{
-				Thread thread = new Thread(r);
-				thread.setName(name + " Thread " + numThreads);
-				numThreads++;
-				return thread;
-			}
-		}
-		
+	{		
 		if(!init)
 		{
 			/*
