@@ -1,7 +1,6 @@
 package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
-import jCompute.Debug.DebugLogger;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
@@ -34,72 +33,81 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class NodeManager
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(NodeManager.class);
+
 	// Locks the node
-    private Semaphore nodeLock = new Semaphore(1,false);
-	
+	private Semaphore nodeLock = new Semaphore(1, false);
+
 	// Node configuration
 	private NodeConfiguration nodeConfig;
-	
+
 	private int activeSims = 0;
-	
+
 	// This simulations connected socket
 	private final Socket socket;
-	
+
 	// Input Stream
 	private Thread recieveThread;
-	
+
 	// Output Stream
 	private DataOutputStream output;
-	private Semaphore txLock = new Semaphore(1,false);
+	private Semaphore txLock = new Semaphore(1, false);
 	private ProtocolState nodeState;
-	
-    // Counter for NSMCP state machine
-    private int NSMCPReadyTimeOut;
-    
-    // Is the remote node active. (connection up)
-    private boolean active = false;
-    
-    // Semaphores for methods to wait on
-    private Semaphore addSimWait = new Semaphore(0,false);
-    private Semaphore remSimWait = new Semaphore(0,false);
-    private Semaphore simStatsWait = new Semaphore(0,false);
-    
-    // Request stats MSG box vars
-    private StatExporter statExporter;
-    
-    // Add Sim MSG box Vars
-    private int addSimId = -1;
-    
-	/* Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (REMOTE) simId */
-	private ConcurrentHashMap<Integer,RemoteSimulationMapping> remoteSimulationMap;
-	
-	public NodeManager(int uid,Socket socket) throws IOException
+
+	// Counter for NSMCP state machine
+	private int NSMCPReadyTimeOut;
+
+	// Is the remote node active. (connection up)
+	private boolean active = false;
+
+	// Semaphores for methods to wait on
+	private Semaphore addSimWait = new Semaphore(0, false);
+	private Semaphore remSimWait = new Semaphore(0, false);
+	private Semaphore simStatsWait = new Semaphore(0, false);
+
+	// Request stats MSG box vars
+	private StatExporter statExporter;
+
+	// Add Sim MSG box Vars
+	private int addSimId = -1;
+
+	/*
+	 * Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (REMOTE)
+	 * simId
+	 */
+	private ConcurrentHashMap<Integer, RemoteSimulationMapping> remoteSimulationMap;
+
+	public NodeManager(int uid, Socket socket) throws IOException
 	{
 		nodeConfig = new NodeConfiguration();
-		
-		remoteSimulationMap = new ConcurrentHashMap<Integer,RemoteSimulationMapping>(4);
-		
+
+		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(4);
+
 		NSMCPReadyTimeOut = 0;
-		
-		System.out.println("New Node Manager " + uid);
-		
+
+		log.info("New Node Manager " + uid);
+
 		// Internal Connection ID
 		nodeConfig.setUid(uid);
-		
+
 		// A connected socket
 		this.socket = socket;
-		
+
 		// Output Stream
 		output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-		
+
 		nodeState = ProtocolState.NEW;
-		
+
 		createRecieveThread();
-		
+
 	}
-	
+
 	private void createRecieveThread()
 	{
 		// The Receive Thread
@@ -108,260 +116,316 @@ public class NodeManager
 			@Override
 			public void run()
 			{
-		        
+
 				try
 				{
-					DataInputStream input = new DataInputStream (new BufferedInputStream(socket.getInputStream()));
+					DataInputStream input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
 					int type = -1;
-			        
-			        active = true;
-			        
-					while(active)
+
+					active = true;
+
+					while (active)
 					{
 						// Detect Frame
 						type = input.readInt();
-						
-						switch(type)
+
+						switch (type)
 						{
 							case NSMCP.RegReq :
-								
-								System.out.println("Recieved MNRegReq");
-								
-									/*
-									 * A socket has been connected and we have just received a registration request
-									 */
-									if(nodeState == ProtocolState.NEW)
-									{
-										// Create and Send Reg Ack
-										sendMessage(new RegistrationReqAck(nodeConfig.getUid()).toBytes());
-										
-										System.out.println("Sent MNRegAck UID " + nodeConfig.getUid());
-										
-										nodeState = ProtocolState.REG;
-									}								
-								
-							break;
-							case NSMCP.RegAck :
-								
-								/*
-								 * A socket has been connected,
-								 * the remove node has already sent us a reg req
-								 * we have sent a reg ack and are awaiting confirmation.
-								 * - We get confirmation and request the node configuration.
-								 */
-								if(nodeState == ProtocolState.REG)
-								{
-									
-									RegistrationReqAck reqAck = new RegistrationReqAck(input);
-							
-									int ruid = reqAck.getUid();
-									
-									System.out.println("Recieved MNRegAck UID " + ruid);
 
-									// Check the node is sane (UID should be identical to the one we sent)
-									if(nodeConfig.getUid() == ruid)
+								log.info("Recieved Registration Request");
+
+								/*
+								 * A socket has been connected and we have just
+								 * received a registration request
+								 */
+								if (nodeState == ProtocolState.NEW)
+								{
+									/*
+									 * Later if needed Validate Request Info....
+									 * Maybe protocol version etc
+									 */
+
+									// Create and Send Reg Ack
+									sendMessage(new RegistrationReqAck(nodeConfig.getUid()).toBytes());
+
+									log.info("Sent Registration Ack");
+
+									nodeState = ProtocolState.REG;
+								}
+								else
+								{
+									// invalid sequence
+									nodeState = ProtocolState.END;
+
+									log.error("Registration Request for node " + nodeConfig.getUid()
+											+ " not valid in state " + nodeState.toString());
+								}
+
+								break;
+							case NSMCP.RegAck :
+
+								/*
+								 * A socket has been connected, the remove node
+								 * has already sent us a reg req we have sent a
+								 * reg ack and are awaiting confirmation. - We
+								 * get confirmation and request the node
+								 * configuration.
+								 */
+								if (nodeState == ProtocolState.REG)
+								{
+
+									RegistrationReqAck reqAck = new RegistrationReqAck(input);
+
+									int ruid = reqAck.getUid();
+
+									// Check the node is sane (UID should be
+									// identical to the one we sent)
+									if (nodeConfig.getUid() == ruid)
 									{
-										System.out.println("Requesting Node Configuration");
-										
-										sendMessage(new ConfigurationRequest().toBytes());									
-									
+
+										log.info("Node registration ok, now requesting node configuration");
+
+										sendMessage(new ConfigurationRequest().toBytes());
+
 									}
 									else
 									{
-										System.out.println("Recieved BAD MNRegAck UID " + ruid);
-										
+										log.error("Node registration not ok " + ruid);
+
 										nodeState = ProtocolState.END;
 									}
-									
+
 								}
-								
-							break;
+
+								break;
 							case NSMCP.RegNack :
-								
+
 								/*
-								 * A socket has been connected,
-								 * Remote node has decided to cancel the registration
-								*/
-								if(nodeState == ProtocolState.NEW || nodeState == ProtocolState.REG)
+								 * A socket has been connected, Remote node has
+								 * decided to cancel the registration
+								 */
+								if (nodeState == ProtocolState.NEW || nodeState == ProtocolState.REG)
 								{
+									log.info("Node registration nack");
 									nodeState = ProtocolState.END;
 								}
-								
-							break;								
+
+								break;
 							/*
-							 * Remove node is about to finish registration.
-							 * We are waiting on the node configuration.
+							 * Remove node is about to finish registration. We
+							 * are waiting on the node configuration.
 							 */
 							case NSMCP.ConfAck :
-								
-								if(nodeState == ProtocolState.REG)
+
+								if (nodeState == ProtocolState.REG)
 								{
-									System.out.println("Recieved Conf Ack");
+									log.info("Recieved Conf Ack");
 
 									ConfigurationAck reqAck = new ConfigurationAck(input);
-									
-									nodeConfig.setMaxSims(reqAck.getMaxSims());			
-									
-									System.out.println("Node " + nodeConfig.getUid() + " Max Sims : " + nodeConfig.getMaxSims());
-									
+
+									nodeConfig.setMaxSims(reqAck.getMaxSims());
+
+									log.info("Node " + nodeConfig.getUid() + " Max Sims : " + nodeConfig.getMaxSims());
+
 									nodeState = ProtocolState.READY;
 								}
-
-							break;
-							case NSMCP.AddSimReply :
-								
-								if(nodeState == ProtocolState.READY)
+								else
 								{
-									System.out.println("Recieved Add Sim Reply");
-									
+									log.error("ConfAck for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+								break;
+							case NSMCP.AddSimReply :
+
+								if (nodeState == ProtocolState.READY)
+								{
 									addSimId = input.readInt();
-									
+
+									log.info("AddSimReply : " + addSimId);
+
 									addSimWait.release();
 								}
-								
-							break;
-							case NSMCP.SimStateNoti:
-								
-								if(nodeState == ProtocolState.READY)
+								else
+								{
+									log.error("AddSimReply for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+								break;
+							case NSMCP.SimStateNoti :
+
+								if (nodeState == ProtocolState.READY)
 								{
 									// Create the state object
 									SimulationStateChanged stateChanged = new SimulationStateChanged(input);
-								
-									System.out.println(stateChanged.info());
-									
+
 									// find the mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(stateChanged.getSimId());
-									
-									System.out.println("New " + mapping.info());
-									
-									// Post the event as if from a local simulation
-									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),stateChanged.getState(),stateChanged.getRunTime(),stateChanged.getStepCount(),stateChanged.getEndEvent()));
+
+									// Debug as these are excessive output
+									log.debug(stateChanged.info());
+									log.debug("New " + mapping.info());
+
+									// Post the event as if from a local
+									// simulation
+									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
+											stateChanged.getState(), stateChanged.getRunTime(), stateChanged
+													.getStepCount(), stateChanged.getEndEvent()));
 								}
-								
-							break;
-							case NSMCP.SimStatNoti:
-								
-								if(nodeState == ProtocolState.READY)
+								else
+								{
+									log.error("SimStateNoti for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+								break;
+							case NSMCP.SimStatNoti :
+
+								if (nodeState == ProtocolState.READY)
 								{
 									// Create the state object
 									SimulationStatChanged statChanged = new SimulationStatChanged(input);
-								
-									System.out.println(statChanged.info());
-									
+
+									log.debug(statChanged.info());
+
 									// find the mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(statChanged.getSimId());
-									
-									if(mapping!=null)
+
+									// We can get stat changes during add sim.
+									// (ie when mapping created)
+									if (mapping != null)
 									{
-										System.out.println("New " + mapping.info());
-										
-										// Post the event as if from a local simulation
-										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),statChanged.getTime(),statChanged.getStepNo(),statChanged.getProgress(),statChanged.getAsps()));
+										log.debug("New " + mapping.info());
+
+										// Post the event as if from a local
+										// simulation
+										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),
+												statChanged.getTime(), statChanged.getStepNo(), statChanged
+														.getProgress(), statChanged.getAsps()));
 									}
 								}
-								
-							break;							
-							case NSMCP.SimStats:
-								
-								if(nodeState == ProtocolState.READY)
+								else
+								{
+									log.error("SimStatNoti for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+								break;
+							case NSMCP.SimStats :
+
+								if (nodeState == ProtocolState.READY)
 								{
 
-									System.out.println("Recieved Sim Stats");
+									log.debug("Recieved Sim Stats");
 
 									statExporter.populateFromStream(input);
-									
-									simStatsWait.release();									
+
+									simStatsWait.release();
 								}
-								
-							break;
-							case NSMCP.RemSimAck:
-								if(nodeState == ProtocolState.READY)
+								else
+								{
+									log.error("SimStats for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+								break;
+							case NSMCP.RemSimAck :
+								if (nodeState == ProtocolState.READY)
 								{
 									RemoveSimAck removeSimAck = new RemoveSimAck(input);
-									
-									System.out.println("Recieved RemSimAck : " + removeSimAck.getSimId());
-									
+
+									log.info("Recieved RemSimAck : " + removeSimAck.getSimId());
+
 									remSimWait.release();
-									
 								}
-							break;
+								else
+								{
+									log.error("RemSimAck for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+								break;
 							// Test Frame or Garbage
 							case NSMCP.INVALID :
 							default :
-								System.out.println("Recieved Invalid Frame");
+								log.error("Recieved Invalid Frame");
 								nodeState = ProtocolState.END;
-							break;
-							
+								break;
+
 						}
-						
-						if(nodeState == ProtocolState.END)
+
+						if (nodeState == ProtocolState.END)
 						{
+							log.info("Protocol State : " + nodeState.toString());
 							active = false;
 						}
 					}
 					// Exit // Do Node Shutdown
-					
+
 				}
 				catch (IOException e1)
 				{
-					System.out.println("Node "  + nodeConfig.getUid() +  " Recieve Thread exited");
+					log.warn("Node " + nodeConfig.getUid() + " Recieve Thread exited");
 					// Exit // Do Node Shutdown
-					
+
 					active = false;
-					
+
 					nodeState = ProtocolState.END;
-					
+
 					// Explicit release of all semaphores
 					addSimWait.release();
 					remSimWait.release();
 					simStatsWait.release();
-					
+
 				}
-				
+
 			}
-		}
-		);
-		
+		});
+
+		recieveThread.setName("Node " + nodeConfig.getUid() + " Recieve Thread");
+
 		// Start Processing
 		recieveThread.start();
-		
+
 	}
-	
+
 	private void sendMessage(byte[] bytes) throws IOException
 	{
 		txLock.acquireUninterruptibly();
-		
+
 		output.write(bytes);
 		output.flush();
 		txLock.release();
 	}
-	
+
 	/**
 	 * Returns if the node is in the ready state.
+	 * 
 	 * @return
 	 */
 	public boolean isReady()
 	{
-		if(nodeState == ProtocolState.READY)
+		if (nodeState == ProtocolState.READY)
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	public boolean isActive()
 	{
 		return active;
 	}
-	
+
 	public void incrementTimeOut()
 	{
 		NSMCPReadyTimeOut++;
-		System.out.println("Node " + nodeConfig.getUid() + " NSMCPReadyTimeOut " +NSMCPReadyTimeOut);
+		log.info("Node " + nodeConfig.getUid() + " NSMCPReadyTimeOut@" + NSMCPReadyTimeOut);
 	}
-	
+
 	public int getReadyStateTimeOutValue()
 	{
 		return NSMCPReadyTimeOut;
@@ -370,37 +434,37 @@ public class NodeManager
 	public ArrayList<Integer> getRecoverableSimsIds()
 	{
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		
-	   Iterator<Entry<Integer, RemoteSimulationMapping>> itr = remoteSimulationMap.entrySet().iterator();
+
+		Iterator<Entry<Integer, RemoteSimulationMapping>> itr = remoteSimulationMap.entrySet().iterator();
 
 		while (itr.hasNext())
 		{
 			int simId = itr.next().getValue().getLocalSimId();
-			
+
 			list.add(simId);
-			
-			JComputeEventBus.post(new SimulationsManagerEvent(simId,SimulationsManagerEventType.RemovedSim));
-			
+
+			JComputeEventBus.post(new SimulationsManagerEvent(simId, SimulationsManagerEventType.RemovedSim));
+
 			itr.remove();
 		}
-		
+
 		return list;
 	}
-	
+
 	public void destroy(String reason)
-	{			
+	{
 		try
 		{
-			System.out.println("Closing Socket for Node " + nodeConfig.getUid() + " " + reason);
+			log.info("Removing Node Manager for Node " + nodeConfig.getUid() + " Reason : " + reason);
 			socket.close();
 		}
 		catch (IOException e)
 		{
-			System.out.println("Socket already closed");
+			log.error("Socket already closed");
 		}
-		
+
 	}
-	
+
 	public int getUid()
 	{
 		return nodeConfig.getUid();
@@ -413,83 +477,84 @@ public class NodeManager
 
 	public boolean hasFreeSlot()
 	{
-		
-		if(activeSims < nodeConfig.getMaxSims())
+
+		if (activeSims < nodeConfig.getMaxSims())
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 
 	/**
 	 * Add a Simulation - Blocking
+	 * 
 	 * @param scenarioText
 	 * @param initialStepRate
 	 * @param mapping
 	 * @return
 	 */
-	public int addSim(String scenarioText,int initialStepRate, RemoteSimulationMapping mapping)
+	public int addSim(String scenarioText, int initialStepRate, RemoteSimulationMapping mapping)
 	{
 		nodeLock.acquireUninterruptibly();
-		
-		DebugLogger.output("Node " + nodeConfig.getUid() + " AddSim");
-		
+
+		log.info("Node " + nodeConfig.getUid() + " AddSim");
+
 		try
 		{
-			//addSimMsgBoxVarLock.acquireUninterruptibly();
-			
+			// addSimMsgBoxVarLock.acquireUninterruptibly();
+
 			// Shared variable
 			addSimId = -1;
-			
+
 			// Create and Send add Sim Req
-			sendMessage(new AddSimReq(scenarioText,initialStepRate).toBytes());
-		    
-		    //addSimMsgBoxVarLock.release();
-		    
-		    // Wait until we are released (by timer or receive thread)
-		    addSimWait.acquireUninterruptibly();
+			sendMessage(new AddSimReq(scenarioText, initialStepRate).toBytes());
 
-		    //addSimMsgBoxVarLock.acquireUninterruptibly();
-		    
-		    if(addSimId == -1)
-		    {
-		    	//addSimMsgBoxVarLock.release();
+			// addSimMsgBoxVarLock.release();
+
+			// Wait until we are released (by timer or receive thread)
+			addSimWait.acquireUninterruptibly();
+
+			// addSimMsgBoxVarLock.acquireUninterruptibly();
+
+			if (addSimId == -1)
+			{
+				// addSimMsgBoxVarLock.release();
 				nodeLock.release();
 
-		    	return -1;
-		    }
-		    else
-		    {
-		    	
-		    	mapping.setRemoteSimId(addSimId);
-		    	
-		    	remoteSimulationMap.put(addSimId, mapping);
-		    	
-		    	activeSims++;
-		    	
-		    	//addSimMsgBoxVarLock.release();
+				return -1;
+			}
+			else
+			{
+
+				mapping.setRemoteSimId(addSimId);
+
+				remoteSimulationMap.put(addSimId, mapping);
+
+				activeSims++;
+
+				// addSimMsgBoxVarLock.release();
 				nodeLock.release();
 
-				return addSimId;	
-		    }
-		    
+				return addSimId;
+			}
+
 		}
 		catch (IOException e)
 		{
 			nodeLock.release();
-			
+
 			// Connection is gone add sim failed
-			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in add Sim");
-			
+			log.error("Node " + nodeConfig.getUid() + " Error in add Sim");
+
 			return -1;
 		}
 
 	}
 
 	/**
-	 * Removes a simulation.
-	 * Blocking.
+	 * Removes a simulation. Blocking.
+	 * 
 	 * @param remoteSimId
 	 */
 	public void removeSim(int remoteSimId)
@@ -499,24 +564,24 @@ public class NodeManager
 		try
 		{
 			sendMessage(new RemoveSimReq(remoteSimId).toBytes());
-			
+
 			remSimWait.acquireUninterruptibly();
-			
+
 			// Remove the mapping as the remote simulation is gone.
 			remoteSimulationMap.remove(remoteSimId);
-			
+
 			activeSims--;
-			
+
 		}
 		catch (IOException e)
 		{
 			// Connection is gone...
-			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in Start Sim");
+			log.error("Node " + nodeConfig.getUid() + " Error in Start Sim");
 		}
-		
+
 		nodeLock.release();
 	}
-	
+
 	public void startSim(int remoteSimId)
 	{
 		nodeLock.acquireUninterruptibly();
@@ -528,39 +593,39 @@ public class NodeManager
 		catch (IOException e)
 		{
 			// Connection is gone...
-			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in Start Sim");
+			log.error("Node " + nodeConfig.getUid() + " Error in Start Sim");
 
 		}
-		
+
 		nodeLock.release();
 	}
-	
+
 	public void exportStats(int remoteSimId, String directory, String fileNameSuffix, ExportFormat format)
 	{
 		nodeLock.acquireUninterruptibly();
 
 		try
-		{			
+		{
 			// create a new exporter as format could change.
-			statExporter = new StatExporter(format,fileNameSuffix);
+			statExporter = new StatExporter(format, fileNameSuffix);
 
 			// Send the request
-			sendMessage(new SimulationStatsRequest(remoteSimId,format).toBytes());
+			sendMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
 
 			simStatsWait.acquireUninterruptibly();
-			
+
 			// Got reply now export the stats.
 			statExporter.exportAllStatsToDir(directory);
-			
+
 		}
 		catch (IOException e)
 		{
 			// Connection is gone...
-			DebugLogger.output("Node " + nodeConfig.getUid() + " Error in Start Sim");
+			log.error("Node " + nodeConfig.getUid() + " Error in Start Sim");
 
 		}
-		
+
 		nodeLock.release();
 	}
-	
+
 }
