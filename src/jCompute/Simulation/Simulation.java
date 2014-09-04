@@ -133,9 +133,7 @@ public class Simulation implements stateChangedInf, statChangedInf
 			public void run()
 			{
 				Thread thisThread = Thread.currentThread();
-				thisThread.setName("Async Update Thread");
-				
-				//thisThread.setPriority(Thread.MIN_PRIORITY);
+				thisThread.setName("Simulation " + simId);
 				
 				int reqSps = 0;
 				
