@@ -157,12 +157,12 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 							activeSims--;
 						}
 						
-						node.destroy("Node not Active");
+						log.debug("Node " + node.getUid() + " no longer Active");
+						node.destroy("Node no longer active");
 						itr.remove();
 						
 						maxSims -= node.getMaxSims();
 						
-						log.debug("Node " + node.getUid() + " no longer Active");
 					}
 				}
 				
