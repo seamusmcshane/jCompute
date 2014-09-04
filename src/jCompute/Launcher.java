@@ -85,19 +85,19 @@ public class Launcher
 		/* Init the Event bus in Async Mode */
 		JComputeEventBus.initAsync();
 		
-		lookandFeel();
-		
 		int mode = Integer.parseInt(opts.get("mode").getValue());		
 		
 		switch(mode)
 		{
 			case 0:
+				lookandFeel();
 				log.info("Requested Standard GUI");
 				/* Local Simulation Manager */			
 				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 				
 			break;
 			case 1:
+				lookandFeel();
 				int simManType = Integer.parseInt(opts.get("sm").getValue());
 
 				if(simManType==0)
