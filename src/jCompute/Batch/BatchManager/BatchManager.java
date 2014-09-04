@@ -9,6 +9,7 @@ import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +17,8 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -57,7 +60,11 @@ public class BatchManager
 	private CopyOnWriteArrayList<BatchManagerEventListenerInf> batchManagerListeners = new CopyOnWriteArrayList<BatchManagerEventListenerInf>();
 
 	// Scheduler
-	private Timer batchSchedulerTimer;
+	private Timer batchScheduler;
+
+	// For non blocking processing of batch.setComplete
+	private ExecutorService completedItemsProcessor = Executors.newFixedThreadPool(64, new SimpleNamedThreadFactory(
+			"Complete Items Processor"));
 
 	public BatchManager(SimulationsManagerInf simsManager)
 	{
@@ -79,8 +86,8 @@ public class BatchManager
 		JComputeEventBus.register(this);
 
 		// Batch Scheduler Tick
-		batchSchedulerTimer = new Timer("Batch Scheduler Timer");
-		batchSchedulerTimer.schedule(new TimerTask()
+		batchScheduler = new Timer("Batch Scheduler");
+		batchScheduler.schedule(new TimerTask()
 		{
 			@Override
 			public void run()
@@ -88,7 +95,7 @@ public class BatchManager
 				schedule();
 			}
 
-		}, 0, 1000);
+		}, 0, 10);
 	}
 
 	public boolean addBatch(String filePath)
@@ -170,13 +177,35 @@ public class BatchManager
 
 		Iterator<BatchItem> itr = completeItems.iterator();
 
-		BatchItem item = null;
 		int i = 0;
 
 		while (itr.hasNext())
 		{
-			item = itr.next();
+			BatchItem item = itr.next();
+			completedItemsProcessor.execute(new ItemsTask(item));
 
+			log.debug(i + " Scheduled for Processing Item : " + item.getItemId() + " Batch : " + item.getBatchId()
+					+ " SimId : " + item.getSimId());
+			i++;
+		}
+
+		completeItems = new ArrayList<BatchItem>();
+
+		itemsLock.release();
+	}
+
+	private class ItemsTask implements Runnable
+	{
+		private BatchItem item;
+
+		public ItemsTask(BatchItem item)
+		{
+			this.item = item;
+		}
+
+		@Override
+		public void run()
+		{
 			Batch batch = null;
 
 			if (item != null)
@@ -203,20 +232,12 @@ public class BatchManager
 			log.debug("Going to remove sim " + item.getSimId());
 
 			simsManager.removeSimulation(item.getSimId());
-
-			log.debug(i + " Processed Completed Item : " + item.getItemId() + " Batch : " + item.getBatchId()
-					+ " SimId : " + item.getSimId());
-			i++;
 		}
-
-		completeItems = new ArrayList<BatchItem>();
-
-		itemsLock.release();
 	}
 
 	private void schedule()
 	{
-		log.debug("Scheduler Tick");
+		//log.debug("Scheduler Tick");
 
 		recoverItemsFromInactiveNodes();
 
@@ -245,7 +266,7 @@ public class BatchManager
 	 */
 	private boolean scheduleFifo()
 	{
-		log.debug("Schedule Fifo");
+		//log.debug("Schedule Fifo");
 
 		// Get the first batch - FIFO
 		Batch batch = (Batch) fifoQueue.peek();
@@ -306,7 +327,7 @@ public class BatchManager
 
 	private void scheduleFair()
 	{
-		log.debug("Schedule Fair");
+		//log.debug("Schedule Fair");
 
 		int size = fairQueue.size();
 		double maxActive = simsManager.getMaxSims() - fifoQueue.size();
@@ -457,7 +478,7 @@ public class BatchManager
 				{
 					item.setComplete(e.getRunTime(), e.getEndEvent(), e.getStepCount());
 				}
-				
+
 				itemsLock.acquireUninterruptibly();
 
 				activeItems.remove(item);
