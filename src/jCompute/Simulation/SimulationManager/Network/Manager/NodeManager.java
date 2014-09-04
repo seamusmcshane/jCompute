@@ -384,7 +384,7 @@ public class NodeManager
 			}
 		});
 
-		recieveThread.setName("Node " + nodeConfig.getUid() + " Recieve Thread");
+		recieveThread.setName("Node " + nodeConfig.getUid() + " Recieve");
 
 		// Start Processing
 		recieveThread.start();
