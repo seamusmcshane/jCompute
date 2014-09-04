@@ -945,8 +945,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	{
 		SimulationsManagerEventType type = e.getEventType();
 		int simId = e.getSimId();
-
-		log.info("BatchGUI : SimulationsManagerEvent + " + e.getEventType().toString() + "(" + simId + ")");
 		
 		if(type == SimulationsManagerEventType.AddedSim)
 		{
