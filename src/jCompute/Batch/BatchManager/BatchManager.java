@@ -63,7 +63,7 @@ public class BatchManager
 	private Timer batchScheduler;
 
 	// For non blocking processing of batch.setComplete
-	private ExecutorService completedItemsProcessor = Executors.newFixedThreadPool(64, new SimpleNamedThreadFactory(
+	private ExecutorService completedItemsProcessor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new SimpleNamedThreadFactory(
 			"Complete Items Processor"));
 
 	public BatchManager(SimulationsManagerInf simsManager)
