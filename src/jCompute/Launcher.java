@@ -52,7 +52,7 @@ public class Launcher
 	public static void main(String args[])
 	{
 		// Set location of log4j2 config
-		System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
+		//System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
 
 		// Configure the launcher logger - as it is the first class it needs to be after l4j2 conf.
 		log = LoggerFactory.getLogger(Launcher.class);
