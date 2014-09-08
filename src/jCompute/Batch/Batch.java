@@ -4,7 +4,7 @@ import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
-import jCompute.Scenario.ScenarioVT;
+import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
@@ -84,7 +84,7 @@ public class Batch implements StoredQueuePosition
 	private String batchConfigText;
 
 	// The Configuration Processor
-	private ScenarioVT batchConfigProcessor;
+	private ConfigurationInterpreter batchConfigProcessor;
 
 	// The base scenario
 	private String baseScenaroFilePath;
@@ -168,7 +168,7 @@ public class Batch implements StoredQueuePosition
 
 		batchLock.acquireUninterruptibly();
 
-		batchConfigProcessor = new ScenarioVT();
+		batchConfigProcessor = new ConfigurationInterpreter();
 
 		batchConfigProcessor.loadConfig(batchConfigText);
 
@@ -452,7 +452,7 @@ public class Batch implements StoredQueuePosition
 		log.debug("Combinations " + combinations);
 
 		// The temp scenario used to generate the xml.
-		ScenarioVT temp;
+		ConfigurationInterpreter temp;
 
 		String itemName = "";
 
@@ -468,7 +468,7 @@ public class Batch implements StoredQueuePosition
 		for (int combo = 1; combo < combinations + 1; combo++)
 		{
 			// Create a copy of the base scenario
-			temp = new ScenarioVT();
+			temp = new ConfigurationInterpreter();
 			temp.loadConfig(baseScenarioText);
 
 			StringBuilder logLine = new StringBuilder();			
