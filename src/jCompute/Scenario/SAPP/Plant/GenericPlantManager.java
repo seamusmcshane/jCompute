@@ -149,10 +149,8 @@ public class GenericPlantManager
 
 		int size = doList.size();
 		
-		for (int p=0;p<size;p++) 
-		{	
-			GenericPlant currentPlant = doList.get(p);
-
+		for(GenericPlant currentPlant : doList)
+		{
 			if (!currentPlant.body.stats.isDead())
 			{
 				/* This Section adds each plant and its coordinates to the kd tree */
@@ -165,7 +163,6 @@ public class GenericPlantManager
 				doneList.add(currentPlant);
 				plantTotal++;
 			}
-
 		}
 
 		/* Add a sample to the stat recorder */
@@ -177,6 +174,45 @@ public class GenericPlantManager
 		return plantKDTree;
 	}
 
+	/*public KNNInf<GenericPlant> doStep()
+	{
+		setUpLists();
+		
+		plantTotal = 0;
+		
+		// 2d - KD-Tree 
+		plantKDTree = new thirdGenKDWrapper<GenericPlant>(2);		
+
+		int size = doList.size();
+		
+		for (int p=0;p<size;p++) 
+		{	
+			GenericPlant currentPlant = doList.get(p);
+
+			if (!currentPlant.body.stats.isDead())
+			{
+				// This Section adds each plant and its coordinates to the kd tree 
+				plantKDTree.add(currentPlant.body.getBodyPosKD(), currentPlant);
+				
+				// Do the plants step
+				currentPlant.body.stats.increment();
+
+				// Plant is not dead add it to the done list 
+				doneList.add(currentPlant);
+				plantTotal++;
+			}
+
+		}
+
+		// Add a sample to the stat recorder 
+		statPlantTotal.addSample(plantTotal);
+
+		// Plant Growth per Step - adds this many plants per step 
+		addPlants(plantRegenRate,false);	// log2(512) - +9... log2(1024)+10...
+		
+		return plantKDTree;
+	}*/
+	
 	/** Updates the Done list. 
 	 * This is effectively handling the death of plants in the simulation and if later implemented the reproduction of plants. 
 	 */
@@ -271,7 +307,7 @@ public class GenericPlantManager
 	private void setUpLists()
 	{
 		doList = doneList;
-		doneList = new ArrayList<GenericPlant>();		
+		doneList = new ArrayList<GenericPlant>(plantTotal*2);		
 	}
 
 	/**

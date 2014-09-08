@@ -17,9 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * 
  * Agent Manager Class This class contains the setup methods for the agents. It
@@ -238,13 +235,10 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf, S
 	/** Agent List preparation for the barrier */
 	public void doStep(KNNInf<GenericPlant> plantKDTree)
 	{
-		// Do Views
-		int size = doList.size();
-
-		for (int a = 0; a < size; a++)
+		int pSize = plantKDTree.size();
+		
+		for (SimpleAgent currentAgent : doList)
 		{
-			SimpleAgent currentAgent = doList.get(a);
-
 			SimpleAgent nearestAgent = agentKDTree.nearestNNeighbour(currentAgent.body.getBodyPosKD(), 2);
 
 			/*
@@ -253,7 +247,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf, S
 			 */
 			agentViewRangeKDSQAgents(currentAgent, nearestAgent);
 
-			if (plantKDTree.size() > 0) // Plants can die out and thus tree can
+			if (pSize > 0) // Plants can die out and thus tree can
 										// be empty.. (Heap exception avoidance)
 			{
 				GenericPlant nearestPlant = plantKDTree.nearestNeighbour(currentAgent.body.getBodyPosKD());
@@ -465,7 +459,7 @@ public class SimpleAgentManager implements ScenarioAllPredatorsLTEEndEventInf, S
 
 		// Swap List
 		doList = doneList;
-		doneList = new ArrayList<SimpleAgent>(agentCountMax);
+		doneList = new ArrayList<SimpleAgent>(agentCountMax*2);
 	}
 
 	/**
