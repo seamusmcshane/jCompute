@@ -21,7 +21,7 @@ public class ScenarioManager
 	public static ScenarioInf getScenario(String configText)
 	{
 		// Load the config text
-		ScenarioVT parser = new ScenarioVT();
+		ConfigurationInterpreter parser = new ConfigurationInterpreter();
 		parser.loadConfig(configText);
 
 		// Get the requested scenario type
@@ -35,7 +35,6 @@ public class ScenarioManager
 		ScenarioInf scenario = null;
 		
 		System.out.println("scenarios " + scenarios.size());
-
 		
 		// Look for scenario plugin based on type
 		for (ScenarioInf currentScenario : scenarios)
@@ -43,9 +42,8 @@ public class ScenarioManager
 			if(type.equals(currentScenario.getScenarioType()))
 			{
 				scenario = currentScenario;
-				scenario.loadConfig(configText);
+				scenario.loadConfig(parser);
 			}
-
 		}
 
 		return scenario;
