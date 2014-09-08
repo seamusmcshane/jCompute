@@ -38,7 +38,7 @@ public class ScenarioVT
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(ScenarioVT.class);
 	
-	XmlSchema schema;
+	private XmlSchema schema;
 	private XMLConfiguration scenario;
 	private List<StatGroupSetting> statSettingsList;
 	protected String scenarioText;
