@@ -91,7 +91,7 @@ public class A2DVector2f
 	* @author Kevin Glass, Slick2d
 	* @param theta The angle to calculate the components from (in degrees)
 	*/
-	public void setTheta(double theta) 
+	private void setTheta(double theta) 
 	{
 		// Next lines are to prevent numbers like -1.8369701E-16
 		// when working with negative numbers
@@ -202,7 +202,7 @@ public class A2DVector2f
 		float dx = other.getX() - getX();
 		float dy = other.getY() - getY();
 		
-		return (float) (dx*dx)+(dy*dy);
+		return (dx*dx)+(dy*dy);
 	}
 
 	public void set(float x, float y)
