@@ -5,9 +5,11 @@ import jCompute.Stats.StatGroupSetting;
 
 import java.util.List;
 
+import net.xeoh.plugins.base.Plugin;
+
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
-public interface ScenarioInf
+public interface ScenarioInf extends Plugin
 {
 	public String getStringValue(String section,String value);
 	

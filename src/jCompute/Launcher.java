@@ -2,6 +2,7 @@ package jCompute;
 
 import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Gui.Standard.StandardGUI;
+import jCompute.Scenario.ScenarioManager;
 import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
 import jCompute.Simulation.SimulationManager.Network.Node.Node;
@@ -73,6 +74,8 @@ public class Launcher
 	{
 		String iTheme = opts.get("iTheme").getValue();
 		IconManager.init(iTheme);
+		
+		ScenarioManager.init();
 		
 		int bText = Integer.valueOf(opts.get("bText").getValue());
 		boolean buttonText = true;

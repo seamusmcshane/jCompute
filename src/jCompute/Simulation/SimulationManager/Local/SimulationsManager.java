@@ -3,10 +3,7 @@ package jCompute.Simulation.SimulationManager.Local;
 import jCompute.JComputeEventBus;
 import jCompute.Gui.View.GUISimulationView;
 import jCompute.Scenario.ScenarioInf;
-import jCompute.Scenario.ScenarioVT;
-import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
-import jCompute.Scenario.Math.Mandelbrot.MandelbrotScenario;
-import jCompute.Scenario.SAPP.SAPPScenario;
+import jCompute.Scenario.ScenarioManager;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationScenarioManagerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -79,7 +76,7 @@ public class SimulationsManager implements SimulationsManagerInf
 			Simulation sim = new Simulation(simulationNum);
 
 			// Validate Scenario
-			ScenarioInf scenario = determinScenarios(scenarioText);
+			ScenarioInf scenario = ScenarioManager.getScenario(scenarioText);
 
 			if (sim != null && scenario != null)
 			{

@@ -3,9 +3,8 @@ package jCompute.Batch;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Scenario.ScenarioInf;
+import jCompute.Scenario.ScenarioManager;
 import jCompute.Scenario.ScenarioVT;
-import jCompute.Scenario.Math.LotkaVolterra.LotkaVolterraScenario;
-import jCompute.Scenario.SAPP.SAPPScenario;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
@@ -183,7 +182,7 @@ public class Batch implements StoredQueuePosition
 
 			baseScenarioText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
 
-			ScenarioInf baseScenario = determinScenarios(baseScenarioText);
+			ScenarioInf baseScenario = ScenarioManager.getScenario(baseScenarioText);
 
 			if (baseScenario != null)
 			{

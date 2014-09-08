@@ -15,6 +15,8 @@ import java.util.NoSuchElementException;
 
 import javax.xml.transform.stream.StreamSource;
 
+import net.xeoh.plugins.base.annotations.PluginImplementation;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.ConfigurationNode;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * Base Scenario File reader.
  */
 
+@PluginImplementation
 public class ScenarioVT
 {
 	// SL4J Logger
