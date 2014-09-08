@@ -15,8 +15,6 @@ import java.util.NoSuchElementException;
 
 import javax.xml.transform.stream.StreamSource;
 
-import net.xeoh.plugins.base.annotations.PluginImplementation;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.ConfigurationNode;
@@ -32,24 +30,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base Scenario File reader.
+ * XML Configuration File Interpreter.
  */
-
-@PluginImplementation
-public class ScenarioVT
+public class ConfigurationInterpreter
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(ScenarioVT.class);
+	private static Logger log = LoggerFactory.getLogger(ConfigurationInterpreter.class);
 	
 	private XmlSchema schema;
-	private XMLConfiguration scenario;
+	private XMLConfiguration configurationFile;
 	private List<StatGroupSetting> statSettingsList;
-	protected String scenarioText;
+	private String configurationFileText;
 
 	/** Simulation End Events */
 	private HashMap<String, Integer> endEvents;
 
-	public ScenarioVT()
+	public ConfigurationInterpreter()
 	{
 		statSettingsList = new ArrayList<StatGroupSetting>();
 	}
@@ -73,18 +69,18 @@ public class ScenarioVT
 
 	public void loadConfig(String text)
 	{
-		this.scenarioText = text;
+		this.configurationFileText = text;
 		InputStream stream;
 
 		try
 		{
 			stream = new ByteArrayInputStream(text.getBytes());
-			scenario = new XMLConfiguration();
-			scenario.setSchemaValidation(true);
-			scenario.load(stream);
+			configurationFile = new XMLConfiguration();
+			configurationFile.setSchemaValidation(true);
+			configurationFile.load(stream);
 
 			XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-			schema = schemaCol.read(new StreamSource(new FileInputStream((String) scenario.getRoot().getAttribute(1).getValue())), null);
+			schema = schemaCol.read(new StreamSource(new FileInputStream((String) configurationFile.getRoot().getAttribute(1).getValue())), null);
 			
 			readScenarioEndEvents();
 
@@ -101,19 +97,19 @@ public class ScenarioVT
 
 	public int getSubListSize(String section, String value)
 	{
-		return scenario.configurationsAt(section + "." + value).size();
+		return configurationFile.configurationsAt(section + "." + value).size();
 	}
 	
 	public int getSubListSize(String path)
 	{
-		return scenario.configurationsAt(path).size();
+		return configurationFile.configurationsAt(path).size();
 	}
 
 	public boolean hasStringValue(String section, String value)
 	{
 		try
 		{
-			scenario.getString(section + "." + value);
+			configurationFile.getString(section + "." + value);
 			return true;
 		}
 		catch (NoSuchElementException e)
@@ -127,7 +123,7 @@ public class ScenarioVT
 	{
 		try
 		{
-			scenario.getInt(section + "." + value);
+			configurationFile.getInt(section + "." + value);
 			return true;
 		}
 		catch (NoSuchElementException e)
@@ -141,7 +137,7 @@ public class ScenarioVT
 	{
 		try
 		{
-			scenario.getFloat(section + "." + value);
+			configurationFile.getFloat(section + "." + value);
 			return true;
 		}
 		catch (NoSuchElementException e)
@@ -155,7 +151,7 @@ public class ScenarioVT
 	{
 		try
 		{
-			scenario.getDouble(section + "." + value);
+			configurationFile.getDouble(section + "." + value);
 
 			return true;
 		}
@@ -168,42 +164,42 @@ public class ScenarioVT
 
 	public String getStringValue(String section, String value)
 	{
-		return scenario.getString(section + "." + value);
+		return configurationFile.getString(section + "." + value);
 	}
 
 	public boolean getBooleanValue(String section, String value)
 	{
-		return scenario.getBoolean(section + "." + value);
+		return configurationFile.getBoolean(section + "." + value);
 	}
 
 	public int getIntValue(String section, String value)
 	{
-		return scenario.getInt(section + "." + value);
+		return configurationFile.getInt(section + "." + value);
 	}
 
 	public float getFloatValue(String section, String value)
 	{
-		return scenario.getFloat(section + "." + value);
+		return configurationFile.getFloat(section + "." + value);
 	}
 
 	public double getDoubleValue(String section, String value)
 	{
-		return scenario.getDouble(section + "." + value);
+		return configurationFile.getDouble(section + "." + value);
 	}
 
 	public XMLConfiguration scenarioFile()
 	{
-		return scenario;
+		return configurationFile;
 	}
 
-	public double getScenarioVersion()
+	public double getFileVersion()
 	{
-		return Double.parseDouble(scenario.getString("Header.Version", "0.00"));
+		return Double.parseDouble(configurationFile.getString("Header.Version", "0.00"));
 	}
 
 	public String getScenarioType()
 	{
-		return scenario.getString("Header.Type", "Scenario Type Not Set!!!");
+		return configurationFile.getString("Header.Type", "Scenario Type Not Set!!!");
 	}
 
 	/**
@@ -216,8 +212,7 @@ public class ScenarioVT
 		statSettingsList.add(statSetting);
 	}
 
-	/** Only called by sub class */
-	protected void readStatSettings()
+	public void readStatSettings()
 	{
 		int statisticsGroups = getSubListSize("Statistics", "Stat");
 
@@ -235,18 +230,7 @@ public class ScenarioVT
 	{
 		return statSettingsList;
 	}
-
-	/*
-	 * public ScenarioKeyValuePair<String, Integer> getEndEvent(String
-	 * eventName) { ScenarioKeyValuePair<String, Integer> event = null;
-	 * 
-	 * if(endEvents.containsKey(eventName)) { event = new
-	 * ScenarioKeyValuePair<String,
-	 * Integer>(eventName,endEvents.get(eventName)); }
-	 * 
-	 * return event; }
-	 */
-
+	
 	public boolean endEventIsSet(String eventName)
 	{
 		return endEvents.containsKey(eventName);
@@ -260,7 +244,7 @@ public class ScenarioVT
 	// Change a value in the XML
 	public void changeValue(String section, String field, Object value)
 	{
-		scenario.setProperty(section + "." + field, value);
+		configurationFile.setProperty(section + "." + field, value);
 	}
 	
 	public String getScenarioXMLText()
@@ -270,7 +254,7 @@ public class ScenarioVT
 		try
 		{
 			baos = new ByteArrayOutputStream();
-			scenario.save(baos);
+			configurationFile.save(baos);
 		}
 		catch (ConfigurationException e)
 		{
@@ -288,14 +272,14 @@ public class ScenarioVT
 	
 	public void dumpXML()
 	{
-		ConfigurationNode rootNode = scenario.getRoot();
+		ConfigurationNode rootNode = configurationFile.getRoot();
 
 		String rootName = rootNode.getName();
 
 		log.debug("Root Element :" + rootName);
 		log.debug("Schema : " + rootNode.getAttribute(1).getValue());
 
-		Iterator<String> itr = scenario.getKeys();
+		Iterator<String> itr = configurationFile.getKeys();
 		
 		while(itr.hasNext()) 
 		{
@@ -324,19 +308,19 @@ public class ScenarioVT
 		String value = "";
 		if(type.getQName().getLocalPart().equals("boolean"))
 		{
-			value = String.valueOf(scenario.getBoolean(path));
+			value = String.valueOf(configurationFile.getBoolean(path));
 		}
 		else if(type.getQName().getLocalPart().equals("string"))
 		{
-			value = String.valueOf(scenario.getString(path));
+			value = String.valueOf(configurationFile.getString(path));
 		}
 		else if(type.getQName().getLocalPart().equals("decimal"))
 		{
-			value = String.valueOf(scenario.getDouble(path));
+			value = String.valueOf(configurationFile.getDouble(path));
 		}
 		else if (type.getQName().getLocalPart().equals("integer"))
 		{
-			value = String.valueOf(scenario.getInt(path));
+			value = String.valueOf(configurationFile.getInt(path));
 		}
 		else
 		{
@@ -355,7 +339,7 @@ public class ScenarioVT
 	// If type is null then the target does not exist.
 	public String findDataType(String target)
 	{
-		XmlSchemaType type = findSubNodeDataType(scenario.getRoot().getName(),target);
+		XmlSchemaType type = findSubNodeDataType(configurationFile.getRoot().getName(),target);
 		
 		return type.getQName().getLocalPart();
 	}
@@ -463,4 +447,8 @@ public class ScenarioVT
 		this.endEvents = endEvents;
 	}
 	
+	public String getText()
+	{
+		return configurationFileText;
+	}
 }
