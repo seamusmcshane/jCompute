@@ -236,7 +236,7 @@ public class MandelbrotSimulationManager implements SimulationScenarioManagerInf
 	{
 		if (scenario.endEventIsSet("StepCount"))
 		{
-			int endStep = scenario.getEventValue("StepCount");
+			int endStep = scenario.getEndEventTriggerValue("StepCount");
 
 			endEvents.add(new ScenarioStepCountEndEvent(simStats, endStep));
 		}

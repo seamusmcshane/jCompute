@@ -1,41 +1,56 @@
 package jCompute.Scenario.Math.LotkaVolterra;
 
 import jCompute.Scenario.ScenarioInf;
-import jCompute.Scenario.ScenarioVT;
+import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Simulation.SimulationScenarioManagerInf;
+import jCompute.Stats.StatGroupSetting;
 
 import java.util.HashMap;
+import java.util.List;
 
-public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
+import net.xeoh.plugins.base.annotations.PluginImplementation;
+
+@PluginImplementation
+public class LotkaVolterraScenario implements ScenarioInf
 {
+	private ConfigurationInterpreter interpreter;
+	
 	private SimulationScenarioManagerInf simManager;
 	
 	private HashMap <String, Double>parameters;
 	
 	public LotkaVolterraTwoAndThreeSpeciesSettings settings;
 	
+	private String type = "LV";
+	
 	public LotkaVolterraScenario()
 	{		
 		super();
 	}
-	
+		
 	@Override
-	public void loadConfig(String text)
+	public void loadConfig(ConfigurationInterpreter interpreter)
 	{
-		super.loadConfig(text);
+		this.interpreter = interpreter;
 		
 		readScenarioSettings();
 		
-		readStatSettings();
+		interpreter.readStatSettings();
 		
 		simManager = new LotkaVolterraSimulationManager(this);
 	}
 	
-	public boolean readScenarioSettings()
+	@Override
+	public String getScenarioType()
+	{
+		return type;
+	}
+	
+	private boolean readScenarioSettings()
 	{
 		/* Read sub type */
 		String section = "Header";				
-		String subType = super.getStringValue(section,"SubType");
+		String subType = interpreter.getStringValue(section,"SubType");
 
 		settings = new LotkaVolterraTwoAndThreeSpeciesSettings();
 
@@ -47,15 +62,15 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 		
 		/* View */
 		section = "View";				
-		settings.setViewScale(super.getFloatValue(section,"Scale"));
+		settings.setViewScale(interpreter.getFloatValue(section,"Scale"));
 		System.out.println("View Scale : " + settings.getViewScale());
 		
 		/* Integration */
 		section = "Integration";				
-		settings.setSubSteps(super.getIntValue(section,"SubSteps"));
+		settings.setSubSteps(interpreter.getIntValue(section,"SubSteps"));
 		System.out.println("SubSteps : " + settings.getSubSteps());
 		
-		settings.setIntMethod(super.getStringValue(section,"Method"));
+		settings.setIntMethod(interpreter.getStringValue(section,"Method"));
 		System.out.println("Method : " + settings.getIntMethod());
 		
 		/* Parameters */		
@@ -132,7 +147,7 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 	
 	public void loadSettings()
 	{
-		int numParameters = super.getSubListSize("Parameters","Parameter");
+		int numParameters = interpreter.getSubListSize("Parameters","Parameter");
 		
 		parameters = new HashMap<String, Double>();
 		
@@ -142,7 +157,7 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 		{
 			section = "Parameters.Parameter("+i+")";
 			
-			parameters.put(super.getStringValue(section,"Name"), super.getDoubleValue(section,"Value"));
+			parameters.put(interpreter.getStringValue(section,"Name"), interpreter.getDoubleValue(section,"Value"));
 		}
 	}
 	
@@ -154,6 +169,30 @@ public class LotkaVolterraScenario extends ScenarioVT implements ScenarioInf
 	
 	public String getScenarioText()
 	{
-		return super.scenarioText;
+		return interpreter.getText();
+	}
+	
+	@Override
+	public double getScenarioVersion()
+	{
+		return interpreter.getFileVersion();
+	}
+	
+	@Override
+	public List<StatGroupSetting> getStatGroupSettingsList()
+	{
+		return interpreter.getStatGroupSettingsList();
+	}
+
+	@Override
+	public boolean endEventIsSet(String eventName)
+	{
+		return interpreter.endEventIsSet(eventName);
+	}
+
+	@Override
+	public int getEndEventTriggerValue(String eventName)
+	{
+		return interpreter.getEventValue(eventName);
 	}
 }

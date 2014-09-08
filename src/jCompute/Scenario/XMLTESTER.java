@@ -21,7 +21,7 @@ public class XMLTESTER
 		XMLConfiguration scenario = new XMLConfiguration();
 
 		scenario.setSchemaValidation(true);
-		ScenarioVT sc = new ScenarioVT();
+		ConfigurationInterpreter sc = new ConfigurationInterpreter();
 		//LotkaVolterraScenario lv = new LotkaVolterraScenario();
 		
 		
