@@ -340,42 +340,6 @@ public class Batch implements StoredQueuePosition
 		log.debug("Base Scenario File : " + baseScenaroFilePath);
 	}
 
-	private ScenarioInf determinScenarios(String text)
-	{
-		ScenarioVT scenarioParser = null;
-
-		ScenarioInf simScenario = null;
-
-		scenarioParser = new ScenarioVT();
-
-		// To get the type of Scenario object to create.
-		scenarioParser.loadConfig(text);
-
-		log.debug("Scenario Type : " + scenarioParser.getScenarioType());
-
-		if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP"))
-		{
-			log.debug("SAPP File");
-			simScenario = new SAPPScenario();
-
-			simScenario.loadConfig(text);
-
-		}
-		else if (scenarioParser.getScenarioType().equalsIgnoreCase("LV"))
-		{
-			log.debug("LV File");
-			simScenario = new LotkaVolterraScenario();
-
-			simScenario.loadConfig(text);
-		}
-		else
-		{
-			log.error("DeterminScenarios :UKNOWN");
-		}
-
-		return simScenario;
-	}
-
 	/*
 	 * This method generates all the configuration combinations.
 	 */
