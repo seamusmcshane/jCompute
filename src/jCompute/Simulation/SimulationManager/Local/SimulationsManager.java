@@ -599,6 +599,8 @@ public class SimulationsManager implements SimulationsManagerInf
 			itr.next().getValue().destroySim();
 
 			itr.remove();
+			
+			activeSims--;
 		}
 
 		simulationsManagerLock.release();
