@@ -10,6 +10,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Stats.StatGroupListenerInf;
+import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -66,6 +69,9 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	// Nodes/Sockets
 	// Simulations
+	
+	private ExecutorService exportStatProcessor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new SimpleNamedThreadFactory(
+			"Export Stat Processor"));
 	
 	public NetworkSimulationsManager()
 	{
@@ -306,83 +312,69 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 		boolean simAdded = false;
 		
-		log.debug("activeSims " +activeSims + " < " + "maxSims " + maxSims);
-		if( activeSims < maxSims)
+		// Find a node with a free slot
+		log.debug(" Find a node ("+activeNodes.size()+")");
+		for(NodeManager node : activeNodes)
 		{
-			
-			// Find a node with a free slot
-			log.debug(" Find a node ("+activeNodes.size()+")");
-			for(NodeManager node : activeNodes)
+			log.debug("Node " + node.getUid());
+			if(node.hasFreeSlot())
 			{
-				log.debug("Node " + node.getUid());
-				if(node.hasFreeSlot())
+				log.debug( node.getUid() + " hasFreeSlot ");
+
+				/*
+				 * 
+				 * Valud mapping values are set at various points int the sequence
+				 */
+				
+				// remoteId -1 as the remote id is filled in by the NODE and indexed on it
+				RemoteSimulationMapping mapping = new RemoteSimulationMapping(node.getUid());
+				
+				int remoteSimId = node.addSim(scenarioText,initialStepRate,mapping);
+				
+				// Incase the remote node goes down while in this method
+				if(remoteSimId > 0)
 				{
-					log.debug( node.getUid() + " hasFreeSlot ");
-
-					/*
-					 * 
-					 * Valud mapping values are set at various points int the sequence
-					 */
+					// Increment the simUID values
+					simulationNum++;
 					
-					// remoteId -1 as the remote id is filled in by the NODE and indexed on it
-					RemoteSimulationMapping mapping = new RemoteSimulationMapping(node.getUid());
+					mapping.setLocalSimId(simulationNum);
 					
-					int remoteSimId = node.addSim(scenarioText,initialStepRate,mapping);
+					// Locally cache the mapping
+					localSimulationMap.put(simulationNum,mapping);
 					
-					// Incase the remote node goes down while in this method
-					if(remoteSimId > 0)
-					{
-						// Increment the simUID values
-						simulationNum++;
-						
-						mapping.setLocalSimId(simulationNum);
-						
-						// Locally cache the mapping
-						localSimulationMap.put(simulationNum,mapping);
-						
-						simAdded = true;
-						
-						log.debug("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
+					simAdded = true;
+					
+					log.debug("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
 
-						activeSims++;
-						
-						JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,SimulationsManagerEventType.AddedSim));
-						
-						break;
-					}
-					else
-					{
-						log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
-					}
-
+					activeSims++;
+					
+					JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,SimulationsManagerEventType.AddedSim));
+					
+					break;
+				}
+				else
+				{
+					log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
 				}
 
 			}
-			
-			// Most likely A node has gone down mid method - or other network problem.
-			if(!simAdded)
-			{
-				log.error("Could not add Simulation - no nodes accepted ");
-				
-				networkSimulationsManagerLock.release();
-
-				return -1;
-			}
-			else
-			{
-				networkSimulationsManagerLock.release();
-				
-				return simulationNum;
-			}
 
 		}
-		else
+		
+		// Most likely A node has gone down mid method - or other network problem.
+		if(!simAdded)
 		{
-			log.warn("Max Simulations Reached");
-
+			log.error("Could not add Simulation - no nodes accepted ");
+			
 			networkSimulationsManagerLock.release();
 
 			return -1;
+		}
+		else
+		{
+			networkSimulationsManagerLock.release();
+			
+			return simulationNum;
 		}
 		
 	}
@@ -426,7 +418,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
+	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format, boolean removeSim)
 	{
 		networkSimulationsManagerLock.acquireUninterruptibly();
 
@@ -435,9 +427,48 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		nodeManager.exportStats(mapping.getRemoteSimId(), directory, fileNameSuffix, format);
+		exportStatProcessor.execute(new ExportStatTask(nodeManager,simId,mapping.getRemoteSimId(), directory, fileNameSuffix, format,removeSim));
 		
 		networkSimulationsManagerLock.release();
+	}
+	
+	private class ExportStatTask implements Runnable
+	{
+		private NodeManager nodeManager;
+		private int localSimId;
+		private int remoteSimId;
+		private String directory;
+		private String fileNameSuffix;
+		private ExportFormat format;
+		private boolean removeSim;
+
+		public ExportStatTask(NodeManager nodeManager, int localSimId, int remoteSimId, String directory, String fileNameSuffix,
+				ExportFormat format,boolean removeSim)
+		{
+			super();
+			this.nodeManager = nodeManager;
+			this.localSimId = localSimId;
+			this.remoteSimId = remoteSimId;
+			this.directory = directory;
+			this.fileNameSuffix = fileNameSuffix;
+			this.format = format;
+			this.removeSim = removeSim;
+		}
+
+
+		@Override
+		public void run()
+		{
+			nodeManager.exportStats(remoteSimId, directory, fileNameSuffix, format);
+			
+			log.debug("Going to remove sim " + localSimId);
+
+			if(removeSim)
+			{
+				removeSimulation(localSimId);
+			}
+			
+		}
 	}
 	
 	private NodeManager findNodeManagerFromUID(int uid)
@@ -510,14 +541,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		// DebugLogger.output("Max Sims " + maxSims);
 
 		return maxSims;
-	}
-
-	@Override
-	public int getActiveSims()
-	{
-		//DebugLogger.output("Active Sims " + activeSims);
-
-		return activeSims;
 	}
 
 	@Override

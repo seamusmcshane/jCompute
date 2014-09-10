@@ -9,7 +9,6 @@ import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
-import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,8 +16,6 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -62,10 +59,6 @@ public class BatchManager
 	// Scheduler
 	private Timer batchScheduler;
 
-	// For non blocking processing of batch.setComplete
-	private ExecutorService completedItemsProcessor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new SimpleNamedThreadFactory(
-			"Complete Items Processor"));
-
 	public BatchManager(SimulationsManagerInf simsManager)
 	{
 		this.simsManager = simsManager;
@@ -78,7 +71,7 @@ public class BatchManager
 
 		stoppedBatches = new LinkedList<Batch>();
 
-		activeItems = new ArrayList<BatchItem>(simsManager.getActiveSims());
+		activeItems = new ArrayList<BatchItem>(16);
 
 		completeItems = new ArrayList<BatchItem>();
 
@@ -178,30 +171,8 @@ public class BatchManager
 		while (itr.hasNext())
 		{
 			BatchItem item = itr.next();
-			completedItemsProcessor.execute(new ItemsTask(item));
-
-			log.debug(i + " Scheduled for Processing Item : " + item.getItemId() + " Batch : " + item.getBatchId()
-					+ " SimId : " + item.getSimId());
-			i++;
-		}
-
-		completeItems = new ArrayList<BatchItem>();
-
-		itemsLock.release();
-	}
-
-	private class ItemsTask implements Runnable
-	{
-		private BatchItem item;
-
-		public ItemsTask(BatchItem item)
-		{
-			this.item = item;
-		}
-
-		@Override
-		public void run()
-		{
+			
+			
 			batchManagerLock.acquireUninterruptibly();
 
 			Batch batch = null;
@@ -228,12 +199,13 @@ public class BatchManager
 			{
 				log.error("Simulation Event for NULL batch " + item.getBatchId());
 			}
-
-			log.debug("Going to remove sim " + item.getSimId());
-
-			simsManager.removeSimulation(item.getSimId());
 			
+			i++;
 		}
+
+		completeItems = new ArrayList<BatchItem>();
+
+		itemsLock.release();
 	}
 
 	private void schedule()
@@ -244,20 +216,21 @@ public class BatchManager
 
 		processCompletedItems();
 
-		// Is there a free slot
-		if (simsManager.getActiveSims() < simsManager.getMaxSims())
-		{
-			batchManagerLock.acquireUninterruptibly();
+
+		batchManagerLock.acquireUninterruptibly();
 
 			// Schedule from the fifo only if it contains batches
-			if (!scheduleFifo())
-			{
-				scheduleFair();
-			}
-
+		if (!scheduleFifo())
+		{
 			batchManagerLock.release();
-
+				
+			// Safe to release and recapture here
+			batchManagerLock.acquireUninterruptibly();				
+			scheduleFair();
 		}
+
+		batchManagerLock.release();
+
 
 	}
 
@@ -311,13 +284,21 @@ public class BatchManager
 		// While there are items to add and the simulations manager can add them
 		while ((batch.getRemaining() > 0))
 		{
-			// dequeue the next item in the batch
-			BatchItem item = batch.getNext();
-
-			// Schedule it
-			if (!scheduleBatchItem(item))
+			// Is there a free slot
+			if (simsManager.hasFreeSlot())
 			{
-				batch.returnItemToQueue(item);
+				// dequeue the next item in the batch
+				BatchItem item = batch.getNext();
+	
+				// Schedule it
+				if (!scheduleBatchItem(item))
+				{
+					batch.returnItemToQueue(item);
+					break;
+				}
+			}
+			else
+			{
 				break;
 			}
 
@@ -356,66 +337,75 @@ public class BatchManager
 		// Cycle over the batches and add one item from each to the run queue
 		do
 		{
-			batch = (Batch) fairQueue.get(pos);
-
-			// Is this batch finished
-			if (batch.getCompleted() == batch.getBatchItems())
+			// Is there a free slot
+			if (simsManager.hasFreeSlot())
 			{
-				// Add the batch to the completed list
-				finishedBatches.add(batch);
+				batch = (Batch) fairQueue.get(pos);
 
-				// Remove batch as its complete.
-				fairQueue.remove(batch);
-
-				batchManagerLock.release();
-
-				// Notify listeners the batch is removed.
-				batchManagerListenerBatchFinishedNotification(batch);
-
-				batchManagerLock.acquireUninterruptibly();
-				// exit this tick
-				canContinue = false;
-			}
-			else
-			{
-				if (batch.getRemaining() > 0)
+				// Is this batch finished
+				if (batch.getCompleted() == batch.getBatchItems())
 				{
-					log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " + batch.getActiveItemsCount()
-							+ " fairTotal" + fairTotal);
+					// Add the batch to the completed list
+					finishedBatches.add(batch);
 
-					if (batch.getActiveItemsCount() < fairTotal)
+					// Remove batch as its complete.
+					fairQueue.remove(batch);
+
+					batchManagerLock.release();
+
+					// Notify listeners the batch is removed.
+					batchManagerListenerBatchFinishedNotification(batch);
+
+					batchManagerLock.acquireUninterruptibly();
+					// exit this tick
+					canContinue = false;
+				}
+				else
+				{
+					if (batch.getRemaining() > 0)
 					{
-						item = batch.getNext();
+						log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " + batch.getActiveItemsCount()
+								+ " fairTotal" + fairTotal);
 
-						// Once we cannot add anymore, exit, and return the
-						// failed one to the queue
-						if (!scheduleBatchItem(item))
+						if (batch.getActiveItemsCount() < fairTotal)
 						{
-							batch.returnItemToQueue(item);
-							canContinue = false;
+							item = batch.getNext();
+
+							// Once we cannot add anymore, exit, and return the
+							// failed one to the queue
+							if (!scheduleBatchItem(item))
+							{
+								batch.returnItemToQueue(item);
+								canContinue = false;
+							}
+							else
+							{
+								pos = (pos + 1) % size;
+							}
 						}
 						else
 						{
 							pos = (pos + 1) % size;
+
+							// Avoid infinite loop due having reached the fair total
+							if (batch.getActiveItemsCount() == fairTotal)
+							{
+								canContinue = false;
+							}
 						}
 					}
 					else
 					{
-						pos = (pos + 1) % size;
-
-						// Avoid infinite loop due having reached the fair total
-						if (batch.getActiveItemsCount() == fairTotal)
-						{
-							canContinue = false;
-						}
+						canContinue = false;
 					}
-				}
-				else
-				{
-					canContinue = false;
-				}
 
+				}
 			}
+			else
+			{
+				canContinue = false;
+			}
+
 
 		}
 		while (canContinue);
