@@ -185,21 +185,25 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	{
 		BatchQueueRowItem otherRow = (BatchQueueRowItem)rowObject;
 		int value = 0;
+		
+		// Evaluate the priorities
+		int eval = priority.compareTo(otherRow.getPriority());
 				
-		// Sort by priority then queue position
-		if(priority.isHigherPriorityThan(otherRow.getPriority()))
+		// if the priorities are not equal we can use this as the value.
+		if(eval < 0 || eval > 0)
 		{
-			value = -1;
+			value = eval;
 		}
 		else
 		{
-			if(this.position > otherRow.getPosition())
-			{
-				value = 1;
-			}
-			else if(this.position < otherRow.getPosition())
+			// Otherwise we sort by the position in the queue
+			if(this.position < otherRow.getPosition())
 			{
 				value = -1;
+			}
+			else if(this.position > otherRow.getPosition())
+			{
+				value = 1;
 			}
 		}
 		
