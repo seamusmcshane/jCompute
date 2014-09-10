@@ -148,11 +148,7 @@ public class BatchManager
 
 				System.out.println("item " + item);
 
-				batchManagerLock.release();
-
 				Batch batch = findBatch(item.getBatchId());
-
-				batchManagerLock.acquireUninterruptibly();
 
 				System.out.println("batch " + batch);
 
@@ -206,6 +202,8 @@ public class BatchManager
 		@Override
 		public void run()
 		{
+			batchManagerLock.acquireUninterruptibly();
+
 			Batch batch = null;
 
 			if (item != null)
@@ -214,6 +212,8 @@ public class BatchManager
 				batch = findBatch(item.getBatchId());
 			}
 
+			batchManagerLock.release();
+			
 			if (batch != null)
 			{
 				log.debug("Batch : " + batch.getBatchId());
@@ -232,6 +232,7 @@ public class BatchManager
 			log.debug("Going to remove sim " + item.getSimId());
 
 			simsManager.removeSimulation(item.getSimId());
+			
 		}
 	}
 
@@ -504,8 +505,6 @@ public class BatchManager
 
 	private Batch findBatch(int batchId)
 	{
-		batchManagerLock.acquireUninterruptibly();
-
 		Iterator<StoredQueuePosition> qitr = fifoQueue.iterator();
 
 		Batch batch = null;
@@ -593,9 +592,7 @@ public class BatchManager
 
 			}
 		}
-
-		batchManagerLock.release();
-
+		
 		return batch;
 	}
 
@@ -661,15 +658,21 @@ public class BatchManager
 
 	public String[] getBatchInfo(int batchId)
 	{
+		batchManagerLock.acquireUninterruptibly();
+
 		Batch batch = findBatch(batchId);
 
 		String[] info = batch.getBatchInfo();
+		
+		batchManagerLock.release();
 
 		return info;
 	}
 
 	private BatchItem[] getListItems(int batchId, int queueNum)
 	{
+		batchManagerLock.acquireUninterruptibly();
+
 		BatchItem[] list = null;
 
 		Batch batch = findBatch(batchId);
@@ -686,6 +689,8 @@ public class BatchManager
 				list = batch.getCompletedItems();
 				break;
 		}
+
+		batchManagerLock.release();
 
 		return list;
 	}
@@ -707,11 +712,11 @@ public class BatchManager
 
 	public void setEnabled(int batchId, boolean enabled)
 	{
+		batchManagerLock.acquireUninterruptibly();
+
 		Batch batch = findBatch(batchId);
 
 		batch.setEnabled(enabled);
-
-		batchManagerLock.acquireUninterruptibly();
 
 		// Remove batch from queues if disabled and add to stop else the reverse
 		// process for enabling
@@ -754,62 +759,72 @@ public class BatchManager
 
 	public void setPriority(int batchId, BatchPriority priority)
 	{
-		Batch batch = findBatch(batchId);
-
 		batchManagerLock.acquireUninterruptibly();
+
+		Batch batch = findBatch(batchId);
 
 		Iterator<StoredQueuePosition> itr;
 		ManagedBypassableQueue queue = null;
-
-		// if the batch is enabled switch the queue (as its not in one if not
-		// enabled)
-		if (batch.getEnabled() == true)
+		
+		// Do not set the priority if its the same
+		if(batch.getPriority() != priority)
 		{
-			if (batch.getPriority() == BatchPriority.STANDARD)
+			// if the batch is enabled switch the queue (as its not in one if not
+			// enabled)
+			if (batch.getEnabled() == true)
 			{
-				// Move to High (Standard to FIFO)
-				fairQueue.remove(batch);
-				fifoQueue.add(batch);
+				if (batch.getPriority() == BatchPriority.STANDARD)
+				{
+					// Move to High (Standard to FIFO)
+					fairQueue.remove(batch);
+					fifoQueue.add(batch);
 
-				queue = fifoQueue;
+					queue = fifoQueue;
+
+				}
+				else
+				{
+					// Move To Standard (FIFO to Standard)
+					fifoQueue.remove(batch);
+					fairQueue.add(batch);
+
+					queue = fairQueue;
+
+				}
 
 			}
-			else
+
+			// New Priority
+			batch.setPriority(priority);
+			
+			batchManagerLock.release();
+			
+			Batch tBatch = null;
+			itr = queue.iterator();
+
+			// Batch Orders Changed refresh all data
+			while (itr.hasNext())
 			{
-				// Move To Standard (FIFO to Standard)
-				fifoQueue.remove(batch);
-				fairQueue.add(batch);
+				tBatch = (Batch) itr.next();
 
-				queue = fairQueue;
+				log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 
+				batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
 			}
-
+			
 		}
-
-		// New Priority
-		batch.setPriority(priority);
-
-		batchManagerLock.release();
-
-		Batch tBatch = null;
-		itr = queue.iterator();
-
-		// Batch Orders Changed refresh all data
-		while (itr.hasNext())
+		else
 		{
-			tBatch = (Batch) itr.next();
-
-			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
-
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+			batchManagerLock.release();
 		}
+
 	}
 
 	public void moveToFront(int batchId)
 	{
-		Batch batch = findBatch(batchId);
-
 		batchManagerLock.acquireUninterruptibly();
+
+		Batch batch = findBatch(batchId);
 
 		log.debug("Move " + batchId + " to front");
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
@@ -852,10 +867,9 @@ public class BatchManager
 
 	public void moveToEnd(int batchId)
 	{
+		batchManagerLock.acquireUninterruptibly();
 
 		Batch batch = findBatch(batchId);
-
-		batchManagerLock.acquireUninterruptibly();
 
 		log.debug("Move " + batchId + " to end");
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
@@ -898,9 +912,9 @@ public class BatchManager
 
 	public void moveForward(int batchId)
 	{
-		Batch batch = findBatch(batchId);
-
 		batchManagerLock.acquireUninterruptibly();
+
+		Batch batch = findBatch(batchId);
 
 		log.debug("Move " + batchId + " to front");
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
@@ -942,9 +956,9 @@ public class BatchManager
 
 	public void moveBackward(int batchId)
 	{
-		Batch batch = findBatch(batchId);
-
 		batchManagerLock.acquireUninterruptibly();
+
+		Batch batch = findBatch(batchId);
 
 		log.debug("Move " + batchId + " to front");
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
@@ -994,9 +1008,9 @@ public class BatchManager
 
 	public void removeBatch(int batchId)
 	{
-		Batch batch = findBatch(batchId);
-
 		batchManagerLock.acquireUninterruptibly();
+
+		Batch batch = findBatch(batchId);
 
 		boolean enabled = batch.getEnabled();
 
