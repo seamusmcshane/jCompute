@@ -368,12 +368,6 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public int getActiveSims()
-	{
-		return activeSims;
-	}
-
-	@Override
 	public SimState getState(int simId)
 	{
 		SimState simState = null;
@@ -616,6 +610,12 @@ public class SimulationsManager implements SimulationsManagerInf
 	public boolean hasRecoverableSimIds()
 	{
 		return false;
+	}
+
+	@Override
+	public boolean hasFreeSlot()
+	{
+		return activeSims < maxSims;
 	}
 
 }

@@ -178,8 +178,14 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
+	public boolean hasFreeSlot()
+	{
+		return activeSims < maxSims;
+	}
+	
+	@Override
 	public boolean hasRecoverableSimIds()
-	{		
+	{
 		return hasRecoverableSimsIds;
 	}
 	

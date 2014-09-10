@@ -44,8 +44,6 @@ public interface SimulationsManagerInf
 		
 	public int getMaxSims();
 
-	public int getActiveSims();
-
 	public SimState getState(int simId);
 	
 	public int getReqSps(int simId);
@@ -84,5 +82,7 @@ public interface SimulationsManagerInf
 
 	public ArrayList<Integer> getRecoverableSimIds();
 	public boolean hasRecoverableSimIds();
+
+	boolean hasFreeSlot();
 
 }
