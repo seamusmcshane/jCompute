@@ -1,7 +1,12 @@
 package jCompute.Scenario;
 
+import jCompute.JComputeEventBus;
+
 import java.io.File;
 import java.util.Collection;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.xeoh.plugins.base.PluginManager;
 import net.xeoh.plugins.base.impl.PluginManagerFactory;
@@ -11,13 +16,34 @@ public class ScenarioManager
 {
 	private static PluginManager spm;
 
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(ScenarioManager.class);
+	
 	public static void init()
 	{
+		log.info("Loading scenario plugins...");
+		
 		spm = PluginManagerFactory.createPluginManager();
 
 		spm.addPluginsFrom(new File("scenarios/").toURI());
+		
+		listScenarioPlugins();
 	}
 
+	private static void listScenarioPlugins()
+	{
+		// Get all the scenario plugins
+		Collection<ScenarioInf> scenarios = new PluginManagerUtil(spm).getPlugins(ScenarioInf.class);
+		
+		// Look for scenario plugin based on type
+		for (ScenarioInf currentScenario : scenarios)
+		{
+			
+			log.info("Scenario : " + currentScenario.getScenarioType());
+		}
+		log.info("Total Scenarios : " +  scenarios.size());
+	}
+	
 	public static ScenarioInf getScenario(String configText)
 	{
 		// Load the config text
@@ -26,16 +52,13 @@ public class ScenarioManager
 
 		// Get the requested scenario type
 		String type = parser.getScenarioType();
-		System.out.println("Type : " + type);
 
 		// Get all the scenario plugins
 		Collection<ScenarioInf> scenarios = new PluginManagerUtil(spm).getPlugins(ScenarioInf.class);
 
 		// Our returned scenario or null
 		ScenarioInf scenario = null;
-		
-		System.out.println("scenarios " + scenarios.size());
-		
+
 		// Look for scenario plugin based on type
 		for (ScenarioInf currentScenario : scenarios)
 		{
@@ -48,32 +71,5 @@ public class ScenarioManager
 
 		return scenario;
 	}
-
-	/*
-	 * public static ScenarioInf getScenario(String text) { ScenarioVT
-	 * scenarioParser = null;
-	 * 
-	 * ScenarioInf simScenario = null;
-	 * 
-	 * scenarioParser = new ScenarioVT();
-	 * 
-	 * // To get the type of Scenario object to create.
-	 * scenarioParser.loadConfig(text);
-	 * 
-	 * log.debug("Scenario Type : " + scenarioParser.getScenarioType());
-	 * 
-	 * if (scenarioParser.getScenarioType().equalsIgnoreCase("SAPP")) {
-	 * log.debug("SAPP File"); simScenario = new SAPPScenario();
-	 * 
-	 * simScenario.loadConfig(text);
-	 * 
-	 * } else if (scenarioParser.getScenarioType().equalsIgnoreCase("LV")) {
-	 * log.debug("LV File"); simScenario = new LotkaVolterraScenario();
-	 * 
-	 * simScenario.loadConfig(text); } else {
-	 * log.error("DeterminScenarios :UKNOWN"); }
-	 * 
-	 * return simScenario; }
-	 */
 
 }
