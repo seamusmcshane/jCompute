@@ -318,9 +318,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			public void actionPerformed(ActionEvent e) 
 			{
 				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
-				{
-					queuedSelectedBatchRowIndex = 0;
-					
+				{					
 					// invalid row selected
 					return;
 				}
@@ -340,10 +338,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
-				{
-					queuedSelectedBatchRowIndex = 0;
-					
+				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0 || queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount()-1)
+				{					
 					// invalid row selected
 					return;
 				}
@@ -369,10 +365,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
-				{
-					queuedSelectedBatchRowIndex = 0;
-					
+				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0 || queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount()-1)
+				{					
 					// invalid row selected
 					return;
 				}
@@ -399,9 +393,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 			public void actionPerformed(ActionEvent e) 
 			{
 				if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
-				{
-					queuedSelectedBatchRowIndex = 0;
-					
+				{					
 					// invalid row selected
 					return;
 				}
@@ -495,7 +487,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		toolBar.addSeparator();
 		
 		
-		if(buttonText)
+		if(true)
 		{
 			btnAdd.setText("Add");
 			btnRemove.setText("Remove");
