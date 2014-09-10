@@ -6,13 +6,13 @@ import jCompute.Gui.Component.RowItem;
 
 public class BatchQueueRowItem implements RowItem, Comparable
 {
-	public int position;
-	public int batch;
-	public String name;
-	public BatchPriority priority;
-	public boolean enabled;
-	public int progress;
-	public String estimatedTime;
+	private int position;
+	private int batch;
+	private String name;
+	private BatchPriority priority;
+	private boolean enabled;
+	private int progress;
+	private String estimatedTime;
 	
 	public BatchQueueRowItem()
 	{
@@ -185,14 +185,22 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	{
 		BatchQueueRowItem otherRow = (BatchQueueRowItem)rowObject;
 		int value = 0;
-		
-		if(this.position > otherRow.getPosition())
-		{
-			value = 1;
-		}
-		else if(this.position < otherRow.getPosition())
+				
+		// Sort by priority then queue position
+		if(priority.isHigherPriorityThan(otherRow.getPriority()))
 		{
 			value = -1;
+		}
+		else
+		{
+			if(this.position > otherRow.getPosition())
+			{
+				value = 1;
+			}
+			else if(this.position < otherRow.getPosition())
+			{
+				value = -1;
+			}
 		}
 		
 		return value;

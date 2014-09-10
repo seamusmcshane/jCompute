@@ -979,6 +979,11 @@ public class Batch implements StoredQueuePosition
 		{
 			return name;
 		}
+		
+		public boolean isHigherPriorityThan(BatchPriority otherPriority)
+		{
+			return this.ordinal() < otherPriority.ordinal();			
+		}
 	}
 
 	public BatchPriority getPriority()
