@@ -729,7 +729,7 @@ public class Batch implements StoredQueuePosition
 		batchLock.release();
 
 		// Export Stats
-		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath, String.valueOf(item.getItemHash()), ExportFormat.ZXML);
+		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath, String.valueOf(item.getItemHash()), ExportFormat.ZXML, true);
 
 		batchLock.acquireUninterruptibly();
 
