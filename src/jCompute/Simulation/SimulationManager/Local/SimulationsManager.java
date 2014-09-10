@@ -406,7 +406,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
+	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format, boolean removeSim)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
@@ -433,6 +433,15 @@ public class SimulationsManager implements SimulationsManagerInf
 
 			// Export the stats
 			exporter.exportAllStatsToDir(directory);
+			
+			if(removeSim)
+			{
+				simulationsManagerLock.release();
+				
+				removeSimulation(simId);
+				
+				return;
+			}
 		}
 
 		simulationsManagerLock.release();
