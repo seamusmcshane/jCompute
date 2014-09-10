@@ -762,9 +762,6 @@ public class BatchManager
 		batchManagerLock.acquireUninterruptibly();
 
 		Batch batch = findBatch(batchId);
-
-		Iterator<StoredQueuePosition> itr;
-		ManagedBypassableQueue queue = null;
 		
 		// Do not set the priority if its the same
 		if(batch.getPriority() != priority)
@@ -778,18 +775,12 @@ public class BatchManager
 					// Move to High (Standard to FIFO)
 					fairQueue.remove(batch);
 					fifoQueue.add(batch);
-
-					queue = fifoQueue;
-
 				}
 				else
 				{
 					// Move To Standard (FIFO to Standard)
 					fifoQueue.remove(batch);
 					fairQueue.add(batch);
-
-					queue = fairQueue;
-
 				}
 
 			}
@@ -799,18 +790,7 @@ public class BatchManager
 			
 			batchManagerLock.release();
 			
-			Batch tBatch = null;
-			itr = queue.iterator();
-
-			// Batch Orders Changed refresh all data
-			while (itr.hasNext())
-			{
-				tBatch = (Batch) itr.next();
-
-				log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
-
-				batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
-			}
+			positionsChangedInbothQueues();
 			
 		}
 		else
@@ -820,6 +800,36 @@ public class BatchManager
 
 	}
 
+	/**
+	 * This method does the position changed notifications, for when items move between queues.
+	 * Positions in both will have changed.
+	 */
+	private void positionsChangedInbothQueues()
+	{		
+		Batch tBatch = null;
+		Iterator<StoredQueuePosition> itr = fifoQueue.iterator();
+
+		while (itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}		
+		
+		itr = fairQueue.iterator();
+
+		while (itr.hasNext())
+		{
+			tBatch = (Batch) itr.next();
+
+			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
+
+			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+		}
+	}
+	
 	public void moveToFront(int batchId)
 	{
 		batchManagerLock.acquireUninterruptibly();
