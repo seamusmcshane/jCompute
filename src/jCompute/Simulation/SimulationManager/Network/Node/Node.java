@@ -1,12 +1,14 @@
 package jCompute.Simulation.SimulationManager.Network.Node;
 
 import jCompute.JComputeEventBus;
+import jCompute.Datastruct.knn.benchmark.NodeWeightingBenchmark;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP.ProtocolState;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationAck;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.ConfigurationRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStatChanged;
@@ -51,7 +53,7 @@ public class Node
 
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
-
+	
 	public Node(String address, SimulationsManagerInf simsManager)
 	{
 		log.info("Starting Node");
@@ -256,12 +258,25 @@ public class Node
 					break;
 				case NSMCP.ConfReq :
 
+					ConfigurationRequest confReq = new ConfigurationRequest(input);
+					
 					// Set our max sims now
 					nodeConfig.setMaxSims(simsManager.getMaxSims());
 					log.info("ConfReq Recieved");
 
+					int benchMark = confReq.getBench();
+					if(benchMark == 1)
+					{
+						log.info("Running Weighting Benchmark");
+						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(8192,1000);
+						bench.warmUp(1000);
+						long weighting = bench.weightingBenchmark(5);
+						nodeConfig.setWeighting(weighting);
+						log.info("Weighting\t " + weighting );
+					}
+					
 					// Create and send the Configuration ack
-					sendMessage(new ConfigurationAck(nodeConfig.getMaxSims()).toBytes());
+					sendMessage(new ConfigurationAck(nodeConfig).toBytes());
 
 					log.info("Sent Conf Ack : Max Sims " + nodeConfig.getMaxSims());
 
