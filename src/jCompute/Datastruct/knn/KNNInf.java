@@ -4,6 +4,7 @@
 package jCompute.Datastruct.knn;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Seamie
@@ -23,7 +24,7 @@ public interface KNNInf <Datatype>
 	Datatype nearestNNeighbour(double pos[], int n);
 	
 	/* Find Nearest Items */
-	LinkedList<Datatype>nearestNeighbours(double pos[]);
+	List nearestNeighbours(double pos[]);
 
 	public int size();
 	

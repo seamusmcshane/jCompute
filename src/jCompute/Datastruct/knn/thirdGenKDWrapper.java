@@ -18,7 +18,6 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	
 	public thirdGenKDWrapper(int dim)
 	{		
-		tree = null;
 		treenodes = 0;
 		tree = new KdTree<Datatype>(dim,24);
 	}
