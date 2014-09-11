@@ -132,12 +132,12 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				log.debug("------------------------------------");
 
 				
+				// Detect nodes that are now ready in the connected nodes list and add them to the active nodes.
+				// Must be a for loop as we dont want to stay in this loop.
 				for(NodeManager tNode : connectingNodes)
-				{					
+				{
 					if(tNode.isReady())
-					{
-						connectingNodes.remove(tNode);
-						
+					{						
 						activeNodes.add(tNode);
 						
 						maxSims += tNode.getMaxSims();
@@ -167,8 +167,19 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					}
 				}
 
-				Iterator<NodeManager> itr = activeNodes.iterator();
+				// Now remove ready nodes in the connecting nodes list
+				Iterator<NodeManager> itr = connectingNodes.iterator();
+				while(itr.hasNext())
+				{
+					NodeManager node = itr.next();
+					
+					if(node.isReady())
+					{
+						itr.remove();
+					}
+				}
 				
+				itr = activeNodes.iterator();
 				while(itr.hasNext())
 				{
 					NodeManager node = itr.next();
@@ -192,6 +203,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						maxSims -= node.getMaxSims();
 						
 					}
+					
+
 				}
 				
 				if(recoveredSimIds.size()>0)
