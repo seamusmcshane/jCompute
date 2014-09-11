@@ -185,9 +185,9 @@ public class NodeManager
 									if (nodeConfig.getUid() == ruid)
 									{
 
-										log.info("Node registration ok, now requesting node configuration");
+										log.info("Node registration ok, now requesting node configuration and weighting");
 
-										sendMessage(new ConfigurationRequest().toBytes());
+										sendMessage(new ConfigurationRequest(1).toBytes());
 
 									}
 									else
@@ -226,8 +226,11 @@ public class NodeManager
 									ConfigurationAck reqAck = new ConfigurationAck(input);
 
 									nodeConfig.setMaxSims(reqAck.getMaxSims());
-
-									log.info("Node " + nodeConfig.getUid() + " Max Sims : " + nodeConfig.getMaxSims());
+									nodeConfig.setWeighting(reqAck.getWeighting());
+									
+									
+									log.info("Node " + nodeConfig.getUid() + " Max Sims  : " + nodeConfig.getMaxSims());
+									log.info("Node " + nodeConfig.getUid() + " Weighting : " + nodeConfig.getWeighting());
 
 									nodeState = ProtocolState.READY;
 								}
@@ -422,7 +425,7 @@ public class NodeManager
 
 	public void incrementTimeOut()
 	{
-		NSMCPReadyTimeOut++;
+		NSMCPReadyTimeOut+=5;
 		log.info("Node " + nodeConfig.getUid() + " NSMCPReadyTimeOut@" + NSMCPReadyTimeOut);
 	}
 
@@ -626,6 +629,11 @@ public class NodeManager
 		}
 
 		nodeLock.release();
+	}
+
+	public long getWeighting()
+	{
+		return nodeConfig.getWeighting();
 	}
 
 }
