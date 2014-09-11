@@ -18,6 +18,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -91,6 +93,24 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 
 	}
 	
+	private class NodeManagerComparator implements Comparator<NodeManager> 
+	{
+		@Override
+		public int compare(NodeManager node1, NodeManager node2)
+		{
+			if(node1.getWeighting() < node2.getWeighting())
+			{
+				return -1;
+			}
+			else if(node1.getWeighting() > node2.getWeighting())
+			{
+				return 1;
+			}
+			
+			return 0;
+		}
+	}
+	
 	private void startNSMCPTimer()
 	{
 		NSCPTimer = new Timer("NSCPTimer");
@@ -123,6 +143,18 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						maxSims += tNode.getMaxSims();
 						
 						log.debug("Node " + tNode.getUid() + " now Active (Max Sims " + maxSims + ")" );
+
+						Collections.sort(activeNodes, new NodeManagerComparator());
+						log.info("------------------------------------");
+						log.info("Active ("+activeNodes.size()+")");
+						log.info("------------------------------------");
+						for(NodeManager node : activeNodes)
+						{
+							log.info("Node :" + node.getUid() + " " + node.getWeighting());
+							
+						}
+						log.info("------------------------------------");
+						
 					}
 					else if(tNode.getReadyStateTimeOutValue() == NSMCP.ReadyStateTimeOut)
 					{
@@ -134,15 +166,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						tNode.incrementTimeOut();
 					}
 				}
-				
-				log.debug("------------------------------------");
-				log.debug("Active ("+activeNodes.size()+")");
-				log.debug("------------------------------------");
-				for(NodeManager node : activeNodes)
-				{
-					log.debug("Node :" + node.getUid());
-				}
-				log.debug("------------------------------------");
 
 				Iterator<NodeManager> itr = activeNodes.iterator();
 				
