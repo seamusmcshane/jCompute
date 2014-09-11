@@ -4,6 +4,7 @@ public class NodeConfiguration
 {
 	private int maxSims = -1;
 	private int uid = -1;
+	private long weighting = Long.MAX_VALUE;
 	
 	public void setUid(int uid)
 	{
@@ -23,5 +24,15 @@ public class NodeConfiguration
 	public int getMaxSims()
 	{
 		return maxSims;
+	}
+	
+	public long getWeighting()
+	{
+		return weighting;
+	}
+
+	public void setWeighting(long weighting)
+	{
+		this.weighting = weighting;
 	}
 }
