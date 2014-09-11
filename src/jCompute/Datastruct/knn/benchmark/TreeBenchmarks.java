@@ -63,6 +63,7 @@ public class TreeBenchmarks
 		System.out.println("Choose Benchmark");
 		System.out.println("1 : 5 Runs @ 16384 objects with various list sizes splits from 32 to 1024 at ^2 increments ");
 		System.out.println("2: (r) Runs at various object sizes with list size (l)");
+		System.out.println("3: Node Weight Benchmark (auto)");
 		
 		System.out.print("Choose Option : ");
 		int option = scanner.nextInt();
@@ -83,6 +84,39 @@ public class TreeBenchmarks
 		    System.out.print("Enter min list size : ");
 		    minList = scanner.nextInt();
 		    runThirdGenBench(runs);
+		}
+		else if(option == 3)
+		{
+			System.out.println("Node Benchmark");
+			System.out.println("1) Custom Weighting : ");
+			System.out.println("2) Node Weighting : ");
+		   
+			int mode = scanner.nextInt();
+			
+			
+			if(mode == 1)
+			{
+				System.out.println("Custom Weighting");
+			    System.out.print("Number of Objects : ");
+			    int objects = scanner.nextInt();
+			    System.out.print("Iterations : ");
+			    int iterations = scanner.nextInt();
+			    NodeWeightingBenchmark bench = new NodeWeightingBenchmark(objects,iterations);
+			    
+			    System.out.println("Doing Warm up");
+			    bench.warmUp(1000);
+			    System.out.println("Warm up finished");
+			    System.out.println("Benchmarking");
+			    bench.singleBenchmark();
+			    bench.outputResults();
+			}
+			else
+			{
+				NodeWeightingBenchmark bench = new NodeWeightingBenchmark(8192,1000);
+				bench.warmUp(1000);				
+				System.out.println("Weighting\t " + bench.weightingBenchmark(5));
+			}
+
 		}
 		else
 		{
@@ -157,8 +191,8 @@ public class TreeBenchmarks
 		
 		logger(2,">> Start : " + treeName + " " + (new Exception()).getStackTrace()[0].getMethodName());
 
-		timerObj statsAdd = new timerObj();
-		timerObj statsSearch = new timerObj();
+		TimerObj statsAdd = new TimerObj();
+		TimerObj statsSearch = new TimerObj();
 		
 		long[] time = new long[5];
 		
@@ -224,13 +258,13 @@ public class TreeBenchmarks
 	}
 	
 	
-	public static class timerObj
+	public static class TimerObj
 	{
 		private long stepStartTime;
 		private long stepEndTime;
 		private long stepTotalTime;
 
-		public timerObj()
+		public TimerObj()
 		{
 			
 		}
