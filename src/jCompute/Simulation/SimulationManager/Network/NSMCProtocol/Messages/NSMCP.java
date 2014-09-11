@@ -64,5 +64,5 @@ public class NSMCP
     // The standard port
     public static final int StandardServerPort = 10000;
     
-    public static final int ReadyStateTimeOut = 5;	// Max time to wait for a node to enter ready state 5 Seconds 
+    public static final int ReadyStateTimeOut = 120;	// Max time to wait for a node to enter ready state (120 seconds)
 }

@@ -111,10 +111,9 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				}
 				log.debug("------------------------------------");
 
-				while(connectingNodes.size() > 0)
-				{
-					NodeManager tNode = connectingNodes.getFirst();
-					
+				
+				for(NodeManager tNode : connectingNodes)
+				{					
 					if(tNode.isReady())
 					{
 						connectingNodes.remove(tNode);
