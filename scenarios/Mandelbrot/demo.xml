@@ -8,6 +8,8 @@
 		<TextureSize>1024</TextureSize>
 		<Iterations>1536</Iterations>
 		<ComputeMethod>Aparapi</ComputeMethod>
+		<Precision>Single</Precision>
+		<ZoomSpeed>0.016</ZoomSpeed>
 	</Kernel>
 	<EndEvents>
 		<Event>
