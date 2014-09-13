@@ -71,6 +71,7 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
+import javax.swing.border.LineBorder;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener
 {
@@ -259,7 +260,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simulationControlPanel.add(label_2, gbc_label_2);
 
 		JPanel simAverageStepRate = new JPanel();
-		simAverageStepRate.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simAverageStepRate.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		simAverageStepRate.setBackground(Color.WHITE);
 		GridBagConstraints gbc_simAverageStepRate = new GridBagConstraints();
 		gbc_simAverageStepRate.fill = GridBagConstraints.BOTH;
@@ -274,7 +275,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simAverageStepRate.add(lblAvgStepRate, BorderLayout.CENTER);
 
 		JPanel simStepTotal = new JPanel();
-		simStepTotal.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simStepTotal.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		simStepTotal.setBackground(Color.WHITE);
 		GridBagConstraints gbc_simStepTotal = new GridBagConstraints();
 		gbc_simStepTotal.fill = GridBagConstraints.BOTH;
@@ -289,7 +290,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simStepTotal.add(lblStepCount, BorderLayout.CENTER);
 
 		JPanel simRequestedStepRate = new JPanel();
-		simRequestedStepRate.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simRequestedStepRate.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		simRequestedStepRate.setBackground(Color.WHITE);
 		GridBagConstraints gbc_simRequestedStepRate = new GridBagConstraints();
 		gbc_simRequestedStepRate.fill = GridBagConstraints.BOTH;
@@ -313,7 +314,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simulationControlPanel.add(label_3, gbc_label_3);
 
 		JPanel simRunTime = new JPanel();
-		simRunTime.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		simRunTime.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		simRunTime.setBackground(Color.WHITE);
 		GridBagConstraints gbc_simRunTime = new GridBagConstraints();
 		gbc_simRunTime.fill = GridBagConstraints.BOTH;
