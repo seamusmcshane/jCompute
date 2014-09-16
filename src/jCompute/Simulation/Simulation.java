@@ -321,7 +321,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	{
 		if(simManager!=null)
 		{
-			return simManager.getSimViewCam();
+			return simManager.getViewCam();
 		}
 		else
 		{

@@ -25,7 +25,7 @@ public interface SimulationScenarioManagerInf
 	
 	public ScenarioInf getScenario();
 	
-	public ViewCam getSimViewCam();
+	public ViewCam getViewCam();
 
 	public String getInfo();
 }
