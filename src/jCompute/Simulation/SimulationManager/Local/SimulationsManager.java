@@ -1,7 +1,7 @@
 package jCompute.Simulation.SimulationManager.Local;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.View.GUISimulationView;
+import jCompute.Gui.View.View;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Simulation.Simulation;
@@ -45,7 +45,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	private int simulationNum;
 
 	/* Active Sims View */
-	private GUISimulationView simView;
+	private View simView;
 	private Simulation activeSim;
 
 	public SimulationsManager(int maxSims)
@@ -133,7 +133,7 @@ public class SimulationsManager implements SimulationsManagerInf
 				// Clear the Active Simulation View Reference
 				if (simView != null)
 				{
-					simView.setSim(null);
+					simView.setViewTarget(null);
 				}
 
 				activeSim = null;
@@ -185,17 +185,13 @@ public class SimulationsManager implements SimulationsManagerInf
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
-		String scenarioText = "NONE";
+		String scenarioText = "No Simulation";
 
 		Simulation sim = simulations.get(simId);
 
-		SimulationScenarioManagerInf scenarioManager = null;
-
 		if (sim != null)
-		{
-			scenarioManager = simulations.get(simId).getSimManager();
-
-			scenarioText = scenarioManager.getScenario().getScenarioText();
+		{			
+			scenarioText = sim.getScenarioText();
 		}
 
 		simulationsManagerLock.release();
@@ -264,7 +260,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (simView != null)
 		{
-			simView.setSim(sim);
+			simView.setViewTarget(sim);
 		}
 
 		// We latch the active sim incase we do add a view.
@@ -274,7 +270,7 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void setSimView(GUISimulationView simView)
+	public void setSimView(View simView)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
@@ -287,7 +283,7 @@ public class SimulationsManager implements SimulationsManagerInf
 			// Set the latched active sim in the new view.
 			if (activeSim != null)
 			{
-				simView.setSim(activeSim);
+				simView.setViewTarget(activeSim);
 			}
 		}
 
@@ -301,7 +297,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (simView != null)
 		{
-			simView.setSim(null);
+			simView.setViewTarget(null);
 		}
 
 		simulationsManagerLock.release();
@@ -397,7 +393,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (sim != null)
 		{
-			statGroupNames = sim.getSimManager().getStatmanger().getGroupList();
+			statGroupNames = sim.getStatmanger().getGroupList();
 		}
 
 		simulationsManagerLock.release();
@@ -429,7 +425,7 @@ public class SimulationsManager implements SimulationsManagerInf
 			StatExporter exporter = new StatExporter(format, fileNameSuffix);
 
 			// populate from the stat manager as data source.
-			exporter.populateFromStatManager(sim.getSimManager().getStatmanger());
+			exporter.populateFromStatManager(sim.getStatmanger());
 
 			// Export the stats
 			exporter.exportAllStatsToDir(directory);
@@ -473,7 +469,7 @@ public class SimulationsManager implements SimulationsManagerInf
 			StatExporter exporter = new StatExporter(format, "");
 
 			// populate from the stat manager as data source.
-			exporter.populateFromStatManager(sim.getSimManager().getStatmanger());
+			exporter.populateFromStatManager(sim.getStatmanger());
 
 			// Export the stats
 			bytes = exporter.toBytes();
@@ -495,7 +491,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (sim != null)
 		{
-			enabled = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled();
+			enabled = sim.getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled();
 		}
 
 		simulationsManagerLock.release();
@@ -514,7 +510,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (sim != null)
 		{
-			window = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
+			window = sim.getStatmanger().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
 		}
 
 		simulationsManagerLock.release();
@@ -533,7 +529,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (sim != null)
 		{
-			globalStat = sim.getSimManager().getStatmanger().getStatGroup(group).getGroupSettings().hasTotalStat();
+			globalStat = sim.getStatmanger().getStatGroup(group).getGroupSettings().hasTotalStat();
 		}
 
 		simulationsManagerLock.release();
@@ -550,7 +546,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (sim != null)
 		{
-			sim.getSimManager().getStatmanger().getStatGroup(group).addStatGroupListener(listener);
+			sim.getStatmanger().getStatGroup(group).addStatGroupListener(listener);
 		}
 
 		simulationsManagerLock.release();
@@ -565,7 +561,7 @@ public class SimulationsManager implements SimulationsManagerInf
 
 		if (sim != null)
 		{
-			sim.getSimManager().getStatmanger().getStatGroup(group).removeStatGroupListener(listener);
+			sim.getStatmanger().getStatGroup(group).removeStatGroupListener(listener);
 		}
 
 		simulationsManagerLock.release();

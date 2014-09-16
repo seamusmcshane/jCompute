@@ -5,7 +5,7 @@ import jCompute.Gui.View.Graphics.A2DVector2f;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SimViewCam
+public class ViewCam
 {
 	int animationSteps = 250;
 
@@ -30,7 +30,7 @@ public class SimViewCam
 	private Timer centerY;
 	private float aniYreset = 0;
 
-	public SimViewCam(A2DVector2f camPos, float camZoom, A2DVector2f camOffset)
+	public ViewCam(A2DVector2f camPos, float camZoom, A2DVector2f camOffset)
 	{
 		super();
 
@@ -43,7 +43,7 @@ public class SimViewCam
 
 	}
 
-	public SimViewCam()
+	public ViewCam()
 	{
 		camOffset = new A2DVector2f(0, 0);
 

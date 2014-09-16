@@ -1,7 +1,7 @@
 package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.View.GUISimulationView;
+import jCompute.Gui.View.View;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
@@ -647,7 +647,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void setSimView(GUISimulationView simView)
+	public void setSimView(View simView)
 	{
 		// NA
 	}

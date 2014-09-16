@@ -25,11 +25,14 @@ import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -37,7 +40,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
-public class GUISimulationView implements ApplicationListener, InputProcessor
+public class View implements ApplicationListener, InputProcessor
 {
 	private JPanel basePanel;
 	
@@ -50,11 +53,11 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	/** Cameara and Shape Renderer */
 	private OrthographicCamera viewCam;
 	
-	/** Simulation Reference */
-	private Simulation sim;
+	/** ViewTarget Reference */
+	private ViewTarget target;
 	private Semaphore viewLock = new Semaphore(1);
 
-	private String simulationTitle = "";
+	private String viewTitle = "";
 	
 	private int defaultFrameRate = 60;
 
@@ -90,10 +93,12 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	private Pixmap pTemp;
 	private Texture tTemp;
-		
-	public GUISimulationView()
+	
+	private Mesh mesh;
+	
+	public View()
 	{
-		System.out.println("Created Simulation View");
+		System.out.println("Created View");
 		
 		LwjglApplicationConfiguration.disableAudio = true;
 		
@@ -124,7 +129,7 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		glCanvas.stop();		
 		Display.destroy();
 		
-		System.out.println("Exited Simulation View");
+		System.out.println("Exited View");
 	}
 		
 	public JComponent getCanvas()
@@ -132,10 +137,10 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		return basePanel;
 	}
 
-	public void setSim(Simulation simIn)
+	public void setViewTarget(Simulation simIn)
 	{
 		viewLock.acquireUninterruptibly();		
-		sim = simIn;	
+		target = simIn;	
 		viewLock.release();
 	}
 	
@@ -206,28 +211,28 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		
 		viewLock.acquireUninterruptibly();
 		
-		if(sim!=null)
+		if(target!=null)
 		{
-			if(sim.getSimManager()!=null)
+			if(target.hasViewCam())
 			{
-				viewCam.position.set(sim.getSimManager().getSimViewCam().getCamPosX(), sim.getSimManager().getSimViewCam().getCamPosY(),0);
+				viewCam.position.set(target.getSimViewCam().getCamPosX(), target.getSimViewCam().getCamPosY(),0);
 
-				viewCam.zoom = sim.getSimManager().getSimViewCam().getCamZoom();				
+				viewCam.zoom = target.getSimViewCam().getCamZoom();				
 			}
 
 			viewCam.update();
 			
-			sim.drawSim(this,viewRangeDrawing,viewsDrawing);
+			target.draw(this,viewRangeDrawing,viewsDrawing);
 			
-			simulationTitle = sim.getSimInfo();
+			viewTitle = target.getInfo();
 			
 		}
 		else
 		{
-			simulationTitle = "None";
+			viewTitle = "None";
 		}
 		
-		drawOverlayText(10,Gdx.graphics.getHeight()-10,simulationTitle);
+		drawOverlayText(10,Gdx.graphics.getHeight()-10,viewTitle);
 
 		viewLock.release();
 	}
@@ -634,6 +639,20 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 		currentShapeRenderer.end();
 	}
 	
+	public void drawMesh()
+	{
+        if (mesh == null) {
+            mesh = new Mesh(true, 3, 3, 
+                    new VertexAttribute(Usage.Position, 3, "a_position"));
+
+            mesh.setVertices(new float[] { -0.5f, -0.5f, 0,
+                                            0.5f, -0.5f, 0,
+                                            0, 0.5f, 0 });
+
+            mesh.setIndices(new short[] { 0, 1, 2 });
+        }
+	}
+	
 	@Override
 	public boolean keyDown(int arg0)
 	{
@@ -661,9 +680,9 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	@Override
 	public boolean scrolled(int val)
 	{
-		if(sim!=null)
+		if(target!=null)
 		{			
-			sim.getSimManager().getSimViewCam().adjCamZoom(val);
+			target.getSimViewCam().adjCamZoom(val);
 		}
 		
 		return false;
@@ -726,9 +745,9 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	
 	private void moveCamera(float x, float y)
 	{		
-		if(sim!=null)
+		if(target!=null)
 		{			
-			sim.getSimManager().getSimViewCam().moveCam(x,y);
+			target.getSimViewCam().moveCam(x,y);
 		}
 	}
 	
@@ -736,22 +755,15 @@ public class GUISimulationView implements ApplicationListener, InputProcessor
 	{		
 		//viewCam.position.set(globalTranslateDefault.getX() + Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() + Gdx.graphics.getHeight()/2, 0);
 		
-		if(sim!=null)
-		{
-			SimulationScenarioManagerInf simManager = sim.getSimManager();
-			
+		if(target!=null)
+		{			
 			// This can be null if a tab is added when no sim is generated and the window is resized
-			if(simManager!=null)
+			if(target.hasViewCam())
 			{
-				sim.getSimManager().getSimViewCam().resetCamZoom();	
-				sim.getSimManager().getSimViewCam().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
+				target.getSimViewCam().resetCamZoom();	
+				target.getSimViewCam().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
 			}
 		}
-	}
-	
-	public void setSimulationTitle(String text)
-	{
-		simulationTitle = text;
 	}
 	
 	/**

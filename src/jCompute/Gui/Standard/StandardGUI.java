@@ -1,6 +1,6 @@
 package jCompute.Gui.Standard;
 
-import jCompute.Gui.View.GUISimulationView;
+import jCompute.Gui.View.View;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 
 import java.awt.Dimension;
@@ -44,7 +44,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 	private GUITabManager simTabs;
 			
 	// Simulation View (Right Split)
-	private GUISimulationView simView;
+	private View simView;
 	
 	private SimulationsManagerInf simsManager;
 
@@ -109,7 +109,7 @@ public class StandardGUI  implements ActionListener, ItemListener, WindowListene
 				if(simView == null)
 				{
 					/* Simulation View */
-					simView = new GUISimulationView();
+					simView = new View();
 					
 					/* Link up the view with the simulation manager */
 					simsManager.setSimView(simView);

@@ -1,6 +1,6 @@
 package jCompute.Simulation.SimulationManager;
 
-import jCompute.Gui.View.GUISimulationView;
+import jCompute.Gui.View.View;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter.ExportFormat;
@@ -31,7 +31,7 @@ public interface SimulationsManagerInf
 		
 	public void setActiveSim(int simId);
 
-	public void setSimView(GUISimulationView simView);
+	public void setSimView(View simView);
 	
 	public void clearActiveSim();
 

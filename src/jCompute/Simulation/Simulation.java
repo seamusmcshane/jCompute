@@ -1,13 +1,16 @@
 package jCompute.Simulation;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.View.GUISimulationView;
+import jCompute.Gui.View.View;
+import jCompute.Gui.View.ViewCam;
+import jCompute.Gui.View.ViewTarget;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.SimulationState.stateChangedInf;
 import jCompute.Simulation.SimulationStats.statChangedInf;
+import jCompute.Stats.StatManager;
 
 import java.util.concurrent.Semaphore;
 
@@ -22,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class Simulation implements stateChangedInf, statChangedInf
+public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(Simulation.class);
@@ -303,18 +306,36 @@ public class Simulation implements stateChangedInf, statChangedInf
 		}
 	}
 
-	public SimulationScenarioManagerInf getSimManager()
+	public boolean hasViewCam()
 	{
-		return simManager;
+		if(simManager!=null)
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	public ViewCam getSimViewCam()
+	{
+		if(simManager!=null)
+		{
+			return simManager.getSimViewCam();
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	/**
-	 * Method drawSim.
-	 * @param g Graphics
-	 * @param true_drawing boolean
-	 * @param view_range_drawing boolean
+	 * 
+	 * @param simView
+	 * @param viewRangeDrawing
+	 * @param viewsDrawing
 	 */
-	public void drawSim(GUISimulationView simView,boolean viewRangeDrawing,boolean viewsDrawing)
+	public void draw(View simView,boolean viewRangeDrawing,boolean viewsDrawing)
 	{
 		if(simManager!=null)
 		{
@@ -362,15 +383,29 @@ public class Simulation implements stateChangedInf, statChangedInf
 		return simStats.getSimulationSteps();
 	}
 	
-	public String getSimInfo()
+	public String getScenarioText()
+	{
+		if(simManager!=null)
+		{
+			return simManager.getScenario().getScenarioText();
+		}
+		return "No Scenario Text Loaded";
+	}
+	
+	public String getInfo()
 	{
 		String simInfo = "Simulation : " + simId;
 		
-		if(this.getSimManager()!=null)
+		if(simManager!=null)
 		{
-			simInfo = simInfo + " " + getSimManager().getInfo();
+			simInfo = simInfo + " " + simManager.getInfo();
 		}
 		
 		return simInfo ;
+	}
+
+	public StatManager getStatmanger()
+	{
+		return simManager.getStatmanger();
 	}
 }
