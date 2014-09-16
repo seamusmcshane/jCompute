@@ -317,7 +317,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	}
 	
 	
-	public ViewCam getSimViewCam()
+	public ViewCam getViewCam()
 	{
 		if(simManager!=null)
 		{

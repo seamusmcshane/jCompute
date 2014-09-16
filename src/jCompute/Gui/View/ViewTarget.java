@@ -4,7 +4,7 @@ public interface ViewTarget
 {
 	public boolean hasViewCam();
 	
-	public ViewCam getSimViewCam();
+	public ViewCam getViewCam();
 	
 	public void draw(View simView,boolean viewRangeDrawing,boolean viewsDrawing);
 	

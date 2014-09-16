@@ -215,9 +215,9 @@ public class View implements ApplicationListener, InputProcessor
 		{
 			if(target.hasViewCam())
 			{
-				viewCam.position.set(target.getSimViewCam().getCamPosX(), target.getSimViewCam().getCamPosY(),0);
+				viewCam.position.set(target.getViewCam().getCamPosX(), target.getViewCam().getCamPosY(),0);
 
-				viewCam.zoom = target.getSimViewCam().getCamZoom();				
+				viewCam.zoom = target.getViewCam().getCamZoom();				
 			}
 
 			viewCam.update();
@@ -682,7 +682,7 @@ public class View implements ApplicationListener, InputProcessor
 	{
 		if(target!=null)
 		{			
-			target.getSimViewCam().adjCamZoom(val);
+			target.getViewCam().adjCamZoom(val);
 		}
 		
 		return false;
@@ -747,7 +747,7 @@ public class View implements ApplicationListener, InputProcessor
 	{		
 		if(target!=null)
 		{			
-			target.getSimViewCam().moveCam(x,y);
+			target.getViewCam().moveCam(x,y);
 		}
 	}
 	
@@ -760,8 +760,8 @@ public class View implements ApplicationListener, InputProcessor
 			// This can be null if a tab is added when no sim is generated and the window is resized
 			if(target.hasViewCam())
 			{
-				target.getSimViewCam().resetCamZoom();	
-				target.getSimViewCam().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
+				target.getViewCam().resetCamZoom();	
+				target.getViewCam().resetCamPos(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);	
 			}
 		}
 	}
