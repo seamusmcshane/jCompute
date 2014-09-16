@@ -474,7 +474,7 @@ public class StatExporter
 			}
 
 			// File Footer
-			if (format == ExportFormat.XML)
+			if (format == ExportFormat.XML || format == ExportFormat.ZXML )
 			{
 				data.append("</" + xmlString(name) + ">\n");
 			}
