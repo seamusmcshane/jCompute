@@ -89,6 +89,7 @@ public class BatchManager
 			}
 
 		}, 0, 10);
+		
 	}
 
 	public boolean addBatch(String filePath)
@@ -752,6 +753,12 @@ public class BatchManager
 		batchManagerLock.acquireUninterruptibly();
 
 		Batch batch = findBatch(batchId);
+		
+		if(batch==null)
+		{
+			batchManagerLock.release();
+			return;
+		}
 		
 		// Do not set the priority if its the same
 		if(batch.getPriority() != priority)
