@@ -432,6 +432,22 @@ public class View implements ApplicationListener, InputProcessor
 		currentShapeRenderer.end();
 	}
 	
+	public void drawFilledCircleBatch(A2DCircle[] circles, A2RGBA[] colors)
+	{
+		currentShapeRenderer.begin(ShapeType.Filled);
+		int size = circles.length;
+		for(int c=0;c<size;c++)
+		{
+			if(viewCam.frustum.pointInFrustum(new Vector3(circles[c].getX(),circles[c].getY(),0)))
+			{
+				currentShapeRenderer.setColor(colors[c].getRed(), colors[c].getGreen(), colors[c].getBlue(), colors[c].getAlpha());
+				currentShapeRenderer.circle(circles[c].getX(),circles[c].getY(),circles[c].getRadius());
+			}
+		}
+
+		currentShapeRenderer.end();
+	}
+	
 	public void drawTransparentFilledCircle(A2DCircle circle,A2RGBA color, float transparency)
 	{
 		if(!viewCam.frustum.pointInFrustum(new Vector3(circle.getX(),circle.getY(),0)))
