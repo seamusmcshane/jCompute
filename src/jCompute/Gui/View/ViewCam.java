@@ -14,7 +14,7 @@ public class ViewCam
 	private final float zoomIncr = 50f;
 
 	private Timer zoomTimer;
-	private float zoomDefault = 1000;
+	private float zoomDefault = 550f;
 	float aniZoomIncr = 0;
 
 	private A2DVector2f camOffset;
