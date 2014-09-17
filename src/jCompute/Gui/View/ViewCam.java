@@ -9,12 +9,12 @@ public class ViewCam
 {
 	int animationSteps = 250;
 
-	private final float minZoom = 0.125f;
-	private final float maxZoom = 12.5f;
-	private final float zoomIncr = 0.125f;
+	private final float minZoom = 50f;
+	private final float maxZoom = 3000f;
+	private final float zoomIncr = 50f;
 
 	private Timer zoomTimer;
-	private float zoomDefault = 1f;
+	private float zoomDefault = 1000;
 	float aniZoomIncr = 0;
 
 	private A2DVector2f camOffset;
@@ -317,7 +317,7 @@ public class ViewCam
 
 	public void moveCam(float x, float y)
 	{	
-		camPos.add(x*camZoom,y*camZoom);
+		camPos.add(x*(camZoom/500),y*(camZoom/500));
 	}
 
 }

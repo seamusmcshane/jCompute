@@ -5,8 +5,6 @@ import jCompute.Gui.View.Graphics.A2DLine;
 import jCompute.Gui.View.Graphics.A2DRectangle;
 import jCompute.Gui.View.Graphics.A2DVector2f;
 import jCompute.Gui.View.Graphics.A2RGBA;
-import jCompute.Simulation.Simulation;
-import jCompute.Simulation.SimulationScenarioManagerInf;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -27,18 +25,23 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class View implements ApplicationListener, InputProcessor
 {
@@ -51,7 +54,7 @@ public class View implements ApplicationListener, InputProcessor
 	private int height;
 	
 	/** Cameara and Shape Renderer */
-	private OrthographicCamera viewCam;
+	private PerspectiveCamera viewCam;
 	
 	/** ViewTarget Reference */
 	private ViewTarget target;
@@ -94,6 +97,7 @@ public class View implements ApplicationListener, InputProcessor
 	private Pixmap pTemp;
 	private Texture tTemp;
 	
+	private ShaderProgram shaderProgram;
 	private Mesh mesh;
 	
 	public View()
@@ -117,7 +121,9 @@ public class View implements ApplicationListener, InputProcessor
 		
 		glCanvas.getInput().setInputProcessor(this);
 		
-		viewCam = new OrthographicCamera(640, 480);
+		viewCam = new PerspectiveCamera(90,640, 480);
+		viewCam.near = 0.1f;
+		viewCam.far = 30000f;
 		
 		resetCamera();
 		//viewCam.setToOrtho(true, 640, 480);
@@ -137,7 +143,7 @@ public class View implements ApplicationListener, InputProcessor
 		return basePanel;
 	}
 
-	public void setViewTarget(Simulation simIn)
+	public void setViewTarget(ViewTarget simIn)
 	{
 		viewLock.acquireUninterruptibly();		
 		target = simIn;	
@@ -166,7 +172,31 @@ public class View implements ApplicationListener, InputProcessor
 		
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888,2048, 2048,false);
         
-		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		//viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		
+		// mshade
+		String vertexShader = 
+				"attribute vec4 vPosition; 		\n" + 
+				"void main()					\n" +
+				"{								\n" +
+				"	gl_Position = vPosition;	\n" +
+				"}								\n";
+		
+		String fragmentShader = 
+			"#ifdef GL_ES 								\n"+
+			"precision mediump float;					\n"+
+			"#endif 									\n"+
+			"void main()								\n"+
+			"{											\n"+
+			"	gl_FragColor = vec4(1.0,0.0,0.0,1.0);	\n"+
+			"}";
+        
+
+       
+		shaderProgram = new ShaderProgram(vertexShader, fragmentShader);
+		
+		 if (!shaderProgram.isCompiled())
+			 throw new GdxRuntimeException(shaderProgram.getLog());
 	}
 
 	@Override
@@ -215,9 +245,10 @@ public class View implements ApplicationListener, InputProcessor
 		{
 			if(target.hasViewCam())
 			{
-				viewCam.position.set(target.getViewCam().getCamPosX(), target.getViewCam().getCamPosY(),0);
+				viewCam.position.x = target.getViewCam().getCamPosX();
+				viewCam.position.y = target.getViewCam().getCamPosY();
 
-				viewCam.zoom = target.getViewCam().getCamZoom();				
+				viewCam.position.z = target.getViewCam().getCamZoom();				
 			}
 
 			viewCam.update();
@@ -240,7 +271,7 @@ public class View implements ApplicationListener, InputProcessor
 	@Override
 	public void resize(int width, int height)
 	{		
-		viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		//viewCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		resetCamera();
 	}
@@ -641,16 +672,30 @@ public class View implements ApplicationListener, InputProcessor
 	
 	public void drawMesh()
 	{
-        if (mesh == null) {
-            mesh = new Mesh(true, 3, 3, 
-                    new VertexAttribute(Usage.Position, 3, "a_position"));
+        if (mesh == null) 
+        {
+        	float[] verts = new float[]{ -0.5f, -0.5f, 0,
+        			0.5f, -0.5f, 0, 
+        			0, 0.5f, 0};
+        	
+        	mesh = new Mesh(true, 3, 3, new VertexAttribute(VertexAttributes.Usage.Position, 3, "vPosition"));
+        	
+            mesh.setVertices(verts);
+            
+            mesh.setIndices(new short[] { 0, 1, 2 });       
 
-            mesh.setVertices(new float[] { -0.5f, -0.5f, 0,
-                                            0.5f, -0.5f, 0,
-                                            0, 0.5f, 0 });
-
-            mesh.setIndices(new short[] { 0, 1, 2 });
+            // mesh.scale(100f, 100f, 100f);
+            
+            CameraInputController camController = new CameraInputController(viewCam);
+            Gdx.input.setInputProcessor(camController);
+            
+            viewCam.lookAt(0,0,0);
         }
+        
+			shaderProgram.begin();
+			//shaderProgram.setUniformMatrix(u_projTrans, viewCam.combined);
+			mesh.render(shaderProgram, GL20.GL_TRIANGLES);
+			shaderProgram.end();
 	}
 	
 	@Override
@@ -783,5 +828,7 @@ public class View implements ApplicationListener, InputProcessor
 	{
 		viewsDrawing = inViewsDrawing;
 	}
+
+
 	
 }
