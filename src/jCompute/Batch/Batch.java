@@ -205,15 +205,11 @@ public class Batch implements StoredQueuePosition
 	private boolean checkBatchFile()
 	{
 		boolean status = true;
-
+		
 		if (!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch"))
 		{
 			status = false;
-		}
-		else
-		{
 			log.error("Invalid Batch File");
-			batchConfigProcessor.dumpXML();
 		}
 
 		return status;
