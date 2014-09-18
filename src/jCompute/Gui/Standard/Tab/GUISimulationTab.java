@@ -3,6 +3,7 @@ package jCompute.Gui.Standard.Tab;
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
 import jCompute.Gui.Component.GlobalStatChartPanel;
+import jCompute.Gui.Component.XMLPreviewPanel;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Gui.Standard.Listener.TabStatusChangedListenerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -33,6 +34,7 @@ import javax.swing.JSlider;
 
 import java.awt.Dimension;
 
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -71,6 +73,7 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
+
 import javax.swing.border.LineBorder;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener
@@ -624,7 +627,13 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		{
 			checkSaved();
 
-			final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+			XMLPreviewPanel xmlPreview = new XMLPreviewPanel();
+			JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+			filechooser.setPreferredSize(new Dimension(800,600));
+			filechooser.setAccessory(xmlPreview);
+			filechooser.addPropertyChangeListener(xmlPreview);
+			Action details = filechooser.getActionMap().get("viewTypeDetails");
+			details.actionPerformed(null);
 			
 			System.out.println("Scenario Open Dialog");
 

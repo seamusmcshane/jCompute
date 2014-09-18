@@ -13,6 +13,7 @@ import jCompute.Gui.Batch.TableRowItems.BatchInfoQueueRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchInfoRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchQueueRowItem;
 import jCompute.Gui.Component.TablePanel;
+import jCompute.Gui.Component.XMLPreviewPanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
@@ -34,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -250,10 +252,17 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				final JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+				JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
 
+				filechooser.setPreferredSize(new Dimension(800,600));
 				filechooser.setMultiSelectionEnabled(true);
 
+				XMLPreviewPanel xmlPreview = new XMLPreviewPanel();				
+				filechooser.setAccessory(xmlPreview);
+				filechooser.addPropertyChangeListener(xmlPreview);
+				Action details = filechooser.getActionMap().get("viewTypeDetails");
+				details.actionPerformed(null);				
+				
 				log.info("Batch Open Dialog");
 
 				int val = filechooser.showOpenDialog(filechooser);
