@@ -75,7 +75,7 @@
 				<Blue>0</Blue>
 			</Color>
 			<AgentType>Predator</AgentType>
-			<InitialNumbers>100</InitialNumbers>
+			<InitialNumbers>200</InitialNumbers>
 			<Size>3.5</Size>
 			<Speed>1.00</Speed>
 			<ViewRange>10</ViewRange>
@@ -95,7 +95,7 @@
 				<Blue>255</Blue>
 			</Color>
 			<AgentType>Prey</AgentType>
-			<InitialNumbers>100</InitialNumbers>
+			<InitialNumbers>600</InitialNumbers>
 			<Size>3.5</Size>
 			<Speed>0.90</Speed>
 			<ViewRange>10</ViewRange>
@@ -111,7 +111,7 @@
 	<Plants>
 		<GenericPlant>
 				<Type>0</Type>
-				<InitialNumbers>400</InitialNumbers>
+				<InitialNumbers>600</InitialNumbers>
 				<StartingEnergy>50</StartingEnergy>
 				<PlantRegeratonRate>2</PlantRegeratonRate>
 				<PlantRegenerationNSteps>1</PlantRegenerationNSteps>
