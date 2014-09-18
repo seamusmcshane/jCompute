@@ -169,7 +169,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	{
 		/* Frame */
 		guiFrame = new JFrame("Batch Interface");
-		guiFrame.setMinimumSize(new Dimension(800, 600));
+		guiFrame.setMinimumSize(new Dimension(850, 700));
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		guiFrame.getContentPane().setLayout(new BorderLayout(0, 0));
