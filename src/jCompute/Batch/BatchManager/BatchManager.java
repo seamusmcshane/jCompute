@@ -99,8 +99,8 @@ public class BatchManager
 
 		batchManagerLock.acquireUninterruptibly();
 
-		// Try generating a batch and adding it to the queue.
-		tempBatch = new Batch(batchId, BatchPriority.STANDARD);
+		// Try generating a batch and adding it to the queue. - Default to High priority
+		tempBatch = new Batch(batchId, BatchPriority.HIGH);
 
 		if (tempBatch.loadConfig(filePath))
 		{
