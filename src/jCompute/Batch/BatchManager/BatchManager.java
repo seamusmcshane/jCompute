@@ -104,7 +104,7 @@ public class BatchManager
 
 		if (tempBatch.loadConfig(filePath))
 		{
-			fairQueue.add(tempBatch);
+			fifoQueue.add(tempBatch);
 
 			added = true;
 			batchId++;
