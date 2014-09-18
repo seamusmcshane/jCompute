@@ -4,11 +4,11 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>64 Item Test Batch</BatchDescription>
-		<BaseScenarioFileName>scenario.xml</BaseScenarioFileName>
+		<BatchDescription>64 Item COMPUTE Test Batch</BatchDescription>
+		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>TEST</BatchDirName>
-		<ItemSamples>4</ItemSamples>
+		<BatchDirName>64COMTEST</BatchDirName>
+		<ItemSamples>16</ItemSamples>
 	</Config>
 	<Parameters>
 		<Parameter>
@@ -18,7 +18,7 @@
 			<ParameterName>InitialNumbers</ParameterName>
 			<Intial>250</Intial>
 			<Increment>250</Increment>
-			<Combinations>4</Combinations>
+			<Combinations>2</Combinations>
 		</Parameter>
 		<Parameter>
 			<Type>Group</Type>
@@ -27,7 +27,7 @@
 			<ParameterName>InitialNumbers</ParameterName>
 			<Intial>250</Intial>
 			<Increment>250</Increment>
-			<Combinations>4</Combinations>
+			<Combinations>2</Combinations>
 		</Parameter>
 	</Parameters>
 </Batch>

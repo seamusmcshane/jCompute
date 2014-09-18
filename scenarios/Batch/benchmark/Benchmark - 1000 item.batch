@@ -5,7 +5,7 @@
 	</Header>
 	<Config>
 		<BatchDescription>Predator/Prey with intial numbers from 100 to 1000</BatchDescription>
-		<BaseScenarioFileName>scenario.xml</BaseScenarioFileName>
+		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchDirName>Benchmark</BatchDirName>
 		<ItemSamples>10</ItemSamples>
