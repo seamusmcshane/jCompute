@@ -727,7 +727,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 
 		       // GZIPOutputStream gzip = new GZIPOutputStream(new FileOutputStream(new File(fileName + ".xmlz")));
 				
-				FileWriter fileWriter = new FileWriter(fileName + ".xml");
+				FileWriter fileWriter = new FileWriter(fileName + ".scenario");
 				BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 				
 		       // BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(gzip, "UTF-8"));
