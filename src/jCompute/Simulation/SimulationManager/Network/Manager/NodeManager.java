@@ -12,6 +12,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node.RegistrationReqAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStatChanged;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification.SimulationStateChanged;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReply;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimAck;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimReq;
@@ -27,6 +28,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -122,13 +124,32 @@ public class NodeManager
 					DataInputStream input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
 					int type = -1;
-
+					int len = -1;
+					byte[] backingArray = null;
+					ByteBuffer data = null;
+					
 					active = true;
 
 					while (active)
 					{
 						// Detect Frame
 						type = input.readInt();
+						len = input.readInt();
+
+						// Allocate here to avoid duplication of allocation code
+						if(len > 0 )
+						{
+							// Destination
+							backingArray = new byte[len];
+							
+							// Copy from the socket
+							input.readFully(backingArray, 0, len);
+							
+							// Wrap the backingArray
+							data = ByteBuffer.wrap(backingArray);
+							
+							log.debug("Type " + type+ " len " + len);
+						}
 
 						switch (type)
 						{
@@ -156,11 +177,11 @@ public class NodeManager
 								}
 								else
 								{
-									// invalid sequence
-									nodeState = ProtocolState.END;
-
 									log.error("Registration Request for node " + nodeConfig.getUid()
 											+ " not valid in state " + nodeState.toString());
+									
+									// invalid sequence
+									nodeState = ProtocolState.END;
 								}
 
 								break;
@@ -176,7 +197,7 @@ public class NodeManager
 								if (nodeState == ProtocolState.REG)
 								{
 
-									RegistrationReqAck reqAck = new RegistrationReqAck(input);
+									RegistrationReqAck reqAck = new RegistrationReqAck(data);
 
 									int ruid = reqAck.getUid();
 
@@ -223,7 +244,7 @@ public class NodeManager
 								{
 									log.info("Recieved Conf Ack");
 
-									ConfigurationAck reqAck = new ConfigurationAck(input);
+									ConfigurationAck reqAck = new ConfigurationAck(data);
 
 									nodeConfig.setMaxSims(reqAck.getMaxSims());
 									nodeConfig.setWeighting(reqAck.getWeighting());
@@ -245,7 +266,8 @@ public class NodeManager
 
 								if (nodeState == ProtocolState.READY)
 								{
-									addSimId = input.readInt();
+									AddSimReply addSimReply = new AddSimReply(data);
+									addSimId = addSimReply.getSimId();
 
 									log.info("AddSimReply : " + addSimId);
 
@@ -263,7 +285,7 @@ public class NodeManager
 								if (nodeState == ProtocolState.READY)
 								{
 									// Create the state object
-									SimulationStateChanged stateChanged = new SimulationStateChanged(input);
+									SimulationStateChanged stateChanged = new SimulationStateChanged(data);
 
 									// find the mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(stateChanged.getSimId());
@@ -290,7 +312,7 @@ public class NodeManager
 								if (nodeState == ProtocolState.READY)
 								{
 									// Create the state object
-									SimulationStatChanged statChanged = new SimulationStatChanged(input);
+									SimulationStatChanged statChanged = new SimulationStatChanged(data);
 
 									log.debug(statChanged.info());
 
@@ -324,7 +346,7 @@ public class NodeManager
 
 									log.debug("Recieved Sim Stats");
 
-									statExporter.populateFromStream(input);
+									statExporter.populateFromByteBuffer(data);
 
 									simStatsWait.release();
 								}
@@ -338,7 +360,7 @@ public class NodeManager
 							case NSMCP.RemSimAck :
 								if (nodeState == ProtocolState.READY)
 								{
-									RemoveSimAck removeSimAck = new RemoveSimAck(input);
+									RemoveSimAck removeSimAck = new RemoveSimAck(data);
 
 									log.info("Recieved RemSimAck : " + removeSimAck.getSimId());
 
@@ -355,6 +377,9 @@ public class NodeManager
 							default :
 								log.error("Recieved Invalid Frame");
 								nodeState = ProtocolState.END;
+								
+								log.error("Error Type " + type + " len " + len);
+								
 								break;
 
 						}

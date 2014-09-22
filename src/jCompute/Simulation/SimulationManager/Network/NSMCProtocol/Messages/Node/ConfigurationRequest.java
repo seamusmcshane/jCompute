@@ -2,7 +2,6 @@ package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node
 
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -16,9 +15,9 @@ public class ConfigurationRequest
 	}
 	
 	// Construct from an input stream
-	public ConfigurationRequest(DataInputStream source) throws IOException
+	public ConfigurationRequest(ByteBuffer source) throws IOException
 	{		
-		bench = source.readInt();
+		bench = source.getInt();
 	}
 	
 	public int getBench()
@@ -28,10 +27,15 @@ public class ConfigurationRequest
 	
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(8);  
+		int dataLen = 4;
+
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);
 		
+		// Header
 		tbuffer.putInt(NSMCP.ConfReq);
-		
+		tbuffer.putInt(dataLen);
+
+		// Data
 		tbuffer.putInt(bench);
 		
 		return tbuffer.array();

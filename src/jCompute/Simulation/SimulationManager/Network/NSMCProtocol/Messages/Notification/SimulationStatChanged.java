@@ -1,6 +1,5 @@
 package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -24,13 +23,13 @@ public class SimulationStatChanged
 		this.asps = e.getAsps();
 	}
 	
-	public SimulationStatChanged(DataInputStream source) throws IOException
+	public SimulationStatChanged(ByteBuffer source) throws IOException
 	{
-		simId = source.readInt();
-		time = source.readLong();		
-		stepNo = source.readInt();
-		progress = source.readInt();
-		asps = source.readInt();		
+		simId = source.getInt();
+		time = source.getLong();		
+		stepNo = source.getInt();
+		progress = source.getInt();
+		asps = source.getInt();		
 	}
 	
 	public int getSimId()
@@ -60,10 +59,15 @@ public class SimulationStatChanged
 
 	public byte[] toBytes()
 	{
-		// Unicode 16 -2bytes chart
-		ByteBuffer tbuffer = ByteBuffer.allocate(28);
-		
+		int dataLen = 24;
+
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);
+
+		// Header
 		tbuffer.putInt(NSMCP.SimStatNoti);
+		tbuffer.putInt(dataLen);
+
+		// Data
 		tbuffer.putInt(simId);
 		tbuffer.putLong(time);
 		tbuffer.putInt(stepNo);

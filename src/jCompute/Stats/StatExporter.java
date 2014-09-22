@@ -5,7 +5,6 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -100,7 +99,7 @@ public class StatExporter
 				zipOutput.setMethod(ZipOutputStream.DEFLATED);
 
 				// Compression level
-				zipOutput.setLevel(9);
+				zipOutput.setLevel(1);
 
 				for (int f = 0; f < numFiles; f++)
 				{
@@ -134,16 +133,21 @@ public class StatExporter
 	{
 		ByteBuffer tbuffer;
 
-		// Frame Type + Num Files
-		int size = 8;
+		// Frame Header + Num Files
+		int size = 0;
 		String archiveName = "stats";
-
+		
+		// Total files
+		size += 4;
+		
 		if (this.format == ExportFormat.ZXML)
-		{
+		{			
 			// File Num Field
 			size += 4;
+			
 			// File Name Len Field
 			size += 4;
+			
 			// File Name Len in bytes
 			size += archiveName.getBytes().length;
 
@@ -154,11 +158,12 @@ public class StatExporter
 			size += binData.length;
 
 			// Buffer
-			tbuffer = ByteBuffer.allocate(size);
+			tbuffer = ByteBuffer.allocate(size+NSMCP.HEADER_SIZE);
 
-			// Stats Message
+			// Header
 			tbuffer.putInt(NSMCP.SimStats);
-
+			tbuffer.putInt(size);
+			
 			// Total Files (Archive)
 			tbuffer.putInt(1);
 
@@ -186,11 +191,12 @@ public class StatExporter
 			}
 
 			// Unicode 16 -2bytes chart
-			tbuffer = ByteBuffer.allocate(size);
+			tbuffer = ByteBuffer.allocate(size+NSMCP.HEADER_SIZE);
 
 			// Frame Type
 			tbuffer.putInt(NSMCP.SimStats);
-
+			tbuffer.putInt(size);
+			
 			// Total Stat Files
 			tbuffer.putInt(numFiles);
 
@@ -203,17 +209,20 @@ public class StatExporter
 		return tbuffer.array();
 	}
 
-	public void populateFromStream(DataInputStream source) throws IOException
+	public void populateFromByteBuffer(ByteBuffer source) throws IOException
 	{
-		log.debug("StatExporter : populating from DataInputStream");
+		log.debug("StatExporter : populating from ByteBuffer");
 
-		int numFiles = source.readInt();
-
+		int numFiles = source.getInt();
+		log.debug("Num Files " + numFiles);
+		
 		if (this.format == ExportFormat.ZXML)
 		{
 			// Expects 1 file.
-			int fNum = source.readInt();
+			int fNum = source.getInt();
+			log.debug("File Num " + fNum);
 
+			
 			if (numFiles != 1)
 			{
 				log.error("More than 1 file detected in archive operaton");
@@ -225,21 +234,21 @@ public class StatExporter
 			}
 
 			// File Name Len
-			int len = source.readInt();
+			int len = source.getInt();
 			log.debug("File Name Len " + len);
 
 			// Filename
 			byte[] fileName = new byte[len];
-			source.readFully(fileName, 0, len);
-			log.debug("File Name " + fileNames);
+			source.get(fileName, 0, len);
+			log.debug("File Name " + fileName[0]);
 
 			// Bin Data Len
-			len = source.readInt();
+			len = source.getInt();
 			log.debug("Data Len " + len);
 
 			// Bin Data
 			binData = new byte[len];
-			source.readFully(binData, 0, len);
+			source.get(binData, 0, len);
 
 		}
 		else
@@ -249,7 +258,7 @@ public class StatExporter
 
 			for (int f = 0; f < numFiles; f++)
 			{
-				int fNum = source.readInt();
+				int fNum = source.getInt();
 
 				if (fNum != f)
 				{
@@ -258,12 +267,12 @@ public class StatExporter
 
 				log.debug("File Number : " + fNum);
 
-				int len = source.readInt();
+				int len = source.getInt();
 				byte[] stringBytes = new byte[len];
 
 				log.debug("File Name Len " + len);
 
-				source.readFully(stringBytes, 0, len);
+				source.get(stringBytes, 0, len);
 
 				// FileName
 				fileNames[f] = new String(stringBytes);
@@ -280,16 +289,21 @@ public class StatExporter
 				log.debug("File Name " + fileNames[f]);
 
 				// FileData
-				len = source.readInt();
+				len = source.getInt();
 				stringBytes = new byte[len];
 				log.debug("Data Len " + len);
 
-				source.readFully(stringBytes, 0, len);
+				source.get(stringBytes, 0, len);
 				textData[f] = new String(stringBytes);
 			}
 		}
-		log.debug("Num Files " + numFiles);
 
+		int left = source.remaining();
+		if(left > 0)
+		{
+			log.error("Stats not processed fully - bytes left : " + left);
+		}
+		
 	}
 
 	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, String fileData)
@@ -314,19 +328,19 @@ public class StatExporter
 	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, byte[] binData)
 			throws IOException
 	{
-		// FileNum
+		// Number of file
 		tbuffer.putInt(fileNum);
 
-		// File Name Len
+		// File Name Len (bytes)
 		tbuffer.putInt(fileName.getBytes().length);
 
-		// File Name
+		// File Name String to bytes
 		tbuffer.put(fileName.getBytes());
 
-		// Data Lenth
+		// File size bytes
 		tbuffer.putInt(binData.length);
 
-		// FileData
+		// File size
 		tbuffer.put(binData);
 	}
 

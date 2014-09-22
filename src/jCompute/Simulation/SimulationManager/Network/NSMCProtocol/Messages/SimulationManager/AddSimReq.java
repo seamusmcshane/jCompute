@@ -2,7 +2,6 @@ package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Simu
 
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -19,12 +18,12 @@ public class AddSimReq
 	}
 
 	// Construct from an input stream
-	public AddSimReq(DataInputStream source) throws IOException
+	public AddSimReq(ByteBuffer source) throws IOException
 	{		
-		initialStepRate = source.readInt();
-		int len = source.readInt();		
+		initialStepRate = source.getInt();
+		int len = source.getInt();		
 		byte[] bytes= new byte[len];
-		source.readFully(bytes, 0, len);
+		source.get(bytes, 0, len);
 		scenarioText = new String(bytes);
 	}
 	
@@ -40,18 +39,20 @@ public class AddSimReq
 	
 	public byte[] toBytes()
 	{
-		int len = scenarioText.getBytes().length;
+		int configLen = scenarioText.getBytes().length;
+		int dataLen = configLen + 8;
 		
-		ByteBuffer tbuffer = ByteBuffer.allocate(len+12); 
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);  
 		
-		// AddSim Req
+		// Header
 		tbuffer.putInt(NSMCP.AddSimReq);
-		
+		tbuffer.putInt(dataLen);
+
+		// Data		
 		// Intial Step Rate
-		tbuffer.putInt(initialStepRate);
-		
+		tbuffer.putInt(initialStepRate);		
 		// Config follows (len is chars)
-		tbuffer.putInt(len);
+		tbuffer.putInt(configLen);
 		
 		tbuffer.put(scenarioText.getBytes());
 		

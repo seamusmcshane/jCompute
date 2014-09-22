@@ -15,10 +15,14 @@ public class RegistrationRequest
 	
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(4);  
+		int dataLen = 0;
+
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);
 		
+		// Header Only
 		tbuffer.putInt(NSMCP.RegReq);
-		
+		tbuffer.putInt(dataLen);
+
 		return tbuffer.array();
 	}
 }

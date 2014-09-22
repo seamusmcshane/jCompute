@@ -3,7 +3,6 @@ package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Simu
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Stats.StatExporter.ExportFormat;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -19,20 +18,24 @@ public class SimulationStatsRequest
 	}
 	
 	// Construct from an input stream
-	public SimulationStatsRequest(DataInputStream source) throws IOException
+	public SimulationStatsRequest(ByteBuffer source) throws IOException
 	{		
-		simId = source.readInt();
-		format = ExportFormat.fromInt(source.readInt());
+		simId = source.getInt();
+		format = ExportFormat.fromInt(source.getInt());
 	}
 
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(12);
-	
+		int dataLen = 8;
+
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);  
+		
+		// Header
 		tbuffer.putInt(NSMCP.SimStatsReq);
-		
+		tbuffer.putInt(dataLen);
+
+		// Data
 		tbuffer.putInt(simId);
-		
 		tbuffer.putInt(format.ordinal());
 		
 		return tbuffer.array();

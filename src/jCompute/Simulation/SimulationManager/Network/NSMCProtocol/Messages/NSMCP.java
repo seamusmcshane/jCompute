@@ -25,6 +25,8 @@ public class NSMCP
 	    }
 	};
 	
+	public static final int HEADER_SIZE = 8; // Type / Len
+	
 	// Invalid Frame 
     public static final int INVALID	= 0;
     

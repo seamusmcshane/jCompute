@@ -3,7 +3,6 @@ package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -19,10 +18,10 @@ public class ConfigurationAck
 	}
 	
 	// Construct from an input stream
-	public ConfigurationAck(DataInputStream source) throws IOException
+	public ConfigurationAck(ByteBuffer source) throws IOException
 	{		
-		maxSims = source.readInt();
-		weighting = source.readLong();
+		maxSims = source.getInt();
+		weighting = source.getLong();
 	}
 	
 	public int getMaxSims()
@@ -37,14 +36,16 @@ public class ConfigurationAck
 	
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(16);  
+		int dataLen = 12;
 
-		// Conf Ack
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);
+		
+		// Header
 		tbuffer.putInt(NSMCP.ConfAck);
-		
-		// maxSims
+		tbuffer.putInt(dataLen);
+
+		// Data
 		tbuffer.putInt(maxSims);
-		
 		tbuffer.putLong(weighting);
 		
 		return tbuffer.array();

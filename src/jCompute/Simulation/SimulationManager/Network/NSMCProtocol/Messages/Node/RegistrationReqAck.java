@@ -1,6 +1,5 @@
 package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Node;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -16,9 +15,9 @@ public class RegistrationReqAck
 	}
 	
 	// Construct from an input stream
-	public RegistrationReqAck(DataInputStream source) throws IOException
+	public RegistrationReqAck(ByteBuffer source) throws IOException
 	{		
-		uid = source.readInt();		
+		uid = source.getInt();
 	}
 	
 	public int getUid()
@@ -28,12 +27,15 @@ public class RegistrationReqAck
 
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(8);  
+		int dataLen = 4;
 
-		// Reg Ack
-		tbuffer.putInt(NSMCP.RegAck);
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);
 		
-		// uid
+		// Header
+		tbuffer.putInt(NSMCP.RegAck);
+		tbuffer.putInt(dataLen);
+
+		// Data - uid
 		tbuffer.putInt(uid);
 		
 		return tbuffer.array();

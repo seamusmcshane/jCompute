@@ -2,12 +2,11 @@ package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Simu
 
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class AddSimReply
-{
+{	
 	private int simId;
 	
 	public AddSimReply(int simId)
@@ -16,18 +15,22 @@ public class AddSimReply
 	}
 	
 	// Construct from an input stream
-	public AddSimReply(DataInputStream source) throws IOException
-	{		
-		simId = source.readInt();
+	public AddSimReply(ByteBuffer source) throws IOException
+	{
+		simId = source.getInt();
 	}
 	
 	public byte[] toBytes()
 	{
-		ByteBuffer tbuffer = ByteBuffer.allocate(8);  
+		int dataLen = 4;
 		
-		// Reg Req
-		tbuffer.putInt(NSMCP.AddSimReply);
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);  
 		
+		// Header
+		tbuffer.putInt(NSMCP.AddSimReply);		
+		tbuffer.putInt(dataLen);
+		
+		// Data
 		tbuffer.putInt(simId);
 		
 		return tbuffer.array();

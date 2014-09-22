@@ -1,6 +1,5 @@
 package jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notification;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -25,19 +24,19 @@ public class SimulationStateChanged
 		this.stepCount = e.getStepCount();		
 	}
 	
-	public SimulationStateChanged(DataInputStream source) throws IOException
+	public SimulationStateChanged(ByteBuffer source) throws IOException
 	{
-		state = SimState.fromInt(source.readInt());
-		simId = source.readInt();		
-		runTime = source.readLong();
+		state = SimState.fromInt(source.getInt());
+		simId = source.getInt();		
+		runTime = source.getLong();
 		
-		int elen = source.readInt();		
+		int elen = source.getInt();		
 
 		if(elen > 0)
 		{
 			byte[] sBytes = new byte[elen];
 			
-			source.read(sBytes, 0, elen);
+			source.get(sBytes, 0, elen);
 			
 			endEvent = new String(sBytes);
 		}
@@ -46,7 +45,7 @@ public class SimulationStateChanged
 			endEvent = "NONE";
 		}
 		
-		stepCount = source.readLong();
+		stepCount = source.getLong();
 		
 	}
 
@@ -77,6 +76,7 @@ public class SimulationStateChanged
 
 	public byte[] toBytes()
 	{
+		// End Event
 		int elen = 0;
 		
 		if(endEvent!=null)
@@ -84,10 +84,15 @@ public class SimulationStateChanged
 			elen = endEvent.getBytes().length;
 		}
 		
-		// Unicode 16 -2bytes chart
-		ByteBuffer tbuffer = ByteBuffer.allocate(elen+32);
+		int dataLen = elen+28;
+
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NSMCP.HEADER_SIZE);
 		
+		// Header
 		tbuffer.putInt(NSMCP.SimStateNoti);
+		tbuffer.putInt(dataLen);
+
+		// Data
 		tbuffer.putInt(state.ordinal());
 		tbuffer.putInt(simId);
 		tbuffer.putLong(runTime);

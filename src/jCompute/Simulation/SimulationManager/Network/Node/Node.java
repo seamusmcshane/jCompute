@@ -27,6 +27,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -136,11 +137,31 @@ public class Node
 			{
 				log.info("Registration complete");
 
+				int type = -1;
+				int len = -1;
+				byte[] backingArray = null;
+				ByteBuffer data = null;
+				
 				// While we have a connection
 				while (!clientSocket.isClosed())
 				{
-					// Get the frame type
-					int type = input.readInt();
+					type = input.readInt();
+					len = input.readInt();
+
+					// Allocate here to avoid duplication of allocation code
+					if(len > 0 )
+					{
+						// Destination
+						backingArray = new byte[len];
+						
+						// Copy from the socket
+						input.readFully(backingArray, 0, len);
+						
+						// Wrap the backingArray
+						data = ByteBuffer.wrap(backingArray);	
+						
+						log.debug("Type " + type+ " len " + len);
+					}
 
 					switch (type)
 					{
@@ -148,7 +169,7 @@ public class Node
 						{
 							rxLockEvents.acquireUninterruptibly();
 							
-							AddSimReq req = new AddSimReq(input);
+							AddSimReq req = new AddSimReq(data);
 
 							int simId = simsManager.addSimulation(req.getScenarioText(), req.getInitialStepRate());
 
@@ -162,7 +183,7 @@ public class Node
 						case NSMCP.StartSimCMD :
 
 
-							StartSimCMD cmd = new StartSimCMD(input);
+							StartSimCMD cmd = new StartSimCMD(data);
 
 							log.debug("StartSimCMD " + cmd.getSimid());
 							
@@ -171,7 +192,7 @@ public class Node
 							break;
 						case NSMCP.SimStatsReq :
 
-							SimulationStatsRequest statsReq = new SimulationStatsRequest(input);
+							SimulationStatsRequest statsReq = new SimulationStatsRequest(data);
 
 							log.info("SimStatsReq " + statsReq.getSimId());
 
@@ -182,7 +203,7 @@ public class Node
 							break;
 						case NSMCP.RemSimReq :
 						{
-							RemoveSimReq removeSimReq = new RemoveSimReq(input);
+							RemoveSimReq removeSimReq = new RemoveSimReq(data);
 
 							int simId = removeSimReq.getSimid();
 
@@ -200,6 +221,8 @@ public class Node
 
 							state = ProtocolState.END;
 
+							log.error("Error Type " + type + " len " + len);
+							
 							break;
 					}
 
@@ -237,16 +260,35 @@ public class Node
 		// Create a registration request and send it
 		sendMessage(new RegistrationRequest().toBytes());
 
+		int type = -1;
+		int len = -1;
+		byte[] backingArray = null;
+		ByteBuffer data = null;
+		
 		// Read the replies
 		while (!finished)
 		{
-			int type = input.readInt();
+			type = input.readInt();
+			len = input.readInt();
+
+			// Allocate here to avoid duplication of allocation code
+			if(len > 0 )
+			{
+				// Destination
+				backingArray = new byte[len];
+				
+				// Copy from the socket
+				input.readFully(backingArray, 0, len);
+				
+				// Wrap the backingArray
+				data = ByteBuffer.wrap(backingArray);							
+			}
 
 			switch (type)
 			{
 				case NSMCP.RegAck :
 					
-					RegistrationReqAck reqAck = new RegistrationReqAck(input);
+					RegistrationReqAck reqAck = new RegistrationReqAck(data);
 
 					nodeConfig.setUid(reqAck.getUid());
 
@@ -258,7 +300,7 @@ public class Node
 					break;
 				case NSMCP.ConfReq :
 
-					ConfigurationRequest confReq = new ConfigurationRequest(input);
+					ConfigurationRequest confReq = new ConfigurationRequest(data);
 					
 					// Set our max sims now
 					nodeConfig.setMaxSims(simsManager.getMaxSims());
