@@ -5,7 +5,6 @@ import jCompute.Gui.View.View;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Simulation.Simulation;
-import jCompute.Simulation.SimulationScenarioManagerInf;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
@@ -158,6 +157,8 @@ public class SimulationsManager implements SimulationsManagerInf
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
+		log.info("Start Sim " + simId);
+		
 		Simulation sim = simulations.get(simId);
 
 		sim.startSim();
