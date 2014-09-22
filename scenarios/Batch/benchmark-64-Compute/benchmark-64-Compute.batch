@@ -4,11 +4,11 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>Predator/Prey with intial numbers from 100 to 1000</BatchDescription>
+		<BatchDescription>benchmark-64-Compute</BatchDescription>
 		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>Benchmark</BatchDirName>
-		<ItemSamples>10</ItemSamples>
+		<BatchDirName>Compute-64</BatchDirName>
+		<ItemSamples>64</ItemSamples>
 	</Config>
 	<Parameters>
 		<Parameter>
@@ -16,18 +16,9 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Predator</GroupName>
 			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>100</Intial>
-			<Increment>100</Increment>
-			<Combinations>10</Combinations>
-		</Parameter>
-		<Parameter>
-			<Type>Group</Type>
-			<Path>Agents.SimpleAgent</Path>
-			<GroupName>Prey</GroupName>
-			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>100</Intial>
-			<Increment>100</Increment>
-			<Combinations>10</Combinations>
+			<Intial>200</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
 		</Parameter>
 	</Parameters>
 </Batch>

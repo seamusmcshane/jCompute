@@ -4,11 +4,11 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>64 Item COMPUTE Test Batch</BatchDescription>
+		<BatchDescription>Benchmark-1000</BatchDescription>
 		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>64COMTEST</BatchDirName>
-		<ItemSamples>16</ItemSamples>
+		<BatchDirName>Benchmark-1000</BatchDirName>
+		<ItemSamples>1000</ItemSamples>
 	</Config>
 	<Parameters>
 		<Parameter>
@@ -16,18 +16,9 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Predator</GroupName>
 			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>250</Intial>
-			<Increment>250</Increment>
-			<Combinations>2</Combinations>
-		</Parameter>
-		<Parameter>
-			<Type>Group</Type>
-			<Path>Agents.SimpleAgent</Path>
-			<GroupName>Prey</GroupName>
-			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>250</Intial>
-			<Increment>250</Increment>
-			<Combinations>2</Combinations>
+			<Intial>200</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
 		</Parameter>
 	</Parameters>
 </Batch>

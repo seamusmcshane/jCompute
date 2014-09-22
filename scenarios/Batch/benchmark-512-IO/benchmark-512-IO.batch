@@ -4,11 +4,11 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BatchDescription>64 Item Test Batch</BatchDescription>
+		<BatchDescription>benchmark-512-IO</BatchDescription>
 		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchDirName>TEST</BatchDirName>
-		<ItemSamples>4</ItemSamples>
+		<BatchDirName>IOTEST-512</BatchDirName>
+		<ItemSamples>512</ItemSamples>
 	</Config>
 	<Parameters>
 		<Parameter>
@@ -16,18 +16,9 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Predator</GroupName>
 			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>250</Intial>
-			<Increment>250</Increment>
-			<Combinations>4</Combinations>
-		</Parameter>
-		<Parameter>
-			<Type>Group</Type>
-			<Path>Agents.SimpleAgent</Path>
-			<GroupName>Prey</GroupName>
-			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>250</Intial>
-			<Increment>250</Increment>
-			<Combinations>4</Combinations>
+			<Intial>200</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
 		</Parameter>
 	</Parameters>
 </Batch>
