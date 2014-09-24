@@ -1029,11 +1029,15 @@ public class BatchManager
 			if (batch.getPriority() == BatchPriority.HIGH)
 			{
 				fifoQueue.remove(batch);
+				
+				positionsChangedInQueue(fifoQueue);
 			}
 			else
 			{
 				// In Fair
 				fairQueue.remove(batch);
+				
+				positionsChangedInQueue(fairQueue);
 			}
 
 		}
