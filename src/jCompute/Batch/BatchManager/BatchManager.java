@@ -805,19 +805,14 @@ public class BatchManager
 	 */
 	private void positionsChangedInbothQueues()
 	{		
+		positionsChangedInQueue(fifoQueue);
+		positionsChangedInQueue(fairQueue);
+	}
+	
+	private void positionsChangedInQueue(ManagedBypassableQueue queue)
+	{
 		Batch tBatch = null;
-		Iterator<StoredQueuePosition> itr = fifoQueue.iterator();
-
-		while (itr.hasNext())
-		{
-			tBatch = (Batch) itr.next();
-
-			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
-
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
-		}		
-		
-		itr = fairQueue.iterator();
+		Iterator<StoredQueuePosition> itr = queue.iterator();
 
 		while (itr.hasNext())
 		{
