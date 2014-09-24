@@ -360,6 +360,8 @@ public class BatchManager
 
 					// Notify listeners the batch is removed.
 					batchManagerListenerBatchFinishedNotification(batch);
+					
+					positionsChangedInQueue(fairQueue);
 
 					batchManagerLock.acquireUninterruptibly();
 					// exit this tick
