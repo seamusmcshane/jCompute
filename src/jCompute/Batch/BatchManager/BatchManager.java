@@ -268,6 +268,8 @@ public class BatchManager
 			// Notify listeners the batch is removed.
 			batchManagerListenerBatchFinishedNotification(batch);
 
+			positionsChangedInQueue(fifoQueue);
+			
 			batchManagerLock.acquireUninterruptibly();
 
 			// exit this tick
