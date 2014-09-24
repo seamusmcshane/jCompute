@@ -197,8 +197,10 @@ public class BatchManager
 				batchManagerListenerBatchProgressNotification(batch);
 			}
 			else
-			{
-				log.error("Simulation Event for NULL batch " + item.getBatchId());
+			{				
+				log.warn("Simulation Event for NULL batch " + item.getBatchId());
+
+				simsManager.removeSimulation(item.getSimId());
 			}
 			
 			i++;
