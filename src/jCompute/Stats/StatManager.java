@@ -127,4 +127,34 @@ public class StatManager
 		}
 	}
 
+	public void exportImages(String path)
+	{
+
+		for (ImageStatGroup group : getImageStatGroupList()) 
+		{
+			for(String stat : group.getStatList())
+			{
+				ImageStat imageStat = group.getStat(stat);
+				
+			    BufferedImage bi = imageStat.getImage();
+			    File outputfile = new File(path + File.pathSeparatorChar + imageStat.getName()+".png");
+			   
+			    try
+				{
+					ImageIO.write(bi, "png", outputfile);
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
+				
+			}
+			
+
+		}
+		
+
+		
+	}
+
 }
