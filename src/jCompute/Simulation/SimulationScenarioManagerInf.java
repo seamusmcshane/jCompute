@@ -15,7 +15,7 @@ public interface SimulationScenarioManagerInf
 	
 	public void drawSim(View simView,boolean viewRangeDrawing,boolean viewsDrawing);
 
-	public int getWorldSize();
+	public int getUniverseSize();
 	
 	public boolean hasEndEventOccurred();
 
