@@ -8,8 +8,8 @@ import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
-import jCompute.Stats.StatGroupListenerInf;
 import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.io.IOException;

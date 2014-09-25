@@ -1,4 +1,7 @@
-package jCompute.Stats;
+package jCompute.Stats.Groups;
+
+import jCompute.Stats.StatGroupSetting;
+import jCompute.Stats.Trace.SingleStat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,20 +41,22 @@ public class StatGroup
 	}
 	
 	// Add a new stat to the stat manager
-	public void registerStat(SingleStat stat)
+	private void registerStat(SingleStat stat)
 	{
-		statsGroupLock.acquireUninterruptibly();		
 			statList.add(stat);
-		statsGroupLock.release();
 	}
 	
 	// Add a list of stats to the stat manager
 	public void registerStats(List<SingleStat> statList)
 	{
+		statsGroupLock.acquireUninterruptibly();	
+		
 		for (SingleStat stat : statList) 
 		{
 			registerStat(stat);
 		}
+		
+		statsGroupLock.release();
 	}
 	
 	// returns a stat based on the stat name requested

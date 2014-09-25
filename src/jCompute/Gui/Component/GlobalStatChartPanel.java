@@ -1,7 +1,7 @@
 package jCompute.Gui.Component;
 
-import jCompute.Stats.SingleStat;
-import jCompute.Stats.StatGroupListenerInf;
+import jCompute.Stats.Groups.StatGroupListenerInf;
+import jCompute.Stats.Trace.SingleStat;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -22,6 +22,7 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 

@@ -1,6 +1,8 @@
 package jCompute.Stats;
 
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
+import jCompute.Stats.Groups.StatGroup;
+import jCompute.Stats.Trace.StatSample;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;

@@ -1,4 +1,4 @@
-package jCompute.Stats;
+package jCompute.Stats.Trace;
 
 public class StatSample
 {

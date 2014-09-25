@@ -10,8 +10,8 @@ import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
+import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
-import jCompute.Stats.StatGroupListenerInf;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -3,8 +3,8 @@ package jCompute.Simulation.SimulationManager;
 import jCompute.Gui.View.View;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
-import jCompute.Stats.StatGroupListenerInf;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,4 +1,6 @@
-package jCompute.Stats;
+package jCompute.Stats.Groups;
+
+import jCompute.Stats.Trace.SingleStat;
 
 import java.util.ArrayList;
 

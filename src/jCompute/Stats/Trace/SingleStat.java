@@ -1,4 +1,4 @@
-package jCompute.Stats;
+package jCompute.Stats.Trace;
 
 import java.awt.Color;
 import java.util.LinkedList;
