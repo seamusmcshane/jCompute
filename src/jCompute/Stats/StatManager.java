@@ -1,10 +1,19 @@
 package jCompute.Stats;
 
+import jCompute.Stats.Groups.ImageStatGroup;
+import jCompute.Stats.Groups.StatGroup;
+import jCompute.Stats.Trace.ImageStat;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+
+import javax.imageio.ImageIO;
 
 /**
  * Statistics manager - Not Thread Safe.
@@ -14,23 +23,33 @@ public class StatManager
 {
 	private String managerName;
 	
-	private HashMap<String, StatGroup> map;
-	
+	private HashMap<String, StatGroup> groupMap;
 	private ArrayList<StatGroup> statGroupList;
+	
+	private HashMap<String, ImageStatGroup> imageStatMap;
+	private ArrayList<ImageStatGroup> statImageGroupList;
 	
 	private Semaphore statsManagerLock = new Semaphore(1);
 	
 	public StatManager(String managerName)
 	{
 		this.managerName = managerName;
-		map = new HashMap<String, StatGroup>();
+		groupMap = new HashMap<String, StatGroup>();
+		imageStatMap = new HashMap<String, ImageStatGroup>();
+	}
+	
+	public void registerImageStat(ImageStatGroup stat)
+	{
+		statsManagerLock.acquireUninterruptibly();
+			imageStatMap.put(stat.getName(), stat);
+		statsManagerLock.release();
 	}
 	
 	// Add a new stat to the stat manager
 	public void registerGroup(StatGroup group)
 	{		
 		statsManagerLock.acquireUninterruptibly();
-			map.put(group.getName(), group);
+			groupMap.put(group.getName(), group);
 		statsManagerLock.release();
 	}
 	
@@ -46,7 +65,7 @@ public class StatManager
 	public void setGroupSettings(String groupName,StatGroupSetting setting)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			StatGroup group = map.get(groupName);
+			StatGroup group = groupMap.get(groupName);
 			group.setGroupSettings(setting);
 		statsManagerLock.release();
 	}
@@ -55,24 +74,32 @@ public class StatManager
 	public StatGroup getStatGroup(String groupName)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			StatGroup group = map.get(groupName);
+			StatGroup group = groupMap.get(groupName);
 		statsManagerLock.release();
 		
 		return group;
 	}
 	
-	public int getStatGroupCount(String groupName)
+	// returns an Image Stat based on the group name requested
+	public ImageStatGroup getImageStat(String statName)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			int statCount = map.size();
+			ImageStatGroup imageStat = imageStatMap.get(statName);
 		statsManagerLock.release();
-		return statCount;
+		
+		return imageStat;
 	}
 	
 	// An unsorted list of the Stat names in the manager
 	public Set<String> getGroupList()
 	{
-		return map.keySet();
+		return groupMap.keySet();
+	}
+	
+	// An unsorted list of the Stat names in the manager
+	public Set<String> getImageStatList()
+	{
+		return imageStatMap.keySet();
 	}
 	
 	public String getname()
@@ -83,10 +110,32 @@ public class StatManager
 	public boolean containsGroup(String name)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			boolean status = map.containsKey(name);
+			boolean status = groupMap.containsKey(name);
 		statsManagerLock.release();
 		
 		return status;
+	}
+	
+	private List<ImageStatGroup> getImageStatGroupList()
+	{
+		if(statImageGroupList == null)
+		{
+			statImageGroupList = new ArrayList<ImageStatGroup>();
+		}		
+		
+		if(statImageGroupList.size() != imageStatMap.size())
+		{
+			statImageGroupList = new ArrayList<ImageStatGroup>();
+			
+			Set<String> imageGroupList = getImageStatList();
+			
+			for(String group : imageGroupList)
+			{
+				statImageGroupList.add(imageStatMap.get(group));
+			}			
+		}
+		
+		return statImageGroupList;
 	}
 	
 	private List<StatGroup> getStatGroupList()
@@ -96,7 +145,7 @@ public class StatManager
 			statGroupList = new ArrayList<StatGroup>();
 		}		
 		
-		if(statGroupList.size() != map.size())
+		if(statGroupList.size() != groupMap.size())
 		{
 			statGroupList = new ArrayList<StatGroup>();
 			
@@ -104,7 +153,7 @@ public class StatManager
 			
 			for(String group : groupList)
 			{
-				statGroupList.add(map.get(group));
+				statGroupList.add(groupMap.get(group));
 			}			
 		}
 		
