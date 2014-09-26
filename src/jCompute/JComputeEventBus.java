@@ -3,8 +3,6 @@ package jCompute;
 import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

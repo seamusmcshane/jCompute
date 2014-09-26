@@ -13,9 +13,6 @@ public class ImageStatGroup
 	
 	private ArrayList<ImageStat> statList;
 	
-	// Lock for the listeners
-	private Semaphore listenersLock = new Semaphore(1, false);
-	
 	// Group lock
 	private Semaphore statsGroupLock = new Semaphore(1);
 	

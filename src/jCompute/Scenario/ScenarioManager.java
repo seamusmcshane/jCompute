@@ -1,7 +1,5 @@
 package jCompute.Scenario;
 
-import jCompute.JComputeEventBus;
-
 import java.io.File;
 import java.util.Collection;
 

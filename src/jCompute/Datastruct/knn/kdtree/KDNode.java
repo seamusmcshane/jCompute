@@ -4,14 +4,14 @@ public class KDNode<Datatype>
 {
 	int dim;
 	int nodeDepth;
-	double pos[];
+	float pos[];
 	Datatype data;
 
 	KDNode<Datatype> parentNode;
 	KDNode<Datatype> leftChild;
 	KDNode<Datatype> rightChild;
 	
-	public KDNode(int depth,double pos[], Datatype object)
+	public KDNode(int depth,float pos[], Datatype object)
 	{
 		this.pos = pos;
 		this.nodeDepth = depth;
@@ -22,7 +22,7 @@ public class KDNode<Datatype>
 		rightChild = null;
 	}
 
-	public boolean isValueGreater(int k,double pos[])
+	public boolean isValueGreater(int k,float pos[])
 	{
 		if( this.pos[k] > pos[k])
 		{
@@ -39,7 +39,7 @@ public class KDNode<Datatype>
 		return data;
 	}
 		
-	public double[] getPos()
+	public float[] getPos()
 	{
 		return pos;
 	}

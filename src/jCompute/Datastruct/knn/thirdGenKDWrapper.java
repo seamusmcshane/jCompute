@@ -23,7 +23,7 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	}
 	
 	@Override
-	public void add(double kd[],Datatype agent)
+	public void add(float kd[],Datatype agent)
 	{	
 		tree.addPoint(kd, agent);		
 		treenodes++;		
@@ -35,21 +35,21 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	}
 
 	@Override
-	public Datatype nearestNeighbour(double kd[])
+	public Datatype nearestNeighbour(float kd[])
 	{		
 		// Max is the next closest - Self is 0 (if same tree)	
 		return (Datatype) tree.findNearestNeighbors(kd, 1, distanceKD).getMax();
 	}	
 	
 	@Override
-	public LinkedList<Datatype> nearestNeighbours(double kd[])
+	public LinkedList<Datatype> nearestNeighbours(float kd[])
 	{
 		/* NOT IMPLEMENTED */
 		return null;
 	}
 	
 	@Override
-	public Datatype nearestNNeighbour(double[] pos, int n)
+	public Datatype nearestNNeighbour(float[] pos, int n)
 	{
 		// Get nth nearest neighbours	
 		return (Datatype) tree.findNearestNeighbors(pos, n, distanceKD).getMax();

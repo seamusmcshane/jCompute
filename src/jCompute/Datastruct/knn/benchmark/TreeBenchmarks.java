@@ -150,7 +150,7 @@ public class TreeBenchmarks
 			
 			results[i] = benchMarkThirdGenTree();
 						
-			logger(1, i + "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((double)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((double)results[i][4]/100) +"\t" + results[i][2] + "\t\t" + minList);
+			logger(1, i + "\t" + (startObjects<<i) + "\t" + results[i][0] + "\t" + ((float)results[i][3]/100) + "\t" + results[i][1] + "\t\t" + ((float)results[i][4]/100) +"\t" + results[i][2] + "\t\t" + minList);
 			
 		}
 		
@@ -220,8 +220,8 @@ public class TreeBenchmarks
 		time[2] += (time[0]+time[1]);
 		
 		// Add %
-		time[3] = (long) (((double)time[0]/(double)time[2])*10000);
-		time[4] = (long) (((double)time[1]/(double)time[2])*10000);
+		time[3] = (long) (((float)time[0]/(float)time[2])*10000);
+		time[4] = (long) (((float)time[1]/(float)time[2])*10000);
 
 		
 		logger(2,"Total Time : " + time[2]);
@@ -239,11 +239,11 @@ public class TreeBenchmarks
 
 	private static void addTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
 	{	
-		double[] pos;
+		float[] pos;
 		
 		for (TreeBenchObject currentObject : objectList) 
 		{
-			pos = new double[2];
+			pos = new float[2];
 			pos[0] = currentObject.getX();
 			pos[1] =  currentObject.getY();
 			tree.add(pos, currentObject);
@@ -331,7 +331,7 @@ public class TreeBenchmarks
 		
 		private void performComputation()
 		{
-			double[] pos = new double[2];
+			float[] pos = new float[2];
 			TreeBenchObject nearestObject;
 			for (TreeBenchObject currentObject : objectList) 
 			{

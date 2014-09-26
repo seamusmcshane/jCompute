@@ -3,7 +3,6 @@
  */
 package jCompute.Datastruct.knn;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,16 +14,16 @@ public interface KNNInf <Datatype>
 
 	
 	/* Add Item to Tree */
-	void add(double pos[],Datatype data);
+	void add(float pos[],Datatype data);
 	
 	/* Find Nearest Item */
-	Datatype nearestNeighbour(double pos[]);
+	Datatype nearestNeighbour(float pos[]);
 		
 	/* Find the nth nearest */
-	Datatype nearestNNeighbour(double pos[], int n);
+	Datatype nearestNNeighbour(float pos[], int n);
 	
 	/* Find Nearest Items */
-	List nearestNeighbours(double pos[]);
+	List nearestNeighbours(float pos[]);
 
 	public int size();
 	
