@@ -48,6 +48,10 @@ public class Batch implements StoredQueuePosition
 
 	private int batchItems = 0;
 	private int itemSamples;
+	
+	
+	// Maximum steps for simulations in this batch
+	private int maxSteps = 0;
 
 	// Ffor human readable date/time info
 	private Calendar calender;
@@ -134,6 +138,7 @@ public class Batch implements StoredQueuePosition
 		}
 		catch (IOException e)
 		{
+			e.printStackTrace();
 			status = false;
 		}
 
@@ -173,11 +178,9 @@ public class Batch implements StoredQueuePosition
 		batchConfigProcessor.loadConfig(batchConfigText);
 
 		status = checkBatchFile();
-
+		
 		if (status)
 		{
-			setBatchDescription();
-			setBatchStatExportDir();
 			setBaseFilePath(fileText);
 
 			baseScenarioText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
@@ -185,11 +188,16 @@ public class Batch implements StoredQueuePosition
 			ScenarioInf baseScenario = ScenarioManager.getScenario(baseScenarioText);
 
 			if (baseScenario != null)
-			{
+			{				
+				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
+				
 				type = baseScenario.getScenarioType();
 				log.debug(type);
 
 				generateCombos();
+				
+				setBatchDescription();
+				setBatchStatExportDir();
 			}
 			else
 			{
@@ -290,7 +298,7 @@ public class Batch implements StoredQueuePosition
 	{
 		calender = Calendar.getInstance();
 
-		String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
+		String date = new SimpleDateFormat("yyyy-MM-dd").format(calender.getTime());
 		String time = new SimpleDateFormat("HHmm").format(calender.getTime());
 
 		log.debug(date + "+" + time);
@@ -303,8 +311,11 @@ public class Batch implements StoredQueuePosition
 		testAndCreateDir(baseExportDir);
 		// testAndCreateDir(baseExportDir+File.separator+date);
 
-		batchStatsExportDir = baseExportDir + File.separator + File.separator + date + " " + "Batch " + batchId + " " + batchDirName + "@" + time;
-
+		int uniqueItems = batchItems / itemSamples;
+		
+		//batchStatsExportDir = baseExportDir + File.separator + File.separator + date + " " + "Batch " + batchId + " " + batchDirName + "@" + time;
+		batchStatsExportDir = baseExportDir + File.separator + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems + "-" + batchItems + "-" + maxSteps + "] " + batchDirName;
+		
 		testAndCreateDir(batchStatsExportDir);
 
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
@@ -925,6 +936,8 @@ public class Batch implements StoredQueuePosition
 		info.add(String.valueOf(itemSamples));
 		info.add("Total Items");
 		info.add(String.valueOf(batchItems));
+		info.add("Max Steps");
+		info.add(String.valueOf(maxSteps));
 
 		info.add("");
 		info.add("");
