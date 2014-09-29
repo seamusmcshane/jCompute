@@ -1,0 +1,23 @@
+<Batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/batch.xsd">
+	<Header>
+		<Version>0.01</Version>
+		<Type>Batch</Type>
+	</Header>
+	<Config>
+		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
+		<BatchStatsExportDir>stats</BatchStatsExportDir>
+		<BatchGroupDir>Benchmark</BatchGroupDir>
+		<ItemSamples>64</ItemSamples>
+	</Config>
+	<Parameters>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Predator</GroupName>
+			<ParameterName>InitialNumbers</ParameterName>
+			<Intial>200</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
+		</Parameter>
+	</Parameters>
+</Batch>
