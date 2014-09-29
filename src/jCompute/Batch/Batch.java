@@ -33,6 +33,7 @@ public class Batch implements StoredQueuePosition
 	/* Batch Attributes */
 	private int position;
 	private int batchId;
+	private String batchName;
 	private BatchPriority priority;
 
 	/* Set if this batch items can be processed (stop/start) */
@@ -41,8 +42,7 @@ public class Batch implements StoredQueuePosition
 
 	private String batchFileName;
 	private String baseScenarioFileName;
-	private String batchDescription;
-
+	
 	private int itemsRequested = 0;
 	private int itemsReturned = 0;
 
@@ -126,6 +126,8 @@ public class Batch implements StoredQueuePosition
 		log.info("New Batch based on : " + filePath);
 		this.batchFileName = getFileName(filePath);
 		log.debug("File : " + batchFileName);
+		
+		batchName = batchFileName.replaceAll("\\s*\\b.batch\\b\\s*", "");
 
 		try
 		{
@@ -186,7 +188,7 @@ public class Batch implements StoredQueuePosition
 			baseScenarioText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
 
 			ScenarioInf baseScenario = ScenarioManager.getScenario(baseScenarioText);
-
+			
 			if (baseScenario != null)
 			{				
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
@@ -196,7 +198,6 @@ public class Batch implements StoredQueuePosition
 
 				generateCombos();
 				
-				setBatchDescription();
 				setBatchStatExportDir();
 			}
 			else
@@ -234,7 +235,7 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
 			itemLog.println("<Log xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"schemas/batchItemLog.xsd\">");
 			itemLog.println("<Header>");
-			itemLog.println("<Name>" + batchDescription + "</Name>");
+			itemLog.println("<Name>" + batchName + "</Name>");
 			itemLog.println("<LogType>" + "BatchItems" + "</LogType>");
 			itemLog.println("<SamplesPerItem>" + itemSamples + "</SamplesPerItem>");
 			itemLog.println("<AxisLabels>");
@@ -265,7 +266,7 @@ public class Batch implements StoredQueuePosition
 			infoLog.println("<Batch>");
 			infoLog.println("<ID>" + batchId + "</ID>");
 			infoLog.println("<ScenarioType>" + type + "</ScenarioType>");
-			infoLog.println("<Description>" + batchDescription + "</Description>");
+			infoLog.println("<Description>" + batchName + "</Description>");
 			infoLog.println("<BaseFile>" + baseScenarioFileName + "</BaseFile>");
 			infoLog.println("<Start>" + startDateTime + "</Start>");
 			infoLog.flush();
@@ -304,17 +305,27 @@ public class Batch implements StoredQueuePosition
 		log.debug(date + "+" + time);
 
 		String section = "Config";
-
-		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
-		String batchDirName = batchConfigProcessor.getStringValue(section, "BatchDirName");
-
-		testAndCreateDir(baseExportDir);
-		// testAndCreateDir(baseExportDir+File.separator+date);
-
-		int uniqueItems = batchItems / itemSamples;
 		
-		//batchStatsExportDir = baseExportDir + File.separator + File.separator + date + " " + "Batch " + batchId + " " + batchDirName + "@" + time;
-		batchStatsExportDir = baseExportDir + File.separator + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems + "-" + batchItems + "-" + maxSteps + "] " + batchDirName;
+		// Normally stats/
+		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
+		
+		// Create Stats Dir
+		testAndCreateDir(baseExportDir);
+				
+		// Group Batches of Stats
+		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
+
+		// Append Group name to export dir and create if needed
+		if(groupDirName!=null)
+		{
+			baseExportDir = baseExportDir+File.separator+groupDirName;
+
+			testAndCreateDir(baseExportDir);
+		}
+		
+		int uniqueItems = batchItems / itemSamples;
+				
+		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems + "-" + batchItems + "-" + maxSteps + "] " + batchName;
 		
 		testAndCreateDir(batchStatsExportDir);
 
@@ -324,15 +335,6 @@ public class Batch implements StoredQueuePosition
 	public String getBatchStatsExportDir()
 	{
 		return batchStatsExportDir;
-	}
-
-	private void setBatchDescription()
-	{
-		String section = "Config";
-
-		batchDescription = batchConfigProcessor.getStringValue(section, "BatchDescription");
-
-		log.debug("Batch Description : " + batchDescription);
 	}
 
 	private void setBaseFilePath(String fileText)
@@ -917,8 +919,8 @@ public class Batch implements StoredQueuePosition
 		info.add("Id");
 		info.add(String.valueOf(batchId));
 
-		info.add("Description");
-		info.add(batchDescription);
+		info.add("Name");
+		info.add(batchName);
 		info.add("Scenario Type");
 		info.add(type);
 		info.add("Priority");
@@ -953,7 +955,7 @@ public class Batch implements StoredQueuePosition
 
 		info.add("");
 		info.add("");
-		info.add("Batch");
+		info.add("Batch File");
 		info.add(batchFileName);
 		info.add("Scenario");
 		info.add(baseScenarioFileName);
