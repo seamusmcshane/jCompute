@@ -315,12 +315,23 @@ public class Batch implements StoredQueuePosition
 		// Group Batches of Stats
 		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
 
+		String subgroupDirName = batchConfigProcessor.getStringValue(section, "BatchSubGroupDirName");
+
 		// Append Group name to export dir and create if needed
 		if(groupDirName!=null)
 		{
 			baseExportDir = baseExportDir+File.separator+groupDirName;
 
 			testAndCreateDir(baseExportDir);
+			
+			// Sub Groups
+			if(subgroupDirName!=null)
+			{
+				baseExportDir = baseExportDir+File.separator+subgroupDirName;
+
+				testAndCreateDir(baseExportDir);
+			}
+			
 		}
 		
 		int uniqueItems = batchItems / itemSamples;

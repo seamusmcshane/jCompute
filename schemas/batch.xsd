@@ -30,6 +30,7 @@
 							<xs:element name="BaseScenarioFileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 							<xs:element name="BatchStatsExportDir" type="xs:string" minOccurs="1" maxOccurs="1"/>
 							<xs:element name="BatchGroupDir" type="xs:string" minOccurs="0" maxOccurs="1"/>
+							<xs:element name="BatchSubGroupDirName" type="xs:string" minOccurs="0" maxOccurs="1"/>										
 							<xs:element name="ItemSamples" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 						</xs:sequence>
 					</xs:complexType>
