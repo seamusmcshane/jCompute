@@ -467,6 +467,24 @@ public class View implements ApplicationListener, InputProcessor
 
 	}
 	
+	public void drawTransparentFilledArc(float x,float y,float radius, float start, float angle, A2RGBA color)
+	{
+		if(!viewCam.frustum.pointInFrustum(new Vector3(x,y,0)))
+		{
+			return;
+		}
+		
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		
+		currentShapeRenderer.begin(ShapeType.Filled);
+		currentShapeRenderer.setColor(color.getRed(), color.getGreen(), color.getBlue(), 0.5f);
+		currentShapeRenderer.arc(x, y, radius, start, angle);
+		currentShapeRenderer.end();
+		
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+
+	}
 
 	public void drawLine(A2DVector2f pos1, A2DVector2f pos2, A2RGBA color, float lineWidth, boolean clipCheck)
 	{

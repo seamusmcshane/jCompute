@@ -204,6 +204,22 @@ public class A2DVector2f
 		
 		return (dx*dx)+(dy*dy);
 	}
+	
+	/**
+	* Get the distance from this point to another, squared. This
+	* can sometimes be used in place of distance and avoids the
+	* additional sqrt.
+	*
+	* @param other The other point we're measuring to
+	* @return The distance to the other point squared
+	*/
+	public float distanceSquared(float[] other) 
+	{
+		float dx = other[0] - pos[0];
+		float dy = other[1] - pos[1];
+		
+		return (dx*dx)+(dy*dy);
+	}
 
 	public void set(float x, float y)
 	{

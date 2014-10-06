@@ -23,7 +23,7 @@ public interface KNNInf <Datatype>
 	Datatype nearestNNeighbour(float pos[], int n);
 	
 	/* Find Nearest Items */
-	List nearestNeighbours(float pos[]);
+	List <Datatype> nearestNeighbours(float pos[], int maxNeighbours);
 
 	public int size();
 	

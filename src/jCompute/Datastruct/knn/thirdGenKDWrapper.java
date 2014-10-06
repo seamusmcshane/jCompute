@@ -1,7 +1,10 @@
 package jCompute.Datastruct.knn;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
+import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 
@@ -42,10 +45,18 @@ public class thirdGenKDWrapper<Datatype> implements KNNInf<Datatype>
 	}	
 	
 	@Override
-	public LinkedList<Datatype> nearestNeighbours(float kd[])
+	public List<Datatype> nearestNeighbours(float kd[], int maxNeighbours)
 	{
-		/* NOT IMPLEMENTED */
-		return null;
+		ArrayList <Datatype> list = new ArrayList<Datatype>(maxNeighbours);
+		
+		MaxHeap<Datatype> heap = tree.findNearestNeighbors(kd, maxNeighbours, distanceKD);
+		
+		while(heap.size() > 0)
+		{
+			list.add(heap.getMax());
+			heap.removeMax();
+		}
+		return list;	
 	}
 	
 	@Override
