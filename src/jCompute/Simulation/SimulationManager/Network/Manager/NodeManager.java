@@ -343,8 +343,7 @@ public class NodeManager
 
 								if (nodeState == ProtocolState.READY)
 								{
-
-									log.debug("Recieved Sim Stats");
+									log.info("Recieved Sim Stats");
 
 									statExporter.populateFromByteBuffer(data);
 

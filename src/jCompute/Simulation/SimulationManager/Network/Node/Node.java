@@ -181,16 +181,16 @@ public class Node
 						}
 							break;
 						case NSMCP.StartSimCMD :
-
+						{
 							StartSimCMD cmd = new StartSimCMD(data);
 
 							log.info("StartSimCMD " + cmd.getSimid());
 							
 							simsManager.startSim(cmd.getSimid());
-
+						}
 							break;
 						case NSMCP.SimStatsReq :
-
+						{
 							SimulationStatsRequest statsReq = new SimulationStatsRequest(data);
 
 							log.info("SimStatsReq " + statsReq.getSimId());
@@ -198,7 +198,7 @@ public class Node
 							// NSMCP.SimStats
 							sendMessage(simsManager.getStatsAsBytes(statsReq.getSimId(), statsReq.getFormat()));
 							log.info("Sent SimStats " + statsReq.getSimId());
-
+						}
 							break;
 						case NSMCP.RemSimReq :
 						{
@@ -216,12 +216,13 @@ public class Node
 						// Default / Invalid
 						case NSMCP.INVALID :
 						default :
+						{
 							log.error("Invalid NSMCP Message Recieved");
 
 							state = ProtocolState.END;
 
 							log.error("Error Type " + type + " len " + len);
-							
+						}	
 							break;
 					}
 
@@ -310,7 +311,7 @@ public class Node
 					{
 						log.info("Running Weighting Benchmark");
 						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(8192,1000);
-						bench.warmUp(1000);
+						bench.warmUp(100);
 						long weighting = bench.weightingBenchmark(5);
 						nodeConfig.setWeighting(weighting);
 						log.info("Weighting\t " + weighting );

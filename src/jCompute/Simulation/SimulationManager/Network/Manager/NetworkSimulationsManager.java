@@ -69,12 +69,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	private Semaphore networkSimulationsManagerLock = new Semaphore(1,false);
 	
-	// Nodes/Sockets
-	// Simulations
-	
-	private ExecutorService exportStatProcessor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new SimpleNamedThreadFactory(
-			"Export Stat Processor"));
-	
 	public NetworkSimulationsManager()
 	{
 		log.info("Starting NetworkSimulationsManager");
@@ -137,7 +131,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				for(NodeManager tNode : connectingNodes)
 				{
 					if(tNode.isReady())
-					{						
+					{
 						activeNodes.add(tNode);
 						
 						maxSims += tNode.getMaxSims();
@@ -453,7 +447,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format, boolean removeSim)
+	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
 	{
 		networkSimulationsManagerLock.acquireUninterruptibly();
 
@@ -462,7 +456,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		exportStatProcessor.execute(new ExportStatTask(nodeManager,simId,mapping.getRemoteSimId(), directory, fileNameSuffix, format,removeSim));
+		nodeManager.exportStats(mapping.getRemoteSimId(), directory, fileNameSuffix, format);
 		
 		networkSimulationsManagerLock.release();
 	}

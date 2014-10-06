@@ -432,7 +432,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			
 			System.out.println("Directory Choosen : " + exportDirectory);
 
-			simsManager.exportAllStatsToDir(simId,exportDirectory,"",exportFormat,false);		
+			simsManager.exportAllStatsToDir(simId,exportDirectory,"",exportFormat);		
 
 		}
 

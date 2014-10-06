@@ -88,7 +88,7 @@ public class BatchManager
 				schedule();
 			}
 
-		}, 0, 10);
+		}, 0, 1000);
 
 	}
 
@@ -191,6 +191,8 @@ public class BatchManager
 				// Internally Exports Stats
 				batch.setComplete(simsManager, item);
 
+				simsManager.removeSimulation(item.getSimId());
+				
 				// Batch Progress
 				batchManagerListenerBatchProgressNotification(batch);
 			}
