@@ -182,10 +182,9 @@ public class Node
 							break;
 						case NSMCP.StartSimCMD :
 
-
 							StartSimCMD cmd = new StartSimCMD(data);
 
-							log.debug("StartSimCMD " + cmd.getSimid());
+							log.info("StartSimCMD " + cmd.getSimid());
 							
 							simsManager.startSim(cmd.getSimid());
 
