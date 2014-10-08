@@ -382,7 +382,7 @@ public class Node
 			rxLockEvents.acquireUninterruptibly();
 
 			sendMessage(new SimulationStateChanged(e).toBytes());
-			log.debug("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
+			log.info("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
 
 			rxLockEvents.release();
 		}

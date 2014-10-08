@@ -186,7 +186,7 @@ public class BatchManager
 
 			if(batch != null)
 			{
-				log.debug("Batch : " + batch.getBatchId());
+				log.info("Batch Item Finished : " + batch.getBatchId());
 
 				// Internally Exports Stats
 				batch.setComplete(simsManager, item);

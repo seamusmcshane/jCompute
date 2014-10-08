@@ -291,7 +291,7 @@ public class NodeManager
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(stateChanged.getSimId());
 
 									// Debug as these are excessive output
-									log.debug(stateChanged.info());
+									log.info(stateChanged.info());
 									log.debug("New " + mapping.info());
 
 									// Post the event as if from a local
@@ -330,6 +330,11 @@ public class NodeManager
 										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),
 												statChanged.getTime(), statChanged.getStepNo(), statChanged
 														.getProgress(), statChanged.getAsps()));
+									}
+									else
+									{
+										log.warn("No mapping found for " + statChanged.info());
+
 									}
 								}
 								else
@@ -633,6 +638,8 @@ public class NodeManager
 
 		try
 		{
+			log.info("Requesting SimStats for remote sim : " + remoteSimId);
+			
 			// create a new exporter as format could change.
 			statExporter = new StatExporter(format, fileNameSuffix);
 
