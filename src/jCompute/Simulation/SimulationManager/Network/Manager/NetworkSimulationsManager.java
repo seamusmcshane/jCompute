@@ -334,10 +334,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	@Override
 	public int addSimulation(String scenarioText, int initialStepRate)
-	{		
+	{
 		networkSimulationsManagerLock.acquireUninterruptibly();
-
-		log.debug("Add Sim");
 		
 		boolean simAdded = false;
 		
@@ -358,6 +356,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 				// remoteId -1 as the remote id is filled in by the NODE and indexed on it
 				RemoteSimulationMapping mapping = new RemoteSimulationMapping(node.getUid());
 				
+				log.info("Add Simulation to Node " + node.getUid());
+				
 				int remoteSimId = node.addSim(scenarioText,initialStepRate,mapping);
 				
 				// Incase the remote node goes down while in this method
@@ -373,7 +373,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					
 					simAdded = true;
 					
-					log.debug("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
+					log.info("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
 
 					activeSims++;
 					
@@ -416,6 +416,8 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		// Look up mapping
 		RemoteSimulationMapping mapping = localSimulationMap.get(simId);
 		
+		log.info("Remove Simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());			
+		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
 		nodeManager.removeSim(mapping.getRemoteSimId());
@@ -423,7 +425,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		// Remove the mapping
 		localSimulationMap.remove(mapping);
 	
-		activeSims--;
+		activeSims--;	
 		
 		networkSimulationsManagerLock.release();
 		
@@ -441,8 +443,10 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		nodeManager.startSim(mapping.getRemoteSimId());
+		log.info("Start Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());			
 		
+		nodeManager.startSim(mapping.getRemoteSimId());
+				
 		networkSimulationsManagerLock.release();
 	}
 
@@ -454,10 +458,12 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		// Look up mapping
 		RemoteSimulationMapping mapping = localSimulationMap.get(simId);
 		
+		log.info("Exports Stats for Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());			
+		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
 		nodeManager.exportStats(mapping.getRemoteSimId(), directory, fileNameSuffix, format);
-		
+				
 		networkSimulationsManagerLock.release();
 	}
 	
