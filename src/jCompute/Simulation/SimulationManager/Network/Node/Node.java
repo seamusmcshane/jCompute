@@ -310,7 +310,7 @@ public class Node
 					if(benchMark == 1)
 					{
 						log.info("Running Weighting Benchmark");
-						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(8192,1000);
+						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(3072,1000);
 						bench.warmUp(100);
 						long weighting = bench.weightingBenchmark(5);
 						nodeConfig.setWeighting(weighting);
