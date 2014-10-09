@@ -2,7 +2,7 @@ package jCompute.Datastruct.knn.kdtree;
 
 public interface KNNNodeInf
 {
-	public float[] getPos();
+	public double[] getPos();
 	
 	public Object getObject();
 }
