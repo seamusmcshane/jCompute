@@ -6,16 +6,16 @@ public class TreeBenchObject implements KNNNodeInf
 {
 	
 	private int id;
-	private float pos[];;
+	private double pos[];
 	
 	private TreeBenchObject nearestObject;
 	private int nearestObjectID;
-	private float nearestObjectDistance;
+	private double nearestObjectDistance;
 	
-	public TreeBenchObject(int id,float x, float y) 
+	public TreeBenchObject(int id,double x, double y) 
 	{
 		this.id = id;
-		pos = new float[2];
+		pos = new double[2];
 		pos[0] = x;
 		pos[1] = y;
 
@@ -32,7 +32,7 @@ public class TreeBenchObject implements KNNNodeInf
 		return nearestObject;
 	}
 	
-	public float getNearestObjectDistance()
+	public double getNearestObjectDistance()
 	{
 		return nearestObjectDistance;
 	}
@@ -42,19 +42,19 @@ public class TreeBenchObject implements KNNNodeInf
 		return id;
 	}
 
-	public float getX()
+	public double getX()
 	{
 		return pos[0];
 	}
 
-	public float getY()
+	public double getY()
 	{
 		return pos[1];
 	}
 
-	public float distanceTo(TreeBenchObject nearestObject)
+	public double distanceTo(TreeBenchObject nearestObject)
 	{
-		float dis;
+		double dis;
 		/* Much much faster */
 		dis = (((this.getX()-nearestObject.getX())*(this.getX()-nearestObject.getX())) + ((this.getY()-nearestObject.getY())*(this.getY()-nearestObject.getY())));
 		
@@ -80,7 +80,7 @@ public class TreeBenchObject implements KNNNodeInf
 	}
 
 	@Override
-	public float[] getPos()
+	public double[] getPos()
 	{
 		return pos;
 	}
