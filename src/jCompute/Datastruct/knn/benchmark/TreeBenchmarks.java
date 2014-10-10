@@ -239,11 +239,11 @@ public class TreeBenchmarks
 
 	private static void addTree(List<TreeBenchObject> objectList,KNNInf<TreeBenchObject> tree,String treeName)
 	{	
-		double[] pos;
+		float[] pos;
 		
 		for (TreeBenchObject currentObject : objectList) 
 		{
-			pos = new double[2];
+			pos = new float[2];
 			pos[0] = currentObject.getX();
 			pos[1] =  currentObject.getY();
 			tree.add(pos, currentObject);
@@ -331,7 +331,7 @@ public class TreeBenchmarks
 		
 		private void performComputation()
 		{
-			double[] pos = new double[2];
+			float[] pos = new float[2];
 			TreeBenchObject nearestObject;
 			for (TreeBenchObject currentObject : objectList) 
 			{

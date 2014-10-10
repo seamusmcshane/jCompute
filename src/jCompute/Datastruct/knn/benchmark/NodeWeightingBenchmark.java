@@ -44,7 +44,7 @@ public class NodeWeightingBenchmark
 
 	private void populateTree()
 	{
-		tree = new thirdGenKDWrapper<TreeBenchObject>(2);
+		tree = new thirdGenKDWrapper(2);
 
 		for(TreeBenchObject object : list)
 		{
