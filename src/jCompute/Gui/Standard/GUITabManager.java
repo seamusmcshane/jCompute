@@ -4,6 +4,7 @@ import jCompute.IconManager;
 import jCompute.Gui.Standard.Tab.GUISimulationTab;
 import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.awt.event.ActionEvent;
@@ -432,7 +433,18 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			
 			System.out.println("Directory Choosen : " + exportDirectory);
 
-			simsManager.exportAllStatsToDir(simId,exportDirectory,"",exportFormat);		
+			// Get the Stat Exporter containing the stats for simId
+			StatExporter exporter = simsManager.getStatExporter(simId,"",exportFormat);
+			
+			if(exporter!=null)
+			{
+				// Export the stats
+				exporter.exportAllStatsToDir(exportDirectory);
+			}
+			else
+			{
+				System.out.println("Error Stat Export was null");
+			}
 
 		}
 

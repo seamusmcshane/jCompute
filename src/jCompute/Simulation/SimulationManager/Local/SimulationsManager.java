@@ -403,14 +403,16 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
+	public StatExporter getStatExporter(int simId, String fileNameSuffix, ExportFormat format)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 
 		Simulation sim = simulations.get(simId);
 
-		log.info("Exporting Stats for Simulation " + simId);
+		log.info("Creating stat exporter for Simulation " + simId);
 
+		StatExporter exporter = null;
+		
 		if (sim != null)
 		{
 			/*
@@ -423,17 +425,15 @@ public class SimulationsManager implements SimulationsManagerInf
 			}
 
 			// Create a stat exporter with export format.
-			StatExporter exporter = new StatExporter(format, fileNameSuffix);
+			exporter = new StatExporter(format, fileNameSuffix);
 
 			// populate from the stat manager as data source.
-			exporter.populateFromStatManager(sim.getStatmanger());
-
-			// Export the stats
-			exporter.exportAllStatsToDir(directory);
-			
+			exporter.populateFromStatManager(sim.getStatmanger());			
 		}
 
 		simulationsManagerLock.release();
+		
+		return exporter;
 	}
 
 	@Override

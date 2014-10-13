@@ -4,6 +4,7 @@ import jCompute.Gui.View.View;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.Groups.StatGroupListenerInf;
+import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.io.IOException;
@@ -74,7 +75,7 @@ public interface SimulationsManagerInf
 	public Set<String> getStatGroupNames(int simId);
 	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener);
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format);
+	public StatExporter getStatExporter(int simId,String fileNameSuffix, ExportFormat format);
 
 	public byte[] getStatsAsBytes(int simId,ExportFormat format) throws IOException;
 

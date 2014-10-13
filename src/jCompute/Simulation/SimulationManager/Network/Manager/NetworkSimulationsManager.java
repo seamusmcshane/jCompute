@@ -8,6 +8,7 @@ import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.StatExporter;
 import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Thread.SimpleNamedThreadFactory;
@@ -451,7 +452,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public void exportAllStatsToDir(int simId, String directory, String fileNameSuffix, ExportFormat format)
+	public StatExporter getStatExporter(int simId, String fileNameSuffix, ExportFormat format)
 	{
 		networkSimulationsManagerLock.acquireUninterruptibly();
 
@@ -462,48 +463,11 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		nodeManager.exportStats(mapping.getRemoteSimId(), directory, fileNameSuffix, format);
+		StatExporter exporter = nodeManager.getStatExporter(mapping.getRemoteSimId(), fileNameSuffix, format);
 				
 		networkSimulationsManagerLock.release();
-	}
-	
-	private class ExportStatTask implements Runnable
-	{
-		private NodeManager nodeManager;
-		private int localSimId;
-		private int remoteSimId;
-		private String directory;
-		private String fileNameSuffix;
-		private ExportFormat format;
-		private boolean removeSim;
-
-		public ExportStatTask(NodeManager nodeManager, int localSimId, int remoteSimId, String directory, String fileNameSuffix,
-				ExportFormat format,boolean removeSim)
-		{
-			super();
-			this.nodeManager = nodeManager;
-			this.localSimId = localSimId;
-			this.remoteSimId = remoteSimId;
-			this.directory = directory;
-			this.fileNameSuffix = fileNameSuffix;
-			this.format = format;
-			this.removeSim = removeSim;
-		}
-
-
-		@Override
-		public void run()
-		{
-			nodeManager.exportStats(remoteSimId, directory, fileNameSuffix, format);
-			
-			log.debug("Going to remove sim " + localSimId);
-
-			if(removeSim)
-			{
-				removeSimulation(localSimId);
-			}
-			
-		}
+		
+		return exporter;
 	}
 	
 	private NodeManager findNodeManagerFromUID(int uid)

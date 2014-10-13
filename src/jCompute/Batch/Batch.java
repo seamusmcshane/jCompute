@@ -6,6 +6,7 @@ import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
 
@@ -747,7 +748,17 @@ public class Batch implements StoredQueuePosition
 		testAndCreateDir(fullExportPath);
 
 		// Export Stats
-		simsManager.exportAllStatsToDir(item.getSimId(), fullExportPath, String.valueOf(item.getItemHash()), ExportFormat.ZXML);
+		StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()), ExportFormat.ZXML);
+		
+		if(exporter!=null)
+		{
+			exporter.exportAllStatsToDir(fullExportPath);
+		}
+		else
+		{
+			// This is a non-recoverable error.
+			log.error("Exporter was null for sim " + item.getSimId() + " " + String.valueOf(item.getItemHash()));
+		}
 		
 		itemLog.println("<Item>");
 		itemLog.println("<IID>" + item.getItemId() + "</IID>");

@@ -632,10 +632,12 @@ public class NodeManager
 		nodeLock.release();
 	}
 
-	public void exportStats(int remoteSimId, String directory, String fileNameSuffix, ExportFormat format)
+	public StatExporter getStatExporter(int remoteSimId, String fileNameSuffix, ExportFormat format)
 	{
 		nodeLock.acquireUninterruptibly();
 
+		StatExporter returnedExporter = null;
+		
 		try
 		{
 			log.info("Requesting SimStats for remote sim : " + remoteSimId);
@@ -647,10 +649,13 @@ public class NodeManager
 			sendMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
 
 			simStatsWait.acquireUninterruptibly();
-
-			// Got reply now export the stats.
-			statExporter.exportAllStatsToDir(directory);
-
+			
+			
+			// Get a ref we can return.
+			returnedExporter = statExporter;
+			
+			// Wipe the internal ref
+			statExporter = null;
 		}
 		catch (IOException e)
 		{
@@ -660,6 +665,8 @@ public class NodeManager
 		}
 
 		nodeLock.release();
+		
+		return returnedExporter;
 	}
 
 	public long getWeighting()
