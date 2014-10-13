@@ -11,7 +11,6 @@ import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
-import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,8 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -626,12 +623,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	public void resetActiveSimCamera()
 	{
 		// NA
-	}
-
-	@Override
-	public byte[] getStatsAsBytes(int simId, ExportFormat format) throws IOException
-	{
-		return null;
 	}
 
 	@Override

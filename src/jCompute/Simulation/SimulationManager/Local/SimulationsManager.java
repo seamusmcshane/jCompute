@@ -13,7 +13,6 @@ import jCompute.Stats.StatExporter;
 import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -434,43 +433,6 @@ public class SimulationsManager implements SimulationsManagerInf
 		simulationsManagerLock.release();
 		
 		return exporter;
-	}
-
-	@Override
-	public byte[] getStatsAsBytes(int simId, ExportFormat format) throws IOException
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-
-		Simulation sim = simulations.get(simId);
-
-		byte[] bytes = null;
-
-		log.debug("Exporting Stats as bytes for " + simId);
-
-		if (sim != null)
-		{
-			/*
-			 * Pause the sim as it will be updating its internal data structures
-			 * Only pause sim if running or it will dead lock.
-			 */
-			if (sim.getState() == SimState.RUNNING)
-			{
-				sim.pauseSim();
-			}
-
-			// Create a stat exporter with export format.
-			StatExporter exporter = new StatExporter(format, "");
-
-			// populate from the stat manager as data source.
-			exporter.populateFromStatManager(sim.getStatmanger());
-
-			// Export the stats
-			bytes = exporter.toBytes();
-		}
-
-		simulationsManagerLock.release();
-
-		return bytes;
 	}
 
 	@Override

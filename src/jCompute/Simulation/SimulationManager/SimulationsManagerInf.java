@@ -7,7 +7,6 @@ import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -76,9 +75,7 @@ public interface SimulationsManagerInf
 	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener);
 	public StatExporter getStatExporter(int simId,String fileNameSuffix, ExportFormat format);
-
-	public byte[] getStatsAsBytes(int simId,ExportFormat format) throws IOException;
-
+	
 	void removeAll();
 
 	public ArrayList<Integer> getRecoverableSimIds();

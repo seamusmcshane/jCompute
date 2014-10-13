@@ -19,6 +19,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Simul
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimReq;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
+import jCompute.Stats.StatExporter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -195,8 +196,12 @@ public class Node
 
 							log.info("SimStatsReq " + statsReq.getSimId());
 
+							// Get the stat exporter for this simId
+							StatExporter exporter = simsManager.getStatExporter(statsReq.getSimId(), "",  statsReq.getFormat());
+							
 							// NSMCP.SimStats
-							sendMessage(simsManager.getStatsAsBytes(statsReq.getSimId(), statsReq.getFormat()));
+							sendMessage(exporter.toBytes());
+							
 							log.info("Sent SimStats " + statsReq.getSimId());
 						}
 							break;
