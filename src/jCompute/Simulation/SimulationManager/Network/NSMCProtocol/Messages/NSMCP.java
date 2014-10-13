@@ -64,7 +64,8 @@ public class NSMCP
     public static final int SimStatNoti		= 52;	// Notification of a simulation stat change
     
     // The standard port
-    public static final int StandardServerPort = 10000;
+    public static final int StandardServerPort	= 10000;
+    public static final int NodeTransferPort 	= 10001;
     
     public static final int ReadyStateTimeOut = 120;	// Max time to wait for a node to enter ready state (120 seconds)
 }

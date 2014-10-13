@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -249,15 +248,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		try
 		{
 			listenSocket = new ServerSocket();
-			
-			try
-			{
-				listenSocket.setReceiveBufferSize(1048576);
-			}
-			catch (SocketException e1)
-			{
-				e1.printStackTrace();
-			}
 			
 			listenSocket.bind(new InetSocketAddress("0.0.0.0",NSMCP.StandardServerPort));
 			

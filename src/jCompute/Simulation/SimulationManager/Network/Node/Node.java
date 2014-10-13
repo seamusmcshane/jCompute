@@ -27,7 +27,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 
@@ -45,13 +47,19 @@ public class Node
 	private SimulationsManagerInf simsManager;
 
 	// Protect the send socket
-	private Semaphore txLock = new Semaphore(1, true);
+	private Semaphore cmdTxLock = new Semaphore(1, true);
 
+	
 	// To ensure receive frames and events are processed atomically
 	private Semaphore rxLockEvents = new Semaphore(1, true);
 
-	// Output Stream
-	private DataOutputStream output;
+	// Command Output Stream
+	private DataOutputStream commandOutput;
+	
+	// Transfer Streams
+	private DataOutputStream transferOutput;
+	private DataInputStream transferInput;
+	private Semaphore transTxLock = new Semaphore(1, true);
 
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
@@ -85,10 +93,6 @@ public class Node
 
 				// clientSocket = new Socket(address, port);
 				clientSocket = new Socket();
-
-				clientSocket.setSendBufferSize(1048576);
-				clientSocket.setReceiveBufferSize(32768);
-
 				clientSocket.connect(new InetSocketAddress(address, port), 1000);
 
 				if (!clientSocket.isClosed())
@@ -120,18 +124,18 @@ public class Node
 
 	}
 
+	// RX/TX on Command socket 
 	private void process(NodeConfiguration nodeConfig, Socket clientSocket)
 	{
-
 		try
 		{
 			// Link up output
-			output = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
+			commandOutput = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
 
 			// Input Stream
-			final DataInputStream input = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
+			final DataInputStream commandInput = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
 
-			doRegistration(nodeConfig, input);
+			doRegistration(nodeConfig, commandInput);
 
 			// if Registered successfully
 			if (state == ProtocolState.READY)
@@ -146,8 +150,8 @@ public class Node
 				// While we have a connection
 				while (!clientSocket.isClosed())
 				{
-					type = input.readInt();
-					len = input.readInt();
+					type = commandInput.readInt();
+					len = commandInput.readInt();
 
 					// Allocate here to avoid duplication of allocation code
 					if(len > 0 )
@@ -156,7 +160,7 @@ public class Node
 						backingArray = new byte[len];
 						
 						// Copy from the socket
-						input.readFully(backingArray, 0, len);
+						commandInput.readFully(backingArray, 0, len);
 						
 						// Wrap the backingArray
 						data = ByteBuffer.wrap(backingArray);	
@@ -176,7 +180,7 @@ public class Node
 
 							log.info("Added Sim " + simId);
 
-							sendMessage(new AddSimReply(simId).toBytes());
+							sendCommandMessage(new AddSimReply(simId).toBytes());
 
 							rxLockEvents.release();
 						}
@@ -200,7 +204,7 @@ public class Node
 							StatExporter exporter = simsManager.getStatExporter(statsReq.getSimId(), "",  statsReq.getFormat());
 							
 							// NSMCP.SimStats
-							sendMessage(exporter.toBytes());
+							sendCommandMessage(exporter.toBytes());
 							
 							log.info("Sent SimStats " + statsReq.getSimId());
 						}
@@ -215,7 +219,7 @@ public class Node
 
 							log.info("RemoveSimReq " + simId);
 
-							sendMessage(new RemoveSimAck(simId).toBytes());
+							sendCommandMessage(new RemoveSimAck(simId).toBytes());
 						}
 							break;
 						// Default / Invalid
@@ -254,17 +258,19 @@ public class Node
 
 	}
 
-	private void doRegistration(NodeConfiguration nodeConfig, DataInputStream input) throws IOException
+	// RX/TX on transfer socket 
+	private boolean doTransferSocketSetup(NodeConfiguration nodeConfig, ServerSocket listenNodeTransferSocket) throws IOException
 	{
 		boolean finished = false;
 
-		log.info("Attempting Registration");
-
-		state = ProtocolState.REG;
-
-		// Create a registration request and send it
-		sendMessage(new RegistrationRequest().toBytes());
-
+		log.info("Waiting for connection to transfer socket");
+		Socket nodeTransferSocket = listenNodeTransferSocket.accept();
+		log.info("Transfer socket now connected");
+		nodeTransferSocket.setSendBufferSize(1048576);
+		
+		transferInput = new DataInputStream(new BufferedInputStream(nodeTransferSocket.getInputStream()));
+		transferOutput = new DataOutputStream(new BufferedOutputStream(nodeTransferSocket.getOutputStream()));
+		
 		int type = -1;
 		int len = -1;
 		byte[] backingArray = null;
@@ -273,8 +279,8 @@ public class Node
 		// Read the replies
 		while (!finished)
 		{
-			type = input.readInt();
-			len = input.readInt();
+			type = transferInput.readInt();
+			len = transferInput.readInt();
 
 			// Allocate here to avoid duplication of allocation code
 			if(len > 0 )
@@ -283,7 +289,7 @@ public class Node
 				backingArray = new byte[len];
 				
 				// Copy from the socket
-				input.readFully(backingArray, 0, len);
+				transferInput.readFully(backingArray, 0, len);
 				
 				// Wrap the backingArray
 				data = ByteBuffer.wrap(backingArray);							
@@ -291,18 +297,6 @@ public class Node
 
 			switch (type)
 			{
-				case NSMCP.RegAck :
-					
-					RegistrationReqAck reqAck = new RegistrationReqAck(data);
-
-					nodeConfig.setUid(reqAck.getUid());
-
-					log.info("RegAck Recieved UID : " + nodeConfig.getUid());
-
-					// We Ack the Ack
-					sendMessage(reqAck.toBytes());
-
-					break;
 				case NSMCP.ConfReq :
 
 					ConfigurationRequest confReq = new ConfigurationRequest(data);
@@ -322,8 +316,8 @@ public class Node
 						log.info("Weighting\t " + weighting );
 					}
 					
-					// Create and send the Configuration ack
-					sendMessage(new ConfigurationAck(nodeConfig).toBytes());
+					// Create and send the Configuration ack via TransferSocket
+					sendTransferMessage(new ConfigurationAck(nodeConfig).toBytes());
 
 					log.info("Sent Conf Ack : Max Sims " + nodeConfig.getMaxSims());
 
@@ -333,6 +327,85 @@ public class Node
 					finished = true;
 
 					break;
+				case NSMCP.INVALID :
+				default :
+					log.error("Recieved Invalid Frame Type " + type);
+					state = ProtocolState.END;
+				break;
+
+			}
+
+			if (state == ProtocolState.END)
+			{
+				log.info("Protocol State : " + state.toString());
+				finished = true;
+			}
+
+
+		}
+		
+		return true;
+	}
+	
+	private void doRegistration(NodeConfiguration nodeConfig, DataInputStream regInput) throws IOException
+	{
+		boolean finished = false;
+
+		/* Node Intial Listening Socket */
+		ServerSocket listenNodeTransferSocket; 
+		
+		log.info("Attempting Registration");
+
+		state = ProtocolState.REG;
+
+		// Create a registration request and send it
+		sendCommandMessage(new RegistrationRequest().toBytes());
+
+		int type = -1;
+		int len = -1;
+		byte[] backingArray = null;
+		ByteBuffer data = null;
+		
+		// Read the replies
+		while (!finished)
+		{
+			type = regInput.readInt();
+			len = regInput.readInt();
+
+			// Allocate here to avoid duplication of allocation code
+			if(len > 0 )
+			{
+				// Destination
+				backingArray = new byte[len];
+				
+				// Copy from the socket
+				regInput.readFully(backingArray, 0, len);
+				
+				// Wrap the backingArray
+				data = ByteBuffer.wrap(backingArray);							
+			}
+
+			switch (type)
+			{
+				case NSMCP.RegAck :
+					
+					RegistrationReqAck reqAck = new RegistrationReqAck(data);
+
+					nodeConfig.setUid(reqAck.getUid());
+
+					log.info("RegAck Recieved UID : " + nodeConfig.getUid());
+
+					// Create the transferSocket
+					listenNodeTransferSocket = new ServerSocket();
+					log.info("Created transfer socket");
+					listenNodeTransferSocket.bind(new InetSocketAddress("0.0.0.0",NSMCP.NodeTransferPort));
+				
+					// We Ack the Ack
+					sendCommandMessage(reqAck.toBytes());
+					
+					finished = doTransferSocketSetup(nodeConfig,listenNodeTransferSocket);
+
+				break;
 				case NSMCP.INVALID :
 				default :
 					log.error("Recieved Invalid Frame Type " + type);
@@ -352,14 +425,24 @@ public class Node
 
 	}
 
-	private void sendMessage(byte[] bytes) throws IOException
+	private void sendCommandMessage(byte[] bytes) throws IOException
 	{
-		txLock.acquireUninterruptibly();
+		cmdTxLock.acquireUninterruptibly();
 
-		output.write(bytes);
-		output.flush();
+		commandOutput.write(bytes);
+		commandOutput.flush();
 
-		txLock.release();
+		cmdTxLock.release();
+	}
+	
+	private void sendTransferMessage(byte[] bytes) throws IOException
+	{
+		transTxLock.acquireUninterruptibly();
+
+		transferOutput.write(bytes);
+		transferOutput.flush();
+
+		transTxLock.release();
 	}
 
 	@Subscribe
@@ -369,7 +452,7 @@ public class Node
 		{
 			rxLockEvents.acquireUninterruptibly();
 
-			sendMessage(new SimulationStatChanged(e).toBytes());
+			sendCommandMessage(new SimulationStatChanged(e).toBytes());
 
 			rxLockEvents.release();
 		}
@@ -386,7 +469,7 @@ public class Node
 		{
 			rxLockEvents.acquireUninterruptibly();
 
-			sendMessage(new SimulationStateChanged(e).toBytes());
+			sendCommandMessage(new SimulationStateChanged(e).toBytes());
 			log.info("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
 
 			rxLockEvents.release();

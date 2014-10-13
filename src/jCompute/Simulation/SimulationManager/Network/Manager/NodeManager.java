@@ -27,6 +27,7 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -51,15 +52,22 @@ public class NodeManager
 
 	private int activeSims = 0;
 
-	// This simulations connected socket
-	private final Socket socket;
-
+	// This node cmd socket
+	private final Socket cmdSocket;
+	private Socket transferSocket;
 	// Input Stream
 	private Thread recieveThread;
 
 	// Output Stream
-	private DataOutputStream output;
-	private Semaphore txLock = new Semaphore(1, false);
+	private DataOutputStream commandOutput;
+	private DataInputStream cmdInput;
+	private Semaphore cmdTxLock = new Semaphore(1, false);
+	
+	// Transfer Streams
+	private DataOutputStream transferOutput;
+	private DataInputStream transferInput;
+	private Semaphore transTxLock = new Semaphore(1, true);
+
 	private ProtocolState nodeState;
 
 	// Counter for NSMCP state machine
@@ -85,7 +93,7 @@ public class NodeManager
 	 */
 	private ConcurrentHashMap<Integer, RemoteSimulationMapping> remoteSimulationMap;
 
-	public NodeManager(int uid, Socket socket) throws IOException
+	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
 		nodeConfig = new NodeConfiguration();
 
@@ -99,17 +107,237 @@ public class NodeManager
 		nodeConfig.setUid(uid);
 
 		// A connected socket
-		this.socket = socket;
+		this.cmdSocket = cmdSocket;
 
-		// Output Stream
-		output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+		// Cmd Output Stream
+		commandOutput = new DataOutputStream(new BufferedOutputStream(cmdSocket.getOutputStream()));
+		
+		// Cmd Input Stream
+		cmdInput = new DataInputStream(new BufferedInputStream(cmdSocket.getInputStream()));
 
 		nodeState = ProtocolState.NEW;
 
+		handleRegistration();
+		
 		createRecieveThread();
 
 	}
 
+	private void handleRegistration() throws IOException
+	{
+		boolean finished = false;
+		
+		int type = -1;
+		int len = -1;
+		byte[] backingArray = null;
+		ByteBuffer data = null;
+		
+		while (!finished)
+		{
+			// Detect Frame
+			type = cmdInput.readInt();
+			len = cmdInput.readInt();
+
+			// Allocate here to avoid duplication of allocation code
+			if(len > 0 )
+			{
+				// Destination
+				backingArray = new byte[len];
+				
+				// Copy from the socket
+				cmdInput.readFully(backingArray, 0, len);
+				
+				// Wrap the backingArray
+				data = ByteBuffer.wrap(backingArray);
+				
+				log.debug("Type " + type+ " len " + len);
+			}
+			
+			switch (type)
+			{
+				case NSMCP.RegReq:
+					log.info("Recieved Registration Request");
+	
+					/*
+					 * A socket has been connected and we have just
+					 * received a registration request
+					 */
+					if (nodeState == ProtocolState.NEW)
+					{
+						/*
+						 * Later if needed Validate Request Info....
+						 * Maybe protocol version etc
+						 */
+	
+						// Create and Send Reg Ack
+						sendCMDMessage(new RegistrationReqAck(nodeConfig.getUid()).toBytes());
+	
+						log.info("Sent Registration Ack");
+	
+						nodeState = ProtocolState.REG;
+					}
+					else
+					{
+						log.error("Registration Request for node " + nodeConfig.getUid()
+								+ " not valid in state " + nodeState.toString());
+						
+						// invalid sequence
+						nodeState = ProtocolState.END;
+					}
+				break;
+				case NSMCP.RegAck :
+
+					/*
+					 * A socket has been connected, the remove node
+					 * has already sent us a reg req we have sent a
+					 * reg ack and are awaiting confirmation. - We
+					 * get confirmation and request the node
+					 * configuration.
+					 */
+					if (nodeState == ProtocolState.REG)
+					{
+						RegistrationReqAck reqAck = new RegistrationReqAck(data);
+
+						int ruid = reqAck.getUid();
+
+						// Check the node is sane (UID should be
+						// identical to the one we sent)
+						if (nodeConfig.getUid() == ruid)
+						{
+							log.info("Node registration ok");
+							finished = doTransferSocketSetup();
+
+						}
+						else
+						{
+							log.error("Node registration not ok " + ruid);
+
+							nodeState = ProtocolState.END;
+						}
+
+					}
+				case NSMCP.RegNack :
+					
+					/*
+					 * A socket has been connected, Remote node has
+					 * decided to cancel the registration
+					 */
+					if (nodeState == ProtocolState.NEW || nodeState == ProtocolState.REG)
+					{
+						log.info("Node registration nack");
+						nodeState = ProtocolState.END;
+					}
+
+				break;
+				// Test Frame or Garbage
+				case NSMCP.INVALID :
+				default :
+					log.error("Recieved Invalid Frame");
+					nodeState = ProtocolState.END;
+					finished = true;
+					log.error("Error Type " + type + " len " + len);
+					
+				break;
+			}
+		}
+		
+
+		
+	}
+	
+	private boolean doTransferSocketSetup()  throws IOException
+	{
+		log.info("Setting up transfer socket");
+		boolean finished = false;
+
+		// Create and connect the transfer socket
+		transferSocket = new Socket();
+		transferSocket.connect(new InetSocketAddress(cmdSocket.getInetAddress(), NSMCP.NodeTransferPort), 1000);
+		
+		transferSocket.setSendBufferSize(32768);
+		transferSocket.setReceiveBufferSize(1048576);
+
+		transferInput = new DataInputStream(new BufferedInputStream(transferSocket.getInputStream()));
+		transferOutput = new DataOutputStream(new BufferedOutputStream(transferSocket.getOutputStream()));
+		
+		log.info("Socket Setup");
+		
+		log.info("Now requesting node configuration and weighting");
+		sendTransferMessage(new ConfigurationRequest(1).toBytes());
+		
+		int type = -1;
+		int len = -1;
+		byte[] backingArray = null;
+		ByteBuffer data = null;
+		
+		while (!finished)
+		{
+			// Detect Frame
+			type = transferInput.readInt();
+			len = transferInput.readInt();
+
+			// Allocate here to avoid duplication of allocation code
+			if(len > 0 )
+			{
+				// Destination
+				backingArray = new byte[len];
+				
+				// Copy from the socket
+				transferInput.readFully(backingArray, 0, len);
+				
+				// Wrap the backingArray
+				data = ByteBuffer.wrap(backingArray);
+				
+				log.debug("Type " + type+ " len " + len);
+			}
+			
+			switch (type)
+			{
+				/*
+				 * Remove node is about to finish registration. We
+				 * are waiting on the node configuration.
+				 */
+				case NSMCP.ConfAck :
+
+					if (nodeState == ProtocolState.REG)
+					{
+						log.info("Recieved Conf Ack");
+
+						ConfigurationAck reqAck = new ConfigurationAck(data);
+
+						nodeConfig.setMaxSims(reqAck.getMaxSims());
+						nodeConfig.setWeighting(reqAck.getWeighting());
+						
+						
+						log.info("Node " + nodeConfig.getUid() + " Max Sims  : " + nodeConfig.getMaxSims());
+						log.info("Node " + nodeConfig.getUid() + " Weighting : " + nodeConfig.getWeighting());
+						
+						nodeState = ProtocolState.READY;
+						finished = true;
+
+					}
+					else
+					{
+						log.error("ConfAck for node " + nodeConfig.getUid() + " not valid in state "
+								+ nodeState.toString());
+					}
+
+				break;
+				// Test Frame or Garbage
+				case NSMCP.INVALID :
+				default :
+					log.error("Recieved Invalid Frame");
+					nodeState = ProtocolState.END;
+					
+					log.error("Error Type " + type + " len " + len);
+					finished = true;
+				break;
+			}
+		}
+		
+		return finished;
+	}
+	
 	private void createRecieveThread()
 	{
 		// The Receive Thread
@@ -118,11 +346,8 @@ public class NodeManager
 			@Override
 			public void run()
 			{
-
 				try
 				{
-					DataInputStream input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-
 					int type = -1;
 					int len = -1;
 					byte[] backingArray = null;
@@ -133,8 +358,8 @@ public class NodeManager
 					while (active)
 					{
 						// Detect Frame
-						type = input.readInt();
-						len = input.readInt();
+						type = cmdInput.readInt();
+						len = cmdInput.readInt();
 
 						// Allocate here to avoid duplication of allocation code
 						if(len > 0 )
@@ -143,7 +368,7 @@ public class NodeManager
 							backingArray = new byte[len];
 							
 							// Copy from the socket
-							input.readFully(backingArray, 0, len);
+							cmdInput.readFully(backingArray, 0, len);
 							
 							// Wrap the backingArray
 							data = ByteBuffer.wrap(backingArray);
@@ -153,115 +378,6 @@ public class NodeManager
 
 						switch (type)
 						{
-							case NSMCP.RegReq :
-
-								log.info("Recieved Registration Request");
-
-								/*
-								 * A socket has been connected and we have just
-								 * received a registration request
-								 */
-								if (nodeState == ProtocolState.NEW)
-								{
-									/*
-									 * Later if needed Validate Request Info....
-									 * Maybe protocol version etc
-									 */
-
-									// Create and Send Reg Ack
-									sendMessage(new RegistrationReqAck(nodeConfig.getUid()).toBytes());
-
-									log.info("Sent Registration Ack");
-
-									nodeState = ProtocolState.REG;
-								}
-								else
-								{
-									log.error("Registration Request for node " + nodeConfig.getUid()
-											+ " not valid in state " + nodeState.toString());
-									
-									// invalid sequence
-									nodeState = ProtocolState.END;
-								}
-
-								break;
-							case NSMCP.RegAck :
-
-								/*
-								 * A socket has been connected, the remove node
-								 * has already sent us a reg req we have sent a
-								 * reg ack and are awaiting confirmation. - We
-								 * get confirmation and request the node
-								 * configuration.
-								 */
-								if (nodeState == ProtocolState.REG)
-								{
-
-									RegistrationReqAck reqAck = new RegistrationReqAck(data);
-
-									int ruid = reqAck.getUid();
-
-									// Check the node is sane (UID should be
-									// identical to the one we sent)
-									if (nodeConfig.getUid() == ruid)
-									{
-
-										log.info("Node registration ok, now requesting node configuration and weighting");
-
-										sendMessage(new ConfigurationRequest(1).toBytes());
-
-									}
-									else
-									{
-										log.error("Node registration not ok " + ruid);
-
-										nodeState = ProtocolState.END;
-									}
-
-								}
-
-								break;
-							case NSMCP.RegNack :
-
-								/*
-								 * A socket has been connected, Remote node has
-								 * decided to cancel the registration
-								 */
-								if (nodeState == ProtocolState.NEW || nodeState == ProtocolState.REG)
-								{
-									log.info("Node registration nack");
-									nodeState = ProtocolState.END;
-								}
-
-								break;
-							/*
-							 * Remove node is about to finish registration. We
-							 * are waiting on the node configuration.
-							 */
-							case NSMCP.ConfAck :
-
-								if (nodeState == ProtocolState.REG)
-								{
-									log.info("Recieved Conf Ack");
-
-									ConfigurationAck reqAck = new ConfigurationAck(data);
-
-									nodeConfig.setMaxSims(reqAck.getMaxSims());
-									nodeConfig.setWeighting(reqAck.getWeighting());
-									
-									
-									log.info("Node " + nodeConfig.getUid() + " Max Sims  : " + nodeConfig.getMaxSims());
-									log.info("Node " + nodeConfig.getUid() + " Weighting : " + nodeConfig.getWeighting());
-
-									nodeState = ProtocolState.READY;
-								}
-								else
-								{
-									log.error("ConfAck for node " + nodeConfig.getUid() + " not valid in state "
-											+ nodeState.toString());
-								}
-
-								break;
 							case NSMCP.AddSimReply :
 
 								if (nodeState == ProtocolState.READY)
@@ -410,9 +526,8 @@ public class NodeManager
 					addSimWait.release();
 					remSimWait.release();
 					simStatsWait.release();
-
 				}
-
+				
 			}
 		});
 
@@ -423,15 +538,26 @@ public class NodeManager
 
 	}
 
-	private void sendMessage(byte[] bytes) throws IOException
+	private void sendCMDMessage(byte[] bytes) throws IOException
 	{
-		txLock.acquireUninterruptibly();
+		cmdTxLock.acquireUninterruptibly();
 
-		output.write(bytes);
-		output.flush();
-		txLock.release();
+		commandOutput.write(bytes);
+		commandOutput.flush();
+		
+		cmdTxLock.release();
 	}
 
+	private void sendTransferMessage(byte[] bytes) throws IOException
+	{
+		transTxLock.acquireUninterruptibly();
+
+		transferOutput.write(bytes);
+		transferOutput.flush();
+
+		transTxLock.release();
+	}
+	
 	/**
 	 * Returns if the node is in the ready state.
 	 * 
@@ -488,7 +614,8 @@ public class NodeManager
 		try
 		{
 			log.info("Removing Node Manager for Node " + nodeConfig.getUid() + " Reason : " + reason);
-			socket.close();
+			transferSocket.close();
+			cmdSocket.close();
 		}
 		catch (IOException e)
 		{
@@ -540,7 +667,7 @@ public class NodeManager
 			addSimId = -1;
 
 			// Create and Send add Sim Req
-			sendMessage(new AddSimReq(scenarioText, initialStepRate).toBytes());
+			sendCMDMessage(new AddSimReq(scenarioText, initialStepRate).toBytes());
 
 			// addSimMsgBoxVarLock.release();
 
@@ -595,7 +722,7 @@ public class NodeManager
 
 		try
 		{
-			sendMessage(new RemoveSimReq(remoteSimId).toBytes());
+			sendCMDMessage(new RemoveSimReq(remoteSimId).toBytes());
 
 			remSimWait.acquireUninterruptibly();
 
@@ -620,7 +747,7 @@ public class NodeManager
 
 		try
 		{
-			sendMessage(new StartSimCMD(remoteSimId).toBytes());
+			sendCMDMessage(new StartSimCMD(remoteSimId).toBytes());
 		}
 		catch (IOException e)
 		{
@@ -646,7 +773,7 @@ public class NodeManager
 			statExporter = new StatExporter(format, fileNameSuffix);
 
 			// Send the request
-			sendMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
+			sendCMDMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
 
 			simStatsWait.acquireUninterruptibly();
 			
