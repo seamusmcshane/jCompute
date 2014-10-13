@@ -54,19 +54,19 @@ public class NodeManager
 
 	// This node cmd socket
 	private final Socket cmdSocket;
-	private Socket transferSocket;
-	// Input Stream
-	private Thread recieveThread;
+	private Socket transferSocket;	
 
 	// Output Stream
 	private DataOutputStream commandOutput;
 	private DataInputStream cmdInput;
 	private Semaphore cmdTxLock = new Semaphore(1, false);
-	
+	private Thread cmdRecieveThread;
+
 	// Transfer Streams
 	private DataOutputStream transferOutput;
 	private DataInputStream transferInput;
 	private Semaphore transTxLock = new Semaphore(1, true);
+	private Thread transferRecieveThread;
 
 	private ProtocolState nodeState;
 
@@ -119,7 +119,9 @@ public class NodeManager
 
 		handleRegistration();
 		
-		createRecieveThread();
+		createCMDRecieveThread();
+		
+		createTransferRecieveThread();
 
 	}
 
@@ -338,10 +340,113 @@ public class NodeManager
 		return finished;
 	}
 	
-	private void createRecieveThread()
+	private void createTransferRecieveThread()
 	{
-		// The Receive Thread
-		recieveThread = new Thread(new Runnable()
+		// The Transfer Receive Thread
+		transferRecieveThread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					int type = -1;
+					int len = -1;
+					byte[] backingArray = null;
+					ByteBuffer data = null;
+					
+					active = true;
+
+					while (active)
+					{
+						// Detect Frame
+						type = transferInput.readInt();
+						len = transferInput.readInt();
+
+						// Allocate here to avoid duplication of allocation code
+						if(len > 0 )
+						{
+							// Destination
+							backingArray = new byte[len];
+							
+							// Copy from the socket
+							transferInput.readFully(backingArray, 0, len);
+							
+							// Wrap the backingArray
+							data = ByteBuffer.wrap(backingArray);
+							
+							log.debug("Type " + type+ " len " + len);
+						}
+
+						switch (type)
+						{
+							case NSMCP.SimStats :
+
+								if (nodeState == ProtocolState.READY)
+								{
+									log.info("Recieved Sim Stats");
+
+									statExporter.populateFromByteBuffer(data);
+
+									simStatsWait.release();
+								}
+								else
+								{
+									log.error("SimStats for node " + nodeConfig.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+								break;
+							// Test Frame or Garbage
+							case NSMCP.INVALID :
+							default :
+								log.error("Recieved Invalid Frame");
+								nodeState = ProtocolState.END;
+								
+								log.error("Error Type " + type + " len " + len);
+								
+								break;
+
+						}
+
+						if (nodeState == ProtocolState.END)
+						{
+							log.info("Protocol State : " + nodeState.toString());
+							active = false;
+						}
+					}
+					// Exit // Do Node Shutdown
+
+				}
+				catch (IOException e1)
+				{
+					log.warn("Node " + nodeConfig.getUid() + " Transfer Recieve Thread exited");
+					// Exit // Do Node Shutdown
+
+					active = false;
+
+					nodeState = ProtocolState.END;
+
+					// Explicit release of all semaphores
+					addSimWait.release();
+					remSimWait.release();
+					simStatsWait.release();
+				}
+				
+			}
+			
+		});
+		
+		transferRecieveThread.setName("Node Manager " + nodeConfig.getUid() + " Transfer Recieve");
+
+		// Start Processing
+		transferRecieveThread.start();		
+	}
+	
+	private void createCMDRecieveThread()
+	{
+		// The Command Receive Thread
+		cmdRecieveThread = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
@@ -460,23 +565,6 @@ public class NodeManager
 								}
 
 								break;
-							case NSMCP.SimStats :
-
-								if (nodeState == ProtocolState.READY)
-								{
-									log.info("Recieved Sim Stats");
-
-									statExporter.populateFromByteBuffer(data);
-
-									simStatsWait.release();
-								}
-								else
-								{
-									log.error("SimStats for node " + nodeConfig.getUid() + " not valid in state "
-											+ nodeState.toString());
-								}
-
-								break;
 							case NSMCP.RemSimAck :
 								if (nodeState == ProtocolState.READY)
 								{
@@ -531,10 +619,10 @@ public class NodeManager
 			}
 		});
 
-		recieveThread.setName("Node " + nodeConfig.getUid() + " Recieve");
+		cmdRecieveThread.setName("Node " + nodeConfig.getUid() + " Command Recieve");
 
 		// Start Processing
-		recieveThread.start();
+		cmdRecieveThread.start();
 
 	}
 
@@ -773,10 +861,9 @@ public class NodeManager
 			statExporter = new StatExporter(format, fileNameSuffix);
 
 			// Send the request
-			sendCMDMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
+			sendTransferMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
 
-			simStatsWait.acquireUninterruptibly();
-			
+			simStatsWait.acquireUninterruptibly();			
 			
 			// Get a ref we can return.
 			returnedExporter = statExporter;

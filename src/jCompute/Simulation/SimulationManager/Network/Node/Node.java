@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 
@@ -60,7 +59,20 @@ public class Node
 	private DataOutputStream transferOutput;
 	private DataInputStream transferInput;
 	private Semaphore transTxLock = new Semaphore(1, true);
+	
 
+	/* Node Cmd Socket */
+	private Socket cmdSocket;
+	
+	/* Node Transfer Socket */
+	private ServerSocket listenNodeTransferSocket;		
+	
+	// Is the remote node active. (connection up)
+	private boolean active = false;
+	
+	// Transfer recieve thread
+	private Thread transferRecieveThread;
+	
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
 	
@@ -82,7 +94,7 @@ public class Node
 		while (true)
 		{
 			// Connecting to Server
-			Socket clientSocket = null;
+			cmdSocket = null;
 
 			try
 			{
@@ -92,24 +104,30 @@ public class Node
 				log.info("Connecting to : " + address + "@" + port);
 
 				// clientSocket = new Socket(address, port);
-				clientSocket = new Socket();
-				clientSocket.connect(new InetSocketAddress(address, port), 1000);
+				cmdSocket = new Socket();
+				cmdSocket.connect(new InetSocketAddress(address, port), 1000);
 
-				if (!clientSocket.isClosed())
+				if (!cmdSocket.isClosed())
 				{
-					log.info("Connected to : " + clientSocket.getRemoteSocketAddress());
-					log.info("We are : " + clientSocket.getLocalSocketAddress());
+					log.info("Connected to : " + cmdSocket.getRemoteSocketAddress());
+					log.info("We are : " + cmdSocket.getLocalSocketAddress());
 
 					// Main
-					process(nodeConfig, clientSocket);
+					process(nodeConfig, cmdSocket);
 				}
 
 				// Close Connection
-				if (!clientSocket.isClosed())
+				if (!cmdSocket.isClosed())
 				{
-					clientSocket.close();
+					cmdSocket.close();
 				}
-
+				
+				// Close Connection
+				if (!listenNodeTransferSocket.isClosed())
+				{
+					listenNodeTransferSocket.close();
+				}
+				
 			}
 			catch (IOException e)
 			{
@@ -194,21 +212,6 @@ public class Node
 							simsManager.startSim(cmd.getSimid());
 						}
 							break;
-						case NSMCP.SimStatsReq :
-						{
-							SimulationStatsRequest statsReq = new SimulationStatsRequest(data);
-
-							log.info("SimStatsReq " + statsReq.getSimId());
-
-							// Get the stat exporter for this simId
-							StatExporter exporter = simsManager.getStatExporter(statsReq.getSimId(), "",  statsReq.getFormat());
-							
-							// NSMCP.SimStats
-							sendCommandMessage(exporter.toBytes());
-							
-							log.info("Sent SimStats " + statsReq.getSimId());
-						}
-							break;
 						case NSMCP.RemSimReq :
 						{
 							RemoveSimReq removeSimReq = new RemoveSimReq(data);
@@ -238,6 +241,7 @@ public class Node
 					if (state == ProtocolState.END)
 					{
 						clientSocket.close();
+						listenNodeTransferSocket.close();						
 					}
 				}
 
@@ -323,6 +327,8 @@ public class Node
 
 					state = ProtocolState.READY;
 
+					createTransferRecieveThread(nodeConfig.getUid());
+					
 					// Now Registered
 					finished = true;
 
@@ -341,7 +347,6 @@ public class Node
 				finished = true;
 			}
 
-
 		}
 		
 		return true;
@@ -350,9 +355,6 @@ public class Node
 	private void doRegistration(NodeConfiguration nodeConfig, DataInputStream regInput) throws IOException
 	{
 		boolean finished = false;
-
-		/* Node Intial Listening Socket */
-		ServerSocket listenNodeTransferSocket; 
 		
 		log.info("Attempting Registration");
 
@@ -425,6 +427,113 @@ public class Node
 
 	}
 
+	private void createTransferRecieveThread(int nodeUid)
+	{
+		final int uid = nodeUid;
+		// The Transfer Receive Thread
+		transferRecieveThread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					int type = -1;
+					int len = -1;
+					byte[] backingArray = null;
+					ByteBuffer data = null;
+					
+					active = true;
+
+					while (active)
+					{
+						// Detect Frame
+						type = transferInput.readInt();
+						len = transferInput.readInt();
+
+						// Allocate here to avoid duplication of allocation code
+						if(len > 0 )
+						{
+							// Destination
+							backingArray = new byte[len];
+							
+							// Copy from the socket
+							transferInput.readFully(backingArray, 0, len);
+							
+							// Wrap the backingArray
+							data = ByteBuffer.wrap(backingArray);
+							
+							log.debug("Type " + type+ " len " + len);
+						}
+
+						switch (type)
+						{
+							case NSMCP.SimStatsReq :
+							{
+								SimulationStatsRequest statsReq = new SimulationStatsRequest(data);
+
+								log.info("SimStatsReq " + statsReq.getSimId());
+
+								// Get the stat exporter for this simId
+								StatExporter exporter = simsManager.getStatExporter(statsReq.getSimId(), "",  statsReq.getFormat());
+								
+								// NSMCP.SimStats
+								sendTransferMessage(exporter.toBytes());
+								
+								log.info("Sent SimStats " + statsReq.getSimId());
+							}
+							break;
+							default :
+								log.error("Recieved Invalid Frame");
+								state = ProtocolState.END;
+								
+								log.error("Error Type " + type + " len " + len);
+								
+								break;
+
+						}
+
+						if (state == ProtocolState.END)
+						{
+							log.info("Protocol State : " + state.toString());
+							active = false;
+							
+							// Close Connection
+							if (!cmdSocket.isClosed())
+							{
+								cmdSocket.close();
+							}
+							
+							// Close Connection
+							if (!listenNodeTransferSocket.isClosed())
+							{
+								listenNodeTransferSocket.close();
+							}
+						}
+					}
+					// Exit // Do Node Shutdown
+
+				}
+				catch (IOException e1)
+				{
+					log.warn("Node " + uid + " Recieve Thread exited");
+					// Exit // Do Node Shutdown
+
+					active = false;
+
+					state = ProtocolState.END;
+				}
+				
+			}
+			
+		});
+		
+		transferRecieveThread.setName("Node " + uid + " Transfer Recieve");
+
+		// Start Processing
+		transferRecieveThread.start();		
+	}
+	
 	private void sendCommandMessage(byte[] bytes) throws IOException
 	{
 		cmdTxLock.acquireUninterruptibly();
