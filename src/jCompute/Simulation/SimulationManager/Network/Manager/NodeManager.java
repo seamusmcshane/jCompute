@@ -1,6 +1,7 @@
 package jCompute.Simulation.SimulationManager.Network.Manager;
 
 import jCompute.JComputeEventBus;
+import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
@@ -51,7 +52,9 @@ public class NodeManager
 	private NodeConfiguration nodeConfig;
 
 	private int activeSims = 0;
+	private Semaphore activeSimsLock = new Semaphore(1, false);
 
+	
 	// This node cmd socket
 	private final Socket cmdSocket;
 	private Socket transferSocket;	
@@ -387,7 +390,7 @@ public class NodeManager
 									log.info("Recieved Sim Stats");
 
 									statExporter.populateFromByteBuffer(data);
-
+									
 									simStatsWait.release();
 								}
 								else
@@ -520,6 +523,21 @@ public class NodeManager
 									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
 											stateChanged.getState(), stateChanged.getRunTime(), stateChanged
 													.getStepCount(), stateChanged.getEndEvent()));
+									
+									if(stateChanged.getState() == SimState.FINISHED)
+									{
+										
+										activeSimsLock.acquireUninterruptibly();
+										
+										// Remote Sim is auto-removed when finished
+										activeSims--;
+										
+										activeSimsLock.release();
+
+										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),SimulationsManagerEventType.RemovedSim));
+
+									}
+									
 								}
 								else
 								{
@@ -551,6 +569,7 @@ public class NodeManager
 										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),
 												statChanged.getTime(), statChanged.getStepNo(), statChanged
 														.getProgress(), statChanged.getAsps()));
+
 									}
 									else
 									{
@@ -724,8 +743,15 @@ public class NodeManager
 
 	public boolean hasFreeSlot()
 	{
-
-		if (activeSims < nodeConfig.getMaxSims())
+		int tActive=0;
+		
+		activeSimsLock.acquireUninterruptibly();
+		
+			tActive = activeSims;
+			
+		activeSimsLock.release();
+		
+		if (tActive < nodeConfig.getMaxSims())
 		{
 			return true;
 		}
@@ -778,8 +804,12 @@ public class NodeManager
 
 				remoteSimulationMap.put(addSimId, mapping);
 
+				activeSimsLock.acquireUninterruptibly();
+				
 				activeSims++;
 
+				activeSimsLock.release();
+				
 				// addSimMsgBoxVarLock.release();
 				nodeLock.release();
 
@@ -806,27 +836,11 @@ public class NodeManager
 	 */
 	public void removeSim(int remoteSimId)
 	{
-		nodeLock.acquireUninterruptibly();
-
-		try
-		{
-			sendCMDMessage(new RemoveSimReq(remoteSimId).toBytes());
-
-			remSimWait.acquireUninterruptibly();
-
-			// Remove the mapping as the remote simulation is gone.
-			remoteSimulationMap.remove(remoteSimId);
-
-			activeSims--;
-
-		}
-		catch (IOException e)
-		{
-			// Connection is gone...
-			log.error("Node " + nodeConfig.getUid() + " Error in Start Sim");
-		}
-
-		nodeLock.release();
+		// NA - Finished Simulation are auto-removed, but the remote node will still have  the stats in the cache
+		// - we assume calling this method means you do not want stats or the simulation.
+		
+		getStatExporter(remoteSimId,"",ExportFormat.XML);
+		
 	}
 
 	public void startSim(int remoteSimId)
@@ -870,6 +884,9 @@ public class NodeManager
 			
 			// Wipe the internal ref
 			statExporter = null;
+			
+			// Mapping no longer needed
+			remoteSimulationMap.remove(remoteSimId);
 		}
 		catch (IOException e)
 		{
@@ -886,6 +903,19 @@ public class NodeManager
 	public long getWeighting()
 	{
 		return nodeConfig.getWeighting();
+	}
+
+	public int getActiveSims()
+	{
+		int tActive=0;
+		
+		activeSimsLock.acquireUninterruptibly();
+		
+			tActive = activeSims;
+			
+		activeSimsLock.release();
+		
+		return tActive;
 	}
 
 }
