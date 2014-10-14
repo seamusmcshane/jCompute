@@ -2,6 +2,7 @@ package jCompute.Simulation.SimulationManager.Network.Node;
 
 import jCompute.JComputeEventBus;
 import jCompute.Datastruct.knn.benchmark.NodeWeightingBenchmark;
+import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
@@ -20,6 +21,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Simul
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 import jCompute.Stats.StatExporter;
+import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -76,6 +78,9 @@ public class Node
 	// ProtocolState
 	private ProtocolState state = ProtocolState.NEW;
 	
+	// Cache of Stats from finished simulations
+	private NodeStatCache statCache;
+	
 	public Node(String address, SimulationsManagerInf simsManager)
 	{
 		log.info("Starting Node");
@@ -89,6 +94,9 @@ public class Node
 
 		JComputeEventBus.register(this);
 		log.info("Registered on event bus");
+
+		statCache = new NodeStatCache();
+		log.info("Created Node Stat Cache");
 
 		// Disconnect Recovery Loop
 		while (true)
@@ -222,7 +230,7 @@ public class Node
 
 							log.info("RemoveSimReq " + simId);
 
-							sendCommandMessage(new RemoveSimAck(simId).toBytes());
+							sendCommandMessage(new RemoveSimAck(simId).toBytes());							
 						}
 							break;
 						// Default / Invalid
@@ -256,8 +264,11 @@ public class Node
 
 			// Our connection to the remote manager is gone.
 			simsManager.removeAll();
-
 			log.info("Removed all Simulations as connection lost");
+
+			// Any stats in the cache are not going to be requested.
+			statCache = new NodeStatCache();
+			log.info("Recreated Node Stat Cache");
 		}
 
 	}
@@ -475,7 +486,8 @@ public class Node
 								log.info("SimStatsReq " + statsReq.getSimId());
 
 								// Get the stat exporter for this simId
-								StatExporter exporter = simsManager.getStatExporter(statsReq.getSimId(), "",  statsReq.getFormat());
+								// StatExporter exporter = simsManager.getStatExporter(statsReq.getSimId(), "",  statsReq.getFormat());
+								StatExporter exporter = statCache.remove(statsReq.getSimId());								
 								
 								// NSMCP.SimStats
 								sendTransferMessage(exporter.toBytes());
@@ -577,10 +589,23 @@ public class Node
 		try
 		{
 			rxLockEvents.acquireUninterruptibly();
+						
+			if (e.getState() == SimState.FINISHED )
+			{
+				int simId = e.getSimId();
+				
+				StatExporter exporter = simsManager.getStatExporter(simId, "",  ExportFormat.ZXML);
+				
+				log.info("Stored Stats for Simulation " + simId);
+				statCache.put(simId, exporter);
+				
+				simsManager.removeSimulation(simId);
+				log.info("Removed Finished Simulation");
+			}
 
 			sendCommandMessage(new SimulationStateChanged(e).toBytes());
 			log.info("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
-
+			
 			rxLockEvents.release();
 		}
 		catch (IOException e1)
