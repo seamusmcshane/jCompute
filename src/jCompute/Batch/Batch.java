@@ -726,7 +726,7 @@ public class Batch implements StoredQueuePosition
 		return temp;
 	}
 
-	public void setComplete(SimulationsManagerInf simsManager, BatchItem item)
+	public void setItemComplete(SimulationsManagerInf simsManager, BatchItem item)
 	{
 		batchLock.acquireUninterruptibly();
 

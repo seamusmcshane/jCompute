@@ -189,7 +189,7 @@ public class BatchManager
 				log.info("Batch Item Finished : " + batch.getBatchId());
 
 				// Internally Exports Stats
-				batch.setComplete(simsManager, item);
+				batch.setItemComplete(simsManager, item);
 
 				simsManager.removeSimulation(item.getSimId());
 				
