@@ -213,14 +213,14 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	{	
 		networkSimulationsManagerLock.acquireUninterruptibly();
 		
-		boolean tActive = true;
+		boolean tActive = false;
 		
 		Iterator<NodeManager> itr = activeNodes.iterator();
 		while(itr.hasNext())
 		{
 			NodeManager node = itr.next();
 			
-			tActive &= node.hasFreeSlot();
+			tActive |= node.hasFreeSlot();
 		}
 		
 		networkSimulationsManagerLock.release();
