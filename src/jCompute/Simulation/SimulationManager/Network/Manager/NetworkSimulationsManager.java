@@ -39,7 +39,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	
 	// Dynamic based on total of active nodes max sims
 	private int maxSims = 0;
-	private int activeSims = 0;
+		
 	private int simulationNum = 0;
 	
 	/* Server Listening Socket */
@@ -184,7 +184,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						while(nRSIdsIter.hasNext())
 						{
 							recoveredSimIds.add(nRSIdsIter.next());
-							activeSims--;
+							//activeSims--;
 						}
 						
 						log.debug("Node " + node.getUid() + " no longer Active");
@@ -195,7 +195,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						
 					}
 					
-
 				}
 				
 				if(recoveredSimIds.size()>0)
@@ -211,8 +210,22 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 
 	@Override
 	public boolean hasFreeSlot()
-	{
-		return activeSims < maxSims;
+	{	
+		networkSimulationsManagerLock.acquireUninterruptibly();
+		
+		boolean tActive = true;
+		
+		Iterator<NodeManager> itr = activeNodes.iterator();
+		while(itr.hasNext())
+		{
+			NodeManager node = itr.next();
+			
+			tActive &= node.hasFreeSlot();
+		}
+		
+		networkSimulationsManagerLock.release();
+		
+		return tActive;
 	}
 	
 	@Override
@@ -363,7 +376,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 					
 					log.info("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);			
 
-					activeSims++;
+					// activeSims++;
 					
 					JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,SimulationsManagerEventType.AddedSim));
 					
@@ -413,7 +426,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		// Remove the mapping
 		localSimulationMap.remove(mapping);
 	
-		activeSims--;	
+		// activeSims--;	
 		
 		networkSimulationsManagerLock.release();
 		
@@ -524,8 +537,6 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 	@Override
 	public int getMaxSims()
 	{
-		// DebugLogger.output("Max Sims " + maxSims);
-
 		return maxSims;
 	}
 
