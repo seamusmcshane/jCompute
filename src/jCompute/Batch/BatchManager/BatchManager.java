@@ -59,6 +59,10 @@ public class BatchManager
 	// Scheduler
 	private Timer batchScheduler;
 
+	// Completed Items Processor
+	private Timer batchCompletedItemsProcessor;
+
+	
 	public BatchManager(SimulationsManagerInf simsManager)
 	{
 		this.simsManager = simsManager;
@@ -88,7 +92,19 @@ public class BatchManager
 				schedule();
 			}
 
-		}, 0, 1000);
+		}, 0, 100);
+		
+		// Completed Items Processor Tick
+		batchCompletedItemsProcessor = new Timer("Batch Completed Items Processor");
+		batchCompletedItemsProcessor.schedule(new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				processCompletedItems();
+			}
+
+		}, 0, 100);
 
 	}
 
@@ -191,7 +207,7 @@ public class BatchManager
 				// Internally Exports Stats
 				batch.setItemComplete(simsManager, item);
 
-				simsManager.removeSimulation(item.getSimId());
+				// simsManager.removeSimulation(item.getSimId());
 				
 				// Batch Progress
 				batchManagerListenerBatchProgressNotification(batch);
@@ -212,11 +228,11 @@ public class BatchManager
 
 	private void schedule()
 	{
-		// log.debug("Scheduler Tick");
+		//log.info("Scheduler Tick");
 
 		recoverItemsFromInactiveNodes();
 
-		processCompletedItems();
+		// processCompletedItems();
 
 		batchManagerLock.acquireUninterruptibly();
 
@@ -469,15 +485,14 @@ public class BatchManager
 
 				BatchItem item = findActiveBatchItemFromSimId(simId);
 
+				itemsLock.acquireUninterruptibly();
+
 				if(item != null)
 				{
 					item.setComplete(e.getRunTime(), e.getEndEvent(), e.getStepCount());
+					activeItems.remove(item);
+					completeItems.add(item);
 				}
-
-				itemsLock.acquireUninterruptibly();
-
-				activeItems.remove(item);
-				completeItems.add(item);
 
 				itemsLock.release();
 
