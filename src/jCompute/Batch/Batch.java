@@ -5,9 +5,7 @@ import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Scenario.ConfigurationInterpreter;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
-import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.Text;
 
 import java.io.BufferedWriter;
@@ -726,7 +724,7 @@ public class Batch implements StoredQueuePosition
 		return temp;
 	}
 
-	public void setItemComplete(SimulationsManagerInf simsManager, BatchItem item)
+	public void setItemComplete(BatchItem item, StatExporter exporter)
 	{
 		batchLock.acquireUninterruptibly();
 
@@ -746,9 +744,6 @@ public class Batch implements StoredQueuePosition
 
 		// Create the item sample full export path dir
 		testAndCreateDir(fullExportPath);
-
-		// Export Stats
-		StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()), ExportFormat.ZXML);
 		
 		if(exporter!=null)
 		{
