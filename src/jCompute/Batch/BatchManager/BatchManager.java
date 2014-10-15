@@ -92,7 +92,7 @@ public class BatchManager
 				schedule();
 			}
 
-		}, 0, 100);
+		}, 0, 1000);
 		
 		// Completed Items Processor Tick
 		batchCompletedItemsProcessor = new Timer("Batch Completed Items Processor");
@@ -104,7 +104,7 @@ public class BatchManager
 				processCompletedItems();
 			}
 
-		}, 0, 100);
+		}, 0, 5000);
 
 	}
 
