@@ -463,9 +463,10 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		StatExporter exporter = nodeManager.getStatExporter(mapping.getRemoteSimId(), fileNameSuffix, format);
-				
 		networkSimulationsManagerLock.release();
+		
+		// Here so we don't block during transfer
+		StatExporter exporter = nodeManager.getStatExporter(mapping.getRemoteSimId(), fileNameSuffix, format);		
 		
 		return exporter;
 	}

@@ -891,7 +891,7 @@ public class NodeManager
 		catch (IOException e)
 		{
 			// Connection is gone...
-			log.error("Node " + nodeConfig.getUid() + " Error in Start Sim");
+			log.error("Node " + nodeConfig.getUid() + " Error in get Stats Exporter");
 
 		}
 
