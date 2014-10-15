@@ -1,0 +1,33 @@
+<Batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/batch.xsd">
+	<Header>
+		<Version>0.01</Version>
+		<Type>Batch</Type>
+	</Header>
+	<Config>
+		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
+		<BatchStatsExportDir>stats/</BatchStatsExportDir>
+		<BatchGroupDir>OLD-Benchmark/</BatchGroupDir>
+		<BatchSubGroupDirName>64COMTEST/</BatchSubGroupDirName>
+		<ItemSamples>16</ItemSamples>
+	</Config>
+	<Parameters>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Predator</GroupName>
+			<ParameterName>InitialNumbers</ParameterName>
+			<Intial>250</Intial>
+			<Increment>250</Increment>
+			<Combinations>2</Combinations>
+		</Parameter>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Prey</GroupName>
+			<ParameterName>InitialNumbers</ParameterName>
+			<Intial>250</Intial>
+			<Increment>250</Increment>
+			<Combinations>2</Combinations>
+		</Parameter>
+	</Parameters>
+</Batch>
