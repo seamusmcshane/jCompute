@@ -9,6 +9,9 @@ import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.StatExporter;
+import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +19,8 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -62,6 +67,7 @@ public class BatchManager
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
 
+	private ExecutorService completedItemsStatFetch = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new SimpleNamedThreadFactory("Completed Items Stat Fetch"));
 	
 	public BatchManager(SimulationsManagerInf simsManager)
 	{
@@ -92,7 +98,7 @@ public class BatchManager
 				schedule();
 			}
 
-		}, 0, 1000);
+		}, 0, 10);
 		
 		// Completed Items Processor Tick
 		batchCompletedItemsProcessor = new Timer("Batch Completed Items Processor");
@@ -104,7 +110,7 @@ public class BatchManager
 				processCompletedItems();
 			}
 
-		}, 0, 5000);
+		}, 0, 333);
 
 	}
 
@@ -184,12 +190,12 @@ public class BatchManager
 
 		Iterator<BatchItem> itr = completeItems.iterator();
 
+		batchManagerLock.acquireUninterruptibly();
+		
 		while(itr.hasNext())
 		{
 			BatchItem item = itr.next();
-
-			batchManagerLock.acquireUninterruptibly();
-
+			
 			Batch batch = null;
 
 			if(item != null)
@@ -198,19 +204,15 @@ public class BatchManager
 				batch = findBatch(item.getBatchId());
 			}
 
-			batchManagerLock.release();
-
 			if(batch != null)
 			{
-				log.info("Batch Item Finished : " + batch.getBatchId());
-
-				// Internally Exports Stats
-				batch.setItemComplete(simsManager, item);
-
-				// simsManager.removeSimulation(item.getSimId());
+				// Export Stats
+				//StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()), ExportFormat.ZXML);
 				
-				// Batch Progress
-				batchManagerListenerBatchProgressNotification(batch);
+				// Internally Exports Stats
+				//batch.setItemComplete(item,exporter);
+				
+				completedItemsStatFetch.execute(new StatFetchTask(simsManager ,batch ,item, ExportFormat.ZXML));
 			}
 			else
 			{
@@ -221,6 +223,8 @@ public class BatchManager
 
 		}
 
+		batchManagerLock.release();
+		
 		completeItems = new ArrayList<BatchItem>();
 
 		itemsLock.release();
@@ -1062,6 +1066,38 @@ public class BatchManager
 
 		batchManagerLock.release();
 
+	}
+	
+	private class StatFetchTask implements Runnable
+	{
+		private SimulationsManagerInf simsManager;
+		private Batch batch;
+		private BatchItem item;
+		private ExportFormat format;
+
+		public StatFetchTask(SimulationsManagerInf simsManager, Batch batch, BatchItem item, ExportFormat format)
+		{
+			super();
+			this.simsManager = simsManager;
+			this.batch = batch;
+			this.item = item;
+			this.format = format;
+		}
+
+
+		@Override
+		public void run()
+		{		
+			// Export Stats // ExportFormat.ZXML
+			StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()), format);
+			
+			batch.setItemComplete(item,exporter);
+			
+			log.info("Batch Item Finished : " + batch.getBatchId());
+			
+			// Batch Progress
+			batchManagerListenerBatchProgressNotification(batch);
+		}
 	}
 
 }
