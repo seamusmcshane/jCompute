@@ -1,6 +1,5 @@
 package jCompute.Stats;
 
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
 import jCompute.Stats.Groups.StatGroup;
 import jCompute.Stats.Trace.StatSample;
 
@@ -135,15 +134,15 @@ public class StatExporter
 	{
 		ByteBuffer tbuffer;
 
-		// Frame Header + Num Files
 		int size = 0;
+		
 		String archiveName = "stats";
 		
 		// Total files
 		size += 4;
 		
 		if (this.format == ExportFormat.ZXML)
-		{			
+		{
 			// File Num Field
 			size += 4;
 			
@@ -160,11 +159,7 @@ public class StatExporter
 			size += binData.length;
 
 			// Buffer
-			tbuffer = ByteBuffer.allocate(size+NSMCP.HEADER_SIZE);
-
-			// Header
-			tbuffer.putInt(NSMCP.SimStats);
-			tbuffer.putInt(size);
+			tbuffer = ByteBuffer.allocate(size);
 			
 			// Total Files (Archive)
 			tbuffer.putInt(1);
@@ -192,12 +187,8 @@ public class StatExporter
 				size += textData[f].getBytes().length;
 			}
 
-			// Unicode 16 -2bytes chart
-			tbuffer = ByteBuffer.allocate(size+NSMCP.HEADER_SIZE);
-
-			// Frame Type
-			tbuffer.putInt(NSMCP.SimStats);
-			tbuffer.putInt(size);
+			// Unicode 16=2bytes char
+			tbuffer = ByteBuffer.allocate(size);
 			
 			// Total Stat Files
 			tbuffer.putInt(numFiles);
