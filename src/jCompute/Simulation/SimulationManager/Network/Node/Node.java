@@ -373,7 +373,8 @@ public class Node
 
 		// Create a registration request and send it
 		sendCommandMessage(new RegistrationRequest().toBytes());
-
+		log.info("Sent Registration Request");
+		
 		int type = -1;
 		int len = -1;
 		byte[] backingArray = null;

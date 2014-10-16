@@ -60,7 +60,7 @@ public class NodeManager
 	private Socket transferSocket;	
 
 	// Output Stream
-	private DataOutputStream commandOutput;
+	private DataOutputStream cmdOutput;
 	private DataInputStream cmdInput;
 	private Semaphore cmdTxLock = new Semaphore(1, false);
 	private Thread cmdRecieveThread;
@@ -113,23 +113,39 @@ public class NodeManager
 		this.cmdSocket = cmdSocket;
 
 		// Cmd Output Stream
-		commandOutput = new DataOutputStream(new BufferedOutputStream(cmdSocket.getOutputStream()));
+		cmdOutput = new DataOutputStream(new BufferedOutputStream(cmdSocket.getOutputStream()));
 		
 		// Cmd Input Stream
 		cmdInput = new DataInputStream(new BufferedInputStream(cmdSocket.getInputStream()));
 
 		nodeState = ProtocolState.NEW;
-
-		handleRegistration();
 		
-		createCMDRecieveThread();
-		
-		createTransferRecieveThread();
-
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					handleRegistration();
+					
+					createCMDRecieveThread();
+					
+					createTransferRecieveThread();
+				}
+				catch(IOException e)
+				{
+					active = false;
+				}
+			}
+		}).start();
 	}
 
 	private void handleRegistration() throws IOException
 	{
+		log.info("Awaiting Registration");
+
+		
 		boolean finished = false;
 		
 		int type = -1;
@@ -649,8 +665,8 @@ public class NodeManager
 	{
 		cmdTxLock.acquireUninterruptibly();
 
-		commandOutput.write(bytes);
-		commandOutput.flush();
+		cmdOutput.write(bytes);
+		cmdOutput.flush();
 		
 		cmdTxLock.release();
 	}
