@@ -190,7 +190,6 @@ public class BatchManager
 
 		Iterator<BatchItem> itr = completeItems.iterator();
 
-		batchManagerLock.acquireUninterruptibly();
 		
 		while(itr.hasNext())
 		{
@@ -198,12 +197,16 @@ public class BatchManager
 			
 			Batch batch = null;
 
+			batchManagerLock.acquireUninterruptibly();
+			
 			if(item != null)
 			{
 				log.debug("Item : " + item.getItemId());
 				batch = findBatch(item.getBatchId());
 			}
 
+			batchManagerLock.release();
+			
 			if(batch != null)
 			{
 				// Export Stats
@@ -223,7 +226,6 @@ public class BatchManager
 
 		}
 
-		batchManagerLock.release();
 		
 		completeItems = new ArrayList<BatchItem>();
 
