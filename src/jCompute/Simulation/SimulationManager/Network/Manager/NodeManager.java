@@ -16,7 +16,7 @@ import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.Notif
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReply;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.AddSimReq;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimAck;
-import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.RemoveSimReq;
+import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsReply;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.SimulationStatsRequest;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.SimulationManager.StartSimCMD;
 import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
@@ -82,10 +82,6 @@ public class NodeManager
 	// Semaphores for methods to wait on
 	private Semaphore addSimWait = new Semaphore(0, false);
 	private Semaphore remSimWait = new Semaphore(0, false);
-	private Semaphore simStatsWait = new Semaphore(0, false);
-
-	// Request stats MSG box vars
-	private StatExporter statExporter;
 
 	// Add Sim MSG box Vars
 	private int addSimId = -1;
@@ -95,13 +91,18 @@ public class NodeManager
 	 * simId
 	 */
 	private ConcurrentHashMap<Integer, RemoteSimulationMapping> remoteSimulationMap;
+	
+	// Stats Request map
+	private ConcurrentHashMap<Integer,NodeManagerStatRequestMapping> statRequests;
 
 	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
 		nodeConfig = new NodeConfiguration();
 
-		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(4);
+		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(8);
 
+		statRequests = new ConcurrentHashMap<Integer,NodeManagerStatRequestMapping>(8);
+		
 		NSMCPReadyTimeOut = 0;
 
 		log.info("New Node Manager " + uid);
@@ -405,9 +406,18 @@ public class NodeManager
 								{
 									log.info("Recieved Sim Stats");
 
-									statExporter.populateFromByteBuffer(data);
+									// Read this here as we need it for the stat request mapping lookup
+									int simId = data.getInt();
 									
-									simStatsWait.release();
+									// Remove Request Mapping
+									NodeManagerStatRequestMapping request = statRequests.remove(simId);
+																		
+									SimulationStatsReply statsReply = new SimulationStatsReply(simId,data,request.getFormat(),request.getFileNameSuffix());
+									
+									request.setStatExporter(statsReply.getStatExporter());
+									
+									// Signal the waiting thread.
+									request.signalReply();
 								}
 								else
 								{
@@ -449,7 +459,6 @@ public class NodeManager
 					// Explicit release of all semaphores
 					addSimWait.release();
 					remSimWait.release();
-					simStatsWait.release();
 				}
 				
 			}
@@ -648,7 +657,6 @@ public class NodeManager
 					// Explicit release of all semaphores
 					addSimWait.release();
 					remSimWait.release();
-					simStatsWait.release();
 				}
 				
 			}
@@ -877,41 +885,47 @@ public class NodeManager
 		nodeLock.release();
 	}
 
+	/**
+	 * Method returns a stat exporter for the request simulation id - Method Blocks.
+	 * @param remoteSimId
+	 * @param fileNameSuffix
+	 * @param format
+	 * @return
+	 */
 	public StatExporter getStatExporter(int remoteSimId, String fileNameSuffix, ExportFormat format)
 	{
-		nodeLock.acquireUninterruptibly();
-
 		StatExporter returnedExporter = null;
+		
+		log.info("Requesting SimStats for remote sim : " + remoteSimId);
+		
+		// create a new request
+		NodeManagerStatRequestMapping request = new NodeManagerStatRequestMapping(format, fileNameSuffix);
+
+		// Add the request to the map
+		statRequests.put(remoteSimId, request);
+		
+		//nodeLock.release();
 		
 		try
 		{
-			log.info("Requesting SimStats for remote sim : " + remoteSimId);
-			
-			// create a new exporter as format could change.
-			statExporter = new StatExporter(format, fileNameSuffix);
-
 			// Send the request
 			sendTransferMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
-
-			simStatsWait.acquireUninterruptibly();			
 			
-			// Get a ref we can return.
-			returnedExporter = statExporter;
+			request.waitOnReply();
 			
-			// Wipe the internal ref
-			statExporter = null;
+			returnedExporter = request.getExporter();
 			
 			// Mapping no longer needed
 			remoteSimulationMap.remove(remoteSimId);
+			
 		}
 		catch (IOException e)
 		{
 			// Connection is gone...
 			log.error("Node " + nodeConfig.getUid() + " Error in get Stats Exporter");
-
 		}
 
-		nodeLock.release();
+		
 		
 		return returnedExporter;
 	}
