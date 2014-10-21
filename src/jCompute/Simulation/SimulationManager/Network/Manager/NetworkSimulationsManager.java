@@ -141,7 +141,7 @@ public class NetworkSimulationsManager implements SimulationsManagerInf
 						log.info("------------------------------------");
 						for(NodeManager node : activeNodes)
 						{
-							log.info("Node :" + node.getUid() + " " + node.getWeighting());
+							log.info("Node " + node.getUid() + ": " + node.getWeighting());
 							
 						}
 						log.info("------------------------------------");

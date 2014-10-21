@@ -98,7 +98,7 @@ public class BatchManager
 				schedule();
 			}
 
-		}, 0, 10);
+		}, 0, 100);
 		
 		// Completed Items Processor Tick
 		batchCompletedItemsProcessor = new Timer("Batch Completed Items Processor");
@@ -110,8 +110,8 @@ public class BatchManager
 				processCompletedItems();
 			}
 
-		}, 0, 333);
-
+		}, 0, 10000);
+		
 	}
 
 	public boolean addBatch(String filePath)
@@ -189,7 +189,6 @@ public class BatchManager
 		itemsLock.acquireUninterruptibly();
 
 		Iterator<BatchItem> itr = completeItems.iterator();
-
 		
 		while(itr.hasNext())
 		{
@@ -208,13 +207,7 @@ public class BatchManager
 			batchManagerLock.release();
 			
 			if(batch != null)
-			{
-				// Export Stats
-				//StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()), ExportFormat.ZXML);
-				
-				// Internally Exports Stats
-				//batch.setItemComplete(item,exporter);
-				
+			{				
 				completedItemsStatFetch.execute(new StatFetchTask(simsManager ,batch ,item, ExportFormat.ZXML));
 			}
 			else
@@ -239,6 +232,15 @@ public class BatchManager
 		recoverItemsFromInactiveNodes();
 
 		// processCompletedItems();
+		
+		itemsLock.acquireUninterruptibly();
+			int size = activeItems.size();
+		itemsLock.release();
+		
+		if(size == 0)
+		{
+			processCompletedItems();
+		}
 
 		batchManagerLock.acquireUninterruptibly();
 
