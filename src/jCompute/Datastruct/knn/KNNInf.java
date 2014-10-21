@@ -14,16 +14,16 @@ public interface KNNInf <Datatype>
 
 	
 	/* Add Item to Tree */
-	void add(double pos[],Datatype data);
+	void add(float pos[],Datatype data);
 	
 	/* Find Nearest Item */
-	Datatype nearestNeighbour(double pos[]);
+	Datatype nearestNeighbour(float pos[]);
 		
 	/* Find the nth nearest */
-	Datatype nearestNNeighbour(double pos[], int n);
+	Datatype nearestNNeighbour(float pos[], int n);
 	
 	/* Find Nearest Items */
-	List <Datatype> nearestNeighbours(double pos[], int maxNeighbours);
+	List <Datatype> nearestNeighbours(float pos[], int maxNeighbours);
 
 	public int size();
 	
