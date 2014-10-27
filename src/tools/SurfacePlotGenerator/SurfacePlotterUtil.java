@@ -33,10 +33,13 @@ import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
+import org.jzy3d.plot3d.rendering.view.View;
+import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
@@ -82,8 +85,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		float ratio = 800/300;
-		float multi = 0.5f;
+		float ratio = 1f;
+		float multi = 1f;
 		
 		float scaledMulti = ((0+multi)*ratio);
 		
@@ -135,7 +138,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				chartStdDev.getView().setViewPoint(coord);	
 				chartStdDev.getAxeLayout().setZAxeLabelDisplayed(false);
 				chartStdDev.getAxeLayout().setZTickLabelDisplayed(false);
-
+				
+				chartAvg.getView().setViewPositionMode(ViewPositionMode.TOP);
+				chartStdDev.getView().setViewPositionMode(ViewPositionMode.TOP);
 				
 			}
 		});
@@ -152,6 +157,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				chartAvg.getView().setViewPoint(current);
 
 				chartStdDev.getView().setViewPoint(current);
+				
+
 				
 			}
 		});
@@ -171,6 +178,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				chartStdDev.getView().setViewPoint(coord);				
 				chartStdDev.getAxeLayout().setZAxeLabelDisplayed(true);
 				chartStdDev.getAxeLayout().setZTickLabelDisplayed(true);
+				
+				chartAvg.getView().setViewPositionMode(ViewPositionMode.FREE);
+				chartStdDev.getView().setViewPositionMode(ViewPositionMode.FREE);
 
 
 			}
@@ -292,9 +302,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		chartStdDev.getScene().getGraph().add(surfaceStdDev);
 		
 		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
-		surfaceStdDev.setLegend(stdDevColorBar);
-		
-		// Tick mapping
+		surfaceStdDev.setLegend(stdDevColorBar);
 		chartStdDev.getAxeLayout().setXTickRenderer(stdDevMapper.getXTickMapper());
 		chartStdDev.getAxeLayout().setYTickRenderer(stdDevMapper.getYTickMapper());
 		
@@ -422,7 +430,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
