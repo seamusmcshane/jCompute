@@ -35,5 +35,10 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.0.2-bin/log4j-core-2.0.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.0.2-bin/log4j-slf4j-impl-2.0.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jspf/jspf-1.0.2.bin/dist/jspf.core-1.0.2.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/fontbox-1.8.7.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/jempbox-1.8.7.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/pdfbox-1.8.7.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/preflight-1.8.7.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/xmpbox-1.8.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
