@@ -6,6 +6,7 @@ import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Stats.StatExporter;
+import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
 import java.io.BufferedWriter;
@@ -276,24 +277,6 @@ public class Batch implements StoredQueuePosition
 		}
 	}
 
-	private void testAndCreateDir(String dir)
-	{
-		File directory = new File(dir);
-
-		if (!directory.exists())
-		{
-			if (directory.mkdir())
-			{
-				log.debug("Created " + dir);
-			}
-			else
-			{
-				log.error("Failed to Create " + dir);
-			}
-		}
-
-	}
-
 	private void setBatchStatExportDir()
 	{
 		calender = Calendar.getInstance();
@@ -309,7 +292,7 @@ public class Batch implements StoredQueuePosition
 		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
 		
 		// Create Stats Dir
-		testAndCreateDir(baseExportDir);
+		FileUtil.createDirIfNotExist(baseExportDir);
 				
 		// Group Batches of Stats
 		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
@@ -321,14 +304,14 @@ public class Batch implements StoredQueuePosition
 		{
 			baseExportDir = baseExportDir+File.separator+groupDirName;
 
-			testAndCreateDir(baseExportDir);
+			FileUtil.createDirIfNotExist(baseExportDir);
 			
 			// Sub Groups
 			if(subgroupDirName!=null)
 			{
 				baseExportDir = baseExportDir+File.separator+subgroupDirName;
 
-				testAndCreateDir(baseExportDir);
+				FileUtil.createDirIfNotExist(baseExportDir);
 			}
 			
 		}
@@ -337,7 +320,7 @@ public class Batch implements StoredQueuePosition
 				
 		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems + "-" + batchItems + "-" + maxSteps + "] " + batchName;
 		
-		testAndCreateDir(batchStatsExportDir);
+		FileUtil.createDirIfNotExist(batchStatsExportDir);
 
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
 	}
@@ -738,12 +721,12 @@ public class Batch implements StoredQueuePosition
 		lastCompletedItemTime = System.currentTimeMillis();
 
 		// Create the item export dir
-		testAndCreateDir(batchStatsExportDir + File.separator + item.getItemId());
+		FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + item.getItemId());
 
 		String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
 
 		// Create the item sample full export path dir
-		testAndCreateDir(fullExportPath);
+		FileUtil.createDirIfNotExist(fullExportPath);
 		
 		if(exporter!=null)
 		{
