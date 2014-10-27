@@ -1,7 +1,8 @@
 package jCompute;
 
+import jCompute.util.FileUtil;
+
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -47,8 +48,8 @@ public class IconManager
 		smallIconURL = IconManager.class.getResource(themePath + smallIconDirName);
 		mediumIconURL = IconManager.class.getResource(themePath + mediumIconDirName);
 
-		loadIcons(getFilesInDir(smallIconURL));
-		loadIcons(getFilesInDir(mediumIconURL));
+		loadIcons(FileUtil.getFilesInDir(smallIconURL));
+		loadIcons(FileUtil.getFilesInDir(mediumIconURL));
 	}
 
 	private void loadIcons(File[] files)
@@ -64,28 +65,5 @@ public class IconManager
 		}
 	}
 
-	private File[] getFilesInDir(URL url)
-	{
-		File file = null;
 
-		try
-		{
-			if(url!=null)
-			{
-				log.debug(url.toURI().toString());
-				file = new File(url.toURI());
-			}
-		}
-		catch (URISyntaxException e)
-		{
-			System.out.println(e.getCause());
-		}
-
-		if (file != null)
-		{
-			return file.listFiles();
-		}
-
-		return new File[]{};
-	}
 }
