@@ -6,7 +6,7 @@
 	<Config>
 		<BaseScenarioFileName>speed-even.scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchGroupDir>ViewRange-nopopboom</BatchGroupDir>
+		<BatchGroupDir>ViewRange-nopopboom-10</BatchGroupDir>
 		<BatchSubGroupDirName>EvenSpeed</BatchSubGroupDirName>
 		<ItemSamples>10</ItemSamples>
 	</Config>

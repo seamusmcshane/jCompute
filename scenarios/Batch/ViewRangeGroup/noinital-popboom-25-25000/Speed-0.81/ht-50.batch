@@ -6,7 +6,7 @@
 	<Config>
 		<BaseScenarioFileName>prey-speed-(0.81).scenario</BaseScenarioFileName>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchGroupDir>ViewRange-nopopboom</BatchGroupDir>
+		<BatchGroupDir>ViewRange-nopopboom-25</BatchGroupDir>
 		<BatchSubGroupDirName>speed-(0.81)</BatchSubGroupDirName>
 		<ItemSamples>25</ItemSamples>
 	</Config>
