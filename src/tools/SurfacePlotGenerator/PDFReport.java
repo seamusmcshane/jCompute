@@ -19,7 +19,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
@@ -32,7 +31,7 @@ public class PDFReport
 	private final static String itemLog = "ItemLog.xml";
 
 	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(Runtime.getRuntime()
-			.availableProcessors()*2, new SimpleNamedThreadFactory("Image Exporter"));
+			.availableProcessors(), new SimpleNamedThreadFactory("Image Exporter"));
 
 	private final static ArrayList<String> rowNames = new ArrayList<String>();
 	private final static ArrayList<String> colNames = new ArrayList<String>();
