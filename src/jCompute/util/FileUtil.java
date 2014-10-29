@@ -6,6 +6,8 @@ import java.io.FilenameFilter;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import javax.swing.filechooser.FileFilter;
+
 public class FileUtil
 {	
 	public static File[] getFilesInDir(URL url)
@@ -81,6 +83,23 @@ public class FileUtil
 			directory.mkdir();
 		}
 
+	}
+	
+	public static FileFilter batchFileFilter()
+	{
+		return new FileFilter()
+		{
+			public boolean accept(File f)
+			{
+				return f.getName().toLowerCase().endsWith(".batch") || f.isDirectory();
+			}
+
+			@Override
+			public String getDescription()
+			{
+				return "Batch Files";
+			}
+		};
 	}
 
 }

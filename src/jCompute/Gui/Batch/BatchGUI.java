@@ -24,6 +24,7 @@ import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
+import jCompute.util.FileUtil;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -267,19 +268,7 @@ public class BatchGUI
 			{
 				JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
 
-				filechooser.setFileFilter(new FileFilter()
-				{
-					public boolean accept(File f)
-					{
-						return f.getName().toLowerCase().endsWith(".batch") || f.isDirectory();
-					}
-
-					@Override
-					public String getDescription()
-					{
-						return "Batch Files";
-					}
-				});
+				filechooser.setFileFilter(FileUtil.batchFileFilter());
 
 				filechooser.setPreferredSize(new Dimension(800, 600));
 				filechooser.setMultiSelectionEnabled(true);
