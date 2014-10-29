@@ -101,5 +101,22 @@ public class FileUtil
 			}
 		};
 	}
+	
+	public static FileFilter scenarioFileFilter()
+	{
+		return new FileFilter()
+		{
+			public boolean accept(File f)
+			{
+				return f.getName().toLowerCase().endsWith(".scenario") || f.isDirectory();
+			}
+
+			@Override
+			public String getDescription()
+			{
+				return "Scenario Files";
+			}
+		};
+	}
 
 }

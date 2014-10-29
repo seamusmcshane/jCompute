@@ -10,6 +10,7 @@ import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.util.FileUtil;
 
 import javax.swing.JPanel;
 
@@ -632,6 +633,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			filechooser.setPreferredSize(new Dimension(800,600));
 			filechooser.setAccessory(xmlPreview);
 			filechooser.addPropertyChangeListener(xmlPreview);
+			filechooser.setFileFilter(FileUtil.scenarioFileFilter());
 			Action details = filechooser.getActionMap().get("viewTypeDetails");
 			details.actionPerformed(null);
 			
