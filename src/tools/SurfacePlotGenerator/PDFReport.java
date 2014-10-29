@@ -6,6 +6,7 @@ import jCompute.util.FileUtil;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,14 +30,15 @@ public class PDFReport
 
 	public static void main(String args[])
 	{
-		String itemLog = "ItemLog.xml";
+		final ArrayList <String> rowNames = new ArrayList<String>();		
+		final ArrayList <String> colNames = new ArrayList<String>();
 		
+		final String itemLog = "ItemLog.xml";
 		final JFileChooser filechooser = new JFileChooser(new File("\\\\Nanoserv\\results\\ViewRange"));
 		
 		filechooser.setDialogTitle("Choose Directory");
 		filechooser.setMultiSelectionEnabled(false);
 		filechooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		
 		int val = filechooser.showOpenDialog(filechooser);
 		
 		if (val == JFileChooser.APPROVE_OPTION)
@@ -48,7 +50,9 @@ public class PDFReport
 			String documentName = filechooser.getSelectedFile().getName();
 			System.out.println("Document Name will be : " + documentName);
 			
-			generateImages(fullPath,itemLog);
+			generateMap(rowNames,colNames,fullPath,itemLog);
+			
+			generateImages(rowNames,colNames,fullPath,itemLog);
 			
 		}
 		
@@ -71,7 +75,7 @@ public class PDFReport
 		PDFont fontPlain = PDType1Font.HELVETICA;
 
 		PDDocument document = new PDDocument();
-		PDPage page = new PDPage(PDPage.PAGE_SIZE_A3);
+		PDPage page = new PDPage(PDPage.PAGE_SIZE_A4);
 		page.setRotation(90);
 		PDRectangle pageBox = page.getMediaBox();
 
@@ -128,10 +132,12 @@ public class PDFReport
 	
 	/**
 	 * Transverse the path and generate images for the itemLogs found
+	 * @param colNames 
+	 * @param rowNames 
 	 * @param fullPath
 	 * @param itemLog
 	 */
-	private static void generateImages(String fullPath, String itemLog)
+	private static void generateMap(ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, String itemLog)
 	{
 		// Level 1
 		String level1dirs[] = FileUtil.getDirectoriesInDir(fullPath);		
@@ -144,45 +150,35 @@ public class PDFReport
 		{
 			for(String level1dir : level1dirs)
 			{
-				String level1Path = fullPath + File.separator +level1dir;
-				System.out.println("L1 Path : " + level1Path);
-				
-				if(FileUtil.dirContainsFileNamed(level1Path,itemLog))
+				if(!level1dir.equals("images"))
 				{
-					// A directory with 1 level of groups
-					
-				}
-				else
-				{
-					// A directory with 2 levels of groups
-					String level2dirs[] = FileUtil.getDirectoriesInDir(level1Path);
-					
-					for(String level2dir : level2dirs)
+
+					String level1Path = fullPath + File.separator +level1dir;
+					System.out.println("l1 Dir : " + level1dir);
+					rowNames.add(level1dir);
+	
+					if(FileUtil.dirContainsFileNamed(level1Path,itemLog))
 					{
+						// A directory with 1 level of groups
+					}
+					else
+					{	
+						// A directory with 2 levels of groups
+						String level2dirs[] = FileUtil.getDirectoriesInDir(level1Path);
 						
-						String level2Path = level1Path + File.separator +level2dir;
-						System.out.println("L2 Path : " + level2Path);
-						
-						System.out.println(level2Path);
-
-						if(FileUtil.dirContainsFileNamed(level2Path,itemLog))
+						for(String level2dir : level2dirs)
 						{
-							String imagePath = fullPath + File.separator + "images";
-							String exportPath = imagePath + File.separator + level1dir;
-							String logPath = level2Path + File.separator + itemLog;
-							
-							String imageName = level2dir.substring(level2dir.lastIndexOf(']')+1, level2dir.length());
-							
-							FileUtil.createDirIfNotExist(imagePath);
-							FileUtil.createDirIfNotExist(exportPath);
-							
-							imageExporter.submit(new ImageExporter(logPath, 0, exportPath, imageName));			
-							imageExporter.submit(new ImageExporter(logPath, 1, exportPath, imageName+"-standard-deviation"));			
-
+							String level2Path = fullPath + File.separator +level1dir + File.separator + level2dir;
+	
+							if(FileUtil.dirContainsFileNamed(level2Path,itemLog))
+							{
+								System.out.println("L2 Dir : " + level2dir);
+								colNames.add(level2dir);
+							}
+	
 						}
 						
 					}
-					
 				}
 				
 			}
@@ -190,16 +186,60 @@ public class PDFReport
 		}
 	}
 	
+	/**
+	 * Transverse the path and generate images for the itemLogs found
+	 * @param colNames 
+	 * @param rowNames 
+	 * @param fullPath
+	 * @param itemLog
+	 */
+	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, String itemLog)
+	{
+		for(String row : rowNames)
+		{
+			for(String col : colNames)
+			{
+				String path = fullPath + File.separator + row + File.separator + col;
+				System.out.println("Path : " + path);
+
+				if(FileUtil.dirContainsFileNamed(path,itemLog))
+				{
+					String imagePath = fullPath + File.separator + "images";
+					String exportPath = imagePath + File.separator + row;
+					String logPath = path + File.separator + itemLog;
+					
+					String imageName = path.substring(path.lastIndexOf(']')+1, path.length());
+					
+					System.out.println("imagePath : " + imagePath);
+					System.out.println("exportPath : " + exportPath);
+					System.out.println("logPath : " + logPath);
+					System.out.println("imageName : " + imageName);
+					
+					FileUtil.createDirIfNotExist(imagePath);
+					FileUtil.createDirIfNotExist(exportPath);
+					
+					imageExporter.submit(new ImageExporter(600,400,logPath, 0, exportPath, imageName));			
+					imageExporter.submit(new ImageExporter(600,400,logPath, 1, exportPath, imageName+"-standard-deviation"));
+
+				}
+			}
+		}
+	}
+	
 	public static class ImageExporter implements Runnable
 	{
+		private int width;
+		private int height;
 		private String sourceLog;
 		private int mode;
 		private String exportPath;
 		private String imageName;
-
-		public ImageExporter(String sourceLog, int mode, String exportPath, String imageName)
+		
+		public ImageExporter(int width, int height, String sourceLog, int mode, String exportPath, String imageName)
 		{
 			super();
+			this.width = width;
+			this.height = height;
 			this.sourceLog = sourceLog;
 			this.mode = mode;
 			this.exportPath = exportPath;
@@ -209,7 +249,7 @@ public class PDFReport
 		@Override
 		public void run()
 		{
-			ChartUtil.ExportSurfacePlot(sourceLog, mode, exportPath, imageName);			
+			ChartUtil.ExportSurfacePlot(width,height,sourceLog, mode, exportPath, imageName);			
 		}
 		
 	}
