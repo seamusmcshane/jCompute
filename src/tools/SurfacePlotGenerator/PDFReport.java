@@ -59,7 +59,7 @@ public class PDFReport
 
 			generateMap(rowNames, colNames, fullPath, itemLog);
 
-			// generateImages(rowNames,colNames,fullPath,itemLog);
+			generateImages(rowNames,colNames,fullPath,itemLog);
 
 			try
 			{
