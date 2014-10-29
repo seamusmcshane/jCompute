@@ -1,6 +1,9 @@
 package tools.SurfacePlotGenerator;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.jzy3d.plot3d.builder.Mapper;
@@ -8,10 +11,10 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 
 public class BatchLogProcessorMapper extends Mapper
 {
-	double values[][][];
+	//double values[][][];
 	
 	double plotValues[][];
-	
+	private ArrayList<Double>[][] surfaceLists;	
 	
 	private int samplesPerItem;
 		
@@ -33,7 +36,6 @@ public class BatchLogProcessorMapper extends Mapper
 	
 	private String yAxisName = "";
 	private TickValueMapper yMapper;
-
 	
 	private String zAxisName = "Step";
 	
@@ -88,9 +90,11 @@ public class BatchLogProcessorMapper extends Mapper
 		System.out.println("Creating Plot Array");
 		plotValues = new double[matrixDim][matrixDim];
 		
-		System.out.println("Creating Values Array");
-		values = new double[matrixDim][matrixDim][samplesPerItem];
 		
+		System.out.println("Creating Surface Lists");
+		//values = new double[matrixDim][matrixDim][samplesPerItem];
+		surfaceLists = new ArrayList[matrixDim][matrixDim];
+
 		System.out.println("Initialising Values");
 
 		for(int x=0;x<matrixDim;x++)
@@ -100,7 +104,8 @@ public class BatchLogProcessorMapper extends Mapper
 				for(int s=0;s<samplesPerItem;s++)
 				{
 					// A value to detect the slot is not filled
-					values[x][y][s] = Double.NEGATIVE_INFINITY;
+					// values[x][y][s] = Double.NEGATIVE_INFINITY;
+					surfaceLists[x][y] = new ArrayList<Double>();
 				}
 				
 			}
@@ -125,7 +130,7 @@ public class BatchLogProcessorMapper extends Mapper
 
 			
 			// Loop through the sample array and find the next free slot
-			int s = 0;
+			/*int s = 0;
 			for(s=0;s<samplesPerItem;s++)
 			{
 				if(values[x][y][s] == Double.NEGATIVE_INFINITY)
@@ -133,7 +138,9 @@ public class BatchLogProcessorMapper extends Mapper
 					break;
 				}
 			}
-			values[x][y][s] = val;
+			values[x][y][s] = val;*/
+		
+			surfaceLists[x][y].add((double)val);
 			
 			// System.out.println("pos["+x+"]["+y+"] : " + pos[x][y]);
 			
@@ -179,10 +186,16 @@ public class BatchLogProcessorMapper extends Mapper
 				{
 					double total = 0;
 					double avg = 0;
-					for(int i=0;i<samplesPerItem;i++)
+					
+					for(double val : surfaceLists[x][y])
+					{
+						total+=val;
+					}
+					
+					/*for(int i=0;i<samplesPerItem;i++)
 					{
 						total += values[x][y][i];
-					}
+					}*/
 					avg = total / samplesPerItem;
 					
 					if(!doStdDev)
@@ -192,10 +205,15 @@ public class BatchLogProcessorMapper extends Mapper
 					else
 					{
 						double stdDevTotal = 0;
-						for(int i=0;i<samplesPerItem;i++)
+						
+						for(double val : surfaceLists[x][y])
+						{
+							stdDevTotal += (avg-val) * (avg-val) ;
+						}
+						/*for(int i=0;i<samplesPerItem;i++)
 						{
 							stdDevTotal += (avg-values[x][y][i]) * (avg-values[x][y][i]) ;
-						}
+						}*/
 						
 						// StdDev
 						plotValues[x][y] = Math.sqrt(stdDevTotal/samplesPerItem);
