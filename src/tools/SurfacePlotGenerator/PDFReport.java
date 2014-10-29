@@ -74,8 +74,6 @@ public class PDFReport
 
 			generateReport(documentName,rowNames, colNames, fullPath, scale);
 			
-			createDocument(fullPath);
-
 		}
 
 		System.out.println("Report Finished");
@@ -215,50 +213,6 @@ public class PDFReport
 			e.printStackTrace();
 		}
 
-	}
-	
-	private static void createDocument(String path)
-	{
-		PDFont fontPlain = PDType1Font.HELVETICA;
-
-		PDDocument document = new PDDocument();
-
-		PDPage page = new PDPage(PDPage.PAGE_SIZE_A4);
-		PDRectangle pageBox = page.getMediaBox();
-		
-		System.out.println("Page Width : " + pageBox.getWidth());
-		System.out.println("Page Height : " + pageBox.getHeight());
-		
-		page.setRotation(90);
-
-		document.addPage(page);
-
-		PDPageContentStream cos;
-
-		try
-		{
-			cos = new PDPageContentStream(document, page);
-			cos.concatenate2CTM(0, 1, -1, 0, pageBox.getHeight(), 0);
-
-			cos.beginText();
-			cos.setFont(fontPlain, 12);
-			cos.moveTextPositionByAmount(0, pageBox.getHeight() - 10);
-			cos.drawString("Hello World");
-			cos.endText();
-
-			addImage(document,page,cos,path + File.separator + "test.png",10,100,0.5f);
-
-			addRectangle(document, page, cos, 10, 100, 300, 300, 1f);
-			cos.close();
-
-			document.save(path + File.separator + "test.pdf");
-			document.close();
-
-		}
-		catch(IOException | COSVisitorException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	private static void addImage(PDDocument doc, PDPage page, PDPageContentStream cs, String file, float x, float y,
