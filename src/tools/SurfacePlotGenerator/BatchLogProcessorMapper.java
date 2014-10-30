@@ -1,8 +1,6 @@
 package tools.SurfacePlotGenerator;
 
 import java.io.File;
-import java.util.ArrayList;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.jzy3d.plot3d.builder.Mapper;
@@ -10,8 +8,17 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 
 public class BatchLogProcessorMapper extends Mapper
 {
+	// Values
+	double valueTotals[][];
+
+	// Averages
+	double avgs[][];
+
+	// Totals of the deviations
+	double stddevTotals[][];
+
+	// Plot Values
 	double plotValues[][];
-	private ArrayList<Double>[][] surfaceLists;
 
 	private int samplesPerItem;
 
@@ -19,9 +26,9 @@ public class BatchLogProcessorMapper extends Mapper
 	private XMLConfiguration logFile;
 
 	private int xPosMin = Integer.MAX_VALUE;
-	private int xPosMax = Integer.MIN_VALUE;;
+	private int xPosMax = Integer.MIN_VALUE;
 	private int yPosMin = Integer.MAX_VALUE;
-	private int yPosMax = Integer.MIN_VALUE;;
+	private int yPosMax = Integer.MIN_VALUE;
 	private int xSteps = 0;
 	private int ySteps = 0;
 
@@ -85,40 +92,44 @@ public class BatchLogProcessorMapper extends Mapper
 		System.out.println("Creating Plot Array");
 		plotValues = new double[matrixDim][matrixDim];
 
-		System.out.println("Creating Surface Lists");
-		surfaceLists = new ArrayList[matrixDim][matrixDim];
+		System.out.println("Creating Values Array");
+		valueTotals = new double[matrixDim][matrixDim];
 
-		System.out.println("Initialising Lists");
+		System.out.println("Creating Averages Array");
+		avgs = new double[matrixDim][matrixDim];
 
-		for(int x = 0; x < matrixDim; x++)
+		if(doStdDev)
 		{
-			for(int y = 0; y < matrixDim; y++)
-			{
-				for(int s = 0; s < samplesPerItem; s++)
-				{
-					// A value to detect the slot is not filled
-					surfaceLists[x][y] = new ArrayList<Double>(samplesPerItem);
-				}
-
-			}
+			System.out.println("Creating Deviation Totals Array");
+			stddevTotals = new double[matrixDim][matrixDim];
 		}
+
+		System.out.println("Initialising Values");
 
 		System.out.println(xAxisName);
 		System.out.println(yAxisName);
 
-		System.out.println("Reading Values");
+		System.out.println("Reading Items Values");
+
+		int mod = itemTotal / 10;
 
 		for(int i = 0; i < itemTotal; i++)
 		{
 			path = "Items.Item(" + i + ")";
 
+			// int coordTotal =
+			// logFile.configurationsAt(path+".Coordinates").size();
+			// for(int c=1;c<coordTotal;c++)
+			// {
 			int x = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Pos");
 			int xVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Value");
 			int y = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Pos");
 			int yVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Value");
 			int val = Integer.parseInt(logFile.getString(path + "." + "StepCount"));
+			// }
 
-			surfaceLists[x][y].add((double) val);
+			// Loop through the sample array and find the next free slot
+			valueTotals[x][y] += val;
 
 			// System.out.println("pos["+x+"]["+y+"] : " + pos[x][y]);
 
@@ -153,42 +164,73 @@ public class BatchLogProcessorMapper extends Mapper
 				yValMax = yVal;
 			}
 
+			if(i % mod == 0)
+			{
+				System.out.printf(" %.2f\n", (double) i / itemTotal);
+			}
+
 		}
 
-		// Average the samples
-		System.out.println("Calulating Plot Values");
-		for(int x = 0; x < matrixDim; x++)
+		if(doStdDev)
 		{
-			for(int y = 0; y < matrixDim; y++)
+			System.out.println("Calculating Standard Deviation (avg)");
+
+			// Calculate All Averages
+			for(int x = 0; x < matrixDim; x++)
 			{
-				double total = 0;
-				double avg = 0;
-
-				for(double val : surfaceLists[x][y])
+				for(int y = 0; y < matrixDim; y++)
 				{
-					total += val;
+					avgs[x][y] = valueTotals[x][y] / samplesPerItem;
 				}
+			}
 
-				avg = total / samplesPerItem;
+			System.out.println("Reading Items Values - Standard Deviation (totals)");
 
-				if(!doStdDev)
+			for(int i = 0; i < itemTotal; i++)
+			{
+				path = "Items.Item(" + i + ")";
+
+				// int coordTotal =
+				// logFile.configurationsAt(path+".Coordinates").size();
+				// for(int c=1;c<coordTotal;c++)
+				// {
+				int x = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Pos");
+				int xVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Value");
+				int y = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Pos");
+				int yVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Value");
+				int val = Integer.parseInt(logFile.getString(path + "." + "StepCount"));
+				// }
+
+				stddevTotals[x][y] += (avgs[x][y] - val) * (avgs[x][y] - val);
+
+				if(i % mod == 0)
 				{
-					plotValues[x][y] = avg;
+					System.out.printf(" %.2f\n", (double) i / itemTotal);
 				}
-				else
+			}
+
+			System.out.println("Calculating Standard Deviation (deviation)");
+
+			// Plot values are standard deviations
+			for(int x = 0; x < matrixDim; x++)
+			{
+				for(int y = 0; y < matrixDim; y++)
 				{
-					double stdDevTotal = 0;
+					plotValues[x][y] = Math.sqrt(stddevTotals[x][y] / samplesPerItem);
+				}
+			}
 
-					for(double val : surfaceLists[x][y])
-					{
-						stdDevTotal += (avg - val) * (avg - val);
-					}
+		}
+		else
+		{
+			System.out.println("Calculating Averages");
 
-					// StdDev
-					plotValues[x][y] = Math.sqrt(stdDevTotal / samplesPerItem);
-
-					// variance
-					// plotValues[x][y] = stdDevTotal/samplesPerItem;
+			// Averages are the plot values
+			for(int x = 0; x < matrixDim; x++)
+			{
+				for(int y = 0; y < matrixDim; y++)
+				{
+					plotValues[x][y] = valueTotals[x][y] / samplesPerItem;
 				}
 
 			}
