@@ -7,6 +7,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,7 @@ public class PDFReport
 
 	private final static ArrayList<String> rowNames = new ArrayList<String>();
 	private final static ArrayList<String> colNames = new ArrayList<String>();
+	private final static Map<String,String> cells = new HashMap<String,String>();
 
 	public static void main(String args[])
 	{
@@ -56,10 +59,9 @@ public class PDFReport
 			String documentName = filechooser.getSelectedFile().getName();
 			System.out.println("Document Name will be : " + documentName);
 
-			generateMap(rowNames, colNames, fullPath, itemLog);
-
-			generateImages(rowNames,colNames,fullPath,itemLog);
-
+			generateMap(rowNames, colNames, cells, fullPath, itemLog);
+						
+			generateImages(rowNames,colNames,cells , fullPath,itemLog);
 			try
 			{
 				imageExporter.shutdown();
@@ -69,7 +71,7 @@ public class PDFReport
 			catch(InterruptedException e)
 			{
 				e.printStackTrace();
-			}
+			}			
 
 			generateReport(documentName,rowNames, colNames, fullPath, scale);
 			
@@ -100,9 +102,7 @@ public class PDFReport
 	}
 
 	private static void addReportPage(String documentName,PDDocument doc,ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale, String pageTitle)
-	{
-		int colReal = colNames.size() / rowNames.size();
-		
+	{		
 		int documentTitleSize = 32;
 		int pageTitleSize = 18;
 		
@@ -110,7 +110,7 @@ public class PDFReport
 		float xMargin = 50;
 		float yMargin = 50;
 		
-		float pageWidth = (imageWidth*scale) * colReal + xMargin*2;
+		float pageWidth = (imageWidth*scale) * colNames.size() + xMargin*2;
 		float pageHeight = (imageHeight*scale) * rowNames.size() + yMargin*2 + titleHeight;
 		
 		String imagesSuffix = "";
@@ -147,19 +147,15 @@ public class PDFReport
 
 			for(String col : colNames)
 			{
-				if(colX >= colReal)
-				{
-					break;
-				}
-				
 				String path = fullPath + File.separator + row + File.separator + col;
 				System.out.println("Path : " + path);
 
 				String imagesPath = fullPath + File.separator + "images";
 				String exportPath = imagesPath + File.separator + row;
 
-				String imageName = path.substring(path.lastIndexOf(']') + 2, path.length());
-
+				String logDir = cells.get(row+col);
+				String imageName = logDir.substring(logDir.lastIndexOf(']') + 2, logDir.length());
+				
 				System.out.println("imagePath : " + imagesPath);
 				System.out.println("exportPath : " + exportPath);
 				System.out.println("imageName : " + imageName);
@@ -243,36 +239,91 @@ public class PDFReport
 	 * @param fullPath
 	 * @param itemLog
 	 */
-	private static void generateMap(ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath,
+	private static void generateMap(ArrayList<String> rowNames, ArrayList<String> colNames,Map<String,String> cells, String fullPath,
 			String itemLog)
 	{
 		// Level 1
 		String level1dirs[] = FileUtil.getDirectoriesInDir(fullPath);
 
-		if(FileUtil.dirContainsFileNamed(fullPath + File.separator + level1dirs[0], itemLog))
+		if(FileUtil.dirContainsFileNamed(fullPath + File.separator, itemLog))
 		{
 			// A single directory
+			System.out.println("Single Dir");
+
 		}
 		else
 		{
+			// Detect special cases
+			boolean doColumns = true;
+			boolean doRows = true;
+			
 			for(String level1dir : level1dirs)
 			{
 				if(!level1dir.equals("images"))
 				{
-
 					String level1Path = fullPath + File.separator + level1dir;
 					System.out.println("l1 Dir : " + level1dir);
-					rowNames.add(level1dir);
+					
+					// Row Name
+					String rowName;
 
 					if(FileUtil.dirContainsFileNamed(level1Path, itemLog))
 					{
 						// A directory with 1 level of groups
+						System.out.println("Group Dir");
+					
+						rowName = fullPath.substring(fullPath.lastIndexOf(File.separator)+1, fullPath.length());
+
+						if(doRows)
+						{
+							doRows = false;							
+							rowNames.add(rowName);
+							System.out.println("Row Name : " + rowName);
+						}
+						
+						String colName = level1dir;
+						colNames.add(colName);
+						System.out.println("Column Name : " + colName);
+						
+						String index = rowName + colName;
+						
+						// Add Cell Index - item log locations
+						cells.put(index, level1Path);
+						
+						System.out.println("Added Cell " + cells.size());
+
 					}
 					else
 					{
+						// Row Name
+						rowName = level1dir;
+						rowNames.add(rowName);
+						System.out.println("Row Name : " + rowName);
+						
 						// A directory with 2 levels of groups
 						String level2dirs[] = FileUtil.getDirectoriesInDir(level1Path);
-
+						
+						if(doColumns)
+						{
+							doColumns = false;
+							// Detect Column Names - Assumes all sub directories match the first directories layout.
+							String columnDir = level2dirs[0];
+							
+							String columPath = fullPath + File.separator + level1dir + File.separator + columnDir;
+							
+							String columDirs[] = FileUtil.getDirectoriesInDir(level1Path);
+							
+							for(String dir : columDirs)
+							{
+								String colName = dir.substring(dir.lastIndexOf(']') + 2, dir.length());
+								
+								colNames.add(colName);
+								
+								System.out.println("Column Name : " + colName);
+							}
+							
+						}
+						// Now Index Cells
 						for(String level2dir : level2dirs)
 						{
 							String level2Path = fullPath + File.separator + level1dir + File.separator + level2dir;
@@ -280,7 +331,15 @@ public class PDFReport
 							if(FileUtil.dirContainsFileNamed(level2Path, itemLog))
 							{
 								System.out.println("L2 Dir : " + level2dir);
-								colNames.add(level2dir);
+								
+								String colName = level2dir.substring(level2dir.lastIndexOf(']') + 2, level2dir.length());
+								
+								String index = rowName + colName;
+								
+								// Add Cell Index - item log locations
+								cells.put(index, level2Path);
+								
+								System.out.println("Added Cell " + cells.size());
 							}
 
 						}
@@ -301,10 +360,10 @@ public class PDFReport
 	 * @param fullPath
 	 * @param itemLog
 	 */
-	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath,
+	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames,Map<String,String> cells, String fullPath,
 			String itemLog)
 	{
-		for(String row : rowNames)
+		/*for(String row : rowNames)
 		{
 			for(String col : colNames)
 			{
@@ -333,7 +392,38 @@ public class PDFReport
 
 				}
 			}
+		}*/
+		
+		for(String row : rowNames)
+		{
+			for(String col : colNames)
+			{
+				String path = fullPath + File.separator + row + File.separator + col;
+				System.out.println("Path : " + path);
+
+				String imagesPath = fullPath + File.separator + "images";				
+				String exportPath = imagesPath + File.separator + row;
+				
+				String logDir = cells.get(row+col);
+				String imageName = logDir.substring(logDir.lastIndexOf(']') + 2, logDir.length());
+				String logPath = logDir + File.separator + itemLog;
+				System.out.println("logDir : " + logDir);
+
+				System.out.println("imagesPath : " + imagesPath);
+				System.out.println("exportPath : " + exportPath);
+				System.out.println("logPath : " + logPath);
+				System.out.println("imageName : " + imageName);
+
+				FileUtil.createDirIfNotExist(imagesPath);
+				FileUtil.createDirIfNotExist(exportPath);
+
+				imageExporter.submit(new ImageExporter(imageWidth, imageHeight, logPath, 0, exportPath, imageName));
+				imageExporter.submit(new ImageExporter(imageWidth, imageHeight, logPath, 1, exportPath, imageName + "-standard-deviation"));
+
+				
+			}
 		}
+
 	}
 
 	public static class ImageExporter implements Runnable
