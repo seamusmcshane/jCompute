@@ -69,22 +69,6 @@ public class ChartUtil
 		chart.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
 
 		chart.getView().setViewPositionMode(ViewPositionMode.TOP);
-		/*final int offset = -20;
-		((AWTChart)chart).addRenderer(new Renderer2d()
-		{
-			public void paint(Graphics g)
-			{
-				Graphics2D g2d = (Graphics2D) g;
-				g2d.setStroke(new BasicStroke(1.0f));
-				g2d.setColor(java.awt.Color.BLACK);
-				g2d.drawRect(10, height/2-50+offset, 140, 100);
-				
-				g2d.drawString("X : " + mapper.getXAxisName() , 15, height/2-25+offset);
-				g2d.drawString("Y : " + mapper.getYAxisName() , 15, height/2+offset);
-				g2d.drawString("Z : " + mapper.getZAxisName() , 15, height/2+25+offset);
-
-			}
-		});*/
 		
 		JFrame frame = new JFrame();
 		frame.setLayout(new BorderLayout());
