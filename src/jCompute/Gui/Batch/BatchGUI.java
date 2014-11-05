@@ -8,6 +8,7 @@ import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchCompletedRowItem;
+import jCompute.Gui.Batch.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Batch.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchQueueRowItem;
 import jCompute.Gui.Component.SimpleTabPanel;
@@ -22,6 +23,7 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
+import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 import jCompute.util.FileUtil;
 
 import java.awt.Dimension;
@@ -116,6 +118,7 @@ public class BatchGUI
 	private SimpleTabPanel batchStatusTabPanel;
 	private TablePanel clusterStatusTablePanel;
 	private TablePanel clusterNodesTablePanel;
+	private int nodeCount = 0;
 
 	private Timer activeSimulationsListTableUpdateTimer;
 
@@ -161,6 +164,10 @@ public class BatchGUI
 			public void run()
 			{
 				updateBatchInfo(queuedOrCompleted);
+
+				updateClusterInfo();
+
+				updateNodeInfo();
 			}
 
 		}, 0, 2000);
@@ -208,9 +215,17 @@ public class BatchGUI
 		batchStatusTabPanel.setPreferredSize(new Dimension(300, 150));
 
 		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
+		clusterStatusTablePanel.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
+		clusterStatusTablePanel.addColumRenderer(new HeaderRowRenderer(clusterStatusTablePanel.getJTable()), 0);
+
 		clusterStatusTablePanel.setColumWidth(0, 125);
 		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
 
+		clusterNodesTablePanel.setColumWidth(0, 50);
+		clusterNodesTablePanel.setColumWidth(1, 75);
+		// clusterNodesTablePanel.setColumWidth(2, 60);
+		clusterNodesTablePanel.setColumWidth(3, 75);
+		clusterNodesTablePanel.setColumWidth(4, 75);
 
 		GridBagLayout gbl_clusterActivityPanel = new GridBagLayout();
 		gbl_clusterActivityPanel.columnWidths = new int[]
@@ -755,6 +770,59 @@ public class BatchGUI
 
 			}
 		});
+	}
+
+	private void updateNodeInfo()
+	{
+		NodeConfiguration[] nodesInfo = batchManager.getNodesInfo();
+
+		// In case Nodes have been added or removed - compare the previous row
+		// count to the current.
+		if(nodesInfo.length != nodeCount)
+		{
+			nodeCount = nodesInfo.length;
+
+			clusterNodesTablePanel.clearTable();
+
+			for(int i = 0; i < nodeCount; i++)
+			{
+				clusterNodesTablePanel.addRow(new NodeInfoRowItem(nodesInfo[i]));
+			}
+		}
+		else
+		{
+			for(int i = 0; i < nodeCount; i++)
+			{
+				clusterNodesTablePanel.updateRow(nodesInfo[i].getUid(), new NodeInfoRowItem(nodesInfo[i]));
+			}
+		}
+
+	}
+
+	private void updateClusterInfo()
+	{
+		String clusterStatus[] = batchManager.getClusterStatus();
+
+		// Batch Info
+		int clusterStatusLength = clusterStatus.length;
+
+		if(clusterStatusTablePanel.getRowsCount() <= 0)
+		{
+			for(int i = 0; i < clusterStatusLength; i += 2)
+			{
+				clusterStatusTablePanel.addRow(new SimpleInfoRowItem(clusterStatus[i], clusterStatus[i + 1]));
+			}
+		}
+		else
+		{
+			for(int i = 0; i < clusterStatusLength; i += 2)
+			{
+				clusterStatusTablePanel.updateRow(clusterStatus[i], new SimpleInfoRowItem(clusterStatus[i],
+						clusterStatus[i + 1]));
+
+			}
+		}
+
 	}
 
 	private void updateBatchInfo(int srcTable)
