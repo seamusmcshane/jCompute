@@ -7,6 +7,8 @@ import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
 import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
 import jCompute.Simulation.SimulationManager.Network.Node.Node;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -48,30 +50,56 @@ public class Launcher
 			new CommandLineArg("mcs", "8","Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)")
 			, new CommandLineArg("iTheme", "none","Icon Theme Name (String)"),new CommandLineArg("bText", "1","Button Text (0/1)")
 			, new CommandLineArg("sm", "0","Simulation Manager Local/Network(0/1)"),new CommandLineArg("addr", "127.0.0.1","Listening Address (InetAddr)")
+			,new CommandLineArg("loglevel", "0","Log Level(0/1)")
 	};
 	
 	public static void main(String args[])
-	{
-		// Set location of log4j2 config
-		//System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
-
-		// Configure the launcher logger - as it is the first class it needs to be after l4j2 conf.
-		log = LoggerFactory.getLogger(Launcher.class);
-		
-	    String tmpDir = System.getProperty("java.io.tmpdir");
-	    log.info("Temp dir provided by OS : " + tmpDir);
-	    
+	{	    
 		indexDefaults();
 
 		parseCommandLine(args);
-
-		displayValues();
 		
-		implementOpts();		
+		implementOpts();
+		
+		displayValues();
 	}
 	
 	private static void implementOpts()
 	{
+		int loglevel =  Integer.parseInt(opts.get("loglevel").getValue());	
+		
+		switch(loglevel)
+		{
+			case 1:
+				// Debug 
+				System.setProperty("log4j.configurationFile", "log/config/log4j2-debug.xml");					
+				System.out.println("Enabled Debug Log Level");
+			break;
+			case 0:
+			default:
+				// Standard
+				System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");				
+				System.out.println("Enabled Standard Log Level");
+			break;				
+		}
+
+		// Configure the launcher logger - as it is the first class it needs to be after l4j2 conf.
+		log = LoggerFactory.getLogger(Launcher.class);
+		
+		try
+		{
+			String hostAddress = InetAddress.getLocalHost().getHostAddress();
+			log.info("Host Address : " + hostAddress);
+		}
+		catch(UnknownHostException e)
+		{
+			log.error("Hostname lookup failed");
+			e.printStackTrace();
+		}
+		
+	    String tmpDir = System.getProperty("java.io.tmpdir");
+	    log.info("Temp dir provided by OS : " + tmpDir);
+		
 		String iTheme = opts.get("iTheme").getValue();
 		IconManager.init(iTheme);
 		
@@ -157,7 +185,7 @@ public class Launcher
 	// Get all the command line args and puts then in the map
 	private static void getOptions(String cmdline)
 	{
-		log.info("Command line was : " + cmdline);
+		System.out.println("Command line was : " + cmdline);
 
 		String options[] = cmdline.split(",");
 
