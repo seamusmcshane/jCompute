@@ -198,7 +198,6 @@ public class BatchGUI
 		splitPaneOuterNSSplit.setLeftComponent(splitPaneBatchInfo);
 		splitPaneBatchInfo.setLeftComponent(batchQueuedAndCompletePanel);
 
-		//bottomSplitContainer = new JPanel(new BorderLayout());
 		bottomSplitContainerSplit = new JSplitPane();
 		bottomSplitContainerSplit.setOneTouchExpandable(false);
 		bottomSplitContainerSplit.setContinuousLayout(true);
