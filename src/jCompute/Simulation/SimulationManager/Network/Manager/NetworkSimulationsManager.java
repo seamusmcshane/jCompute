@@ -32,7 +32,11 @@ public class NetworkSimulationsManager
 	// Dynamic based on total of active nodes max sims
 	private int maxSims = 0;
 
+	// Value Used for mapping
 	private int simulationNum = 0;
+
+	// Total of the simulation processed
+	private long simulations = 0;
 
 	/* Server Listening Socket */
 	private ServerSocket listenSocket;
@@ -360,6 +364,8 @@ public class NetworkSimulationsManager
 					// Increment the simUID values
 					simulationNum++;
 
+					simulations++;
+
 					mapping.setLocalSimId(simulationNum);
 
 					// Locally cache the mapping
@@ -493,6 +499,38 @@ public class NetworkSimulationsManager
 	public int getMaxSims()
 	{
 		return maxSims;
+	}
+
+
+	public String[] getStatus()
+	{
+		ArrayList<String> status = new ArrayList<String>();
+
+		status.add("Address");
+		status.add(listenSocket.getInetAddress().getHostAddress());
+
+		status.add("Port");
+		status.add(String.valueOf(listenSocket.getLocalPort()));
+
+		status.add("");
+		status.add("");
+
+		status.add("Connecting Nodes");
+		status.add(String.valueOf(connectingNodes.size()));
+
+		status.add("Active Nodes");
+		status.add(String.valueOf(activeNodes.size()));
+
+		status.add("");
+		status.add("");
+
+		status.add("Max Active Sims");
+		status.add(String.valueOf(maxSims));
+
+		status.add("Added Sims");
+		status.add(String.valueOf(simulations));
+
+		return status.toArray(new String[status.size()]);
 	}
 
 }
