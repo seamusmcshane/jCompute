@@ -29,7 +29,7 @@ public class Batch implements StoredQueuePosition
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
-	
+
 	/* Batch Attributes */
 	private int position;
 	private int batchId;
@@ -42,14 +42,13 @@ public class Batch implements StoredQueuePosition
 
 	private String batchFileName;
 	private String baseScenarioFileName;
-	
+
 	private int itemsRequested = 0;
 	private int itemsReturned = 0;
 
 	private int batchItems = 0;
 	private int itemSamples;
-	
-	
+
 	// Maximum steps for simulations in this batch
 	private int maxSteps = 0;
 
@@ -126,7 +125,7 @@ public class Batch implements StoredQueuePosition
 		log.info("New Batch based on : " + filePath);
 		this.batchFileName = getFileName(filePath);
 		log.debug("File : " + batchFileName);
-		
+
 		batchName = batchFileName.replaceAll("\\s*\\b.batch\\b\\s*", "");
 
 		try
@@ -138,7 +137,7 @@ public class Batch implements StoredQueuePosition
 
 			status = processBatchConfig(batchConfigText);
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			e.printStackTrace();
 			status = false;
@@ -180,24 +179,24 @@ public class Batch implements StoredQueuePosition
 		batchConfigProcessor.loadConfig(batchConfigText);
 
 		status = checkBatchFile();
-		
-		if (status)
+
+		if(status)
 		{
 			setBaseFilePath(fileText);
 
 			baseScenarioText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
 
 			ScenarioInf baseScenario = ScenarioManager.getScenario(baseScenarioText);
-			
-			if (baseScenario != null)
-			{				
+
+			if(baseScenario != null)
+			{
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
-				
+
 				type = baseScenario.getScenarioType();
 				log.debug(type);
 
 				generateCombos();
-				
+
 				setBatchStatExportDir();
 			}
 			else
@@ -214,8 +213,8 @@ public class Batch implements StoredQueuePosition
 	private boolean checkBatchFile()
 	{
 		boolean status = true;
-		
-		if (!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch"))
+
+		if(!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch"))
 		{
 			status = false;
 			log.error("Invalid Batch File");
@@ -228,8 +227,10 @@ public class Batch implements StoredQueuePosition
 	{
 		try
 		{
-			infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.xml", true)));
-			itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.xml", true)));
+			infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
+					+ "InfoLog.xml", true)));
+			itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
+					+ "ItemLog.xml", true)));
 
 			/* Common Log Header */
 			itemLog.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
@@ -239,7 +240,7 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("<LogType>" + "BatchItems" + "</LogType>");
 			itemLog.println("<SamplesPerItem>" + itemSamples + "</SamplesPerItem>");
 			itemLog.println("<AxisLabels>");
-			for (int c = 1; c < numCordinates + 1; c++)
+			for(int c = 1; c < numCordinates + 1; c++)
 			{
 				itemLog.println("<AxisLabel>");
 
@@ -271,7 +272,7 @@ public class Batch implements StoredQueuePosition
 			infoLog.println("<Start>" + startDateTime + "</Start>");
 			infoLog.flush();
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			System.out.println("Could not created log file");
 		}
@@ -287,39 +288,40 @@ public class Batch implements StoredQueuePosition
 		log.debug(date + "+" + time);
 
 		String section = "Config";
-		
+
 		// Normally stats/
 		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
-		
+
 		// Create Stats Dir
 		FileUtil.createDirIfNotExist(baseExportDir);
-				
+
 		// Group Batches of Stats
 		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
 
 		String subgroupDirName = batchConfigProcessor.getStringValue(section, "BatchSubGroupDirName");
 
 		// Append Group name to export dir and create if needed
-		if(groupDirName!=null)
+		if(groupDirName != null)
 		{
-			baseExportDir = baseExportDir+File.separator+groupDirName;
+			baseExportDir = baseExportDir + File.separator + groupDirName;
 
 			FileUtil.createDirIfNotExist(baseExportDir);
-			
+
 			// Sub Groups
-			if(subgroupDirName!=null)
+			if(subgroupDirName != null)
 			{
-				baseExportDir = baseExportDir+File.separator+subgroupDirName;
+				baseExportDir = baseExportDir + File.separator + subgroupDirName;
 
 				FileUtil.createDirIfNotExist(baseExportDir);
 			}
-			
+
 		}
-		
+
 		int uniqueItems = batchItems / itemSamples;
-				
-		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems + "-" + batchItems + "-" + maxSteps + "] " + batchName;
-		
+
+		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples
+				+ "-" + uniqueItems + "-" + batchItems + "-" + maxSteps + "] " + batchName;
+
 		FileUtil.createDirIfNotExist(batchStatsExportDir);
 
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
@@ -383,7 +385,7 @@ public class Batch implements StoredQueuePosition
 
 		// Iterate over the detected parameters and populate the arrays
 		String section = "";
-		for (int p = 0; p < parameterGroups; p++)
+		for(int p = 0; p < parameterGroups; p++)
 		{
 			// Generate the parameter path in the xml array (0),(1) etc
 			log.debug("Parameter Group : " + p);
@@ -397,7 +399,7 @@ public class Batch implements StoredQueuePosition
 
 			// Store the group name if this parameter changes one in a group.
 			GroupName[p] = "";
-			if (ParameterType[p].equalsIgnoreCase("Group"))
+			if(ParameterType[p].equalsIgnoreCase("Group"))
 			{
 				GroupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
 			}
@@ -431,7 +433,7 @@ public class Batch implements StoredQueuePosition
 
 		int currentValues[] = new int[parameterGroups];
 		int combinations = 1;
-		for (int p = 0; p < parameterGroups; p++)
+		for(int p = 0; p < parameterGroups; p++)
 		{
 			// Set Initial Values used in generation
 			currentValues[p] = Intial[p];
@@ -439,7 +441,7 @@ public class Batch implements StoredQueuePosition
 			// Calculate Total Combinations
 			combinations *= Combinations[p];
 
-			if (p > 0)
+			if(p > 0)
 			{
 				IncrementMod[p] = IncrementMod[p - 1] * Combinations[p];
 			}
@@ -460,48 +462,48 @@ public class Batch implements StoredQueuePosition
 
 		// Combination space coordinates X,Y,Z..
 		ArrayList<Integer> comboCoordinates = new ArrayList<Integer>(parameterGroups);
-		for (int p = 0; p < parameterGroups; p++)
+		for(int p = 0; p < parameterGroups; p++)
 		{
 			// Initialise the coordinates (1 base)
 			comboCoordinates.add(1);
 		}
 
 		// Set the combination Values
-		for (int combo = 1; combo < combinations + 1; combo++)
+		for(int combo = 1; combo < combinations + 1; combo++)
 		{
 			// Create a copy of the base scenario
 			temp = new ConfigurationInterpreter();
 			temp.loadConfig(baseScenarioText);
 
-			StringBuilder logLine = new StringBuilder();			
-			
+			StringBuilder logLine = new StringBuilder();
+
 			// Start of log line + itemName
 			logLine.append("Combo : " + combo);
 			itemName = "Combo " + combo;
 
 			// Change the value for each parameter group
-			for (int p = 0; p < parameterGroups; p++)
+			for(int p = 0; p < parameterGroups; p++)
 			{
 
 				// This is a group parameter
-				if (ParameterType[p].equalsIgnoreCase("Group"))
+				if(ParameterType[p].equalsIgnoreCase("Group"))
 				{
 					// Log line middle
 					logLine.append(" " + Path[p] + "." + GroupName[p] + "." + ParameterName[p] + " " + currentValues[p]);
-					itemName = itemName + " " + Path[p] + "." + GroupName[p] + "." + ParameterName[p] + " " + currentValues[p];
+					itemName = itemName + " " + Path[p] + "." + GroupName[p] + "." + ParameterName[p] + " "
+							+ currentValues[p];
 
-					
 					int groups = temp.getSubListSize(Path[p]);
 
 					// Find the correct group that matches the name
-					for (int sg = 0; sg < groups; sg++)
+					for(int sg = 0; sg < groups; sg++)
 					{
 						String groupSection = Path[sg] + "(" + sg + ")";
 
 						String searchGroupName = temp.getStringValue(groupSection, "Name");
 
 						// Found Group
-						if (searchGroupName.equalsIgnoreCase(GroupName[p]))
+						if(searchGroupName.equalsIgnoreCase(GroupName[p]))
 						{
 							// Combo / targetGroupName / Current GroupName
 							// DebugLogger.output(c + " " + targetGroupName +
@@ -522,26 +524,27 @@ public class Batch implements StoredQueuePosition
 							String dtype = temp.findDataType(Path[p] + "." + ParameterName[p]);
 
 							// Currently only decimal and integer are used.
-							if (dtype.equals("boolean"))
+							if(dtype.equals("boolean"))
 							{
 								temp.changeValue(groupSection, ParameterName[p], new Boolean(true));
 							}
-							else if (dtype.equals("string"))
+							else if(dtype.equals("string"))
 							{
 								temp.changeValue(groupSection, ParameterName[p], " ");
 							}
-							else if (dtype.equals("decimal"))
+							else if(dtype.equals("decimal"))
 							{
 								temp.changeValue(groupSection, ParameterName[p], currentValues[p]);
 							}
-							else if (dtype.equals("integer"))
+							else if(dtype.equals("integer"))
 							{
 								temp.changeValue(groupSection, ParameterName[p], currentValues[p]);
 							}
 							else
 							{
 								// This will not happen unless there is a new
-								// datatype added to the XML standards schema and we use it.
+								// datatype added to the XML standards schema
+								// and we use it.
 								log.error("Unknown XML DTYPE : " + dtype);
 							}
 							/*
@@ -571,19 +574,19 @@ public class Batch implements StoredQueuePosition
 					String dtype = temp.findDataType(Path[p] + "." + ParameterName[p]);
 
 					// Currently only decimal and integer are used.
-					if (dtype.equals("boolean"))
+					if(dtype.equals("boolean"))
 					{
 						temp.changeValue(Path[p], ParameterName[p], new Boolean(true));
 					}
-					else if (dtype.equals("string"))
+					else if(dtype.equals("string"))
 					{
 						temp.changeValue(Path[p], ParameterName[p], " ");
 					}
-					else if (dtype.equals("decimal"))
+					else if(dtype.equals("decimal"))
 					{
 						temp.changeValue(Path[p], ParameterName[p], currentValues[p]);
 					}
-					else if (dtype.equals("integer"))
+					else if(dtype.equals("integer"))
 					{
 						temp.changeValue(Path[p], ParameterName[p], currentValues[p]);
 					}
@@ -606,10 +609,10 @@ public class Batch implements StoredQueuePosition
 			logLine.append("ComboPos(");
 			ArrayList<Integer> tempCoord = new ArrayList<Integer>();
 			ArrayList<Integer> tempCoordValues = new ArrayList<Integer>();
-			for (int p = 0; p < parameterGroups; p++)
+			for(int p = 0; p < parameterGroups; p++)
 			{
 				logLine.append(String.valueOf(comboCoordinates.get(p)));
-				if (p < (parameterGroups - 1))
+				if(p < (parameterGroups - 1))
 				{
 					logLine.append('x');
 				}
@@ -619,7 +622,7 @@ public class Batch implements StoredQueuePosition
 			}
 			logLine.append(")");
 			log.debug(logLine.toString());
-			
+
 			// Add the new Batch Item combo used for batch item id,
 			// getScenarioXMLText is the new scenario xml configuration -
 			// samples is the number of identical items to generate (used as a
@@ -627,18 +630,18 @@ public class Batch implements StoredQueuePosition
 			addBatchItem(itemSamples, combo, itemName, temp.getScenarioXMLText(), tempCoord, tempCoordValues);
 
 			// Increment the combinatorics values.
-			for (int p = 0; p < parameterGroups; p++)
+			for(int p = 0; p < parameterGroups; p++)
 			{
 
 				// Work out if the current c value is a increment for this
 				// group.
-				if (combo % (IncrementMod[p]) == 0)
+				if(combo % (IncrementMod[p]) == 0)
 				{
 					currentValues[p] = (currentValues[p] + Increment[p]);
 
 					// Increment after currentValues is greater than
 					// IncrementMaxValue
-					if (currentValues[p] > IncrementMaxValue[p])
+					if(currentValues[p] > IncrementMaxValue[p])
 					{
 						// Reset to initial value
 						currentValues[p] = Intial[p];
@@ -646,7 +649,7 @@ public class Batch implements StoredQueuePosition
 
 					// P[0] increments 1 each time, wrap it by the roll over
 					// value of its combinations number
-					if (p == 0)
+					if(p == 0)
 					{
 						// Increment the coordinate by 1
 						comboCoordinates.set(p, (comboCoordinates.get(p) % Combinations[p]) + 1);
@@ -695,7 +698,7 @@ public class Batch implements StoredQueuePosition
 		active = activeItems.size();
 
 		// Is this the first Item && Sample
-		if (itemsRequested == 0)
+		if(itemsRequested == 0)
 		{
 			startBatchLog(temp.getCoordinates().size());
 		}
@@ -723,12 +726,13 @@ public class Batch implements StoredQueuePosition
 		// Create the item export dir
 		FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + item.getItemId());
 
-		String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
+		String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator
+				+ item.getSampleId();
 
 		// Create the item sample full export path dir
 		FileUtil.createDirIfNotExist(fullExportPath);
-		
-		if(exporter!=null)
+
+		if(exporter != null)
 		{
 			exporter.exportAllStatsToDir(fullExportPath);
 		}
@@ -737,14 +741,14 @@ public class Batch implements StoredQueuePosition
 			// This is a non-recoverable error.
 			log.error("Exporter was null for sim " + item.getSimId() + " " + String.valueOf(item.getItemHash()));
 		}
-		
+
 		itemLog.println("<Item>");
 		itemLog.println("<IID>" + item.getItemId() + "</IID>");
 		itemLog.println("<SID>" + item.getSampleId() + "</SID>");
 		itemLog.println("<Coordinates>");
 		ArrayList<Integer> coords = item.getCoordinates();
 		ArrayList<Integer> coordsValues = item.getCoordinatesValues();
-		for (int c = 0; c < coords.size(); c++)
+		for(int c = 0; c < coords.size(); c++)
 		{
 			itemLog.println("<Coordinate>");
 			itemLog.println("<Pos>" + coords.get(c) + "</Pos>");
@@ -760,27 +764,30 @@ public class Batch implements StoredQueuePosition
 
 		// Only the first sample needs to save the item config (all identical
 		// samples)
-		if (item.getSampleId() == 1)
+		if(item.getSampleId() == 1)
 		{	// Save the Item Config
 			try
 			{
 				// All Item samples use same config so overwrite.
-				PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + item.getItemId() + File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
+				PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir
+						+ File.separator + item.getItemId() + File.separator + "itemconfig-" + item.getItemHash()
+						+ ".xml", true)));
 
 				configFile.write(item.getConfigText());
 				configFile.flush();
 				configFile.close();
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
-				System.out.println("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId() + ")");
+				System.out.println("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId()
+						+ ")");
 			}
 		}
 		completed++;
 
 		completedItems.add(item);
 
-		if (completed == batchItems)
+		if(completed == batchItems)
 		{
 			// Close Info Log
 			calender = Calendar.getInstance();
@@ -790,7 +797,8 @@ public class Batch implements StoredQueuePosition
 			endDateTime = date + " " + time;
 
 			infoLog.println("<Finished>" + endDateTime + "</Finished>");
-			infoLog.println("<TotalTime>" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime) + "</TotalTime>");
+			infoLog.println("<TotalTime>" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime)
+					+ "</TotalTime>");
 			infoLog.println("<Batch>");
 			infoLog.flush();
 			infoLog.close();
@@ -811,10 +819,11 @@ public class Batch implements StoredQueuePosition
 	}
 
 	// Small wrapper around queue add
-	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates, ArrayList<Integer> coordinatesValues)
+	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates,
+			ArrayList<Integer> coordinatesValues)
 	{
 		// SID/SampleId is 1 base/ 1=first sample
-		for (int sid = 1; sid < samples + 1; sid++)
+		for(int sid = 1; sid < samples + 1; sid++)
 		{
 			queuedItems.add(new BatchItem(sid, id, batchId, name, configText, coordinates, coordinatesValues));
 		}
@@ -899,7 +908,7 @@ public class Batch implements StoredQueuePosition
 
 	public long getETT()
 	{
-		if (active > 0 && completed > 0)
+		if(active > 0 && completed > 0)
 		{
 			return getRunTime() + (((completedItemRunTime / completed) * (batchItems - completed)) / active);
 		}
