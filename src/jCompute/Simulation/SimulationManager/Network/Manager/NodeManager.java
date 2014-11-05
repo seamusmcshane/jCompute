@@ -109,6 +109,9 @@ public class NodeManager
 		// Internal Connection ID
 		nodeConfig.setUid(uid);
 
+		// Node Address
+		nodeConfig.setAddress(cmdSocket.getInetAddress().getHostAddress());
+
 		// A connected socket
 		this.cmdSocket = cmdSocket;
 
@@ -559,6 +562,8 @@ public class NodeManager
 										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),
 												SimulationsManagerEventType.RemovedSim));
 
+										nodeConfig.incrementSimulationsProcessed();
+
 									}
 
 								}
@@ -946,6 +951,16 @@ public class NodeManager
 		activeSimsLock.release();
 
 		return tActive;
+	}
+
+	public String getAddress()
+	{
+		return nodeConfig.getAddress();
+	}
+
+	public NodeConfiguration getNodeConfig()
+	{
+		return nodeConfig;
 	}
 
 }
