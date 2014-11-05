@@ -4,6 +4,7 @@ import jCompute.JComputeEventBus;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.SimulationManager.Network.NSMCProtocol.Messages.NSMCP;
+import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
@@ -501,6 +502,23 @@ public class NetworkSimulationsManager
 		return maxSims;
 	}
 
+	public NodeConfiguration[] getNodesInfo()
+	{
+		ArrayList<NodeConfiguration> nodeConfigs = new ArrayList<NodeConfiguration>();
+
+		networkSimulationsManagerLock.acquireUninterruptibly();
+
+		for(NodeManager node : activeNodes)
+		{
+			nodeConfigs.add(node.getNodeConfig());
+		}
+
+		NodeConfiguration array[] = nodeConfigs.toArray(new NodeConfiguration[nodeConfigs.size()]);
+
+		networkSimulationsManagerLock.release();
+
+		return array;
+	}
 
 	public String[] getStatus()
 	{
