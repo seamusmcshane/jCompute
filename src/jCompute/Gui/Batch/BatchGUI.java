@@ -209,8 +209,8 @@ public class BatchGUI
 
 		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
 		clusterStatusTablePanel.setColumWidth(0, 125);
-		clusterNodesTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
-		clusterNodesTablePanel.setColumWidth(0, 125);
+		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
+
 
 		GridBagLayout gbl_clusterActivityPanel = new GridBagLayout();
 		gbl_clusterActivityPanel.columnWidths = new int[]
