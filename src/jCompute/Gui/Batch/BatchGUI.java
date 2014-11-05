@@ -9,9 +9,9 @@ import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchCompletedRowItem;
-import jCompute.Gui.Batch.TableRowItems.BatchInfoQueueRowItem;
-import jCompute.Gui.Batch.TableRowItems.BatchInfoRowItem;
+import jCompute.Gui.Batch.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchQueueRowItem;
+import jCompute.Gui.Component.SimpleTabPanel;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.XMLPreviewPanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
@@ -66,6 +66,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JToolBar;
 import javax.swing.JButton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,16 +106,20 @@ public class BatchGUI
 	private int queuedOrCompleted = 0;
 
 	// Right Split
-	private ItemsTabPanel batchInfoQueueTabPanel;
 	private TablePanel batchInfo;
-	private TablePanel activeItemsListTable;
-	private TablePanel queuedItemsListTable;
-	private TablePanel completedItemsListTable;
 
 	// Bottom of container split pane
 	private TablePanel activeSimulationsListTable;
-	private JPanel bottomSplitContainer;
-
+	private JSplitPane bottomSplitContainerSplit;
+	// Left Split
+	private JPanel clusterActivityPanel;
+	// Right Split
+	//private JPanel clusterStatusPanel;
+	
+	private SimpleTabPanel batchStatusTabPanel;
+	private TablePanel clusterStatusTablePanel;
+	private TablePanel clusterNodesTablePanel;
+	
 	private Timer activeSimulationsListTableUpdateTimer;
 
 	private ProgressMonitor openBatchProgressMonitor;
@@ -141,6 +146,7 @@ public class BatchGUI
 	private JButton btnAdd;
 	private JButton btnRemove;
 	private boolean buttonText = true;
+	private JPanel panel;
 
 	public BatchGUI(boolean buttonText)
 	{
@@ -158,7 +164,7 @@ public class BatchGUI
 			@Override
 			public void run()
 			{
-				displayBatchInfo(queuedOrCompleted);
+				updateBatchInfo(queuedOrCompleted);
 			}
 
 		}, 0, 2000);
@@ -174,7 +180,7 @@ public class BatchGUI
 	{
 		/* Frame */
 		guiFrame = new JFrame("Batch Interface");
-		guiFrame.setMinimumSize(new Dimension(850, 700));
+		guiFrame.setMinimumSize(new Dimension(900, 700));
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		guiFrame.getContentPane().setLayout(new BorderLayout(0, 0));
@@ -192,28 +198,45 @@ public class BatchGUI
 		splitPaneOuterNSSplit.setLeftComponent(splitPaneBatchInfo);
 		splitPaneBatchInfo.setLeftComponent(batchQueuedAndCompletePanel);
 
-		bottomSplitContainer = new JPanel();
-		GridBagLayout gbl_bottomSplitContainer = new GridBagLayout();
-		gbl_bottomSplitContainer.columnWidths = new int[]
+		//bottomSplitContainer = new JPanel(new BorderLayout());
+		bottomSplitContainerSplit = new JSplitPane();
+		bottomSplitContainerSplit.setOneTouchExpandable(false);
+		bottomSplitContainerSplit.setContinuousLayout(true);
+		bottomSplitContainerSplit.setResizeWeight(0.5);
+		bottomSplitContainerSplit.setDividerSize(0);
+		
+		clusterActivityPanel = new JPanel();
+		clusterActivityPanel.setMinimumSize(new Dimension(300, 200));
+		
+		
+		batchStatusTabPanel = new SimpleTabPanel();
+		batchStatusTabPanel.setMinimumSize(new Dimension(300, 150));
+		batchStatusTabPanel.setPreferredSize(new Dimension(300, 150));
+		
+		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
+		clusterStatusTablePanel.setColumWidth(0, 125);
+		clusterNodesTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
+		clusterNodesTablePanel.setColumWidth(0, 125);
+		
+		GridBagLayout gbl_clusterActivityPanel = new GridBagLayout();
+		gbl_clusterActivityPanel.columnWidths = new int[]
 		{
 			0
 		};
-		gbl_bottomSplitContainer.rowHeights = new int[]
+		gbl_clusterActivityPanel.rowHeights = new int[]
 		{
 			0
 		};
-		gbl_bottomSplitContainer.columnWeights = new double[]
+		gbl_clusterActivityPanel.columnWeights = new double[]
 		{
 			1.0
 		};
-		gbl_bottomSplitContainer.rowWeights = new double[]
+		gbl_clusterActivityPanel.rowWeights = new double[]
 		{
 			1.0
 		};
-		bottomSplitContainer.setLayout(gbl_bottomSplitContainer);
-
-		splitPaneOuterNSSplit.setRightComponent(bottomSplitContainer);
-
+		clusterActivityPanel.setLayout(gbl_clusterActivityPanel);
+		
 		activeSimulationsListTable = new TablePanel(ActiveSimulationRowItem.class, 0, "Active Simulations", true, false);
 
 		activeSimulationsListTable.setColumWidth(0, 80);
@@ -231,8 +254,19 @@ public class BatchGUI
 		gbc_activeSimulationsListTable.fill = GridBagConstraints.BOTH;
 		gbc_activeSimulationsListTable.gridx = 0;
 		gbc_activeSimulationsListTable.gridy = 0;
-		bottomSplitContainer.add(activeSimulationsListTable, gbc_activeSimulationsListTable);
-
+		
+		clusterActivityPanel.add(activeSimulationsListTable, gbc_activeSimulationsListTable);
+		
+		bottomSplitContainerSplit.setLeftComponent(clusterActivityPanel);
+		
+		
+		batchStatusTabPanel.addTab(clusterStatusTablePanel, "Cluster Info");
+		batchStatusTabPanel.addTab(clusterNodesTablePanel, "Nodes");
+		
+		bottomSplitContainerSplit.setRightComponent(batchStatusTabPanel);
+		
+		splitPaneOuterNSSplit.setRightComponent(bottomSplitContainerSplit);
+		
 		toolBar = new JToolBar();
 
 		toolBar.setFloatable(false);
@@ -637,44 +671,17 @@ public class BatchGUI
 		splitPaneBatchInfo.setDividerSize(0);
 
 		/* Right Split */
-
-		batchInfoQueueTabPanel = new ItemsTabPanel();
-		batchInfoQueueTabPanel.setMinimumSize(new Dimension(300, 150));
-		batchInfoQueueTabPanel.setPreferredSize(new Dimension(300, 150));
-
-		batchInfo = new TablePanel(BatchInfoRowItem.class, 0, "Batch Info", false, false);
+		batchInfo = new TablePanel(SimpleInfoRowItem.class, 0, "Batch Info", false, false);
 		batchInfo.setColumWidth(0, 125);
-
+		batchInfo.setMinimumSize(new Dimension(300, 150));
+		batchInfo.setPreferredSize(new Dimension(300, 150));
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 
 		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
-
-		batchInfoQueueTabPanel.addTab(batchInfo, "Information");
-
-		activeItemsListTable = new TablePanel(BatchInfoQueueRowItem.class, 0, true, false);
-		activeItemsListTable.setColumWidth(0, 80);
-		activeItemsListTable.setColumWidth(1, 80);
-
-		batchInfoQueueTabPanel.addTab(activeItemsListTable, "Active");
-
-		queuedItemsListTable = new TablePanel(BatchInfoQueueRowItem.class, 0, true, false);
-
-		queuedItemsListTable.setColumWidth(0, 80);
-		queuedItemsListTable.setColumWidth(1, 80);
-
-		batchInfoQueueTabPanel.addTab(queuedItemsListTable, "Queued");
-
-		completedItemsListTable = new TablePanel(BatchInfoQueueRowItem.class, 0, true, false);
-
-		completedItemsListTable.setColumWidth(0, 80);
-		completedItemsListTable.setColumWidth(1, 80);
-
-		batchInfoQueueTabPanel.addTab(completedItemsListTable, "Completed");
-
-		splitPaneBatchInfo.setRightComponent(batchInfoQueueTabPanel);
+		
+		splitPaneBatchInfo.setRightComponent(batchInfo);
 
 		registerTableMouseListeners();
-
 	}
 
 	private void clearQueuedSelection()
@@ -719,7 +726,7 @@ public class BatchGUI
 					clearCompletedSelection();
 				}
 
-				displayBatchInfo(queuedOrCompleted);
+				updateBatchInfo(queuedOrCompleted);
 
 			}
 		});
@@ -751,13 +758,13 @@ public class BatchGUI
 					clearQueuedSelection();
 				}
 
-				displayBatchInfo(queuedOrCompleted);
+				updateBatchInfo(queuedOrCompleted);
 
 			}
 		});
 	}
 
-	private void displayBatchInfo(int srcTable)
+	private void updateBatchInfo(int srcTable)
 	{
 		int batchId = 0;
 
@@ -811,11 +818,6 @@ public class BatchGUI
 		{
 			String info[] = batchManager.getBatchInfo(batchId);
 
-			// Get the Item lists
-			BatchItem queued[] = batchManager.getItemQueue(batchId);
-			BatchItem active[] = batchManager.getActiveItems(batchId);
-			BatchItem completed[] = batchManager.getCompletedItems(batchId);
-
 			// Batch Info
 			int batchInfoLength = info.length;
 
@@ -823,54 +825,23 @@ public class BatchGUI
 			{
 				for(int i = 0; i < batchInfoLength; i += 2)
 				{
-					batchInfo.addRow(new BatchInfoRowItem(info[i], info[i + 1]));
+					batchInfo.addRow(new SimpleInfoRowItem(info[i], info[i + 1]));
 				}
 			}
 			else
 			{
 				for(int i = 0; i < batchInfoLength; i += 2)
 				{
-					batchInfo.updateRow(info[i], new BatchInfoRowItem(info[i], info[i + 1]));
+					batchInfo.updateRow(info[i], new SimpleInfoRowItem(info[i], info[i + 1]));
 
 				}
 			}
 
-			// Active Items
-			activeItemsListTable.clearTable();
-			for(int a = 0; a < active.length; a++)
-			{
-				// active
-				activeItemsListTable.addRow(new BatchInfoQueueRowItem(active[a].getItemId(), active[a].getBatchId(),
-						active[a].getItemName()));
-			}
-
-			// Queued Items
-			queuedItemsListTable.clearTable();
-			for(int q = 0; q < queued.length; q++)
-			{
-				// queued
-				queuedItemsListTable.addRow(new BatchInfoQueueRowItem(queued[q].getItemId(), queued[q].getBatchId(),
-						queued[q].getItemName()));
-
-			}
-
-			// Completed Items
-			completedItemsListTable.clearTable();
-			for(int c = 0; c < completed.length; c++)
-			{
-				// active
-				completedItemsListTable.addRow(new BatchInfoQueueRowItem(completed[c].getItemId(), completed[c]
-						.getBatchId(), completed[c].getItemName()));
-
-			}
 		}
 		else
 		{
 			// Clear Batch info tables
 			batchInfo.clearTable();
-			activeItemsListTable.clearTable();
-			queuedItemsListTable.clearTable();
-			completedItemsListTable.clearTable();
 		}
 
 	}
