@@ -7,7 +7,7 @@ import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
@@ -40,7 +40,7 @@ public class BatchManager
 	private int batchId = 0;
 
 	// Simulations Manager
-	private SimulationsManagerInf simsManager;
+	private NetworkSimulationsManager simsManager;
 
 	// The queues of batches
 	private ManagedBypassableQueue fifoQueue;
@@ -67,11 +67,12 @@ public class BatchManager
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
 
-	private ExecutorService completedItemsStatFetch = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new SimpleNamedThreadFactory("Completed Items Stat Fetch"));
-	
-	public BatchManager(SimulationsManagerInf simsManager)
+	private ExecutorService completedItemsStatFetch = Executors.newFixedThreadPool(Runtime.getRuntime()
+			.availableProcessors(), new SimpleNamedThreadFactory("Completed Items Stat Fetch"));
+
+	public BatchManager()
 	{
-		this.simsManager = simsManager;
+		this.simsManager = new NetworkSimulationsManager();
 
 		fifoQueue = new ManagedBypassableQueue();
 
@@ -99,7 +100,7 @@ public class BatchManager
 			}
 
 		}, 0, 100);
-		
+
 		// Completed Items Processor Tick
 		batchCompletedItemsProcessor = new Timer("Batch Completed Items Processor");
 		batchCompletedItemsProcessor.schedule(new TimerTask()
@@ -111,7 +112,7 @@ public class BatchManager
 			}
 
 		}, 0, 10000);
-		
+
 	}
 
 	public boolean addBatch(String filePath)
@@ -189,15 +190,15 @@ public class BatchManager
 		itemsLock.acquireUninterruptibly();
 
 		Iterator<BatchItem> itr = completeItems.iterator();
-		
+
 		while(itr.hasNext())
 		{
 			BatchItem item = itr.next();
-			
+
 			Batch batch = null;
 
 			batchManagerLock.acquireUninterruptibly();
-			
+
 			if(item != null)
 			{
 				log.debug("Item : " + item.getItemId());
@@ -205,10 +206,10 @@ public class BatchManager
 			}
 
 			batchManagerLock.release();
-			
+
 			if(batch != null)
-			{				
-				completedItemsStatFetch.execute(new StatFetchTask(simsManager ,batch ,item, ExportFormat.ZXML));
+			{
+				completedItemsStatFetch.execute(new StatFetchTask(simsManager, batch, item, ExportFormat.ZXML));
 			}
 			else
 			{
@@ -219,7 +220,6 @@ public class BatchManager
 
 		}
 
-		
 		completeItems = new ArrayList<BatchItem>();
 
 		itemsLock.release();
@@ -227,16 +227,16 @@ public class BatchManager
 
 	private void schedule()
 	{
-		//log.info("Scheduler Tick");
+		// log.info("Scheduler Tick");
 
 		recoverItemsFromInactiveNodes();
 
 		// processCompletedItems();
-		
+
 		itemsLock.acquireUninterruptibly();
-			int size = activeItems.size();
+		int size = activeItems.size();
 		itemsLock.release();
-		
+
 		if(size == 0)
 		{
 			processCompletedItems();
@@ -486,9 +486,9 @@ public class BatchManager
 		switch(state)
 		{
 			case RUNNING:
-				break;
+			break;
 			case NEW:
-				break;
+			break;
 			case FINISHED:
 
 				BatchItem item = findActiveBatchItemFromSimId(simId);
@@ -504,9 +504,9 @@ public class BatchManager
 
 				itemsLock.release();
 
-				break;
+			break;
 			case PAUSED:
-				break;
+			break;
 			default:
 
 				// Ensures this is spotted
@@ -515,7 +515,7 @@ public class BatchManager
 					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + e.getSimId());
 				}
 
-				break;
+			break;
 		}
 
 	}
@@ -698,13 +698,13 @@ public class BatchManager
 		{
 			case 0:
 				list = batch.getQueuedItems();
-				break;
+			break;
 			case 1:
 				list = batch.getActiveItems();
-				break;
+			break;
 			case 2:
 				list = batch.getCompletedItems();
-				break;
+			break;
 		}
 
 		batchManagerLock.release();
@@ -1071,15 +1071,15 @@ public class BatchManager
 		batchManagerLock.release();
 
 	}
-	
+
 	private class StatFetchTask implements Runnable
 	{
-		private SimulationsManagerInf simsManager;
+		private NetworkSimulationsManager simsManager;
 		private Batch batch;
 		private BatchItem item;
 		private ExportFormat format;
 
-		public StatFetchTask(SimulationsManagerInf simsManager, Batch batch, BatchItem item, ExportFormat format)
+		public StatFetchTask(NetworkSimulationsManager simsManager, Batch batch, BatchItem item, ExportFormat format)
 		{
 			super();
 			this.simsManager = simsManager;
@@ -1088,17 +1088,17 @@ public class BatchManager
 			this.format = format;
 		}
 
-
 		@Override
 		public void run()
-		{		
+		{
 			// Export Stats // ExportFormat.ZXML
-			StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()), format);
-			
-			batch.setItemComplete(item,exporter);
-			
+			StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()),
+					format);
+
+			batch.setItemComplete(item, exporter);
+
 			log.info("Batch Item Finished : " + batch.getBatchId());
-			
+
 			// Batch Progress
 			batchManagerListenerBatchProgressNotification(batch);
 		}

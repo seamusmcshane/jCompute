@@ -21,7 +21,6 @@ import jCompute.Gui.Component.TableCell.PriorityIconRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.util.FileUtil;
@@ -67,8 +66,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JToolBar;
 import javax.swing.JButton;
-import javax.swing.filechooser.FileFilter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,10 +142,10 @@ public class BatchGUI
 	private JButton btnRemove;
 	private boolean buttonText = true;
 
-	public BatchGUI(SimulationsManagerInf simsManager, boolean buttonText)
+	public BatchGUI(boolean buttonText)
 	{
 		log.info("Started BatchGUI");
-		batchManager = new BatchManager(simsManager);
+		batchManager = new BatchManager();
 
 		this.buttonText = buttonText;
 
