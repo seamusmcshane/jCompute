@@ -4,7 +4,6 @@ import jCompute.IconManager;
 import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.Batch.BatchPriority;
-import jCompute.Batch.BatchItem;
 import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
 import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
@@ -114,12 +113,10 @@ public class BatchGUI
 	// Left Split
 	private JPanel clusterActivityPanel;
 	// Right Split
-	//private JPanel clusterStatusPanel;
-	
 	private SimpleTabPanel batchStatusTabPanel;
 	private TablePanel clusterStatusTablePanel;
 	private TablePanel clusterNodesTablePanel;
-	
+
 	private Timer activeSimulationsListTableUpdateTimer;
 
 	private ProgressMonitor openBatchProgressMonitor;
@@ -146,7 +143,6 @@ public class BatchGUI
 	private JButton btnAdd;
 	private JButton btnRemove;
 	private boolean buttonText = true;
-	private JPanel panel;
 
 	public BatchGUI(boolean buttonText)
 	{
@@ -203,20 +199,19 @@ public class BatchGUI
 		bottomSplitContainerSplit.setContinuousLayout(true);
 		bottomSplitContainerSplit.setResizeWeight(0.5);
 		bottomSplitContainerSplit.setDividerSize(0);
-		
+
 		clusterActivityPanel = new JPanel();
 		clusterActivityPanel.setMinimumSize(new Dimension(300, 200));
-		
-		
+
 		batchStatusTabPanel = new SimpleTabPanel();
 		batchStatusTabPanel.setMinimumSize(new Dimension(300, 150));
 		batchStatusTabPanel.setPreferredSize(new Dimension(300, 150));
-		
+
 		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
 		clusterStatusTablePanel.setColumWidth(0, 125);
 		clusterNodesTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
 		clusterNodesTablePanel.setColumWidth(0, 125);
-		
+
 		GridBagLayout gbl_clusterActivityPanel = new GridBagLayout();
 		gbl_clusterActivityPanel.columnWidths = new int[]
 		{
@@ -235,7 +230,7 @@ public class BatchGUI
 			1.0
 		};
 		clusterActivityPanel.setLayout(gbl_clusterActivityPanel);
-		
+
 		activeSimulationsListTable = new TablePanel(ActiveSimulationRowItem.class, 0, "Active Simulations", true, false);
 
 		activeSimulationsListTable.setColumWidth(0, 80);
@@ -253,19 +248,18 @@ public class BatchGUI
 		gbc_activeSimulationsListTable.fill = GridBagConstraints.BOTH;
 		gbc_activeSimulationsListTable.gridx = 0;
 		gbc_activeSimulationsListTable.gridy = 0;
-		
+
 		clusterActivityPanel.add(activeSimulationsListTable, gbc_activeSimulationsListTable);
-		
+
 		bottomSplitContainerSplit.setLeftComponent(clusterActivityPanel);
-		
-		
+
 		batchStatusTabPanel.addTab(clusterStatusTablePanel, "Cluster Info");
 		batchStatusTabPanel.addTab(clusterNodesTablePanel, "Nodes");
-		
+
 		bottomSplitContainerSplit.setRightComponent(batchStatusTabPanel);
-		
+
 		splitPaneOuterNSSplit.setRightComponent(bottomSplitContainerSplit);
-		
+
 		toolBar = new JToolBar();
 
 		toolBar.setFloatable(false);
@@ -677,7 +671,7 @@ public class BatchGUI
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 
 		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
-		
+
 		splitPaneBatchInfo.setRightComponent(batchInfo);
 
 		registerTableMouseListeners();
