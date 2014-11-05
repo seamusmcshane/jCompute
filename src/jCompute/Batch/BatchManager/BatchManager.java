@@ -8,6 +8,7 @@ import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
+import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
@@ -684,6 +685,16 @@ public class BatchManager
 		batchManagerLock.release();
 
 		return info;
+	}
+
+	public NodeConfiguration[] getNodesInfo()
+	{
+		return simsManager.getNodesInfo();
+	}
+
+	public String[] getClusterStatus()
+	{
+		return simsManager.getStatus();
 	}
 
 	private BatchItem[] getListItems(int batchId, int queueNum)
