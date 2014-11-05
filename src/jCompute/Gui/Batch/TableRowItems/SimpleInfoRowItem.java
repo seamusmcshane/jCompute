@@ -2,18 +2,18 @@ package jCompute.Gui.Batch.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class BatchInfoRowItem implements RowItem, Comparable
+public class SimpleInfoRowItem implements RowItem, Comparable
 {
 	private String parameter;
 	private String value;
 	
-	public BatchInfoRowItem()
+	public SimpleInfoRowItem()
 	{
 		this.parameter = "NULL";
 		this.value = "NULL";
 	}
 	
-	public BatchInfoRowItem(String parameter, String value)
+	public SimpleInfoRowItem(String parameter, String value)
 	{
 		super();
 		this.parameter = parameter;

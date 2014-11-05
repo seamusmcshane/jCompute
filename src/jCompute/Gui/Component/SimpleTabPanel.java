@@ -1,17 +1,17 @@
-package jCompute.Gui.Batch;
+package jCompute.Gui.Component;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-public class ItemsTabPanel extends JPanel
+public class SimpleTabPanel extends JPanel
 {	
 	private static final long serialVersionUID = -2568428138969029838L;
 	
 	private JTabbedPane tabs;
 	
-	public ItemsTabPanel()
+	public SimpleTabPanel()
 	{
 		// Layout
 		setLayout(new BorderLayout());
