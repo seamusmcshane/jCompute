@@ -52,7 +52,7 @@ public class Launcher
 			new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"),
 			new CommandLineArg("bText", "1", "Button Text (0/1)"),
 			new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"),
-			new CommandLineArg("loglevel", "0", "Log Level(0/1)")
+			new CommandLineArg("loglevel", "0", "Log Level(0/1/2)")
 	};
 
 	public static void main(String args[])
@@ -72,16 +72,21 @@ public class Launcher
 
 		switch(loglevel)
 		{
-			case 1:
+			case 2:
 				// Debug
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-debug.xml");
 				System.out.println("Enabled Debug Log Level");
 			break;
-			case 0:
-			default:
+			case 1:
 				// Standard
 				System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
 				System.out.println("Enabled Standard Log Level");
+			break;
+			case 0:
+			default:
+				// Standard
+				System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+				System.out.println("Logging to Console Only at Standard Log Level");
 			break;
 		}
 
