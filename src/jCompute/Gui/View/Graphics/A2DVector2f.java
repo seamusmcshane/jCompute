@@ -4,9 +4,9 @@ public class A2DVector2f
 {
 	private float pos[];
 
-	public A2DVector2f(float x,float y)
+	public A2DVector2f(float[] pos)
 	{
-		pos = new float[]{x,y};
+		this.pos = pos;
 	}
 
 	public A2DVector2f()

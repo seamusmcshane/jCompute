@@ -33,27 +33,27 @@ public class A2DRectangle
 		setLocation(x,y);
 	}
 
-	public boolean contains(float x, float y)
+	public boolean contains(float[] pos)
 	{
 		// outside left wall?
-		if(x<coords[0])
+		if(pos[0]<coords[0])
 		{
 			return false;
 		}
 		
 		// outside bottom wall
-		if(y<coords[1])
+		if(pos[1]<coords[1])
 		{
 			return false;
 		}
 		
 		// outside right wall
-		if(x>coords[2])
+		if(pos[0]>coords[2])
 		{
 			return false;
 		}
 		
-		if(y>coords[3])
+		if(pos[1]>coords[3])
 		{
 			return false;
 		}

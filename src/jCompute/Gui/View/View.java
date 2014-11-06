@@ -72,7 +72,7 @@ public class View implements ApplicationListener, InputProcessor
 		
 	/* Mouse */
 	/** Stores the mouse vector across updates */
-	private A2DVector2f mousePos = new A2DVector2f(0, 0);
+	private A2DVector2f mousePos = new A2DVector2f(new float[]{0,0});
 	
 	private boolean button1Pressed;
 	

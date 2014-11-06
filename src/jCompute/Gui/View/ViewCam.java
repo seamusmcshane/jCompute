@@ -39,17 +39,15 @@ public class ViewCam
 		this.zoomDefault = camZoom;
 		this.camZoom = zoomDefault;
 
-		this.camOffset = new A2DVector2f((int)camOffset.getX(),(int)camOffset.getY());
+		this.camOffset = new A2DVector2f(new float[]{camOffset.getX(),camOffset.getY()});
 
 	}
 
 	public ViewCam()
 	{
-		camOffset = new A2DVector2f(0, 0);
-
-		camPos = new A2DVector2f(0, 0);
+		camOffset = new A2DVector2f(new float[]{0,0});
+		camPos = new A2DVector2f(new float[]{0,0});
 		camZoom = zoomDefault;
-
 	}
 
 	public void setCamOffset(A2DVector2f camOffset)
