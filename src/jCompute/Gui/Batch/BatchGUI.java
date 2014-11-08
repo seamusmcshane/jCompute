@@ -688,6 +688,8 @@ public class BatchGUI
 		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
 
 		splitPaneBatchInfo.setRightComponent(batchInfo);
+		batchInfo.setVisible(false);
+		splitPaneBatchInfo.resetToPreferredSizes();
 
 		registerTableMouseListeners();
 	}
@@ -904,7 +906,11 @@ public class BatchGUI
 			// Clear Batch info tables
 			batchInfo.clearTable();
 		}
-
+		
+		// Display the info pane based on if we have data to put in it.
+		batchInfo.setVisible(!skipData);
+		splitPaneBatchInfo.resetToPreferredSizes();
+		
 	}
 
 	@Override
