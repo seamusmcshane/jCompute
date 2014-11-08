@@ -285,7 +285,8 @@ public class NodeManager
 		log.info("Socket Setup");
 
 		log.info("Now requesting node configuration and weighting");
-		sendTransferMessage(new ConfigurationRequest(1).toBytes());
+
+		sendTransferMessage(new ConfigurationRequest(1, 1024, 5000, 1000, 5).toBytes());
 
 		int type = -1;
 		int len = -1;

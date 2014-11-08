@@ -51,37 +51,35 @@ public class Node
 	// Protect the send socket
 	private Semaphore cmdTxLock = new Semaphore(1, true);
 
-	
 	// To ensure receive frames and events are processed atomically
 	private Semaphore rxLockEvents = new Semaphore(1, true);
 
 	// Command Output Stream
 	private DataOutputStream commandOutput;
-	
+
 	// Transfer Streams
 	private DataOutputStream transferOutput;
 	private DataInputStream transferInput;
 	private Semaphore transTxLock = new Semaphore(1, true);
-	
 
 	/* Node Cmd Socket */
 	private Socket cmdSocket;
-	
+
 	/* Node Transfer Socket */
-	private ServerSocket listenNodeTransferSocket;		
-	
+	private ServerSocket listenNodeTransferSocket;
+
 	// Is the remote node active. (connection up)
 	private boolean active = false;
-	
+
 	// Transfer recieve thread
 	private Thread transferRecieveThread;
-	
+
 	// ProtocolState
 	private ProtocolState state = ProtocolState.CON;
-	
+
 	// Cache of Stats from finished simulations
 	private NodeStatCache statCache;
-	
+
 	public Node(String address, SimulationsManagerInf simsManager)
 	{
 		log.info("Starting Node");
@@ -100,7 +98,7 @@ public class Node
 		log.info("Created Node Stat Cache");
 
 		// Disconnect Recovery Loop
-		while (true)
+		while(true)
 		{
 			// Connecting to Server
 			cmdSocket = null;
@@ -116,7 +114,7 @@ public class Node
 				cmdSocket = new Socket();
 				cmdSocket.connect(new InetSocketAddress(address, port), 1000);
 
-				if (!cmdSocket.isClosed())
+				if(!cmdSocket.isClosed())
 				{
 					log.info("Connected to : " + cmdSocket.getRemoteSocketAddress());
 					log.info("We are : " + cmdSocket.getLocalSocketAddress());
@@ -126,23 +124,23 @@ public class Node
 				}
 
 				// Close Connection
-				if (!cmdSocket.isClosed())
+				if(!cmdSocket.isClosed())
 				{
 					cmdSocket.close();
 				}
-				
+
 				// Close Connection
-				if (!listenNodeTransferSocket.isClosed())
+				if(!listenNodeTransferSocket.isClosed())
 				{
 					listenNodeTransferSocket.close();
 				}
-				
+
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				log.warn("Connection to " + address + " failed");
 			}
-			catch (InterruptedException e)
+			catch(InterruptedException e)
 			{
 				log.warn("Sleep interupted");
 			}
@@ -151,7 +149,7 @@ public class Node
 
 	}
 
-	// RX/TX on Command socket 
+	// RX/TX on Command socket
 	private void process(NodeConfiguration nodeConfig, Socket clientSocket)
 	{
 		try
@@ -160,12 +158,13 @@ public class Node
 			commandOutput = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
 
 			// Input Stream
-			final DataInputStream commandInput = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
+			final DataInputStream commandInput = new DataInputStream(new BufferedInputStream(
+					clientSocket.getInputStream()));
 
 			doRegistration(nodeConfig, commandInput);
 
 			// if Registered successfully
-			if (state == ProtocolState.RDY)
+			if(state == ProtocolState.RDY)
 			{
 				log.info("Registration complete");
 
@@ -173,34 +172,34 @@ public class Node
 				int len = -1;
 				byte[] backingArray = null;
 				ByteBuffer data = null;
-				
+
 				// While we have a connection
-				while (!clientSocket.isClosed())
+				while(!clientSocket.isClosed())
 				{
 					type = commandInput.readInt();
 					len = commandInput.readInt();
 
 					// Allocate here to avoid duplication of allocation code
-					if(len > 0 )
+					if(len > 0)
 					{
 						// Destination
 						backingArray = new byte[len];
-						
+
 						// Copy from the socket
 						commandInput.readFully(backingArray, 0, len);
-						
+
 						// Wrap the backingArray
-						data = ByteBuffer.wrap(backingArray);	
-						
-						log.debug("Type " + type+ " len " + len);
+						data = ByteBuffer.wrap(backingArray);
+
+						log.debug("Type " + type + " len " + len);
 					}
 
-					switch (type)
+					switch(type)
 					{
-						case NCP.AddSimReq :
+						case NCP.AddSimReq:
 						{
 							rxLockEvents.acquireUninterruptibly();
-							
+
 							AddSimReq req = new AddSimReq(data);
 
 							int simId = simsManager.addSimulation(req.getScenarioText(), req.getInitialStepRate());
@@ -211,17 +210,17 @@ public class Node
 
 							rxLockEvents.release();
 						}
-							break;
-						case NCP.StartSimCMD :
+						break;
+						case NCP.StartSimCMD:
 						{
 							StartSimCMD cmd = new StartSimCMD(data);
 
 							log.info("StartSimCMD " + cmd.getSimid());
-							
+
 							simsManager.startSim(cmd.getSimid());
 						}
-							break;
-						case NCP.RemSimReq :
+						break;
+						case NCP.RemSimReq:
 						{
 							RemoveSimReq removeSimReq = new RemoveSimReq(data);
 
@@ -231,26 +230,26 @@ public class Node
 
 							log.info("RemoveSimReq " + simId);
 
-							sendCommandMessage(new RemoveSimAck(simId).toBytes());							
+							sendCommandMessage(new RemoveSimAck(simId).toBytes());
 						}
-							break;
+						break;
 						// Default / Invalid
-						case NCP.INVALID :
-						default :
+						case NCP.INVALID:
+						default:
 						{
 							log.error("Invalid NCP Message Recieved");
 
 							state = ProtocolState.DIS;
 
 							log.error("Error Type " + type + " len " + len);
-						}	
-							break;
+						}
+						break;
 					}
 
-					if (state == ProtocolState.DIS)
+					if(state == ProtocolState.DIS)
 					{
 						clientSocket.close();
-						listenNodeTransferSocket.close();						
+						listenNodeTransferSocket.close();
 					}
 				}
 
@@ -260,7 +259,7 @@ public class Node
 				log.error("Registration failed");
 			}
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 
 			// Our connection to the remote manager is gone.
@@ -274,64 +273,67 @@ public class Node
 
 	}
 
-	// RX/TX on transfer socket 
-	private boolean doTransferSocketSetup(NodeConfiguration nodeConfig, ServerSocket listenNodeTransferSocket) throws IOException
+	// RX/TX on transfer socket
+	private boolean doTransferSocketSetup(NodeConfiguration nodeConfig, ServerSocket listenNodeTransferSocket)
+			throws IOException
 	{
-		boolean finished = false;
 
+		boolean finished = false;
 		log.info("Waiting for connection to transfer socket");
 		Socket nodeTransferSocket = listenNodeTransferSocket.accept();
 		log.info("Transfer socket now connected");
 		nodeTransferSocket.setSendBufferSize(1048576);
-		
+
 		transferInput = new DataInputStream(new BufferedInputStream(nodeTransferSocket.getInputStream()));
 		transferOutput = new DataOutputStream(new BufferedOutputStream(nodeTransferSocket.getOutputStream()));
-		
+
 		int type = -1;
 		int len = -1;
 		byte[] backingArray = null;
 		ByteBuffer data = null;
-		
+
 		// Read the replies
-		while (!finished)
+		while(!finished)
 		{
 			type = transferInput.readInt();
 			len = transferInput.readInt();
 
 			// Allocate here to avoid duplication of allocation code
-			if(len > 0 )
+			if(len > 0)
 			{
 				// Destination
 				backingArray = new byte[len];
-				
+
 				// Copy from the socket
 				transferInput.readFully(backingArray, 0, len);
-				
+
 				// Wrap the backingArray
-				data = ByteBuffer.wrap(backingArray);							
+				data = ByteBuffer.wrap(backingArray);
 			}
 
-			switch (type)
+			switch(type)
 			{
-				case NCP.ConfReq :
+				case NCP.ConfReq:
 
 					ConfigurationRequest confReq = new ConfigurationRequest(data);
-					
+
 					// Set our max sims now
 					nodeConfig.setMaxSims(simsManager.getMaxSims());
 					log.info("ConfReq Recieved");
 
 					int benchMark = confReq.getBench();
-					if(benchMark == 1)
+
+					if(benchMark > 0)
 					{
 						log.info("Running Weighting Benchmark");
-						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(1024,10000);
-						bench.warmUp(1000);
-						long weighting = bench.weightingBenchmark(5);
+						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(confReq.getObjects(),
+								confReq.getIterations());
+						bench.warmUp(confReq.getWarmup());
+						long weighting = bench.weightingBenchmark(confReq.getRuns());
 						nodeConfig.setWeighting(weighting);
-						log.info("Weighting\t " + weighting );
+						log.info("Weighting\t " + weighting);
 					}
-					
+
 					// Create and send the Configuration ack via TransferSocket
 					sendTransferMessage(new ConfigurationAck(nodeConfig).toBytes());
 
@@ -340,34 +342,34 @@ public class Node
 					state = ProtocolState.RDY;
 
 					createTransferRecieveThread(nodeConfig.getUid());
-					
+
 					// Now Registered
 					finished = true;
 
-					break;
-				case NCP.INVALID :
-				default :
+				break;
+				case NCP.INVALID:
+				default:
 					log.error("Recieved Invalid Frame Type " + type);
 					state = ProtocolState.DIS;
 				break;
 
 			}
 
-			if (state == ProtocolState.DIS)
+			if(state == ProtocolState.DIS)
 			{
 				log.info("Protocol State : " + state.toString());
 				finished = true;
 			}
 
 		}
-		
+
 		return true;
 	}
-	
+
 	private void doRegistration(NodeConfiguration nodeConfig, DataInputStream regInput) throws IOException
 	{
 		boolean finished = false;
-		
+
 		log.info("Attempting Registration");
 
 		state = ProtocolState.REG;
@@ -375,35 +377,35 @@ public class Node
 		// Create a registration request and send it
 		sendCommandMessage(new RegistrationRequest().toBytes());
 		log.info("Sent Registration Request");
-		
+
 		int type = -1;
 		int len = -1;
 		byte[] backingArray = null;
 		ByteBuffer data = null;
-		
+
 		// Read the replies
-		while (!finished)
+		while(!finished)
 		{
 			type = regInput.readInt();
 			len = regInput.readInt();
 
 			// Allocate here to avoid duplication of allocation code
-			if(len > 0 )
+			if(len > 0)
 			{
 				// Destination
 				backingArray = new byte[len];
-				
+
 				// Copy from the socket
 				regInput.readFully(backingArray, 0, len);
-				
+
 				// Wrap the backingArray
-				data = ByteBuffer.wrap(backingArray);							
+				data = ByteBuffer.wrap(backingArray);
 			}
 
-			switch (type)
+			switch(type)
 			{
-				case NCP.RegAck :
-					
+				case NCP.RegAck:
+
 					RegistrationReqAck reqAck = new RegistrationReqAck(data);
 
 					nodeConfig.setUid(reqAck.getUid());
@@ -413,28 +415,27 @@ public class Node
 					// Create the transferSocket
 					listenNodeTransferSocket = new ServerSocket();
 					log.info("Created transfer socket");
-					listenNodeTransferSocket.bind(new InetSocketAddress("0.0.0.0",NCP.NodeTransferPort));
-				
+					listenNodeTransferSocket.bind(new InetSocketAddress("0.0.0.0", NCP.NodeTransferPort));
+
 					// We Ack the Ack
 					sendCommandMessage(reqAck.toBytes());
-					
-					finished = doTransferSocketSetup(nodeConfig,listenNodeTransferSocket);
+
+					finished = doTransferSocketSetup(nodeConfig, listenNodeTransferSocket);
 
 				break;
-				case NCP.INVALID :
-				default :
+				case NCP.INVALID:
+				default:
 					log.error("Recieved Invalid Frame Type " + type);
 					state = ProtocolState.DIS;
-					break;
+				break;
 
 			}
 
-			if (state == ProtocolState.DIS)
+			if(state == ProtocolState.DIS)
 			{
 				log.info("Protocol State : " + state.toString());
 				finished = true;
 			}
-
 
 		}
 
@@ -455,70 +456,72 @@ public class Node
 					int len = -1;
 					byte[] backingArray = null;
 					ByteBuffer data = null;
-					
+
 					active = true;
 
-					while (active)
+					while(active)
 					{
 						// Detect Frame
 						type = transferInput.readInt();
 						len = transferInput.readInt();
 
 						// Allocate here to avoid duplication of allocation code
-						if(len > 0 )
+						if(len > 0)
 						{
 							// Destination
 							backingArray = new byte[len];
-							
+
 							// Copy from the socket
 							transferInput.readFully(backingArray, 0, len);
-							
+
 							// Wrap the backingArray
 							data = ByteBuffer.wrap(backingArray);
-							
-							log.debug("Type " + type+ " len " + len);
+
+							log.debug("Type " + type + " len " + len);
 						}
 
-						switch (type)
+						switch(type)
 						{
-							case NCP.SimStatsReq :
+							case NCP.SimStatsReq:
 							{
 								SimulationStatsRequest statsReq = new SimulationStatsRequest(data);
 
 								log.info("SimStatsReq " + statsReq.getSimId());
 
-								// Get the stat exporter for this simId and create a Stats Reply
-								SimulationStatsReply statsReply = new SimulationStatsReply(statsReq.getSimId(),statCache.remove(statsReq.getSimId()));
-								
+								// Get the stat exporter for this simId and
+								// create a Stats Reply
+								SimulationStatsReply statsReply = new SimulationStatsReply(statsReq.getSimId(),
+										statCache.remove(statsReq.getSimId()));
+
 								// NCP.SimStats
 								sendTransferMessage(statsReply.toBytes());
-								
+
 								log.info("Sent SimStats " + statsReq.getSimId());
 							}
 							break;
-							default :
+							default:
 								log.error("Recieved Invalid Frame");
 								state = ProtocolState.DIS;
-								
+
 								log.error("Error Type " + type + " len " + len);
-								
-								break;
+
+							break;
 
 						}
 
-						if (state == ProtocolState.DIS)
+						if(state == ProtocolState.DIS)
 						{
 							log.info("Protocol State : " + state.toString());
 							active = false;
-							
+
 							// Close Connection
-							if (!cmdSocket.isClosed())
+							if(!cmdSocket.isClosed())
 							{
 								cmdSocket.close();
 							}
-							
+
 							// Close Connection
-							if (!listenNodeTransferSocket.isClosed())
+							if(!listenNodeTransferSocket.isClosed())
 							{
 								listenNodeTransferSocket.close();
 							}
@@ -527,7 +530,7 @@ public class Node
 					// Exit // Do Node Shutdown
 
 				}
-				catch (IOException e1)
+				catch(IOException e1)
 				{
 					log.warn("Node " + uid + " Recieve Thread exited");
 					// Exit // Do Node Shutdown
@@ -536,17 +539,17 @@ public class Node
 
 					state = ProtocolState.DIS;
 				}
-				
+
 			}
-			
+
 		});
-		
+
 		transferRecieveThread.setName("Node " + uid + " Transfer Recieve");
 
 		// Start Processing
-		transferRecieveThread.start();		
+		transferRecieveThread.start();
 	}
-	
+
 	private void sendCommandMessage(byte[] bytes) throws IOException
 	{
 		cmdTxLock.acquireUninterruptibly();
@@ -556,7 +559,7 @@ public class Node
 
 		cmdTxLock.release();
 	}
-	
+
 	private void sendTransferMessage(byte[] bytes) throws IOException
 	{
 		transTxLock.acquireUninterruptibly();
@@ -578,7 +581,7 @@ public class Node
 
 			rxLockEvents.release();
 		}
-		catch (IOException e1)
+		catch(IOException e1)
 		{
 			log.error("Failed Sending Simulation Stat Changed " + e.getSimId());
 		}
@@ -590,29 +593,28 @@ public class Node
 		try
 		{
 			rxLockEvents.acquireUninterruptibly();
-						
-			if (e.getState() == SimState.FINISHED )
+
+			if(e.getState() == SimState.FINISHED)
 			{
 				int simId = e.getSimId();
-				
-				StatExporter exporter = simsManager.getStatExporter(simId, "",  ExportFormat.ZXML);
-				
+
+				StatExporter exporter = simsManager.getStatExporter(simId, "", ExportFormat.ZXML);
+
 				log.info("Stored Stats for Simulation " + simId);
 				statCache.put(simId, exporter);
-				
+
 				simsManager.removeSimulation(simId);
 				log.info("Removed Finished Simulation");
 			}
 
 			sendCommandMessage(new SimulationStateChanged(e).toBytes());
 			log.info("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
-			
+
 			rxLockEvents.release();
 		}
-		catch (IOException e1)
+		catch(IOException e1)
 		{
-			log.error("Failed Sending Simulation State Changed " + e.getSimId() + " "
-					+ e.getState().toString());
+			log.error("Failed Sending Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
 		}
 	}
 }
