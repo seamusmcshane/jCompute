@@ -1,7 +1,7 @@
 package jCompute.Gui.Standard;
 
 import jCompute.Gui.View.View;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.SimulationManager.SimulationsManagerInf;
 
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -11,6 +11,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;

@@ -1,7 +1,7 @@
 package jCompute.Gui.Batch.TableRowItems;
 
+import jCompute.Cluster.Node.NodeConfiguration;
 import jCompute.Gui.Component.RowItem;
-import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 
 public class NodeInfoRowItem implements RowItem, Comparable
 {

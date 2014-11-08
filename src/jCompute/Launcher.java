@@ -1,11 +1,11 @@
 package jCompute;
 
+import jCompute.Cluster.Controller.ControlNode;
+import jCompute.Cluster.Node.Node;
 import jCompute.Gui.Batch.BatchGUI;
 import jCompute.Gui.Standard.StandardGUI;
 import jCompute.Scenario.ScenarioManager;
-import jCompute.Simulation.SimulationManager.Local.SimulationsManager;
-import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
-import jCompute.Simulation.SimulationManager.Network.Node.Node;
+import jCompute.SimulationManager.SimulationsManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -165,10 +165,11 @@ public class TreeBenchmarks
 		objectListGB = new ArrayList<TreeBenchObject>();
 		
 		TreeBenchObject temp;
+		float[] pos;
 		for(int i = 0;i< num;i++)
 		{
-			temp = new TreeBenchObject(i,r.nextInt(size) ,r.nextInt(size));
-			//logger(1,"temp" + temp.getX() + " " + temp.getY());
+			pos = new float[]{r.nextInt(size),r.nextInt(size)};
+			temp = new TreeBenchObject(i,pos);
 			objectListGB.add(temp);	
 		}
 	}

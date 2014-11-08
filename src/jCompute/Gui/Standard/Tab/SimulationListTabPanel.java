@@ -5,10 +5,10 @@ import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Standard.GUITabManager;
-import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEvent;
-import jCompute.Simulation.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.SimulationManager.Event.SimulationsManagerEventType;
 
 import javax.swing.JPanel;
 

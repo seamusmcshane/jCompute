@@ -6,10 +6,10 @@ import jCompute.Gui.Component.GlobalStatChartPanel;
 import jCompute.Gui.Component.XMLPreviewPanel;
 import jCompute.Gui.Standard.GUITabManager;
 import jCompute.Gui.Standard.Listener.TabStatusChangedListenerInf;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.util.FileUtil;
 
 import javax.swing.JPanel;

@@ -52,7 +52,7 @@ public class Batch implements StoredQueuePosition
 	// Maximum steps for simulations in this batch
 	private int maxSteps = 0;
 
-	// Ffor human readable date/time info
+	// For human readable date/time info
 	private Calendar calender;
 	private String addedDateTime = "";
 

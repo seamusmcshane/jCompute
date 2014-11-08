@@ -4,11 +4,11 @@ import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.Batch.BatchPriority;
+import jCompute.Cluster.Controller.ControlNode;
+import jCompute.Cluster.Node.NodeConfiguration;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
-import jCompute.Simulation.SimulationManager.Network.Manager.NetworkSimulationsManager;
-import jCompute.Simulation.SimulationManager.Network.Node.NodeConfiguration;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
@@ -40,8 +40,8 @@ public class BatchManager
 	// Batch id counter
 	private int batchId = 0;
 
-	// Simulations Manager
-	private NetworkSimulationsManager simsManager;
+	// ControlNode
+	private ControlNode controlNode;
 
 	// The queues of batches
 	private ManagedBypassableQueue fifoQueue;
@@ -73,7 +73,7 @@ public class BatchManager
 
 	public BatchManager()
 	{
-		this.simsManager = new NetworkSimulationsManager();
+		this.controlNode = new ControlNode();
 
 		fifoQueue = new ManagedBypassableQueue();
 
@@ -152,9 +152,9 @@ public class BatchManager
 	{
 		batchManagerLock.acquireUninterruptibly();
 
-		if(simsManager.hasRecoverableSimIds())
+		if(controlNode.hasRecoverableSimIds())
 		{
-			ArrayList<Integer> recoveredIds = simsManager.getRecoverableSimIds();
+			ArrayList<Integer> recoveredIds = controlNode.getRecoverableSimIds();
 
 			Iterator<Integer> itr = recoveredIds.iterator();
 			while(itr.hasNext())
@@ -210,13 +210,13 @@ public class BatchManager
 
 			if(batch != null)
 			{
-				completedItemsStatFetch.execute(new StatFetchTask(simsManager, batch, item, ExportFormat.ZXML));
+				completedItemsStatFetch.execute(new StatFetchTask(controlNode, batch, item, ExportFormat.ZXML));
 			}
 			else
 			{
 				log.warn("Simulation Event for NULL batch " + item.getBatchId());
 
-				simsManager.removeSimulation(item.getSimId());
+				controlNode.removeSimulation(item.getSimId());
 			}
 
 		}
@@ -308,11 +308,11 @@ public class BatchManager
 
 		}
 
-		// While there are items to add and the simulations manager can add them
+		// While there are items to add and the control node can add them
 		while((batch.getRemaining() > 0))
 		{
 			// Is there a free slot
-			if(simsManager.hasFreeSlot())
+			if(controlNode.hasFreeSlot())
 			{
 				// dequeue the next item in the batch
 				BatchItem item = batch.getNext();
@@ -339,7 +339,7 @@ public class BatchManager
 		// log.debug("Schedule Fair");
 
 		int size = fairQueue.size();
-		double maxActive = simsManager.getMaxSims() - fifoQueue.size();
+		double maxActive = controlNode.getMaxSims() - fifoQueue.size();
 		int fairTotal, pos;
 
 		if(size > 0)
@@ -365,7 +365,7 @@ public class BatchManager
 		do
 		{
 			// Is there a free slot
-			if(simsManager.hasFreeSlot())
+			if(controlNode.hasFreeSlot())
 			{
 				batch = (Batch) fairQueue.get(pos);
 
@@ -449,11 +449,11 @@ public class BatchManager
 
 		batchManagerLock.release();
 
-		int simId = simsManager.addSimulation(item.getConfigText(), -1);
+		int simId = controlNode.addSimulation(item.getConfigText(), -1);
 
 		batchManagerLock.acquireUninterruptibly();
 
-		// If the simulations manager has added a simulation for us
+		// If the control node has added a simulation for us
 		if(simId > 0)
 		{
 			log.debug("Item : " + item.getItemId() + " setting simId " + simId);
@@ -466,7 +466,7 @@ public class BatchManager
 			activeItems.add(item);
 			itemsLock.release();
 
-			simsManager.startSim(simId);
+			controlNode.startSim(simId);
 
 			batchManagerLock.acquireUninterruptibly();
 
@@ -689,12 +689,12 @@ public class BatchManager
 
 	public NodeConfiguration[] getNodesInfo()
 	{
-		return simsManager.getNodesInfo();
+		return controlNode.getNodesInfo();
 	}
 
 	public String[] getClusterStatus()
 	{
-		return simsManager.getStatus();
+		return controlNode.getStatus();
 	}
 
 	private BatchItem[] getListItems(int batchId, int queueNum)
@@ -1085,12 +1085,12 @@ public class BatchManager
 
 	private class StatFetchTask implements Runnable
 	{
-		private NetworkSimulationsManager simsManager;
+		private ControlNode simsManager;
 		private Batch batch;
 		private BatchItem item;
 		private ExportFormat format;
 
-		public StatFetchTask(NetworkSimulationsManager simsManager, Batch batch, BatchItem item, ExportFormat format)
+		public StatFetchTask(ControlNode simsManager, Batch batch, BatchItem item, ExportFormat format)
 		{
 			super();
 			this.simsManager = simsManager;

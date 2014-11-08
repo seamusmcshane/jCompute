@@ -3,7 +3,7 @@ package jCompute.Gui.Standard;
 import jCompute.IconManager;
 import jCompute.Gui.Standard.Tab.GUISimulationTab;
 import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
-import jCompute.Simulation.SimulationManager.SimulationsManagerInf;
+import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
