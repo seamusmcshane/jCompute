@@ -51,7 +51,7 @@ public class ControlNode
 
 	/* Connecting Nodes List */
 	private LinkedList<NodeManager> connectingNodes;
-	private Timer NSCPTimer;
+	private Timer ncpTimer;
 
 	/*
 	 * List of priority re-scheduled Simulations (recovered from nodes that
@@ -105,8 +105,8 @@ public class ControlNode
 
 	private void startNSMCPTimer()
 	{
-		NSCPTimer = new Timer("NSCPTimer");
-		NSCPTimer.schedule(new TimerTask()
+		ncpTimer = new Timer("NCP Timer");
+		ncpTimer.schedule(new TimerTask()
 		{
 			@Override
 			public void run()
