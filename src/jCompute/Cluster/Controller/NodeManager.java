@@ -721,7 +721,7 @@ public class NodeManager
 	public void incrementTimeOut()
 	{
 		NSMCPReadyTimeOut += 5;
-		log.info("Node " + nodeConfig.getUid() + " NSMCPReadyTimeOut@" + NSMCPReadyTimeOut);
+		log.info("Node " + nodeConfig.getUid() + " TimeOut@" + NSMCPReadyTimeOut);
 	}
 
 	public int getReadyStateTimeOutValue()
