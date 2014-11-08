@@ -33,15 +33,11 @@ public class NCP
     public static final int RegReq	= 01;	// Node Registration Frame - register with a controller
     public static final int RegAck	= 02;	// Node Registration ACK Frame - reply with a uid for Manager Node identification 
     public static final int RegNack	= 03;	// Node Registration NACK Frame - controller denied registration
-    
-    // Un-Registration 
-    public static final int UnReqReq	= 04;	// Node UnRegistration Frame 
-    public static final int UnRegAck	= 05;	// Node UnRegistration ACK Frame 
-    public static final int UnReqNack	= 06;	// Node UnRegistration NACK Frame 
+    public static final int UnReq	= 04;	// Node UnRegistration Frame - No Reply.
     
     // Node Configuration
     public static final int ConfReq	= 11;	// Node configuration request - gets details such as max simulation slots 
-    public static final int ConfAck	= 12;	// Node configuration - reply with configuration 
+    public static final int ConfAck	= 12;	// Node configuration - reply with configuration
     
     // Node Status Request
     public static final int StatusReq	= 21;	// Node status request - Requests status including progress/details of all simulations 
