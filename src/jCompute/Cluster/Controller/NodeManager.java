@@ -125,7 +125,7 @@ public class NodeManager
 
 		nodeState = ProtocolState.CON;
 
-		new Thread(new Runnable()
+		Thread nodeManager = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
@@ -143,7 +143,10 @@ public class NodeManager
 					active = false;
 				}
 			}
-		}).start();
+		});
+		
+		nodeManager.setName("NodeManager");
+		nodeManager.start();
 	}
 
 	private void handleRegistration() throws IOException
