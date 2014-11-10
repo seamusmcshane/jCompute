@@ -1,6 +1,9 @@
 package jCompute.Cluster.Controller;
 
 import jCompute.JComputeEventBus;
+import jCompute.Cluster.Controller.Event.NodeAdded;
+import jCompute.Cluster.Controller.Event.NodeRemoved;
+import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 import jCompute.Cluster.Node.NodeConfiguration;
 import jCompute.Cluster.Protocol.NCP;
@@ -79,10 +82,10 @@ public class ControlNode
 		// List of simulation nodes.
 		activeNodes = new LinkedList<NodeManager>();
 		connectingNodes = new LinkedList<NodeManager>();
-		
+
 		// Register on the event bus
 		JComputeEventBus.register(this);
-		
+
 		createAndStartRecieveThread();
 
 		startNSMCPTimer();
@@ -139,7 +142,9 @@ public class ControlNode
 
 						log.debug("Node " + tNode.getUid() + " now Active (Max Sims " + maxSims + ")");
 
+						// Sort the Node by weighting
 						Collections.sort(activeNodes, new NodeManagerComparator());
+
 						log.info("------------------------------------");
 						log.info("Active (" + activeNodes.size() + ")");
 						log.info("------------------------------------");
@@ -150,6 +155,7 @@ public class ControlNode
 						}
 						log.info("------------------------------------");
 
+						JComputeEventBus.post(new NodeAdded(tNode.getNodeConfig()));
 					}
 					else if(tNode.getReadyStateTimeOutValue() == NCP.ReadyStateTimeOut)
 					{
@@ -190,12 +196,14 @@ public class ControlNode
 							recoveredSimIds.add(nRSIdsIter.next());
 						}
 
+						// InActive Node Removed
+						JComputeEventBus.post(new NodeRemoved(node.getNodeConfig()));
+						
 						log.debug("Node " + node.getUid() + " no longer Active");
 						node.destroy("Node no longer active");
 						itr.remove();
 
 						maxSims -= node.getMaxSims();
-
 					}
 
 				}
@@ -206,6 +214,9 @@ public class ControlNode
 				}
 
 				controlNodeLock.release();
+				
+				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(),String.valueOf(listenSocket.getLocalPort()),String.valueOf(connectingNodes.size()),String.valueOf(activeNodes.size()),String.valueOf(maxSims),String.valueOf(simulations)));
+
 			}
 
 		}, 0, 5000);
@@ -263,7 +274,7 @@ public class ControlNode
 			listenSocket = new ServerSocket();
 
 			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCP.StandardServerPort));
-
+			
 			Thread thread = new Thread(new Runnable()
 			{
 				@Override
@@ -546,7 +557,7 @@ public class ControlNode
 
 		status.add("Added Sims");
 		status.add(String.valueOf(simulations));
-
+		
 		return status.toArray(new String[status.size()]);
 	}
 

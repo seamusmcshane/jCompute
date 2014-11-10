@@ -2,13 +2,17 @@ package jCompute.Gui.Batch;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
 import javax.swing.JPanel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.JComputeEventBus;
 import jCompute.Batch.BatchManager.BatchManager;
-import jCompute.Cluster.Node.NodeConfiguration;
+import jCompute.Cluster.Controller.Event.NodeAdded;
+import jCompute.Cluster.Controller.Event.NodeRemoved;
+import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Batch.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Batch.TableRowItems.SimpleInfoRowItem;
@@ -84,6 +88,16 @@ public class ClusterStatusTab extends JPanel
 
 		clusterInfoTabPanel.addTab(clusterStatusTablePanel, "Info");
 		clusterInfoTabPanel.addTab(clusterNodesTablePanel, "Nodes");
+		
+		// Populate Fields
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Port",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Connecting Nodes",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Active Nodes",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Max Active Sims",""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Added Sims",""));		
 	}
 
 	public void createActiveSimulationsListTable()
@@ -102,34 +116,7 @@ public class ClusterStatusTab extends JPanel
 		activeSimulationsListTable.setMinimumSize(new Dimension(800, 200));
 	}
 
-	private void updateNodeInfo()
-	{
-		NodeConfiguration[] nodesInfo = batchManager.getNodesInfo();
-
-		// In case Nodes have been added or removed - compare the previous row
-		// count to the current.
-		if(nodesInfo.length != nodeCount)
-		{
-			nodeCount = nodesInfo.length;
-
-			clusterNodesTablePanel.clearTable();
-
-			for(int i = 0; i < nodeCount; i++)
-			{
-				clusterNodesTablePanel.addRow(new NodeInfoRowItem(nodesInfo[i]));
-			}
-		}
-		else
-		{
-			for(int i = 0; i < nodeCount; i++)
-			{
-				clusterNodesTablePanel.updateRow(nodesInfo[i].getUid(), new NodeInfoRowItem(nodesInfo[i]));
-			}
-		}
-
-	}
-
-	private void updateClusterInfo()
+	/*private void updateClusterInfo()
 	{
 		String clusterStatus[] = batchManager.getClusterStatus();
 
@@ -149,11 +136,10 @@ public class ClusterStatusTab extends JPanel
 			{
 				clusterStatusTablePanel.updateRow(clusterStatus[i], new SimpleInfoRowItem(clusterStatus[i],
 						clusterStatus[i + 1]));
-
 			}
 		}
 
-	}
+	}*/
 
 	/**
 	 * SimulationsManagerEvent handler method
@@ -200,9 +186,39 @@ public class ClusterStatusTab extends JPanel
 	}
 
 	@Subscribe
-	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
+	public void SimulationStateChanged(SimulationStateChangedEvent e)
 	{
-		// Simulation State
-		activeSimulationsListTable.updateCell(e.getSimId(), 1, e.getState());
+		activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+		{
+				1
+		}, new Object[]
+		{
+				e.getState()
+		});
 	}
+	
+	@Subscribe
+	public void ControlNodeEvent(NodeAdded e)
+	{
+		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration()));
+	}
+
+	@Subscribe
+	public void ControlNodeEvent(NodeRemoved e)
+	{
+		clusterNodesTablePanel.removeRow(e.getNodeConfiguration().getUid());
+	}
+	
+	@Subscribe
+	public void ControlNodeEvent(StatusChanged e)
+	{		
+		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address",e.getAddress()));
+		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port",e.getPort()));
+		clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes",e.getConnectingNodes()));
+		clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes",e.getActiveNodes()));
+		clusterStatusTablePanel.updateRow("Max Active Sims", new SimpleInfoRowItem("Max Active Sims",e.getMaxActiveSims()));
+		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims",e.getAddedSims()));
+	}
+	
+	
 }
