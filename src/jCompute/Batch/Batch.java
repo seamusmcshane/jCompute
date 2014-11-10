@@ -710,13 +710,22 @@ public class Batch implements StoredQueuePosition
 		return temp;
 	}
 
+	public void setItemNotActive(BatchItem item)
+	{
+		batchLock.acquireUninterruptibly();
+
+		activeItems.remove(item);
+		
+		batchLock.release();
+	}
+	
 	public void setItemComplete(BatchItem item, StatExporter exporter)
 	{
 		batchLock.acquireUninterruptibly();
 
 		log.debug("Setting Completed Sim " + item.getSimId() + " Item " + item.getItemId());
 
-		activeItems.remove(item);
+		//activeItems.remove(item);
 
 		// For estimated complete time calculation
 		completedItemRunTime += item.getRunTime();
@@ -908,9 +917,14 @@ public class Batch implements StoredQueuePosition
 
 	public long getETT()
 	{
-		if(active > 0 && completed > 0)
+		/*if(active > 0 && completed > 0)
 		{
 			return getRunTime() + (((completedItemRunTime / completed) * (batchItems - completed)) / active);
+		}*/
+		
+		if(active > 0 && completed > 0)
+		{
+			return (completedItemRunTime / completed) * (batchItems-completed) / active;
 		}
 
 		return 0;

@@ -131,4 +131,9 @@ public class BatchItem
 		return stepCount;
 	}
 
+	public void updateRunTime(long runTime)
+	{
+		this.runTime = runTime;
+	}
+
 }
