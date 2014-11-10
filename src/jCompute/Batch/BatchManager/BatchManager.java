@@ -209,7 +209,7 @@ public class BatchManager
 			batchManagerLock.release();
 
 			if(batch != null)
-			{
+			{				
 				completedItemsStatFetch.execute(new StatFetchTask(controlNode, batch, item, ExportFormat.ZXML));
 			}
 			else
@@ -505,6 +505,14 @@ public class BatchManager
 					item.setComplete(e.getRunTime(), e.getEndEvent(), e.getStepCount());
 					activeItems.remove(item);
 					completeItems.add(item);
+					
+					// Tell the batch this item is no longer active
+					Batch batch = findBatch(item.getBatchId());
+					if(batch!=null)
+					{
+						batch.setItemNotActive(item);
+					}
+
 				}
 
 				itemsLock.release();
@@ -655,16 +663,6 @@ public class BatchManager
 		batchManagerLock.release();
 
 		return info;
-	}
-
-	public NodeConfiguration[] getNodesInfo()
-	{
-		return controlNode.getNodesInfo();
-	}
-
-	public String[] getClusterStatus()
-	{
-		return controlNode.getStatus();
 	}
 
 	private BatchItem[] getListItems(int batchId, int queueNum)
