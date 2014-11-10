@@ -528,6 +528,8 @@ public class BatchTab extends JPanel
 		batchQueuedTable.updateCell(id, enabledColumn, batch.getEnabled());
 		batchQueuedTable.updateCell(id, progressColumn, batch.getProgress());
 		batchQueuedTable.updateCell(id, estimatedTimeColumn, jCompute.util.Text.longTimeToDHMS(batch.getETT()));
+
+		updateBatchInfo(queuedOrCompleted);
 	}
 
 	@Subscribe
