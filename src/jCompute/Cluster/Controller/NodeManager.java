@@ -751,15 +751,26 @@ public class NodeManager
 
 	public void destroy(String reason)
 	{
+		log.info("Removing Node Manager for Node " + nodeConfig.getUid() + " Reason : " + reason);
+
 		try
 		{
-			log.info("Removing Node Manager for Node " + nodeConfig.getUid() + " Reason : " + reason);
 			transferSocket.close();
-			cmdSocket.close();
+			log.info("Node " +  nodeConfig.getUid() + " Transfer socket closed");
 		}
 		catch(IOException e)
 		{
-			log.error("Socket already closed");
+			log.error("Node " +  nodeConfig.getUid() + " Transfer Socket already closed");
+		}
+		
+		try
+		{
+			cmdSocket.close();
+			log.info("Node " +  nodeConfig.getUid() + " Command socket closed");
+		}
+		catch(IOException e)
+		{
+			log.error("Node " +  nodeConfig.getUid() + " Command socket already closed");
 		}
 
 	}
