@@ -323,6 +323,10 @@ public class BatchManager
 					batch.returnItemToQueue(item);
 					break;
 				}
+				else
+				{
+					JComputeEventBus.post(new BatchProgressEvent(batch));
+				}
 			}
 			else
 			{
