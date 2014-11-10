@@ -85,7 +85,6 @@ public class BatchTab extends JPanel
 
 		// Register on the event bus
 		JComputeEventBus.register(this);
-		log.info("BatchTab registered on event bus");
 
 		registerTableMouseListeners();
 	}

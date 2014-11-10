@@ -57,7 +57,6 @@ public class ClusterStatusTab extends JPanel
 
 		// Register on the event bus
 		JComputeEventBus.register(this);
-		log.info("ClusterStatusTab registered on event bus");
 	}
 
 	public void createClusterInfoTabPanel()

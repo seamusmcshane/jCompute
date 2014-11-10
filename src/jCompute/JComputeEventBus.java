@@ -42,11 +42,13 @@ public class JComputeEventBus
 	
 	public static void register(Object subscriber)
 	{
+		log.info(subscriber.getClass().getSimpleName() + " Registered on EventBus");
 		eventBus.register(subscriber);
 	}
 
 	public static void unregister(Object subscriber)
 	{
+		log.info(subscriber.getClass().getSimpleName() + " Unregistered from EventBus");
 		eventBus.unregister(subscriber);
 	}
 

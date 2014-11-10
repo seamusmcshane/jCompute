@@ -79,7 +79,10 @@ public class ControlNode
 		// List of simulation nodes.
 		activeNodes = new LinkedList<NodeManager>();
 		connectingNodes = new LinkedList<NodeManager>();
-
+		
+		// Register on the event bus
+		JComputeEventBus.register(this);
+		
 		createAndStartRecieveThread();
 
 		startNSMCPTimer();

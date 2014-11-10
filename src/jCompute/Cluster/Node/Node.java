@@ -92,7 +92,6 @@ public class Node
 		this.simsManager = simsManager;
 
 		JComputeEventBus.register(this);
-		log.info("Registered on event bus");
 
 		statCache = new NodeStatCache();
 		log.info("Created Node Stat Cache");
