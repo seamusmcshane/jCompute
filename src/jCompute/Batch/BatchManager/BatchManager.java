@@ -1064,10 +1064,19 @@ public class BatchManager
 		@Override
 		public void run()
 		{
+			long timeStart = System.currentTimeMillis();
+			long timeEnd;
+			
 			// Export Stats // ExportFormat.ZXML
 			StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()),
 					format);
 
+			timeEnd = System.currentTimeMillis();
+			
+			// Include the stat fetch time in time taken for each items processing
+			long total = item.getRunTime() + ( timeEnd-timeStart);
+			item.updateRunTime(total);
+			
 			batch.setItemComplete(item, exporter);
 
 			log.info("Batch Item Finished : " + batch.getBatchId());
