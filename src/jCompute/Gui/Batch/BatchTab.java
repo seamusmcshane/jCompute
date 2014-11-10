@@ -13,7 +13,10 @@ import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Batch.BatchManager.BatchManager;
-import jCompute.Batch.BatchManager.BatchManagerEventListenerInf;
+import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
+import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
+import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
+import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Gui.Batch.TableRowItems.BatchCompletedRowItem;
 import jCompute.Gui.Batch.TableRowItems.BatchQueueRowItem;
 import jCompute.Gui.Batch.TableRowItems.SimpleInfoRowItem;
@@ -30,7 +33,9 @@ import javax.swing.JTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BatchTab extends JPanel implements BatchManagerEventListenerInf
+import com.google.common.eventbus.Subscribe;
+
+public class BatchTab extends JPanel
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchTab.class);
@@ -83,9 +88,6 @@ public class BatchTab extends JPanel implements BatchManagerEventListenerInf
 		log.info("BatchTab registered on event bus");
 
 		registerTableMouseListeners();
-
-		// TODO EVENT BUS BATCH MANAGER EVENT
-		batchManager.addBatchManagerListener(this);
 	}
 
 	private void createBatchInfoPanel()
@@ -345,54 +347,6 @@ public class BatchTab extends JPanel implements BatchManagerEventListenerInf
 
 	}
 
-	@Override
-	public void batchAdded(final Batch batch)
-	{
-		// add new row
-		batchQueuedTable.addRow(new BatchQueueRowItem(batch));
-
-	}
-
-	@Override
-	public void batchFinished(final Batch batch)
-	{
-		log.info("Batch Finished " + batch.getBatchId());
-
-		// remove row
-		batchQueuedTable.removeRow(batch.getBatchId());
-
-		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(),
-				jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
-
-		queuedSelectedBatchRowIndex = -1;
-
-		if(queuedOrCompleted == 1)
-		{
-			queuedOrCompleted = 0;
-		}
-
-		batchQueuedTable.clearSelection();
-	}
-
-	@Override
-	public void batchQueuePositionChanged(final Batch batch)
-	{
-		batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
-
-		log.debug("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
-	}
-
-	@Override
-	public void batchProgress(final Batch batch)
-	{
-		int id = batch.getBatchId();
-
-		batchQueuedTable.updateCell(id, priorityColumn, batch.getPriority());
-		batchQueuedTable.updateCell(id, enabledColumn, batch.getEnabled());
-		batchQueuedTable.updateCell(id, progressColumn, batch.getProgress());
-		batchQueuedTable.updateCell(id, estimatedTimeColumn, jCompute.util.Text.longTimeToDHMS(batch.getETT()));
-	}
-
 	public void startBatch()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
@@ -555,4 +509,55 @@ public class BatchTab extends JPanel implements BatchManagerEventListenerInf
 		batchManager.setPriority(batchId, BatchPriority.HIGH);
 	}
 
+	@Subscribe
+	public void batchQueuePositionChanged(BatchPositionEvent event)
+	{
+		Batch batch = event.getBatch();
+		batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
+
+		log.debug("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
+	}
+
+	@Subscribe
+	public void batchProgress(BatchProgressEvent event)
+	{
+		Batch batch = event.getBatch();
+		int id = batch.getBatchId();
+
+		batchQueuedTable.updateCell(id, priorityColumn, batch.getPriority());
+		batchQueuedTable.updateCell(id, enabledColumn, batch.getEnabled());
+		batchQueuedTable.updateCell(id, progressColumn, batch.getProgress());
+		batchQueuedTable.updateCell(id, estimatedTimeColumn, jCompute.util.Text.longTimeToDHMS(batch.getETT()));
+	}
+
+	@Subscribe
+	public void batchAdded(BatchAddedEvent event)
+	{
+		// add new row
+		batchQueuedTable.addRow(new BatchQueueRowItem(event.getBatch()));
+
+	}
+
+	@Subscribe
+	public void batchFinished(BatchFinishedEvent event)
+	{
+		Batch batch = event.getBatch();
+
+		log.info("Batch Finished " + batch.getBatchId());
+
+		// remove row
+		batchQueuedTable.removeRow(batch.getBatchId());
+
+		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(),
+				jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
+
+		queuedSelectedBatchRowIndex = -1;
+
+		if(queuedOrCompleted == 1)
+		{
+			queuedOrCompleted = 0;
+		}
+
+		batchQueuedTable.clearSelection();
+	}
 }

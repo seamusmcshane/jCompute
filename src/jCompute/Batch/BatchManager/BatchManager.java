@@ -4,6 +4,10 @@ import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
 import jCompute.Batch.Batch.BatchPriority;
+import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
+import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
+import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
+import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode;
 import jCompute.Cluster.Node.NodeConfiguration;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
@@ -19,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -58,9 +61,6 @@ public class BatchManager
 	private Semaphore itemsLock = new Semaphore(1, false);
 
 	private ArrayList<BatchItem> completeItems;
-
-	/* Batch Manager Event Listeners */
-	private CopyOnWriteArrayList<BatchManagerEventListenerInf> batchManagerListeners = new CopyOnWriteArrayList<BatchManagerEventListenerInf>();
 
 	// Scheduler
 	private Timer batchScheduler;
@@ -136,7 +136,7 @@ public class BatchManager
 
 			batchManagerLock.release();
 
-			batchManagerListenerBatchAddedNotification(tempBatch);
+			JComputeEventBus.post(new BatchAddedEvent(tempBatch));
 		}
 		else
 		{
@@ -288,7 +288,7 @@ public class BatchManager
 			batchManagerLock.release();
 
 			// Notify listeners the batch is removed.
-			batchManagerListenerBatchFinishedNotification(batch);
+			JComputeEventBus.post(new BatchFinishedEvent(batch));
 
 			positionsChangedInQueue(fifoQueue);
 
@@ -381,7 +381,7 @@ public class BatchManager
 					batchManagerLock.release();
 
 					// Notify listeners the batch is removed.
-					batchManagerListenerBatchFinishedNotification(batch);
+					JComputeEventBus.post(new BatchFinishedEvent(batch));
 
 					positionsChangedInQueue(fairQueue);
 
@@ -640,40 +640,6 @@ public class BatchManager
 		return item;
 	}
 
-	public void addBatchManagerListener(BatchManagerEventListenerInf listener)
-	{
-		batchManagerListeners.add(listener);
-	}
-
-	public void removeBatchManagerListener(BatchManagerEventListenerInf listener)
-	{
-		batchManagerListeners.remove(listener);
-	}
-
-	private void batchManagerListenerBatchAddedNotification(Batch batch)
-	{
-		for(BatchManagerEventListenerInf listener : batchManagerListeners)
-		{
-			listener.batchAdded(batch);
-		}
-	}
-
-	private void batchManagerListenerBatchFinishedNotification(final Batch batch)
-	{
-		for(BatchManagerEventListenerInf listener : batchManagerListeners)
-		{
-			listener.batchFinished(batch);
-		}
-	}
-
-	private void batchManagerListenerBatchProgressNotification(Batch batch)
-	{
-		for(BatchManagerEventListenerInf listener : batchManagerListeners)
-		{
-			listener.batchProgress(batch);
-		}
-	}
-
 	public String[] getBatchInfo(int batchId)
 	{
 		batchManagerLock.acquireUninterruptibly();
@@ -782,7 +748,7 @@ public class BatchManager
 
 		batchManagerLock.release();
 
-		batchManagerListenerBatchProgressNotification(batch);
+		JComputeEventBus.post(new BatchProgressEvent(batch));
 	}
 
 	public void setPriority(int batchId, BatchPriority priority)
@@ -856,7 +822,7 @@ public class BatchManager
 
 			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+			JComputeEventBus.post(new BatchPositionEvent(tBatch));
 		}
 	}
 
@@ -898,7 +864,7 @@ public class BatchManager
 
 			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+			JComputeEventBus.post(new BatchPositionEvent(tBatch));
 		}
 
 		batchManagerLock.release();
@@ -943,7 +909,7 @@ public class BatchManager
 
 			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+			JComputeEventBus.post(new BatchPositionEvent(tBatch));
 		}
 
 		batchManagerLock.release();
@@ -988,7 +954,7 @@ public class BatchManager
 
 			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+			JComputeEventBus.post(new BatchPositionEvent(tBatch));
 		}
 
 		batchManagerLock.release();
@@ -1032,18 +998,10 @@ public class BatchManager
 
 			log.debug("Batch " + tBatch.getBatchId() + " Pos" + tBatch.getPosition());
 
-			batchManagerListenerBatchQueueQueuePositionChanged(tBatch);
+			JComputeEventBus.post(new BatchPositionEvent(tBatch));
 		}
 
 		batchManagerLock.release();
-	}
-
-	private void batchManagerListenerBatchQueueQueuePositionChanged(Batch batch)
-	{
-		for(BatchManagerEventListenerInf listener : batchManagerListeners)
-		{
-			listener.batchQueuePositionChanged(batch);
-		}
 	}
 
 	public void removeBatch(int batchId)
@@ -1111,7 +1069,7 @@ public class BatchManager
 			log.info("Batch Item Finished : " + batch.getBatchId());
 
 			// Batch Progress
-			batchManagerListenerBatchProgressNotification(batch);
+			JComputeEventBus.post(new BatchProgressEvent(batch));
 		}
 	}
 
