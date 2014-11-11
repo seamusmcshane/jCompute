@@ -755,8 +755,11 @@ public class NodeManager
 
 		try
 		{
-			transferSocket.close();
-			log.info("Node " +  nodeConfig.getUid() + " Transfer socket closed");
+			if(transferSocket!=null)
+			{
+				transferSocket.close();
+				log.info("Node " +  nodeConfig.getUid() + " Transfer socket closed");
+			}
 		}
 		catch(IOException e)
 		{
@@ -765,8 +768,12 @@ public class NodeManager
 		
 		try
 		{
-			cmdSocket.close();
-			log.info("Node " +  nodeConfig.getUid() + " Command socket closed");
+			if(cmdSocket!=null)
+			{
+				cmdSocket.close();
+				log.info("Node " +  nodeConfig.getUid() + " Command socket closed");
+			}
+
 		}
 		catch(IOException e)
 		{
