@@ -54,6 +54,7 @@ public class BatchTab extends JPanel
 
 	// Right Split
 	private TablePanel batchInfo;
+	private int rightPanelsMinWidth;
 
 	// Queue Table Positions
 	private int positionColumn = 0;
@@ -62,15 +63,24 @@ public class BatchTab extends JPanel
 	private int priorityColumn = 3;
 	private int enabledColumn = 4;
 	private int progressColumn = 5;
-	private int estimatedTimeColumn = 6;
+	private int estimatedFinishColumn = 6;
 	private int batchQueueIndexColumn = idColumn;
+
+	private int numericColumnWidth = 55;
+	private int iconColumnWidth = 60;
+	private int dateColumnWidth = 200;
+	private int timeColumnWidth = 120;
+	private int progressColumnWidth = 80;
 
 	private BatchManager batchManager;
 
-	public BatchTab(BatchManager batchManager)
+	public BatchTab(BatchManager batchManager, int rightPanelsMinWidth)
 	{
 		// Batch Manager
 		this.batchManager = batchManager;
+
+		// Min Width of rightPanel
+		this.rightPanelsMinWidth = rightPanelsMinWidth;
 
 		// Panel Layout
 		this.setLayout(new BorderLayout());
@@ -93,8 +103,8 @@ public class BatchTab extends JPanel
 	{
 		batchInfo = new TablePanel(SimpleInfoRowItem.class, 0, "Batch Info", false, false);
 		batchInfo.setColumWidth(0, 125);
-		batchInfo.setMinimumSize(new Dimension(300, 150));
-		batchInfo.setPreferredSize(new Dimension(300, 150));
+		batchInfo.setMinimumSize(new Dimension(rightPanelsMinWidth, 150));
+		batchInfo.setPreferredSize(new Dimension(rightPanelsMinWidth, 150));
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 
 		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
@@ -105,7 +115,6 @@ public class BatchTab extends JPanel
 	{
 		// Left Tables (Queue and Completed)
 		batchQueuedAndCompletePanel = new JPanel();
-		batchQueuedAndCompletePanel.setMinimumSize(new Dimension(300, 200));
 
 		// Top Queue Batches Table
 		GridBagLayout gbl_batchQueuedCompletePanel = new GridBagLayout();
@@ -151,14 +160,14 @@ public class BatchTab extends JPanel
 		gbc_batchQueuedTable.gridx = 0;
 		gbc_batchQueuedTable.gridy = 0;
 
-		batchQueuedTable.setColumWidth(positionColumn, 80);
-		batchQueuedTable.setColumWidth(idColumn, 80);
+		batchQueuedTable.setColumWidth(positionColumn, numericColumnWidth);
+		batchQueuedTable.setColumWidth(idColumn, numericColumnWidth);
 
 		// batchQueuedTable.setColumWidth(nameColumn, 175);
-		batchQueuedTable.setColumWidth(priorityColumn, 60);
-		batchQueuedTable.setColumWidth(enabledColumn, 70);
-		batchQueuedTable.setColumWidth(progressColumn, 60);
-		batchQueuedTable.setColumWidth(estimatedTimeColumn, 120);
+		batchQueuedTable.setColumWidth(priorityColumn, iconColumnWidth);
+		batchQueuedTable.setColumWidth(enabledColumn, iconColumnWidth);
+		batchQueuedTable.setColumWidth(progressColumn, progressColumnWidth);
+		batchQueuedTable.setColumWidth(estimatedFinishColumn, dateColumnWidth);
 		// batchQueuedTable.setColumWidth(6, 40);
 		// batchQueuedTable.setColumWidth(7, 40);
 		// batchQueuedTable.setColumWidth(8, 60);
@@ -173,9 +182,9 @@ public class BatchTab extends JPanel
 		gbc_batchCompleteTable.gridy = 1;
 		gbc_batchCompleteTable.fill = GridBagConstraints.BOTH;
 
-		batchCompletedTable.setColumWidth(0, 80);
-		batchCompletedTable.setColumWidth(2, 120);
-		batchCompletedTable.setColumWidth(3, 175);
+		batchCompletedTable.setColumWidth(0, numericColumnWidth);
+		batchCompletedTable.setColumWidth(2, timeColumnWidth);
+		batchCompletedTable.setColumWidth(3, dateColumnWidth);
 		// batchCompletedTable.setColumWidth(3, 50);
 
 		batchQueuedAndCompletePanel.add(batchCompletedTable, gbc_batchCompleteTable);
@@ -521,12 +530,8 @@ public class BatchTab extends JPanel
 	public void batchProgress(BatchProgressEvent event)
 	{
 		Batch batch = event.getBatch();
-		int id = batch.getBatchId();
 
-		batchQueuedTable.updateCell(id, priorityColumn, batch.getPriority());
-		batchQueuedTable.updateCell(id, enabledColumn, batch.getEnabled());
-		batchQueuedTable.updateCell(id, progressColumn, batch.getProgress());
-		batchQueuedTable.updateCell(id, estimatedTimeColumn, jCompute.util.Text.longTimeToDHMS(batch.getETT()));
+		batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
 
 		updateBatchInfo(queuedOrCompleted);
 	}
@@ -536,7 +541,6 @@ public class BatchTab extends JPanel
 	{
 		// add new row
 		batchQueuedTable.addRow(new BatchQueueRowItem(event.getBatch()));
-
 	}
 
 	@Subscribe
