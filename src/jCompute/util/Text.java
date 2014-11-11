@@ -25,6 +25,23 @@ public class Text
 		return String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec);
 	}
 
+	/**
+	 * Converts the longtime to D/H/M/Sec/Mili
+	 * 
+	 * @param time
+	 */
+	public static String longTimeToDHMSM(long milliseconds)
+	{
+		int msec = (int) (milliseconds % 1000); // miliseconds
+		milliseconds = milliseconds / 1000; // seconds
+		int days = (int) (milliseconds / 86400); // to days
+		int hrs = (int) (milliseconds / 3600) % 24; // to hrs
+		int mins = (int) ((milliseconds / 60) % 60);	// to seconds
+		int sec = (int) (milliseconds % 60);
+
+		return String.format("%d:%02d:%02d:%02d:%03d", days, hrs, mins, sec,msec);
+	}
+	
 	public static String timeNowPlus(long milliseconds)
 	{
 		String stime = new DecimalFormatSymbols().getInfinity();
