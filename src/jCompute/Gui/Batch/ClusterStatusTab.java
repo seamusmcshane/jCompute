@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.JComputeEventBus;
-import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
+import jCompute.Cluster.Controller.Event.NodeUpdated;
 import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Batch.TableRowItems.NodeInfoRowItem;
@@ -41,14 +41,9 @@ public class ClusterStatusTab extends JPanel
 	private SimpleTabPanel clusterInfoTabPanel;
 	private TablePanel clusterStatusTablePanel;
 	private TablePanel clusterNodesTablePanel;
-	private int nodeCount = 0;
 
-	private BatchManager batchManager;
-
-	public ClusterStatusTab(BatchManager batchManager)
+	public ClusterStatusTab()
 	{
-		this.batchManager = batchManager;
-
 		this.setLayout(new BorderLayout());
 
 		createActiveSimulationsListTable();
@@ -115,31 +110,6 @@ public class ClusterStatusTab extends JPanel
 		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		activeSimulationsListTable.setMinimumSize(new Dimension(800, 200));
 	}
-
-	/*private void updateClusterInfo()
-	{
-		String clusterStatus[] = batchManager.getClusterStatus();
-
-		// Batch Info
-		int clusterStatusLength = clusterStatus.length;
-
-		if(clusterStatusTablePanel.getRowsCount() <= 0)
-		{
-			for(int i = 0; i < clusterStatusLength; i += 2)
-			{
-				clusterStatusTablePanel.addRow(new SimpleInfoRowItem(clusterStatus[i], clusterStatus[i + 1]));
-			}
-		}
-		else
-		{
-			for(int i = 0; i < clusterStatusLength; i += 2)
-			{
-				clusterStatusTablePanel.updateRow(clusterStatus[i], new SimpleInfoRowItem(clusterStatus[i],
-						clusterStatus[i + 1]));
-			}
-		}
-
-	}*/
 
 	/**
 	 * SimulationsManagerEvent handler method
@@ -210,8 +180,14 @@ public class ClusterStatusTab extends JPanel
 	}
 	
 	@Subscribe
+	public void ControlNodeEvent(NodeUpdated e)
+	{
+		clusterNodesTablePanel.updateRow(e.getNodeConfiguration().getUid(),new NodeInfoRowItem(e.getNodeConfiguration()));
+	}
+	
+	@Subscribe
 	public void ControlNodeEvent(StatusChanged e)
-	{		
+	{
 		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address",e.getAddress()));
 		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port",e.getPort()));
 		clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes",e.getConnectingNodes()));

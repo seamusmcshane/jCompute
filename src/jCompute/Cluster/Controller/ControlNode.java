@@ -3,6 +3,7 @@ package jCompute.Cluster.Controller;
 import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
+import jCompute.Cluster.Controller.Event.NodeUpdated;
 import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 import jCompute.Cluster.Node.NodeConfiguration;
@@ -204,6 +205,10 @@ public class ControlNode
 						itr.remove();
 
 						maxSims -= node.getMaxSims();
+					}
+					else
+					{
+						JComputeEventBus.post(new NodeUpdated(node.getNodeConfig()));
 					}
 
 				}

@@ -148,7 +148,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 		guiTabs.addTab(batchTab, "Batches");
 
-		clusterStatusTab = new ClusterStatusTab(batchManager);
+		clusterStatusTab = new ClusterStatusTab();
 
 		guiTabs.addTab(clusterStatusTab, "Cluster");
 	}
