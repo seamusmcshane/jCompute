@@ -1072,7 +1072,7 @@ public class BatchManager
 			timeEnd = System.currentTimeMillis();
 			
 			// The stats fetch time
-			item.setStatsTime(timeEnd-timeStart);
+			item.setNetTime(timeEnd-timeStart);
 			
 			batch.setItemComplete(item, exporter);
 

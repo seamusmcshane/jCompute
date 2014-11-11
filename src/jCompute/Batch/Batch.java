@@ -63,8 +63,8 @@ public class Batch implements StoredQueuePosition
 	private String endDateTime = "Not Finished";
 
 	/* Completed Items avg */
-	private long computeTotalTimes;
-	private long statsTotalTimes;
+	private long cpuTotalTimes;
+	private long netTotalTimes;
 	private long lastCompletedItemTime;
 
 	private String batchStatsExportDir;
@@ -968,6 +968,24 @@ public class Batch implements StoredQueuePosition
 		info.add(String.valueOf(itemsRequested));
 		info.add("Items Returned");
 		info.add(String.valueOf(itemsReturned));
+		
+		int div = 1;		
+		if(completed > 0)
+		{
+			div = completed;
+		}
+		
+		info.add("");
+		info.add("");
+		info.add("Items Cpu Time");
+		info.add(Text.longTimeToDHMSM(cpuTotalTimes));
+		info.add("Items Cpu Avg");
+		info.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
+		
+		info.add("Items Net Time");
+		info.add(Text.longTimeToDHMSM(netTotalTimes));
+		info.add("Items Net Avg");
+		info.add(Text.longTimeToDHMSM(netTotalTimes / div));
 
 		info.add("");
 		info.add("");

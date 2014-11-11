@@ -26,9 +26,8 @@ public class BatchItem
 	private long stepCount;
 
 	// Times
-	private long computeTime;
-	private long statsTime;
-
+	private long cpuTime;
+	private long netTime;
 	
 	public BatchItem(int sampleId,int itemId,int batchId,String name,String configText,ArrayList<Integer> coordinates,ArrayList<Integer> coordinatesValues)
 	{
@@ -113,31 +112,31 @@ public class BatchItem
 		return sampleId;
 	}
 	
-	public void setComputeFinish(long computeTime, String endEvent, long stepCount)
+	public void setComputeFinish(long cpuTime, String endEvent, long stepCount)
 	{
-		this.computeTime = computeTime;
+		this.cpuTime = cpuTime;
 		this.endEvent = endEvent;
 		this.stepCount = stepCount;
 	}
 
-	public void setStatsTime(long statsTime)
+	public void setNetTime(long netTime)
 	{
-		this.statsTime = statsTime;
+		this.netTime = netTime;
 	}
 	
-	public long getComputeTime()
+	public long getCPUTime()
 	{
-		return computeTime;
+		return cpuTime;
 	}
 	
-	public long getStatsTime()
+	public long getNetTime()
 	{
-		return statsTime;
+		return netTime;
 	}
 	
 	public long getTotalTime()
 	{
-		return computeTime+statsTime;
+		return cpuTime+netTime;
 	}
 	
 	public String getEndEvent()
