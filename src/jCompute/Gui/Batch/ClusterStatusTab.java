@@ -42,8 +42,13 @@ public class ClusterStatusTab extends JPanel
 	private TablePanel clusterStatusTablePanel;
 	private TablePanel clusterNodesTablePanel;
 
-	public ClusterStatusTab()
+	private int rightPanelsMinWidth;
+
+	public ClusterStatusTab(int rightPanelsMinWidth)
 	{
+		// Min Width of rightPanel
+		this.rightPanelsMinWidth = rightPanelsMinWidth;
+
 		this.setLayout(new BorderLayout());
 
 		createActiveSimulationsListTable();
@@ -62,8 +67,8 @@ public class ClusterStatusTab extends JPanel
 	{
 		// Tab Panel
 		clusterInfoTabPanel = new SimpleTabPanel();
-		clusterInfoTabPanel.setMinimumSize(new Dimension(300, 150));
-		clusterInfoTabPanel.setPreferredSize(new Dimension(300, 150));
+		clusterInfoTabPanel.setMinimumSize(new Dimension(rightPanelsMinWidth, 150));
+		clusterInfoTabPanel.setPreferredSize(new Dimension(rightPanelsMinWidth, 150));
 
 		// Info Tab
 		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
@@ -83,16 +88,16 @@ public class ClusterStatusTab extends JPanel
 
 		clusterInfoTabPanel.addTab(clusterStatusTablePanel, "Info");
 		clusterInfoTabPanel.addTab(clusterNodesTablePanel, "Nodes");
-		
+
 		// Populate Fields
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Port",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Connecting Nodes",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Active Nodes",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Max Active Sims",""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Added Sims",""));		
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Port", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Connecting Nodes", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Active Nodes", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Max Active Sims", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Added Sims", ""));
 	}
 
 	public void createActiveSimulationsListTable()
@@ -108,7 +113,6 @@ public class ClusterStatusTab extends JPanel
 		activeSimulationsListTable.setColumWidth(5, 110);
 		// Progress Column uses a progress bar for display
 		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
-		activeSimulationsListTable.setMinimumSize(new Dimension(800, 200));
 	}
 
 	/**
@@ -160,13 +164,13 @@ public class ClusterStatusTab extends JPanel
 	{
 		activeSimulationsListTable.updateCells(e.getSimId(), new int[]
 		{
-				1
+			1
 		}, new Object[]
 		{
-				e.getState()
+			e.getState()
 		});
 	}
-	
+
 	@Subscribe
 	public void ControlNodeEvent(NodeAdded e)
 	{
@@ -178,23 +182,25 @@ public class ClusterStatusTab extends JPanel
 	{
 		clusterNodesTablePanel.removeRow(e.getNodeConfiguration().getUid());
 	}
-	
+
 	@Subscribe
 	public void ControlNodeEvent(NodeUpdated e)
 	{
-		clusterNodesTablePanel.updateRow(e.getNodeConfiguration().getUid(),new NodeInfoRowItem(e.getNodeConfiguration()));
+		clusterNodesTablePanel.updateRow(e.getNodeConfiguration().getUid(),
+				new NodeInfoRowItem(e.getNodeConfiguration()));
 	}
-	
+
 	@Subscribe
 	public void ControlNodeEvent(StatusChanged e)
 	{
-		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address",e.getAddress()));
-		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port",e.getPort()));
-		clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes",e.getConnectingNodes()));
-		clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes",e.getActiveNodes()));
-		clusterStatusTablePanel.updateRow("Max Active Sims", new SimpleInfoRowItem("Max Active Sims",e.getMaxActiveSims()));
-		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims",e.getAddedSims()));
+		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address", e.getAddress()));
+		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port", e.getPort()));
+		clusterStatusTablePanel.updateRow("Connecting Nodes",
+				new SimpleInfoRowItem("Connecting Nodes", e.getConnectingNodes()));
+		clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes", e.getActiveNodes()));
+		clusterStatusTablePanel.updateRow("Max Active Sims",
+				new SimpleInfoRowItem("Max Active Sims", e.getMaxActiveSims()));
+		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims", e.getAddedSims()));
 	}
-	
-	
+
 }
