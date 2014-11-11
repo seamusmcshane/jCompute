@@ -12,8 +12,8 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	private BatchPriority priority;
 	private boolean enabled;
 	private int progress;
-	private String estimatedTime;
-	
+	private String estimatedFinish;
+
 	public BatchQueueRowItem()
 	{
 		this.position = -1;
@@ -22,9 +22,9 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.priority = BatchPriority.STANDARD;
 		this.enabled = false;
 		this.progress = -1;
-		this.estimatedTime = "Never";
+		this.estimatedFinish = "Never";
 	}
-	
+
 	public BatchQueueRowItem(Batch batch)
 	{
 		this.position = batch.getPosition();
@@ -33,30 +33,34 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.priority = batch.getPriority();
 		this.enabled = batch.getEnabled();
 		this.progress = batch.getProgress();
-		this.estimatedTime = jCompute.util.Text.longTimeToDHMS(batch.getETT());
-	}
-	
-	public BatchQueueRowItem(int position, int batch, String name, BatchPriority priority, boolean enabled, int progress, String estimatedTime)
-	{
-		this.position = position;
-		this.batch = batch;
-		this.name = name;
-		this.priority = priority;
-		this.enabled = enabled;
-		this.progress = progress;
-		this.estimatedTime = estimatedTime;
+
+		if(batch.getCompleted() > 0)
+		{
+			this.estimatedFinish = jCompute.util.Text.timeNowPlus(batch.getETT());
+		}
+		else
+		{
+			this.estimatedFinish = jCompute.util.Text.timeNowPlus(-1);
+		}
+
 	}
 
 	public String[] getFieldList()
 	{
-		return new String[]{"position", "batch", "name", "priority","enabled", "progress", "estimatedTime"};
+		return new String[]
+		{
+				"position", "batch", "name", "priority", "enabled", "progress", "estimatedFinish"
+		};
 	}
-	
+
 	public String[] getFieldNames()
 	{
-		return new String[]{"Position", "Batch", "Name", "Priority","Enabled", "Progress", "Estimated Time"};
+		return new String[]
+		{
+				"Position", "Batch", "Name", "Priority", "Enabled", "Progress", "Est Finish"
+		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -75,12 +79,12 @@ public class BatchQueueRowItem implements RowItem, Comparable
 			case 5:
 				return progress;
 			case 6:
-				return estimatedTime;
+				return estimatedFinish;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void setFieldValue(int field, Object value)
 	{
@@ -96,7 +100,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 				name = (String) value;
 			break;
 			case 3:
-				priority = (BatchPriority)value;
+				priority = (BatchPriority) value;
 			break;
 			case 4:
 				enabled = (boolean) value;
@@ -105,11 +109,11 @@ public class BatchQueueRowItem implements RowItem, Comparable
 				progress = (int) value;
 			break;
 			case 6:
-				estimatedTime = (String) value;
+				estimatedFinish = (String) value;
 			break;
 		}
 	}
-	
+
 	public long getPosition()
 	{
 		return position;
@@ -170,25 +174,25 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.progress = progress;
 	}
 
-	public String getEstimatedTime()
+	public String getEstimatedFinish()
 	{
-		return estimatedTime;
+		return estimatedFinish;
 	}
 
-	public void setEstimatedTime(String estimatedTime)
+	public void setEstimatedFinish(String estimatedFinish)
 	{
-		this.estimatedTime = estimatedTime;
+		this.estimatedFinish = estimatedFinish;
 	}
 
 	@Override
 	public int compareTo(Object rowObject)
 	{
-		BatchQueueRowItem otherRow = (BatchQueueRowItem)rowObject;
+		BatchQueueRowItem otherRow = (BatchQueueRowItem) rowObject;
 		int value = 0;
-		
+
 		// Evaluate the priorities
 		int eval = priority.compareTo(otherRow.getPriority());
-				
+
 		// if the priorities are not equal we can use this as the value.
 		if(eval < 0 || eval > 0)
 		{
@@ -206,8 +210,8 @@ public class BatchQueueRowItem implements RowItem, Comparable
 				value = 1;
 			}
 		}
-		
+
 		return value;
 	}
-	
+
 }
