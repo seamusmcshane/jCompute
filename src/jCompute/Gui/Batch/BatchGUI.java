@@ -84,6 +84,8 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	// Batch Tab
 	private BatchTab batchTab;
 
+	private int rightPanelsMinWidth = 375;
+
 	// Cluster Tab
 	private ClusterStatusTab clusterStatusTab;
 
@@ -144,11 +146,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	{
 		guiTabs = new SimpleTabPanel();
 
-		batchTab = new BatchTab(batchManager);
+		batchTab = new BatchTab(batchManager, rightPanelsMinWidth);
 
 		guiTabs.addTab(batchTab, "Batches");
 
-		clusterStatusTab = new ClusterStatusTab();
+		clusterStatusTab = new ClusterStatusTab(rightPanelsMinWidth);
 
 		guiTabs.addTab(clusterStatusTab, "Cluster");
 	}
