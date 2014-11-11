@@ -66,10 +66,10 @@ public class BatchTab extends JPanel
 	private int estimatedFinishColumn = 6;
 	private int batchQueueIndexColumn = idColumn;
 
-	private int numericColumnWidth = 55;
+	private int numericColumnWidth = 60;
 	private int iconColumnWidth = 60;
-	private int dateColumnWidth = 200;
-	private int timeColumnWidth = 120;
+	private int dateColumnWidth = 220;
+	private int timeColumnWidth = 100;
 	private int progressColumnWidth = 80;
 
 	private BatchManager batchManager;

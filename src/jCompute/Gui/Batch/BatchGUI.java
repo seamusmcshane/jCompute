@@ -84,7 +84,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	// Batch Tab
 	private BatchTab batchTab;
 
-	private int rightPanelsMinWidth = 375;
+	private int rightPanelsMinWidth = 400;
 
 	// Cluster Tab
 	private ClusterStatusTab clusterStatusTab;
