@@ -65,6 +65,7 @@ public class Batch implements StoredQueuePosition
 	/* Completed Items avg */
 	private long cpuTotalTimes;
 	private long netTotalTimes;
+	private long ioTotalTimes;
 	private long lastCompletedItemTime;
 
 	private String batchStatsExportDir;
@@ -101,8 +102,10 @@ public class Batch implements StoredQueuePosition
 
 	public Batch(int batchId, BatchPriority priority)
 	{
-		computeTotalTimes = 0;
-		statsTotalTimes = 0;
+		cpuTotalTimes = 0;
+		netTotalTimes = 0;
+		ioTotalTimes = 0;
+		
 		active = 0;
 
 		calender = Calendar.getInstance();
@@ -725,13 +728,16 @@ public class Batch implements StoredQueuePosition
 	{
 		batchLock.acquireUninterruptibly();
 
+		long ioStart = System.currentTimeMillis();
+		long ioEnd;
+		
 		log.debug("Setting Completed Sim " + item.getSimId() + " Item " + item.getItemId());
 
 		//activeItems.remove(item);
 
 		// For estimated complete time calculation
-		computeTotalTimes += item.getComputeTime();
-		statsTotalTimes += item.getStatsTime();
+		cpuTotalTimes += item.getCPUTime();
+		netTotalTimes += item.getNetTime();
 
 		lastCompletedItemTime = System.currentTimeMillis();
 
@@ -822,6 +828,10 @@ public class Batch implements StoredQueuePosition
 			itemLog.close();
 		}
 
+		ioEnd = System.currentTimeMillis();
+		
+		ioTotalTimes+= ioEnd-ioStart;
+		
 		batchLock.release();
 	}
 
@@ -922,7 +932,7 @@ public class Batch implements StoredQueuePosition
 	{
 		if(active > 0 && completed > 0)
 		{
-			return ( ( computeTotalTimes + statsTotalTimes) / completed) * (batchItems-completed) / active;
+			return ( ( cpuTotalTimes + netTotalTimes + ioTotalTimes) / completed) * (batchItems-completed) / active;
 		}
 
 		return 0;
@@ -986,6 +996,16 @@ public class Batch implements StoredQueuePosition
 		info.add(Text.longTimeToDHMSM(netTotalTimes));
 		info.add("Items Net Avg");
 		info.add(Text.longTimeToDHMSM(netTotalTimes / div));
+		
+		info.add("Items IO Time");
+		info.add(Text.longTimeToDHMSM(ioTotalTimes));
+		info.add("Items IO Avg");
+		info.add(Text.longTimeToDHMSM(ioTotalTimes / div));
+		
+		info.add("Items Total Time");
+		info.add(Text.longTimeToDHMSM(cpuTotalTimes+netTotalTimes+ioTotalTimes));
+		info.add("Items Avg Time");
+		info.add(Text.longTimeToDHMSM((cpuTotalTimes+netTotalTimes+ioTotalTimes) / div));		
 
 		info.add("");
 		info.add("");
