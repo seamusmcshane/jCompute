@@ -502,7 +502,7 @@ public class BatchManager
 
 				if(item != null)
 				{
-					item.setComplete(e.getRunTime(), e.getEndEvent(), e.getStepCount());
+					item.setComputeFinish(e.getRunTime(), e.getEndEvent(), e.getStepCount());
 					activeItems.remove(item);
 					completeItems.add(item);
 					
@@ -1071,9 +1071,8 @@ public class BatchManager
 
 			timeEnd = System.currentTimeMillis();
 			
-			// Include the stat fetch time in time taken for each items processing
-			long total = item.getRunTime() + ( timeEnd-timeStart);
-			item.updateRunTime(total);
+			// The stats fetch time
+			item.setStatsTime(timeEnd-timeStart);
 			
 			batch.setItemComplete(item, exporter);
 

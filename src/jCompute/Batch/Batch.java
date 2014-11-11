@@ -63,7 +63,8 @@ public class Batch implements StoredQueuePosition
 	private String endDateTime = "Not Finished";
 
 	/* Completed Items avg */
-	private long completedItemRunTime;
+	private long computeTotalTimes;
+	private long statsTotalTimes;
 	private long lastCompletedItemTime;
 
 	private String batchStatsExportDir;
@@ -100,12 +101,13 @@ public class Batch implements StoredQueuePosition
 
 	public Batch(int batchId, BatchPriority priority)
 	{
-		completedItemRunTime = 0;
+		computeTotalTimes = 0;
+		statsTotalTimes = 0;
 		active = 0;
 
 		calender = Calendar.getInstance();
 		String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-		String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+		String time = new SimpleDateFormat("HH:mm:ss").format(calender.getTime());
 
 		addedDateTime = date + " " + time;
 
@@ -257,7 +259,7 @@ public class Batch implements StoredQueuePosition
 			calender = Calendar.getInstance();
 
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+			String time = new SimpleDateFormat("HH:mm:ss").format(calender.getTime());
 
 			// For run time calc
 			startTime = System.currentTimeMillis();
@@ -728,7 +730,8 @@ public class Batch implements StoredQueuePosition
 		//activeItems.remove(item);
 
 		// For estimated complete time calculation
-		completedItemRunTime += item.getRunTime();
+		computeTotalTimes += item.getComputeTime();
+		statsTotalTimes += item.getStatsTime();
 
 		lastCompletedItemTime = System.currentTimeMillis();
 
@@ -766,7 +769,7 @@ public class Batch implements StoredQueuePosition
 		}
 		itemLog.println("</Coordinates>");
 		itemLog.println("<Hash>" + item.getItemHash() + "</Hash>");
-		itemLog.println("<RunTime>" + jCompute.util.Text.longTimeToDHMS(item.getRunTime()) + "</RunTime>");
+		itemLog.println("<RunTime>" + jCompute.util.Text.longTimeToDHMS(item.getTotalTime()) + "</RunTime>");
 		itemLog.println("<EndEvent>" + item.getEndEvent() + "</EndEvent>");
 		itemLog.println("<StepCount>" + item.getStepCount() + "</StepCount>");
 		itemLog.println("</Item>");
@@ -801,7 +804,7 @@ public class Batch implements StoredQueuePosition
 			// Close Info Log
 			calender = Calendar.getInstance();
 			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-			String time = new SimpleDateFormat("HH:mm").format(calender.getTime());
+			String time = new SimpleDateFormat("HH:mm:ss").format(calender.getTime());
 
 			endDateTime = date + " " + time;
 
@@ -917,14 +920,9 @@ public class Batch implements StoredQueuePosition
 
 	public long getETT()
 	{
-		/*if(active > 0 && completed > 0)
-		{
-			return getRunTime() + (((completedItemRunTime / completed) * (batchItems - completed)) / active);
-		}*/
-		
 		if(active > 0 && completed > 0)
 		{
-			return (completedItemRunTime / completed) * (batchItems-completed) / active;
+			return ( ( computeTotalTimes + statsTotalTimes) / completed) * (batchItems-completed) / active;
 		}
 
 		return 0;
