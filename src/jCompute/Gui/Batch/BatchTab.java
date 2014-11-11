@@ -60,14 +60,14 @@ public class BatchTab extends JPanel
 	private int positionColumn = 0;
 	private int idColumn = 1;
 	private int nameColumn = 2;
-	private int priorityColumn = 3;
-	private int enabledColumn = 4;
+	private int priColumn = 3;
+	private int statusColumn = 4;
 	private int progressColumn = 5;
 	private int estimatedFinishColumn = 6;
 	private int batchQueueIndexColumn = idColumn;
 
 	private int numericColumnWidth = 60;
-	private int iconColumnWidth = 60;
+	private int iconColumnWidth = 50;
 	private int dateColumnWidth = 220;
 	private int timeColumnWidth = 100;
 	private int progressColumnWidth = 80;
@@ -141,12 +141,12 @@ public class BatchTab extends JPanel
 		// Batch Priority
 		batchQueuedTable.addColumRenderer(
 				new PriorityIconRenderer(IconManager.getIcon("highPriorityIcon"), IconManager
-						.getIcon("standardPriorityIcon")), priorityColumn);
+						.getIcon("standardPriorityIcon")), priColumn);
 
 		// Batch State
 		batchQueuedTable.addColumRenderer(
 				new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")),
-				enabledColumn);
+				statusColumn);
 
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), progressColumn);
@@ -164,8 +164,8 @@ public class BatchTab extends JPanel
 		batchQueuedTable.setColumWidth(idColumn, numericColumnWidth);
 
 		// batchQueuedTable.setColumWidth(nameColumn, 175);
-		batchQueuedTable.setColumWidth(priorityColumn, iconColumnWidth);
-		batchQueuedTable.setColumWidth(enabledColumn, iconColumnWidth);
+		batchQueuedTable.setColumWidth(priColumn, iconColumnWidth);
+		batchQueuedTable.setColumWidth(statusColumn, iconColumnWidth);
 		batchQueuedTable.setColumWidth(progressColumn, progressColumnWidth);
 		batchQueuedTable.setColumWidth(estimatedFinishColumn, dateColumnWidth);
 		// batchQueuedTable.setColumWidth(6, 40);
@@ -367,7 +367,7 @@ public class BatchTab extends JPanel
 
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 
-		batchManager.setEnabled(batchId, true);
+		batchManager.setStatus(batchId, true);
 	}
 
 	public void removeBatch()
@@ -398,7 +398,7 @@ public class BatchTab extends JPanel
 
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 
-		batchManager.setEnabled(batchId, false);
+		batchManager.setStatus(batchId, false);
 	}
 
 	public void moveLast()

@@ -37,7 +37,7 @@ public class Batch implements StoredQueuePosition
 	private BatchPriority priority;
 
 	/* Set if this batch items can be processed (stop/start) */
-	private boolean enabled = true;
+	private boolean status = true;
 	private String type;
 
 	private String batchFileName;
@@ -951,8 +951,8 @@ public class Batch implements StoredQueuePosition
 		info.add(type);
 		info.add("Priority");
 		info.add(priority.toString());
-		info.add("Enabled");
-		info.add(String.valueOf(enabled).toUpperCase());
+		info.add("Status");
+		info.add(status == true ? "Enabled" : "Disabled");
 		info.add("Queue Position");
 		info.add(String.valueOf(position));
 
@@ -1057,19 +1057,14 @@ public class Batch implements StoredQueuePosition
 		this.priority = priority;
 	}
 
-	public boolean isEnabled()
+	public void setStatus(boolean status)
 	{
-		return enabled;
+		this.status = status;
 	}
 
-	public void setEnabled(boolean enabled)
+	public boolean getStatus()
 	{
-		this.enabled = enabled;
-	}
-
-	public boolean getEnabled()
-	{
-		return enabled;
+		return status;
 	}
 
 	public String getFinished()

@@ -706,17 +706,17 @@ public class BatchManager
 		return getListItems(batchId, 2);
 	}
 
-	public void setEnabled(int batchId, boolean enabled)
+	public void setStatus(int batchId, boolean status)
 	{
 		batchManagerLock.acquireUninterruptibly();
 
 		Batch batch = findBatch(batchId);
 
-		batch.setEnabled(enabled);
+		batch.setStatus(status);
 
 		// Remove batch from queues if disabled and add to stop else the reverse
 		// process for enabling
-		if(enabled == false)
+		if(status == false)
 		{
 			// In Fifo
 			if(batch.getPriority() == BatchPriority.HIGH)
@@ -771,7 +771,7 @@ public class BatchManager
 			// if the batch is enabled switch the queue (as its not in one if
 			// not
 			// enabled)
-			if(batch.getEnabled() == true)
+			if(batch.getStatus() == true)
 			{
 				if(batch.getPriority() == BatchPriority.STANDARD)
 				{
@@ -1012,10 +1012,10 @@ public class BatchManager
 
 		Batch batch = findBatch(batchId);
 
-		boolean enabled = batch.getEnabled();
+		boolean status = batch.getStatus();
 
 		// Remove batch from one of the queues
-		if(enabled)
+		if(status)
 		{
 			// In Fifo
 			if(batch.getPriority() == BatchPriority.HIGH)

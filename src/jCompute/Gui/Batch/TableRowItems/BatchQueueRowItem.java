@@ -9,8 +9,8 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	private int position;
 	private int batch;
 	private String name;
-	private BatchPriority priority;
-	private boolean enabled;
+	private BatchPriority pri;
+	private boolean status;
 	private int progress;
 	private String estimatedFinish;
 
@@ -19,8 +19,8 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.position = -1;
 		this.batch = -1;
 		this.name = "NULL";
-		this.priority = BatchPriority.STANDARD;
-		this.enabled = false;
+		this.pri = BatchPriority.STANDARD;
+		this.status = false;
 		this.progress = -1;
 		this.estimatedFinish = "Never";
 	}
@@ -30,8 +30,8 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.position = batch.getPosition();
 		this.batch = batch.getBatchId();
 		this.name = batch.getFileName();
-		this.priority = batch.getPriority();
-		this.enabled = batch.getEnabled();
+		this.pri = batch.getPriority();
+		this.status = batch.getStatus();
 		this.progress = batch.getProgress();
 
 		if(batch.getCompleted() > 0)
@@ -49,7 +49,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-				"position", "batch", "name", "priority", "enabled", "progress", "estimatedFinish"
+				"position", "batch", "name", "pri", "status", "progress", "estimatedFinish"
 		};
 	}
 
@@ -57,7 +57,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-				"Position", "Batch", "Name", "Priority", "Enabled", "Progress", "Est Finish"
+				"Position", "Batch", "Name", "Pri", "Status", "Progress", "Est Finish"
 		};
 	}
 
@@ -73,9 +73,9 @@ public class BatchQueueRowItem implements RowItem, Comparable
 			case 2:
 				return name;
 			case 3:
-				return priority;
+				return pri;
 			case 4:
-				return enabled;
+				return status;
 			case 5:
 				return progress;
 			case 6:
@@ -100,10 +100,10 @@ public class BatchQueueRowItem implements RowItem, Comparable
 				name = (String) value;
 			break;
 			case 3:
-				priority = (BatchPriority) value;
+				pri = (BatchPriority) value;
 			break;
 			case 4:
-				enabled = (boolean) value;
+				status = (boolean) value;
 			break;
 			case 5:
 				progress = (int) value;
@@ -144,24 +144,24 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.name = name;
 	}
 
-	public BatchPriority getPriority()
+	public BatchPriority getPri()
 	{
-		return priority;
+		return pri;
 	}
 
-	public void setPriority(BatchPriority priority)
+	public void setPri(BatchPriority priority)
 	{
-		this.priority = priority;
+		this.pri = priority;
 	}
 
-	public boolean isEnabled()
+	public boolean getStatus()
 	{
-		return enabled;
+		return status;
 	}
 
-	public void setEnabled(boolean enabled)
+	public void setStatus(boolean status)
 	{
-		this.enabled = enabled;
+		this.status = status;
 	}
 
 	public int getProgress()
@@ -191,7 +191,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		int value = 0;
 
 		// Evaluate the priorities
-		int eval = priority.compareTo(otherRow.getPriority());
+		int eval = pri.compareTo(otherRow.getPri());
 
 		// if the priorities are not equal we can use this as the value.
 		if(eval < 0 || eval > 0)
