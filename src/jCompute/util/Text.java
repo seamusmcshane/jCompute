@@ -2,8 +2,10 @@ package jCompute.util;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
 
@@ -64,22 +66,42 @@ public class Text
 	 * @return
 	 * @throws IOException
 	 */
-	public static String textFileToString(String filePath) throws IOException
+	public static String textFileToString(String filePath)
 	{
-		StringBuilder destination = new StringBuilder();
+		StringBuilder destination;
 		BufferedReader bufferedReader;
+		String text = null;
 
-		bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "ISO_8859_1"));
-
-		String sCurrentLine;
-
-		while((sCurrentLine = bufferedReader.readLine()) != null)
+		try
 		{
-			destination.append(sCurrentLine);
+			destination = new StringBuilder();
+			
+			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "ISO_8859_1"));
+			
+			String sCurrentLine;
+
+			while((sCurrentLine = bufferedReader.readLine()) != null)
+			{
+				destination.append(sCurrentLine);
+			}
+
+			bufferedReader.close();
+			
+			text = destination.toString();
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
 		}
 
-		bufferedReader.close();
-
-		return destination.toString();
+		return text;
 	}
 }
