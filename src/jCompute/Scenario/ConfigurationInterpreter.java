@@ -71,10 +71,10 @@ public class ConfigurationInterpreter
 	{
 		this.configurationFileText = text;
 		InputStream stream;
-
+		
 		try
 		{
-			stream = new ByteArrayInputStream(text.getBytes());
+			stream = new ByteArrayInputStream(configurationFileText.getBytes());
 			configurationFile = new XMLConfiguration();
 			configurationFile.setSchemaValidation(true);
 			configurationFile.load(stream);
@@ -88,11 +88,13 @@ public class ConfigurationInterpreter
 		catch (ConfigurationException e)
 		{
 			log.error("Error : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
+			log.error("Check the file matches its schema");
 		}
 		catch (FileNotFoundException e)
 		{
 			log.error("Schema File Not Found : " + e.toString() + " - " + e.getStackTrace()[0].getMethodName());
 		}
+		
 	}
 
 	public int getSubListSize(String section, String value)
