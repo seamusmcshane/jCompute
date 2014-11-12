@@ -2,6 +2,7 @@ package jCompute.Gui.Batch;
 
 import jCompute.IconManager;
 import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Gui.Component.JComputeProgressMonitor;
 import jCompute.Gui.Component.SimpleTabPanel;
 import jCompute.Gui.Component.XMLPreviewPanel;
 import jCompute.util.FileUtil;
@@ -18,7 +19,6 @@ import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 
 import java.awt.BorderLayout;
@@ -30,17 +30,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import java.awt.Toolkit;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BatchGUI implements ActionListener, ItemListener, WindowListener, PropertyChangeListener
+public class BatchGUI implements ActionListener, ItemListener, WindowListener
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
@@ -59,7 +55,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 	private Timer activeSimulationsListTableUpdateTimer;
 
 	// Batch Add
-	private ProgressMonitor openBatchProgressMonitor;
+	private JComputeProgressMonitor openBatchProgressMonitor;
 	private OpenBatchFileTask openBatchProgressMonitorTask;
 	private JToolBar toolBar;
 
@@ -210,17 +206,11 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 					File[] files = filechooser.getSelectedFiles();
 
-					openBatchProgressMonitor = new ProgressMonitor(guiFrame, "Loading BatchFiles", "", 0, 100);
+					openBatchProgressMonitor = new JComputeProgressMonitor(guiFrame, "Loading BatchFiles", 0, 100);
 
-					openBatchProgressMonitor.setMillisToDecideToPopup(0);
-					openBatchProgressMonitor.setMillisToPopup(0);
-					openBatchProgressMonitor.setProgress(0);
+					openBatchProgressMonitorTask = new OpenBatchFileTask(openBatchProgressMonitor, files);
 
-					openBatchProgressMonitorTask = new OpenBatchFileTask(files);
-
-					openBatchProgressMonitorTask.addPropertyChangeListener(BatchGUI.this);
-
-					openBatchProgressMonitorTask.execute();
+					openBatchProgressMonitorTask.start();
 
 				}
 			}
@@ -430,68 +420,43 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent e)
-	{
-		if("progress" == e.getPropertyName())
-		{
-			int progress = (Integer) e.getNewValue();
-
-			if(openBatchProgressMonitor.isCanceled())
-			{
-				Toolkit.getDefaultToolkit().beep();
-				if(openBatchProgressMonitor.isCanceled())
-				{
-					// openBatchProgressMonitorTask.cancel(true);
-					System.out.println("Cannot abort Batch File loading task");
-				}
-			}
-			else
-			{
-				openBatchProgressMonitor.setProgress(progress);
-
-				String message = String.format("Completed %d%%.\n", progress);
-
-				openBatchProgressMonitor.setNote(message);
-			}
-		}
-	}
-
 	private class OpenBatchFileTask extends SwingWorker<Void, Void>
 	{
+		private JComputeProgressMonitor openBatchProgressMonitor;
 		private File[] files;
 
 		private float progressInc;
 		private int loaded = 0;
 		private int error = 0;
 
-		public OpenBatchFileTask(File[] files)
+		public OpenBatchFileTask(JComputeProgressMonitor openBatchProgressMonitor, File[] files)
 		{
+			this.openBatchProgressMonitor = openBatchProgressMonitor;
 			this.files = files;
-
-			progressInc = 100f / files.length;
 
 			log.info("Requested that " + files.length + " Batch Files be loaded");
 
+			progressInc = 100f / (float) files.length;
 		}
 
 		@Override
 		public Void doInBackground()
 		{
 			int progress = 0;
-			setProgress(0);
+			setProgress(progress);
 
 			StringBuilder errorMessage = new StringBuilder();
-
-			// Thread.sleep(1000);
 
 			for(File file : files)
 			{
 				String batchFile = file.getAbsolutePath();
 
-				log.info(batchFile);
+				JComputeProgressMonitor genComboMonitor = new JComputeProgressMonitor(openBatchProgressMonitor,
+						"Generating Batch Combinations", 0, 100);
 
-				if(!batchManager.addBatch(batchFile))
+				log.info("Batch File : " + batchFile);
+
+				if(!batchManager.addBatch(batchFile, genComboMonitor))
 				{
 					log.error("Error Creating Batch from : " + batchFile);
 
@@ -504,14 +469,17 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 					errorMessage.append(error + " " + batchFile + "\n");
 
 					error++;
+
+					genComboMonitor.setProgress(100);
 				}
 				else
 				{
 					loaded++;
 				}
 
-				progress += Math.ceil(progressInc);
-				setProgress(Math.min(progress, 100));
+				progress += progressInc;
+
+				openBatchProgressMonitor.setProgress(Math.min(progress, 100));
 			}
 
 			if(error > 0)
@@ -519,7 +487,14 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener, P
 				JOptionPane.showMessageDialog(guiFrame, errorMessage.toString());
 			}
 
+			openBatchProgressMonitor.setProgress(100);
+
 			return null;
+		}
+
+		public void start()
+		{
+			this.execute();
 		}
 
 		@Override

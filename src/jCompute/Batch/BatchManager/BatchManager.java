@@ -9,9 +9,9 @@ import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
 import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
 import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode;
-import jCompute.Cluster.Node.NodeConfiguration;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
+import jCompute.Gui.Component.JComputeProgressMonitor;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
@@ -116,7 +116,7 @@ public class BatchManager
 
 	}
 
-	public boolean addBatch(String filePath)
+	public boolean addBatch(String filePath, JComputeProgressMonitor genComboMonitor)
 	{
 		Batch tempBatch = null;
 		boolean added = false;
@@ -127,7 +127,7 @@ public class BatchManager
 		// priority
 		tempBatch = new Batch(batchId, BatchPriority.HIGH);
 
-		if(tempBatch.loadConfig(filePath))
+		if(tempBatch.loadConfig(filePath, genComboMonitor))
 		{
 			fifoQueue.add(tempBatch);
 
@@ -137,6 +137,8 @@ public class BatchManager
 			batchManagerLock.release();
 
 			JComputeEventBus.post(new BatchAddedEvent(tempBatch));
+
+			log.info("Added Batch : " + batchId);;
 		}
 		else
 		{
@@ -209,7 +211,7 @@ public class BatchManager
 			batchManagerLock.release();
 
 			if(batch != null)
-			{				
+			{
 				completedItemsStatFetch.execute(new StatFetchTask(controlNode, batch, item, ExportFormat.ZXML));
 			}
 			else
@@ -505,10 +507,10 @@ public class BatchManager
 					item.setComputeFinish(e.getRunTime(), e.getEndEvent(), e.getStepCount());
 					activeItems.remove(item);
 					completeItems.add(item);
-					
+
 					// Tell the batch this item is no longer active
 					Batch batch = findBatch(item.getBatchId());
-					if(batch!=null)
+					if(batch != null)
 					{
 						batch.setItemNotActive(item);
 					}
@@ -1064,16 +1066,16 @@ public class BatchManager
 		{
 			long timeStart = System.currentTimeMillis();
 			long timeEnd;
-			
+
 			// Export Stats // ExportFormat.ZXML
 			StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()),
 					format);
 
 			timeEnd = System.currentTimeMillis();
-			
+
 			// The stats fetch time
-			item.setNetTime(timeEnd-timeStart);
-			
+			item.setNetTime(timeEnd - timeStart);
+
 			batch.setItemComplete(item, exporter);
 
 			log.info("Batch Item Finished : " + batch.getBatchId());
