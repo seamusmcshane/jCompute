@@ -5,11 +5,18 @@
 	</Header>
 	<Config>
 		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
-		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchGroupDir>OLD-Benchmark/</BatchGroupDir>
-		<BatchSubGroupDirName>64TEST/</BatchSubGroupDirName>
 		<ItemSamples>4</ItemSamples>
 	</Config>
+	<Log>
+		<InfoLog>true</InfoLog>
+		<ItemLog>true</ItemLog>
+	</Log>
+	<Stats>
+		<Store>true</Store>
+		<BatchStatsExportDir>stats</BatchStatsExportDir>
+		<BatchGroupDir>OLDBenchmark</BatchGroupDir>
+		<BatchSubGroupDirName>64Quick</BatchSubGroupDirName>
+	</Stats>
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>

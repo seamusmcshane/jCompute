@@ -2,13 +2,21 @@
 	<Header>
 		<Version>0.01</Version>
 		<Type>Batch</Type>
-	</Header>
+	</Header>	
 	<Config>
 		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
-		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchGroupDir>Benchmark</BatchGroupDir>
-		<ItemSamples>1000</ItemSamples>
+		<ItemSamples>64</ItemSamples>
 	</Config>
+	<Log>
+		<InfoLog>true</InfoLog>
+		<ItemLog>true</ItemLog>
+	</Log>
+	<Stats>
+		<Store>true</Store>
+		<BatchStatsExportDir>stats</BatchStatsExportDir>
+		<BatchGroupDir>Benchmark</BatchGroupDir>
+		<BatchSubGroupDirName>Compute64</BatchSubGroupDirName>
+	</Stats>	
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>

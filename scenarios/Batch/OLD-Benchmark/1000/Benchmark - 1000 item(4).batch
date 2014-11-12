@@ -5,11 +5,18 @@
 	</Header>
 	<Config>
 		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
-		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchGroupDir>OLD-Benchmark/</BatchGroupDir>
-		<BatchSubGroupDirName>1000Benchmark/</BatchSubGroupDirName>
 		<ItemSamples>10</ItemSamples>
 	</Config>
+	<Log>
+		<InfoLog>true</InfoLog>
+		<ItemLog>true</ItemLog>
+	</Log>
+	<Stats>
+		<Store>true</Store>
+		<BatchStatsExportDir>stats</BatchStatsExportDir>
+		<BatchGroupDir>OLDBenchmark</BatchGroupDir>
+		<BatchSubGroupDirName>1000Item</BatchSubGroupDirName>
+	</Stats>	
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>
