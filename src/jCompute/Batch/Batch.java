@@ -125,10 +125,8 @@ public class Batch implements StoredQueuePosition
 		ioTotalTimes = 0;
 
 		calender = Calendar.getInstance();
-		String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-		String time = new SimpleDateFormat("HH:mm:ss").format(calender.getTime());
-
-		addedDateTime = date + " " + time;
+		
+		addedDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(calender.getTime());
 
 		// Item management data structures
 		queuedItems = new LinkedList<BatchItem>();
@@ -370,12 +368,9 @@ public class Batch implements StoredQueuePosition
 		{
 			startBatchLog(temp.getCoordinates().size());
 			
-			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-			String time = new SimpleDateFormat("HH:mm:ss").format(calender.getTime());
-
 			// For run time calc
 			startTime = System.currentTimeMillis();
-			startDateTime = date + " " + time;
+			startDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(calender.getTime());
 		}
 
 		itemsRequested++;
@@ -486,10 +481,7 @@ public class Batch implements StoredQueuePosition
 				itemLog.close();
 			}
 
-			String date = new SimpleDateFormat("yyyy-MMMM-dd").format(calender.getTime());
-			String time = new SimpleDateFormat("HH:mm:ss").format(calender.getTime());
-
-			endDateTime = date + " " + time;
+			endDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(calender.getTime());
 			
 			// Write the info log
 			if(infoLogEnabled)
