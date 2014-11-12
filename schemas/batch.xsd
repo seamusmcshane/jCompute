@@ -13,6 +13,29 @@
 	</xs:sequence>
 </xs:complexType>
 
+<xs:complexType name="BatchConfig">
+	<xs:sequence>
+		<xs:element name="BaseScenarioFileName" type="xs:string" minOccurs="1" maxOccurs="1"/>									
+		<xs:element name="ItemSamples" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BatchLog">
+	<xs:sequence>
+		<xs:element name="InfoLog" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="ItemLog" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BatchStats">
+	<xs:sequence>
+		<xs:element name="Store" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="BatchStatsExportDir" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="BatchGroupDir" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		<xs:element name="BatchSubGroupDirName" type="xs:string" minOccurs="0" maxOccurs="1"/>										
+	</xs:sequence>
+</xs:complexType>
+
 	<xs:element name="Batch">
 		<xs:complexType>
 			<xs:sequence>
@@ -24,17 +47,9 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="Config">
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name="BaseScenarioFileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-							<xs:element name="BatchStatsExportDir" type="xs:string" minOccurs="1" maxOccurs="1"/>
-							<xs:element name="BatchGroupDir" type="xs:string" minOccurs="0" maxOccurs="1"/>
-							<xs:element name="BatchSubGroupDirName" type="xs:string" minOccurs="0" maxOccurs="1"/>										
-							<xs:element name="ItemSamples" type="xs:integer" minOccurs="1" maxOccurs="1"/>
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
+				<xs:element name="Config" type="BatchConfig"  minOccurs="1" maxOccurs="1"/>
+				<xs:element name="Log" type="BatchLog"  minOccurs="1" maxOccurs="1"/>
+				<xs:element name="Stats" type="BatchStats"  minOccurs="1" maxOccurs="1"/>
 				<xs:element name="Parameters" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
