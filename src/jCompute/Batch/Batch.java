@@ -124,7 +124,7 @@ public class Batch implements StoredQueuePosition
 		cpuTotalTimes = 0;
 		netTotalTimes = 0;
 		ioTotalTimes = 0;
-		
+
 		addedDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 
 		// Item management data structures
@@ -366,7 +366,7 @@ public class Batch implements StoredQueuePosition
 		if(itemsRequested == 0)
 		{
 			startBatchLog(temp.getCoordinates().size());
-			
+
 			// For run time calc
 			startTime = System.currentTimeMillis();
 			startDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -402,7 +402,7 @@ public class Batch implements StoredQueuePosition
 		// For estimated complete time calculation
 		cpuTotalTimes += item.getCPUTime();
 		netTotalTimes += item.getNetTime();
-		
+
 		if(itemLogEnabled)
 		{
 			itemLog.println("<Item>");
@@ -425,7 +425,7 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("<StepCount>" + item.getStepCount() + "</StepCount>");
 			itemLog.println("</Item>");
 		}
-		
+
 		// Only Save configs if stats are enabled
 		if(storeStats)
 		{
@@ -440,8 +440,9 @@ public class Batch implements StoredQueuePosition
 
 			// Export the stats
 			exporter.exportAllStatsToDir(fullExportPath);
-			
-			// Only the first sample needs to save the item config (all identical
+
+			// Only the first sample needs to save the item config (all
+			// identical
 			// samples)
 			if(item.getSampleId() == 1)
 			{
@@ -459,8 +460,8 @@ public class Batch implements StoredQueuePosition
 				}
 				catch(IOException e)
 				{
-					System.out.println("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId()
-							+ ")");
+					System.out.println("Could not save item " + item.getItemId() + " config (Batch "
+							+ item.getBatchId() + ")");
 				}
 			}
 		}
@@ -481,13 +482,13 @@ public class Batch implements StoredQueuePosition
 			}
 
 			endDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-			
+
 			// Write the info log
 			if(infoLogEnabled)
 			{
 				try
 				{
-					// Close Info Log					
+					// Close Info Log
 					PrintWriter infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir
 							+ File.separator + "InfoLog.xml", true)));
 					infoLog.println("<Batch>");
@@ -517,7 +518,7 @@ public class Batch implements StoredQueuePosition
 		ioTotalTimes += ioEnd - ioStart;
 
 		lastCompletedItemTime = System.currentTimeMillis();
-		
+
 		batchLock.release();
 	}
 
@@ -628,32 +629,60 @@ public class Batch implements StoredQueuePosition
 	{
 		ArrayList<String> info = new ArrayList<String>();
 
-		info.add("Id");
-		info.add(String.valueOf(batchId));
+		// Cache the non changing values
+		if(infoCache == null)
+		{
+			infoCache = new ArrayList<String>();
 
-		info.add("Name");
-		info.add(batchName);
-		info.add("Scenario Type");
-		info.add(type);
-		info.add("Priority");
-		info.add(priority.toString());
-		info.add("Status");
-		info.add(status == true ? "Enabled" : "Disabled");
+			infoCache.add("Id");
+			infoCache.add(String.valueOf(batchId));
+			infoCache.add("Name");
+			infoCache.add(batchName);
+			infoCache.add("Scenario Type");
+			infoCache.add(type);
+
+			infoCache.add("");
+			infoCache.add("");
+			infoCache.add("Unique Items");
+			infoCache.add(String.valueOf(batchItems / itemSamples));
+			infoCache.add("Sample per Item");
+			infoCache.add(String.valueOf(itemSamples));
+			infoCache.add("Total Items");
+			infoCache.add(String.valueOf(batchItems));
+			infoCache.add("Max Steps");
+			infoCache.add(String.valueOf(maxSteps));
+
+			// Add The parameters and free
 			infoCache.addAll(parameters);
 			parameters = null;
+
+			infoCache.add("");
+			infoCache.add("");
+			infoCache.add("Batch File");
+			infoCache.add(batchFileName);
+			infoCache.add("Scenario");
+			infoCache.add(baseScenarioFileName);
+			infoCache.add("Export Directory");
+			infoCache.add(batchStatsExportDir);
+
+			infoCache.add("");
+			infoCache.add("");
+			infoCache.add("Stats Store");
+			infoCache.add(storeStats == true ? "Enabled" : "Disabled");
+			infoCache.add("Info Log");
+			infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
+			infoCache.add("Item Log");
+			infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
+		}
 		info.add("Queue Position");
 		info.add(String.valueOf(position));
+		info.add("Status");
+		info.add(status == true ? "Enabled" : "Disabled");
+		info.add("Priority");
+		info.add(priority.toString());
 
-		info.add("");
-		info.add("");
-		info.add("Unique Items");
-		info.add(String.valueOf(batchItems / itemSamples));
-		info.add("Sample per Item");
-		info.add(String.valueOf(itemSamples));
-		info.add("Total Items");
-		info.add(String.valueOf(batchItems));
-		info.add("Max Steps");
-		info.add(String.valueOf(maxSteps));
+		// Add the cached values
+		info.addAll(infoCache);
 
 		info.add("");
 		info.add("");
@@ -695,24 +724,6 @@ public class Batch implements StoredQueuePosition
 		info.add("Items Avg Time");
 		info.add(Text.longTimeToDHMSM((cpuTotalTimes + netTotalTimes + ioTotalTimes) / div));
 
-		info.add("");
-		info.add("");
-		info.add("Batch File");
-		info.add(batchFileName);
-		info.add("Scenario");
-		info.add(baseScenarioFileName);
-		info.add("Export Directory");
-		info.add(batchStatsExportDir);
-
-		info.add("");
-		info.add("");
-		info.add("Stats Store");
-		info.add(storeStats == true ? "Enabled" : "Disabled");
-		info.add("Info Log");
-		info.add(infoLogEnabled == true ? "Enabled" : "Disabled");
-		info.add("Item Log");
-		info.add(itemLogEnabled == true ? "Enabled" : "Disabled");
-		
 		info.add("");
 		info.add("");
 		info.add("Added");
@@ -852,6 +863,8 @@ public class Batch implements StoredQueuePosition
 			// the
 			// parameter
 			int IncrementMod[] = new int[parameterGroups];
+
+			parameters = new ArrayList<String>();
 
 			// Iterate over the detected parameters and populate the arrays
 			String section = "";
@@ -1120,7 +1133,8 @@ public class Batch implements StoredQueuePosition
 				// samples is the number of identical items to generate (used as
 				// a
 				// sample/average)
-				addBatchItem(itemSamples, combo, itemName, temp.getScenarioXMLText(), tempCoord, tempCoordValues);
+				addBatchItem(itemSamples, combo, itemName.toString(), temp.getScenarioXMLText(), tempCoord,
+						tempCoordValues);
 
 				// Increment the combinatorics values.
 				for(int p = 0; p < parameterGroups; p++)
