@@ -838,7 +838,7 @@ public class Batch implements StoredQueuePosition
 				}
 			}
 		}
-
+		
 		completed++;
 
 		if(completed == batchItems)

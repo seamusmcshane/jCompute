@@ -18,7 +18,7 @@ public class BatchItem
 	private int batchId;
 	private int sampleId;
 	private String name;
-	private String comressedText;
+	private String compressedText;
 	
 	// position within the combination space of this items combo.
 	private ArrayList<Integer> coordinates;
@@ -58,7 +58,7 @@ public class BatchItem
             
 			gzip.write(configText.getBytes());
 	        gzip.close();		
-			comressedText = out.toString("ISO-8859-1");
+	        compressedText = out.toString("ISO-8859-1");
 		}
 		catch(IOException e1)
 		{
@@ -121,7 +121,7 @@ public class BatchItem
 
 		try
 		{
-			ByteArrayInputStream  byteArrayInputStream = new ByteArrayInputStream(comressedText.getBytes("ISO-8859-1"));
+			ByteArrayInputStream  byteArrayInputStream = new ByteArrayInputStream(compressedText.getBytes("ISO-8859-1"));
 			GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(gzipInputStream));
 			String line;
