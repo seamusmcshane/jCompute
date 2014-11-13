@@ -5,11 +5,18 @@
 	</Header>
 	<Config>
 		<BaseScenarioFileName>nopopboom-(0.81).scenario</BaseScenarioFileName>
+		<ItemSamples>10</ItemSamples>
+	</Config>
+	<Log>
+		<InfoLog>true</InfoLog>
+		<ItemLog>true</ItemLog>
+	</Log>
+	<Stats>
+		<Store>false</Store>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchGroupDir>stability</BatchGroupDir>
 		<BatchSubGroupDirName>nopopboom</BatchSubGroupDirName>
-		<ItemSamples>10</ItemSamples>
-	</Config>
+	</Stats>
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>
