@@ -40,6 +40,8 @@ public class Batch implements StoredQueuePosition
 	private BatchPriority priority;
 	private String baseScenarioFileName;
 	private String batchFileName;
+	private ArrayList<String> parameters;
+	private ArrayList<String> infoCache;
 
 	// Set if this batch's items can be processed (stop/start)
 	private boolean status = true;
@@ -637,6 +639,8 @@ public class Batch implements StoredQueuePosition
 		info.add(priority.toString());
 		info.add("Status");
 		info.add(status == true ? "Enabled" : "Disabled");
+			infoCache.addAll(parameters);
+			parameters = null;
 		info.add("Queue Position");
 		info.add(String.valueOf(position));
 
@@ -885,6 +889,23 @@ public class Batch implements StoredQueuePosition
 
 				// Max value = Combinations-1 as initial is the first
 				IncrementMaxValue[p] = Intial[p] + ((Combinations[p] - 1) * Increment[p]);
+
+				parameters.add("");
+				parameters.add("");
+				parameters.add("ParameterType");
+				parameters.add(ParameterType[p]);
+				parameters.add("Path");
+				parameters.add(Path[p]);
+				parameters.add("GroupName");
+				parameters.add(groupName[p]);
+				parameters.add("Intial");
+				parameters.add(String.valueOf(Intial[p]));
+				parameters.add("Increment");
+				parameters.add(String.valueOf(Increment[p]));
+				parameters.add("Combinations");
+				parameters.add(String.valueOf(Combinations[p]));
+				parameters.add("IncrementMaxValue");
+				parameters.add(String.valueOf(IncrementMaxValue[p]));
 
 				// Logging
 				log.debug("ParameterType : " + ParameterType[p]);
