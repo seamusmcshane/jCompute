@@ -17,12 +17,6 @@ public class JComputeProgressMonitor
 	private int max;
 	private Component comp;
 	
-	public JComputeProgressMonitor(JComputeProgressMonitor progMon, String title, int min,int max)
-	{
-		this(progMon.getJFrame(),title,min,max);
-		frame.setLocation(frame.getX(), frame.getY()+height+10);
-	}
-		
 	public JComputeProgressMonitor(Component comp, String title, int min,int max)
 	{
 		this.comp = comp;
@@ -44,26 +38,21 @@ public class JComputeProgressMonitor
 		if(comp!=null)
 		{
 			frame.setLocationRelativeTo(comp);
-		}
-		
-		frame.setVisible(true);			
-	}
-	
-	protected JFrame getJFrame()
-	{
-		return frame;
+		}	
 	}
 	
 	public void setProgress(int progress)
 	{
 		this.progressBar.setValue(progress);
-		
+
+		if(progress==0)
+		{
+			frame.setVisible(true);		
+		}
+				
 		if(progress>=max)
 		{
 			frame.setVisible(false);
-			frame = null;
-			progressBar = null;
-			comp = null;
 		}
 	}
 	
