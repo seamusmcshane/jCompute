@@ -42,6 +42,7 @@ public class Batch implements StoredQueuePosition
 	private String batchFileName;
 	private ArrayList<String> parameters;
 	private ArrayList<String> infoCache;
+	private boolean needGenerated = true;
 
 	// Set if this batch's items can be processed (stop/start)
 	private boolean status = true;
@@ -134,7 +135,7 @@ public class Batch implements StoredQueuePosition
 		active = 0;
 	}
 
-	public boolean loadConfig(String filePath, JComputeProgressMonitor genComboMonitor)
+	public boolean loadConfig(String filePath)
 	{
 		boolean status = true;
 		log.info("New Batch based on : " + filePath);
@@ -150,7 +151,7 @@ public class Batch implements StoredQueuePosition
 
 		if(batchConfigText != null)
 		{
-			status = processBatchConfig(batchConfigText, genComboMonitor);
+			status = processBatchConfig(batchConfigText);
 		}
 
 		return status;
@@ -164,7 +165,7 @@ public class Batch implements StoredQueuePosition
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean processBatchConfig(String fileText, JComputeProgressMonitor genComboMonitor)
+	private boolean processBatchConfig(String fileText)
 	{
 		boolean status = true;
 
@@ -193,11 +194,7 @@ public class Batch implements StoredQueuePosition
 				storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
 				infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
 				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
-
-				genComboMonitor.setProgress(0);
-				GenComboTask genComboTask = new GenComboTask(genComboMonitor);
-				genComboTask.generate();
-
+				
 				setBatchStatExportDir();
 			}
 			else
@@ -211,6 +208,381 @@ public class Batch implements StoredQueuePosition
 		return status;
 	}
 
+	public boolean itemsNeedGenerated()
+	{
+		return needGenerated;
+	}
+	
+	public void generateItems(JComputeProgressMonitor genComboMonitor)
+	{
+		float progress = 0;
+		
+		if(genComboMonitor!=null)
+		{
+			genComboMonitor.setProgress(0);
+		}
+
+		// Get a count of the parameter groups.
+		int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
+		log.debug("Number of Parameter Groups : " + parameterGroups);
+
+		// Array to hold the parameter type (group/single)
+		String ParameterType[] = new String[parameterGroups];
+
+		// Array to hold the path to group/parameter
+		String Path[] = new String[parameterGroups];
+
+		// Array to hold the unique identifier for the group.
+		groupName = new String[parameterGroups];
+
+		// Array to hold the parameter name that will be changed.
+		parameterName = new String[parameterGroups];
+
+		// Initial values of each parameter
+		int Intial[] = new int[parameterGroups];
+
+		// Increment values of each parameter
+		int Increment[] = new int[parameterGroups];
+
+		// Combinations for each parameter
+		int Combinations[] = new int[parameterGroups];
+
+		// Value of the max combination for each parameter
+		int IncrementMaxValue[] = new int[parameterGroups];
+
+		// The value in the combination at which to increment the value of
+		// the
+		// parameter
+		int IncrementMod[] = new int[parameterGroups];
+
+		parameters = new ArrayList<String>();
+
+		// Iterate over the detected parameters and populate the arrays
+		String section = "";
+		for(int p = 0; p < parameterGroups; p++)
+		{
+			// Generate the parameter path in the xml array (0),(1) etc
+			log.debug("Parameter Group : " + p);
+			section = "Parameters.Parameter(" + p + ")";
+
+			// Get the type (group/single)
+			ParameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
+
+			// Populate the path to this parameter.
+			Path[p] = batchConfigProcessor.getStringValue(section, "Path");
+
+			// Store the group name if this parameter changes one in a
+			// group.
+			groupName[p] = "";
+			if(ParameterType[p].equalsIgnoreCase("Group"))
+			{
+				groupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
+			}
+
+			// Store the name of the paramter to change
+			parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
+
+			// Intial value
+			Intial[p] = batchConfigProcessor.getIntValue(section, "Intial");
+
+			// Increment value
+			Increment[p] = batchConfigProcessor.getIntValue(section, "Increment");
+
+			// Combinations e.g 2 = initial value + 1 increment
+			Combinations[p] = batchConfigProcessor.getIntValue(section, "Combinations");
+
+			// Max value = Combinations-1 as initial is the first
+			IncrementMaxValue[p] = Intial[p] + ((Combinations[p] - 1) * Increment[p]);
+
+			parameters.add("");
+			parameters.add("");
+			parameters.add("ParameterType");
+			parameters.add(ParameterType[p]);
+			parameters.add("Path");
+			parameters.add(Path[p]);
+			parameters.add("GroupName");
+			parameters.add(groupName[p]);
+			parameters.add("Intial");
+			parameters.add(String.valueOf(Intial[p]));
+			parameters.add("Increment");
+			parameters.add(String.valueOf(Increment[p]));
+			parameters.add("Combinations");
+			parameters.add(String.valueOf(Combinations[p]));
+			parameters.add("IncrementMaxValue");
+			parameters.add(String.valueOf(IncrementMaxValue[p]));
+
+			// Logging
+			log.debug("ParameterType : " + ParameterType[p]);
+			log.debug("Path : " + Path[p]);
+			log.debug("GroupName : " + groupName[p]);
+			log.debug("ParameterName : " + parameterName[p]);
+			log.debug("Intial : " + Intial[p]);
+			log.debug("Increment : " + Increment[p]);
+			log.debug("Combinations : " + Combinations[p]);
+			log.debug("IncrementMaxValue : " + IncrementMaxValue[p]);
+
+		}
+
+		int currentValues[] = new int[parameterGroups];
+		int combinations = 1;
+		for(int p = 0; p < parameterGroups; p++)
+		{
+			// Set Initial Values used in generation
+			currentValues[p] = Intial[p];
+
+			// Calculate Total Combinations
+			combinations *= Combinations[p];
+
+			if(p > 0)
+			{
+				IncrementMod[p] = IncrementMod[p - 1] * Combinations[p];
+			}
+			else
+			{
+				// P[0] always increments
+				IncrementMod[p] = 1;
+			}
+			log.debug("Group " + p + " Increments @Combo%" + IncrementMod[p]);
+
+		}
+		log.debug("Combinations " + combinations);
+
+		// The temp scenario used to generate the xml.
+		ConfigurationInterpreter temp;
+
+		// Combination space coordinates X,Y,Z..
+		ArrayList<Integer> comboCoordinates = new ArrayList<Integer>(parameterGroups);
+		for(int p = 0; p < parameterGroups; p++)
+		{
+			// Initialise the coordinates (1 base)
+			comboCoordinates.add(1);
+		}
+
+		// For progress monitoring during generation
+		float progressInc = 100f / (float) combinations;
+
+		// Set the combination Values
+		for(int combo = 1; combo < combinations + 1; combo++)
+		{
+			// Create a copy of the base scenario
+			temp = new ConfigurationInterpreter();
+			temp.loadConfig(baseScenarioText);
+
+			StringBuilder itemName = new StringBuilder();
+
+			// Start of log line + itemName
+			itemName.append("Combo " + combo);
+
+			// Change the value for each parameter group
+			for(int p = 0; p < parameterGroups; p++)
+			{
+
+				// This is a group parameter
+				if(ParameterType[p].equalsIgnoreCase("Group"))
+				{
+					// Log line middle
+					itemName.append(" " + Path[p] + "." + groupName[p] + "." + parameterName[p] + " "
+							+ currentValues[p]);
+
+					int groups = temp.getSubListSize(Path[p]);
+
+					// Find the correct group that matches the name
+					for(int sg = 0; sg < groups; sg++)
+					{
+						String groupSection = Path[sg] + "(" + sg + ")";
+
+						String searchGroupName = temp.getStringValue(groupSection, "Name");
+
+						// Found Group
+						if(searchGroupName.equalsIgnoreCase(groupName[p]))
+						{
+							// Combo / targetGroupName / Current GroupName
+							// DebugLogger.output(c + " " + targetGroupName
+							// +
+							// " " + GroupName[p]);
+
+							// The parameter we want
+							// DebugLogger.output(ParameterName[p]);
+
+							// String target = Path[p]+"."+ParameterName[p];
+							// String target =
+							// groupSection+"."+ParameterName[p];
+
+							// Current Value in XML
+							// DebugLogger.output("Current Value " +
+							// temp.getIntValue(groupSection,ParameterName[p]));
+
+							// Find the datatype to change
+							String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
+
+							// Currently only decimal and integer are used.
+							if(dtype.equals("boolean"))
+							{
+								temp.changeValue(groupSection, parameterName[p], new Boolean(true));
+							}
+							else if(dtype.equals("string"))
+							{
+								temp.changeValue(groupSection, parameterName[p], " ");
+							}
+							else if(dtype.equals("decimal"))
+							{
+								temp.changeValue(groupSection, parameterName[p], currentValues[p]);
+							}
+							else if(dtype.equals("integer"))
+							{
+								temp.changeValue(groupSection, parameterName[p], currentValues[p]);
+							}
+							else
+							{
+								// This will not happen unless there is a
+								// new
+								// datatype added to the XML standards
+								// schema
+								// and we use it.
+								log.error("Unknown XML DTYPE : " + dtype);
+							}
+							/*
+							 * DebugLogger.output("New Value " +
+							 * temp.getIntValue
+							 * (groupSection,ParameterName[p]));
+							 * DebugLogger.output("Target : " + target);
+							 * DebugLogger.output("Value : " +
+							 * temp.getValueToString(target,
+							 * temp.findDataType(target)));
+							 */
+
+							// Group was found and value was changed now
+							// exit
+							// search
+							break;
+						}
+
+					}
+
+				}
+				else
+				{
+					// Log line middle
+					itemName.append(" " + Path[p] + "." + parameterName[p] + " " + currentValues[p]);
+
+					// Fine the datatype for this parameter
+					String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
+
+					// Currently only decimal and integer are used.
+					if(dtype.equals("boolean"))
+					{
+						temp.changeValue(Path[p], parameterName[p], new Boolean(true));
+					}
+					else if(dtype.equals("string"))
+					{
+						temp.changeValue(Path[p], parameterName[p], " ");
+					}
+					else if(dtype.equals("decimal"))
+					{
+						temp.changeValue(Path[p], parameterName[p], currentValues[p]);
+					}
+					else if(dtype.equals("integer"))
+					{
+						temp.changeValue(Path[p], parameterName[p], currentValues[p]);
+					}
+					else
+					{
+						// This will not happen unless there is a new
+						// datatype
+						// added to the XML standards schema.
+						log.error("Unknown XML DTYPE : " + dtype);
+					}
+
+				}
+
+			}
+			// Log line end
+			log.debug(itemName.toString());
+
+			StringBuilder logLine = new StringBuilder();
+
+			// DebugLogger.output(temp.getScenarioXMLText());
+			logLine.append("ComboPos(");
+			ArrayList<Integer> tempCoord = new ArrayList<Integer>();
+			ArrayList<Integer> tempCoordValues = new ArrayList<Integer>();
+			for(int p = 0; p < parameterGroups; p++)
+			{
+				logLine.append(String.valueOf(comboCoordinates.get(p)));
+				if(p < (parameterGroups - 1))
+				{
+					logLine.append('x');
+				}
+
+				tempCoord.add(comboCoordinates.get(p));
+				tempCoordValues.add(currentValues[p]);
+			}
+			logLine.append(")");
+			log.debug(logLine.toString());
+
+			// Add the new Batch Item combo used for batch item id,
+			// getScenarioXMLText is the new scenario xml configuration -
+			// samples is the number of identical items to generate (used as
+			// a
+			// sample/average)
+			addBatchItem(itemSamples, combo, itemName.toString(), temp.getScenarioXMLText(), tempCoord,
+					tempCoordValues);
+
+			// Increment the combinatorics values.
+			for(int p = 0; p < parameterGroups; p++)
+			{
+
+				// Work out if the current c value is a increment for this
+				// group.
+				if(combo % (IncrementMod[p]) == 0)
+				{
+					currentValues[p] = (currentValues[p] + Increment[p]);
+
+					// Increment after currentValues is greater than
+					// IncrementMaxValue
+					if(currentValues[p] > IncrementMaxValue[p])
+					{
+						// Reset to initial value
+						currentValues[p] = Intial[p];
+					}
+
+					// P[0] increments 1 each time, wrap it by the roll over
+					// value of its combinations number
+					if(p == 0)
+					{
+						// Increment the coordinate by 1
+						comboCoordinates.set(p, (comboCoordinates.get(p) % Combinations[p]) + 1);
+					}
+					else
+					{
+						// Increment the coordinate by 1
+						comboCoordinates.set(p, comboCoordinates.get(p) + 1);
+					}
+
+				}
+
+			}
+
+			progress += progressInc;
+
+			if(genComboMonitor!=null)
+			{
+				genComboMonitor.setProgress(Math.min((int) progress, 100));
+			}
+		}
+
+		// All the items need to get processed, but the ett is influenced by
+		// the
+		// order (randomise it in an attempt to reduce influence)
+		Collections.shuffle(queuedItems);
+
+		if(genComboMonitor!=null)
+		{
+			genComboMonitor.setProgress(100);
+		}
+		
+		needGenerated = false;
+	}
+	
 	private boolean checkBatchFile()
 	{
 		boolean status = true;
@@ -299,6 +671,9 @@ public class Batch implements StoredQueuePosition
 
 		}
 
+		// How many times to run each batchItem.
+		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
+		
 		int uniqueItems = batchItems / itemSamples;
 
 		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples
@@ -609,51 +984,55 @@ public class Batch implements StoredQueuePosition
 	{
 		ArrayList<String> info = new ArrayList<String>();
 
-		// Cache the non changing values
-		if(infoCache == null)
+		if(!needGenerated)
 		{
-			infoCache = new ArrayList<String>();
+			// Cache the non changing values
+			if(infoCache == null)
+			{
+				infoCache = new ArrayList<String>();
 
-			infoCache.add("Id");
-			infoCache.add(String.valueOf(batchId));
-			infoCache.add("Name");
-			infoCache.add(batchName);
-			infoCache.add("Scenario Type");
-			infoCache.add(type);
+				infoCache.add("Id");
+				infoCache.add(String.valueOf(batchId));
+				infoCache.add("Name");
+				infoCache.add(batchName);
+				infoCache.add("Scenario Type");
+				infoCache.add(type);
 
-			infoCache.add("");
-			infoCache.add("");
-			infoCache.add("Unique Items");
-			infoCache.add(String.valueOf(batchItems / itemSamples));
-			infoCache.add("Sample per Item");
-			infoCache.add(String.valueOf(itemSamples));
-			infoCache.add("Total Items");
-			infoCache.add(String.valueOf(batchItems));
-			infoCache.add("Max Steps");
-			infoCache.add(String.valueOf(maxSteps));
+				infoCache.add("");
+				infoCache.add("");
+				infoCache.add("Unique Items");
+				infoCache.add(String.valueOf(batchItems / itemSamples));
+				infoCache.add("Sample per Item");
+				infoCache.add(String.valueOf(itemSamples));
+				infoCache.add("Total Items");
+				infoCache.add(String.valueOf(batchItems));
+				infoCache.add("Max Steps");
+				infoCache.add(String.valueOf(maxSteps));
 
-			// Add The parameters and free
-			infoCache.addAll(parameters);
-			parameters = null;
+				// Add The parameters and free
+				infoCache.addAll(parameters);
+				parameters = null;
 
-			infoCache.add("");
-			infoCache.add("");
-			infoCache.add("Batch File");
-			infoCache.add(batchFileName);
-			infoCache.add("Scenario");
-			infoCache.add(baseScenarioFileName);
-			infoCache.add("Export Directory");
-			infoCache.add(batchStatsExportDir);
+				infoCache.add("");
+				infoCache.add("");
+				infoCache.add("Batch File");
+				infoCache.add(batchFileName);
+				infoCache.add("Scenario");
+				infoCache.add(baseScenarioFileName);
+				infoCache.add("Export Directory");
+				infoCache.add(batchStatsExportDir);
 
-			infoCache.add("");
-			infoCache.add("");
-			infoCache.add("Stats Store");
-			infoCache.add(storeStats == true ? "Enabled" : "Disabled");
-			infoCache.add("Info Log");
-			infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
-			infoCache.add("Item Log");
-			infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
+				infoCache.add("");
+				infoCache.add("");
+				infoCache.add("Stats Store");
+				infoCache.add(storeStats == true ? "Enabled" : "Disabled");
+				infoCache.add("Info Log");
+				infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
+				infoCache.add("Item Log");
+				infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
+			}
 		}
+
 		info.add("Queue Position");
 		info.add(String.valueOf(position));
 		info.add("Status");
@@ -661,8 +1040,38 @@ public class Batch implements StoredQueuePosition
 		info.add("Priority");
 		info.add(priority.toString());
 
-		// Add the cached values
-		info.addAll(infoCache);
+		if(!needGenerated)
+		{
+			// Add the cached values
+			info.addAll(infoCache);
+		}
+		else
+		{
+			info.add("Id");
+			info.add(String.valueOf(batchId));
+			info.add("Name");
+			info.add(batchName);
+			info.add("Scenario Type");
+			info.add(type);
+			
+			info.add("");
+			info.add("");
+			info.add("Batch File");
+			info.add(batchFileName);
+			info.add("Scenario");
+			info.add(baseScenarioFileName);
+			info.add("Export Directory");
+			info.add(batchStatsExportDir);
+
+			info.add("");
+			info.add("");
+			info.add("Stats Store");
+			info.add(storeStats == true ? "Enabled" : "Disabled");
+			info.add("Info Log");
+			info.add(infoLogEnabled == true ? "Enabled" : "Disabled");
+			info.add("Item Log");
+			info.add(itemLogEnabled == true ? "Enabled" : "Disabled");
+		}
 
 		info.add("");
 		info.add("");
@@ -784,388 +1193,15 @@ public class Batch implements StoredQueuePosition
 	{
 		return Paths.get(filePath).getParent().toString();
 	}
-
-	private class GenComboTask extends SwingWorker<Void, Void>
+	
+	public boolean isFinished()
 	{
-		private JComputeProgressMonitor genComboMonitor;
-		private Semaphore waitLock = new Semaphore(0, false);
-
-		public GenComboTask(JComputeProgressMonitor genComboMonitor)
+		if(!needGenerated)
 		{
-			this.genComboMonitor = genComboMonitor;
+			return getCompleted() == getBatchItems();
 		}
-
-		public void generate()
-		{
-			this.execute();
-
-			waitLock.acquireUninterruptibly();
-		}
-
-		@Override
-		protected Void doInBackground() throws Exception
-		{
-			float progress = 0;
-			genComboMonitor.setProgress(0);
-
-			// Get a count of the parameter groups.
-			int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
-			log.debug("Number of Parameter Groups : " + parameterGroups);
-
-			// How many times to run each batchItem.
-			itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
-
-			// Array to hold the parameter type (group/single)
-			String ParameterType[] = new String[parameterGroups];
-
-			// Array to hold the path to group/parameter
-			String Path[] = new String[parameterGroups];
-
-			// Array to hold the unique identifier for the group.
-			groupName = new String[parameterGroups];
-
-			// Array to hold the parameter name that will be changed.
-			parameterName = new String[parameterGroups];
-
-			// Initial values of each parameter
-			int Intial[] = new int[parameterGroups];
-
-			// Increment values of each parameter
-			int Increment[] = new int[parameterGroups];
-
-			// Combinations for each parameter
-			int Combinations[] = new int[parameterGroups];
-
-			// Value of the max combination for each parameter
-			int IncrementMaxValue[] = new int[parameterGroups];
-
-			// The value in the combination at which to increment the value of
-			// the
-			// parameter
-			int IncrementMod[] = new int[parameterGroups];
-
-			parameters = new ArrayList<String>();
-
-			// Iterate over the detected parameters and populate the arrays
-			String section = "";
-			for(int p = 0; p < parameterGroups; p++)
-			{
-				// Generate the parameter path in the xml array (0),(1) etc
-				log.debug("Parameter Group : " + p);
-				section = "Parameters.Parameter(" + p + ")";
-
-				// Get the type (group/single)
-				ParameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
-
-				// Populate the path to this parameter.
-				Path[p] = batchConfigProcessor.getStringValue(section, "Path");
-
-				// Store the group name if this parameter changes one in a
-				// group.
-				groupName[p] = "";
-				if(ParameterType[p].equalsIgnoreCase("Group"))
-				{
-					groupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
-				}
-
-				// Store the name of the paramter to change
-				parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
-
-				// Intial value
-				Intial[p] = batchConfigProcessor.getIntValue(section, "Intial");
-
-				// Increment value
-				Increment[p] = batchConfigProcessor.getIntValue(section, "Increment");
-
-				// Combinations e.g 2 = initial value + 1 increment
-				Combinations[p] = batchConfigProcessor.getIntValue(section, "Combinations");
-
-				// Max value = Combinations-1 as initial is the first
-				IncrementMaxValue[p] = Intial[p] + ((Combinations[p] - 1) * Increment[p]);
-
-				parameters.add("");
-				parameters.add("");
-				parameters.add("ParameterType");
-				parameters.add(ParameterType[p]);
-				parameters.add("Path");
-				parameters.add(Path[p]);
-				parameters.add("GroupName");
-				parameters.add(groupName[p]);
-				parameters.add("Intial");
-				parameters.add(String.valueOf(Intial[p]));
-				parameters.add("Increment");
-				parameters.add(String.valueOf(Increment[p]));
-				parameters.add("Combinations");
-				parameters.add(String.valueOf(Combinations[p]));
-				parameters.add("IncrementMaxValue");
-				parameters.add(String.valueOf(IncrementMaxValue[p]));
-
-				// Logging
-				log.debug("ParameterType : " + ParameterType[p]);
-				log.debug("Path : " + Path[p]);
-				log.debug("GroupName : " + groupName[p]);
-				log.debug("ParameterName : " + parameterName[p]);
-				log.debug("Intial : " + Intial[p]);
-				log.debug("Increment : " + Increment[p]);
-				log.debug("Combinations : " + Combinations[p]);
-				log.debug("IncrementMaxValue : " + IncrementMaxValue[p]);
-
-			}
-
-			int currentValues[] = new int[parameterGroups];
-			int combinations = 1;
-			for(int p = 0; p < parameterGroups; p++)
-			{
-				// Set Initial Values used in generation
-				currentValues[p] = Intial[p];
-
-				// Calculate Total Combinations
-				combinations *= Combinations[p];
-
-				if(p > 0)
-				{
-					IncrementMod[p] = IncrementMod[p - 1] * Combinations[p];
-				}
-				else
-				{
-					// P[0] always increments
-					IncrementMod[p] = 1;
-				}
-				log.debug("Group " + p + " Increments @Combo%" + IncrementMod[p]);
-
-			}
-			log.debug("Combinations " + combinations);
-
-			// The temp scenario used to generate the xml.
-			ConfigurationInterpreter temp;
-
-			// Combination space coordinates X,Y,Z..
-			ArrayList<Integer> comboCoordinates = new ArrayList<Integer>(parameterGroups);
-			for(int p = 0; p < parameterGroups; p++)
-			{
-				// Initialise the coordinates (1 base)
-				comboCoordinates.add(1);
-			}
-
-			// For progress monitoring during generation
-			float progressInc = 100f / (float) combinations;
-
-			// Set the combination Values
-			for(int combo = 1; combo < combinations + 1; combo++)
-			{
-				// Create a copy of the base scenario
-				temp = new ConfigurationInterpreter();
-				temp.loadConfig(baseScenarioText);
-
-				StringBuilder itemName = new StringBuilder();
-
-				// Start of log line + itemName
-				itemName.append("Combo " + combo);
-
-				// Change the value for each parameter group
-				for(int p = 0; p < parameterGroups; p++)
-				{
-
-					// This is a group parameter
-					if(ParameterType[p].equalsIgnoreCase("Group"))
-					{
-						// Log line middle
-						itemName.append(" " + Path[p] + "." + groupName[p] + "." + parameterName[p] + " "
-								+ currentValues[p]);
-
-						int groups = temp.getSubListSize(Path[p]);
-
-						// Find the correct group that matches the name
-						for(int sg = 0; sg < groups; sg++)
-						{
-							String groupSection = Path[sg] + "(" + sg + ")";
-
-							String searchGroupName = temp.getStringValue(groupSection, "Name");
-
-							// Found Group
-							if(searchGroupName.equalsIgnoreCase(groupName[p]))
-							{
-								// Combo / targetGroupName / Current GroupName
-								// DebugLogger.output(c + " " + targetGroupName
-								// +
-								// " " + GroupName[p]);
-
-								// The parameter we want
-								// DebugLogger.output(ParameterName[p]);
-
-								// String target = Path[p]+"."+ParameterName[p];
-								// String target =
-								// groupSection+"."+ParameterName[p];
-
-								// Current Value in XML
-								// DebugLogger.output("Current Value " +
-								// temp.getIntValue(groupSection,ParameterName[p]));
-
-								// Find the datatype to change
-								String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
-
-								// Currently only decimal and integer are used.
-								if(dtype.equals("boolean"))
-								{
-									temp.changeValue(groupSection, parameterName[p], new Boolean(true));
-								}
-								else if(dtype.equals("string"))
-								{
-									temp.changeValue(groupSection, parameterName[p], " ");
-								}
-								else if(dtype.equals("decimal"))
-								{
-									temp.changeValue(groupSection, parameterName[p], currentValues[p]);
-								}
-								else if(dtype.equals("integer"))
-								{
-									temp.changeValue(groupSection, parameterName[p], currentValues[p]);
-								}
-								else
-								{
-									// This will not happen unless there is a
-									// new
-									// datatype added to the XML standards
-									// schema
-									// and we use it.
-									log.error("Unknown XML DTYPE : " + dtype);
-								}
-								/*
-								 * DebugLogger.output("New Value " +
-								 * temp.getIntValue
-								 * (groupSection,ParameterName[p]));
-								 * DebugLogger.output("Target : " + target);
-								 * DebugLogger.output("Value : " +
-								 * temp.getValueToString(target,
-								 * temp.findDataType(target)));
-								 */
-
-								// Group was found and value was changed now
-								// exit
-								// search
-								break;
-							}
-
-						}
-
-					}
-					else
-					{
-						// Log line middle
-						itemName.append(" " + Path[p] + "." + parameterName[p] + " " + currentValues[p]);
-
-						// Fine the datatype for this parameter
-						String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
-
-						// Currently only decimal and integer are used.
-						if(dtype.equals("boolean"))
-						{
-							temp.changeValue(Path[p], parameterName[p], new Boolean(true));
-						}
-						else if(dtype.equals("string"))
-						{
-							temp.changeValue(Path[p], parameterName[p], " ");
-						}
-						else if(dtype.equals("decimal"))
-						{
-							temp.changeValue(Path[p], parameterName[p], currentValues[p]);
-						}
-						else if(dtype.equals("integer"))
-						{
-							temp.changeValue(Path[p], parameterName[p], currentValues[p]);
-						}
-						else
-						{
-							// This will not happen unless there is a new
-							// datatype
-							// added to the XML standards schema.
-							log.error("Unknown XML DTYPE : " + dtype);
-						}
-
-					}
-
-				}
-				// Log line end
-				log.debug(itemName.toString());
-
-				StringBuilder logLine = new StringBuilder();
-
-				// DebugLogger.output(temp.getScenarioXMLText());
-				logLine.append("ComboPos(");
-				ArrayList<Integer> tempCoord = new ArrayList<Integer>();
-				ArrayList<Integer> tempCoordValues = new ArrayList<Integer>();
-				for(int p = 0; p < parameterGroups; p++)
-				{
-					logLine.append(String.valueOf(comboCoordinates.get(p)));
-					if(p < (parameterGroups - 1))
-					{
-						logLine.append('x');
-					}
-
-					tempCoord.add(comboCoordinates.get(p));
-					tempCoordValues.add(currentValues[p]);
-				}
-				logLine.append(")");
-				log.debug(logLine.toString());
-
-				// Add the new Batch Item combo used for batch item id,
-				// getScenarioXMLText is the new scenario xml configuration -
-				// samples is the number of identical items to generate (used as
-				// a
-				// sample/average)
-				addBatchItem(itemSamples, combo, itemName.toString(), temp.getScenarioXMLText(), tempCoord,
-						tempCoordValues);
-
-				// Increment the combinatorics values.
-				for(int p = 0; p < parameterGroups; p++)
-				{
-
-					// Work out if the current c value is a increment for this
-					// group.
-					if(combo % (IncrementMod[p]) == 0)
-					{
-						currentValues[p] = (currentValues[p] + Increment[p]);
-
-						// Increment after currentValues is greater than
-						// IncrementMaxValue
-						if(currentValues[p] > IncrementMaxValue[p])
-						{
-							// Reset to initial value
-							currentValues[p] = Intial[p];
-						}
-
-						// P[0] increments 1 each time, wrap it by the roll over
-						// value of its combinations number
-						if(p == 0)
-						{
-							// Increment the coordinate by 1
-							comboCoordinates.set(p, (comboCoordinates.get(p) % Combinations[p]) + 1);
-						}
-						else
-						{
-							// Increment the coordinate by 1
-							comboCoordinates.set(p, comboCoordinates.get(p) + 1);
-						}
-
-					}
-
-				}
-
-				progress += progressInc;
-
-				genComboMonitor.setProgress(Math.min((int) progress, 100));
-			}
-
-			// All the items need to get processed, but the ett is influenced by
-			// the
-			// order (randomise it in an attempt to reduce influence)
-			Collections.shuffle(queuedItems);
-
-			waitLock.release();
-
-			genComboMonitor.setProgress(100);
-
-			return null;
-		}
+		
+		return false;
+		
 	}
 }

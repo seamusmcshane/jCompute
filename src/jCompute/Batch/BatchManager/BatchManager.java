@@ -71,6 +71,9 @@ public class BatchManager
 	private ExecutorService completedItemsStatFetch = Executors.newFixedThreadPool(Runtime.getRuntime()
 			.availableProcessors(), new SimpleNamedThreadFactory("Completed Items Stat Fetch"));
 
+	// For progress monitoring (if set)
+	private JComputeProgressMonitor genComboMonitor;
+
 	public BatchManager()
 	{
 		this.controlNode = new ControlNode();
@@ -116,7 +119,12 @@ public class BatchManager
 
 	}
 
-	public boolean addBatch(String filePath, JComputeProgressMonitor genComboMonitor)
+	public void setProgressMonitor(JComputeProgressMonitor genComboMonitor)
+	{
+		this.genComboMonitor = genComboMonitor;
+	}
+
+	public boolean addBatch(String filePath)
 	{
 		Batch tempBatch = null;
 		boolean added = false;
@@ -125,11 +133,11 @@ public class BatchManager
 
 		// Try generating a batch and adding it to the queue. - Default to High
 		// priority
-		tempBatch = new Batch(batchId, BatchPriority.HIGH);
+		tempBatch = new Batch(batchId, BatchPriority.STANDARD);
 
-		if(tempBatch.loadConfig(filePath, genComboMonitor))
+		if(tempBatch.loadConfig(filePath))
 		{
-			fifoQueue.add(tempBatch);
+			fairQueue.add(tempBatch);
 
 			added = true;
 			batchId++;
@@ -267,7 +275,6 @@ public class BatchManager
 	 */
 	private boolean scheduleFifo()
 	{
-		// log.debug("Schedule Fifo");
 
 		// Get the first batch - FIFO
 		Batch batch = (Batch) fifoQueue.peek();
@@ -279,7 +286,7 @@ public class BatchManager
 		}
 
 		// Is this batch finished
-		if(batch.getCompleted() == batch.getBatchItems())
+		if(batch.isFinished())
 		{
 			// Add the batch to the completed list
 			finishedBatches.add(batch);
@@ -310,11 +317,17 @@ public class BatchManager
 
 		}
 
-		// While there are items to add and the control node can add them
-		while((batch.getRemaining() > 0))
+		// Is there a free slot
+		if(controlNode.hasFreeSlot())
 		{
-			// Is there a free slot
-			if(controlNode.hasFreeSlot())
+
+			if(batch.itemsNeedGenerated())
+			{
+				batch.generateItems(genComboMonitor);
+			}
+
+			// While there are items to add and the control node can add them
+			while((batch.getRemaining() > 0) && controlNode.hasFreeSlot())
 			{
 				// dequeue the next item in the batch
 				BatchItem item = batch.getNext();
@@ -330,11 +343,6 @@ public class BatchManager
 					JComputeEventBus.post(new BatchProgressEvent(batch));
 				}
 			}
-			else
-			{
-				break;
-			}
-
 		}
 
 		return true;
@@ -375,8 +383,19 @@ public class BatchManager
 			{
 				batch = (Batch) fairQueue.get(pos);
 
+				if(batch == null)
+				{
+					// no batches
+					return;
+				}
+
+				if(batch.itemsNeedGenerated())
+				{
+					batch.generateItems(genComboMonitor);
+				}
+
 				// Is this batch finished
-				if(batch.getCompleted() == batch.getBatchItems())
+				if(batch.isFinished())
 				{
 					// Add the batch to the completed list
 					finishedBatches.add(batch);
