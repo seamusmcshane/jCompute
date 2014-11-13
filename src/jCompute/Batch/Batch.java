@@ -96,8 +96,7 @@ public class Batch implements StoredQueuePosition
 	private ArrayList<BatchItem> activeItems;
 	private int active;
 
-	// The completed items list
-	private ArrayList<BatchItem> completedItems;
+	// Completed items count
 	private int completed = 0;
 
 	// The Batch Configuration Text
@@ -130,7 +129,6 @@ public class Batch implements StoredQueuePosition
 		// Item management data structures
 		queuedItems = new LinkedList<BatchItem>();
 		activeItems = new ArrayList<BatchItem>();
-		completedItems = new ArrayList<BatchItem>();
 
 		// Active Items
 		active = 0;
@@ -468,8 +466,6 @@ public class Batch implements StoredQueuePosition
 
 		completed++;
 
-		completedItems.add(item);
-
 		if(completed == batchItems)
 		{
 			if(itemLogEnabled)
@@ -509,8 +505,7 @@ public class Batch implements StoredQueuePosition
 				{
 					log.error("Error writing info log");
 				}
-			}
-
+			}			
 		}
 
 		ioEnd = System.currentTimeMillis();
@@ -590,24 +585,9 @@ public class Batch implements StoredQueuePosition
 		return completed;
 	}
 
-	public BatchItem[] getQueuedItems()
-	{
-		return queuedItems.toArray(new BatchItem[queuedItems.size()]);
-	}
-
-	public BatchItem[] getActiveItems()
-	{
-		return activeItems.toArray(new BatchItem[activeItems.size()]);
-	}
-
 	public int getActiveItemsCount()
 	{
 		return activeItems.size();
-	}
-
-	public BatchItem[] getCompletedItems()
-	{
-		return completedItems.toArray(new BatchItem[completedItems.size()]);
 	}
 
 	public long getRunTime()

@@ -667,47 +667,6 @@ public class BatchManager
 		return info;
 	}
 
-	private BatchItem[] getListItems(int batchId, int queueNum)
-	{
-		batchManagerLock.acquireUninterruptibly();
-
-		BatchItem[] list = null;
-
-		Batch batch = findBatch(batchId);
-
-		switch(queueNum)
-		{
-			case 0:
-				list = batch.getQueuedItems();
-			break;
-			case 1:
-				list = batch.getActiveItems();
-			break;
-			case 2:
-				list = batch.getCompletedItems();
-			break;
-		}
-
-		batchManagerLock.release();
-
-		return list;
-	}
-
-	public BatchItem[] getItemQueue(int batchId)
-	{
-		return getListItems(batchId, 0);
-	}
-
-	public BatchItem[] getActiveItems(int batchId)
-	{
-		return getListItems(batchId, 1);
-	}
-
-	public BatchItem[] getCompletedItems(int batchId)
-	{
-		return getListItems(batchId, 2);
-	}
-
 	public void setStatus(int batchId, boolean status)
 	{
 		batchManagerLock.acquireUninterruptibly();
