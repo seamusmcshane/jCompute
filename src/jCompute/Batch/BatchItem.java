@@ -46,7 +46,7 @@ public class BatchItem
 		{
 			byte[] data = MessageDigest.getInstance("MD5").digest(toHash.getBytes());
 			
-	        StringBuffer buffer = new StringBuffer();
+	        StringBuilder buffer = new StringBuilder();
 	        for (int d = 0; d < data.length; d++) 
 	        {
 	        	buffer.append(Integer.toString((data[d] & 0xff) + 0x100, 16).substring(1));
