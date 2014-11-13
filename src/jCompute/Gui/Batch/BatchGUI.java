@@ -51,13 +51,13 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 	// Menu Bar
 	private JMenuBar menuBar;
 
-	// Update Timer
-	private Timer activeSimulationsListTableUpdateTimer;
-
 	// Batch Add
 	private JComputeProgressMonitor openBatchProgressMonitor;
 	private OpenBatchFileTask openBatchProgressMonitorTask;
 	private JToolBar toolBar;
+	
+	// Batch Gen
+	private JComputeProgressMonitor genComboMonitor;
 
 	// Toolbar
 	private JButton btnAdd;
@@ -88,30 +88,26 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 	public BatchGUI(boolean buttonText)
 	{
 		log.info("Started BatchGUI");
-		batchManager = new BatchManager();
 
 		this.buttonText = buttonText;
 
 		createFrame();
+		
+		openBatchProgressMonitor = new JComputeProgressMonitor(guiFrame, "Loading BatchFiles", 0, 100);
+				
+		batchManager = new BatchManager();
 
-		// A slow timer to update GUI
-		activeSimulationsListTableUpdateTimer = new Timer("Simulation List Stat Update Timer");
-		activeSimulationsListTableUpdateTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run()
-			{
-				// updateBatchInfo(queuedOrCompleted);
+		createAndAddTabs();
 
-				// updateClusterInfo();
-
-				// updateNodeInfo();
-			}
-
-		}, 0, 2000);
-
+		guiFrame.getContentPane().add(guiTabs, BorderLayout.CENTER);
+		
 		// Show Frame
 		guiFrame.setVisible(true);
+		
+		genComboMonitor = new JComputeProgressMonitor(guiFrame,
+				"Generating Batch Combinations", 0, 100);
+		
+		batchManager.setProgressMonitor(genComboMonitor);
 	}
 
 	private void createFrame()
@@ -132,10 +128,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 		// Tool Bar
 		createToolbar();
 		guiFrame.getContentPane().add(toolBar, BorderLayout.NORTH);
-
-		createAndAddTabs();
-
-		guiFrame.getContentPane().add(guiTabs, BorderLayout.CENTER);
 	}
 
 	public void createAndAddTabs()
@@ -205,8 +197,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 					log.info("New Batch Choosen");
 
 					File[] files = filechooser.getSelectedFiles();
-
-					openBatchProgressMonitor = new JComputeProgressMonitor(guiFrame, "Loading BatchFiles", 0, 100);
 
 					openBatchProgressMonitorTask = new OpenBatchFileTask(openBatchProgressMonitor, files);
 
@@ -451,12 +441,9 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 			{
 				String batchFile = file.getAbsolutePath();
 
-				JComputeProgressMonitor genComboMonitor = new JComputeProgressMonitor(openBatchProgressMonitor,
-						"Generating Batch Combinations", 0, 100);
-
 				log.info("Batch File : " + batchFile);
 
-				if(!batchManager.addBatch(batchFile, genComboMonitor))
+				if(!batchManager.addBatch(batchFile))
 				{
 					log.error("Error Creating Batch from : " + batchFile);
 
@@ -469,8 +456,6 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 					errorMessage.append(error + " " + batchFile + "\n");
 
 					error++;
-
-					genComboMonitor.setProgress(100);
 				}
 				else
 				{
@@ -494,6 +479,7 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 
 		public void start()
 		{
+			openBatchProgressMonitor.setProgress(0);
 			this.execute();
 		}
 
