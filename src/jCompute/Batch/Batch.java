@@ -925,8 +925,6 @@ public class Batch implements StoredQueuePosition
 			// The temp scenario used to generate the xml.
 			ConfigurationInterpreter temp;
 
-			String itemName = "";
-
 			// Combination space coordinates X,Y,Z..
 			ArrayList<Integer> comboCoordinates = new ArrayList<Integer>(parameterGroups);
 			for(int p = 0; p < parameterGroups; p++)
@@ -945,11 +943,10 @@ public class Batch implements StoredQueuePosition
 				temp = new ConfigurationInterpreter();
 				temp.loadConfig(baseScenarioText);
 
-				StringBuilder logLine = new StringBuilder();
+				StringBuilder itemName = new StringBuilder();
 
 				// Start of log line + itemName
-				logLine.append("Combo : " + combo);
-				itemName = "Combo " + combo;
+				itemName.append("Combo " + combo);
 
 				// Change the value for each parameter group
 				for(int p = 0; p < parameterGroups; p++)
@@ -959,10 +956,8 @@ public class Batch implements StoredQueuePosition
 					if(ParameterType[p].equalsIgnoreCase("Group"))
 					{
 						// Log line middle
-						logLine.append(" " + Path[p] + "." + groupName[p] + "." + parameterName[p] + " "
+						itemName.append(" " + Path[p] + "." + groupName[p] + "." + parameterName[p] + " "
 								+ currentValues[p]);
-						itemName = itemName + " " + Path[p] + "." + groupName[p] + "." + parameterName[p] + " "
-								+ currentValues[p];
 
 						int groups = temp.getSubListSize(Path[p]);
 
@@ -1043,8 +1038,7 @@ public class Batch implements StoredQueuePosition
 					else
 					{
 						// Log line middle
-						logLine.append(" " + Path[p] + "." + parameterName[p] + " " + currentValues[p]);
-						itemName = itemName + " " + Path[p] + "." + parameterName[p] + " " + currentValues[p];
+						itemName.append(" " + Path[p] + "." + parameterName[p] + " " + currentValues[p]);
 
 						// Fine the datatype for this parameter
 						String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
@@ -1078,9 +1072,9 @@ public class Batch implements StoredQueuePosition
 
 				}
 				// Log line end
-				log.debug(logLine.toString());
+				log.debug(itemName.toString());
 
-				logLine = new StringBuilder();
+				StringBuilder logLine = new StringBuilder();
 
 				// DebugLogger.output(temp.getScenarioXMLText());
 				logLine.append("ComboPos(");
