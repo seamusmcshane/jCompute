@@ -1,8 +1,16 @@
 package jCompute.Batch;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class BatchItem
 {
@@ -10,7 +18,7 @@ public class BatchItem
 	private int batchId;
 	private int sampleId;
 	private String name;
-	private String configText;
+	private String comressedText;
 	
 	// position within the combination space of this items combo.
 	private ArrayList<Integer> coordinates;
@@ -35,8 +43,28 @@ public class BatchItem
 		this.itemId = itemId;
 		this.batchId = batchId;
 		this.name = name;
-		this.configText = configText;
 		
+		// Compress the string
+        try
+		{
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            
+            // This allows continuing to store all batch item configs in memory.
+            GZIPOutputStream gzip = new GZIPOutputStream(out) {
+                {
+                    def.setLevel(Deflater.BEST_COMPRESSION);
+                }
+            };
+            
+			gzip.write(configText.getBytes());
+	        gzip.close();		
+			comressedText = out.toString("ISO-8859-1");
+		}
+		catch(IOException e1)
+		{
+			e1.printStackTrace();
+		}
+        
 		this.coordinates = coordinates;
 		this.coordinatesValues = coordinatesValues;
 		
@@ -89,7 +117,26 @@ public class BatchItem
 	
 	public String getConfigText()
 	{
-		return configText;
+		StringBuilder configText = new StringBuilder();
+
+		try
+		{
+			ByteArrayInputStream  byteArrayInputStream = new ByteArrayInputStream(comressedText.getBytes("ISO-8859-1"));
+			GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(gzipInputStream));
+			String line;
+			 
+			while( (line=bufferedReader.readLine()) != null)
+			{
+				configText.append(line);
+			}			  
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return configText.toString();
 	}
 	
 	public int getItemId()
@@ -148,5 +195,5 @@ public class BatchItem
 	{
 		return stepCount;
 	}
-
+	
 }
