@@ -133,11 +133,11 @@ public class BatchManager
 
 		// Try generating a batch and adding it to the queue. - Default to High
 		// priority
-		tempBatch = new Batch(batchId, BatchPriority.STANDARD);
+		tempBatch = new Batch(batchId, BatchPriority.HIGH);
 
 		if(tempBatch.loadConfig(filePath))
 		{
-			fairQueue.add(tempBatch);
+			fifoQueue.add(tempBatch);
 
 			added = true;
 			batchId++;
