@@ -5,11 +5,18 @@
 	</Header>
 	<Config>
 		<BaseScenarioFileName>prey-speed-(0.81).scenario</BaseScenarioFileName>
-		<BatchStatsExportDir>stats/</BatchStatsExportDir>
-		<BatchGroupDir>ViewRange-default-10</BatchGroupDir>
-		<BatchSubGroupDirName>speed-(0.81)</BatchSubGroupDirName>
 		<ItemSamples>10</ItemSamples>
 	</Config>
+	<Log>
+		<InfoLog>true</InfoLog>
+		<ItemLog>true</ItemLog>
+	</Log>
+	<Stats>
+		<Store>false</Store>
+		<BatchStatsExportDir>stats/</BatchStatsExportDir>
+		<BatchGroupDir>ViewRange-original-10</BatchGroupDir>
+		<BatchSubGroupDirName>speed-(0.81)</BatchSubGroupDirName>
+	</Stats>
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>
