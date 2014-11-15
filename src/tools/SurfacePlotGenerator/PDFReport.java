@@ -32,8 +32,7 @@ public class PDFReport
 
 	private final static String itemLog = "ItemLog.xml";
 
-	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(Runtime.getRuntime()
-			.availableProcessors(), new SimpleNamedThreadFactory("Image Exporter"));
+	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(2, new SimpleNamedThreadFactory("Image Exporter"));
 
 	private final static ArrayList<String> rowNames = new ArrayList<String>();
 	private final static ArrayList<String> colNames = new ArrayList<String>();
