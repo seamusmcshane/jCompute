@@ -1,8 +1,8 @@
-package jCompute.Gui.Standard;
+package jCompute.Gui.Interactive;
 
 import jCompute.IconManager;
-import jCompute.Gui.Standard.Tab.GUISimulationTab;
-import jCompute.Gui.Standard.Tab.SimulationListTabPanel;
+import jCompute.Gui.Interactive.Tab.GUISimulationTab;
+import jCompute.Gui.Interactive.Tab.SimulationListTabPanel;
 import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;

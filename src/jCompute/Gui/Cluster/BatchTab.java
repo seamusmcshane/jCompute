@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch;
+package jCompute.Gui.Cluster;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -17,9 +17,9 @@ import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
 import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
 import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
 import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
-import jCompute.Gui.Batch.TableRowItems.BatchCompletedRowItem;
-import jCompute.Gui.Batch.TableRowItems.BatchQueueRowItem;
-import jCompute.Gui.Batch.TableRowItems.SimpleInfoRowItem;
+import jCompute.Gui.Cluster.TableRowItems.BatchCompletedRowItem;
+import jCompute.Gui.Cluster.TableRowItems.BatchQueueRowItem;
+import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;

@@ -1,11 +1,11 @@
-package jCompute.Gui.Standard.Tab;
+package jCompute.Gui.Interactive.Tab;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
 import jCompute.Gui.Component.GlobalStatChartPanel;
 import jCompute.Gui.Component.XMLPreviewPanel;
-import jCompute.Gui.Standard.GUITabManager;
-import jCompute.Gui.Standard.Listener.TabStatusChangedListenerInf;
+import jCompute.Gui.Interactive.GUITabManager;
+import jCompute.Gui.Interactive.Listener.TabStatusChangedListenerInf;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
@@ -793,7 +793,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 					boolean totalStatEnabled = simsManager.hasStatGroupTotalStat(simId, group);
 					int sampleWindow = simsManager.getStatGroupGraphSampleWindowSize(simId, group);
 					
-					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,totalStatEnabled,sampleWindow);
+					GlobalStatChartPanel chart = new GlobalStatChartPanel(group,totalStatEnabled,sampleWindow,false);
 					
 					simsManager.addStatGroupListener(simId,group,chart);
 					

@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch;
+package jCompute.Gui.Cluster;
 
 import jCompute.IconManager;
 import jCompute.Batch.BatchManager.BatchManager;
@@ -36,10 +36,10 @@ import javax.swing.JButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BatchGUI implements ActionListener, ItemListener, WindowListener
+public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
+	private static Logger log = LoggerFactory.getLogger(ClusterGUI.class);
 
 	// Batch Manager
 	private BatchManager batchManager;
@@ -74,20 +74,17 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 	// Icons or Text Only
 	private boolean buttonText = true;
 
-	// GUI Tabs
-	private SimpleTabPanel guiTabs;
-
-	// Batch Tab
-	private BatchTab batchTab;
-
 	private int rightPanelsMinWidth = 400;
 
-	// Cluster Tab
+	// GUI Tabs
+	private SimpleTabPanel guiTabs;
+	private BatchTab batchTab;
 	private ClusterStatusTab clusterStatusTab;
-
-	public BatchGUI(boolean buttonText)
+	private NodeStatusTab nodeStatusTab;
+	
+	public ClusterGUI(boolean buttonText)
 	{
-		log.info("Started BatchGUI");
+		log.info("Started ClusterGUI");
 
 		this.buttonText = buttonText;
 
@@ -141,6 +138,10 @@ public class BatchGUI implements ActionListener, ItemListener, WindowListener
 		clusterStatusTab = new ClusterStatusTab(rightPanelsMinWidth);
 
 		guiTabs.addTab(clusterStatusTab, "Cluster");
+		
+		nodeStatusTab = new NodeStatusTab(rightPanelsMinWidth);
+		
+		guiTabs.addTab(nodeStatusTab, "Nodes");
 	}
 
 	public void createMenuBar()

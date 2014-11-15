@@ -3,10 +3,9 @@ package jCompute.Cluster.Controller;
 import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
-import jCompute.Cluster.Controller.Event.NodeUpdated;
 import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
-import jCompute.Cluster.Node.NodeConfiguration;
+import jCompute.Cluster.Node.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
@@ -72,6 +71,8 @@ public class ControlNode
 
 	private Semaphore controlNodeLock = new Semaphore(1, false);
 
+	private int timerCount;
+
 	public ControlNode()
 	{
 		log.info("Starting ControlNode");
@@ -112,6 +113,7 @@ public class ControlNode
 
 	private void startNSMCPTimer()
 	{
+		timerCount = 0;
 		ncpTimer = new Timer("NCP Timer");
 		ncpTimer.schedule(new TimerTask()
 		{
@@ -199,7 +201,7 @@ public class ControlNode
 
 						// InActive Node Removed
 						JComputeEventBus.post(new NodeRemoved(node.getNodeConfig()));
-						
+
 						log.debug("Node " + node.getUid() + " no longer Active");
 						node.destroy("Node no longer active");
 						itr.remove();
@@ -208,7 +210,7 @@ public class ControlNode
 					}
 					else
 					{
-						JComputeEventBus.post(new NodeUpdated(node.getNodeConfig()));
+						node.triggerNodeStatRequest(timerCount);
 					}
 
 				}
@@ -219,11 +221,13 @@ public class ControlNode
 				}
 
 				controlNodeLock.release();
-				
-				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(),String.valueOf(listenSocket.getLocalPort()),String.valueOf(connectingNodes.size()),String.valueOf(activeNodes.size()),String.valueOf(maxSims),String.valueOf(simulations)));
 
+				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String
+						.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()), String
+						.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulations)));
+
+				timerCount++;
 			}
-
 		}, 0, 5000);
 	}
 
@@ -279,7 +283,7 @@ public class ControlNode
 			listenSocket = new ServerSocket();
 
 			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCP.StandardServerPort));
-			
+
 			Thread thread = new Thread(new Runnable()
 			{
 				@Override
@@ -517,9 +521,9 @@ public class ControlNode
 		return maxSims;
 	}
 
-	public NodeConfiguration[] getNodesInfo()
+	public NodeInfo[] getNodesInfo()
 	{
-		ArrayList<NodeConfiguration> nodeConfigs = new ArrayList<NodeConfiguration>();
+		ArrayList<NodeInfo> nodeConfigs = new ArrayList<NodeInfo>();
 
 		controlNodeLock.acquireUninterruptibly();
 
@@ -528,7 +532,7 @@ public class ControlNode
 			nodeConfigs.add(node.getNodeConfig());
 		}
 
-		NodeConfiguration array[] = nodeConfigs.toArray(new NodeConfiguration[nodeConfigs.size()]);
+		NodeInfo array[] = nodeConfigs.toArray(new NodeInfo[nodeConfigs.size()]);
 
 		controlNodeLock.release();
 
@@ -562,7 +566,7 @@ public class ControlNode
 
 		status.add("Added Sims");
 		status.add(String.valueOf(simulations));
-		
+
 		return status.toArray(new String[status.size()]);
 	}
 

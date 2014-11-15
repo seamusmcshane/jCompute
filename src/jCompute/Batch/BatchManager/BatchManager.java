@@ -17,7 +17,6 @@ import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Thread.SimpleNamedThreadFactory;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -36,7 +35,7 @@ public class BatchManager
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchManager.class);
-
+	
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);
 

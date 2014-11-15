@@ -2,8 +2,8 @@ package jCompute;
 
 import jCompute.Cluster.Controller.ControlNode;
 import jCompute.Cluster.Node.Node;
-import jCompute.Gui.Batch.BatchGUI;
-import jCompute.Gui.Standard.StandardGUI;
+import jCompute.Gui.Cluster.ClusterGUI;
+import jCompute.Gui.Interactive.StandardGUI;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.SimulationManager.SimulationsManager;
 
@@ -32,7 +32,7 @@ public class Launcher
 
 	// Batch GUI
 	@SuppressWarnings("unused")
-	private static BatchGUI batchGUI;
+	private static ClusterGUI batchGUI;
 
 	// Remote Node
 	@SuppressWarnings("unused")
@@ -138,7 +138,7 @@ public class Launcher
 			case 1:
 				lookandFeel();
 
-				batchGUI = new BatchGUI(buttonText);
+				batchGUI = new ClusterGUI(buttonText);
 
 			break;
 			case 2:

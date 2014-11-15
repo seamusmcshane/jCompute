@@ -1,6 +1,6 @@
-package jCompute.Gui.Batch.TableRowItems;
+package jCompute.Gui.Cluster.TableRowItems;
 
-import jCompute.Cluster.Node.NodeConfiguration;
+import jCompute.Cluster.Node.NodeInfo;
 import jCompute.Gui.Component.RowItem;
 
 public class NodeInfoRowItem implements RowItem, Comparable
@@ -9,7 +9,6 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	private long weighting;
 	private String address;
 	private int maxSims;
-	private long simulationsProcessed;
 
 	public NodeInfoRowItem()
 	{
@@ -17,23 +16,21 @@ public class NodeInfoRowItem implements RowItem, Comparable
 		this.weighting = Long.MAX_VALUE;
 		this.address = "Invalid";
 		this.maxSims = 0;
-		this.simulationsProcessed = 0;
 	}
 
-	public NodeInfoRowItem(NodeConfiguration node)
+	public NodeInfoRowItem(NodeInfo node)
 	{
 		this.uid = node.getUid();
 		this.weighting = node.getWeighting();
 		this.address = node.getAddress();
 		this.maxSims = node.getMaxSims();
-		this.simulationsProcessed = node.getSimulationsProcessed();
 	}
 
 	public String[] getFieldList()
 	{
 		return new String[]
 		{
-				"uid", "weighting", "address", "maxSims", "simulationsProcessed"
+				"uid", "weighting", "address", "maxSims"
 		};
 	}
 
@@ -41,7 +38,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-				"Uid", "Weighting", "Address", "Max Sims", "Completed"
+				"Uid", "Weighting", "Address", "Max Sims"
 		};
 	}
 
@@ -58,8 +55,6 @@ public class NodeInfoRowItem implements RowItem, Comparable
 				return address;
 			case 3:
 				return maxSims;
-			case 5:
-				return simulationsProcessed;
 		}
 
 		return null;
@@ -81,8 +76,6 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			break;
 			case 3:
 				maxSims = (int) value;
-			case 4:
-				simulationsProcessed = (long) value;
 			break;
 		}
 	}
@@ -125,16 +118,6 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	public void setMaxSims(int maxSims)
 	{
 		this.maxSims = maxSims;
-	}
-
-	public long getSimulationsProcessed()
-	{
-		return simulationsProcessed;
-	}
-
-	public void setSimulationsProcessed(long simulationsProcessed)
-	{
-		this.simulationsProcessed = simulationsProcessed;
 	}
 
 	@Override

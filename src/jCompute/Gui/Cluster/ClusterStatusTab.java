@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch;
+package jCompute.Gui.Cluster;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -9,13 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.Event.NodeAdded;
-import jCompute.Cluster.Controller.Event.NodeRemoved;
-import jCompute.Cluster.Controller.Event.NodeUpdated;
 import jCompute.Cluster.Controller.Event.StatusChanged;
-import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
-import jCompute.Gui.Batch.TableRowItems.NodeInfoRowItem;
-import jCompute.Gui.Batch.TableRowItems.SimpleInfoRowItem;
+import jCompute.Gui.Cluster.TableRowItems.ActiveSimulationRowItem;
+import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.SimpleTabPanel;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
@@ -40,7 +36,6 @@ public class ClusterStatusTab extends JPanel
 	// Right
 	private SimpleTabPanel clusterInfoTabPanel;
 	private TablePanel clusterStatusTablePanel;
-	private TablePanel clusterNodesTablePanel;
 
 	private int rightPanelsMinWidth;
 
@@ -77,17 +72,7 @@ public class ClusterStatusTab extends JPanel
 
 		clusterStatusTablePanel.setColumWidth(0, 125);
 
-		// Nodes Tab
-		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
-
-		clusterNodesTablePanel.setColumWidth(0, 50);
-		clusterNodesTablePanel.setColumWidth(1, 75);
-		// clusterNodesTablePanel.setColumWidth(2, 60);
-		clusterNodesTablePanel.setColumWidth(3, 75);
-		clusterNodesTablePanel.setColumWidth(4, 75);
-
 		clusterInfoTabPanel.addTab(clusterStatusTablePanel, "Info");
-		clusterInfoTabPanel.addTab(clusterNodesTablePanel, "Nodes");
 
 		// Populate Fields
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address", ""));
@@ -172,25 +157,6 @@ public class ClusterStatusTab extends JPanel
 	}
 
 	@Subscribe
-	public void ControlNodeEvent(NodeAdded e)
-	{
-		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration()));
-	}
-
-	@Subscribe
-	public void ControlNodeEvent(NodeRemoved e)
-	{
-		clusterNodesTablePanel.removeRow(e.getNodeConfiguration().getUid());
-	}
-
-	@Subscribe
-	public void ControlNodeEvent(NodeUpdated e)
-	{
-		clusterNodesTablePanel.updateRow(e.getNodeConfiguration().getUid(),
-				new NodeInfoRowItem(e.getNodeConfiguration()));
-	}
-
-	@Subscribe
 	public void ControlNodeEvent(StatusChanged e)
 	{
 		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address", e.getAddress()));
@@ -202,5 +168,4 @@ public class ClusterStatusTab extends JPanel
 				new SimpleInfoRowItem("Max Active Sims", e.getMaxActiveSims()));
 		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims", e.getAddedSims()));
 	}
-
 }

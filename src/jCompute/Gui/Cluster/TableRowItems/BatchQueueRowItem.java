@@ -1,4 +1,4 @@
-package jCompute.Gui.Batch.TableRowItems;
+package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Batch.Batch;
 import jCompute.Batch.Batch.BatchPriority;

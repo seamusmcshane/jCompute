@@ -1,10 +1,10 @@
-package jCompute.Gui.Standard.Tab;
+package jCompute.Gui.Interactive.Tab;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.Batch.TableRowItems.ActiveSimulationRowItem;
+import jCompute.Gui.Cluster.TableRowItems.ActiveSimulationRowItem;
 import jCompute.Gui.Component.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
-import jCompute.Gui.Standard.GUITabManager;
+import jCompute.Gui.Interactive.GUITabManager;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;

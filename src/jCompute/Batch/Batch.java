@@ -1,7 +1,7 @@
 package jCompute.Batch;
 
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
-import jCompute.Gui.Batch.BatchGUI;
+import jCompute.Gui.Cluster.ClusterGUI;
 import jCompute.Gui.Component.JComputeProgressMonitor;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class Batch implements StoredQueuePosition
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(BatchGUI.class);
+	private static Logger log = LoggerFactory.getLogger(ClusterGUI.class);
 
 	// Batch Attributes
 	private int position;
@@ -194,7 +194,7 @@ public class Batch implements StoredQueuePosition
 				storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
 				infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
 				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
-				
+
 				setBatchStatExportDir();
 			}
 			else
@@ -212,12 +212,12 @@ public class Batch implements StoredQueuePosition
 	{
 		return needGenerated;
 	}
-	
+
 	public void generateItems(JComputeProgressMonitor genComboMonitor)
 	{
 		float progress = 0;
-		
-		if(genComboMonitor!=null)
+
+		if(genComboMonitor != null)
 		{
 			genComboMonitor.setProgress(0);
 		}
@@ -524,8 +524,7 @@ public class Batch implements StoredQueuePosition
 			// samples is the number of identical items to generate (used as
 			// a
 			// sample/average)
-			addBatchItem(itemSamples, combo, itemName.toString(), temp.getScenarioXMLText(), tempCoord,
-					tempCoordValues);
+			addBatchItem(itemSamples, combo, itemName.toString(), temp.getScenarioXMLText(), tempCoord, tempCoordValues);
 
 			// Increment the combinatorics values.
 			for(int p = 0; p < parameterGroups; p++)
@@ -564,7 +563,7 @@ public class Batch implements StoredQueuePosition
 
 			progress += progressInc;
 
-			if(genComboMonitor!=null)
+			if(genComboMonitor != null)
 			{
 				genComboMonitor.setProgress(Math.min((int) progress, 100));
 			}
@@ -575,14 +574,14 @@ public class Batch implements StoredQueuePosition
 		// order (randomise it in an attempt to reduce influence)
 		Collections.shuffle(queuedItems);
 
-		if(genComboMonitor!=null)
+		if(genComboMonitor != null)
 		{
 			genComboMonitor.setProgress(100);
 		}
-		
+
 		needGenerated = false;
 	}
-	
+
 	private boolean checkBatchFile()
 	{
 		boolean status = true;
@@ -673,7 +672,7 @@ public class Batch implements StoredQueuePosition
 
 		// How many times to run each batchItem.
 		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
-		
+
 		int uniqueItems = batchItems / itemSamples;
 
 		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples
@@ -838,7 +837,7 @@ public class Batch implements StoredQueuePosition
 				}
 			}
 		}
-		
+
 		completed++;
 
 		if(completed == batchItems)
@@ -880,7 +879,7 @@ public class Batch implements StoredQueuePosition
 				{
 					log.error("Error writing info log");
 				}
-			}			
+			}
 		}
 
 		ioEnd = System.currentTimeMillis();
@@ -1053,7 +1052,7 @@ public class Batch implements StoredQueuePosition
 			info.add(batchName);
 			info.add("Scenario Type");
 			info.add(type);
-			
+
 			info.add("");
 			info.add("");
 			info.add("Batch File");
@@ -1193,15 +1192,15 @@ public class Batch implements StoredQueuePosition
 	{
 		return Paths.get(filePath).getParent().toString();
 	}
-	
+
 	public boolean isFinished()
 	{
 		if(!needGenerated)
 		{
 			return getCompleted() == getBatchItems();
 		}
-		
+
 		return false;
-		
+
 	}
 }

@@ -1,4 +1,4 @@
-package jCompute.Gui.Standard.Tab;
+package jCompute.Gui.Interactive.Tab;
 
 import jCompute.IconManager;
 import jCompute.Gui.Component.GlobalStatChartPanel;

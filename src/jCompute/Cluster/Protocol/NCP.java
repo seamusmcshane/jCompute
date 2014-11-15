@@ -58,6 +58,11 @@ public class NCP
     public static final int SimStateNoti	= 51;	// Notification of a simulation state change
     public static final int SimStatNoti		= 52;	// Notification of a simulation stat change
     
+    // Node Status Request
+    public static final int NodeStatsRequest	= 61;	// Request for Statistic Information related to the node
+    public static final int NodeStatsReply		= 62;	// Reply with Node Statistics
+    
+    
     // The standard port
     public static final int StandardServerPort	= 10000;	// Control Node Listening Port
     public static final int NodeTransferPort 	= 10001;	// Nodes Transfer Listening Port

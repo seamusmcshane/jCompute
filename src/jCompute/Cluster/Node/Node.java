@@ -10,6 +10,7 @@ import jCompute.Cluster.Protocol.Command.SimulationStatsReply;
 import jCompute.Cluster.Protocol.Command.SimulationStatsRequest;
 import jCompute.Cluster.Protocol.Command.StartSimCMD;
 import jCompute.Cluster.Protocol.NCP.ProtocolState;
+import jCompute.Cluster.Protocol.Monitoring.NodeStatsReply;
 import jCompute.Cluster.Protocol.Notification.SimulationStatChanged;
 import jCompute.Cluster.Protocol.Notification.SimulationStateChanged;
 import jCompute.Cluster.Protocol.Registration.ConfigurationAck;
@@ -23,6 +24,7 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.util.OSInfo;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -80,12 +82,27 @@ public class Node
 	// Cache of Stats from finished simulations
 	private NodeStatCache statCache;
 
+	private NodeStats nodeStats;
+	private long simulationsProcessed;
+
 	public Node(String address, SimulationsManagerInf simsManager)
 	{
 		log.info("Starting Node");
+		simulationsProcessed = 0;
+
+		nodeStats = new NodeStats();
+
+		nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
+		nodeStats.setFreeMemory(OSInfo.getSystemFreeMemory());
+		nodeStats.setSimulationsProcessed(simulationsProcessed);
 
 		/* Our Configuration */
-		NodeConfiguration nodeConfig = new NodeConfiguration();
+		NodeInfo nodeInfo = new NodeInfo();
+
+		nodeInfo.setOperatingSystem(OSInfo.getOSName());
+		nodeInfo.setSystemArch(OSInfo.getSystemArch());
+		nodeInfo.setHWThreads(OSInfo.getHWThreads());
+		nodeInfo.setTotalMemory(OSInfo.getSystemTotalMemory());
 
 		int port = NCP.StandardServerPort;
 
@@ -119,7 +136,7 @@ public class Node
 					log.info("We are : " + cmdSocket.getLocalSocketAddress());
 
 					// Main
-					process(nodeConfig, cmdSocket);
+					process(nodeInfo, cmdSocket);
 				}
 
 				// Close Connection
@@ -149,7 +166,7 @@ public class Node
 	}
 
 	// RX/TX on Command socket
-	private void process(NodeConfiguration nodeConfig, Socket clientSocket)
+	private void process(NodeInfo nodeInfo, Socket clientSocket)
 	{
 		try
 		{
@@ -160,7 +177,7 @@ public class Node
 			final DataInputStream commandInput = new DataInputStream(new BufferedInputStream(
 					clientSocket.getInputStream()));
 
-			doRegistration(nodeConfig, commandInput);
+			doRegistration(nodeInfo, commandInput);
 
 			// if Registered successfully
 			if(state == ProtocolState.RDY)
@@ -232,6 +249,23 @@ public class Node
 							sendCommandMessage(new RemoveSimAck(simId).toBytes());
 						}
 						break;
+						case NCP.NodeStatsRequest:
+						{
+							// Read here
+							int sequenceNum = data.getInt();
+
+							nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
+							nodeStats.setFreeMemory(OSInfo.getSystemFreeMemory());
+							nodeStats.setSimulationsProcessed(simulationsProcessed);
+
+							NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStats);
+
+							log.debug("Node " + nodeInfo.getUid() + " NodeStatsRequest : " + sequenceNum);
+
+							sendCommandMessage(NodeStatsReply.toBytes());
+
+						}
+						break;
 						// Default / Invalid
 						case NCP.INVALID:
 						default:
@@ -273,8 +307,7 @@ public class Node
 	}
 
 	// RX/TX on transfer socket
-	private boolean doTransferSocketSetup(NodeConfiguration nodeConfig, ServerSocket listenNodeTransferSocket)
-			throws IOException
+	private boolean doTransferSocketSetup(NodeInfo nodeInfo, ServerSocket listenNodeTransferSocket) throws IOException
 	{
 
 		boolean finished = false;
@@ -317,7 +350,7 @@ public class Node
 					ConfigurationRequest confReq = new ConfigurationRequest(data);
 
 					// Set our max sims now
-					nodeConfig.setMaxSims(simsManager.getMaxSims());
+					nodeInfo.setMaxSims(simsManager.getMaxSims());
 					log.info("ConfReq Recieved");
 
 					int benchMark = confReq.getBench();
@@ -329,18 +362,18 @@ public class Node
 								confReq.getIterations());
 						bench.warmUp(confReq.getWarmup());
 						long weighting = bench.weightingBenchmark(confReq.getRuns());
-						nodeConfig.setWeighting(weighting);
+						nodeInfo.setWeighting(weighting);
 						log.info("Weighting\t " + weighting);
 					}
 
 					// Create and send the Configuration ack via TransferSocket
-					sendTransferMessage(new ConfigurationAck(nodeConfig).toBytes());
+					sendTransferMessage(new ConfigurationAck(nodeInfo).toBytes());
 
-					log.info("Sent Conf Ack : Max Sims " + nodeConfig.getMaxSims());
+					log.info("Sent Conf Ack : Max Sims " + nodeInfo.getMaxSims());
 
 					state = ProtocolState.RDY;
 
-					createTransferRecieveThread(nodeConfig.getUid());
+					createTransferRecieveThread(nodeInfo.getUid());
 
 					// Now Registered
 					finished = true;
@@ -365,7 +398,7 @@ public class Node
 		return true;
 	}
 
-	private void doRegistration(NodeConfiguration nodeConfig, DataInputStream regInput) throws IOException
+	private void doRegistration(NodeInfo nodeInfo, DataInputStream regInput) throws IOException
 	{
 		boolean finished = false;
 
@@ -407,9 +440,9 @@ public class Node
 
 					RegistrationReqAck reqAck = new RegistrationReqAck(data);
 
-					nodeConfig.setUid(reqAck.getUid());
+					nodeInfo.setUid(reqAck.getUid());
 
-					log.info("RegAck Recieved UID : " + nodeConfig.getUid());
+					log.info("RegAck Recieved UID : " + nodeInfo.getUid());
 
 					// Create the transferSocket
 					listenNodeTransferSocket = new ServerSocket();
@@ -419,7 +452,7 @@ public class Node
 					// We Ack the Ack
 					sendCommandMessage(reqAck.toBytes());
 
-					finished = doTransferSocketSetup(nodeConfig, listenNodeTransferSocket);
+					finished = doTransferSocketSetup(nodeInfo, listenNodeTransferSocket);
 
 				break;
 				case NCP.INVALID:
@@ -604,6 +637,8 @@ public class Node
 
 				simsManager.removeSimulation(simId);
 				log.info("Removed Finished Simulation");
+
+				simulationsProcessed++;
 			}
 
 			sendCommandMessage(new SimulationStateChanged(e).toBytes());

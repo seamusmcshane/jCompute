@@ -1,9 +1,10 @@
 package jCompute.Cluster.Controller;
 
 import jCompute.JComputeEventBus;
+import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.Mapping.NodeManagerStatRequestMapping;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
-import jCompute.Cluster.Node.NodeConfiguration;
+import jCompute.Cluster.Node.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.Cluster.Protocol.Command.AddSimReply;
 import jCompute.Cluster.Protocol.Command.AddSimReq;
@@ -12,6 +13,8 @@ import jCompute.Cluster.Protocol.Command.SimulationStatsReply;
 import jCompute.Cluster.Protocol.Command.SimulationStatsRequest;
 import jCompute.Cluster.Protocol.Command.StartSimCMD;
 import jCompute.Cluster.Protocol.NCP.ProtocolState;
+import jCompute.Cluster.Protocol.Monitoring.NodeStatsReply;
+import jCompute.Cluster.Protocol.Monitoring.NodeStatsRequest;
 import jCompute.Cluster.Protocol.Notification.SimulationStatChanged;
 import jCompute.Cluster.Protocol.Notification.SimulationStateChanged;
 import jCompute.Cluster.Protocol.Registration.ConfigurationAck;
@@ -51,7 +54,7 @@ public class NodeManager
 	private Semaphore nodeLock = new Semaphore(1, false);
 
 	// Node configuration
-	private NodeConfiguration nodeConfig;
+	private NodeInfo nodeInfo;
 
 	private int activeSims = 0;
 	private Semaphore activeSimsLock = new Semaphore(1, false);
@@ -98,7 +101,7 @@ public class NodeManager
 
 	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
-		nodeConfig = new NodeConfiguration();
+		nodeInfo = new NodeInfo();
 
 		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(8);
 
@@ -109,10 +112,10 @@ public class NodeManager
 		log.info("New Node Manager " + uid);
 
 		// Internal Connection ID
-		nodeConfig.setUid(uid);
+		nodeInfo.setUid(uid);
 
 		// Node Address
-		nodeConfig.setAddress(cmdSocket.getInetAddress().getHostAddress());
+		nodeInfo.setAddress(cmdSocket.getInetAddress().getHostAddress());
 
 		// A connected socket
 		this.cmdSocket = cmdSocket;
@@ -144,7 +147,7 @@ public class NodeManager
 				}
 			}
 		});
-		
+
 		nodeManager.setName("NodeManager");
 		nodeManager.start();
 	}
@@ -198,7 +201,7 @@ public class NodeManager
 						 */
 
 						// Create and Send Reg Ack
-						sendCMDMessage(new RegistrationReqAck(nodeConfig.getUid()).toBytes());
+						sendCMDMessage(new RegistrationReqAck(nodeInfo.getUid()).toBytes());
 
 						log.info("Sent Registration Ack");
 
@@ -206,7 +209,7 @@ public class NodeManager
 					}
 					else
 					{
-						log.error("Registration Request for node " + nodeConfig.getUid() + " not valid in state "
+						log.error("Registration Request for node " + nodeInfo.getUid() + " not valid in state "
 								+ nodeState.toString());
 
 						// invalid sequence
@@ -229,7 +232,7 @@ public class NodeManager
 
 						// Check the node is sane (UID should be
 						// identical to the one we sent)
-						if(nodeConfig.getUid() == ruid)
+						if(nodeInfo.getUid() == ruid)
 						{
 							log.info("Node registration ok");
 							finished = doTransferSocketSetup();
@@ -331,11 +334,18 @@ public class NodeManager
 
 						ConfigurationAck reqAck = new ConfigurationAck(data);
 
-						nodeConfig.setMaxSims(reqAck.getMaxSims());
-						nodeConfig.setWeighting(reqAck.getWeighting());
+						nodeInfo.setMaxSims(reqAck.getMaxSims());
+						nodeInfo.setWeighting(reqAck.getWeighting());
 
-						log.info("Node " + nodeConfig.getUid() + " Max Sims  : " + nodeConfig.getMaxSims());
-						log.info("Node " + nodeConfig.getUid() + " Weighting : " + nodeConfig.getWeighting());
+						nodeInfo.setHWThreads(reqAck.getHwThreads());
+						nodeInfo.setOperatingSystem(reqAck.getOs());
+						nodeInfo.setSystemArch(reqAck.getArch());
+
+						log.info("Node " + nodeInfo.getUid() + " Max Sims  : " + nodeInfo.getMaxSims());
+						log.info("Node " + nodeInfo.getUid() + " HW Threads: " + nodeInfo.getHWThreads());
+						log.info("Node " + nodeInfo.getUid() + " Weighting : " + nodeInfo.getWeighting());
+						log.info("Node " + nodeInfo.getUid() + " OS        : " + nodeInfo.getOperatingSystem());
+						log.info("Node " + nodeInfo.getUid() + " Arch      : " + nodeInfo.getSystemArch());
 
 						nodeState = ProtocolState.RDY;
 						finished = true;
@@ -343,7 +353,7 @@ public class NodeManager
 					}
 					else
 					{
-						log.error("ConfAck for node " + nodeConfig.getUid() + " not valid in state "
+						log.error("ConfAck for node " + nodeInfo.getUid() + " not valid in state "
 								+ nodeState.toString());
 					}
 
@@ -426,7 +436,7 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("SimStats for node " + nodeConfig.getUid() + " not valid in state "
+									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state "
 											+ nodeState.toString());
 								}
 
@@ -454,7 +464,7 @@ public class NodeManager
 				}
 				catch(IOException e1)
 				{
-					log.warn("Node " + nodeConfig.getUid() + " Transfer Recieve Thread exited");
+					log.warn("Node " + nodeInfo.getUid() + " Transfer Recieve Thread exited");
 					// Exit // Do Node Shutdown
 
 					active = false;
@@ -470,7 +480,7 @@ public class NodeManager
 
 		});
 
-		transferRecieveThread.setName("Node Manager " + nodeConfig.getUid() + " Transfer Recieve");
+		transferRecieveThread.setName("Node Manager " + nodeInfo.getUid() + " Transfer Recieve");
 
 		// Start Processing
 		transferRecieveThread.start();
@@ -529,7 +539,7 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("AddSimReply for node " + nodeConfig.getUid() + " not valid in state "
+									log.error("AddSimReply for node " + nodeInfo.getUid() + " not valid in state "
 											+ nodeState.toString());
 								}
 
@@ -568,14 +578,12 @@ public class NodeManager
 										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),
 												SimulationsManagerEventType.RemovedSim));
 
-										nodeConfig.incrementSimulationsProcessed();
-
 									}
 
 								}
 								else
 								{
-									log.error("SimStateNoti for node " + nodeConfig.getUid() + " not valid in state "
+									log.error("SimStateNoti for node " + nodeInfo.getUid() + " not valid in state "
 											+ nodeState.toString());
 								}
 
@@ -613,7 +621,7 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("SimStatNoti for node " + nodeConfig.getUid() + " not valid in state "
+									log.error("SimStatNoti for node " + nodeInfo.getUid() + " not valid in state "
 											+ nodeState.toString());
 								}
 
@@ -629,7 +637,24 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("RemSimAck for node " + nodeConfig.getUid() + " not valid in state "
+									log.error("RemSimAck for node " + nodeInfo.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+							break;
+							case NCP.NodeStatsReply:
+								if(nodeState == ProtocolState.RDY)
+								{
+									NodeStatsReply nodeStatsReply = new NodeStatsReply(data);
+
+									log.info("Recieved NodeStatsReply");
+
+									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply
+											.getSequenceNum(), nodeStatsReply.getNodeStats()));
+
+								}
+								else
+								{
+									log.error("NodeStatsReply for node " + nodeInfo.getUid() + " not valid in state "
 											+ nodeState.toString());
 								}
 							break;
@@ -656,7 +681,7 @@ public class NodeManager
 				}
 				catch(IOException e1)
 				{
-					log.warn("Node " + nodeConfig.getUid() + " Recieve Thread exited");
+					log.warn("Node " + nodeInfo.getUid() + " Recieve Thread exited");
 					// Exit // Do Node Shutdown
 
 					active = false;
@@ -671,7 +696,7 @@ public class NodeManager
 			}
 		});
 
-		cmdRecieveThread.setName("Node " + nodeConfig.getUid() + " Command Recieve");
+		cmdRecieveThread.setName("Node " + nodeInfo.getUid() + " Command Recieve");
 
 		// Start Processing
 		cmdRecieveThread.start();
@@ -721,7 +746,7 @@ public class NodeManager
 	public void incrementTimeOut()
 	{
 		NSMCPReadyTimeOut += 5;
-		log.info("Node " + nodeConfig.getUid() + " TimeOut@" + NSMCPReadyTimeOut);
+		log.info("Node " + nodeInfo.getUid() + " TimeOut@" + NSMCPReadyTimeOut);
 	}
 
 	public int getReadyStateTimeOutValue()
@@ -751,45 +776,45 @@ public class NodeManager
 
 	public void destroy(String reason)
 	{
-		log.info("Removing Node Manager for Node " + nodeConfig.getUid() + " Reason : " + reason);
+		log.info("Removing Node Manager for Node " + nodeInfo.getUid() + " Reason : " + reason);
 
 		try
 		{
-			if(transferSocket!=null)
+			if(transferSocket != null)
 			{
 				transferSocket.close();
-				log.info("Node " +  nodeConfig.getUid() + " Transfer socket closed");
+				log.info("Node " + nodeInfo.getUid() + " Transfer socket closed");
 			}
 		}
 		catch(IOException e)
 		{
-			log.error("Node " +  nodeConfig.getUid() + " Transfer Socket already closed");
+			log.error("Node " + nodeInfo.getUid() + " Transfer Socket already closed");
 		}
-		
+
 		try
 		{
-			if(cmdSocket!=null)
+			if(cmdSocket != null)
 			{
 				cmdSocket.close();
-				log.info("Node " +  nodeConfig.getUid() + " Command socket closed");
+				log.info("Node " + nodeInfo.getUid() + " Command socket closed");
 			}
 
 		}
 		catch(IOException e)
 		{
-			log.error("Node " +  nodeConfig.getUid() + " Command socket already closed");
+			log.error("Node " + nodeInfo.getUid() + " Command socket already closed");
 		}
 
 	}
 
 	public int getUid()
 	{
-		return nodeConfig.getUid();
+		return nodeInfo.getUid();
 	}
 
 	public int getMaxSims()
 	{
-		return nodeConfig.getMaxSims();
+		return nodeInfo.getMaxSims();
 	}
 
 	public boolean hasFreeSlot()
@@ -802,7 +827,7 @@ public class NodeManager
 
 		activeSimsLock.release();
 
-		if(tActive < nodeConfig.getMaxSims())
+		if(tActive < nodeInfo.getMaxSims())
 		{
 			return true;
 		}
@@ -822,7 +847,7 @@ public class NodeManager
 	{
 		nodeLock.acquireUninterruptibly();
 
-		log.info("Node " + nodeConfig.getUid() + " AddSim");
+		log.info("Node " + nodeInfo.getUid() + " AddSim");
 
 		try
 		{
@@ -873,7 +898,7 @@ public class NodeManager
 			nodeLock.release();
 
 			// Connection is gone add sim failed
-			log.error("Node " + nodeConfig.getUid() + " Error in add Sim");
+			log.error("Node " + nodeInfo.getUid() + " Error in add Sim");
 
 			return -1;
 		}
@@ -907,7 +932,7 @@ public class NodeManager
 		catch(IOException e)
 		{
 			// Connection is gone...
-			log.error("Node " + nodeConfig.getUid() + " Error in Start Sim");
+			log.error("Node " + nodeInfo.getUid() + " Error in Start Sim");
 
 		}
 
@@ -953,7 +978,7 @@ public class NodeManager
 		catch(IOException e)
 		{
 			// Connection is gone...
-			log.error("Node " + nodeConfig.getUid() + " Error in get Stats Exporter");
+			log.error("Node " + nodeInfo.getUid() + " Error in get Stats Exporter");
 		}
 
 		return returnedExporter;
@@ -961,7 +986,7 @@ public class NodeManager
 
 	public long getWeighting()
 	{
-		return nodeConfig.getWeighting();
+		return nodeInfo.getWeighting();
 	}
 
 	public int getActiveSims()
@@ -979,12 +1004,24 @@ public class NodeManager
 
 	public String getAddress()
 	{
-		return nodeConfig.getAddress();
+		return nodeInfo.getAddress();
 	}
 
-	public NodeConfiguration getNodeConfig()
+	public NodeInfo getNodeConfig()
 	{
-		return nodeConfig;
+		return nodeInfo;
+	}
+
+	public void triggerNodeStatRequest(int id)
+	{
+		try
+		{
+			sendCMDMessage(new NodeStatsRequest(id).toBytes());
+		}
+		catch(IOException e)
+		{
+			log.error("Fail to send Node stats request for Node " + nodeInfo.getUid());
+		}
 	}
 
 }
