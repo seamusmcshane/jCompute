@@ -46,8 +46,8 @@ public class NodeStatusTab extends JPanel
 
 		scrollPane = new JScrollPane(container);
 
-		scrollPane.setPreferredSize(new Dimension(600, 220));
-		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+		scrollPane.setPreferredSize(new Dimension(600, 240));
+		scrollPane.getVerticalScrollBar().setUnitIncrement(15);
 
 		this.add(scrollPane, BorderLayout.NORTH);
 
@@ -76,6 +76,10 @@ public class NodeStatusTab extends JPanel
 		clusterNodesTablePanel.setColumWidth(1, 75);
 		// clusterNodesTablePanel.setColumWidth(2, 60);
 		clusterNodesTablePanel.setColumWidth(3, 75);
+		clusterNodesTablePanel.setColumWidth(4, 75);
+		clusterNodesTablePanel.setColumWidth(5, 75);
+		clusterNodesTablePanel.setColumWidth(6, 75);
+		clusterNodesTablePanel.setColumWidth(7, 75);
 
 		this.add(clusterNodesTablePanel, BorderLayout.CENTER);
 
@@ -114,12 +118,6 @@ public class NodeStatusTab extends JPanel
 	@Subscribe
 	public void NodeStatsUpdateEvent(NodeStatsUpdate e)
 	{
-		System.out.println("Nid i" + e.getNodeId());
-		System.out.println("Nid n" + e.getSequenceNum());
-		System.out.println("Nid c" + e.getStats().getCpuUsage());
-		System.out.println("Nid m" + e.getStats().getFreeMemory());
-		System.out.println("Nid s" + e.getStats().getSimulationsProcessed());
-
 		clusterNodeUtilChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(),
 				e.getNodeId());
 		clusterNodeMemChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getFreeMemory(),
