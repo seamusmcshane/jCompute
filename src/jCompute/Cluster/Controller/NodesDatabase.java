@@ -170,18 +170,6 @@ public class NodesDatabase
 				log.debug("Node " + node.getUid() + " no longer Active");
 				node.destroy("Node no longer active");
 				itr.remove();
-				
-				long weighting = node.getWeighting();
-				int weightClass = (int) (weighting / 1000);
-
-				NodeWeightingClass tClass = findWeightingClass(weightClass);
-
-				tClass.removeNode(node);
-
-				if(tClass.isEmpty())
-				{
-					nodeWeightingClasses.remove(tClass);
-				}
 			}
 			else
 			{
