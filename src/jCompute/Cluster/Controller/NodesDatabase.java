@@ -93,6 +93,23 @@ public class NodesDatabase
 		return nodeManager;
 	}
 
+	public void removeNode(NodeManager node)
+	{
+		long weighting = node.getWeighting();
+		int weightClass = (int) (weighting / 1000);
+
+		NodeWeightingClass tClass = findWeightingClass(weightClass);
+
+		tClass.removeNode(node);
+
+		if(tClass.isEmpty())
+		{
+			nodeWeightingClasses.remove(tClass);
+		}
+
+		allNodes.remove(node);
+	}
+
 	/*
 	 * public NodeManager selectBestFreeNode() { NodeManager tNode = null;
 	 * Iterator<NodeManager> itr = allNodes.iterator(); while(itr.hasNext()) {
@@ -147,6 +164,13 @@ public class NodesDatabase
 
 				}
 
+				// InActive Node Removed
+				JComputeEventBus.post(new NodeRemoved(node.getNodeConfig()));
+
+				log.debug("Node " + node.getUid() + " no longer Active");
+				node.destroy("Node no longer active");
+				itr.remove();
+				
 				long weighting = node.getWeighting();
 				int weightClass = (int) (weighting / 1000);
 
@@ -158,13 +182,6 @@ public class NodesDatabase
 				{
 					nodeWeightingClasses.remove(tClass);
 				}
-				
-				log.debug("Node " + node.getUid() + " no longer Active");
-				node.destroy("Node no longer active");
-				itr.remove();
-				
-				// InActive Node Removed
-				JComputeEventBus.post(new NodeRemoved(node.getNodeConfig()));
 			}
 			else
 			{
