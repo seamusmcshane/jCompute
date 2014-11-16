@@ -4,6 +4,7 @@ import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.Trace.SingleStat;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -35,10 +37,11 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	private String totalStatName = "NOTSET";
 	private boolean totalStatEnabled = false;
 
-	private String category = "Species";	// Assume for now global = global per
-											// species
+	private String category;
 	private int series = 0;					// Count of number of series
 
+	private JPanel container;
+	
 	private JFreeChart statBarChart;
 	private ChartPanel statBarChartPanel;
 	private DefaultCategoryDataset statDataset;
@@ -51,12 +54,16 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 
 	private int sampleWindow;
 
-	public GlobalStatChartPanel(String statChartPanelName, boolean totalStatEnabled, int sampleWindow,
+	public GlobalStatChartPanel(String statChartPanelName,String categoryName,boolean displayTitle, boolean totalStatEnabled, int sampleWindow,
 			boolean splitleftRight)
 	{
 		// This panels name
 		this.statChartPanelName = statChartPanelName;
 
+		
+		// Displayed category
+		this.category = categoryName;
+		
 		// Source Stat Group
 		this.totalStatEnabled = totalStatEnabled;
 
@@ -68,15 +75,27 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		this.sampleWindow = sampleWindow;
 
 		System.out.println(statChartPanelName + " Chart Panel Created");
+		
+		this.setLayout(new BorderLayout());
+		
+		container = new JPanel();
 
+		this.add(container, BorderLayout.CENTER);
+		
+		if(displayTitle)
+		{
+			this.add(new JLabel(statChartPanelName),BorderLayout.NORTH);
+		}
+		
+		
 		if(splitleftRight)
 		{
-			setLayout(new GridLayout(1, 2, 0, 0));
+			container.setLayout(new GridLayout(1, 2, 0, 0));
 
 		}
 		else
 		{
-			setLayout(new GridLayout(2, 1, 0, 0));
+			container.setLayout(new GridLayout(2, 1, 0, 0));
 		}
 		seriesMap = new HashMap<String, XYSeries>();
 
@@ -124,7 +143,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlinePaint(series, Color.black);
 		}
 
-		add(statBarChartPanel);
+		container.add(statBarChartPanel);
 	}
 
 	private void createHistoryChart()
@@ -160,7 +179,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		historyChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Historical",
 				TitledBorder.CENTER, TitledBorder.TOP, null, null));
 
-		add(historyChartPanel);
+		container.add(historyChartPanel);
 
 	}
 
@@ -270,14 +289,14 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		}
 	}
 
-	public void statUpdate(String name, int time, int value, int colorOffset)
+	public void statUpdate(String name, int time, double value, int colorOffset)
 	{
 		XYSeries tempS = seriesMap.get(name);
 
 		// This is a new stat being detected
 		if(tempS == null)
 		{
-			Color color = new Color(Color.HSBtoRGB(0.03f * colorOffset, 1f, 1f));
+			Color color = new Color(Color.HSBtoRGB(((0.13f*colorOffset)-0.13f), 1f, 1f));
 
 			// New Sample Trace for Chart
 			tempS = new XYSeries(name);
