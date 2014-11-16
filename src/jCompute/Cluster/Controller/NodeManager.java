@@ -340,12 +340,14 @@ public class NodeManager
 						nodeInfo.setHWThreads(reqAck.getHwThreads());
 						nodeInfo.setOperatingSystem(reqAck.getOs());
 						nodeInfo.setSystemArch(reqAck.getArch());
+						nodeInfo.setTotalMemory(reqAck.getTotalMemory());
 
-						log.info("Node " + nodeInfo.getUid() + " Max Sims  : " + nodeInfo.getMaxSims());
-						log.info("Node " + nodeInfo.getUid() + " HW Threads: " + nodeInfo.getHWThreads());
-						log.info("Node " + nodeInfo.getUid() + " Weighting : " + nodeInfo.getWeighting());
-						log.info("Node " + nodeInfo.getUid() + " OS        : " + nodeInfo.getOperatingSystem());
-						log.info("Node " + nodeInfo.getUid() + " Arch      : " + nodeInfo.getSystemArch());
+						log.debug("Node " + nodeInfo.getUid() + " Max Sims  : " + nodeInfo.getMaxSims());
+						log.debug("Node " + nodeInfo.getUid() + " HW Threads: " + nodeInfo.getHWThreads());
+						log.debug("Node " + nodeInfo.getUid() + " Weighting : " + nodeInfo.getWeighting());
+						log.debug("Node " + nodeInfo.getUid() + " OS        : " + nodeInfo.getOperatingSystem());
+						log.debug("Node " + nodeInfo.getUid() + " Arch      : " + nodeInfo.getSystemArch());
+						log.debug("Node " + nodeInfo.getUid() + " TotalMem  : " + nodeInfo.getTotalMemory());
 
 						nodeState = ProtocolState.RDY;
 						finished = true;
