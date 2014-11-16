@@ -648,7 +648,7 @@ public class NodeManager
 								{
 									NodeStatsReply nodeStatsReply = new NodeStatsReply(data);
 
-									log.info("Recieved NodeStatsReply");
+									log.debug("Recieved NodeStatsReply");
 
 									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply
 											.getSequenceNum(), nodeStatsReply.getNodeStats()));
