@@ -11,6 +11,7 @@ public class NodeWeightingClass
 	
 	public NodeWeightingClass(int weightClass)
 	{
+		this.weightClass = weightClass;
 		nodes = new ArrayList<NodeManager>();
 		lastNode = 0;
 	}
@@ -63,7 +64,7 @@ public class NodeWeightingClass
 	
 	public boolean isEmpty()
 	{
-		return nodes.size() > 0 ? true : false;
+		return nodes.size() > 0 ? false : true;
 	}
 	
 }
