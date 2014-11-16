@@ -5,6 +5,7 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -22,6 +23,7 @@ import javax.swing.JLabel;
 
 public class NodeStatusTab extends JPanel
 {
+	private JSplitPane splitPane;
 	private JScrollPane scrollPane;
 	private JPanel container;
 	private GlobalStatChartPanel clusterNodeUtilChar;
@@ -40,6 +42,11 @@ public class NodeStatusTab extends JPanel
 
 		this.setLayout(new BorderLayout());
 
+		splitPane = new JSplitPane();
+		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		splitPane.setResizeWeight(0.45f);
+		this.add(splitPane,BorderLayout.CENTER);
+		
 		container = new JPanel();
 
 		container.setLayout(new GridLayout(3, 1, 0, 0));
@@ -49,8 +56,9 @@ public class NodeStatusTab extends JPanel
 		scrollPane.setPreferredSize(new Dimension(600, 240));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(15);
 
-		this.add(scrollPane, BorderLayout.NORTH);
-
+		//this.add(scrollPane, BorderLayout.NORTH);
+		splitPane.setLeftComponent(scrollPane);
+		
 		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
 		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, 200));
 		clusterNodeUtilChar.setPreferredSize(new Dimension(600, 200));
@@ -81,7 +89,8 @@ public class NodeStatusTab extends JPanel
 		clusterNodesTablePanel.setColumWidth(6, 75);
 		clusterNodesTablePanel.setColumWidth(7, 75);
 
-		this.add(clusterNodesTablePanel, BorderLayout.CENTER);
+		//this.add(clusterNodesTablePanel, BorderLayout.CENTER);
+		splitPane.setRightComponent(clusterNodesTablePanel);
 
 		JPanel statusPanel = new JPanel();
 		this.add(statusPanel, BorderLayout.SOUTH);
