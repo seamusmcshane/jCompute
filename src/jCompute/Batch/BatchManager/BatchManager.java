@@ -35,7 +35,7 @@ public class BatchManager
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchManager.class);
-	
+
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);
 
@@ -171,7 +171,7 @@ public class BatchManager
 				int simId = itr.next();
 
 				BatchItem item = findActiveBatchItemFromSimId(simId);
-				
+
 				Batch batch = findBatch(item.getBatchId());
 
 				itemsLock.acquireUninterruptibly();
@@ -180,7 +180,8 @@ public class BatchManager
 
 				itemsLock.release();
 
-				log.info("Recovered Item (" + item.getItemId() + "/"+  item.getSampleId()  + ") from Batch " + item.getBatchId());
+				log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch "
+						+ item.getBatchId());
 
 				batch.returnItemToQueue(item);
 			}

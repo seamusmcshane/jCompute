@@ -1,11 +1,8 @@
 package jCompute.Cluster.Controller;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.Event.NodeAdded;
-import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
-import jCompute.Cluster.Node.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
@@ -17,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,7 +71,7 @@ public class ControlNode
 
 		// List of simulation nodes.
 		nodeManagerDatabase = new NodesDatabase();
-		
+
 		connectingNodes = new LinkedList<NodeManager>();
 
 		// Register on the event bus
@@ -167,9 +163,9 @@ public class ControlNode
 						.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()), String
 						.valueOf(nodeManagerDatabase.nodeCount()), String.valueOf(maxSims), String.valueOf(simulations)));
 
-				timerCount+=ncpTimerVal;
+				timerCount += ncpTimerVal;
 			}
-		}, 0, ncpTimerVal*1000);
+		}, 0, ncpTimerVal * 1000);
 	}
 
 	public boolean hasRecoverableSimIds()
@@ -262,13 +258,12 @@ public class ControlNode
 
 		// Request a node
 		NodeManager node = nodeManagerDatabase.selectBestFreeNode();
-		
-		if(node!=null)
+
+		if(node != null)
 		{
 			/*
 			 * 
-			 * Valud mapping values are set at various points int the
-			 * sequence
+			 * Valud mapping values are set at various points int the sequence
 			 */
 
 			// remoteId -1 as the remote id is filled in by the NODE and
@@ -297,14 +292,13 @@ public class ControlNode
 				log.info("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum
 						+ " Remote SimId " + remoteSimId);
 
-				JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,
-						SimulationsManagerEventType.AddedSim));
+				JComputeEventBus.post(new SimulationsManagerEvent(simulationNum, SimulationsManagerEventType.AddedSim));
 
 			}
 			else
 			{
-				log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId "
-						+ simulationNum + " Remote SimId " + remoteSimId);
+				log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId " + simulationNum
+						+ " Remote SimId " + remoteSimId);
 			}
 		}
 
@@ -426,13 +420,13 @@ public class ControlNode
 	public ArrayList<Integer> getRecoverableSimIds()
 	{
 		ArrayList<Integer> list;
-		
+
 		controlNodeLock.acquireUninterruptibly();
-		
+
 		list = nodeManagerDatabase.getRecoverableSimIds();
-		
+
 		controlNodeLock.release();
-		
+
 		return list;
 	}
 
@@ -440,11 +434,11 @@ public class ControlNode
 	{
 		boolean slotFree;
 		controlNodeLock.acquireUninterruptibly();
-		
+
 		slotFree = nodeManagerDatabase.hasFreeSlot();
-		
+
 		controlNodeLock.release();
-		
+
 		return slotFree;
 	}
 

@@ -37,11 +37,28 @@ public class NodeWeightingClass
 	}
 	
 	// Cycles through the list
-	public NodeManager selectNodeManager()
+	public NodeManager selectBestFreeNodeManager()
 	{
-		int nodeNum = (lastNode+1) % nodes.size();
+		NodeManager node = null;
+		int checkCount = 0;
+		int nodeNum;		
 		
-		return nodes.get(nodeNum);
+		// Ensure we alternate over the nodes but also check all the nodes if the first one is full
+		while(checkCount < nodes.size())
+		{
+			nodeNum  = (lastNode+1) % nodes.size();
+			
+			node = nodes.get(nodeNum);
+			
+			if(node.hasFreeSlot())
+			{
+				break;
+			}
+			
+			checkCount++;
+		}
+		
+		return node;
 	}
 	
 	public boolean isEmpty()
