@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -21,7 +22,12 @@ import javax.swing.JLabel;
 
 public class NodeStatusTab extends JPanel
 {
-	private GlobalStatChartPanel clusterChart;
+	private JScrollPane scrollPane;
+	private JPanel container;
+	private GlobalStatChartPanel clusterNodeUtilChar;
+	private GlobalStatChartPanel clusterNodeMemChar;
+	private GlobalStatChartPanel clusterSimProChart;
+
 	// Left
 	private TablePanel clusterNodesTablePanel;
 
@@ -34,11 +40,34 @@ public class NodeStatusTab extends JPanel
 
 		this.setLayout(new BorderLayout());
 
-		clusterChart = new GlobalStatChartPanel("Cluster Utilisation", false, 60, true);
-		clusterChart.setMaximumSize(new Dimension(1920, 200));
-		clusterChart.setPreferredSize(new Dimension(600, 200));
+		container = new JPanel();
 
-		this.add(clusterChart, BorderLayout.NORTH);
+		container.setLayout(new GridLayout(3, 1, 0, 0));
+
+		scrollPane = new JScrollPane(container);
+
+		scrollPane.setPreferredSize(new Dimension(600, 220));
+		scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+
+		this.add(scrollPane, BorderLayout.NORTH);
+
+		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
+		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, 200));
+		clusterNodeUtilChar.setPreferredSize(new Dimension(600, 200));
+
+		container.add(clusterNodeUtilChar);
+
+		clusterNodeMemChar = new GlobalStatChartPanel("Node Mem Utilisation", "Nodes", true, false, 60, true);
+		clusterNodeMemChar.setMaximumSize(new Dimension(1920, 200));
+		clusterNodeMemChar.setPreferredSize(new Dimension(600, 200));
+
+		container.add(clusterNodeMemChar);
+
+		clusterSimProChart = new GlobalStatChartPanel("Simulations Processed", "Nodes", true, false, 60, true);
+		clusterSimProChart.setMaximumSize(new Dimension(1920, 200));
+		clusterSimProChart.setPreferredSize(new Dimension(600, 200));
+
+		container.add(clusterSimProChart);
 
 		// Nodes Tab
 		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
@@ -75,7 +104,11 @@ public class NodeStatusTab extends JPanel
 	{
 		clusterNodesTablePanel.removeRow(e.getNodeConfiguration().getUid());
 
-		clusterChart.removeStat("Node " + e.getNodeConfiguration().getUid());
+		clusterNodeUtilChar.removeStat("Node " + e.getNodeConfiguration().getUid());
+
+		clusterNodeMemChar.removeStat("Node " + e.getNodeConfiguration().getUid());
+
+		clusterSimProChart.removeStat("Node " + e.getNodeConfiguration().getUid());
 	}
 
 	@Subscribe
@@ -87,7 +120,12 @@ public class NodeStatusTab extends JPanel
 		System.out.println("Nid m" + e.getStats().getFreeMemory());
 		System.out.println("Nid s" + e.getStats().getSimulationsProcessed());
 
-		clusterChart.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(), e.getNodeId());
+		clusterNodeUtilChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(),
+				e.getNodeId());
+		clusterNodeMemChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getFreeMemory(),
+				e.getNodeId());
+		clusterSimProChart.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
+				.getSimulationsProcessed(), e.getNodeId());
 	}
 
 }
