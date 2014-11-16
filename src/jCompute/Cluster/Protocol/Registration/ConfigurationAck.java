@@ -78,6 +78,11 @@ public class ConfigurationAck
 		return hwThreads;
 	}
 
+	public int getTotalMemory()
+	{
+		return totalMemory;
+	}
+	
 	public byte[] toBytes()
 	{
 		int osLen = os.getBytes().length;
