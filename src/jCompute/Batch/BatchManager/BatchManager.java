@@ -171,20 +171,16 @@ public class BatchManager
 				int simId = itr.next();
 
 				BatchItem item = findActiveBatchItemFromSimId(simId);
-
-				System.out.println("activeItems " + activeItems.size());
-
-				System.out.println("item " + item);
-
+				
 				Batch batch = findBatch(item.getBatchId());
-
-				System.out.println("batch " + batch);
 
 				itemsLock.acquireUninterruptibly();
 
 				activeItems.remove(item);
 
 				itemsLock.release();
+
+				log.info("Recovered Item (" + item.getItemId() + "/"+  item.getSampleId()  + ") from Batch " + item.getBatchId());
 
 				batch.returnItemToQueue(item);
 			}
