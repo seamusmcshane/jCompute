@@ -55,7 +55,7 @@ public class ControlNode
 	/* Connecting Nodes List */
 	private LinkedList<NodeManager> connectingNodes;
 	private Timer ncpTimer;
-
+	private int ncpTimerVal = 5;
 	/*
 	 * List of priority re-scheduled Simulations (recovered from nodes that
 	 * disappear)
@@ -226,9 +226,9 @@ public class ControlNode
 						.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()), String
 						.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulations)));
 
-				timerCount++;
+				timerCount+=ncpTimerVal;
 			}
-		}, 0, 5000);
+		}, 0, ncpTimerVal*1000);
 	}
 
 	public boolean hasFreeSlot()
