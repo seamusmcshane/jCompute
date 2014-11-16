@@ -9,6 +9,10 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	private long weighting;
 	private String address;
 	private int maxSims;
+	private int hwThreads;
+	private String os;
+	private String arch;
+	private int totalMem;
 
 	public NodeInfoRowItem()
 	{
@@ -24,13 +28,17 @@ public class NodeInfoRowItem implements RowItem, Comparable
 		this.weighting = node.getWeighting();
 		this.address = node.getAddress();
 		this.maxSims = node.getMaxSims();
+		this.hwThreads = node.getHWThreads();
+		this.os = node.getOperatingSystem();
+		this.arch = node.getSystemArch();
+		this.totalMem = node.getTotalMemory();
 	}
 
 	public String[] getFieldList()
 	{
 		return new String[]
 		{
-				"uid", "weighting", "address", "maxSims"
+				"uid", "weighting", "address", "maxSims", "hwThreads", "os", "arch", "totalMem"
 		};
 	}
 
@@ -38,7 +46,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-				"Uid", "Weighting", "Address", "Max Sims"
+				"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "Memory"
 		};
 	}
 
@@ -55,6 +63,14 @@ public class NodeInfoRowItem implements RowItem, Comparable
 				return address;
 			case 3:
 				return maxSims;
+			case 4:
+				return hwThreads;
+			case 5:
+				return os;
+			case 6:
+				return arch;
+			case 7:
+				return totalMem;
 		}
 
 		return null;
@@ -76,6 +92,18 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			break;
 			case 3:
 				maxSims = (int) value;
+			break;
+			case 4:
+				hwThreads = (int) value;
+			break;
+			case 5:
+				os = (String) value;
+			break;
+			case 6:
+				arch = (String) value;
+			break;
+			case 7:
+				totalMem = (int) value;
 			break;
 		}
 	}
@@ -99,25 +127,25 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	{
 		return maxSims;
 	}
-
-	public void setUid(int uid)
+	
+	public int getHwThreads()
 	{
-		this.uid = uid;
+		return hwThreads;
 	}
 
-	public void setWeighting(Long weighting)
+	public String getOs()
 	{
-		this.weighting = weighting;
+		return os;
 	}
 
-	public void setAddress(String address)
+	public String getArch()
 	{
-		this.address = address;
+		return arch;
 	}
 
-	public void setMaxSims(int maxSims)
+	public int getTotalMem()
 	{
-		this.maxSims = maxSims;
+		return totalMem;
 	}
 
 	@Override
