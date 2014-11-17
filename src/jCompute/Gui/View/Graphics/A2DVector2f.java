@@ -6,13 +6,15 @@ public class A2DVector2f
 
 	public A2DVector2f(float[] pos)
 	{
-		this.pos = pos;
+		this.pos = new float[2];
+		
+		this.pos[0] = pos[0];
+		this.pos[1] = pos[1];
 	}
 
 	public A2DVector2f()
 	{
 		pos = new float[]{0,0};
-
 	}
 
 	public float getX()
