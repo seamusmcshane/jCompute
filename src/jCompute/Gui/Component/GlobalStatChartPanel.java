@@ -53,6 +53,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	private HashMap<String, XYSeries> seriesMap;
 
 	private int sampleWindow;
+	
+	// Axis Range Adjustment
+	private double maxValue=0;
 
 	public GlobalStatChartPanel(String statChartPanelName,String categoryName,boolean displayTitle, boolean totalStatEnabled, int sampleWindow,
 			boolean splitleftRight)
@@ -120,6 +123,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		statBarChart.getCategoryPlot().setRangeGridlinePaint(Color.LIGHT_GRAY);
 		statBarChart.getCategoryPlot().setDomainGridlinePaint(Color.LIGHT_GRAY);
 
+		statBarChart.getCategoryPlot().getRangeAxis().setLowerBound(0);
+		
 		statBarChart.getCategoryPlot().getDomainAxis().setLowerMargin(0);
 		statBarChart.getCategoryPlot().getDomainAxis().setUpperMargin(0);
 		statBarChart.getCategoryPlot().getDomainAxis().setCategoryMargin(0);
@@ -159,6 +164,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		historyChart.getXYPlot().setDomainGridlinePaint(Color.LIGHT_GRAY);
 		historyChart.getXYPlot().getDomainAxis().setLowerMargin(0);
 		historyChart.getXYPlot().getDomainAxis().setUpperMargin(0);
+		historyChart.getXYPlot().getRangeAxis().setLowerBound(0);
 		historyChartPanel = new ChartPanel(historyChart);
 
 		if(totalStatEnabled)
@@ -246,6 +252,13 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			// A totals trace that can be enabled
 			totalstat += value;
 
+			if(value>maxValue)
+			{
+				maxValue = value;
+				historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+				statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
+			}
+			
 			statDataset.setValue(value, name, category);
 		}
 
@@ -255,6 +268,13 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			tempS.add(time, totalstat);
 
 			statDataset.setValue(totalstat, totalStatName, category);
+		}
+		
+		if(totalStatEnabled)
+		{
+			maxValue = totalstat;
+			historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+			statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
 		}
 
 	}
@@ -326,6 +346,13 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			series++;
 		}
 
+		if(value>maxValue)
+		{
+			maxValue = value;
+			historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+			statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
+		}
+		
 		// Add the values of the sample in the trace at the samples time index
 		tempS.add(time, value);
 
