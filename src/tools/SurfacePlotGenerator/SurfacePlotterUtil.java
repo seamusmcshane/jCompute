@@ -245,7 +245,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range avgYRange = new Range(avgMapper.getYmin(), avgMapper.getYmax());
 		
 		surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, avgMapper.getXSteps(), avgYRange, avgMapper.getYSteps()), avgMapper);
-		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), surfaceAvg.getBounds().getZmin(), surfaceAvg.getBounds().getZmax(), new Color(1, 1, 1, 0.95f)));
+		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), avgMapper.getZmin(), avgMapper.getZmax(), new Color(1, 1, 1, 0.95f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(true);
 		surfaceAvg.setWireframeColor(Color.BLACK);
@@ -290,7 +290,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range stdDevYRange = new Range(stdDevMapper.getYmin(), stdDevMapper.getYmax());
 		
 		surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, stdDevMapper.getXSteps(), stdDevYRange, stdDevMapper.getYSteps()), stdDevMapper);
-		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(), surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 0.95f)));
+		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbow(), stdDevMapper.getZmin(), stdDevMapper.getZmax(), new Color(1, 1, 1, 0.95f)));
 		surfaceStdDev.setFaceDisplayed(true);
 		surfaceStdDev.setWireframeDisplayed(true);
 		surfaceStdDev.setWireframeColor(Color.BLACK);
@@ -340,8 +340,10 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				System.out.println(file);
 
+				System.out.println("Average Chart");
 				addAvgChart(file);
 				
+				System.out.println("Standard Deviation Chart");
 				addStdDevChart(file);
 
 				// chart = new Chart(factory, Quality.Fastest);
