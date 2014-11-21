@@ -469,17 +469,6 @@ public class BatchLogProcessorMapper extends Mapper
 							{
 								val = 2;
 							}*/
-
-							
-							if(val > valMax)
-							{
-								valMax = val;
-							}
-
-							if(val < valMin)
-							{
-								valMin = val;
-							}
 							
 							stddevTotals[coordinateXY[0]][coordinateXY[1]] += (avgs[coordinateXY[0]][coordinateXY[1]] - val) * (avgs[coordinateXY[0]][coordinateXY[1]] - val);
 							
