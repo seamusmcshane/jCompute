@@ -27,12 +27,13 @@ import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 
 public class PDFReport
 {
-	private final static int imageWidth = 600;
-	private final static int imageHeight = 400;
+	private final static int imageWidth = 1200;
+	private final static int imageHeight = 800;
 
 	private final static String itemLog = "ItemLog.xml";
 
-	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(2, new SimpleNamedThreadFactory("Image Exporter"));
+	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(1, new SimpleNamedThreadFactory(
+			"Image Exporter"));
 
 	private final static ArrayList<String> rowNames = new ArrayList<String>();
 	private final static ArrayList<String> colNames = new ArrayList<String>();
@@ -375,6 +376,7 @@ public class PDFReport
 	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames,
 			Map<String, String> cells, String fullPath, String itemLog)
 	{
+		ChartUtil chartUtil = new ChartUtil();
 		for(String row : rowNames)
 		{
 			for(String col : colNames)
@@ -398,9 +400,9 @@ public class PDFReport
 				FileUtil.createDirIfNotExist(imagesPath);
 				FileUtil.createDirIfNotExist(exportPath);
 
-				imageExporter.submit(new ImageExporter(imageWidth, imageHeight, logPath, 0, exportPath, imageName));
-				imageExporter.submit(new ImageExporter(imageWidth, imageHeight, logPath, 1, exportPath, imageName
-						+ "-standard-deviation"));
+				chartUtil.ExportSurfacePlot(imageWidth, imageHeight, logPath, exportPath, imageName);
+				// imageExporter.submit(new ImageExporter(imageWidth,
+				// imageHeight, logPath, exportPath, imageName));
 
 			}
 		}
@@ -412,17 +414,15 @@ public class PDFReport
 		private int width;
 		private int height;
 		private String sourceLog;
-		private int mode;
 		private String exportPath;
 		private String imageName;
 
-		public ImageExporter(int width, int height, String sourceLog, int mode, String exportPath, String imageName)
+		public ImageExporter(int width, int height, String sourceLog, String exportPath, String imageName)
 		{
 			super();
 			this.width = width;
 			this.height = height;
 			this.sourceLog = sourceLog;
-			this.mode = mode;
 			this.exportPath = exportPath;
 			this.imageName = imageName;
 		}
@@ -430,7 +430,8 @@ public class PDFReport
 		@Override
 		public void run()
 		{
-			ChartUtil.ExportSurfacePlot(width, height, sourceLog, mode, exportPath, imageName);
+			ChartUtil chartUtil = new ChartUtil();
+			chartUtil.ExportSurfacePlot(width, height, sourceLog, exportPath, imageName);
 		}
 
 	}

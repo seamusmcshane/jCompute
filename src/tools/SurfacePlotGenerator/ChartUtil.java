@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -19,9 +20,12 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapGrayscale;
+import org.jzy3d.colors.colormaps.ColorMapRBG;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
 import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
@@ -36,31 +40,60 @@ public class ChartUtil
 	 * @param mode
 	 *            - avg /std-dev
 	 */
-	public static void ExportSurfacePlot(final int width, final int height, String sourceFile, int mode, String exportPath,
+	public void ExportSurfacePlot(final int width, final int height, String sourceFile, String exportPath,
 			String fileName)
 	{
-		int legendWidth = 140;
+		BatchLogProcessorMapper mapper = new BatchLogProcessorMapper(sourceFile);
+		
+		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName, 0);
+		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName+"-standard-deviation", 1);
+		
+		mapper.clear();
+		
+		mapper = null;
+	}
 
-		final BatchLogProcessorMapper mapper = new BatchLogProcessorMapper(sourceFile, mode);
+	private void exportChartImage(BatchLogProcessorMapper mapper, final int width, final int height,
+			String sourceFile, String exportPath, String fileName, int mode)
+	{
+		int legendWidth = 160;
 
-		Range stdDevXRange = new Range(mapper.getXmin(), mapper.getXmax());
-		Range stdDevYRange = new Range(mapper.getYmin(), mapper.getYmax());
+		Range xRange = new Range(mapper.getXMin(), mapper.getXMax());
+		Range yRange = new Range(mapper.getYMin(), mapper.getYMax());
 
-		Shape surface = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, mapper.getXSteps(),
-				stdDevYRange, mapper.getYSteps()), mapper);
-		surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface.getBounds().getZmin(), surface
-				.getBounds().getZmax(), new Color(1, 1, 1, 0.95f)));
+		Mapper map;
+		Shape surface;
+
+		if(mode == 0)
+		{
+			map = mapper.getAvg();
+
+			surface = Builder.buildOrthonormal(
+					new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
+
+			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(),
+					new Color(1, 1, 1, 1f)));
+		}
+		else
+		{
+			map = mapper.getStdDev();
+
+			surface = Builder.buildOrthonormal(
+					new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
+
+			surface.setColorMapper(new ColorMapper(new ColorMapRBG(), surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1, 1, 1, 1f)));
+		}
+
 		surface.setFaceDisplayed(true);
-		surface.setWireframeDisplayed(true);
+		surface.setWireframeDisplayed(false);
 		surface.setWireframeColor(Color.BLACK);
 
-		Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+		Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "newt");
+		
 		// chart.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
 		// chart.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
 		// chart.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
-		
 		chart.getScene().getGraph().add(surface);
-
 		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surface, chart.getView().getAxe().getLayout());
 		surface.setLegend(stdDevColorBar);
 
@@ -69,24 +102,43 @@ public class ChartUtil
 		chart.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
 
 		chart.getView().setViewPositionMode(ViewPositionMode.TOP);
-		
+
 		JFrame frame = new JFrame();
 		frame.setLayout(new BorderLayout());
-		frame.setMinimumSize(new Dimension(width-legendWidth, height));
+		frame.setMinimumSize(new Dimension(width - legendWidth, height));
 		frame.getContentPane().add((Component) chart.getCanvas());
 
 		frame.pack();
 		frame.setVisible(true);
 
+		System.out.println("Frame");
+
+		// Hash the input vars so this method is some what reentrant.
+		String tfileName = String.valueOf(sourceFile.hashCode() + mode + exportPath.hashCode()
+				+ fileName.hashCode())
+				+ ".png";
+
+		File temp = new File(System.getProperty("java.io.tmpdir") + tfileName);
+		
 		try
 		{
-			// Hash the input vars so this method is some what reentrant.
-			String tfileName = String.valueOf(sourceFile.hashCode() + mode + exportPath.hashCode()
-					+ fileName.hashCode())
-					+ ".png";
-
-			File temp = new File(System.getProperty("java.io.tmpdir") + tfileName);
 			chart.screenshot(temp);
+			frame.remove((Component)chart.getCanvas());
+			chart.dispose();
+			chart = null;
+			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+		}
+		catch(IOException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+
+		
+		try
+		{
+
 
 			BufferedImage image = ImageIO.read(temp);
 			temp.delete();
@@ -98,19 +150,19 @@ public class ChartUtil
 			image = op.filter(image, null);
 
 			int titlePad = 20;
-			BufferedImage exportImage = new BufferedImage(image.getWidth()+legendWidth, image.getHeight()+titlePad, BufferedImage.TYPE_INT_ARGB);
-			
-			
+			BufferedImage exportImage = new BufferedImage(image.getWidth() + legendWidth, image.getHeight() + titlePad,
+					BufferedImage.TYPE_INT_ARGB);
+
 			final int coffset = -20;
 			Graphics2D g2d = (Graphics2D) exportImage.getGraphics();
-			
+
 			// Blank Image white
 			g2d.setColor(java.awt.Color.WHITE);
 			g2d.fillRect(0, 0, exportImage.getWidth(), exportImage.getHeight());
-			
+
 			// Graph Image
 			exportImage.getGraphics().drawImage(image, legendWidth, titlePad, null);
-			
+
 			// Back to black..
 			g2d.setColor(java.awt.Color.BLACK);
 
@@ -118,19 +170,19 @@ public class ChartUtil
 			String title = fileName;
 			FontMetrics fm = g2d.getFontMetrics();
 			int titleWidth = fm.stringWidth(title);
-			
-			g2d.drawString(title , (int) (width/2-titleWidth/2.), 20);
-			
+
+			g2d.drawString(title, (int) (width / 2 - titleWidth / 2.), 20);
+
 			// Legend box
 			g2d.setStroke(new BasicStroke(1.0f));
-			g2d.drawRect(10, height/2-50+coffset, legendWidth, 100);		
-			
+			g2d.drawRect(10, height / 2 - 50 + coffset, legendWidth, 100);
+
 			// Legend Data
-			g2d.drawString("X : " + mapper.getXAxisName() , 15, height/2-25+coffset);
-			g2d.drawString("Y : " + mapper.getYAxisName() , 15, height/2+coffset);
-			
+			g2d.drawString("X : " + mapper.getXAxisName(), 15, height / 2 - 25 + coffset);
+			g2d.drawString("Y : " + mapper.getYAxisName(), 15, height / 2 + coffset);
+
 			String zAxisLabel;
-			
+
 			if(mode == 0)
 			{
 				zAxisLabel = "Z : " + mapper.getZAxisName() + " (avg)";
@@ -139,27 +191,24 @@ public class ChartUtil
 			{
 				zAxisLabel = "Z : " + mapper.getZAxisName() + " (StdDev)";
 			}
-			
-			g2d.drawString(zAxisLabel , 15, height/2+25+coffset);
-			
-			// File Location
+
+			g2d.drawString(zAxisLabel, 15, height / 2 + 25 + coffset);
+
 			File outputfile = new File(exportPath + File.separator + fileName + ".png");
+
+			System.out.println("Writing " + outputfile.getAbsolutePath());
 			
 			// Write File
-			ImageIO.write(exportImage, "png", outputfile);
-
+			ImageIO.write(exportImage, "png", outputfile);			
+			
 		}
 		catch(IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(-1);
 		}
-
-		frame.setVisible(false);
-
-		surface.dispose();
-		frame.dispose();
-
+				
 	}
 
 }

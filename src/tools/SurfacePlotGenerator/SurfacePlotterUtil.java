@@ -26,6 +26,7 @@ import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.colors.colormaps.ColorMapRBG;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
@@ -33,7 +34,6 @@ import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
-import org.jzy3d.plot3d.rendering.view.View;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
 import javax.swing.JMenuBar;
@@ -77,6 +77,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	private static String saveCD =  "./scenarios";
 	private static String openCD =  "./stats";
+	
+	private BatchLogProcessorMapper mapper;
+	private JButton btnLines;
 	
 	public SurfacePlotterUtil()
 	{
@@ -157,9 +160,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				chartAvg.getView().setViewPoint(current);
 
 				chartStdDev.getView().setViewPoint(current);
-				
-
-				
 			}
 		});
 		panel_2.add(btnLeft, BorderLayout.WEST);
@@ -202,6 +202,25 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		});
 		panel_2.add(btnRight, BorderLayout.EAST);
 		
+		btnLines = new JButton("Lines");
+		btnLines.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				if(surfaceAvg.getWireframeDisplayed() == true)
+				{
+					surfaceAvg.setWireframeDisplayed(false);
+					surfaceStdDev.setWireframeDisplayed(false);
+				}
+				else
+				{
+					surfaceStdDev.setWireframeDisplayed(true);
+					surfaceAvg.setWireframeDisplayed(true);
+				}
+				
+			}
+		});
+		panel_2.add(btnLines, BorderLayout.SOUTH);
+		
 		chartContainerPanel = new JPanel();
 		gui.getContentPane().add(chartContainerPanel, BorderLayout.CENTER);
 		GridBagLayout gbl_chartContainerPanel = new GridBagLayout();
@@ -229,7 +248,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 
 	}
 
-	public void addAvgChart(String file)
+	public void addAvgChart()
 	{
 		if (surfaceAvg != null)
 		{
@@ -239,29 +258,27 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			surfaceAvg = null;
 		}
 		
-		BatchLogProcessorMapper avgMapper = new BatchLogProcessorMapper(file, 0);
-
-		Range avgXRange = new Range(avgMapper.getXmin(), avgMapper.getXmax());
-		Range avgYRange = new Range(avgMapper.getYmin(), avgMapper.getYmax());
+		Range avgXRange = new Range(mapper.getXMin(), mapper.getXMax());
+		Range avgYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
-		surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, avgMapper.getXSteps(), avgYRange, avgMapper.getYSteps()), avgMapper);
-		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), avgMapper.getZmin(), avgMapper.getZmax(), new Color(1, 1, 1, 0.95f)));
+		surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, mapper.getXSteps(), avgYRange, mapper.getYSteps()), mapper.getAvg());
+		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(), new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(true);
 		surfaceAvg.setWireframeColor(Color.BLACK);
 		
 		chartAvg = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
-		chartAvg.getAxeLayout().setXAxeLabel(avgMapper.getXAxisName());
-		chartAvg.getAxeLayout().setYAxeLabel(avgMapper.getYAxisName());
-		chartAvg.getAxeLayout().setZAxeLabel(avgMapper.getZAxisName());
+		chartAvg.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
+		chartAvg.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
+		chartAvg.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
 		chartAvg.getScene().getGraph().add(surfaceAvg);
 		
 		AWTColorbarLegend avgColorBar = new AWTColorbarLegend(surfaceAvg, chartAvg.getView().getAxe().getLayout());
 		surfaceAvg.setLegend(avgColorBar);
 		
 		// Tick mapping
-		chartAvg.getAxeLayout().setXTickRenderer(avgMapper.getXTickMapper());
-		chartAvg.getAxeLayout().setYTickRenderer(avgMapper.getYTickMapper());
+		chartAvg.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
+		chartAvg.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
 		
 		chartAvg.addMouseController();
 		
@@ -274,7 +291,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		
 	}
 	
-	public void addStdDevChart(String file)
+	public void addStdDevChart()
 	{
 		if (surfaceStdDev != null)
 		{
@@ -284,27 +301,25 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			surfaceStdDev = null;
 		}
 		
-		BatchLogProcessorMapper stdDevMapper = new BatchLogProcessorMapper(file, 1);
-
-		Range stdDevXRange = new Range(stdDevMapper.getXmin(), stdDevMapper.getXmax());
-		Range stdDevYRange = new Range(stdDevMapper.getYmin(), stdDevMapper.getYmax());
+		Range stdDevXRange = new Range(mapper.getXMin(), mapper.getXMax());
+		Range stdDevYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
-		surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, stdDevMapper.getXSteps(), stdDevYRange, stdDevMapper.getYSteps()), stdDevMapper);
-		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbow(), stdDevMapper.getZmin(), stdDevMapper.getZmax(), new Color(1, 1, 1, 0.95f)));
+		surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, mapper.getXSteps(), stdDevYRange, mapper.getYSteps()), mapper.getStdDev());
+		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRBG(), surfaceStdDev.getBounds().getZmin(), surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 1f)));
 		surfaceStdDev.setFaceDisplayed(true);
 		surfaceStdDev.setWireframeDisplayed(true);
 		surfaceStdDev.setWireframeColor(Color.BLACK);
 		
 		chartStdDev = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
-		chartStdDev.getAxeLayout().setXAxeLabel(stdDevMapper.getXAxisName());
-		chartStdDev.getAxeLayout().setYAxeLabel(stdDevMapper.getYAxisName());
-		chartStdDev.getAxeLayout().setZAxeLabel(stdDevMapper.getZAxisName());
+		chartStdDev.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
+		chartStdDev.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
+		chartStdDev.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
 		chartStdDev.getScene().getGraph().add(surfaceStdDev);
 		
 		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
 		surfaceStdDev.setLegend(stdDevColorBar);
-		chartStdDev.getAxeLayout().setXTickRenderer(stdDevMapper.getXTickMapper());
-		chartStdDev.getAxeLayout().setYTickRenderer(stdDevMapper.getYTickMapper());
+		chartStdDev.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
+		chartStdDev.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
 		
 		chartStdDev.addMouseController();
 		
@@ -340,11 +355,14 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				System.out.println(file);
 
+				System.out.println("Creating Mapper");
+				mapper = new BatchLogProcessorMapper(file);				
+				
 				System.out.println("Average Chart");
-				addAvgChart(file);
+				addAvgChart();
 				
 				System.out.println("Standard Deviation Chart");
-				addStdDevChart(file);
+				addStdDevChart();
 
 				// chart = new Chart(factory, Quality.Fastest);
 				//MapperContourPictureGenerator avgContour = new MapperContourPictureGenerator(avgMapper, avgXRange, avgYRange);

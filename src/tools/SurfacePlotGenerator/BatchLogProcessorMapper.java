@@ -10,31 +10,12 @@ import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.jzy3d.plot3d.builder.Mapper;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 
-public class BatchLogProcessorMapper extends Mapper
+public class BatchLogProcessorMapper
 {
-	// Values
-	double valueTotals[][];
-
-	// Averages
-	double avgs[][];
-
-	// Totals of the deviations
-	double stddevTotals[][];
-
-	// Plot Values
-	double plotValues[][];
-
-	private int samplesPerItem;
+	private MapperValuesContainer values;
 
 	private File file;
 	private XMLConfiguration logFile;
-
-	private int xPosMin = Integer.MAX_VALUE;
-	private int xPosMax = Integer.MIN_VALUE;
-	private int yPosMin = Integer.MAX_VALUE;
-	private int yPosMax = Integer.MIN_VALUE;
-	private int xSteps = 0;
-	private int ySteps = 0;
 
 	private int xValMax = Integer.MIN_VALUE;
 	private int yValMax = Integer.MIN_VALUE;
@@ -49,19 +30,9 @@ public class BatchLogProcessorMapper extends Mapper
 
 	private double valMin = Double.MAX_VALUE;
 	private double valMax = Double.MIN_VALUE;
-	
-	public BatchLogProcessorMapper(String fileName, int mode)
-	{
-		boolean stdDev = false;
-		if(mode == 0)
-		{
-			stdDev = false;
-		}
-		else
-		{
-			stdDev = true;
-		}
 
+	public BatchLogProcessorMapper(String fileName)
+	{
 		file = new File(fileName);
 		logFile = new XMLConfiguration();
 		logFile.setSchemaValidation(false);
@@ -76,16 +47,57 @@ public class BatchLogProcessorMapper extends Mapper
 			e.printStackTrace();
 		}
 
-		readItemsNew(stdDev);
+		readItems();
+	}
 
+	public void clear()
+	{
+		logFile.clear();
+	}
+
+	private class MapperRemapper extends Mapper
+	{
+		private MapperValuesContainer values;
+		private int target;
+
+		public MapperRemapper(MapperValuesContainer values, int target)
+		{
+			this.values = values;
+			this.target = target;
+		}
+
+		@Override
+		public double f(double x, double y)
+		{
+			double value = Double.NaN;
+
+			switch(target)
+			{
+				case 0:
+				{
+					value = values.getAvgs((int) x, (int) y);
+
+					break;
+				}
+				case 1:
+				{
+
+					value = values.getStandardDeviations((int) x, (int) y);
+
+					break;
+				}
+			}
+
+			return value;
+		}
 	}
 
 	private void debugOut(String text)
 	{
 		// debugOut(text);
 	}
-	
-	private void readItemsNew(boolean doStdDev)
+
+	private void readItems()
 	{
 		String path = "";
 
@@ -96,7 +108,7 @@ public class BatchLogProcessorMapper extends Mapper
 		xAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 0 + ").Name", "X");
 		yAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 1 + ").Name", "Y");
 
-		samplesPerItem = logFile.getInt("Header.SamplesPerItem");
+		int samplesPerItem = logFile.getInt("Header.SamplesPerItem");
 
 		int matrixDim = (int) Math.sqrt((itemTotal / samplesPerItem)) + 1;
 
@@ -104,19 +116,8 @@ public class BatchLogProcessorMapper extends Mapper
 
 		debugOut(matrixDim + "*" + matrixDim);
 
-		System.out.println("Creating Values Array");
-		valueTotals = new double[matrixDim][matrixDim];
-
-		System.out.println("Creating Averages Array");
-		avgs = new double[matrixDim][matrixDim];
-
-		if(doStdDev)
-		{
-			debugOut("Creating Deviation Totals Array");
-			stddevTotals = new double[matrixDim][matrixDim];
-		}
-
-		System.out.println("Initialising Values");
+		System.out.println("Creating Values Container");
+		values = new MapperValuesContainer(matrixDim, matrixDim, samplesPerItem);
 
 		debugOut(xAxisName);
 		debugOut(yAxisName);
@@ -126,7 +127,7 @@ public class BatchLogProcessorMapper extends Mapper
 		int mod = itemTotal / 10;
 
 		List<HierarchicalConfiguration> nodes = logFile.configurationsAt("Items");
-		int i=0;
+		int i = 0;
 		for(HierarchicalConfiguration c : nodes)
 		{
 			ConfigurationNode node = c.getRootNode();
@@ -135,7 +136,7 @@ public class BatchLogProcessorMapper extends Mapper
 			for(ConfigurationNode item : items)
 			{
 				String name = item.getName();
-				if(name!=null)
+				if(name != null)
 				{
 					// Got A an Item
 					if(name.equals("Item"))
@@ -143,37 +144,39 @@ public class BatchLogProcessorMapper extends Mapper
 						debugOut("Name " + item.getName());
 
 						List<ConfigurationNode> itemFields = item.getChildren();
-						
+
 						int itemId = 0;
 						int sid;
-						int coordinateXY[] = {0,0};
-						int coordinateXYvals[] = {0,0};				
+						int coordinateXY[] = null;
+						int coordinateXYvals[] = null;
 						String endEvent = "";
 						int stepCount = 0;
 						long RunTime = 0;
-						
+
 						for(ConfigurationNode itemField : itemFields)
 						{
 							if(itemField.getName().equals("IID"))
 							{
 								itemId = Integer.parseInt((String) itemField.getValue());
 							}
-							
+
 							if(itemField.getName().equals("SID"))
 							{
 								sid = Integer.parseInt((String) itemField.getValue());
 							}
-							
+
 							if(itemField.getName().equals("Coordinates"))
 							{
 								List<ConfigurationNode> coordianteFields = itemField.getChildren();
 
 								int pos = 0;
 								int vals = 0;
+								coordinateXY = new int[coordianteFields.size()];
+								coordinateXYvals = new int[coordianteFields.size()];
 								for(ConfigurationNode coordiantes : coordianteFields)
 								{
 									debugOut("Coordiantes " + coordiantes.getName());
-									
+
 									for(ConfigurationNode coordiante : coordiantes.getChildren())
 									{
 										debugOut("Field " + coordiante.getName());
@@ -181,80 +184,57 @@ public class BatchLogProcessorMapper extends Mapper
 										if(coordiante.getName().equals("Pos"))
 										{
 											coordinateXY[pos] = Integer.parseInt((String) coordiante.getValue());
-											
-											debugOut("Pos " +  coordiante.getValue());
-											
+
+											debugOut("Pos " + coordiante.getValue());
+
 											pos++;
 										}
-										
+
 										if(coordiante.getName().equals("Value"))
 										{
 											coordinateXYvals[vals] = Integer.parseInt((String) coordiante.getValue());
-											debugOut("Value " +  coordiante.getValue());
+											debugOut("Value " + coordiante.getValue());
 
 											vals++;
 										}
 									}
-									
 
-									
 								}
 							}
-														
+
 							if(itemField.getName().equals("RunTime"))
 							{
 								// TOTO output time in secs not date/time
 								// runTime = (long)itemField.getValue();
 							}
-							
+
 							if(itemField.getName().equals("EndEvent"))
 							{
-								endEvent = (String)itemField.getValue();
+								endEvent = (String) itemField.getValue();
 							}
-							
+
 							if(itemField.getName().equals("StepCount"))
 							{
 								stepCount = Integer.parseInt((String) itemField.getValue());
 							}
-							
-						}
-						
-						debugOut("Item " + itemId);		
-						debugOut("X/Y " + coordinateXY[0] + "//" + coordinateXY[0]);		
-						debugOut("Vals " + coordinateXYvals[0] + "//" + coordinateXYvals[1]);	
-						debugOut("EndEvent " + endEvent);		
-						debugOut("StepCount " + stepCount);		
 
-
-						if(coordinateXY[0] > xPosMax)
-						{
-							xPosMax = coordinateXY[0];
 						}
 
-						if(coordinateXY[0] < xPosMin)
-						{
-							xPosMin = coordinateXY[0];
-						}
-
-						if( coordinateXY[1] > yPosMax)
-						{
-							yPosMax = coordinateXY[1];
-						}
-
-						if(coordinateXY[1] < yPosMin)
-						{
-							yPosMin = coordinateXY[1];
-						}
+						debugOut("Item " + itemId);
+						debugOut("X/Y " + coordinateXY[0] + "//" + coordinateXY[0]);
+						debugOut("Vals " + coordinateXYvals[0] + "//" + coordinateXYvals[1]);
+						debugOut("EndEvent " + endEvent);
+						debugOut("StepCount " + stepCount);
 
 						//
-						if(coordinateXYvals[0]  > xValMax)
+						if(coordinateXYvals[0] > xValMax)
 						{
-							xValMax = coordinateXYvals[0] ;
+							xValMax = coordinateXYvals[0];
 						}
 
-						if(coordinateXYvals[1]  > yValMax)
+						if(coordinateXYvals[1] > yValMax)
 						{
-							yValMax = coordinateXYvals[1] ;
+							yValMax = coordinateXYvals[1];
 						}
 
 						if(i % mod == 0)
@@ -262,24 +242,17 @@ public class BatchLogProcessorMapper extends Mapper
 							System.out.printf(" %.2f\n", (double) i / itemTotal);
 						}
 						i++;
-						
-						
-						int val = stepCount;
-						
-						/*if(endEvent.equals("AllPredatorsLTEEndEvent"))
-						{
-							val=1;
-						}
-						else if(endEvent.equals("AllPreyLTEEndEvent"))
-						{
-							val=2;
 
-						}
-						else
-						{
-							val=0;
-						}*/
-						
+						int val = stepCount;
+
+						/*
+						 * if(endEvent.equals("AllPredatorsLTEEndEvent")) {
+						 * val=1; } else
+						 * if(endEvent.equals("AllPreyLTEEndEvent")) { val=2;
+						 * 
+						 * } else { val=0; }
+						 */
+
 						if(val > valMax)
 						{
 							valMax = val;
@@ -289,392 +262,20 @@ public class BatchLogProcessorMapper extends Mapper
 						{
 							valMin = val;
 						}
-						
-						valueTotals[coordinateXY[0]][coordinateXY[1]] += val;						
+
+						values.setSampleValue(coordinateXY[0], coordinateXY[1], val);
 					}
 
 				}
-				
-			}			
-		}
-		
-		xSteps = xPosMax;
-		ySteps = yPosMax;
-
-		debugOut("xValMax" + xValMax);
-		debugOut("yValMax" + yValMax);
-
-		xMapper = new TickValueMapper(xSteps, xValMax);
-		yMapper = new TickValueMapper(ySteps, yValMax);
-		
-		System.out.println("Calculating Averages");
-
-		// Averages are the plot values
-		for(int x = 0; x < matrixDim; x++)
-		{
-			for(int y = 0; y < matrixDim; y++)
-			{
-				avgs[x][y] = valueTotals[x][y] / samplesPerItem;
-			}
-		}
-		
-		if(doStdDev)
-		{
-			System.out.println("Calculating Standard Deviation (dev)");
-
-			i=0;
-			for(HierarchicalConfiguration c : nodes)
-			{
-				ConfigurationNode node = c.getRootNode();
-
-				List<ConfigurationNode> items = node.getChildren();
-				for(ConfigurationNode item : items)
-				{
-					String name = item.getName();
-					if(name!=null)
-					{
-						// Got A an Item
-						if(name.equals("Item"))
-						{
-							debugOut("Name " + item.getName());
-
-							List<ConfigurationNode> itemFields = item.getChildren();
-							
-							int itemId = 0;
-							int sid;
-							int coordinateXY[] = {0,0};
-							int coordinateXYvals[] = {0,0};				
-							String endEvent = "";
-							int stepCount = 0;
-							long RunTime = 0;
-							
-							for(ConfigurationNode itemField : itemFields)
-							{
-								if(itemField.getName().equals("IID"))
-								{
-									itemId = Integer.parseInt((String) itemField.getValue());
-								}
-								
-								if(itemField.getName().equals("SID"))
-								{
-									sid = Integer.parseInt((String) itemField.getValue());
-								}
-								
-								if(itemField.getName().equals("Coordinates"))
-								{
-									List<ConfigurationNode> coordianteFields = itemField.getChildren();
-
-									int pos = 0;
-									int vals = 0;
-									for(ConfigurationNode coordiantes : coordianteFields)
-									{
-										debugOut("Coordiantes " + coordiantes.getName());
-										
-										for(ConfigurationNode coordiante : coordiantes.getChildren())
-										{
-											debugOut("Field " + coordiante.getName());
-
-											if(coordiante.getName().equals("Pos"))
-											{
-												coordinateXY[pos] = Integer.parseInt((String) coordiante.getValue());
-												
-												debugOut("Pos " +  coordiante.getValue());
-												
-												pos++;
-											}
-											
-											if(coordiante.getName().equals("Value"))
-											{
-												coordinateXYvals[vals] = Integer.parseInt((String) coordiante.getValue());
-												debugOut("Value " +  coordiante.getValue());
-
-												vals++;
-											}
-										}
-										
-
-										
-									}
-								}
-															
-								if(itemField.getName().equals("RunTime"))
-								{
-									// TOTO output time in secs not date/time
-									// runTime = (long)itemField.getValue();
-								}
-								
-								if(itemField.getName().equals("EndEvent"))
-								{
-									endEvent = (String)itemField.getValue();
-								}
-								
-								if(itemField.getName().equals("StepCount"))
-								{
-									stepCount = Integer.parseInt((String) itemField.getValue());
-								}
-								
-							}
-							
-							debugOut("Item " + itemId);		
-							debugOut("X/Y " + coordinateXY[0] + "//" + coordinateXY[0]);		
-							debugOut("Vals " + coordinateXYvals[0] + "//" + coordinateXYvals[1]);	
-							debugOut("EndEvent " + endEvent);		
-							debugOut("StepCount " + stepCount);		
-
-
-							if(coordinateXY[0] > xPosMax)
-							{
-								xPosMax = coordinateXY[0];
-							}
-
-							if(coordinateXY[0] < xPosMin)
-							{
-								xPosMin = coordinateXY[0];
-							}
-
-							if( coordinateXY[1] > yPosMax)
-							{
-								yPosMax = coordinateXY[1];
-							}
-
-							if(coordinateXY[1] < yPosMin)
-							{
-								yPosMin = coordinateXY[1];
-							}
-
-							//
-							if(coordinateXYvals[0]  > xValMax)
-							{
-								xValMax = coordinateXYvals[0] ;
-							}
-
-							if(coordinateXYvals[1]  > yValMax)
-							{
-								yValMax = coordinateXYvals[1] ;
-							}
-
-							if(i % mod == 0)
-							{
-								System.out.printf(" %.2f\n", (double) i / itemTotal);
-							}
-							i++;
-							
-							
-							int val=stepCount;
-							/*if(endEvent.equals("AllPredatorsLTEEndEvent"))
-							{
-								val = 1;
-							}
-							else if(endEvent.equals("AllPreyLTEEndEvent"))
-							{
-								val = 2;
-							}*/
-							
-							stddevTotals[coordinateXY[0]][coordinateXY[1]] += (avgs[coordinateXY[0]][coordinateXY[1]] - val) * (avgs[coordinateXY[0]][coordinateXY[1]] - val);
-							
-							
-						}
-
-					}
-					
-				}			
-			}
-			
-			System.out.println("Calculating Standard Deviation (totals)");
-
-			plotValues = new double[matrixDim][matrixDim];
-			
-			// Plot values are standard deviations
-			for(int x = 0; x < matrixDim; x++)
-			{
-				for(int y = 0; y < matrixDim; y++)
-				{
-					plotValues[x][y] = Math.sqrt(stddevTotals[x][y] / samplesPerItem);
-				}
-			}
-			
-		}
-		else
-		{
-			plotValues = avgs;
-		}
-
-	}
-
-	private void readItems(boolean doStdDev)
-	{
-		String path = "";
-
-		int itemTotal = logFile.configurationsAt("Items.Item").size();
-
-		debugOut("ItemTotal : " + itemTotal);
-
-		xAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 0 + ").Name", "X");
-		yAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 1 + ").Name", "Y");
-
-		samplesPerItem = logFile.getInt("Header.SamplesPerItem");
-
-		int matrixDim = (int) Math.sqrt((itemTotal / samplesPerItem)) + 1;
-
-		debugOut("Samples Per Item : " + samplesPerItem);
-
-		debugOut(matrixDim + "*" + matrixDim);
-
-		debugOut("Creating Plot Array");
-		plotValues = new double[matrixDim][matrixDim];
-
-		debugOut("Creating Values Array");
-		valueTotals = new double[matrixDim][matrixDim];
-
-		debugOut("Creating Averages Array");
-		avgs = new double[matrixDim][matrixDim];
-
-		if(doStdDev)
-		{
-			debugOut("Creating Deviation Totals Array");
-			stddevTotals = new double[matrixDim][matrixDim];
-		}
-
-		debugOut("Initialising Values");
-
-		debugOut(xAxisName);
-		debugOut(yAxisName);
-
-		debugOut("Reading Items Values");
-
-		int mod = itemTotal / 10;
-
-		for(int i = 0; i < itemTotal; i++)
-		{
-			path = "Items.Item(" + i + ")";
-
-			// int coordTotal =
-			// logFile.configurationsAt(path+".Coordinates").size();
-			// for(int c=1;c<coordTotal;c++)
-			// {
-			int x = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Pos");
-			int xVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Value");
-			int y = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Pos");
-			int yVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Value");
-			int val = Integer.parseInt(logFile.getString(path + "." + "StepCount"));
-			// }
-
-			// Loop through the sample array and find the next free slot
-			valueTotals[x][y] += val;
-
-			// debugOut("pos["+x+"]["+y+"] : " + pos[x][y]);
-
-			if(x > xPosMax)
-			{
-				xPosMax = x;
-			}
-
-			if(x < xPosMin)
-			{
-				xPosMin = x;
-			}
-
-			if(y > yPosMax)
-			{
-				yPosMax = y;
-			}
-
-			if(x < yPosMin)
-			{
-				yPosMin = y;
-			}
-
-			//
-			if(xVal > xValMax)
-			{
-				xValMax = xVal;
-			}
-
-			if(yVal > yValMax)
-			{
-				yValMax = yVal;
-			}
-
-			if(i % mod == 0)
-			{
-				System.out.printf(" %.2f\n", (double) i / itemTotal);
-			}
-
-		}
-
-		if(doStdDev)
-		{
-			debugOut("Calculating Standard Deviation (avg)");
-
-			// Calculate All Averages
-			for(int x = 0; x < matrixDim; x++)
-			{
-				for(int y = 0; y < matrixDim; y++)
-				{
-					avgs[x][y] = valueTotals[x][y] / samplesPerItem;
-				}
-			}
-
-			debugOut("Reading Items Values - Standard Deviation (totals)");
-
-			for(int i = 0; i < itemTotal; i++)
-			{
-				path = "Items.Item(" + i + ")";
-
-				// int coordTotal =
-				// logFile.configurationsAt(path+".Coordinates").size();
-				// for(int c=1;c<coordTotal;c++)
-				// {
-				int x = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Pos");
-				int xVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 0 + ").Value");
-				int y = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Pos");
-				int yVal = logFile.getInt(path + "." + "Coordinates.Coordinate(" + 1 + ").Value");
-				int val = Integer.parseInt(logFile.getString(path + "." + "StepCount"));
-				// }
-
-				stddevTotals[x][y] += (avgs[x][y] - val) * (avgs[x][y] - val);
-
-				if(i % mod == 0)
-				{
-					System.out.printf(" %.2f\n", (double) i / itemTotal);
-				}
-			}
-
-			debugOut("Calculating Standard Deviation (deviation)");
-
-			// Plot values are standard deviations
-			for(int x = 0; x < matrixDim; x++)
-			{
-				for(int y = 0; y < matrixDim; y++)
-				{
-					plotValues[x][y] = Math.sqrt(stddevTotals[x][y] / samplesPerItem);
-				}
-			}
-
-		}
-		else
-		{
-			debugOut("Calculating Averages");
-
-			// Averages are the plot values
-			for(int x = 0; x < matrixDim; x++)
-			{
-				for(int y = 0; y < matrixDim; y++)
-				{
-					plotValues[x][y] = valueTotals[x][y] / samplesPerItem;
-				}
 
 			}
 		}
 
-		xSteps = xPosMax;
-		ySteps = yPosMax;
+		values.compute();
 
-		debugOut("xValMax" + xValMax);
-		debugOut("yValMax" + yValMax);
+		xMapper = new TickValueMapper(values.getXMax(), xValMax);
+		yMapper = new TickValueMapper(values.getYMax(), yValMax);
 
-		xMapper = new TickValueMapper(xSteps, xValMax);
-		yMapper = new TickValueMapper(ySteps, yValMax);
 	}
 
 	public ITickRenderer getXTickMapper()
@@ -687,40 +288,18 @@ public class BatchLogProcessorMapper extends Mapper
 		return yMapper;
 	}
 
-	public int getXSteps()
+	public MapperRemapper getAvg()
 	{
-		return xSteps;
+		MapperRemapper stdMap = new MapperRemapper(values, 0);
+
+		return stdMap;
 	}
 
-	public int getYSteps()
+	public MapperRemapper getStdDev()
 	{
-		return ySteps;
-	}
+		MapperRemapper stdMap = new MapperRemapper(values, 1);
 
-	public int getXmin()
-	{
-		return xPosMin;
-	}
-
-	public int getXmax()
-	{
-		return xPosMax;
-	}
-
-	public int getYmin()
-	{
-		return yPosMin;
-	}
-
-	public int getYmax()
-	{
-		return yPosMax;
-	}
-
-	@Override
-	public double f(double x, double y)
-	{
-		return plotValues[(int) x][(int) y];
+		return stdMap;
 	}
 
 	public String getXAxisName()
@@ -766,5 +345,35 @@ public class BatchLogProcessorMapper extends Mapper
 	public double getZmin()
 	{
 		return valMin;
+	}
+
+	public int getXMax()
+	{
+		return values.getXMax();
+	}
+
+	public int getXMin()
+	{
+		return values.getXMin();
+	}
+
+	public int getYMax()
+	{
+		return values.getYMax();
+	}
+
+	public int getYMin()
+	{
+		return values.getYMin();
+	}
+
+	public int getXSteps()
+	{
+		return values.getXSteps();
+	}
+
+	public int getYSteps()
+	{
+		return values.getYSteps();
 	}
 }
