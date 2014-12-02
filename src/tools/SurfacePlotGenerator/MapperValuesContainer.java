@@ -11,10 +11,13 @@ public class MapperValuesContainer
 
 	private double[][] stdDev;
 
-	private int xMin = Integer.MAX_VALUE;
-	private int xMax = Integer.MIN_VALUE;
-	private int yMin = Integer.MAX_VALUE;
-	private int yMax = Integer.MIN_VALUE;
+	private int xPosMin = Integer.MAX_VALUE;
+	private int xPosMax = Integer.MIN_VALUE;
+	private int yPosMin = Integer.MAX_VALUE;
+	private int yPosMax = Integer.MIN_VALUE;
+	
+	private double zMin = Double.MAX_VALUE;
+	private double zMax = Double.MIN_VALUE;
 
 	public MapperValuesContainer(int xSteps, int ySteps, int samples)
 	{
@@ -93,26 +96,36 @@ public class MapperValuesContainer
 
 	public void setSampleValue(int x, int y, double value)
 	{
-		if(x > xMax)
+		if(x > xPosMax)
 		{
-			xMax = x;
+			xPosMax = x;
 		}
 
-		if(x < xMin)
+		if(x < xPosMin)
 		{
-			xMin = x;
+			xPosMin = x;
 		}
 
-		if(y > yMax)
+		if(y > yPosMax)
 		{
-			yMax = y;
+			yPosMax = y;
 		}
 
-		if(y < yMin)
+		if(y < yPosMin)
 		{
-			yMin = y;
+			yPosMin = y;
 		}
 
+		if(value > zMax)
+		{
+			zMax = value;
+		}
+
+		if(value < zMin)
+		{
+			zMin = value;
+		}
+		
 		for(int i = 0; i < samples; i++)
 		{
 			// Find a free slot
@@ -127,22 +140,32 @@ public class MapperValuesContainer
 
 	public int getXMax()
 	{
-		return xMax;
+		return xPosMax;
 	}
 
 	public int getXMin()
 	{
-		return xMin;
+		return xPosMin;
 	}
 
 	public int getYMax()
 	{
-		return yMax;
+		return yPosMax;
 	}
 
 	public int getYMin()
 	{
-		return yMin;
+		return yPosMin;
+	}
+	
+	public double getZMax()
+	{
+		return zMax;
+	}
+
+	public double getZMin()
+	{
+		return zMin;
 	}
 
 	public double getAVGValue(int x, int y)
