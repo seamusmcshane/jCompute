@@ -602,10 +602,10 @@ public class Batch implements StoredQueuePosition
 			try
 			{
 				itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
-						+ "ItemLog.xml", true)));
+						+ "ItemLog.log", true)));
 
 				/* Common Log Header */
-				itemLog.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
+				/*itemLog.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
 				itemLog.println("<Log xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"schemas/batchItemLog.xsd\">");
 				itemLog.println("<Header>");
 				itemLog.println("<Name>" + batchName + "</Name>");
@@ -624,7 +624,23 @@ public class Batch implements StoredQueuePosition
 
 				itemLog.println("</AxisLabels>");
 				itemLog.println("</Header>");
-				itemLog.println("<Items>");
+				itemLog.println("<Items>");*/
+				
+				itemLog.println("[+Header]");
+				itemLog.println("Name="+batchName);
+				itemLog.println("LogType=BatchItems");
+				itemLog.println("Samples="+itemSamples);
+				itemLog.println("[+AxisLabels]");
+				for(int c = 1; c < numCordinates + 1; c++)
+				{
+					itemLog.println("id="+c);
+					itemLog.println("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
+				}
+								
+				itemLog.println("[-AxisLabels]");
+				itemLog.println("[-Header]");
+				itemLog.println("[+Items]");
+								
 			}
 			catch(IOException e)
 			{
@@ -777,7 +793,7 @@ public class Batch implements StoredQueuePosition
 
 		if(itemLogEnabled)
 		{
-			itemLog.println("<Item>");
+			/*itemLog.println("<Item>");
 			itemLog.println("<IID>" + item.getItemId() + "</IID>");
 			itemLog.println("<SID>" + item.getSampleId() + "</SID>");
 			itemLog.println("<Coordinates>");
@@ -795,7 +811,26 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("<RunTime>" + jCompute.util.Text.longTimeToDHMS(item.getTotalTime()) + "</RunTime>");
 			itemLog.println("<EndEvent>" + item.getEndEvent() + "</EndEvent>");
 			itemLog.println("<StepCount>" + item.getStepCount() + "</StepCount>");
-			itemLog.println("</Item>");
+			itemLog.println("</Item>");*/
+			
+			
+			itemLog.println("[+Item]");
+			itemLog.println("IID="+item.getItemId());
+			itemLog.println("SID="+item.getSampleId());
+			ArrayList<Integer> coords = item.getCoordinates();
+			ArrayList<Integer> coordsValues = item.getCoordinatesValues();
+			for(int c = 0; c < coords.size(); c++)
+			{
+				itemLog.println("[+Coordinate]");
+				itemLog.println("Pos=" + coords.get(c));
+				itemLog.println("Value=" + coordsValues.get(c));
+				itemLog.println("[-Coordinate]");
+			}
+			itemLog.println("Hash="+item.getItemHash());
+			itemLog.println("RunTime="+ item.getTotalTime());
+			itemLog.println("EndEvent="+item.getEndEvent());
+			itemLog.println("StepCount="+item.getStepCount());
+			itemLog.println("[-Item]");
 		}
 
 		// Only Save configs if stats are enabled
@@ -845,8 +880,11 @@ public class Batch implements StoredQueuePosition
 			if(itemLogEnabled)
 			{
 				// Close Batch Log
-				itemLog.println("</Items>");
-				itemLog.println("</Log>");
+				/*itemLog.println("</Items>");
+				itemLog.println("</Log>");*/
+				
+				itemLog.println("[-Items]");
+				
 				itemLog.flush();
 				itemLog.close();
 			}
