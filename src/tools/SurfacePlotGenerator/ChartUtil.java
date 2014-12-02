@@ -43,7 +43,7 @@ public class ChartUtil
 	public void ExportSurfacePlot(final int width, final int height, String sourceFile, String exportPath,
 			String fileName)
 	{
-		BatchLogProcessorMapper mapper = new BatchLogProcessorMapper(sourceFile);
+		XMLBatchLogProcessorMapper mapper = new XMLBatchLogProcessorMapper(sourceFile);
 		
 		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName, 0);
 		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName+"-standard-deviation", 1);
@@ -53,7 +53,7 @@ public class ChartUtil
 		mapper = null;
 	}
 
-	private void exportChartImage(BatchLogProcessorMapper mapper, final int width, final int height,
+	private void exportChartImage(XMLBatchLogProcessorMapper mapper, final int width, final int height,
 			String sourceFile, String exportPath, String fileName, int mode)
 	{
 		int legendWidth = 160;
