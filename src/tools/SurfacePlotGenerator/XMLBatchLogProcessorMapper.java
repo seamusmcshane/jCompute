@@ -57,7 +57,7 @@ public class XMLBatchLogProcessorMapper
 
 	private void debugOut(String text)
 	{
-		// debugOut(text);
+		//System.out.println(text);
 	}
 
 	private void readItems()
@@ -73,7 +73,7 @@ public class XMLBatchLogProcessorMapper
 
 		int samplesPerItem = logFile.getInt("Header.SamplesPerItem");
 
-		int matrixDim = (int) Math.sqrt((itemTotal / samplesPerItem)) + 1;
+		int matrixDim = (int) Math.sqrt((itemTotal)/samplesPerItem) + 1;
 
 		debugOut("Samples Per Item : " + samplesPerItem);
 

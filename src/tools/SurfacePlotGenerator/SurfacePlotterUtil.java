@@ -31,7 +31,6 @@ import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.colors.colormaps.ColorMapRBG;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
-import org.jzy3d.maths.Scale;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.AbstractDrawable;
@@ -85,7 +84,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private XMLBatchLogProcessorMapper mapper;
 	private JButton btnLines;
 
-	private int subDiv = 8;
+	private int subDiv = 4;
 
 	public SurfacePlotterUtil()
 	{
