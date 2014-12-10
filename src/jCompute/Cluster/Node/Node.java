@@ -257,9 +257,11 @@ public class Node
 									statCache.remove(statsReq.getSimId()));
 
 							// NCP.SimStats
-							sendMessage(statsReply.toBytes());
+							byte[] tempB = statsReply.toBytes();
+							
+							sendMessage(tempB);
 
-							log.info("Sent SimStats " + statsReq.getSimId());
+							log.info("Sent SimStats " + statsReq.getSimId() + " FrameLen(" + tempB.length/8 + "kB)");
 						}
 						break;
 						// Default / Invalid
