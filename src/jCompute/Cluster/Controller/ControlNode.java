@@ -316,8 +316,17 @@ public class ControlNode
 
 							controlNodeLock.acquireUninterruptibly();
 
-							// Add to NodeManager list of connecting node
-							connectingNodes.add(new NodeManager(++connectionNumber, nodeSocket));
+							if(!existingNode(nodeSocket))
+							{
+								// Add to NodeManager list of connecting node
+								connectingNodes.add(new NodeManager(++connectionNumber, nodeSocket));
+							}
+							else
+							{
+								log.warn("Closing Socket as a Node already exists on :" + nodeSocket.getRemoteSocketAddress());
+								nodeSocket.close();
+							}
+
 
 							log.debug("------------------------------------");
 							log.debug("Added (" + connectingNodes.size() + ")");
@@ -351,6 +360,33 @@ public class ControlNode
 		}
 	}
 
+	public boolean existingNode(Socket nodeSocket)
+	{
+		boolean nodeExists = false;
+		
+		String socketAddress = nodeSocket.getInetAddress().getHostAddress();
+		
+		for(NodeManager node : connectingNodes)
+		{
+			if(node.getAddress().equals(socketAddress))
+			{
+				nodeExists = true;
+				break;
+			}
+		}
+		
+		for(NodeManager node : activeNodes)
+		{
+			if(node.getAddress().equals(socketAddress))
+			{
+				nodeExists = true;
+				break;
+			}
+		}
+		
+		return nodeExists;
+	}
+	
 	/* Simulation Manager Logic */
 
 	public int addSimulation(String scenarioText, int initialStepRate)
