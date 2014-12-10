@@ -33,7 +33,6 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -61,19 +60,12 @@ public class NodeManager
 
 	// This node cmd socket
 	private final Socket cmdSocket;
-	private Socket transferSocket;
 
 	// Output Stream
 	private DataOutputStream cmdOutput;
 	private DataInputStream cmdInput;
 	private Semaphore cmdTxLock = new Semaphore(1, false);
 	private Thread cmdRecieveThread;
-
-	// Transfer Streams
-	private DataOutputStream transferOutput;
-	private DataInputStream transferInput;
-	private Semaphore transTxLock = new Semaphore(1, true);
-	private Thread transferRecieveThread;
 
 	private ProtocolState nodeState;
 
@@ -135,11 +127,17 @@ public class NodeManager
 			{
 				try
 				{
-					handleRegistration();
+					if(handleRegistration())
+					{
+						log.info("Registration Succeeded");
+						createCMDRecieveThread();
+					}
+					else
+					{
+						log.info("Registration Failed");
+						active = false;
+					}
 
-					createCMDRecieveThread();
-
-					createTransferRecieveThread();
 				}
 				catch(IOException e)
 				{
@@ -152,10 +150,11 @@ public class NodeManager
 		nodeManager.start();
 	}
 
-	private void handleRegistration() throws IOException
+	private boolean handleRegistration() throws IOException
 	{
 		log.info("Awaiting Registration");
 
+		boolean registered = false;
 		boolean finished = false;
 
 		int type = -1;
@@ -181,7 +180,7 @@ public class NodeManager
 				// Wrap the backingArray
 				data = ByteBuffer.wrap(backingArray);
 
-				log.debug("Type " + type + " len " + len);
+				log.info("Type " + type + " len " + len);
 			}
 
 			switch(type)
@@ -235,8 +234,9 @@ public class NodeManager
 						if(nodeInfo.getUid() == ruid)
 						{
 							log.info("Node registration ok");
-							finished = doTransferSocketSetup();
 
+							log.info("Now requesting node configuration and weighting");
+							sendCMDMessage(new ConfigurationRequest(1, 1024, 5000, 1000, 5).toBytes());
 						}
 						else
 						{
@@ -246,6 +246,7 @@ public class NodeManager
 						}
 
 					}
+				break;
 				case NCP.RegNack:
 
 					/*
@@ -259,73 +260,6 @@ public class NodeManager
 					}
 
 				break;
-				// Test Frame or Garbage
-				case NCP.INVALID:
-				default:
-					log.error("Recieved Invalid Frame");
-					nodeState = ProtocolState.DIS;
-					finished = true;
-					log.error("Error Type " + type + " len " + len);
-
-				break;
-			}
-		}
-
-	}
-
-	private boolean doTransferSocketSetup() throws IOException
-	{
-		log.info("Setting up transfer socket");
-		boolean finished = false;
-
-		// Create and connect the transfer socket
-		transferSocket = new Socket();
-		transferSocket.connect(new InetSocketAddress(cmdSocket.getInetAddress(), NCP.NodeTransferPort), 1000);
-
-		transferSocket.setSendBufferSize(32768);
-		transferSocket.setReceiveBufferSize(1048576);
-
-		transferInput = new DataInputStream(new BufferedInputStream(transferSocket.getInputStream()));
-		transferOutput = new DataOutputStream(new BufferedOutputStream(transferSocket.getOutputStream()));
-
-		log.info("Socket Setup");
-
-		log.info("Now requesting node configuration and weighting");
-
-		sendTransferMessage(new ConfigurationRequest(1, 1024, 5000, 1000, 5).toBytes());
-
-		int type = -1;
-		int len = -1;
-		byte[] backingArray = null;
-		ByteBuffer data = null;
-
-		while(!finished)
-		{
-			// Detect Frame
-			type = transferInput.readInt();
-			len = transferInput.readInt();
-
-			// Allocate here to avoid duplication of allocation code
-			if(len > 0)
-			{
-				// Destination
-				backingArray = new byte[len];
-
-				// Copy from the socket
-				transferInput.readFully(backingArray, 0, len);
-
-				// Wrap the backingArray
-				data = ByteBuffer.wrap(backingArray);
-
-				log.debug("Type " + type + " len " + len);
-			}
-
-			switch(type)
-			{
-			/*
-			 * Remove node is about to finish registration. We are waiting on
-			 * the node configuration.
-			 */
 				case NCP.ConfAck:
 
 					if(nodeState == ProtocolState.REG)
@@ -350,7 +284,6 @@ public class NodeManager
 						log.debug("Node " + nodeInfo.getUid() + " TotalMem  : " + nodeInfo.getTotalMemory());
 
 						nodeState = ProtocolState.RDY;
-						finished = true;
 
 					}
 					else
@@ -365,127 +298,28 @@ public class NodeManager
 				default:
 					log.error("Recieved Invalid Frame");
 					nodeState = ProtocolState.DIS;
-
 					log.error("Error Type " + type + " len " + len);
+				break;
+			}
+
+			// Check Node State
+			switch(nodeState)
+			{
+				case DIS:
+					log.info("Protocol State DIS : Closing Socket");
+					cmdSocket.close();
 					finished = true;
+					registered = false;
+				break;
+				case RDY:
+					log.info("Protocol State RDY");
+					finished = true;
+					registered = true;
 				break;
 			}
 		}
 
-		return finished;
-	}
-
-	private void createTransferRecieveThread()
-	{
-		// The Transfer Receive Thread
-		transferRecieveThread = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					int type = -1;
-					int len = -1;
-					byte[] backingArray = null;
-					ByteBuffer data = null;
-
-					active = true;
-
-					while(active)
-					{
-						// Detect Frame
-						type = transferInput.readInt();
-						len = transferInput.readInt();
-
-						// Allocate here to avoid duplication of allocation code
-						if(len > 0)
-						{
-							// Destination
-							backingArray = new byte[len];
-
-							// Copy from the socket
-							transferInput.readFully(backingArray, 0, len);
-
-							// Wrap the backingArray
-							data = ByteBuffer.wrap(backingArray);
-
-							log.debug("Type " + type + " len " + len);
-						}
-
-						switch(type)
-						{
-							case NCP.SimStats:
-
-								if(nodeState == ProtocolState.RDY)
-								{
-									log.info("Recieved Sim Stats");
-
-									// Read this here as we need it for the stat
-									// request mapping lookup
-									int simId = data.getInt();
-
-									// Remove Request Mapping
-									NodeManagerStatRequestMapping request = statRequests.remove(simId);
-
-									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data,
-											request.getFormat(), request.getFileNameSuffix());
-
-									request.setStatExporter(statsReply.getStatExporter());
-
-									// Signal the waiting thread.
-									request.signalReply();
-								}
-								else
-								{
-									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
-								}
-
-							break;
-							// Test Frame or Garbage
-							case NCP.INVALID:
-							default:
-								log.error("Recieved Invalid Frame");
-								nodeState = ProtocolState.DIS;
-
-								log.error("Error Type " + type + " len " + len);
-
-							break;
-
-						}
-
-						if(nodeState == ProtocolState.DIS)
-						{
-							log.info("Protocol State : " + nodeState.toString());
-							active = false;
-						}
-					}
-					// Exit // Do Node Shutdown
-
-				}
-				catch(IOException e1)
-				{
-					log.warn("Node " + nodeInfo.getUid() + " Transfer Recieve Thread exited");
-					// Exit // Do Node Shutdown
-
-					active = false;
-
-					nodeState = ProtocolState.DIS;
-
-					// Explicit release of all semaphores
-					addSimWait.release();
-					remSimWait.release();
-				}
-
-			}
-
-		});
-
-		transferRecieveThread.setName("Node Manager " + nodeInfo.getUid() + " Transfer Recieve");
-
-		// Start Processing
-		transferRecieveThread.start();
+		return registered;
 	}
 
 	private void createCMDRecieveThread()
@@ -660,6 +494,34 @@ public class NodeManager
 											+ nodeState.toString());
 								}
 							break;
+							case NCP.SimStats:
+
+								if(nodeState == ProtocolState.RDY)
+								{
+									log.info("Recieved Sim Stats");
+
+									// Read this here as we need it for the stat
+									// request mapping lookup
+									int simId = data.getInt();
+
+									// Remove Request Mapping
+									NodeManagerStatRequestMapping request = statRequests.remove(simId);
+
+									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data,
+											request.getFormat(), request.getFileNameSuffix());
+
+									request.setStatExporter(statsReply.getStatExporter());
+
+									// Signal the waiting thread.
+									request.signalReply();
+								}
+								else
+								{
+									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state "
+											+ nodeState.toString());
+								}
+
+							break;
 							// Test Frame or Garbage
 							case NCP.INVALID:
 							default:
@@ -713,16 +575,6 @@ public class NodeManager
 		cmdOutput.flush();
 
 		cmdTxLock.release();
-	}
-
-	private void sendTransferMessage(byte[] bytes) throws IOException
-	{
-		transTxLock.acquireUninterruptibly();
-
-		transferOutput.write(bytes);
-		transferOutput.flush();
-
-		transTxLock.release();
 	}
 
 	/**
@@ -779,19 +631,6 @@ public class NodeManager
 	public void destroy(String reason)
 	{
 		log.info("Removing Node Manager for Node " + nodeInfo.getUid() + " Reason : " + reason);
-
-		try
-		{
-			if(transferSocket != null)
-			{
-				transferSocket.close();
-				log.info("Node " + nodeInfo.getUid() + " Transfer socket closed");
-			}
-		}
-		catch(IOException e)
-		{
-			log.error("Node " + nodeInfo.getUid() + " Transfer Socket already closed");
-		}
 
 		try
 		{
@@ -967,7 +806,7 @@ public class NodeManager
 		try
 		{
 			// Send the request
-			sendTransferMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
+			sendCMDMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
 
 			request.waitOnReply();
 
