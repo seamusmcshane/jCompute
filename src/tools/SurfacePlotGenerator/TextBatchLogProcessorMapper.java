@@ -232,7 +232,7 @@ public class TextBatchLogProcessorMapper
 				}
 				
 				item.setCoordsPos(pos);
-				item.setCoordsVals(pos);				
+				item.setCoordsVals(vals);				
 			}
 			else
 			{
