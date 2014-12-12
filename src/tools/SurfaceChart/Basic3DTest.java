@@ -2,7 +2,10 @@ package tools.SurfaceChart;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -16,10 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 public class Basic3DTest implements ApplicationListener
 {
 	public Environment environment;
-	public PerspectiveCamera cam;
-
-	private ShapeRenderer shapeRenderer;
-	private SpriteBatch shapeBatch;
+	public Camera cam;
 		
 	private DirectionalLight light1 = new DirectionalLight();
 	private DirectionalLight light2 = new DirectionalLight();
@@ -28,7 +28,7 @@ public class Basic3DTest implements ApplicationListener
 		
 	private float amb = .3f;
 	
-	private float lightScale = 100f;
+	private float lightScale = 1000f;
 	
 	private BarSurface barSurface;
 	
@@ -52,46 +52,43 @@ public class Basic3DTest implements ApplicationListener
         // Pallete
 		HueColorPallete pallete = new HueColorPallete(100);
 
-		// Surface
-		barSurface = new BarSurface(100,pallete);
-
 		cam = new PerspectiveCamera(75, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		cam.position.set(0, -barSurface.getSize(), barSurface.getSize());
+
+		/*
+		cam = new OrthographicCamera(640,480);
+		cam.translate(0, 0, 10000f);
+		cam.far = 102420f;
+*/
+		// Surface
+		barSurface = new BarSurface(cam,20*20,pallete);
+		
+		cam.position.set(0, -barSurface.getSize(), 1000);
 		cam.lookAt(0, 0, 0);
 		cam.near = 0.1f;
 		cam.far = 10240f;
-		//cam.rotateAround(new Vector3(0,0,0), new Vector3(0,0,1f), 45f);
 		cam.update();
+		
 
 		CameraInputController camController = new CameraInputController(cam);
 		Gdx.input.setInputProcessor(camController);
-
-		shapeBatch = new SpriteBatch();
-		shapeRenderer = new ShapeRenderer();
-		
-		Gdx.graphics.setVSync(true);
 	}
 
 	@Override
 	public void render()
 	{
-		cam.rotateAround(new Vector3(0,0,0), new Vector3(0,0,1f), .2f);
-
+		cam.rotateAround(new Vector3(0,0,0), new Vector3(0,0,1f), 0.4f);
 		cam.update();
+
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.graphics.getGL20().glClearColor( 1, 1, 1, 1 );
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 
-		Gdx.graphics.getGL10().glClearColor( 1, 1, 1, 1 );
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-		barSurface.render(cam, environment);
-		
-
+		barSurface.render(cam,environment);
 	}
 
 	@Override
 	public void dispose()
 	{
-		shapeRenderer.dispose();
-		shapeBatch.dispose();
 		barSurface.dispose();
 	}
 

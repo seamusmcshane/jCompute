@@ -10,13 +10,9 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-
-import javax.swing.JPanel;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 import org.lwjgl.opengl.Display;
-
-import tools.SurfacePlotGenerator.HeatMapUtil;
 
 public class SurfaceChart implements WindowListener
 {
@@ -27,9 +23,19 @@ public class SurfaceChart implements WindowListener
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		LwjglAWTCanvas canvas = new LwjglAWTCanvas(new Basic3DTest(), false);
+		/*LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+		
+		cfg.title = "Bar Surface";
+		cfg.samples = 16;
+		cfg.vSyncEnabled = true;*/
+		//LwjglCanvas canvas = new LwjglCanvas(new Basic3DTest(),cfg);
+		
+		LwjglApplicationConfiguration.disableAudio = true;
+		
+		LwjglAWTCanvas canvas = new LwjglAWTCanvas(new Basic3DTest(), true);
 		gui.getContentPane().add(canvas.getCanvas(), BorderLayout.CENTER);
-
+		canvas.getGraphics().setVSync(true);
+		
 		gui.pack();
 		gui.setVisible(true);
 		gui.setSize(800, 800);
