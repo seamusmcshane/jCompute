@@ -35,5 +35,12 @@ public class NodeStats
 	{
 		return simulationsProcessed;
 	}
+	
+	public void reset()
+	{
+		cpuUsage = 0;
+		freeMemory = 0;
+		simulationsProcessed=0;
+	}
 
 }

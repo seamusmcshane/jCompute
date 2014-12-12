@@ -106,6 +106,9 @@ public class Node
 
 			try
 			{
+				// Reset stats on reconnection.
+				nodeStats.reset();
+				
 				// Only attempt to connect every 5 seconds
 				Thread.sleep(5000);
 
