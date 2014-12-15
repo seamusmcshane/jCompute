@@ -267,7 +267,7 @@ public class Node
 							
 							sendMessage(tempB);
 
-							log.info("Sent SimStats " + statsReq.getSimId() + " FrameLen(" + tempB.length/8 + "kB)");
+							log.info("Sent SimStats " + statsReq.getSimId() + " Size " + (int)Math.ceil(tempB.length/1024) + "kB");
 						}
 						break;
 						// Default / Invalid
