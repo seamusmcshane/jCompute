@@ -316,8 +316,23 @@ public class ControlNode
 
 							controlNodeLock.acquireUninterruptibly();
 
-							if(!existingNode(nodeSocket))
+							
+							boolean existingActive = existingActiveNode(nodeSocket);
+							boolean existingConnecting = existingConnectingNode(nodeSocket);
+							
+							// If there is existing active node from this address
+							if(!existingActive)
 							{
+								// If there is a existing connecting node - remove it.
+								if(existingConnecting)
+								{
+									NodeManager existingNode = getExistingConnectingNode(nodeSocket);
+									
+									connectingNodes.remove(existingNode);
+									
+									existingNode.destroy("A new node from " + existingNode.getAddress() + " has connected");
+								}
+								
 								// Add to NodeManager list of connecting node
 								connectingNodes.add(new NodeManager(++connectionNumber, nodeSocket));
 							}
@@ -360,7 +375,25 @@ public class ControlNode
 		}
 	}
 
-	public boolean existingNode(Socket nodeSocket)
+	public boolean existingActiveNode(Socket nodeSocket)
+	{
+		boolean nodeExists = false;
+		
+		String socketAddress = nodeSocket.getInetAddress().getHostAddress();
+		
+		for(NodeManager node : activeNodes)
+		{
+			if(node.getAddress().equals(socketAddress))
+			{
+				nodeExists = true;
+				break;
+			}
+		}
+		
+		return nodeExists;
+	}
+	
+	public boolean existingConnectingNode(Socket nodeSocket)
 	{
 		boolean nodeExists = false;
 		
@@ -375,16 +408,25 @@ public class ControlNode
 			}
 		}
 		
-		for(NodeManager node : activeNodes)
+		return nodeExists;
+	}
+	
+	public NodeManager getExistingConnectingNode(Socket nodeSocket)
+	{
+		NodeManager tNode = null;
+		
+		String socketAddress = nodeSocket.getInetAddress().getHostAddress();
+
+		for(NodeManager node : connectingNodes)
 		{
 			if(node.getAddress().equals(socketAddress))
 			{
-				nodeExists = true;
+				tNode = node;
 				break;
 			}
 		}
 		
-		return nodeExists;
+		return tNode;
 	}
 	
 	/* Simulation Manager Logic */
