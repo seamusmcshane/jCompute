@@ -30,6 +30,8 @@ public class NodeStatusTab extends JPanel
 	private GlobalStatChartPanel clusterNodeUtilChar;
 	private GlobalStatChartPanel clusterNodeMemChar;
 	private GlobalStatChartPanel clusterSimProChart;
+	private GlobalStatChartPanel clusterNodeActiveSims;
+	private GlobalStatChartPanel clusterNodeStatsPending;
 
 	// Left
 	private TablePanel clusterNodesTablePanel;
@@ -39,24 +41,24 @@ public class NodeStatusTab extends JPanel
 	public NodeStatusTab(int rightPanelsMinWidth)
 	{
 		this.nodeStatusTabPanel = new SimpleTabPanel();
-		
+
 		// Min Width of rightPanel
 		this.rightPanelsMinWidth = rightPanelsMinWidth;
 
 		this.setLayout(new BorderLayout());
-		
+
 		container = new JPanel();
 
-		container.setLayout(new GridLayout(3, 1, 0, 0));
+		container.setLayout(new GridLayout(5, 1, 0, 0));
 
 		scrollPane = new JScrollPane(container);
 
 		scrollPane.setPreferredSize(new Dimension(600, 240));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(15);
 
-		//this.add(scrollPane, BorderLayout.NORTH);
-		//splitPane.setLeftComponent(scrollPane);
-		
+		// this.add(scrollPane, BorderLayout.NORTH);
+		// splitPane.setLeftComponent(scrollPane);
+
 		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
 		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, 200));
 		clusterNodeUtilChar.setPreferredSize(new Dimension(600, 200));
@@ -74,7 +76,19 @@ public class NodeStatusTab extends JPanel
 		clusterSimProChart.setPreferredSize(new Dimension(600, 200));
 
 		container.add(clusterSimProChart);
-		
+
+		clusterNodeActiveSims = new GlobalStatChartPanel("Active Simulations", "Nodes", true, false, 60, true);
+		clusterNodeActiveSims.setMaximumSize(new Dimension(1920, 200));
+		clusterNodeActiveSims.setPreferredSize(new Dimension(600, 200));
+
+		container.add(clusterNodeActiveSims);
+
+		clusterNodeStatsPending = new GlobalStatChartPanel("Statistics Pending", "Nodes", true, false, 60, true);
+		clusterNodeStatsPending.setMaximumSize(new Dimension(1920, 200));
+		clusterNodeStatsPending.setPreferredSize(new Dimension(600, 200));
+
+		container.add(clusterNodeStatsPending);
+
 		// Nodes Tab
 		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
 
@@ -87,13 +101,13 @@ public class NodeStatusTab extends JPanel
 		clusterNodesTablePanel.setColumWidth(6, 75);
 		clusterNodesTablePanel.setColumWidth(7, 75);
 
-		//this.add(clusterNodesTablePanel, BorderLayout.CENTER);
-		//splitPane.setRightComponent(clusterNodesTablePanel);
+		// this.add(clusterNodesTablePanel, BorderLayout.CENTER);
+		// splitPane.setRightComponent(clusterNodesTablePanel);
 		nodeStatusTabPanel.addTab(clusterNodesTablePanel, "Information");
 		nodeStatusTabPanel.addTab(scrollPane, "Activity");
 
 		this.add(nodeStatusTabPanel);
-		
+
 		JPanel statusPanel = new JPanel();
 		this.add(statusPanel, BorderLayout.SOUTH);
 		statusPanel.setLayout(new GridLayout(1, 0, 0, 0));
@@ -124,6 +138,10 @@ public class NodeStatusTab extends JPanel
 		clusterNodeMemChar.removeStat("Node " + e.getNodeConfiguration().getUid());
 
 		clusterSimProChart.removeStat("Node " + e.getNodeConfiguration().getUid());
+		
+		clusterNodeActiveSims.removeStat("Node " + e.getNodeConfiguration().getUid());
+		
+		clusterNodeStatsPending.removeStat("Node " + e.getNodeConfiguration().getUid());
 	}
 
 	@Subscribe
@@ -135,6 +153,12 @@ public class NodeStatusTab extends JPanel
 				e.getNodeId());
 		clusterSimProChart.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
 				.getSimulationsProcessed(), e.getNodeId());
+
+		clusterNodeActiveSims.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
+				.getSimulationsActive(), e.getNodeId());
+		
+		clusterNodeStatsPending.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
+				.getStatisticsPendingFetch(), e.getNodeId());
 	}
 
 }

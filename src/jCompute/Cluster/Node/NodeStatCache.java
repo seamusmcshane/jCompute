@@ -26,4 +26,9 @@ public class NodeStatCache
 		return exporter;
 	}
 	
+	public synchronized int getStatsStore()
+	{
+		return statMap.size();
+	}
+	
 }

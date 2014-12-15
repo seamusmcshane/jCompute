@@ -577,4 +577,9 @@ public class SimulationsManager implements SimulationsManagerInf
 		return activeSims < maxSims;
 	}
 
+	public int getActiveSims()
+	{
+		return activeSims;
+	}
+
 }

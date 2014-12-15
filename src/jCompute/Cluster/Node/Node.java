@@ -21,6 +21,7 @@ import jCompute.Datastruct.knn.benchmark.NodeWeightingBenchmark;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
+import jCompute.SimulationManager.SimulationsManager;
 import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
@@ -47,7 +48,7 @@ public class Node
 	private static Logger log = LoggerFactory.getLogger(Node.class);
 
 	// Simulation Manager
-	private SimulationsManagerInf simsManager;
+	private SimulationsManager simsManager;
 
 	// Protect the send socket
 	private Semaphore cmdTxLock = new Semaphore(1, true);
@@ -70,7 +71,7 @@ public class Node
 	private NodeStats nodeStats;
 	private long simulationsProcessed;
 
-	public Node(String address, SimulationsManagerInf simsManager)
+	public Node(String address, SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
 		simulationsProcessed = 0;
@@ -239,6 +240,8 @@ public class Node
 							nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
 							nodeStats.setFreeMemory(OSInfo.getSystemFreeMemory());
 							nodeStats.setSimulationsProcessed(simulationsProcessed);
+							nodeStats.setSimulationsActive(simsManager.getActiveSims());
+							nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
 
 							NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStats);
 

@@ -25,7 +25,8 @@ public class NodeStatsReply
 		stats.setCpuUsage(source.getInt());
 		stats.setFreeMemory(source.getInt());
 		stats.setSimulationsProcessed(source.getLong());
-		
+		stats.setSimulationsActive(source.getInt());
+		stats.setStatisticsPendingFetch(source.getInt());		
 	}
 	
 	public NodeStats getNodeStats()
@@ -40,7 +41,7 @@ public class NodeStatsReply
 	
 	public byte[] toBytes()
 	{
-		int dataLen = 20;
+		int dataLen = 28;
 
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NCP.HEADER_SIZE);  
 		
@@ -53,6 +54,8 @@ public class NodeStatsReply
 		tbuffer.putInt(stats.getCpuUsage());
 		tbuffer.putInt(stats.getFreeMemory());
 		tbuffer.putLong(stats.getSimulationsProcessed());
+		tbuffer.putInt(stats.getSimulationsActive());
+		tbuffer.putInt(stats.getStatisticsPendingFetch());
 		
 		return tbuffer.array();
 	}
