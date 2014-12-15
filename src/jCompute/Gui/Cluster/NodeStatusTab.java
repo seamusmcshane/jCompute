@@ -15,6 +15,7 @@ import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Component.GlobalStatChartPanel;
+import jCompute.Gui.Component.SimpleTabPanel;
 import jCompute.Gui.Component.TablePanel;
 
 import java.awt.GridLayout;
@@ -23,7 +24,7 @@ import javax.swing.JLabel;
 
 public class NodeStatusTab extends JPanel
 {
-	private JSplitPane splitPane;
+	private SimpleTabPanel nodeStatusTabPanel;
 	private JScrollPane scrollPane;
 	private JPanel container;
 	private GlobalStatChartPanel clusterNodeUtilChar;
@@ -37,15 +38,12 @@ public class NodeStatusTab extends JPanel
 
 	public NodeStatusTab(int rightPanelsMinWidth)
 	{
+		this.nodeStatusTabPanel = new SimpleTabPanel();
+		
 		// Min Width of rightPanel
 		this.rightPanelsMinWidth = rightPanelsMinWidth;
 
 		this.setLayout(new BorderLayout());
-
-		splitPane = new JSplitPane();
-		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPane.setResizeWeight(0.45f);
-		this.add(splitPane,BorderLayout.CENTER);
 		
 		container = new JPanel();
 
@@ -57,7 +55,7 @@ public class NodeStatusTab extends JPanel
 		scrollPane.getVerticalScrollBar().setUnitIncrement(15);
 
 		//this.add(scrollPane, BorderLayout.NORTH);
-		splitPane.setLeftComponent(scrollPane);
+		//splitPane.setLeftComponent(scrollPane);
 		
 		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
 		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, 200));
@@ -76,7 +74,7 @@ public class NodeStatusTab extends JPanel
 		clusterSimProChart.setPreferredSize(new Dimension(600, 200));
 
 		container.add(clusterSimProChart);
-
+		
 		// Nodes Tab
 		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
 
@@ -90,8 +88,12 @@ public class NodeStatusTab extends JPanel
 		clusterNodesTablePanel.setColumWidth(7, 75);
 
 		//this.add(clusterNodesTablePanel, BorderLayout.CENTER);
-		splitPane.setRightComponent(clusterNodesTablePanel);
+		//splitPane.setRightComponent(clusterNodesTablePanel);
+		nodeStatusTabPanel.addTab(clusterNodesTablePanel, "Information");
+		nodeStatusTabPanel.addTab(scrollPane, "Activity");
 
+		this.add(nodeStatusTabPanel);
+		
 		JPanel statusPanel = new JPanel();
 		this.add(statusPanel, BorderLayout.SOUTH);
 		statusPanel.setLayout(new GridLayout(1, 0, 0, 0));
