@@ -36,9 +36,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -555,6 +557,21 @@ public class NodeManager
 					// Explicit release of all semaphores
 					addSimWait.release();
 					remSimWait.release();
+					
+					// Release any threads waiting on a stat reply - they will get a null stat exporter object.
+					KeySetView<Integer, NodeManagerStatRequestMapping> keys = statRequests.keySet();
+					
+					for(Integer key : keys)
+					{
+						NodeManagerStatRequestMapping request = statRequests.remove(key);
+						
+						log.info("Aborting Stat fetch for Request " + key);
+												
+						request.setStatExporter(null);
+						
+						request.signalReply();
+					}
+					
 				}
 
 			}
@@ -662,15 +679,18 @@ public class NodeManager
 	{
 		int tActive = 0;
 
-		activeSimsLock.acquireUninterruptibly();
-
-		tActive = activeSims;
-
-		activeSimsLock.release();
-
-		if(tActive < nodeInfo.getMaxSims())
+		if(isActive())
 		{
-			return true;
+			activeSimsLock.acquireUninterruptibly();
+
+			tActive = activeSims;
+
+			activeSimsLock.release();
+
+			if(tActive < nodeInfo.getMaxSims())
+			{
+				return true;
+			}
 		}
 
 		return false;
@@ -801,8 +821,6 @@ public class NodeManager
 		// Add the request to the map
 		statRequests.put(remoteSimId, request);
 
-		// nodeLock.release();
-
 		try
 		{
 			// Send the request
@@ -819,7 +837,7 @@ public class NodeManager
 		catch(IOException e)
 		{
 			// Connection is gone...
-			log.error("Node " + nodeInfo.getUid() + " Error in get Stats Exporter");
+			log.error("Node " + nodeInfo.getUid() + " Error in get Stats Exporter - SimId " + remoteSimId);
 		}
 
 		return returnedExporter;

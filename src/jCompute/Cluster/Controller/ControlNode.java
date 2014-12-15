@@ -342,7 +342,6 @@ public class ControlNode
 								nodeSocket.close();
 							}
 
-
 							log.debug("------------------------------------");
 							log.debug("Added (" + connectingNodes.size() + ")");
 							log.debug("------------------------------------");
@@ -442,13 +441,13 @@ public class ControlNode
 		for(NodeManager node : activeNodes)
 		{
 			log.debug("Node " + node.getUid());
-			if(node.hasFreeSlot())
+			if(node.hasFreeSlot() && node.isActive())
 			{
 				log.debug(node.getUid() + " hasFreeSlot ");
 
 				/*
 				 * 
-				 * Valud mapping values are set at various points int the
+				 * Valid mapping values are set at various points int the
 				 * sequence
 				 */
 
@@ -485,8 +484,8 @@ public class ControlNode
 				}
 				else
 				{
-					log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId "
-							+ simulationNum + " Remote SimId " + remoteSimId);
+					log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId(pending) "
+							+ (simulationNum+1) + " Remote SimId " + remoteSimId);
 				}
 
 			}
@@ -554,6 +553,8 @@ public class ControlNode
 
 	public StatExporter getStatExporter(int simId, String fileNameSuffix, ExportFormat format)
 	{
+		StatExporter exporter = null;
+		
 		controlNodeLock.acquireUninterruptibly();
 
 		// Look up mapping
@@ -566,8 +567,12 @@ public class ControlNode
 
 		controlNodeLock.release();
 
-		// Here so we don't block during transfer
-		StatExporter exporter = nodeManager.getStatExporter(mapping.getRemoteSimId(), fileNameSuffix, format);
+		// If the node has gone, we can get null.
+		if(nodeManager !=null)
+		{
+			// Here so we can avoid blocking during transfer
+			 exporter = nodeManager.getStatExporter(mapping.getRemoteSimId(), fileNameSuffix, format);
+		}
 
 		return exporter;
 	}

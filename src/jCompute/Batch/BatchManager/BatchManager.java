@@ -17,6 +17,7 @@ import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Thread.SimpleNamedThreadFactory;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -60,7 +61,11 @@ public class BatchManager
 	private Semaphore itemsLock = new Semaphore(1, false);
 
 	private ArrayList<BatchItem> completeItems;
+	
+	private ArrayList<BatchItem> failedStatFetchItems;
 
+	private ArrayList<Integer> recoveredSimIds;
+	
 	// Scheduler
 	private Timer batchScheduler;
 
@@ -88,6 +93,10 @@ public class BatchManager
 		activeItems = new ArrayList<BatchItem>(16);
 
 		completeItems = new ArrayList<BatchItem>();
+		
+		failedStatFetchItems = new ArrayList<BatchItem>();
+		
+		recoveredSimIds = new ArrayList<Integer>();
 
 		// Register on the event bus
 		JComputeEventBus.register(this);
@@ -111,6 +120,8 @@ public class BatchManager
 			@Override
 			public void run()
 			{
+				recoverItemsFromInactiveNodes();
+				
 				processCompletedItems();
 			}
 
@@ -161,17 +172,42 @@ public class BatchManager
 	{
 		batchManagerLock.acquireUninterruptibly();
 
-		if(controlNode.hasRecoverableSimIds())
-		{
-			ArrayList<Integer> recoveredIds = controlNode.getRecoverableSimIds();
+		Iterator<Integer> itr;
+		ArrayList<Integer> processedIds = new ArrayList<Integer>();
 
-			Iterator<Integer> itr = recoveredIds.iterator();
+		if(controlNode.hasRecoverableSimIds())
+		{			
+			ArrayList<Integer> tIds = controlNode.getRecoverableSimIds();
+			itr = tIds.iterator();
+
 			while(itr.hasNext())
 			{
-				int simId = itr.next();
+				recoveredSimIds.add(itr.next());
+			}			
+		}	
+			
+		itr = recoveredSimIds.iterator();
+		while(itr.hasNext())
+		{
+			int simId = itr.next();
 
-				BatchItem item = findActiveBatchItemFromSimId(simId);
+			BatchItem item = findActiveBatchItemFromSimId(simId);
+			
+			// Item was not active but the mapping still exists - look in the failed list.
+			if(item == null)
+			{
+				item = getFailedFetchItemsFromSimId(simId);
 				
+				itemsLock.acquireUninterruptibly();
+
+				failedStatFetchItems.remove(item);
+				
+				itemsLock.release();
+			}
+			
+			// If the item was found
+			if(item != null)
+			{
 				Batch batch = findBatch(item.getBatchId());
 
 				itemsLock.acquireUninterruptibly();
@@ -180,17 +216,54 @@ public class BatchManager
 
 				itemsLock.release();
 
-				log.info("Recovered Item (" + item.getItemId() + "/"+  item.getSampleId()  + ") from Batch " + item.getBatchId());
+				log.info("Recovered Item (" + item.getItemId() + "/"+  item.getSampleId()  + ") from Batch " + item.getBatchId() + " for SimId " + simId);
 
 				batch.returnItemToQueue(item);
+				
+				processedIds.add(simId);
 			}
-
+			else
+			{
+				// We try to recover a sim too early - it has not been processed yet.
+				log.info("Could not recover item related to SimId " + simId + " yet.");
+			}
+		}
+		
+		for(Integer i : processedIds )
+		{
+			recoveredSimIds.remove(i);
 		}
 
 		batchManagerLock.release();
 
 	}
 
+	private BatchItem getFailedFetchItemsFromSimId(int simId)
+	{
+		itemsLock.acquireUninterruptibly();
+
+		Iterator<BatchItem> itr = failedStatFetchItems.iterator();
+
+		BatchItem item = null;
+		BatchItem tItem = null;
+
+		while(itr.hasNext())
+		{
+			tItem = itr.next();
+
+			if(tItem.getSimId() == simId)
+			{
+				item = tItem;
+				break;
+			}
+
+		}
+
+		itemsLock.release();
+
+		return item;
+	}
+	
 	private void processCompletedItems()
 	{
 		itemsLock.acquireUninterruptibly();
@@ -235,8 +308,6 @@ public class BatchManager
 	{
 		// log.info("Scheduler Tick");
 
-		recoverItemsFromInactiveNodes();
-
 		// processCompletedItems();
 
 		itemsLock.acquireUninterruptibly();
@@ -247,7 +318,7 @@ public class BatchManager
 		{
 			processCompletedItems();
 		}
-
+		
 		batchManagerLock.acquireUninterruptibly();
 
 		// Schedule from the fifo only if it contains batches
@@ -1049,10 +1120,23 @@ public class BatchManager
 			// The stats fetch time
 			item.setNetTime(timeEnd - timeStart);
 
-			batch.setItemComplete(item, exporter);
-
-			log.info("Batch Item Finished : " + batch.getBatchId());
-
+			if(exporter != null)
+			{
+				batch.setItemComplete(item, exporter);
+				
+				log.info("Batch Item Finished : " + batch.getBatchId());
+			}
+			else
+			{
+				log.warn("Statistics not retrieved for Item " + item.getItemId());
+				
+				itemsLock.acquireUninterruptibly();
+				
+				failedStatFetchItems.add(item);
+				
+				itemsLock.release();
+			}
+			
 			// Batch Progress
 			JComputeEventBus.post(new BatchProgressEvent(batch));
 		}
