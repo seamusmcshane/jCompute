@@ -78,9 +78,6 @@ public interface SimulationsManagerInf
 	
 	void removeAll();
 
-	public ArrayList<Integer> getRecoverableSimIds();
-	public boolean hasRecoverableSimIds();
-
 	boolean hasFreeSlot();
 
 }

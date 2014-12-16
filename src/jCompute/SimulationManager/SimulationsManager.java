@@ -560,18 +560,6 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 
 	@Override
-	public ArrayList<Integer> getRecoverableSimIds()
-	{
-		return null;
-	}
-
-	@Override
-	public boolean hasRecoverableSimIds()
-	{
-		return false;
-	}
-
-	@Override
 	public boolean hasFreeSlot()
 	{
 		return activeSims < maxSims;

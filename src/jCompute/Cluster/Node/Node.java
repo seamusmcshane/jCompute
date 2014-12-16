@@ -22,7 +22,6 @@ import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.SimulationManager.SimulationsManager;
-import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.OSInfo;
