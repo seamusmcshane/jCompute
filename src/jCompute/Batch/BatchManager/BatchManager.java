@@ -16,15 +16,12 @@ import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
-import jCompute.Thread.SimpleNamedThreadFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -36,7 +33,7 @@ public class BatchManager
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchManager.class);
-	
+
 	// Lock
 	private Semaphore batchManagerLock = new Semaphore(1, false);
 
@@ -61,19 +58,16 @@ public class BatchManager
 	private Semaphore itemsLock = new Semaphore(1, false);
 
 	private ArrayList<BatchItem> completeItems;
-	
+
 	private ArrayList<BatchItem> failedStatFetchItems;
 
 	private ArrayList<Integer> recoveredSimIds;
-	
+
 	// Scheduler
 	private Timer batchScheduler;
 
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
-
-	private ExecutorService completedItemsStatFetch = Executors.newFixedThreadPool(Runtime.getRuntime()
-			.availableProcessors(), new SimpleNamedThreadFactory("Completed Items Stat Fetch"));
 
 	// For progress monitoring (if set)
 	private JComputeProgressMonitor genComboMonitor;
@@ -93,9 +87,9 @@ public class BatchManager
 		activeItems = new ArrayList<BatchItem>(16);
 
 		completeItems = new ArrayList<BatchItem>();
-		
+
 		failedStatFetchItems = new ArrayList<BatchItem>();
-		
+
 		recoveredSimIds = new ArrayList<Integer>();
 
 		// Register on the event bus
@@ -120,9 +114,9 @@ public class BatchManager
 			@Override
 			public void run()
 			{
-				recoverItemsFromInactiveNodes();
-				
 				processCompletedItems();
+
+				recoverItemsFromInactiveNodes();
 			}
 
 		}, 0, 10000);
@@ -176,60 +170,68 @@ public class BatchManager
 		ArrayList<Integer> processedIds = new ArrayList<Integer>();
 
 		if(controlNode.hasRecoverableSimIds())
-		{			
+		{
 			ArrayList<Integer> tIds = controlNode.getRecoverableSimIds();
 			itr = tIds.iterator();
 
 			while(itr.hasNext())
 			{
 				recoveredSimIds.add(itr.next());
-			}			
-		}	
-			
+			}
+		}
+
 		itr = recoveredSimIds.iterator();
 		while(itr.hasNext())
 		{
+			boolean itemActive = true;
 			int simId = itr.next();
 
 			BatchItem item = findActiveBatchItemFromSimId(simId);
-			
-			// Item was not active but the mapping still exists - look in the failed list.
+
+			// Item was not active but the mapping still exists - look in the
+			// failed list.
 			if(item == null)
 			{
 				item = getFailedFetchItemsFromSimId(simId);
-				
+
 				itemsLock.acquireUninterruptibly();
 
 				failedStatFetchItems.remove(item);
-				
+
+				itemActive = false;
+
 				itemsLock.release();
 			}
-			
-			// If the item was found
-			if(item != null)
+
+			// System.out.println("SimId " + simId);
+			// System.out.println("itemActive " + itemActive);
+			// System.out.println("Item " + item);
+
+			Batch batch = findBatch(item.getBatchId());
+
+			itemsLock.acquireUninterruptibly();
+
+			if(itemActive)
 			{
-				Batch batch = findBatch(item.getBatchId());
-
-				itemsLock.acquireUninterruptibly();
-
 				activeItems.remove(item);
-
-				itemsLock.release();
-
-				log.info("Recovered Item (" + item.getItemId() + "/"+  item.getSampleId()  + ") from Batch " + item.getBatchId() + " for SimId " + simId);
-
-				batch.returnItemToQueue(item);
-				
-				processedIds.add(simId);
 			}
 			else
 			{
-				// We try to recover a sim too early - it has not been processed yet.
-				log.info("Could not recover item related to SimId " + simId + " yet.");
+				failedStatFetchItems.remove(item);
 			}
+
+			itemsLock.release();
+
+			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch "
+					+ item.getBatchId() + " for SimId " + simId);
+
+			batch.returnItemToQueue(item);
+
+			processedIds.add(simId);
+
 		}
-		
-		for(Integer i : processedIds )
+
+		for(Integer i : processedIds)
 		{
 			recoveredSimIds.remove(i);
 		}
@@ -263,7 +265,7 @@ public class BatchManager
 
 		return item;
 	}
-	
+
 	private void processCompletedItems()
 	{
 		itemsLock.acquireUninterruptibly();
@@ -288,7 +290,34 @@ public class BatchManager
 
 			if(batch != null)
 			{
-				completedItemsStatFetch.execute(new StatFetchTask(controlNode, batch, item, ExportFormat.ZXML));
+				long timeStart = System.currentTimeMillis();
+				long timeEnd;
+
+				// Export Stats // ExportFormat.ZXML
+				StatExporter exporter = controlNode.getStatExporter(item.getSimId(),
+						String.valueOf(item.getItemHash()), ExportFormat.ZXML);
+
+				timeEnd = System.currentTimeMillis();
+
+				// The stats fetch time
+				item.setNetTime(timeEnd - timeStart);
+
+				if(exporter != null)
+				{
+					batch.setItemComplete(item, exporter);
+
+					log.info("Batch Item Finished : " + batch.getBatchId());
+				}
+				else
+				{
+					log.warn("Statistics not retrieved for Item " + item.getItemId());
+
+					failedStatFetchItems.add(item);
+				}
+
+				// Batch Progress
+				JComputeEventBus.post(new BatchProgressEvent(batch));
+
 			}
 			else
 			{
@@ -318,7 +347,7 @@ public class BatchManager
 		{
 			processCompletedItems();
 		}
-		
+
 		batchManagerLock.acquireUninterruptibly();
 
 		// Schedule from the fifo only if it contains batches
@@ -1088,58 +1117,5 @@ public class BatchManager
 		batchManagerLock.release();
 
 	}
-
-	private class StatFetchTask implements Runnable
-	{
-		private ControlNode simsManager;
-		private Batch batch;
-		private BatchItem item;
-		private ExportFormat format;
-
-		public StatFetchTask(ControlNode simsManager, Batch batch, BatchItem item, ExportFormat format)
-		{
-			super();
-			this.simsManager = simsManager;
-			this.batch = batch;
-			this.item = item;
-			this.format = format;
-		}
-
-		@Override
-		public void run()
-		{
-			long timeStart = System.currentTimeMillis();
-			long timeEnd;
-
-			// Export Stats // ExportFormat.ZXML
-			StatExporter exporter = simsManager.getStatExporter(item.getSimId(), String.valueOf(item.getItemHash()),
-					format);
-
-			timeEnd = System.currentTimeMillis();
-
-			// The stats fetch time
-			item.setNetTime(timeEnd - timeStart);
-
-			if(exporter != null)
-			{
-				batch.setItemComplete(item, exporter);
-				
-				log.info("Batch Item Finished : " + batch.getBatchId());
-			}
-			else
-			{
-				log.warn("Statistics not retrieved for Item " + item.getItemId());
-				
-				itemsLock.acquireUninterruptibly();
-				
-				failedStatFetchItems.add(item);
-				
-				itemsLock.release();
-			}
-			
-			// Batch Progress
-			JComputeEventBus.post(new BatchProgressEvent(batch));
-		}
-	}
-
+	
 }
