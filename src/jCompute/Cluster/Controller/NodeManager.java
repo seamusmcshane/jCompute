@@ -237,7 +237,7 @@ public class NodeManager
 							log.info("Node registration ok");
 
 							log.info("Now requesting node configuration and weighting");
-							sendCMDMessage(new ConfigurationRequest(1, 1024, 5000, 1000, 5).toBytes());
+							sendCMDMessage(new ConfigurationRequest(1, 2048, 5000, 1000, 5).toBytes());
 						}
 						else
 						{

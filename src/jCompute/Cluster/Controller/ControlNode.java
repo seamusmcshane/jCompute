@@ -289,15 +289,6 @@ public class ControlNode
 				@Override
 				public void run()
 				{
-
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch(InterruptedException e1)
-					{
-
-					}
 					log.info("Listening Address : " + listenSocket.getLocalSocketAddress());
 
 					while(listenSocket.isBound())
@@ -313,9 +304,7 @@ public class ControlNode
 							log.info("New Connection from : " + nodeSocket.getRemoteSocketAddress());
 
 							// Accept new Connections
-
 							controlNodeLock.acquireUninterruptibly();
-
 							
 							boolean existingActive = existingActiveNode(nodeSocket);
 							boolean existingConnecting = existingConnectingNode(nodeSocket);

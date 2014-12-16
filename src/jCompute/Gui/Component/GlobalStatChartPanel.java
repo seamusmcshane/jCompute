@@ -23,6 +23,8 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +32,9 @@ import javax.swing.UIManager;
 
 public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(GlobalStatChartPanel.class);
+	
 	private static final long serialVersionUID = -3572724823868862025L;
 
 	private String statChartPanelName = "No Panel Name";
@@ -77,7 +82,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		this.sampleWindow = sampleWindow;
 
-		System.out.println(statChartPanelName + " Chart Panel Created");
+		log.info(statChartPanelName + " Chart Panel Created");
 		
 		this.setLayout(new BorderLayout());
 		
