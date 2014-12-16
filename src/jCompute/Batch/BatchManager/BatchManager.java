@@ -223,7 +223,7 @@ public class BatchManager
 			itemsLock.release();
 
 			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch "
-					+ item.getBatchId() + " for SimId " + simId);
+					+ item.getBatchId() + " for SimId " + simId + "("+itemActive+")");
 
 			batch.returnItemToQueue(item);
 
