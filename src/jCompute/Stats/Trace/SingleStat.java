@@ -94,6 +94,15 @@ public class SingleStat
 		return allSamples;
 	}
 	
+	public StatSample[] getHistoryAsArray()
+	{
+		StatSample array[] = new StatSample[allSamples.size()];
+		
+		array = allSamples.toArray(array);
+		
+		return array;
+	}
+	
 	public int getHistoryLength()
 	{
 		return allSamples.size();
