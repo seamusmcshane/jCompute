@@ -27,8 +27,8 @@ import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 
 public class PDFReport
 {
-	private final static int imageWidth = 1200;
-	private final static int imageHeight = 800;
+	private final static int imageWidth = 600;
+	private final static int imageHeight = 400;
 
 	private final static String itemLog = "ItemLog.xml";
 
