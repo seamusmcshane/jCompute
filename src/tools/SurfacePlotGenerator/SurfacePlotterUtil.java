@@ -81,7 +81,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private static String saveCD = "./scenarios";
 	private static String openCD = "./stats";
 
-	private TextBatchLogProcessorMapper mapper;
+	private XMLBatchLogProcessorMapper mapper;
 	private JButton btnLines;
 
 	private int subDiv = 1;
@@ -465,7 +465,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				System.out.println(file);
 
 				System.out.println("Creating Mapper");
-				mapper = new TextBatchLogProcessorMapper(file);
+				mapper = new XMLBatchLogProcessorMapper(file);
 
 				System.out.println("Average Chart");
 				addAvgChart();
