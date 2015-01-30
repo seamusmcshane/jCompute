@@ -312,14 +312,14 @@ public class Batch implements StoredQueuePosition
 			parameters.add(String.valueOf(IncrementMaxValue[p]));
 
 			// Logging
-			log.debug("ParameterType : " + ParameterType[p]);
-			log.debug("Path : " + Path[p]);
-			log.debug("GroupName : " + groupName[p]);
-			log.debug("ParameterName : " + parameterName[p]);
-			log.debug("Intial : " + Intial[p]);
-			log.debug("Increment : " + Increment[p]);
-			log.debug("Combinations : " + Combinations[p]);
-			log.debug("IncrementMaxValue : " + IncrementMaxValue[p]);
+			log.info("ParameterType : " + ParameterType[p]);
+			log.info("Path : " + Path[p]);
+			log.info("GroupName : " + groupName[p]);
+			log.info("ParameterName : " + parameterName[p]);
+			log.info("Intial : " + Intial[p]);
+			log.info("Increment : " + Increment[p]);
+			log.info("Combinations : " + Combinations[p]);
+			log.info("IncrementMaxValue : " + IncrementMaxValue[p]);
 
 		}
 
@@ -342,10 +342,10 @@ public class Batch implements StoredQueuePosition
 				// P[0] always increments
 				IncrementMod[p] = 1;
 			}
-			log.debug("Group " + p + " Increments @Combo%" + IncrementMod[p]);
+			log.info("Group " + p + " Increments @Combo%" + IncrementMod[p]);
 
 		}
-		log.debug("Combinations " + combinations);
+		log.info("Combinations " + combinations);
 
 		// The temp scenario used to generate the xml.
 		ConfigurationInterpreter temp;
@@ -517,7 +517,7 @@ public class Batch implements StoredQueuePosition
 				tempCoordValues.add(currentValues[p]);
 			}
 			logLine.append(")");
-			log.debug(logLine.toString());
+			log.info(logLine.toString());
 
 			// Add the new Batch Item combo used for batch item id,
 			// getScenarioXMLText is the new scenario xml configuration -
