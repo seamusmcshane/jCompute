@@ -10,7 +10,7 @@ public class HeatMap extends JPanel
 {
 	private BufferedImage image;
 
-	public HeatMap(TextBatchLogProcessorMapper mapper)
+	public HeatMap(XMLBatchLogProcessorMapper mapper)
 	{
 		image = new BufferedImage(mapper.getXSteps(),mapper.getYSteps(),BufferedImage.TYPE_INT_RGB);
 		

@@ -35,7 +35,7 @@ public class HeatMapUtil implements WindowListener
 
 		gui.setLayout(new BorderLayout());
 		
-		TextBatchLogProcessorMapper batchLog = new TextBatchLogProcessorMapper("stats/ItemLog.log");
+		XMLBatchLogProcessorMapper batchLog = new XMLBatchLogProcessorMapper("stats/ItemLog-nohunger-prey.xml");
 
 		hm = new HeatMap(batchLog);
 		
