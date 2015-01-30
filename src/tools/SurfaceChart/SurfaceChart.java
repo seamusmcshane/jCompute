@@ -11,34 +11,39 @@ import javax.swing.SwingUtilities;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
 
 import org.lwjgl.opengl.Display;
 
 public class SurfaceChart implements WindowListener
 {
 	private static JFrame gui;
+	private int width = 1800;
+	private int height = 900;
 	
 	public SurfaceChart()
 	{
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		/*LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+		LwjglApplicationConfiguration.disableAudio = true;
+
+		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "Bar Surface";
 		cfg.samples = 16;
-		cfg.vSyncEnabled = true;*/
-		//LwjglCanvas canvas = new LwjglCanvas(new Basic3DTest(),cfg);
+		cfg.vSyncEnabled = true;
+		cfg.useGL20 = true;
+		LwjglCanvas canvas = new LwjglCanvas(new Basic3DTest(width,height),cfg);
 		
-		LwjglApplicationConfiguration.disableAudio = true;
 		
-		LwjglAWTCanvas canvas = new LwjglAWTCanvas(new Basic3DTest(), true);
+		//LwjglAWTCanvas canvas = new LwjglAWTCanvas(new Basic3DTest(), true);
 		gui.getContentPane().add(canvas.getCanvas(), BorderLayout.CENTER);
 		canvas.getGraphics().setVSync(true);
 		
 		gui.pack();
 		gui.setVisible(true);
-		gui.setSize(800, 800);
+		gui.setSize(width, height);
 
 		gui.addWindowListener(this);
 	}
