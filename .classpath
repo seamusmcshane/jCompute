@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jtransforms/jtransforms-3.0/JLargeArrays-1.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rsyntaxtextarea/rsyntaxtextarea_2.5.1/rsyntaxtextarea.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-0.9.9/gdx-backend-lwjgl-natives.jar"/>
@@ -13,8 +14,8 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-configuration/commons-configuration-1.10/commons-configuration-1.10.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-collections/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-lang/commons-lang-2.6/commons-lang-2.6.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jcommon-1.0.20.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.16.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jcommon-1.0.23.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/knn-benchmark.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/Aparapi_2014_04_29/aparapi.jar">
 		<attributes>
@@ -40,5 +41,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/pdfbox-1.8.7.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/preflight-1.8.7.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/xmpbox-1.8.7.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jtransforms/jtransforms-3.0/JTransforms-3.0.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jwave/jWave-28-01-2015.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
