@@ -458,29 +458,34 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 
 		result.get(array2);
 
-		// ABS + Norm
-		double outMax = Double.MIN_VALUE;
-		for(int i=0;i< array2.length; i++)
-		{
-			// ABS
-			array2[i] = Math.abs(array2[i]);
-			array2[i] = ( array2[i] / len  );
-
+		// REAL + IMG = norm
+		double[] norm = new double[array2.length/2];
+		
+		// 
+		int normI = 0;
+		for(int i=0;i< array2.length; i+=2)
+		{			
+			double real = array2[i];
+			double img = array2[i+1];
 			
-			//System.out.println(Math.abs(array2[i]));
+			double inter = ((real*real) + (img*img));				
+			
+			norm[normI] = Math.sqrt(inter)/sampleWindow;			
+						
+			normI++;
 		}
-
-		StatSample[] array3 = new StatSample[result.capacity()/2];
 				
 		double mod = 1;
 		
 		System.out.println("Mod " + mod);
 		
+		StatSample[] array3 = new StatSample[result.capacity()/2];
+		
 		for(int i=0;i< array3.length; i++)
 		{			
-			//array3[i] = array2[2*i];
-			array3[i]  = new StatSample( (double)((i/sampleWindow)*mod), array2[2*i]);
+			array3[i]  = new StatSample( (double)((i/sampleWindow)*mod), norm[i]);
 		}
+		
 		freq.populateFFT("Frequency",array3);
 		
 		results.getContentPane().add(freq,BorderLayout.CENTER);
