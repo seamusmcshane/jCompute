@@ -210,6 +210,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		double value = 0;
 		Color color;
 
+		dataset.setNotify(false);
+		statDataset.setNotify(false);
+		
 		for(SingleStat stat : sampleList)
 		{
 			value = stat.getLastSample().getSample();
@@ -265,6 +268,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			}
 			
 			statDataset.setValue(value, name, category);
+			
 		}
 
 		if(totalStatEnabled)
@@ -281,7 +285,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
 			statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
 		}
-
+		
+		dataset.setNotify(true);
+		statDataset.setNotify(true);
 	}
 
 	public void destroy()
@@ -316,6 +322,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 
 	public void statUpdate(String name, int time, double value, int colorOffset)
 	{
+		dataset.setNotify(false);
+		statDataset.setNotify(false);
+		
 		XYSeries tempS = seriesMap.get(name);
 
 		// This is a new stat being detected
@@ -362,7 +371,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		tempS.add(time, value);
 
 		statDataset.setValue(value, name, category);
-
+		
+		dataset.setNotify(true);
+		statDataset.setNotify(true);
 	}
 
 }
