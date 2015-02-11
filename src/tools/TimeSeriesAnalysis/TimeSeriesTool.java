@@ -445,7 +445,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		//fftw3.fftw_init_threads();
 
 		fftw_plan plan = fftw3.fftw_plan_dft_1d(len, signal, result,fftw3.FFTW_FORWARD, (int) fftw3.FFTW_ESTIMATE);
-		
+				
 		signal.put(array);
 		
 		fftw3.fftw_execute(plan);
@@ -470,23 +470,27 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 			
 			double inter = ((real*real) + (img*img));				
 			
-			norm[normI] = Math.sqrt(inter)/sampleWindow;			
-						
+			norm[normI] = Math.sqrt(inter)/sampleWindow;
+			
 			normI++;
 		}
 				
-		double mod = 1;
+		double mod = sampleWindow;
+		//double mod = 1;
 		
 		System.out.println("Mod " + mod);
 		
 		StatSample[] array3 = new StatSample[result.capacity()/2];
+		
+		double maxT = (array3.length/sampleWindow)*mod;
 		
 		for(int i=0;i< array3.length; i++)
 		{			
 			array3[i]  = new StatSample( (double)((i/sampleWindow)*mod), norm[i]);
 		}
 		
-		freq.populateFFT("Frequency",array3);
+		//freq.populateFFT("Frequency",array3);
+		freq.populateFFTShift("Frequency",array3,maxT);
 		
 		results.getContentPane().add(freq,BorderLayout.CENTER);
 		results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
