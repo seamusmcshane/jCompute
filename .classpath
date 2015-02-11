@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jtransforms/jtransforms-3.0/JLargeArrays-1.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rsyntaxtextarea/rsyntaxtextarea_2.5.1/rsyntaxtextarea.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-0.9.9/gdx-backend-lwjgl-natives.jar"/>
@@ -41,7 +40,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/pdfbox-1.8.7.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/preflight-1.8.7.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox -1.8.7/xmpbox-1.8.7.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jtransforms/jtransforms-3.0/JTransforms-3.0.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jwave/jWave-28-01-2015.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/fftw-windows-x86_64.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/fftw.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
