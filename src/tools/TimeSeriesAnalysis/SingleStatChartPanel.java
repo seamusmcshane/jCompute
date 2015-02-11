@@ -339,9 +339,9 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 	}
 
-	public void populateFFT(String name, double[] sampleList)
+	// TIME INDEXED
+	public void populateFFT(String name, StatSample[] sampleList)
 	{
-		int sti = 0;
 		int samples = sampleList.length;
 
 		XYSeries tempS = seriesMap.get(name);
@@ -373,7 +373,65 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			series++;
 		}
 
-		int per = (int) (samples * 0.01);
+		tempS.setNotify(false);
+
+		for(int i = 0; i < samples; i++)
+		{
+			double value = sampleList[i].getSample();
+
+			if(value > maxValue)
+			{
+				maxValue = value;
+			}
+
+			if(value < minValue)
+			{
+				minValue = value;
+			}
+			
+			// Add the values of the sample in the trace at the samples time
+			// index
+			tempS.add(sampleList[i].getTime(), value);
+		}
+
+		tempS.setNotify(true);
+		
+		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
+
+	}
+	
+	public void populateFFT(String name, double[] sampleList)
+	{
+		int samples = sampleList.length;
+
+		XYSeries tempS = seriesMap.get(name);
+
+		// This is a new stat being detected
+		if(tempS == null)
+		{
+			// Color color = new
+			// Color(Color.HSBtoRGB(((0.13f*colorOffset)-0.13f), 1f, 1f));
+
+			// New Sample Trace for Chart
+			tempS = new XYSeries(name);
+			tempS.setMaximumItemCount(samples);
+
+			// Set Sample Trace Name
+			tempS.setDescription(name);
+
+			// Set Sample Trace Color
+			dataset.addSeries(tempS);
+
+			// timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series,
+			// color);
+			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(0.3f));
+
+			// Add Sample Name+Trace to Index of Known SampleNames
+			seriesMap.put(name, tempS);
+
+			// Update series totals
+			series++;
+		}
 
 		tempS.setNotify(false);
 
@@ -394,24 +452,9 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			// Add the values of the sample in the trace at the samples time
 			// index
 			tempS.add(s, value);
-
-
 		}
 
 		tempS.setNotify(true);
-
-		sti++;
-
-		
-		/*LogAxis logAxis = new LogAxis("Power");
-		logAxis.setBase(10);
-		logAxis.setTickUnit(new NumberTickUnit(10));
-		logAxis.setMinorTickMarksVisible(true);
-		logAxis.setAutoRange(true);
-		timeSeriesChart.getXYPlot().setRangeAxis(logAxis);*/
-		
-		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
-		//timeSeriesChart.getXYPlot().getRangeAxis().setLowerBound(minValue);
 		
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
 
