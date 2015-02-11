@@ -24,6 +24,8 @@ public class OrbitalCameraInputController implements InputProcessor
 	private boolean button0 = false;
 	private boolean button1 = false;
 	
+	private static int defaultPos = -750;
+	
 	public OrbitalCameraInputController(PerspectiveCamera cam, float[] target,float speed)
 	{
 		this.cam = cam;
@@ -38,7 +40,30 @@ public class OrbitalCameraInputController implements InputProcessor
 		startPos[0] = 0; 
 		startPos[1] = 0;
 		
-		cam.position.set(-750, -750, altitude);
+		cam.position.set(defaultPos, defaultPos, altitude);
+		cam.rotate(new Vector3(1,1,0), 90f);
+		cam.lookAt(target[0],target[1],target[2]);
+		
+		prevFov = cam.fieldOfView;
+	}
+	
+	public OrbitalCameraInputController(PerspectiveCamera cam,float pos, float altitude,float[] target,float speed)
+	{
+		this.cam = cam;
+		
+		target[0] = target[0];
+		target[1] = target[1];
+		target[2] = target[2];
+		
+		this.speed = speed;
+		
+		// Movement
+		startPos[0] = 0; 
+		startPos[1] = 0;
+		
+		this.altitude = altitude;
+		
+		cam.position.set(pos, pos, altitude);
 		cam.rotate(new Vector3(1,1,0), 90f);
 		cam.lookAt(target[0],target[1],target[2]);
 		
@@ -73,7 +98,7 @@ public class OrbitalCameraInputController implements InputProcessor
 	public boolean scrolled(int moved)
 	{		
 		boolean moveOk = true;
-		float minA = 100f;
+		float minA = speed;
 		float maxA = 1500f;
 		
 		float camX = cam.position.x;
@@ -115,7 +140,7 @@ public class OrbitalCameraInputController implements InputProcessor
 		{
 			if(moved<0)
 			{
-				cam.fieldOfView = cam.fieldOfView+5f;
+				cam.fieldOfView = cam.fieldOfView+1f;
 				
 				if(cam.fieldOfView > 100f)
 				{
@@ -125,11 +150,11 @@ public class OrbitalCameraInputController implements InputProcessor
 			}
 			else
 			{
-				cam.fieldOfView = cam.fieldOfView-5f;
+				cam.fieldOfView = cam.fieldOfView-1f;
 				
-				if(cam.fieldOfView < 20f)
+				if(cam.fieldOfView < 1)
 				{
-					cam.fieldOfView = 20f;
+					cam.fieldOfView = 1;
 				}
 			}
 			
@@ -264,6 +289,11 @@ public class OrbitalCameraInputController implements InputProcessor
 		cam.update();
 		
 		//System.out.println("X " + cam.position.x + " Y " + cam.position.y + " Z " + cam.position.z);
+	}
+	
+	public void setTarget(float[] target)
+	{
+		this.target = target;
 	}
 
 }
