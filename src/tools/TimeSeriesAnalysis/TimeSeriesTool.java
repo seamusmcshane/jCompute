@@ -5,7 +5,6 @@ import jCompute.Stats.Trace.SingleStat;
 import jCompute.Stats.Trace.StatSample;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +12,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -30,10 +28,6 @@ import org.bytedeco.javacpp.DoublePointer;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.fftw3;
 import org.bytedeco.javacpp.fftw3.fftw_plan;
-import org.jtransforms.fft.DoubleFFT_1D;
-
-import com.sun.jna.Native;
-import com.sun.jna.ptr.DoubleByReference;
 
 import javax.swing.JPanel;
 
@@ -43,19 +37,15 @@ import javax.swing.JList;
 
 import java.awt.GridBagConstraints;
 
-import javax.swing.ListSelectionModel;
 import javax.swing.JButton;
 
 import java.awt.Insets;
-
-import javax.swing.JTextField;
 
 public class TimeSeriesTool implements WindowListener, ActionListener
 {
 	private static JFrame gui;
 	private JMenuItem mntmOpen;
 	private SingleStatChartPanel chart;
-	private JMenuItem mntmComputeFft;
 	private StatSample[][] histories;
 	private String[] names;
 	private JPanel toolPanel;
@@ -209,13 +199,6 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		mntmOpen = new JMenuItem("Open");
 		mntmOpen.addActionListener(this);
 		mnFile.add(mntmOpen);
-
-		JMenu mnTools = new JMenu("Tools");
-		menuBar.add(mnTools);
-
-		mntmComputeFft = new JMenuItem("Compute FFT");
-		mntmComputeFft.addActionListener(this);
-		mnTools.add(mntmComputeFft);
 
 		gui.setVisible(true);
 
@@ -427,10 +410,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 				
 			}
 		}
-		else if(e.getSource() == mntmComputeFft)
-		{
-			computeAndDisplayFFT(0);
-		}
+
 	}
 
 	private void computeFFTAndDisplayFFTW3(int num)
@@ -518,91 +498,5 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		});
 		results.setVisible(true);
 		fftw3.fftw_destroy_plan(plan);
-	}
-	
-	private void computeAndDisplayFFT(int num)
-	{
-		System.out.println("Compute FFT");
-
-		String name = names[num];		
-		
-		int len = (histories[num].length);	
-		
-		/*double[] array = new double[len*2];
-		
-		for(int i = 0; i < len; i=i+2)
-		{
-			array[i] = histories[num][i].getSample();
-			array[i+1]=0;
-		}*/
-		
-		double[] array = new double[len*2];
-		
-		for(int i = 0; i < len; ++i)
-		{
-			array[2*i] = histories[num][i].getSample();
-			array[2*i+1]=0;
-		}
-
-		/*System.out.println("Data");
-		for(int i = 0; i < len; i++)
-		{
-			System.out.println(array[i]);
-		}*/
-
-		// Lenght of the first history
-		DoubleFFT_1D fft = new DoubleFFT_1D(len);
-
-		//fft.realForwardFull(array);
-		fft.complexForward(array);
-
-		/*System.out.println("Result");
-		for(int i = 0; i < len; i++)
-		{
-			System.out.println(array[i]);
-		}*/
-
-		final JFrame results = new JFrame();
-		results.getContentPane().setLayout(new BorderLayout());
-		
-		SingleStatChartPanel freq = new SingleStatChartPanel(name,name,true,false,len*2);
-		
-		/*
-		for(int i = 0; i < len*2; i++)
-		{
-			array[i] = Math.abs(array[i]);			
-		}
-		*/
-		
-		double[] array2 = new double[len];
-
-		int arr2 = 0;
-		
-		for(int i = 0; i < len*2; i+=2)
-		{
-			// System.out.println(Math.abs(array[i]));
-			array2[arr2] = (Math.abs(array[i]));
-			
-			arr2++;
-		}
-		
-		freq.populateFFT("Frequency",array2);
-		//freq.populateFFTShift("Frequency",array2);
-		
-		results.getContentPane().add(freq,BorderLayout.CENTER);
-		results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		results.setPreferredSize(new Dimension(1800, 600));
-		results.setMinimumSize(new Dimension(1800, 600));
-
-		results.addWindowListener(new WindowAdapter()
-		{
-			public void windowClosing(WindowEvent ev)
-			{
-				results.setVisible(false);
-				results.dispose();
-			}
-		});
-		results.setVisible(true);
-	}
-	
+	}	
 }
