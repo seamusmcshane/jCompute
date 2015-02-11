@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -25,11 +26,14 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import math.jwave.Transform;
-import math.jwave.transforms.AncientEgyptianDecomposition;
-import math.jwave.transforms.DiscreteFourierTransform;
-
+import org.bytedeco.javacpp.DoublePointer;
+import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.fftw3;
+import org.bytedeco.javacpp.fftw3.fftw_plan;
 import org.jtransforms.fft.DoubleFFT_1D;
+
+import com.sun.jna.Native;
+import com.sun.jna.ptr.DoubleByReference;
 
 import javax.swing.JPanel;
 
@@ -60,6 +64,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	private JButton btnDft;
 	private JPanel panel;
 	private JButton btnPhase;
+	
+	private double sampleWindow = 0;
 	
 	public static void main(String args[])
 	{
@@ -184,7 +190,9 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 					int index = indicies[0];
 					if( index >= 0)
 					{
-						computeAndDisplayFFT(index);
+						//computeAndDisplayFFT(index);
+						
+						computeFFTAndDisplayFFTW3(index);
 						
 					}
 				}
@@ -216,43 +224,25 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		// SINE WAVE
 
         // Sine Wave Frequency
-        int hertz = 10;  
+        int hertz = 10;
+        int sampleRate = (hertz*2);
+        double overSampleFreq = hertz*sampleRate;
         
-        int cycles = 1;
-        int overSample = 30;
+        double seconds = 1;
         
-        // Nyquist
-        int sampleRate = hertz*overSample;
+        sampleWindow = seconds;
         
-        int timeAxis = (sampleRate/2)+1;
+        int timeAxis = (int) (overSampleFreq*seconds);
         
-        double test = cycles/1.0/hertz;
-        double test2 = 1.0/sampleRate;
-        double test3 = test*test2;
-        
-        System.out.println(timeAxis);    
-        System.out.println(test);            
-        System.out.println(test2);            
-        System.out.println(test3);
-        // 
-        //float xIncr = (float) (1f/3f*Math.PI)*cycles;
-        //float xIncr = -((length/(float)timeAxis)*hertz);
-        
+        System.out.println(timeAxis);
         
         double time = 0;
-        //double dt = 1f/(float)timeAxis;
-        //double dt = (1.0/(double)sampleRate)*((1.0/(double)hertz)*(double)cycles);
         
-        //double dt = 1.0/(double)sampleRate*(double)cycles*1.0/(double)hertz;
-        double dt = (1.0/sampleRate);
-                
+        double dt = (1.0/overSampleFreq);
         
         double amplitude = 0;
         
-        
-        
         StatSample samples[] = new StatSample[timeAxis];
-
         
         int inc = 0;
         for( int i=0; i < timeAxis; i++ )
@@ -260,9 +250,9 @@ public class TimeSeriesTool implements WindowListener, ActionListener
         	amplitude = Math.sin(2.0*Math.PI*hertz*time);
 
         	samples[i] = new StatSample(time, amplitude);
-        	System.out.println("i " + i + " Time : " + time);
-        	time=time+(dt);
-
+        	//System.out.println("i " + i + " Time : " + time);
+        	//time=time+(dt);
+        	time=i*dt;
         }
         
 		gui.setTitle("Sine Wave");
@@ -294,6 +284,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		gui.getContentPane().add(chart, BorderLayout.CENTER);
 
 		gui.validate();
+		
 	}
 
 	@Override
@@ -387,6 +378,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 			if(val == JFileChooser.APPROVE_OPTION)
 			{
 
+				// OPEN FILE
+				
 				System.out.println("New File Choosen");
 				historyListModel.clear();
 
@@ -405,7 +398,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 
 				names = new String[stats.size()];
 				histories = new StatSample[stats.size()][];
-
+				
 				System.out.println("Got Arrays");
 
 				for(int st = 0; st < stats.size(); st++)
@@ -416,6 +409,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 					histories[st] = temp.getHistoryAsArray();
 				}
 
+				sampleWindow = histories[0].length;
+				
 				if(chart != null)
 				{
 					gui.getContentPane().remove(chart);
@@ -438,6 +433,93 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		}
 	}
 
+	private void computeFFTAndDisplayFFTW3(int num)
+	{
+		Loader.load(fftw3.class);
+				
+		String name = names[num];		
+		
+		int len = (histories[num].length);	
+		
+		int resLen = len * 2;
+		
+		double[] array = new double[len*2];
+		
+		double inMax = Double.MIN_VALUE;
+		
+		for(int i = 0; i < len; ++i)
+		{
+			array[2*i] = histories[num][i].getSample();
+			array[2*i+1]=0;
+			
+			if(array[2*i] > inMax)
+			{
+				inMax = array[2*i];
+			}
+		}
+		
+		DoublePointer signal = new DoublePointer(2 * len);
+		DoublePointer result = new DoublePointer(resLen);
+		
+		//fftw3.fftw_plan_with_nthreads(8);
+		//fftw3.fftw_init_threads();
+
+		fftw_plan plan = fftw3.fftw_plan_dft_1d(len, signal, result,fftw3.FFTW_FORWARD, (int) fftw3.FFTW_ESTIMATE);
+		
+		signal.put(array);
+		
+		fftw3.fftw_execute(plan);
+		final JFrame results = new JFrame();
+		results.getContentPane().setLayout(new BorderLayout());
+		
+		SingleStatChartPanel freq = new SingleStatChartPanel(name,name,true,false,len);
+		
+		double[] array2 = new double[result.capacity()];
+
+		result.get(array2);
+
+		// ABS + Norm
+		double outMax = Double.MIN_VALUE;
+		for(int i=0;i< array2.length; i++)
+		{
+			// ABS
+			array2[i] = Math.abs(array2[i]);
+			array2[i] = ( array2[i] / len  );
+
+			
+			//System.out.println(Math.abs(array2[i]));
+		}
+
+		StatSample[] array3 = new StatSample[result.capacity()/2];
+				
+		double mod = 1;
+		
+		System.out.println("Mod " + mod);
+		
+		for(int i=0;i< array3.length; i++)
+		{			
+			//array3[i] = array2[2*i];
+			array3[i]  = new StatSample( (double)((i/sampleWindow)*mod), array2[2*i]);
+		}
+		freq.populateFFT("Frequency",array3);
+		
+		results.getContentPane().add(freq,BorderLayout.CENTER);
+		results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		results.setPreferredSize(new Dimension(1800, 600));
+		results.setMinimumSize(new Dimension(1800, 600));
+
+		results.addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent ev)
+			{
+				results.setVisible(false);
+				results.dispose();
+			}
+		});
+		results.setVisible(true);
+		fftw3.fftw_destroy_plan(plan);
+	}
+	
 	private void computeAndDisplayFFT(int num)
 	{
 		System.out.println("Compute FFT");
@@ -498,7 +580,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		
 		for(int i = 0; i < len*2; i+=2)
 		{
-			System.out.println(Math.abs(array[i]));
+			// System.out.println(Math.abs(array[i]));
 			array2[arr2] = (Math.abs(array[i]));
 			
 			arr2++;
