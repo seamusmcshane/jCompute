@@ -51,7 +51,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	private int sampleWindow;
 
 	// Axis Range Adjustment
-	private double maxValue = 0;
+	private double maxValue = Double.MIN_VALUE;
 	private double minValue = Double.MAX_VALUE;
 
 	public SingleStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle,
@@ -400,6 +400,125 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 	}
 	
+	public void populateFFTShift(String name, StatSample[] sampleList, double maxT)
+	{
+		int sti = 0;
+		int samples = sampleList.length;
+
+		XYSeries tempS = seriesMap.get(name);
+
+		// This is a new stat being detected
+		if(tempS == null)
+		{
+			// Color color = new
+			// Color(Color.HSBtoRGB(((0.13f*colorOffset)-0.13f), 1f, 1f));
+
+			// New Sample Trace for Chart
+			tempS = new XYSeries(name);
+			tempS.setMaximumItemCount(samples);
+
+			// Set Sample Trace Name
+			tempS.setDescription(name);
+
+			// Set Sample Trace Color
+			dataset.addSeries(tempS);
+
+			// timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series,
+			// color);
+			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(0.3f));
+
+			// Add Sample Name+Trace to Index of Known SampleNames
+			seriesMap.put(name, tempS);
+
+			// Update series totals
+			series++;
+		}
+
+		int per = (int) (samples * 0.01);
+
+		tempS.setNotify(false);
+
+		// fVals=fs*(-NFFT/2:NFFT/2-1)/NFFT; 
+				
+		double maxV = Double.MIN_VALUE;
+		for(int s = 0; s < samples; s++)
+		{
+			if(sampleList[s].getSample() > maxV)
+			{
+				maxV = sampleList[s].getSample();
+			}
+		}
+		
+		maxV = 10*Math.log10(maxV);
+		
+		int i=-(samples/2);
+		for(int s = samples/2; s >= 0; s--)
+		{
+			double value = sampleList[s].getSample();
+			
+			value = 10*Math.log10(value);
+			
+			value = value-maxV;
+			
+			//value = (Math.sqrt(2)/2) * value;
+
+			double time = sampleList[s].getTime();
+
+			if(value > maxValue)
+			{
+				maxValue = value;
+			}
+
+			// Add the values of the sample in the trace at the samples time
+			// index
+			tempS.add(time, value);
+
+			if(s % per == 0)
+			{
+				//System.out.println(sti + " " + s);
+			}
+			i++;
+		}
+
+		for(int s = samples-1; s > samples/2; s--)
+		{
+			double value = sampleList[s].getSample();
+			
+			value = 10*Math.log10(value);
+			
+			value = value-maxV;
+			
+			//value = (Math.sqrt(2)/2) * value;
+			
+			double time = sampleList[s].getTime();
+
+			if(value > maxValue)
+			{
+				maxValue = value;
+			}
+
+			// Add the values of the sample in the trace at the samples time
+			// index
+			//tempS.add(time-(maxT)-1, value);
+			tempS.add(time-(maxT), value);
+
+			if(s % per == 0)
+			{
+				//System.out.println(sti + " " + s);
+			}
+			i++;
+		}
+		
+		tempS.setNotify(true);
+
+		sti++;
+
+		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
+		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
+		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+
+	}
+	
 	public void populateFFT(String name, double[] sampleList)
 	{
 		int samples = sampleList.length;
@@ -545,7 +664,9 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		sti++;
 
-		timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
+		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
+		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
 		
 	}
 }
