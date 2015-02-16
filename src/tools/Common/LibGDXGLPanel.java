@@ -19,7 +19,7 @@ public class LibGDXGLPanel extends JPanel
 		cfg.title = "PhasePlot3d";
 		cfg.samples = 8;
 		cfg.vSyncEnabled = true;
-		cfg.useGL20 = true;
+		cfg.useGL30 = false;
 		
 		LwjglCanvas canvas = new LwjglCanvas(glEnv,cfg);		
 		

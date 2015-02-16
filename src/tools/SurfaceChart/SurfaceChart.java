@@ -33,7 +33,7 @@ public class SurfaceChart implements WindowListener
 		cfg.title = "Bar Surface";
 		cfg.samples = 16;
 		cfg.vSyncEnabled = true;
-		cfg.useGL20 = true;
+		cfg.useGL30 = false;
 		LwjglCanvas canvas = new LwjglCanvas(new Basic3DTest(width,height),cfg);
 		
 		

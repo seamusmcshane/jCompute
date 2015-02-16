@@ -112,7 +112,7 @@ public class View implements ApplicationListener, InputProcessor
 
 		basePanel.setLayout(new BorderLayout());
 		
-		glCanvas = new LwjglAWTCanvas(this, true);	
+		glCanvas = new LwjglAWTCanvas(this);	
 		
 		basePanel.add(glCanvas.getCanvas(),BorderLayout.CENTER);
 		
