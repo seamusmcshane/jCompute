@@ -43,5 +43,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/fftw-windows-x86_64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/fftw.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/javacpp.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/fftw-linux-x86_64.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
