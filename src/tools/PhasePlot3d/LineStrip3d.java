@@ -91,12 +91,13 @@ public class LineStrip3d
 		}
 		int lines = linesList.length/3;
 		
+		System.out.println("getGLLines lines " + lines);
+		
 		int glLineSize = lines*NUM_COMPONENTS;
 		
 		int linesListSize = linesList.length;
 		
 		float[] glLines = new float[glLineSize];
-		
 		
 		float xMax = Float.NEGATIVE_INFINITY;
 		float yMax = Float.NEGATIVE_INFINITY;
@@ -169,7 +170,7 @@ public class LineStrip3d
 			{
 				glLines[NUM_COMPONENTS*line+0] = linesList[i];
 				glLines[NUM_COMPONENTS*line+1] = linesList[i+1];
-				glLines[NUM_COMPONENTS*line+2] = linesList[i+2];
+				glLines[NUM_COMPONENTS*line+2] = -10;//linesList[i+2];
 				
 				glLines[NUM_COMPONENTS*line+3] = color[0];
 				glLines[NUM_COMPONENTS*line+4] = color[1];
@@ -211,7 +212,14 @@ public class LineStrip3d
 					mesh.dispose();
 				}
 				
-				mesh = new Mesh(true, vertexCount, 0, new VertexAttribute(Usage.Position, POSITION_COMPONENTS, "a_position"),
+				short[] indices = new short[ vertexCount/POSITION_COMPONENTS];
+				
+				for(int i=0;i<indices.length;i++)
+				{
+					indices[i] = (short)i;
+				}
+				
+				mesh = new Mesh(true, vertexCount, indices.length, new VertexAttribute(Usage.Position, POSITION_COMPONENTS, "a_position"),
 						new VertexAttribute(Usage.Color, COLOR_COMPONENTS, "a_color"));
 				
 				mesh.setVertices(glLines);
@@ -226,7 +234,7 @@ public class LineStrip3d
 
 		// update the projection matrix so our triangles are rendered in 2D
 		shader.setUniformMatrix("u_projTrans", cam.combined);
-
+		
 		// render the mesh
 		mesh.render(shader, mode, 0, vertexCount);
 
