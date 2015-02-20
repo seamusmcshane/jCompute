@@ -33,14 +33,13 @@ public class Basic3DTest implements ApplicationListener
 	
 	private float lightScale = 1f;
 	
-	private BarSurface barSurface;
+	private BarSurfaceOri barSurface;
 	private ColorMap colorMap;
 	
 	private OrbitalCameraInputController camController;
 	
 	private float width;
 	private float height;
-	
 	
 	// test
 	private SpriteBatch batch;
@@ -85,13 +84,12 @@ public class Basic3DTest implements ApplicationListener
 		*/
 		
 		// Surface
-		barSurface = new BarSurface(cam,20*20,pallete);
+		barSurface = new BarSurfaceOri(cam,20*20,pallete);
 		
 		batch = new SpriteBatch();
 		colorMap = new ColorMap(barSurface.getZmin(),barSurface.getZmax(),pallete);		
 		
 		tr = colorMap.getTextureRegion();
-
 		
 		cam.near = 0.1f;
 		cam.far = 10240f;
