@@ -2,6 +2,7 @@ package tools.SurfaceChart;
 
 import java.util.Random;
 
+import tools.Common.AxisGrid;
 import tools.SurfaceChart.Surface.BarGrid;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -25,7 +26,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
-public class BarSurface
+public class BarSurfaceOri
 {
 	private ModelBatch modelBatch;
 
@@ -57,7 +58,7 @@ public class BarSurface
 	private Decal gridYAxisName[];
 	
 	private int gridSteps;
-	private float gridSize = 1000;
+	private int gridSize = 1000;
 
 	private HueColorPallete pallete;
 
@@ -78,7 +79,9 @@ public class BarSurface
 	float zAxisMin;
 	float zAxisMax;
 		
-	public BarSurface(Camera cam, int samples, HueColorPallete pallete)
+	private AxisGrid axisGrid;
+	
+	public BarSurfaceOri(Camera cam, int samples, HueColorPallete pallete)
 	{		
 		modelBatch = new ModelBatch();
 		
@@ -125,6 +128,10 @@ public class BarSurface
 		
 		grid = new BarGrid(gridSize,samples,pallete);
 				
+		axisGrid = new AxisGrid(gridSize,gridSize/2,0.5f);
+		
+		//axisGrid.translate(0, 0, 500);
+		
 		setData(cam,50,100,50,200,null);
 	}
 	
@@ -555,9 +562,11 @@ public class BarSurface
 		
 		modelBatch.begin(cam);
 		
+		axisGrid.render(cam, modelBatch,db, environment);
+		
 		grid.render(modelBatch, cam, environment);
 				
-		Vector3 pos1 = new Vector3();
+		/*Vector3 pos1 = new Vector3();
 		gridXAxisInstances1[gridSteps/2].transform.getTranslation(pos1);
 		
 		Vector3 pos2 = new Vector3();
@@ -572,60 +581,60 @@ public class BarSurface
 		float east = cam.position.dst2(pos1);
 		float west = cam.position.dst2(pos2);
 		float north = cam.position.dst2(pos3);
-		float south = cam.position.dst2(pos4);
+		float south = cam.position.dst2(pos4);*/
 		
-		if(north>south)
+		//if(north>south)
 		{
-			drawGridInstances(gridXAxisInstances3,cam,environment);
-			drawGridInstances(gridYAxisInstances3,cam,environment);
-			drawGridInstances(gridXAxisTickInstances2,cam,environment);
+			//drawGridInstances(gridXAxisInstances3,cam,environment);
+			//drawGridInstances(gridYAxisInstances3,cam,environment);
+			//drawGridInstances(gridXAxisTickInstances2,cam,environment);
 			for(Decal d:gridXAxisTickValuesInstances2)
 			{
 				d.lookAt(cam.position.cpy(), cam.up.cpy().nor());
 				db.add(d);
 			}
 			gridXAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridXAxisName[1]);
+			//db.add(gridXAxisName[1]);
 		}
-		else
+		//else
 		{
-			drawGridInstances(gridXAxisInstances4,cam,environment);
-			drawGridInstances(gridYAxisInstances4,cam,environment);
-			drawGridInstances(gridXAxisTickInstances1,cam,environment);
+			//drawGridInstances(gridXAxisInstances4,cam,environment);
+			//drawGridInstances(gridYAxisInstances4,cam,environment);
+			//drawGridInstances(gridXAxisTickInstances1,cam,environment);
 			for(Decal d:gridXAxisTickValuesInstances1)
 			{
 				d.lookAt(cam.position.cpy(), cam.up.cpy().nor());
 				db.add(d);
 			}
 			gridXAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridXAxisName[0]);
+			//db.add(gridXAxisName[0]);
 		}
 		
-		if(east>west)
+		//if(east>west)
 		{
-			drawGridInstances(gridXAxisInstances1,cam,environment);
-			drawGridInstances(gridYAxisInstances1,cam,environment);
-			drawGridInstances(gridYAxisTickInstances1,cam,environment);
+			//drawGridInstances(gridXAxisInstances1,cam,environment);
+			//drawGridInstances(gridYAxisInstances1,cam,environment);
+			//drawGridInstances(gridYAxisTickInstances1,cam,environment);
 			for(Decal d:gridYAxisTickValuesInstances1)
 			{
 				d.lookAt(cam.position.cpy(), cam.up.cpy().nor());
 				db.add(d);
 			}
 			gridYAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridYAxisName[0]);
+			//db.add(gridYAxisName[0]);
 		}
-		else
+		//else
 		{
-			drawGridInstances(gridXAxisInstances2,cam,environment);
-			drawGridInstances(gridYAxisInstances2,cam,environment);
-			drawGridInstances(gridYAxisTickInstances2,cam,environment);
+			//drawGridInstances(gridXAxisInstances2,cam,environment);
+			//drawGridInstances(gridYAxisInstances2,cam,environment);
+			//drawGridInstances(gridYAxisTickInstances2,cam,environment);
 			for(Decal d:gridYAxisTickValuesInstances2)
 			{
 				d.lookAt(cam.position.cpy(), cam.up.cpy().nor());
 				db.add(d);
 			}
 			gridYAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridYAxisName[1]);
+			//db.add(gridYAxisName[1]);
 		}
 				
 		modelBatch.end();
