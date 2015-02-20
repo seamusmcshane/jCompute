@@ -40,11 +40,19 @@ public class OrbitalCameraInputController implements InputProcessor
 		startPos[0] = 0; 
 		startPos[1] = 0;
 		
-		cam.position.set(defaultPos, defaultPos, altitude);
-		cam.rotate(new Vector3(1,1,0), 90f);
-		cam.lookAt(target[0],target[1],target[2]);
+		reset();
 		
 		prevFov = cam.fieldOfView;
+	}
+	
+	public void reset()
+	{
+		cam.up.x = 0;
+		cam.up.y = 0;
+		cam.up.z = 1;
+
+		cam.position.set(defaultPos, defaultPos, altitude);
+		cam.lookAt(target[0],target[1],target[2]);
 	}
 	
 	public OrbitalCameraInputController(PerspectiveCamera cam,float pos, float altitude,float[] target,float speed)
@@ -98,7 +106,7 @@ public class OrbitalCameraInputController implements InputProcessor
 	public boolean scrolled(int moved)
 	{		
 		boolean moveOk = true;
-		float minA = speed;
+		float minA = 25f;
 		float maxA = 1500f;
 		
 		float camX = cam.position.x;
@@ -142,9 +150,9 @@ public class OrbitalCameraInputController implements InputProcessor
 			{
 				cam.fieldOfView = cam.fieldOfView+1f;
 				
-				if(cam.fieldOfView > 100f)
+				if(cam.fieldOfView > 150f)
 				{
-					cam.fieldOfView = 100f;
+					cam.fieldOfView = 150f;
 				}
 				
 			}
@@ -211,6 +219,7 @@ public class OrbitalCameraInputController implements InputProcessor
 		if(button == 0)
 		{
 			prevPos[0] = x;
+			prevPos[1] = y;
 
 			
 			button0 = true;
@@ -238,8 +247,8 @@ public class OrbitalCameraInputController implements InputProcessor
 		float camZ = cam.position.z;
 		
 		// From target
-		float tdis = 0;
-		float angle = (float) Math.atan2(camY, camX);
+		/*float tdis = 0;
+		float angle = (float) Math.atan2(camY, camX);*/
 				
 		if(button0)
 		{			
@@ -247,15 +256,16 @@ public class OrbitalCameraInputController implements InputProcessor
 			{
 				int dis = (x-prevPos[0]);
 
-				cam.rotateAround(new Vector3(0,0,0), new Vector3(0,0,1f), (dis*speed/100));
+				cam.rotateAround(new Vector3(target[0],target[1],target[2]), new Vector3(0,0,1f), (dis*speed/100));
 			}
 			else
 			{
 				int dis = (prevPos[0]-x);
-				cam.rotateAround(new Vector3(0,0,0), new Vector3(0,0,1f), -(dis*speed/100));
+				cam.rotateAround(new Vector3(target[0],target[1],target[2]), new Vector3(0,0,1f), -(dis*speed/100));
 			}
 			
 			prevPos[0] = x;
+			prevPos[1] = y;
 		}
 		
 		return true;
@@ -294,6 +304,11 @@ public class OrbitalCameraInputController implements InputProcessor
 	public void setTarget(float[] target)
 	{
 		this.target = target;
+	}
+
+	public void setAltitude(float altitude)
+	{
+		this.altitude = altitude;		
 	}
 
 }
