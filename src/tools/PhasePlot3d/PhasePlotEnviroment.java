@@ -1,7 +1,7 @@
 package tools.PhasePlot3d;
 
 import tools.OrbitalCameraInputController;
-
+import tools.Common.AxisGrid;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,12 +9,15 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class PhasePlotEnviroment implements ApplicationListener
 {
+	private float scale = 1000f;
+	private float scaleHalf = scale/2;
+	
 	// ENV
 	private Environment environment;
 	
@@ -37,46 +40,44 @@ public class PhasePlotEnviroment implements ApplicationListener
 	// Models
 	private ModelBatch modelBatch;
 	
-	private LineStrip3d ls;
+	// Decals
+	private DecalBatch db;
+	
+	private AxisGrid axisGrid;
+		
 	private VertexModel ws;
-	/*private BoundaryCube2 bc2;
+	private BoundaryCube2 bc;
 	
-	private BoundaryCube bc;
+	private VertexModel xMaxVM;
+	private VertexModel xMinVM;
 	
-	private LineStrip3d xMs;
-	private LineStrip3d yMs;
-	private LineStrip3d zMs;
+	private VertexModel yMaxVM;
+	private VertexModel yMinVM;
 	
-	private LineStripMesh meshtest;*/
+	private VertexModel zMaxVM;
+	private VertexModel zMinVM;
 	
 	private OrbitalCameraInputController camController;
 
 	private float width;
 	private float height;
 	
-	public static final String VERT_SHADER = "attribute vec4 a_position;\n" + "attribute vec4 a_color;\n"
-			+ "uniform mat4 u_projTrans;\n" + "varying vec4 vColor;\n" + "void main() {\n" + "	vColor = a_color;\n"
-			+ "	gl_Position =  u_projTrans * a_position;\n" + "}";
-
-	public static final String FRAG_SHADER = "#ifdef GL_ES\n" + "precision highp float;\n" + "#endif\n"
-			+ "varying vec4 vColor;\n" + "void main() {\n" + "	gl_FragColor = vColor;\n" + "}";
-	
-	private ShaderProgram shader;
-
 	public PhasePlotEnviroment(float width,float height)
 	{
 		this.width = width;
 		this.height = height;
 	}
 	
-	public float[] createCircle()
+	public float getScale()
 	{
-        // SINE
-		int lines = 360;
-		
+		return scaleHalf;
+	}
+	
+	public float[] createCircle(int lines)
+	{		
 		int numPoints = lines+1;
 		
-		float radius = 100f;
+		float radius = scaleHalf;
 		
 		float multi = 360f/(float)lines;
 		
@@ -88,13 +89,12 @@ public class PhasePlotEnviroment implements ApplicationListener
 		int pointNum = 0;
 		for(int i=0;i<numPoints;i++)
 		{
-			//double rx = Math.sin( (i*zMuli*planes) * (Math.PI / 360))*100f;
-			
-			//radius = (float) rx;
-			
 			double x = 0+ Math.sin( (i*multi) * (Math.PI / 180)) * radius;
             double y = 0+ Math.cos( (i*multi) * (Math.PI / 180) )* radius;
-            double z = 0;//+ Math.sin( (i*zMuli) * (Math.PI / 180)) * 50f;
+            
+            // SINE
+            //double z = 0+ Math.sin( (i*20f) * (Math.PI / 180)) * 20f;
+            double z = 0;
                         
             points[pointNum] = (float) x;
             points[pointNum+1] = (float) y;
@@ -106,39 +106,44 @@ public class PhasePlotEnviroment implements ApplicationListener
 		return points;
 	}
 	
-	public float[] createLine()
+	public float[] createSine()
 	{
-        // LINE
-		int lines = 10;
+		int lines = 360*2;
 		
-		double inc = 100.0/(double)lines;
-	
-		float[] points = new float[lines*3];
+		int numPoints = lines+1;
 		
+		float radius = scaleHalf;
+		
+		float multi = 360f/(float)lines;
+		
+		float[] points = new float[numPoints*3];				
+				
 		int pointNum = 0;
-		for(int i=0;i<lines;i++)
+		for(int i=0;i<numPoints;i++)
 		{			
-			double x = (double)i*inc;
-            double y = (double)i*inc;
-            double z = (double)i*inc;
+			double x = 0+ Math.sin( (i*multi) * (Math.PI / 180)) * radius;
+            double y = 0+ Math.cos( (i*multi) * (Math.PI / 180) )* radius;
+            
+            // SINE
+            double z = 0+ Math.sin( (i*20f) * (Math.PI / 180)) * scaleHalf/16;
                         
             points[pointNum] = (float) x;
-            points[pointNum+1] = (float) y;           
+            points[pointNum+1] = (float) y;
             points[pointNum+2] = (float) z;
             
             pointNum+=3;
-		}
+		}		
 		
 		return points;
 	}
 	
-	public float[] createTorus()
+	public float[] createTorus(int div, float zmultimulti)
 	{
         // Torus
-		int div = 32; // 16
+		//int div = 32; // 16
 		int lines = 360*div;
 		
-		float radius = 100f;
+		float radius = scaleHalf;
 		
 		float multi = 360f/lines;
 		
@@ -148,29 +153,24 @@ public class PhasePlotEnviroment implements ApplicationListener
 		float[] points = new float[lines*POS];
 		short[] indicies = new short[lines];
 
-		float zMuli = multi*360f; // 90 
+		float zMuli = multi*zmultimulti; // 360/ 90 
 		
 		int planes = 63;
 		
 		int pointNum = 0;
 		for(int i=0;i<lines;i++)
 		{
-			double rx = Math.sin( (i*zMuli*planes) * (Math.PI / 360))*100f;
+			double rx = Math.sin( (i*zMuli*planes) * (Math.PI / 360))*scaleHalf;
 			
 			radius = (float) rx;
 			
 			double x = 0+ Math.sin( (i*multi) * (Math.PI / 180)) * radius;
             double y = 0+ Math.cos( (i*multi) * (Math.PI / 180) )* radius;
-            double z = 0+ Math.sin( (i*zMuli) * (Math.PI / 180)) * 50f;
+            double z = 0+ Math.sin( (i*zMuli) * (Math.PI / 180)) * scaleHalf/2;
                         
             points[pointNum] = (float) x;
             points[pointNum+1] = (float) y;           
             points[pointNum+2] = (float) z;
-            
-            /*points[pointNum+3] = 1f;
-            points[pointNum+4] = 0f;
-            points[pointNum+5] = 0f;
-            points[pointNum+6] = 0.5f;*/
             
             pointNum+=3;
             
@@ -182,13 +182,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 	
 	@Override
 	public void create()
-	{
-		ShaderProgram.pedantic = false;
-		shader = new ShaderProgram(VERT_SHADER, FRAG_SHADER);
-		String log = shader.getLog();
-		if(!shader.isCompiled()) throw new GdxRuntimeException(log);
-		if(log != null && log.length() != 0) System.out.println("Shader Log: " + log);
-		
+	{		
 		// ENV
 		environment = new Environment();
 
@@ -205,13 +199,10 @@ public class PhasePlotEnviroment implements ApplicationListener
 		light5.set(topSide,topSide,topSide, 0,0,-lightScale);
 
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, amb,amb,amb, 0.1f));
+                
+        axisGrid = new AxisGrid(scale,scaleHalf,1f);
         
-        // Models
-        modelBatch = new ModelBatch();
-
-		
-		/*bc = new BoundaryCube(100f,0,0,0,0.5f);
-		
+        /*
 		xMs = new LineStrip3d(0,1,0,1);
 		xMs.setPoints(new float[]{0,100,-100,0,-100,-100}, false);
 		
@@ -225,8 +216,8 @@ public class PhasePlotEnviroment implements ApplicationListener
 		
 		//ws.setVertices(points, indicies, GL20.GL_LINE_STRIP);
 		
-		/*bc2 = new BoundaryCube2(0,0,0,10,10,10,new float[]{1,0,0,1});
-		
+		bc = new BoundaryCube2(0,0,0,10,10,10,new float[]{1,0,0,1},scaleHalf);
+		/*
 		//ls.setPoints(points,true);
 		
 		meshtest = new LineStripMesh(new float[]{1,0,0,1});
@@ -241,13 +232,21 @@ public class PhasePlotEnviroment implements ApplicationListener
 		cam.far = 10240;
 		cam.update();
 		
-		camController = new OrbitalCameraInputController(cam,-250,125,new float[]{0,0,0},25f);
+		camController = new OrbitalCameraInputController(cam,new float[]{0,0,0},25f);
 		
         Gdx.input.setInputProcessor(camController);
         
+        // Models
+        modelBatch = new ModelBatch();
+
+        // Decals
+        db = new DecalBatch(new CameraGroupStrategy(cam));
+        
 		//ls = new LineStrip3d(1,0,1,1);
         
-		setPlotPoints(createCircle(), new float[]{0,0,0});
+		//setPlotPoints(createCircle(8), new float[]{0,0,0});
+        //setPlotPoints(createSine(), new float[]{0,0,0});
+		setPlotPoints(createTorus(16,360), new float[]{0,0,0});
 	}
 
 	@Override
@@ -256,44 +255,44 @@ public class PhasePlotEnviroment implements ApplicationListener
 		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 	    Gdx.gl.glDepthFunc(GL20.GL_LESS);
-		
-	    Gdx.gl.glLineWidth(2f);
-	    
-		//bc.render(cam);
-		
+				
 	    Gdx.gl.glEnable(GL20.GL_BLEND);
 	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 	    
 		//ls.render(cam,GL20.GL_LINE_STRIP);
 	    
         modelBatch.begin(cam);
-
-        modelBatch.render(ws.getModelInstace(),environment);
-       
-        //modelBatch.render(bc2.getModelInstace(),environment);
+	    Gdx.gl.glLineWidth(1f);	    
+	    
+        modelBatch.render(bc.getModelInstance(),environment);
         
+        axisGrid.render(cam, modelBatch,db, environment);
         modelBatch.end();
 
-		/*xMs.render(cam,GL20.GL_LINES);
-		yMs.render(cam,GL20.GL_LINES);
-		zMs.render(cam,GL20.GL_LINES);		*/
-	    
-		shader.begin();
+        modelBatch.begin(cam);
+	    Gdx.gl.glLineWidth(2f);	    
+        modelBatch.render(ws.getModelInstance(),environment);
+        modelBatch.end();
 
-		// update the projection matrix so our triangles are rendered in 2D
-		shader.setUniformMatrix("u_projTrans", cam.combined);
+        modelBatch.begin(cam);      
+	    Gdx.gl.glLineWidth(3f);
+        modelBatch.render(xMaxVM.getModelInstance(),environment);
+        modelBatch.render(xMinVM.getModelInstance(),environment);
+        modelBatch.render(yMaxVM.getModelInstance(),environment);
+        modelBatch.render(yMinVM.getModelInstance(),environment);
+        modelBatch.render(zMaxVM.getModelInstance(),environment);
+        modelBatch.render(zMinVM.getModelInstance(),environment);
+        modelBatch.end();
 
-		// render the mesh
-		//meshtest.getMesh().render(shader, GL20.GL_LINE_STRIP, 0, meshtest.getMesh().getNumVertices());
-
-		shader.end();
-			    
+        //Flush Decals       
+        db.flush();
+	    			    
 		camController.update();
 	}
 
 	public void setPlotPoints(float[] points,float[] center)
 	{
-		camController.setTarget(new float[]{center[0],center[1],center[2]});
+		camController.setTarget(new float[]{center[0],center[1],center[2]+scaleHalf});
 		//ls.setPoints(points,false);
 		
 		int COLOR_WIDTH = 4;
@@ -301,37 +300,116 @@ public class PhasePlotEnviroment implements ApplicationListener
 		int pLen = points.length;
 				
 		float[] glPoints = new float[pLen+clen];
+				
+		/*System.out.println("setPlotPoints pLen " + pLen/3);
+		System.out.println("setPlotPoints glPoints " + glLen);*/
 		
-		int glLen = glPoints.length;
+		float xMax = Float.NEGATIVE_INFINITY;
+		float yMax = Float.NEGATIVE_INFINITY;
+		float zMax = Float.NEGATIVE_INFINITY;
 		
-		System.out.println("setPlotPoints pLen " + pLen/3);
-		System.out.println("setPlotPoints glPoints " + glLen);
+		float xMin = Float.POSITIVE_INFINITY;
+		float yMin = Float.POSITIVE_INFINITY;
+		float zMin = Float.POSITIVE_INFINITY;
+		
+		// Min / Max
+		for(int ii=0;ii<pLen;ii+=3)
+		{
+			float x = points[ii];
+			float y = points[ii+1];
+			float z = points[ii+2]+scaleHalf;			
+			
+            if(x > xMax)
+            {
+            	xMax = (float) x;
+            }
+            
+            if(x < xMin)
+            {
+            	xMin = (float) x;
+            }
+			
+			
+            if(y > yMax)
+            {
+            	yMax = (float) y;
+            }
+            
+            if(y < yMin)
+            {
+            	yMin = (float) y;
+            }
+            				
+            if(z > zMax)
+            {
+            	zMax = (float) z;
+            }
+            
+            if(z < zMin)
+            {
+            	zMin = (float) z;
+            }
+			
+		}
+		
+		xMaxVM = new VertexModel(false);
+		xMinVM = new VertexModel(false);
+		
+		xMaxVM.setVertices(new float[]{xMax,-scaleHalf,0,1,0,0,1,xMax,scaleHalf,0,1,0,0,1}, GL20.GL_LINE_STRIP);
+		xMinVM.setVertices(new float[]{xMin,-scaleHalf,0,1,0,0,1,xMin,scaleHalf,0,1,0,0,1}, GL20.GL_LINE_STRIP);
+		
+		yMaxVM = new VertexModel(false);
+		yMinVM = new VertexModel(false);
+		
+		yMaxVM.setVertices(new float[]{-scaleHalf,yMax,0,0,1,0,1,scaleHalf,yMax,0,0,1,0,1}, GL20.GL_LINE_STRIP);
+		yMinVM.setVertices(new float[]{-scaleHalf,yMin,0,0,1,0,1,scaleHalf,yMin,0,0,1,0,1}, GL20.GL_LINE_STRIP);
+		
+		zMaxVM = new VertexModel(false);
+		zMinVM = new VertexModel(false);
+		
+		zMaxVM.setVertices(new float[]{-scaleHalf,-scaleHalf,zMax,0,0,1,1,scaleHalf,-scaleHalf,zMax,0,0,1,1}, GL20.GL_LINE_STRIP);
+		zMinVM.setVertices(new float[]{-scaleHalf,-scaleHalf,zMin,0,0,1,1,scaleHalf,-scaleHalf,zMin,0,0,1,1}, GL20.GL_LINE_STRIP);
+		
+		// This moves the color range cBoost to 1f
+		float cBoost = 0.4f;
+		
+		float xColorScale = (1f-cBoost)/(xMax-xMin);
+		float yColorScale = (1f-cBoost)/(yMax-yMin);
+		float zColorScale = (1f-cBoost)/(zMax-zMin);
+		
+		float scale = Math.min(xColorScale, yColorScale);
+		scale = Math.min(scale, zColorScale);
 		
 		int point = 0;
 		for(int i=0;i<pLen;i+=3)
 		{
 			glPoints[point] = points[i];
 			glPoints[point+1] = points[i+1];
-			glPoints[point+2] = points[i+2];
+			glPoints[point+2] = points[i+2]+scaleHalf;
             
-			glPoints[point+3] = 1f;
-			glPoints[point+4] = 0f;
-			glPoints[point+5] = 0f;
-			glPoints[point+6] = 0.5f;
+			float r = (1f*(scale*points[i]))+cBoost;
+			float g = (1f*(scale*points[i+1]))+cBoost;
+			float b = (1f*(scale*points[i+2]))+cBoost;
+			
+			glPoints[point+3] = r;
+			glPoints[point+4] = g;
+			glPoints[point+5] = b;
+			glPoints[point+6] = 0.95f;
 			
 			point+=7;
 		}
 		
-		System.out.println("GLPOINTS " + point);
+		//System.out.println("GLPOINTS " + point);
 		
 		ws.setVertices(glPoints, GL20.GL_LINE_STRIP);
+		
+		camController.reset();
 	}
 	
 	@Override
 	public void dispose()
 	{
-		//ls.dispose();
-		//bc.dispose();
+		ws.dispose();
 	}
 
 	@Override
