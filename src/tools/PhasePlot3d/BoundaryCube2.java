@@ -14,27 +14,27 @@ public class BoundaryCube2
 {
 	private ModelInstance modelInstance;
 	
-	public BoundaryCube2(float x, float y, float z, float width, float height, float depth, float[] color)
+	public BoundaryCube2(float x, float y, float z, float width, float height, float depth, float[] color, float scale)
 	{
 		ModelBuilder modelBuilder = new ModelBuilder();
 		
 		modelBuilder.begin();
 		MeshPartBuilder meshBuilder;
 		
-        meshBuilder = modelBuilder.part("part1", GL20.GL_LINES, Usage.Position | Usage.Normal, new Material());
+        meshBuilder = modelBuilder.part("part1", GL20.GL_LINES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(Color.BLACK)));
         //meshBuilder.cone(5, 5, 5, 10);
         
         meshBuilder.rect(-1, -1, 1,
         		1, -1, 1,
         		1, 1, 1,
         		-1, 1, 1,
-        		0, 0, 0);
+        		1, 1, 1);
         
         meshBuilder.rect(-1, -1, -1,
         		1, -1, -1,
         		1, 1, -1,
         		-1, 1, -1,
-        		0, 0, 0);
+        		1, 1, 1);
         
         meshBuilder.line(-1, -1, -1, -1, -1, 1);
 
@@ -46,10 +46,11 @@ public class BoundaryCube2
         
         Model model = modelBuilder.end();
         modelInstance = new ModelInstance(model);
-        modelInstance.transform.scale(100f, 100f, 100f);		
+        modelInstance.transform.scale(scale, scale, scale);		
+        modelInstance.transform.trn(0, 0, scale);		
 	}
 
-	public ModelInstance getModelInstace()
+	public ModelInstance getModelInstance()
 	{
 		return modelInstance;
 	}
