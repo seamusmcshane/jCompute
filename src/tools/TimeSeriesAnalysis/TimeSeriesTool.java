@@ -489,8 +489,13 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 			array3[i]  = new StatSample( (double)((i/sampleWindow)*mod), norm[i]);
 		}
 		
+		// Avg Filter (3 - 1/4)
+		
+		freq.populateFFT("Frequency",avgFilter(norm,mod));
+		
 		//freq.populateFFT("Frequency",array3);
-		freq.populateFFTShift("Frequency",array3,maxT);
+		//freq.populateFFTShift("Frequency",array3,maxT);
+		//freq.populateFFTShift("Frequency",array3,maxT);
 		
 		results.getContentPane().add(freq,BorderLayout.CENTER);
 		results.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -507,5 +512,19 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		});
 		results.setVisible(true);
 		fftw3.fftw_destroy_plan(plan);
-	}	
+	}
+	
+	private StatSample[] avgFilter(double[] array, double mod)
+	{
+		StatSample[] filtered = new StatSample[array.length-2];
+		
+		for(int i=0;i< filtered.length; i++)
+		{												
+			double avg = ((array[i]*0.25)+( array[i+1]*0.5)+(array[i+2]*0.25));
+			
+			filtered[i]  = new StatSample( (double)((i/sampleWindow)*mod), avg);
+		}
+		
+		return filtered;
+	}
 }
