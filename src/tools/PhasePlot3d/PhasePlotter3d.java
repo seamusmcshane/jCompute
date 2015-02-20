@@ -208,6 +208,8 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 				}
 				System.out.println("Got Arrays");
 
+				float envScale = glEnv.getScale();
+				
 				float[] points = new float[numSamples*3];
 				
 				float xMax = Float.NEGATIVE_INFINITY;
@@ -269,31 +271,51 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 				
 				System.out.println("Scaling Points");
 
-				float dMax = Math.max(xMax, yMax);
-				dMax = Math.max(dMax, zMax);				
+				boolean sameScale = false;
 				
-				float xScale = (200/xMax);
-				float yScale = (200/yMax);
-				float zScale = (200/zMax);
+				/*float dMax = Math.max(xMax, yMax);
+				dMax = Math.max(dMax, zMax);*/				
 				
-				float scale = Math.min(xScale, yScale);
-				scale = Math.min(scale, zScale);		
+				float xScale = ((envScale*2)/xMax);
+				float yScale = ((envScale*2)/yMax);
+				float zScale = ((envScale*2)/zMax);
 				
-				for(int p=0;p<(numSamples*3);p+=3)
-				{
-					points[p] = (points[p]*xScale)-100f;
-					points[p+1] = (points[p+1]*yScale)-100f;
-					points[p+2] = (points[p+2]*zScale)-100f;
+				float xMid = 0;
+				float yMid = 0;
+				float zMid = 0;
+				
+				if(sameScale)
+				{					
+					float scale = Math.min(xScale, yScale);
+					scale = Math.min(scale, zScale);	
+					
+					for(int p=0;p<(numSamples*3);p+=3)
+					{
+						points[p] = (points[p]*scale)-envScale;
+						points[p+1] = (points[p+1]*scale)-envScale;
+						points[p+2] = (points[p+2]*scale)-envScale;
+					}
+					
+					xMid = (((xMax/2)+(xMin/2))*scale)-envScale;
+					yMid = (((yMax/2)+(yMin/2))*scale)-envScale;
+					zMid = (((zMax/2)+(zMin/2))*scale)-envScale;
 				}
+				else
+				{
+					for(int p=0;p<(numSamples*3);p+=3)
+					{
+						points[p] = (points[p]*xScale)-envScale;
+						points[p+1] = (points[p+1]*yScale)-envScale;
+						points[p+2] = (points[p+2]*zScale)-envScale;
+					}
+					xMid = (((xMax/2)+(xMin/2))*xScale)-envScale;
+					yMid = (((yMax/2)+(yMin/2))*yScale)-envScale;
+					zMid = (((zMax/2)+(zMin/2))*zScale)-envScale;
+				}				
 				
 				System.out.println("Setting Points");
-				
-				float xMid = (((xMax/2)+(xMin/2))*xScale)-100f;
-				float yMid = (((yMax/2)+(yMin/2))*yScale)-100f;
-				float zMid = (((zMax/2)+(zMin/2))*zScale)-100f;
-				
-				glEnv.setPlotPoints(points,new float[]{xMid,yMid,zMid});
 
+				glEnv.setPlotPoints(points,new float[]{xMid,yMid,zMid});
 			}
 		}
 	}
