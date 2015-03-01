@@ -74,7 +74,7 @@ public class AxisGrid
 
 		eastSide = new LineGrid(10, gridSize, new float[]
 		{
-				0, 0, 0, 1
+				0, 1, 0, 1
 		}, trans);
 		eastSide.scale(1f, 1f, heightScale);
 		eastSide.rotate(1, 0, 0, 90);
@@ -82,7 +82,7 @@ public class AxisGrid
 
 		westSide = new LineGrid(10, gridSize, new float[]
 		{
-				0, 0, 0, 1
+				0, 1, 1, 1
 		}, trans);
 		westSide.scale(1f, 1f, heightScale);
 		westSide.rotate(1, 0, 0, 90);
@@ -96,21 +96,21 @@ public class AxisGrid
 
 		// Floor Axis Ticks
 		floorNorthTicks = new VertexModel(false);
-		generateTicks(floorNorthTicks, gridSize, gridSize / 10, 10, 10);
-		floorNorthTicks.getModelInstance().transform.trn(-gridSize / 2-tickSize, -gridSize / 2, -gridSize / 2+trans);
-
+		generateTicks(floorNorthTicks, gridSize, tickSize, 10, 10);
+		floorNorthTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2, -gridSize / 2+trans);
+		
 		floorSouthTicks = new VertexModel(false);
-		generateTicks(floorSouthTicks, gridSize, tickSize, 10, 10);
-		floorSouthTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2, -gridSize / 2+trans);
-
+		generateTicks(floorSouthTicks, gridSize, gridSize / 10, 10, 10);
+		floorSouthTicks.getModelInstance().transform.trn(-gridSize / 2-tickSize, -gridSize / 2, -gridSize / 2+trans);
+		
 		floorEastTicks = new VertexModel(false);
 		generateTicks(floorEastTicks, gridSize, tickSize, 10, 10);
-		floorEastTicks.getModelInstance().transform.trn(gridSize / 2, gridSize / 2, -gridSize / 2+trans);
+		floorEastTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2-tickSize, -gridSize / 2+trans);
 		floorEastTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
-
+		
 		floorWestTicks = new VertexModel(false);
 		generateTicks(floorWestTicks, gridSize, tickSize, 10, 10);
-		floorWestTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2-tickSize, -gridSize / 2+trans);
+		floorWestTicks.getModelInstance().transform.trn(gridSize / 2, gridSize / 2, -gridSize / 2+trans);
 		floorWestTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
 
 		// Wall Ticks
@@ -140,8 +140,7 @@ public class AxisGrid
 		wallSouthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
 		wallSouthWestTicks.getModelInstance().transform.trn((gridSize / 2), -(gridSize / 2), -gridSize / 2+trans);
 		wallSouthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 315f);
-		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		
+		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);		
 		
 		// Floor Tick Labels
 		gridXAxisName = new Decal[2];
@@ -174,40 +173,39 @@ public class AxisGrid
 		gridYAxisName[1].getPosition().set(gridSize / 2 - trans, -gridSize / 2 - (tickSize * 2), 0);
 		gridYAxisName[1].setRotationX(90);
 
-		// Z Axis Labels
-		gridZAxisName[0] = generateDecal(zAxis + "North");
-		gridZAxisName[0].getPosition().set(-gridSize / 2 - (tickSize * 2), gridSize / 2 + (tickSize * 2), gridSize / 2);
+		// Z Axis Column Labels (NorthEast,SouthEast,SouthWest,NorthWest)
+		gridZAxisName[0] = generateDecal(zAxis + "NorthEast");
+		gridZAxisName[0].getPosition().set(gridSize / 2 + (tickSize * 2), -gridSize / 2 - (tickSize * 2), gridSize / 2);
 		gridZAxisName[0].setRotationX(90);
-
-		gridZAxisName[1] = generateDecal(zAxis + "South");
-		gridZAxisName[1].getPosition().set(gridSize / 2 + (tickSize * 2), -gridSize / 2 - (tickSize * 2), gridSize / 2);
+		
+		gridZAxisName[1] = generateDecal(zAxis + "SouthEast");
+		gridZAxisName[1].getPosition()
+				.set(-gridSize / 2 - (tickSize * 2), -gridSize / 2 - (tickSize * 2), gridSize / 2);
 		gridZAxisName[1].setRotationX(90);
-
-		gridZAxisName[2] = generateDecal(zAxis + "East");
-		gridZAxisName[2].getPosition()
-				.set(+gridSize / 2 + (tickSize * 2), +gridSize / 2 + (tickSize * 2), gridSize / 2);
+				
+		gridZAxisName[2] = generateDecal(zAxis + "SouthWest");
+		gridZAxisName[2].getPosition().set(-gridSize / 2 - (tickSize * 2), gridSize / 2 + (tickSize * 2), gridSize / 2);
 		gridZAxisName[2].setRotationX(90);
 
-		gridZAxisName[3] = generateDecal(zAxis + "West");
+		gridZAxisName[3] = generateDecal(zAxis + "NorthWest");
 		gridZAxisName[3].getPosition()
-				.set(-gridSize / 2 - (tickSize * 2), -gridSize / 2 - (tickSize * 2), gridSize / 2);
+				.set(+gridSize / 2 + (tickSize * 2), +gridSize / 2 + (tickSize * 2), gridSize / 2);
 		gridZAxisName[3].setRotationX(90);
 	}
 
 	private Decal generateDecal(String decalText)
 	{
 		String svalue = decalText;
-		int tWidth = (int) decalFont.getBounds(svalue).width;
-		int tHeight = (int) decalFont.getBounds(svalue).height + 2;
-		// int tMax = Math.max(tWidth, tHeight);
-
+		int tWidth = (int) (decalFont.getBounds(svalue).width+2);
+		int tHeight = (int) (decalFont.getBounds(svalue).height + 2);
+		
 		FrameBuffer fbo = new FrameBuffer(Format.RGBA8888, tWidth, tHeight, false);
 
 		Matrix4 pm = new Matrix4();
 		pm.setToOrtho2D(0, 0, tWidth, tHeight);
 
 		decalFont.setColor(Color.BLACK);
-		// axisFont.scale(10f);
+		//decalFont.scale(0.1f);
 		SpriteBatch sb = new SpriteBatch();
 		sb.setProjectionMatrix(pm);
 		fbo.begin();
@@ -247,8 +245,6 @@ public class AxisGrid
 
 			line++;
 		}
-		// Fix the offset for the next axis
-		line -= 1;
 
 		float[] cVerts = MeshHelper.colorAllVertices(vertices, new float[]
 		{
@@ -290,7 +286,9 @@ public class AxisGrid
 		
 		if(northVis)
 		{	modelBatch.render(northSide.getModelInstance(), environment);
-			modelBatch.render(floorNorthTicks.getModelInstance());
+			
+			// South Ticks
+			modelBatch.render(floorSouthTicks.getModelInstance());
 			gridXAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridXAxisName[1]);
 		}
@@ -298,7 +296,9 @@ public class AxisGrid
 		if(southVis)
 		{
 			modelBatch.render(southSide.getModelInstance(), environment);
-			modelBatch.render(floorSouthTicks.getModelInstance());
+			
+			// North Ticks
+			modelBatch.render(floorNorthTicks.getModelInstance());
 			gridXAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridXAxisName[0]);
 		}
@@ -306,7 +306,9 @@ public class AxisGrid
 		if(eastVis)
 		{
 			modelBatch.render(eastSide.getModelInstance(), environment);
-			modelBatch.render(floorEastTicks.getModelInstance());
+			
+			// West Tick
+			modelBatch.render(floorWestTicks.getModelInstance());
 			gridYAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridYAxisName[0]);
 		}
@@ -314,26 +316,45 @@ public class AxisGrid
 		if(westVis)
 		{
 			modelBatch.render(westSide.getModelInstance(), environment);
-			modelBatch.render(floorWestTicks.getModelInstance());
+			
+			// East Ticks
+			modelBatch.render(floorEastTicks.getModelInstance());
 			gridYAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridYAxisName[1]);
 		}
 		
-		modelBatch.render(wallNorthEastTicks.getModelInstance(), environment);
-		modelBatch.render(wallNorthWestTicks.getModelInstance(), environment);
-		modelBatch.render(wallSouthEastTicks.getModelInstance(), environment);
-		modelBatch.render(wallSouthWestTicks.getModelInstance(), environment);
+		// NorthWest ZColumn
+		if(southVis ^ eastVis)
+		{
+			gridZAxisName[3].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+			db.add(gridZAxisName[3]);
+			modelBatch.render(wallNorthWestTicks.getModelInstance(), environment);	
+		}
 
+		// NorthEast ZColumn
+		if(southVis ^ westVis)
+		{
+			gridZAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+			db.add(gridZAxisName[0]);
+			modelBatch.render(wallSouthWestTicks.getModelInstance(), environment);
+		}
+
+		// SouthEast ZColumn	
+		if(northVis ^ westVis)
+		{
+			gridZAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+			db.add(gridZAxisName[1]);
+			modelBatch.render(wallNorthEastTicks.getModelInstance(), environment);
+		}
 		
-		gridZAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-		db.add(gridZAxisName[0]);
-		gridZAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-		db.add(gridZAxisName[1]);
-		gridZAxisName[2].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-		db.add(gridZAxisName[2]);
-		gridZAxisName[3].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-		db.add(gridZAxisName[3]);
-
+		// SouthWest ZColumn
+		if(northVis ^ eastVis)
+		{
+			gridZAxisName[2].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+			db.add(gridZAxisName[2]);
+			modelBatch.render(wallSouthEastTicks.getModelInstance(), environment);
+		}
+		
 		// Floor always rendered
 		modelBatch.render(floor.getModelInstance(), environment);
 	}
