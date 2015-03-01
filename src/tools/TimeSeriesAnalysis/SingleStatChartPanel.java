@@ -54,6 +54,11 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	private double maxValue = Double.MIN_VALUE;
 	private double minValue = Double.MAX_VALUE;
 
+	public SingleStatChartPanel()
+	{
+		this("None","None",true,false,0);		
+	}
+	
 	public SingleStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle,
 			boolean totalStatEnabled, int sampleWindow)
 	{
