@@ -15,8 +15,6 @@ import javax.swing.border.TitledBorder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -39,7 +37,6 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	private String totalStatName = "NOTSET";
 	private boolean totalStatEnabled = false;
 
-	private String category;
 	private int series = 0;					// Count of number of series
 
 	private JFreeChart timeSeriesChart;
@@ -54,19 +51,18 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	private double maxValue = Double.MIN_VALUE;
 	private double minValue = Double.MAX_VALUE;
 
+	private float	lineWidth = 0.3f;
+
 	public SingleStatChartPanel()
 	{
-		this("None","None",true,false,0);		
+		this("None",true,false,0);		
 	}
 	
-	public SingleStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle,
+	public SingleStatChartPanel(String statChartPanelName, boolean displayTitle,
 			boolean totalStatEnabled, int sampleWindow)
 	{
 		// This panels name
 		this.statChartPanelName = statChartPanelName;
-
-		// Displayed category
-		this.category = categoryName;
 
 		// Source Stat Group
 		this.totalStatEnabled = totalStatEnabled;
@@ -255,6 +251,8 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 			timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series, color);
 
+			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series,new BasicStroke(lineWidth));
+			
 			// Add Sample Name+Trace to Index of Known SampleNames
 			seriesMap.put(name, tempS);
 
@@ -296,7 +294,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 				dataset.addSeries(tempS);
 
 				timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series, color);
-				timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(0.3f));
+				timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series,new BasicStroke(lineWidth));
 
 				// Add Sample Name+Trace to Index of Known SampleNames
 				seriesMap.put(name, tempS);
@@ -369,7 +367,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 			// timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series,
 			// color);
-			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(0.3f));
+			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series,new BasicStroke(lineWidth));
 
 			// Add Sample Name+Trace to Index of Known SampleNames
 			seriesMap.put(name, tempS);
@@ -674,4 +672,31 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
 		
 	}
+	
+	public void setAmpRangeMax(double max)
+	{
+		timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(max);
+	}
+	
+	public void setAmpMaxAuto()
+	{
+		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
+	}
+	
+	
+	public void setFreqMaxAuto()
+	{
+		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
+	}
+	
+	public void setFreqRangeMax(double max)
+	{
+		timeSeriesChart.getXYPlot().getDomainAxis().setUpperBound(max);
+	}
+
+	public void setLineWidth(float lineWidth)
+	{
+		this.lineWidth = lineWidth;
+	}
+	
 }
