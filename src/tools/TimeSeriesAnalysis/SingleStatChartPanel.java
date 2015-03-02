@@ -578,8 +578,9 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		tempS.setNotify(true);
 		
+		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
-
+		
 	}
 	
 	public void populateFFTShift(String name, double[] sampleList)
@@ -672,9 +673,10 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
 		
 	}
-	
+		
 	public void setAmpRangeMax(double max)
 	{
+		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(false);
 		timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(max);
 	}
 	
@@ -691,6 +693,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	
 	public void setFreqRangeMax(double max)
 	{
+		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(false);
 		timeSeriesChart.getXYPlot().getDomainAxis().setUpperBound(max);
 	}
 
