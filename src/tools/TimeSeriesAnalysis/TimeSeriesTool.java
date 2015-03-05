@@ -50,6 +50,9 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SpinnerListModel;
 
 public class TimeSeriesTool implements WindowListener, ActionListener
 {
@@ -65,7 +68,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	private JPanel						panel;
 	private JButton						btnPhase;
 	private double						sampleWindow	= 0;
-
+	private double						timePeriod		= 1;
+	private boolean						tIsSeconds		= false;
 	private static JScrollPane			scrollPane;
 	private static JPanel				fftListPanel;
 
@@ -81,10 +85,11 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	private JTextField					txtMaxFreq;
 	private JLabel						lblMaxAmp;
 	private JTextField					txtMaxAmp;
-	private JCheckBox chckbxAvgFilter;
+	private JCheckBox					chckbxAvgFilter;
 
-	private boolean avgFilter = false;
-	
+	private boolean						avgFilter		= false;
+	private JSpinner					spinner;
+
 	public static void main(String args[])
 	{
 		windowWidth = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
@@ -178,7 +183,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		};
 		gbl_panel.rowHeights = new int[]
 		{
-				0, 0, 0, 0, 0
+				0, 0, 0, 0, 0, 0
 		};
 		gbl_panel.columnWeights = new double[]
 		{
@@ -186,7 +191,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		};
 		gbl_panel.rowWeights = new double[]
 		{
-				0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE
+				0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE
 		};
 		panel.setLayout(gbl_panel);
 
@@ -197,68 +202,81 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		gbc_btnDft.gridx = 0;
 		gbc_btnDft.gridy = 0;
 		panel.add(btnDft, gbc_btnDft);
-		
-				btnPhase = new JButton("Phase");
-				btnPhase.addActionListener(new ActionListener()
+
+		btnPhase = new JButton("Phase");
+		btnPhase.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int indicies[] = historyList.getSelectedIndices();
+
+				if(indicies.length == 2)
 				{
-					public void actionPerformed(ActionEvent e)
+					int index1 = indicies[0];
+					int index2 = indicies[1];
+					if(index1 >= 0 && index2 >= 0)
 					{
-						int indicies[] = historyList.getSelectedIndices();
+						int len = histories[0].length;
 
-						if(indicies.length == 2)
+						double[] array1 = new double[len];
+
+						for(int i = 0; i < len; i++)
 						{
-							int index1 = indicies[0];
-							int index2 = indicies[1];
-							if(index1 >= 0 && index2 >= 0)
-							{
-								int len = histories[0].length;
-
-								double[] array1 = new double[len];
-
-								for(int i = 0; i < len; i++)
-								{
-									array1[i] = histories[index1][i].getSample();
-								}
-
-								double[] array2 = new double[len];
-
-								for(int i = 0; i < len; i++)
-								{
-									array2[i] = histories[index2][i].getSample();
-								}
-
-								String arrayLabels[] = new String[]
-								{
-										names[index1], names[index2]
-								};
-
-								PhaseTool phasePlot = new PhaseTool(arrayLabels, array1, array2);
-							}
+							array1[i] = histories[index1][i].getSample();
 						}
 
+						double[] array2 = new double[len];
+
+						for(int i = 0; i < len; i++)
+						{
+							array2[i] = histories[index2][i].getSample();
+						}
+
+						String arrayLabels[] = new String[]
+						{
+								names[index1], names[index2]
+						};
+
+						PhaseTool phasePlot = new PhaseTool(arrayLabels, array1, array2);
 					}
-				});
-				
-				chckbxAvgFilter = new JCheckBox("Avg Filter");
-				GridBagConstraints gbc_chckbxAvgFilter = new GridBagConstraints();
-				gbc_chckbxAvgFilter.insets = new Insets(0, 0, 5, 0);
-				gbc_chckbxAvgFilter.gridx = 1;
-				gbc_chckbxAvgFilter.gridy = 0;
-				panel.add(chckbxAvgFilter, gbc_chckbxAvgFilter);
-				chckbxAvgFilter.addActionListener(this);
-				GridBagConstraints gbc_btnPhase = new GridBagConstraints();
-				gbc_btnPhase.insets = new Insets(0, 0, 5, 5);
-				gbc_btnPhase.fill = GridBagConstraints.HORIZONTAL;
-				gbc_btnPhase.gridx = 0;
-				gbc_btnPhase.gridy = 1;
-				panel.add(btnPhase, gbc_btnPhase);
+				}
+
+			}
+		});
+
+		chckbxAvgFilter = new JCheckBox("Avg Filter");
+		GridBagConstraints gbc_chckbxAvgFilter = new GridBagConstraints();
+		gbc_chckbxAvgFilter.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxAvgFilter.gridx = 0;
+		gbc_chckbxAvgFilter.gridy = 1;
+		panel.add(chckbxAvgFilter, gbc_chckbxAvgFilter);
+		chckbxAvgFilter.addActionListener(this);
+
+		spinner = new JSpinner();
+		spinner.setModel(new SpinnerListModel(new String[] {"1", "4", "10", "100", "1000"}));
+		JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
+		editor.getTextField().setEnabled(true);
+		editor.getTextField().setEditable(false);
+
+		GridBagConstraints gbc_spinner = new GridBagConstraints();
+		gbc_spinner.fill = GridBagConstraints.HORIZONTAL;
+		gbc_spinner.insets = new Insets(0, 0, 5, 0);
+		gbc_spinner.gridx = 1;
+		gbc_spinner.gridy = 1;
+		panel.add(spinner, gbc_spinner);
+		GridBagConstraints gbc_btnPhase = new GridBagConstraints();
+		gbc_btnPhase.insets = new Insets(0, 0, 5, 5);
+		gbc_btnPhase.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnPhase.gridx = 0;
+		gbc_btnPhase.gridy = 2;
+		panel.add(btnPhase, gbc_btnPhase);
 
 		lblMaxFreq = new JLabel("Max Freq");
 		GridBagConstraints gbc_lblMaxFreq = new GridBagConstraints();
 		gbc_lblMaxFreq.anchor = GridBagConstraints.EAST;
 		gbc_lblMaxFreq.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMaxFreq.gridx = 0;
-		gbc_lblMaxFreq.gridy = 2;
+		gbc_lblMaxFreq.gridy = 3;
 		panel.add(lblMaxFreq, gbc_lblMaxFreq);
 
 		txtMaxFreq = new JTextField();
@@ -269,7 +287,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		gbc_txtMaxFreq.insets = new Insets(0, 0, 5, 0);
 		gbc_txtMaxFreq.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtMaxFreq.gridx = 1;
-		gbc_txtMaxFreq.gridy = 2;
+		gbc_txtMaxFreq.gridy = 3;
 		panel.add(txtMaxFreq, gbc_txtMaxFreq);
 		txtMaxFreq.setColumns(10);
 
@@ -278,7 +296,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		gbc_lblMaxAmp.anchor = GridBagConstraints.EAST;
 		gbc_lblMaxAmp.insets = new Insets(0, 0, 0, 5);
 		gbc_lblMaxAmp.gridx = 0;
-		gbc_lblMaxAmp.gridy = 3;
+		gbc_lblMaxAmp.gridy = 4;
 		panel.add(lblMaxAmp, gbc_lblMaxAmp);
 
 		txtMaxAmp = new JTextField();
@@ -287,7 +305,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		GridBagConstraints gbc_txtMaxAmp = new GridBagConstraints();
 		gbc_txtMaxAmp.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtMaxAmp.gridx = 1;
-		gbc_txtMaxAmp.gridy = 3;
+		gbc_txtMaxAmp.gridy = 4;
 		panel.add(txtMaxAmp, gbc_txtMaxAmp);
 		txtMaxAmp.setColumns(10);
 		txtMaxAmp.addActionListener(this);
@@ -296,7 +314,9 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 			public void actionPerformed(ActionEvent arg0)
 			{
 				int indicies[] = historyList.getSelectedIndices();
-				
+
+				int passes = Integer.parseInt((String)spinner.getValue());
+
 				// Selected
 				if(indicies.length > 0)
 				{
@@ -305,7 +325,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 					// Compute All?
 					for(int i = 0; i < indicies.length; i++)
 					{
-						computeFFTAndAddFFTW3(i, indicies.length,avgFilter);
+						computeFFTAndAddFFTW3(indicies[i], indicies.length, avgFilter, passes);
 					}
 				}
 				else
@@ -323,10 +343,12 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 					// Compute All?
 					for(int i = 0; i < histories.length; i++)
 					{
-						computeFFTAndAddFFTW3(i, histories.length,avgFilter);
+						computeFFTAndAddFFTW3(i, histories.length, avgFilter, passes);
 					}
 				}
-
+				
+				checkMaxFreq();
+				checkMaxAmp();
 			}
 		});
 
@@ -351,13 +373,20 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		// Add a default sine wave signal
 		addSignalChart("Sine Wave", createSineWave(), names, histories);
 
+		int len = histories.length % 4;
+
+		if(len == 0)
+		{
+			len = histories.length;
+		}
+
 		// All
-		addFFTPanel(histories.length % 4);
+		addFFTPanel(len);
 
 		// Compute All?
 		for(int i = 0; i < histories.length; i++)
 		{
-			computeFFTAndAddFFTW3(i, histories.length,avgFilter);
+			computeFFTAndAddFFTW3(i, histories.length, avgFilter, 1);
 		}
 
 		gui.validate();
@@ -377,7 +406,9 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 
 		double seconds = 1;
 
-		this.sampleWindow = seconds;
+		this.timePeriod = seconds;
+
+		this.tIsSeconds = true;
 
 		int timeAxis = (int) (overSampleFreq * seconds);
 
@@ -576,7 +607,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 			if(val == JFileChooser.APPROVE_OPTION)
 			{
 				// OPEN FILE
-
+				tIsSeconds = false;
+				
 				System.out.println("New File Choosen");
 
 				// Clear the list items
@@ -611,12 +643,10 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 					histories[st] = temp.getHistoryAsArray();
 				}
 
-				sampleWindow = histories[0].length;
-
 				addSignalChart(fname, numSamples, names, histories);
 
 				cleanFFTListPanel();
-
+				
 				gui.validate();
 
 			}
@@ -628,43 +658,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 				return;
 			}
 
-			String value = txtMaxFreq.getText();
-
-			if(value.equals("All"))
-			{
-				for(Component comp : fftListPanel.getComponents())
-				{
-					((SingleStatChartPanel) comp).setFreqMaxAuto();
-				}
-			}
-			else
-			{
-				double nVal = 0;
-
-				try
-				{
-					nVal = Double.parseDouble(value);
-				}
-				catch(NumberFormatException exception)
-				{
-				}
-
-				if(nVal == 0)
-				{
-					for(Component comp : fftListPanel.getComponents())
-					{
-						((SingleStatChartPanel) comp).setFreqMaxAuto();
-					}
-				}
-				else
-				{
-					for(Component comp : fftListPanel.getComponents())
-					{
-						((SingleStatChartPanel) comp).setFreqRangeMax(nVal);
-					}
-				}
-
-			}
+			checkMaxFreq();
 
 		}
 		else if(e.getSource() == txtMaxAmp)
@@ -674,43 +668,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 				return;
 			}
 
-			String value = txtMaxAmp.getText();
-
-			if(value.equals("All"))
-			{
-				for(Component comp : fftListPanel.getComponents())
-				{
-					((SingleStatChartPanel) comp).setAmpMaxAuto();
-				}
-			}
-			else
-			{
-				double nVal = 0;
-
-				try
-				{
-					nVal = Double.parseDouble(value);
-				}
-				catch(NumberFormatException exception)
-				{
-				}
-
-				if(nVal == 0)
-				{
-					for(Component comp : fftListPanel.getComponents())
-					{
-						((SingleStatChartPanel) comp).setAmpMaxAuto();
-					}
-				}
-				else
-				{
-					for(Component comp : fftListPanel.getComponents())
-					{
-						((SingleStatChartPanel) comp).setAmpRangeMax(nVal);
-					}
-				}
-
-			}
+			checkMaxAmp();
+			
 		}
 		else if(e.getSource() == chckbxAvgFilter)
 		{
@@ -719,7 +678,89 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 
 	}
 
-	private void computeFFTAndAddFFTW3(int num, int charts, boolean avgFilter)
+	private void checkMaxAmp()
+	{
+		String value = txtMaxAmp.getText();
+
+		if(value.equals("All"))
+		{
+			for(Component comp : fftListPanel.getComponents())
+			{
+				((SingleStatChartPanel) comp).setAmpMaxAuto();
+			}
+		}
+		else
+		{
+			double nVal = 0;
+
+			try
+			{
+				nVal = Double.parseDouble(value);
+			}
+			catch(NumberFormatException exception)
+			{
+			}
+
+			if(nVal == 0)
+			{
+				for(Component comp : fftListPanel.getComponents())
+				{
+					((SingleStatChartPanel) comp).setAmpMaxAuto();
+				}
+			}
+			else
+			{
+				for(Component comp : fftListPanel.getComponents())
+				{
+					((SingleStatChartPanel) comp).setAmpRangeMax(nVal);
+				}
+			}
+
+		}
+	}
+	
+	private void checkMaxFreq()
+	{
+		String value = txtMaxFreq.getText();
+
+		if(value.equals("All"))
+		{
+			for(Component comp : fftListPanel.getComponents())
+			{
+				((SingleStatChartPanel) comp).setFreqMaxAuto();
+			}
+		}
+		else
+		{
+			double nVal = 0;
+
+			try
+			{
+				nVal = Double.parseDouble(value);
+			}
+			catch(NumberFormatException exception)
+			{
+			}
+
+			if(nVal == 0)
+			{
+				for(Component comp : fftListPanel.getComponents())
+				{
+					((SingleStatChartPanel) comp).setFreqMaxAuto();
+				}
+			}
+			else
+			{
+				for(Component comp : fftListPanel.getComponents())
+				{
+					((SingleStatChartPanel) comp).setFreqRangeMax(nVal);
+				}
+			}
+
+		}
+	}
+	
+	private void computeFFTAndAddFFTW3(int num, int charts, boolean avgFilter, int passes)
 	{
 		Loader.load(fftw3.class);
 
@@ -769,6 +810,21 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		// REAL + IMG = norm
 		double[] norm = new double[array2.length / 2];
 
+		// Seconds or Steps
+		if(tIsSeconds)
+		{
+			// Change of Sample Window Size
+			sampleWindow = timePeriod;
+		}
+		else
+		{
+			// Change of Sample Window Size
+			sampleWindow = len;
+		}
+		
+		// Whole Time Period?
+		timePeriod = sampleWindow;
+
 		//
 		int normI = 0;
 		for(int i = 0; i < array2.length; i += 2)
@@ -783,53 +839,78 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 			normI++;
 		}
 
-		double[] han =  hanningWindow(norm);
-		
-		double mod = sampleWindow;
-		// double mod = 1;
+		double[] han = hanningWindow(norm);
 
-		System.out.println("Mod " + mod);
+		System.out.println("timePeriod " + timePeriod);
+		System.out.println("tIsSeconds " + tIsSeconds);
 
 		double maxValue = Double.MIN_VALUE;
 
 		StatSample[] chartSamples = null;
-		
-		
-		StatSample[] unaveraged = new StatSample[result.capacity() / 2];
 
-		double maxT = (unaveraged.length / sampleWindow) * mod;
-		
-		for(int i = 0; i < unaveraged.length; i++)
-		{
-			unaveraged[i] = new StatSample((double) ((i / sampleWindow) * mod), norm[i]);
-		}
-		
+		double maxT = 0;
+
 		if(avgFilter)
 		{
-			// Avg Filter (3 - 1/4)
-			StatSample[] avg = avgFilter(norm, mod);
+			if(tIsSeconds)
+			{
+				// Change of Sample Window Size
+				sampleWindow = timePeriod;
+			}
+			else
+			{
+				// Change of Sample Window Size
+				sampleWindow = norm.length;
+			}
+			maxT = (norm.length / sampleWindow) * timePeriod;
 
-			chartSamples = avg;
+
+			// Needed keep time index during average as it removes samples altering array pos which cannot then be used for freq.
+			StatSample[] filtered = new StatSample[norm.length];
+			for(int i = 0; i < norm.length; i++)
+			{
+				filtered[i] = new StatSample((double) ((i / sampleWindow) * timePeriod), norm[i]);
+			}
 			
-			//freq.populateFFTShift("Frequency", unaveraged,maxT);
+			int f = passes;
+
+			while(f > 0)
+			{
+				filtered = avgFilter(filtered);
+
+				f--;
+			}
+
+			chartSamples = filtered;
+
 		}
 		else
 		{
+
+			maxT = (norm.length / sampleWindow) * timePeriod;
+
+			StatSample[] unaveraged = new StatSample[result.capacity() / 2];
+
+			for(int i = 0; i < unaveraged.length; i++)
+			{
+				unaveraged[i] = new StatSample((double) ((i / sampleWindow) * timePeriod), norm[i]);
+			}
+
 			chartSamples = unaveraged;
 		}
-		
+
 		// Scale Charts ignoreing <5 freq
-		for(int i=0;i<chartSamples.length;i++)
+		for(int i = 0; i < chartSamples.length; i++)
 		{
-			if((i>5) & (chartSamples[i].getSample() > maxValue))
+			if((i > 5) & (chartSamples[i].getSample() > maxValue))
 			{
 				maxValue = chartSamples[i].getSample();
 			}
 		}
-		
+
 		freq.populateFFT("Frequency", chartSamples);
-		
-		//freq.setAmpMaxAuto();
+
+		// freq.setAmpMaxAuto();
 		freq.setAmpRangeMax(maxValue);
 		freq.setFreqMaxAuto();
 
@@ -850,18 +931,18 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	public double[] hanningWindow(double[] array)
 	{
 		int normLen = array.length;
-		
+
 		double[] han = new double[normLen];
 
 		for(int i = 0; i < normLen; i++)
 		{
-			double multiplier = 0.5 * (1 - Math.cos(2 * Math.PI * (i+1) / (normLen+1)));
+			double multiplier = 0.5 * (1 - Math.cos(2 * Math.PI * (i + 1) / (normLen + 1)));
 			han[i] = multiplier * array[i];
 		}
 
 		return han;
 	}
-	
+
 	private void computeFFTAndDisplayFFTW3(int num)
 	{
 		Loader.load(fftw3.class);
@@ -940,7 +1021,14 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 
 		// Avg Filter (3 - 1/4)
 
-		freq.populateFFT("Frequency", avgFilter(norm, mod));
+		StatSample[] avg = new StatSample[norm.length];
+
+		for(int i = 0; i < norm.length; i++)
+		{
+			avg[i] = new StatSample((double) ((i / sampleWindow) * mod), norm[i]);
+		}
+
+		freq.populateFFT("Frequency", avgFilter(avg));
 
 		// freq.populateFFT("Frequency",array3);
 		// freq.populateFFTShift("Frequency",array3,maxT);
@@ -963,16 +1051,17 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		fftw3.fftw_destroy_plan(plan);
 	}
 
-	private StatSample[] avgFilter(double[] array, double mod)
+	private StatSample[] avgFilter(StatSample[] array)
 	{
+		// Drop 2 samples (start and end)
 		StatSample[] filtered = new StatSample[array.length - 2];
 
 		int fill = 0;
 		for(int i = 1; i < array.length - 1; i++)
 		{
-			double avg = ((array[i - 1] * 0.25) + (array[i] * 0.5) + (array[i + 1] * 0.25));
+			double avg = ((array[i - 1].getSample() * 0.25) + (array[i].getSample() * 0.5) + (array[i + 1].getSample() * 0.25));
 
-			filtered[fill] = new StatSample((double) ((i / sampleWindow) * mod), avg);
+			filtered[fill]= new StatSample(array[i].getTime(),avg);
 
 			fill++;
 		}

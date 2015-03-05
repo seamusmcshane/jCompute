@@ -46,101 +46,20 @@ public class AxisGrid
 	private VertexModel wallSouthEastTicks;
 	private VertexModel wallSouthWestTicks;
 
+	private float gridSize;
+	private float trans;
+	private float heightScale;
+	private float tickSize;	
+	
 	private BitmapFont	decalFont	= new BitmapFont();
 
 	public AxisGrid(float gridSize, float trans, float heightScale)
 	{
-		float offset1 = gridSize - (gridSize * heightScale);
-		float tickSize = gridSize / 10f;
-
-		// Grid Walls (height is scaled)
-		northSide = new LineGrid(10, gridSize, new float[]
-		{
-				1, 0, 0, 1
-		}, trans);
-		northSide.scale(1f, 1f, heightScale);
-		northSide.rotate(1, 0, 0, 90);
-		northSide.rotate(0, 1, 0, 90);
-		northSide.transform(gridSize, 0, -offset1 / 2);
-
-		southSide = new LineGrid(10, gridSize, new float[]
-		{
-				0, 0, 1, 1
-		}, trans);
-		southSide.scale(1f, 1f, heightScale);
-		southSide.rotate(1, 0, 0, 90);
-		southSide.rotate(0, 1, 0, 90);
-		southSide.transform(0, 0, -offset1 / 2);
-
-		eastSide = new LineGrid(10, gridSize, new float[]
-		{
-				0, 1, 0, 1
-		}, trans);
-		eastSide.scale(1f, 1f, heightScale);
-		eastSide.rotate(1, 0, 0, 90);
-		eastSide.transform(0, -gridSize, -offset1 / 2);
-
-		westSide = new LineGrid(10, gridSize, new float[]
-		{
-				0, 1, 1, 1
-		}, trans);
-		westSide.scale(1f, 1f, heightScale);
-		westSide.rotate(1, 0, 0, 90);
-		westSide.transform(0, 0, -offset1 / 2);
-
-		// Floor
-		floor = new LineGrid(10, gridSize, new float[]
-		{
-				0, 0, 0, 1
-		}, trans);
-
-		// Floor Axis Ticks
-		floorNorthTicks = new VertexModel(false);
-		generateTicks(floorNorthTicks, gridSize, tickSize, 10, 10);
-		floorNorthTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2, -gridSize / 2+trans);
+		this.gridSize = gridSize;
+		this.trans = trans;
+		this.heightScale = heightScale;
 		
-		floorSouthTicks = new VertexModel(false);
-		generateTicks(floorSouthTicks, gridSize, gridSize / 10, 10, 10);
-		floorSouthTicks.getModelInstance().transform.trn(-gridSize / 2-tickSize, -gridSize / 2, -gridSize / 2+trans);
-		
-		floorEastTicks = new VertexModel(false);
-		generateTicks(floorEastTicks, gridSize, tickSize, 10, 10);
-		floorEastTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2-tickSize, -gridSize / 2+trans);
-		floorEastTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
-		
-		floorWestTicks = new VertexModel(false);
-		generateTicks(floorWestTicks, gridSize, tickSize, 10, 10);
-		floorWestTicks.getModelInstance().transform.trn(gridSize / 2, gridSize / 2, -gridSize / 2+trans);
-		floorWestTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
-
-		// Wall Ticks
-		wallNorthEastTicks = new VertexModel(false);
-		generateTicks(wallNorthEastTicks, gridSize, tickSize, 10, 10);
-		wallNorthEastTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallNorthEastTicks.getModelInstance().transform.trn((-gridSize / 2), (-gridSize / 2), -gridSize / 2+trans);
-		wallNorthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 225f);
-		wallNorthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-
-		wallNorthWestTicks = new VertexModel(false);
-		generateTicks(wallNorthWestTicks, gridSize, tickSize, 10, 10);
-		wallNorthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallNorthWestTicks.getModelInstance().transform.trn((gridSize / 2), (gridSize / 2), -gridSize / 2+trans);
-		wallNorthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 45f);
-		wallNorthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		
-		wallSouthEastTicks = new VertexModel(false);
-		generateTicks(wallSouthEastTicks, gridSize, tickSize, 10, 10);
-		wallSouthEastTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallSouthEastTicks.getModelInstance().transform.trn((-gridSize / 2), (gridSize / 2), -gridSize / 2+trans);
-		wallSouthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 135f);
-		wallSouthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		
-		wallSouthWestTicks = new VertexModel(false);
-		generateTicks(wallSouthWestTicks, gridSize, tickSize, 10, 10);
-		wallSouthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallSouthWestTicks.getModelInstance().transform.trn((gridSize / 2), -(gridSize / 2), -gridSize / 2+trans);
-		wallSouthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 315f);
-		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);		
+		setTickInterval(10);
 		
 		// Floor Tick Labels
 		gridXAxisName = new Decal[2];
@@ -150,46 +69,148 @@ public class AxisGrid
 		gridZAxisName = new Decal[4];
 
 		// Axis Labels
-		setAxisLabels(gridSize, tickSize, trans, "X Axis", "Y Axis", "Z Axis");
+		setAxisLabels("X Axis", "Y Axis", "Z Axis");
 	}
 
-	private void setAxisLabels(float gridSize, float tickSize, float trans, String xAxis, String yAxis, String zAxis)
+	private void generateGridsAndTicks(int interval)
+	{		
+		float offset1 = gridSize - (gridSize * heightScale);
+		this.tickSize = gridSize / interval;
+
+		// Grid Walls (height is scaled)
+		northSide = new LineGrid(interval, gridSize, new float[]
+		{
+				1, 0, 0, 1
+		}, trans);
+		northSide.scale(1f, 1f, heightScale);
+		northSide.rotate(1, 0, 0, 90);
+		northSide.rotate(0, 1, 0, 90);
+		northSide.transform(gridSize, 0, -offset1 / 2);
+
+		southSide = new LineGrid(interval, gridSize, new float[]
+		{
+				0, 0, 1, 1
+		}, trans);
+		southSide.scale(1f, 1f, heightScale);
+		southSide.rotate(1, 0, 0, 90);
+		southSide.rotate(0, 1, 0, 90);
+		southSide.transform(0, 0, -offset1 / 2);
+
+		eastSide = new LineGrid(interval, gridSize, new float[]
+		{
+				0, 1, 0, 1
+		}, trans);
+		eastSide.scale(1f, 1f, heightScale);
+		eastSide.rotate(1, 0, 0, 90);
+		eastSide.transform(0, -gridSize, -offset1 / 2);
+
+		westSide = new LineGrid(interval, gridSize, new float[]
+		{
+				0, 1, 1, 1
+		}, trans);
+		westSide.scale(1f, 1f, heightScale);
+		westSide.rotate(1, 0, 0, 90);
+		westSide.transform(0, 0, -offset1 / 2);
+
+		// Floor
+		floor = new LineGrid(interval, gridSize, new float[]
+		{
+				0, 0, 0, 1
+		}, trans);
+
+		// Floor Axis Ticks
+		floorNorthTicks = new VertexModel(false);
+		generateTicks(floorNorthTicks, gridSize, tickSize, interval, interval);
+		floorNorthTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2, -gridSize / 2+trans);
+		
+		floorSouthTicks = new VertexModel(false);
+		generateTicks(floorSouthTicks, gridSize, gridSize / interval, interval, interval);
+		floorSouthTicks.getModelInstance().transform.trn(-gridSize / 2-tickSize, -gridSize / 2, -gridSize / 2+trans);
+		
+		floorEastTicks = new VertexModel(false);
+		generateTicks(floorEastTicks, gridSize, tickSize, interval, interval);
+		floorEastTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2-tickSize, -gridSize / 2+trans);
+		floorEastTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
+		
+		floorWestTicks = new VertexModel(false);
+		generateTicks(floorWestTicks, gridSize, tickSize, interval, interval);
+		floorWestTicks.getModelInstance().transform.trn(gridSize / 2, gridSize / 2, -gridSize / 2+trans);
+		floorWestTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
+
+		// Wall Ticks
+		wallNorthEastTicks = new VertexModel(false);
+		generateTicks(wallNorthEastTicks, gridSize, tickSize, interval, interval);
+		wallNorthEastTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
+		wallNorthEastTicks.getModelInstance().transform.trn((-gridSize / 2), (-gridSize / 2), -gridSize / 2+trans);
+		wallNorthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 225f);
+		wallNorthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
+
+		wallNorthWestTicks = new VertexModel(false);
+		generateTicks(wallNorthWestTicks, gridSize, tickSize, interval, interval);
+		wallNorthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
+		wallNorthWestTicks.getModelInstance().transform.trn((gridSize / 2), (gridSize / 2), -gridSize / 2+trans);
+		wallNorthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 45f);
+		wallNorthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
+		
+		wallSouthEastTicks = new VertexModel(false);
+		generateTicks(wallSouthEastTicks, gridSize, tickSize, interval, interval);
+		wallSouthEastTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
+		wallSouthEastTicks.getModelInstance().transform.trn((-gridSize / 2), (gridSize / 2), -gridSize / 2+trans);
+		wallSouthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 135f);
+		wallSouthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
+		
+		wallSouthWestTicks = new VertexModel(false);
+		generateTicks(wallSouthWestTicks, gridSize, tickSize, interval, interval);
+		wallSouthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
+		wallSouthWestTicks.getModelInstance().transform.trn((gridSize / 2), -(gridSize / 2), -gridSize / 2+trans);
+		wallSouthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 315f);
+		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);		
+	}
+	
+	public void setTickInterval(int interval)
 	{
+		generateGridsAndTicks(interval);
+	}
+	
+	public void setAxisLabels(String xAxis, String yAxis, String zAxis)
+	{
+		int axisLabelPad = 100;
+		
 		// X Axis Labels
 		gridXAxisName[0] = generateDecal(xAxis);
-		gridXAxisName[0].getPosition().set(gridSize / 2 + (tickSize * 2), gridSize / 2 - trans, 0);
+		gridXAxisName[0].getPosition().set(gridSize / 2 + (axisLabelPad), gridSize / 2 - trans, 0);
 		gridXAxisName[0].setRotationX(90);
 
 		gridXAxisName[1] = generateDecal(xAxis);
-		gridXAxisName[1].getPosition().set(-gridSize / 2 - (tickSize * 2), gridSize / 2 - trans, 0);
+		gridXAxisName[1].getPosition().set(-gridSize / 2 - (axisLabelPad), gridSize / 2 - trans, 0);
 		gridXAxisName[1].setRotationX(90);
 
 		// Y Axis Labels
 		gridYAxisName[0] = generateDecal(yAxis);
-		gridYAxisName[0].getPosition().set(gridSize / 2 - trans, gridSize / 2 + (tickSize * 2), 0);
+		gridYAxisName[0].getPosition().set(gridSize / 2 - trans, gridSize / 2 + (axisLabelPad), 0);
 		gridYAxisName[0].setRotationX(90);
 
 		gridYAxisName[1] = generateDecal(yAxis);
-		gridYAxisName[1].getPosition().set(gridSize / 2 - trans, -gridSize / 2 - (tickSize * 2), 0);
+		gridYAxisName[1].getPosition().set(gridSize / 2 - trans, -gridSize / 2 - (axisLabelPad), 0);
 		gridYAxisName[1].setRotationX(90);
 
 		// Z Axis Column Labels (NorthEast,SouthEast,SouthWest,NorthWest)
 		gridZAxisName[0] = generateDecal(zAxis + "NorthEast");
-		gridZAxisName[0].getPosition().set(gridSize / 2 + (tickSize * 2), -gridSize / 2 - (tickSize * 2), gridSize / 2);
+		gridZAxisName[0].getPosition().set(gridSize / 2 + (axisLabelPad), -gridSize / 2 - (axisLabelPad), gridSize / 2);
 		gridZAxisName[0].setRotationX(90);
 		
 		gridZAxisName[1] = generateDecal(zAxis + "SouthEast");
 		gridZAxisName[1].getPosition()
-				.set(-gridSize / 2 - (tickSize * 2), -gridSize / 2 - (tickSize * 2), gridSize / 2);
+				.set(-gridSize / 2 - (axisLabelPad), -gridSize / 2 - (axisLabelPad), gridSize / 2);
 		gridZAxisName[1].setRotationX(90);
 				
 		gridZAxisName[2] = generateDecal(zAxis + "SouthWest");
-		gridZAxisName[2].getPosition().set(-gridSize / 2 - (tickSize * 2), gridSize / 2 + (tickSize * 2), gridSize / 2);
+		gridZAxisName[2].getPosition().set(-gridSize / 2 - (axisLabelPad), gridSize / 2 + (axisLabelPad), gridSize / 2);
 		gridZAxisName[2].setRotationX(90);
 
 		gridZAxisName[3] = generateDecal(zAxis + "NorthWest");
 		gridZAxisName[3].getPosition()
-				.set(+gridSize / 2 + (tickSize * 2), +gridSize / 2 + (tickSize * 2), gridSize / 2);
+				.set(+gridSize / 2 + (axisLabelPad), +gridSize / 2 + (axisLabelPad), gridSize / 2);
 		gridZAxisName[3].setRotationX(90);
 	}
 
@@ -220,7 +241,7 @@ public class AxisGrid
 		return Decal.newDecal(tWidth * 2, tHeight * 2, t1, true);
 	}
 
-	public void generateTicks(VertexModel vModel, float gridSize, float tickSize, int div, int numTicks)
+	private void generateTicks(VertexModel vModel, float gridSize, float tickSize, int div, int numTicks)
 	{
 		float start = 0;
 		float end = tickSize;
