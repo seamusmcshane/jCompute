@@ -15,8 +15,8 @@ import com.badlogic.gdx.math.Vector3;
 
 public class LineGrid
 {
-	private ModelInstance	modelInstance;
-	private final Vector3	center;
+	private ModelInstance modelInstance;
+	private final Vector3 center;
 
 	public LineGrid(int div, float size, float[] color, float trans)
 	{
@@ -34,7 +34,7 @@ public class LineGrid
 		MeshPartBuilder meshBuilder;
 
 		meshBuilder = modelBuilder.part("background", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(
-				new BlendingAttribute(), ColorAttribute.createDiffuse(0.5f, 0.5f, 0.5f,0.05f)));
+				new BlendingAttribute(), ColorAttribute.createDiffuse(0.5f, 0.5f, 0.5f, 0.05f)));
 
 		meshBuilder.box(size - linewidth, size - linewidth, linewidth);
 
@@ -52,7 +52,7 @@ public class LineGrid
 		return center;
 	}
 
-	private void addGrid(ModelBuilder modelBuilder, int div, float size,float[] rgba, float x, float y, float z)
+	private void addGrid(ModelBuilder modelBuilder, int div, float size, float[] rgba, float x, float y, float z)
 	{
 		float start = -(size / 2);
 		float end = (size / 2);
@@ -119,7 +119,7 @@ public class LineGrid
 	{
 		modelInstance.transform.scale(x, y, z);
 	}
-	
+
 	public void transform(float x, float y, float z)
 	{
 		modelInstance.transform.trn(x, y, z);
