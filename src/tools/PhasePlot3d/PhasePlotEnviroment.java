@@ -64,6 +64,11 @@ public class PhasePlotEnviroment implements ApplicationListener
 	private float data[][];
 	private String axisNames[];
 
+	// Axis Order
+	private int xAxis = 0;
+	private int yAxis = 1;
+	private int zAxis = 2;
+	
 	// Scaling
 	private boolean sameScale = false;
 
@@ -325,7 +330,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		// Samples - All Sample Length
 		int numSamples = data[0].length;
 
-		// Get the correct scaling for the points
+		// Get the correct drawing offset for the points
 		float envScale = scaleHalf;
 
 		// X,Y,Z
@@ -338,11 +343,6 @@ public class PhasePlotEnviroment implements ApplicationListener
 		float xMin = Float.POSITIVE_INFINITY;
 		float yMin = Float.POSITIVE_INFINITY;
 		float zMin = Float.POSITIVE_INFINITY;
-
-		// Axis Order / Chosen Arrays
-		int xAxis = 0;
-		int yAxis = 1;
-		int zAxis = 2;
 
 		// Axis Names
 		String[] names = new String[3];
@@ -558,7 +558,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		}
 
 		ws.setVertices(
-				MeshHelper.colorAllVerticesRGBA(points, 0.4f, 0.95f, xMin, xMax, yMin, yMax, zMin, zMax, scaleHalf),
+				MeshHelper.colorAllVerticesRGBA(points, 0.4f, 0.95f, xMin, xMax, yMin, yMax, zMin, zMax, scaleHalf,yAxis,xAxis,zAxis),
 				GL20.GL_LINE_STRIP);
 
 		axisGrid.setTickIntervals(4);
