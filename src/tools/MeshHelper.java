@@ -81,7 +81,7 @@ public class MeshHelper
 	 * @param scaleHalf
 	 * @return
 	 */
-	public static float[] colorAllVerticesRGBA(float[] inVertices, float colorBoost, float alpha,float xMin, float xMax, float yMin, float yMax, float zMin, float zMax, float scaleHalf)
+	public static float[] colorAllVerticesRGBA(float[] inVertices, float colorBoost, float alpha,float xMin, float xMax, float yMin, float yMax, float zMin, float zMax, float scaleHalf,int redAxis,int greenAxis,int blueAxis)
 	{
 		int indicies = inVertices.length/POS_WIDTH;
 		float[] colorVertices = new float[indicies*(POS_WIDTH+COLOR_WIDTH)];
@@ -111,13 +111,15 @@ public class MeshHelper
 			colorVertices[point + 1] = inVertices[i + 1];
 			colorVertices[point + 2] = inVertices[i + 2] + scaleHalf;
 
-			float r = (1f * (scale * inVertices[i])) + colorBoost;
-			float g = (1f * (scale * inVertices[i + 1])) + colorBoost;
-			float b = (1f * (scale * inVertices[i + 2])) + colorBoost;
+			
+			float[] rgb = new float[3];
+			rgb[0] = (1f * (scale * inVertices[i])) + colorBoost;
+			rgb[1] = (1f * (scale * inVertices[i + 1])) + colorBoost;
+			rgb[2]= (1f * (scale * inVertices[i + 2])) + colorBoost;
 
-			colorVertices[point + 3] = r;
-			colorVertices[point + 4] = g;
-			colorVertices[point + 5] = b;
+			colorVertices[point + 3] = rgb[redAxis];
+			colorVertices[point + 4] = rgb[greenAxis];
+			colorVertices[point + 5] = rgb[blueAxis];
 			colorVertices[point + 6] = alpha;
 
 			point += 7;
