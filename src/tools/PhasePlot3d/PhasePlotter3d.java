@@ -61,7 +61,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 	// Width Values
 	private final String[] lineWidthValues =
 	{
-			"0.5", "1", "2", "3", "5"
+			"0.5", "1", "2", "3", "4"
 	};
 
 	public PhasePlotter3d()
