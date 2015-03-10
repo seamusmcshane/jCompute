@@ -40,7 +40,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 	// Camera
 	private PerspectiveCamera cam;
 	private FitViewport viewport;
-	
+
 	// Models
 	private ModelBatch modelBatch;
 
@@ -57,18 +57,13 @@ public class PhasePlotEnviroment implements ApplicationListener
 	private float width;
 	private float height;
 
-	private float plotLineWidth = 2f;	
+	private float plotLineWidth = 2f;
 	private boolean drawBoundaryCube = false;
-	
+
 	public PhasePlotEnviroment(float width, float height)
 	{
 		this.width = width;
 		this.height = height;
-	}
-
-	public float getScale()
-	{
-		return scaleHalf;
 	}
 
 	public float[] createCircle(int lines)
@@ -205,7 +200,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		}, scaleHalf);
 
 		// Cam
-		//cam = new PerspectiveCamera(75f, (width / height), 1f);
+		// cam = new PerspectiveCamera(75f, (width / height), 1f);
 		cam = new PerspectiveCamera();
 		viewport = new FitViewport(width, height, cam);
 		cam.position.set(0, 0, 500);
@@ -234,8 +229,8 @@ public class PhasePlotEnviroment implements ApplicationListener
 		minMax[1][1] = 100;
 		minMax[2][0] = 0;
 		minMax[2][1] = 100;
-		
-		float[][] firstLast = new float[6][2];		
+
+		float[][] firstLast = new float[6][2];
 		// First (Actual/Scaled)
 		firstLast[0][0] = 0;
 		firstLast[1][0] = 0;
@@ -243,7 +238,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		firstLast[3][0] = 0;
 		firstLast[4][0] = 0;
 		firstLast[5][0] = 0;
-		
+
 		// Last (Actual/Scaled)
 		firstLast[0][1] = 0;
 		firstLast[1][1] = 0;
@@ -251,12 +246,15 @@ public class PhasePlotEnviroment implements ApplicationListener
 		firstLast[3][1] = 0;
 		firstLast[4][1] = 0;
 		firstLast[5][1] = 0;
-		
+
 		// Default Model
 		setPlotPoints(createTorus(16, 360), new float[]
 		{
 				0, 0, 0
-		},new String[]{"X","Y","Z"},minMax,firstLast);
+		}, new String[]
+		{
+				"X", "Y", "Z"
+		}, minMax, firstLast);
 	}
 
 	@Override
@@ -269,7 +267,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		// Depth Buffer Mode
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthFunc(GL20.GL_LESS);
-		
+
 		// Alpha Blending
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -283,7 +281,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		modelBatch.end();
 
 		axisGrid.render(cam, modelBatch, db, environment);
-		
+
 		// The Plot lines
 		modelBatch.begin(cam);
 		Gdx.gl.glLineWidth(plotLineWidth);
@@ -295,8 +293,202 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 		camController.update();
 	}
-	
-	public void setPlotPoints(float[] points, float[] center, String[] axisLabels,float[][] minMax,float[][] firstLast)
+
+	public boolean setData(float[][] inData, String[] inNames)
+	{
+		// Need 3 arrays for X,Y,Z + axis names same length as data
+		if(inData.length < 3 | ( inData.length != inNames.length))
+		{
+			return false;
+		}
+
+		// Samples - All Sample Length
+		int numSamples = inData[0].length;
+
+		// Get the correct scaling for the points
+		float envScale = scaleHalf;
+
+		// X,Y,Z
+		float[] points = new float[numSamples * 3];
+
+		float xMax = Float.NEGATIVE_INFINITY;
+		float yMax = Float.NEGATIVE_INFINITY;
+		float zMax = Float.NEGATIVE_INFINITY;
+
+		float xMin = Float.POSITIVE_INFINITY;
+		float yMin = Float.POSITIVE_INFINITY;
+		float zMin = Float.POSITIVE_INFINITY;
+
+		// Axis Order / Chosen Arrays
+		int xAxis = 0;
+		int yAxis = 1;
+		int zAxis = 2;
+
+		// Axis Names
+		String[] names = new String[3];
+		names[0] = new String(inNames[xAxis]);
+		names[1] = new String(inNames[yAxis]);
+		names[2] = new String(inNames[zAxis]);
+
+		int point = 0;
+
+		// Assumes Population chart
+		for(int i = 0; i < numSamples; i++)
+		{
+			// Plants, Predator, Prey
+			float x = inData[xAxis][i];
+			float y = inData[yAxis][i];
+			float z = inData[zAxis][i];
+
+			points[point] = x;
+
+			if(x > xMax)
+			{
+				xMax = (float) x;
+			}
+
+			if(x < xMin)
+			{
+				xMin = (float) x;
+			}
+
+			points[point + 1] = y;
+
+			if(y > yMax)
+			{
+				yMax = (float) y;
+			}
+
+			if(y < yMin)
+			{
+				yMin = (float) y;
+			}
+
+			points[point + 2] = z;
+
+			if(z > zMax)
+			{
+				zMax = (float) z;
+			}
+
+			if(z < zMin)
+			{
+				zMin = (float) z;
+			}
+
+			point += 3;
+		}
+
+		System.out.println("Scaling Points");
+
+		// Used for generating Tick Values
+		float[][] minMax = new float[3][2];
+
+		// Scaling type
+		boolean sameScale = true;
+
+		if(sameScale)
+		{
+			// Set Scales to min/max for each axis
+			float scaleMin = Math.min(Math.min(xMin, yMin), zMin);
+			float scaleMax = Math.max(Math.max(xMax, yMax), zMax);
+			minMax[xAxis][0] = scaleMin;
+			minMax[xAxis][1] = scaleMax;
+			minMax[yAxis][0] = scaleMin;
+			minMax[yAxis][1] = scaleMax;
+			minMax[zAxis][0] = scaleMin;
+			minMax[zAxis][1] = scaleMax;
+		}
+		else
+		{
+			// Scale each axis independently
+			minMax[xAxis][0] = xMin;
+			minMax[xAxis][1] = xMax;
+			minMax[yAxis][0] = yMin;
+			minMax[yAxis][1] = yMax;
+			minMax[zAxis][0] = zMin;
+			minMax[zAxis][1] = zMax;
+		}
+
+		// value scaling
+		float xScale = ((envScale * 2) / xMax);
+		float yScale = ((envScale * 2) / yMax);
+		float zScale = ((envScale * 2) / zMax);
+
+		// Mid of the phase plot values
+		float[] mids = new float[3];
+
+		mids[xAxis] = 0;
+		mids[yAxis] = 0;
+		mids[zAxis] = 0;
+
+		// First+Last * (Actual Values + Scaled values) (For label text and
+		// display)
+		float[][] firstLast = new float[6][2];
+
+		// First (Actual/Scaled)
+		firstLast[0][0] = points[0];
+		firstLast[1][0] = points[1];
+		firstLast[2][0] = points[2];
+		firstLast[3][0] = 0;
+		firstLast[4][0] = 0;
+		firstLast[5][0] = 0;
+
+		// Last (Actual/Scaled)
+		firstLast[0][1] = points[(numSamples * 3) - 3];
+		firstLast[1][1] = points[(numSamples * 3) - 2];
+		firstLast[2][1] = points[(numSamples * 3) - 1];
+		firstLast[3][1] = 0;
+		firstLast[4][1] = 0;
+		firstLast[5][1] = 0;
+
+		if(sameScale)
+		{
+			float scale = Math.min(xScale, yScale);
+			scale = Math.min(scale, zScale);
+
+			for(int p = 0; p < (numSamples * 3); p += 3)
+			{
+				points[p] = (points[p] * scale) - envScale;
+				points[p + 1] = (points[p + 1] * scale) - envScale;
+				points[p + 2] = (points[p + 2] * scale) - envScale;
+			}
+
+			mids[xAxis] = (((xMax / 2) + (xMin / 2)) * scale) - envScale;
+			mids[yAxis] = (((yMax / 2) + (yMin / 2)) * scale) - envScale;
+			mids[zAxis] = (((zMax / 2) + (zMin / 2)) * scale) - envScale;
+		}
+		else
+		{
+			for(int p = 0; p < (numSamples * 3); p += 3)
+			{
+				points[p] = (points[p] * xScale) - envScale;
+				points[p + 1] = (points[p + 1] * yScale) - envScale;
+				points[p + 2] = (points[p + 2] * zScale) - envScale;
+			}
+			mids[xAxis] = (((xMax / 2) + (xMin / 2)) * xScale) - envScale;
+			mids[yAxis] = (((yMax / 2) + (yMin / 2)) * yScale) - envScale;
+			mids[zAxis] = (((zMax / 2) + (zMin / 2)) * zScale) - envScale;
+		}
+
+		// Scaled First
+		firstLast[3][0] = points[0];
+		firstLast[4][0] = points[1];
+		firstLast[5][0] = points[2];
+		// Scaled Last
+		firstLast[3][1] = points[(numSamples * 3) - 3];
+		firstLast[4][1] = points[(numSamples * 3) - 2];
+		firstLast[5][1] = points[(numSamples * 3) - 1];
+		System.out.println("Setting Points");
+
+		// Set the values
+		setPlotPoints(points, mids, names, minMax, firstLast);
+
+		return true;
+	}
+
+	private void setPlotPoints(float[] points, float[] center, String[] axisLabels, float[][] minMax,
+			float[][] firstLast)
 	{
 		camController.setTarget(new float[]
 		{
@@ -349,17 +541,19 @@ public class PhasePlotEnviroment implements ApplicationListener
 			}
 
 		}
-		
-		ws.setVertices(MeshHelper.colorAllVerticesRGBA(points, 0.4f, 0.95f, xMin, xMax, yMin, yMax, zMin, zMax, scaleHalf), GL20.GL_LINE_STRIP);
+
+		ws.setVertices(
+				MeshHelper.colorAllVerticesRGBA(points, 0.4f, 0.95f, xMin, xMax, yMin, yMax, zMin, zMax, scaleHalf),
+				GL20.GL_LINE_STRIP);
 
 		axisGrid.setTickIntervals(4);
 		axisGrid.setAxisRangeMinMax(minMax);
-		axisGrid.setValueMinMax(xMin,xMax,yMin,yMax,zMin,zMax);
+		axisGrid.setValueMinMax(xMin, xMax, yMin, yMax, zMin, zMax);
 		axisGrid.setLabelSize(2f);
 		axisGrid.setAxisLabels(axisLabels);
 		axisGrid.setFirstLast(firstLast);
 		axisGrid.update();
-		
+
 		camController.reset();
 	}
 
@@ -367,27 +561,27 @@ public class PhasePlotEnviroment implements ApplicationListener
 	{
 		this.plotLineWidth = lineWidth;
 	}
-	
+
 	public void setMinMaxLineWidth(float lineWidth)
 	{
 		axisGrid.setMinMaxLineWidth(lineWidth);
 	}
-	
+
 	public void setGridLineWidth(float lineWidth)
 	{
 		axisGrid.setGridLineWidth(lineWidth);
 	}
-	
+
 	public void enableBoundaryCube(boolean enabled)
 	{
 		this.drawBoundaryCube = enabled;
 	}
-	
+
 	public void enableMinMax(boolean enabled)
 	{
 		axisGrid.setMinMaxDisplayed(enabled);
 	}
-	
+
 	@Override
 	public void dispose()
 	{
