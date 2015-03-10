@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class PhasePlotEnviroment implements ApplicationListener
 {
@@ -38,7 +39,8 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 	// Camera
 	private PerspectiveCamera cam;
-
+	private FitViewport viewport;
+	
 	// Models
 	private ModelBatch modelBatch;
 
@@ -222,7 +224,9 @@ public class PhasePlotEnviroment implements ApplicationListener
 		}, scaleHalf);
 
 		// Cam
-		cam = new PerspectiveCamera(75f, (width / height), 1f);
+		//cam = new PerspectiveCamera(75f, (width / height), 1f);
+		cam = new PerspectiveCamera();
+		viewport = new FitViewport(width, height, cam);
 		cam.position.set(0, 0, 500);
 		cam.lookAt(0, 0, 0);
 		cam.near = 0.1f;
@@ -415,6 +419,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 	@Override
 	public void resize(int width, int height)
 	{
+		viewport.update(width, height);
 	}
 
 	@Override
