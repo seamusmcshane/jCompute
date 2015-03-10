@@ -60,6 +60,13 @@ public class PhasePlotEnviroment implements ApplicationListener
 	private float plotLineWidth = 2f;
 	private boolean drawBoundaryCube = false;
 
+	// GlobalVars
+	private float data[][];
+	private String axisNames[];
+
+	// Scaling
+	private boolean sameScale = false;
+
 	public PhasePlotEnviroment(float width, float height)
 	{
 		this.width = width;
@@ -297,13 +304,26 @@ public class PhasePlotEnviroment implements ApplicationListener
 	public boolean setData(float[][] inData, String[] inNames)
 	{
 		// Need 3 arrays for X,Y,Z + axis names same length as data
-		if(inData.length < 3 | ( inData.length != inNames.length))
+		if(inData.length < 3 | (inData.length != inNames.length))
 		{
 			return false;
 		}
 
+		this.data = inData;
+		this.axisNames = inNames;
+
+		return true;
+	}
+
+	public void populateChart()
+	{
+		if(data == null | axisNames == null)
+		{
+			return;
+		}
+
 		// Samples - All Sample Length
-		int numSamples = inData[0].length;
+		int numSamples = data[0].length;
 
 		// Get the correct scaling for the points
 		float envScale = scaleHalf;
@@ -326,9 +346,9 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 		// Axis Names
 		String[] names = new String[3];
-		names[0] = new String(inNames[xAxis]);
-		names[1] = new String(inNames[yAxis]);
-		names[2] = new String(inNames[zAxis]);
+		names[0] = new String(axisNames[xAxis]);
+		names[1] = new String(axisNames[yAxis]);
+		names[2] = new String(axisNames[zAxis]);
 
 		int point = 0;
 
@@ -336,9 +356,9 @@ public class PhasePlotEnviroment implements ApplicationListener
 		for(int i = 0; i < numSamples; i++)
 		{
 			// Plants, Predator, Prey
-			float x = inData[xAxis][i];
-			float y = inData[yAxis][i];
-			float z = inData[zAxis][i];
+			float x = data[xAxis][i];
+			float y = data[yAxis][i];
+			float z = data[zAxis][i];
 
 			points[point] = x;
 
@@ -383,9 +403,6 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 		// Used for generating Tick Values
 		float[][] minMax = new float[3][2];
-
-		// Scaling type
-		boolean sameScale = true;
 
 		if(sameScale)
 		{
@@ -483,8 +500,6 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 		// Set the values
 		setPlotPoints(points, mids, names, minMax, firstLast);
-
-		return true;
 	}
 
 	private void setPlotPoints(float[] points, float[] center, String[] axisLabels, float[][] minMax,
@@ -603,5 +618,15 @@ public class PhasePlotEnviroment implements ApplicationListener
 	public void resume()
 	{
 
+	}
+
+	public void setScalingMode(boolean sameScale)
+	{
+		this.sameScale = sameScale;
+	}
+
+	public void replot()
+	{
+		populateChart();
 	}
 }

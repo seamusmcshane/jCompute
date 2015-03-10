@@ -64,6 +64,11 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 			"0.5", "1", "2", "3", "4"
 	};
 
+	private JMenu mnPlotScaling;
+	private JRadioButton rdbtnDependent;
+	private JRadioButton rdbtnIndependent;
+	private final ButtonGroup scalingButtonGroup = new ButtonGroup();
+
 	public PhasePlotter3d()
 	{
 		gui = new JFrame();
@@ -129,6 +134,20 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		// MinMax Line Widths
 		mnMinMaxLineWidth = new JMenu("MinMax");
 		mnLineWidths.add(mnMinMaxLineWidth);
+
+		mnPlotScaling = new JMenu("Plot Scaling");
+		mnChartSettings.add(mnPlotScaling);
+
+		rdbtnDependent = new JRadioButton("Dependent");
+		scalingButtonGroup.add(rdbtnDependent);
+		mnPlotScaling.add(rdbtnDependent);
+
+		rdbtnIndependent = new JRadioButton("Independent");
+		scalingButtonGroup.add(rdbtnIndependent);
+		mnPlotScaling.add(rdbtnIndependent);
+		rdbtnIndependent.setSelected(true);
+		rdbtnDependent.addActionListener(this);
+		rdbtnIndependent.addActionListener(this);
 
 		minMaxLineWidthButton = new JRadioButton[lineWidthValues.length];
 		for(int i = 0; i < lineWidthValues.length; i++)
@@ -302,6 +321,8 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 
 				glEnv.setData(data, names);
 
+				// Populate now
+				glEnv.populateChart();
 			}
 		}
 		else if((e.getSource() == plotLineWidthButton[0] | e.getSource() == plotLineWidthButton[1]
@@ -347,6 +368,11 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 				}
 			}
 
+		}
+		else if(e.getSource() == rdbtnDependent | e.getSource() == rdbtnIndependent)
+		{
+			glEnv.setScalingMode(rdbtnDependent.isSelected());
+			glEnv.replot();
 		}
 	}
 }
