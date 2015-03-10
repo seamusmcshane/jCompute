@@ -52,23 +52,13 @@ public class PhasePlotEnviroment implements ApplicationListener
 	private VertexModel ws;
 	private BoundaryCube2 bc;
 
-	private VertexModel xMaxVM;
-	private VertexModel xMinVM;
-
-	private VertexModel yMaxVM;
-	private VertexModel yMinVM;
-
-	private VertexModel zMaxVM;
-	private VertexModel zMinVM;
-
 	private OrbitalCameraInputController camController;
 
 	private float width;
 	private float height;
 
-	private float plotLineWidth = 2f;
-	private float gridLineWidth = 1f;
-	private float minMaxLineWidth = 3f;
+	private float plotLineWidth = 2f;	
+	private boolean drawBoundaryCube = false;
 	
 	public PhasePlotEnviroment(float width, float height)
 	{
@@ -207,15 +197,6 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 		axisGrid = new AxisGrid(scale, scaleHalf, 1f);
 
-		/*
-		 * xMs = new LineStrip3d(0,1,0,1);
-		 * xMs.setPoints(new float[]{0,100,-100,0,-100,-100}, false);
-		 * yMs = new LineStrip3d(1,0,0,1);
-		 * yMs.setPoints(new float[]{100,0,-100,-100,0,-100}, false);
-		 * zMs = new LineStrip3d(0,0,1,1);
-		 * zMs.setPoints(new float[]{0,0,100,0,0,-100}, false);
-		 */
-
 		ws = new VertexModel(true);
 
 		bc = new BoundaryCube2(0, 0, 0, 10, 10, 10, new float[]
@@ -246,44 +227,67 @@ public class PhasePlotEnviroment implements ApplicationListener
 		// Decals
 		db = new DecalBatch(new CameraGroupStrategy(cam));
 
+		float[][] minMax = new float[3][2];
+		minMax[0][0] = 0;
+		minMax[0][1] = 100;
+		minMax[1][0] = 0;
+		minMax[1][1] = 100;
+		minMax[2][0] = 0;
+		minMax[2][1] = 100;
+		
+		float[][] firstLast = new float[6][2];		
+		// First (Actual/Scaled)
+		firstLast[0][0] = 0;
+		firstLast[1][0] = 0;
+		firstLast[2][0] = 0;
+		firstLast[3][0] = 0;
+		firstLast[4][0] = 0;
+		firstLast[5][0] = 0;
+		
+		// Last (Actual/Scaled)
+		firstLast[0][1] = 0;
+		firstLast[1][1] = 0;
+		firstLast[2][1] = 0;
+		firstLast[3][1] = 0;
+		firstLast[4][1] = 0;
+		firstLast[5][1] = 0;
+		
 		// Default Model
 		setPlotPoints(createTorus(16, 360), new float[]
 		{
 				0, 0, 0
-		},"X","Y","Z");
+		},new String[]{"X","Y","Z"},minMax,firstLast);
 	}
 
 	@Override
 	public void render()
 	{
+		// Background
 		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		Gdx.gl.glDepthFunc(GL20.GL_LESS);
 
+		// Depth Buffer Mode
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl.glDepthFunc(GL20.GL_LESS);
+		
+		// Alpha Blending
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-		// ls.render(cam,GL20.GL_LINE_STRIP);
-
+		// Grid and Boundary Cube
 		modelBatch.begin(cam);
-		Gdx.gl.glLineWidth(gridLineWidth);
-		modelBatch.render(bc.getModelInstance(), environment);
-		axisGrid.render(cam, modelBatch, db, environment);
+		if(drawBoundaryCube)
+		{
+			modelBatch.render(bc.getModelInstance(), environment);
+		}
 		modelBatch.end();
 
+		axisGrid.render(cam, modelBatch, db, environment);
+		
+		// The Plot lines
 		modelBatch.begin(cam);
 		Gdx.gl.glLineWidth(plotLineWidth);
 		modelBatch.render(ws.getModelInstance(), environment);
-		modelBatch.end();
-
-		modelBatch.begin(cam);
-		Gdx.gl.glLineWidth(minMaxLineWidth);
-		modelBatch.render(xMaxVM.getModelInstance(), environment);
-		modelBatch.render(xMinVM.getModelInstance(), environment);
-		modelBatch.render(yMaxVM.getModelInstance(), environment);
-		modelBatch.render(yMinVM.getModelInstance(), environment);
-		modelBatch.render(zMaxVM.getModelInstance(), environment);
-		modelBatch.render(zMinVM.getModelInstance(), environment);
 		modelBatch.end();
 
 		// Flush Decals
@@ -291,47 +295,8 @@ public class PhasePlotEnviroment implements ApplicationListener
 
 		camController.update();
 	}
-
-	private void generateMinMaxLines(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax)
-	{
-		xMaxVM = new VertexModel(false);
-		xMinVM = new VertexModel(false);
-
-		xMaxVM.setVertices(new float[]
-		{
-				xMax, -scaleHalf, 0, 1, 0, 0, 1, xMax, scaleHalf, 0, 1, 0, 0, 1
-		}, GL20.GL_LINE_STRIP);
-		xMinVM.setVertices(new float[]
-		{
-				xMin, -scaleHalf, 0, 1, 0, 0, 1, xMin, scaleHalf, 0, 1, 0, 0, 1
-		}, GL20.GL_LINE_STRIP);
-
-		yMaxVM = new VertexModel(false);
-		yMinVM = new VertexModel(false);
-
-		yMaxVM.setVertices(new float[]
-		{
-				-scaleHalf, yMax, 0, 0, 1, 0, 1, scaleHalf, yMax, 0, 0, 1, 0, 1
-		}, GL20.GL_LINE_STRIP);
-		yMinVM.setVertices(new float[]
-		{
-				-scaleHalf, yMin, 0, 0, 1, 0, 1, scaleHalf, yMin, 0, 0, 1, 0, 1
-		}, GL20.GL_LINE_STRIP);
-
-		zMaxVM = new VertexModel(false);
-		zMinVM = new VertexModel(false);
-
-		zMaxVM.setVertices(new float[]
-		{
-				-scaleHalf, -scaleHalf, zMax, 0, 0, 1, 1, scaleHalf, -scaleHalf, zMax, 0, 0, 1, 1
-		}, GL20.GL_LINE_STRIP);
-		zMinVM.setVertices(new float[]
-		{
-				-scaleHalf, -scaleHalf, zMin, 0, 0, 1, 1, scaleHalf, -scaleHalf, zMin, 0, 0, 1, 1
-		}, GL20.GL_LINE_STRIP);
-	}
 	
-	public void setPlotPoints(float[] points, float[] center, String xAxisLabel, String yAxisLabel, String zAxisLabel)
+	public void setPlotPoints(float[] points, float[] center, String[] axisLabels,float[][] minMax,float[][] firstLast)
 	{
 		camController.setTarget(new float[]
 		{
@@ -384,13 +349,16 @@ public class PhasePlotEnviroment implements ApplicationListener
 			}
 
 		}
-
-		generateMinMaxLines(xMin,xMax,yMin,yMax,zMin,zMax);
 		
 		ws.setVertices(MeshHelper.colorAllVerticesRGBA(points, 0.4f, 0.95f, xMin, xMax, yMin, yMax, zMin, zMax, scaleHalf), GL20.GL_LINE_STRIP);
 
-		axisGrid.setAxisLabels(xAxisLabel, yAxisLabel, zAxisLabel);
-		axisGrid.setTickInterval(20);
+		axisGrid.setTickIntervals(4);
+		axisGrid.setAxisRangeMinMax(minMax);
+		axisGrid.setValueMinMax(xMin,xMax,yMin,yMax,zMin,zMax);
+		axisGrid.setLabelSize(2f);
+		axisGrid.setAxisLabels(axisLabels);
+		axisGrid.setFirstLast(firstLast);
+		axisGrid.update();
 		
 		camController.reset();
 	}
@@ -402,12 +370,22 @@ public class PhasePlotEnviroment implements ApplicationListener
 	
 	public void setMinMaxLineWidth(float lineWidth)
 	{
-		this.minMaxLineWidth = lineWidth;
+		axisGrid.setMinMaxLineWidth(lineWidth);
 	}
 	
 	public void setGridLineWidth(float lineWidth)
 	{
-		this.gridLineWidth = lineWidth;
+		axisGrid.setGridLineWidth(lineWidth);
+	}
+	
+	public void enableBoundaryCube(boolean enabled)
+	{
+		this.drawBoundaryCube = enabled;
+	}
+	
+	public void enableMinMax(boolean enabled)
+	{
+		axisGrid.setMinMaxDisplayed(enabled);
 	}
 	
 	@Override

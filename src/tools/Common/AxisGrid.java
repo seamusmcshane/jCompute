@@ -4,6 +4,7 @@ import tools.MeshHelper;
 import tools.PhasePlot3d.LineGrid;
 import tools.PhasePlot3d.VertexModel;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -17,28 +18,35 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 
 public class AxisGrid
 {
 	// Floor Grid
-	private LineGrid	floor;
+	private LineGrid floor;
 
 	// Floor Ticks
-	private VertexModel	floorNorthTicks;
-	private VertexModel	floorSouthTicks;
-	private VertexModel	floorEastTicks;
-	private VertexModel	floorWestTicks;
-	
+	private VertexModel floorNorthTicks;
+	private VertexModel floorSouthTicks;
+	private VertexModel floorEastTicks;
+	private VertexModel floorWestTicks;
+
+	// Floor TickLabels
+	private Decal[] floorNorthTickLabels;
+	private Decal[] floorSouthTickLabels;
+	private Decal[] floorEastTickLabels;
+	private Decal[] floorWestTickLabels;
+
 	// Floor Axis Labels
-	private Decal		gridXAxisName[];
-	private Decal		gridYAxisName[];
-	private Decal		gridZAxisName[];
+	private Decal gridXAxisName[];
+	private Decal gridYAxisName[];
+	private Decal gridZAxisName[];
 
 	// Wall Grid
-	private LineGrid	eastSide;
-	private LineGrid	westSide;
-	private LineGrid	northSide;
-	private LineGrid	southSide;
+	private LineGrid eastSide;
+	private LineGrid westSide;
+	private LineGrid northSide;
+	private LineGrid southSide;
 
 	// Wall Axis Ticks
 	private VertexModel wallNorthEastTicks;
@@ -46,21 +54,76 @@ public class AxisGrid
 	private VertexModel wallSouthEastTicks;
 	private VertexModel wallSouthWestTicks;
 
+	// Wall Axis Tick Labels
+	private Decal[] wallNorthEastTickLabels;
+	private Decal[] wallNorthWestTickLabels;
+	private Decal[] wallSouthEastTickLabels;
+	private Decal[] wallSouthWestTickLabels;
+
+	// Min Max Lines
+	private VertexModel xMinVM;
+	private VertexModel xMaxVM;
+	private VertexModel yMinVM;
+	private VertexModel yMaxVM;
+	private VertexModel zMinVM;
+	private VertexModel zMaxVM;
+	
+	// Scaling + Dimensions
 	private float gridSize;
 	private float trans;
 	private float heightScale;
-	private float tickSize;	
+	private int intervals;
+	private float labelSize = 1f;
+
+	private float gridLineWidth = 1f;
+	private float minMaxLineWidth = 3f;
 	
-	private BitmapFont	decalFont	= new BitmapFont();
+	// Hardcoded Sizes
+	private float standardTickLength = 50f;
+	private float tickLabelPad = 25f;
+	private float axisLabelPad = standardTickLength * 4 + tickLabelPad;
+
+	// Decal Font
+	private BitmapFont decalFont = new BitmapFont();
+
+	// Axis Ranges (x,y,z|min,max)
+	private float axisRanges[][] = new float[3][2];
+
+	// Axis Order
+	private final int XAXIS = 1;
+	private final int YAXIS = 0;
+	private final int ZAXIS = 2;
+
+	// Min Max Order
+	private final int MIN = 0;
+	private final int MAX = 1;
+
+	// Display ZAxis Ticks/Labels
+	boolean zAxisEnabled = true;
+	
+	// Display MinMax
+	boolean drawMinMax = true;
+
+	// MinMax Lines
+	float xMax = Float.NEGATIVE_INFINITY;
+	float yMax = Float.NEGATIVE_INFINITY;
+	float zMax = Float.NEGATIVE_INFINITY;
+
+	float xMin = Float.POSITIVE_INFINITY;
+	float yMin = Float.POSITIVE_INFINITY;
+	float zMin = Float.POSITIVE_INFINITY;
+	
+	// Has the axis grid been populated with values
+	boolean generated = false;
 
 	public AxisGrid(float gridSize, float trans, float heightScale)
 	{
 		this.gridSize = gridSize;
 		this.trans = trans;
 		this.heightScale = heightScale;
-		
-		setTickInterval(10);
-		
+
+		setTickIntervals(4);
+
 		// Floor Tick Labels
 		gridXAxisName = new Decal[2];
 		gridYAxisName = new Decal[2];
@@ -69,182 +132,240 @@ public class AxisGrid
 		gridZAxisName = new Decal[4];
 
 		// Axis Labels
-		setAxisLabels("X Axis", "Y Axis", "Z Axis");
+		setAxisLabels(new String[]
+		{
+				"X Axis", "Y Axis", "Z Axis"
+		});
 	}
 
-	private void generateGridsAndTicks(int interval)
-	{		
-		float offset1 = gridSize - (gridSize * heightScale);
-		this.tickSize = gridSize / interval;
+	public void setZAxisEnabled(boolean zAxisEnabled)
+	{
+		this.zAxisEnabled = zAxisEnabled;
+	}
+
+	public void setMinMaxDisplayed(boolean displayed)
+	{
+		this.drawMinMax = displayed;
+	}
+	
+	private void generateGrids(int intervals)
+	{
+		// Account for a scaled Height in wall position
+		float wallHeightOffset = gridSize - (gridSize * heightScale);
 
 		// Grid Walls (height is scaled)
-		northSide = new LineGrid(interval, gridSize, new float[]
+		northSide = new LineGrid(intervals, gridSize, new float[]
 		{
 				1, 0, 0, 1
 		}, trans);
 		northSide.scale(1f, 1f, heightScale);
 		northSide.rotate(1, 0, 0, 90);
 		northSide.rotate(0, 1, 0, 90);
-		northSide.transform(gridSize, 0, -offset1 / 2);
+		northSide.transform(gridSize, 0, -wallHeightOffset / 2);
 
-		southSide = new LineGrid(interval, gridSize, new float[]
+		southSide = new LineGrid(intervals, gridSize, new float[]
 		{
 				0, 0, 1, 1
 		}, trans);
 		southSide.scale(1f, 1f, heightScale);
 		southSide.rotate(1, 0, 0, 90);
 		southSide.rotate(0, 1, 0, 90);
-		southSide.transform(0, 0, -offset1 / 2);
+		southSide.transform(0, 0, -wallHeightOffset / 2);
 
-		eastSide = new LineGrid(interval, gridSize, new float[]
+		eastSide = new LineGrid(intervals, gridSize, new float[]
 		{
 				0, 1, 0, 1
 		}, trans);
 		eastSide.scale(1f, 1f, heightScale);
 		eastSide.rotate(1, 0, 0, 90);
-		eastSide.transform(0, -gridSize, -offset1 / 2);
+		eastSide.transform(0, -gridSize, -wallHeightOffset / 2);
 
-		westSide = new LineGrid(interval, gridSize, new float[]
+		westSide = new LineGrid(intervals, gridSize, new float[]
 		{
 				0, 1, 1, 1
 		}, trans);
 		westSide.scale(1f, 1f, heightScale);
 		westSide.rotate(1, 0, 0, 90);
-		westSide.transform(0, 0, -offset1 / 2);
+		westSide.transform(0, 0, -wallHeightOffset / 2);
 
 		// Floor
-		floor = new LineGrid(interval, gridSize, new float[]
+		floor = new LineGrid(intervals, gridSize, new float[]
 		{
 				0, 0, 0, 1
 		}, trans);
+	}
 
-		// Floor Axis Ticks
-		floorNorthTicks = new VertexModel(false);
-		generateTicks(floorNorthTicks, gridSize, tickSize, interval, interval);
-		floorNorthTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2, -gridSize / 2+trans);
-		
-		floorSouthTicks = new VertexModel(false);
-		generateTicks(floorSouthTicks, gridSize, gridSize / interval, interval, interval);
-		floorSouthTicks.getModelInstance().transform.trn(-gridSize / 2-tickSize, -gridSize / 2, -gridSize / 2+trans);
-		
-		floorEastTicks = new VertexModel(false);
-		generateTicks(floorEastTicks, gridSize, tickSize, interval, interval);
-		floorEastTicks.getModelInstance().transform.trn(gridSize / 2, -gridSize / 2-tickSize, -gridSize / 2+trans);
+	private void generateGridsAndTicks(int intervals)
+	{
+		generateGrids(intervals);
+		generateMinMaxLines();
+
+		// North Floor Axis Ticks + Labels
+		Vector3 floorNorthTrans = new Vector3(gridSize / 2, -gridSize / 2, -gridSize / 2 + trans);
+		floorNorthTicks = generateTicks(gridSize, standardTickLength, intervals);
+		floorNorthTicks.getModelInstance().transform.trn(floorNorthTrans);
+		floorNorthTickLabels = generateTickLabels(axisRanges[XAXIS][MIN], axisRanges[XAXIS][MAX], gridSize,
+				standardTickLength, tickLabelPad, intervals, floorNorthTrans);
+
+		// South Floor Axis Ticks + Labels
+		Vector3 floorSouthTrans = new Vector3(-gridSize / 2 - standardTickLength, -gridSize / 2, -gridSize / 2 + trans);
+		floorSouthTicks = generateTicks(gridSize, standardTickLength, intervals);
+		floorSouthTicks.getModelInstance().transform.trn(floorSouthTrans);
+		floorSouthTickLabels = generateTickLabels(axisRanges[XAXIS][MIN], axisRanges[XAXIS][MAX], gridSize,
+				-standardTickLength, tickLabelPad, intervals, floorSouthTrans);
+
+		// East Floor Axis Ticks + Labels
+		Vector3 floorEastTrans = new Vector3(gridSize / 2, -gridSize / 2 - standardTickLength, -gridSize / 2 + trans);
+		floorEastTicks = generateTicks(gridSize, standardTickLength, intervals);
+		floorEastTicks.getModelInstance().transform.trn(floorEastTrans);
 		floorEastTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
-		
-		floorWestTicks = new VertexModel(false);
-		generateTicks(floorWestTicks, gridSize, tickSize, interval, interval);
-		floorWestTicks.getModelInstance().transform.trn(gridSize / 2, gridSize / 2, -gridSize / 2+trans);
-		floorWestTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
+		floorEastTickLabels = generateTickLabels(axisRanges[YAXIS][MIN], axisRanges[YAXIS][MAX], gridSize,
+				-standardTickLength, tickLabelPad, intervals, floorEastTrans);
 
-		// Wall Ticks
-		wallNorthEastTicks = new VertexModel(false);
-		generateTicks(wallNorthEastTicks, gridSize, tickSize, interval, interval);
+		// Flip Coords (rotation 90 around z) - Corrects for standardTickLength
+		// offset
+		for(Decal decal : floorEastTickLabels)
+		{
+			float x = decal.getPosition().x + (standardTickLength * 2);
+			float y = decal.getPosition().y + (standardTickLength);
+			float z = decal.getPosition().z;
+
+			decal.setPosition(y, -x, z);
+		}
+
+		// West Floor Axis Ticks + Labels - Corrects for standardTickLength
+		// offset
+		Vector3 floorWestTrans = new Vector3(gridSize / 2, gridSize / 2, -gridSize / 2 + trans);
+		floorWestTicks = generateTicks(gridSize, standardTickLength, intervals);
+		floorWestTicks.getModelInstance().transform.trn(floorWestTrans);
+		floorWestTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
+		floorWestTickLabels = generateTickLabels(axisRanges[YAXIS][MIN], axisRanges[YAXIS][MAX], gridSize,
+				-standardTickLength, tickLabelPad, intervals, floorEastTrans);
+
+		// Flip Coords (rotation 270 around z)
+		for(Decal decal : floorWestTickLabels)
+		{
+			float x = decal.getPosition().x + (standardTickLength * 2);
+			float y = decal.getPosition().y + (standardTickLength);
+			float z = decal.getPosition().z;
+
+			decal.setPosition(y, x, z);
+		}
+
+		// Wall Ticks North East
+		Vector3 wallNorthEastTrans = new Vector3((-gridSize / 2), (-gridSize / 2), -gridSize / 2 + trans);
+		wallNorthEastTicks = generateTicks(gridSize, standardTickLength, intervals);
 		wallNorthEastTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallNorthEastTicks.getModelInstance().transform.trn((-gridSize / 2), (-gridSize / 2), -gridSize / 2+trans);
+		wallNorthEastTicks.getModelInstance().transform.trn(wallNorthEastTrans);
 		wallNorthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 225f);
 		wallNorthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
+		wallNorthEastTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize,
+				standardTickLength, tickLabelPad, intervals, wallNorthEastTrans);
 
-		wallNorthWestTicks = new VertexModel(false);
-		generateTicks(wallNorthWestTicks, gridSize, tickSize, interval, interval);
+		// Flip Coords (Rotate around Y+Translated on z)
+		for(Decal decal : wallNorthEastTickLabels)
+		{
+			float x = decal.getPosition().x + (standardTickLength - tickLabelPad) + gridSize;
+			float y = decal.getPosition().y + (standardTickLength - (tickLabelPad * 2)) + gridSize / 2;
+			float z = decal.getPosition().z - (standardTickLength + tickLabelPad * 2) - gridSize / 2;
+
+			decal.setPosition(x, z, y);
+		}
+
+		// Wall Ticks North West
+		Vector3 wallNorthWestTrans = new Vector3((gridSize / 2), (gridSize / 2), -gridSize / 2 + trans);
+		wallNorthWestTicks = generateTicks(gridSize, standardTickLength, intervals);
 		wallNorthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallNorthWestTicks.getModelInstance().transform.trn((gridSize / 2), (gridSize / 2), -gridSize / 2+trans);
+		wallNorthWestTicks.getModelInstance().transform.trn(wallNorthWestTrans);
 		wallNorthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 45f);
 		wallNorthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		
-		wallSouthEastTicks = new VertexModel(false);
-		generateTicks(wallSouthEastTicks, gridSize, tickSize, interval, interval);
+		wallNorthWestTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize,
+				standardTickLength, tickLabelPad, intervals, wallNorthWestTrans);
+
+		// Flip Coords (Rotate around Y+Translated on z)
+		for(Decal decal : wallNorthWestTickLabels)
+		{
+			float x = decal.getPosition().x + (standardTickLength - tickLabelPad);
+			float y = decal.getPosition().y + (standardTickLength - (tickLabelPad * 2)) - gridSize / 2;
+			float z = decal.getPosition().z + (standardTickLength + tickLabelPad * 2) + gridSize / 2;
+
+			decal.setPosition(x, z, y);
+		}
+
+		// Wall Ticks South East
+		Vector3 wallSouthEastTrans = new Vector3((-gridSize / 2), (gridSize / 2), -gridSize / 2 + trans);
+		wallSouthEastTicks = generateTicks(gridSize, standardTickLength, intervals);
 		wallSouthEastTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallSouthEastTicks.getModelInstance().transform.trn((-gridSize / 2), (gridSize / 2), -gridSize / 2+trans);
+		wallSouthEastTicks.getModelInstance().transform.trn(wallSouthEastTrans);
 		wallSouthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 135f);
 		wallSouthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		
-		wallSouthWestTicks = new VertexModel(false);
-		generateTicks(wallSouthWestTicks, gridSize, tickSize, interval, interval);
+
+		wallSouthEastTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize,
+				-standardTickLength, tickLabelPad, intervals, wallSouthEastTrans);
+
+		// Flip Coords (Rotate around Y+Translated on z)
+		for(Decal decal : wallSouthEastTickLabels)
+		{
+			float x = decal.getPosition().x - (standardTickLength + tickLabelPad);
+			float y = decal.getPosition().y + (standardTickLength - (tickLabelPad * 2)) - gridSize / 2;
+			float z = decal.getPosition().z - (standardTickLength + tickLabelPad * 2) - gridSize / 2;
+
+			decal.setPosition(x, z, y);
+		}
+
+		// Wall Ticks South West
+		Vector3 wallSouthWestTrans = new Vector3((gridSize / 2), -(gridSize / 2), -gridSize / 2 + trans);
+		wallSouthWestTicks = generateTicks(gridSize, standardTickLength, intervals);
 		wallSouthWestTicks.getModelInstance().transform.scale(1f, 1f, heightScale);
-		wallSouthWestTicks.getModelInstance().transform.trn((gridSize / 2), -(gridSize / 2), -gridSize / 2+trans);
+		wallSouthWestTicks.getModelInstance().transform.trn(wallSouthWestTrans);
 		wallSouthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 315f);
-		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);		
-	}
-	
-	public void setTickInterval(int interval)
-	{
-		generateGridsAndTicks(interval);
-	}
-	
-	public void setAxisLabels(String xAxis, String yAxis, String zAxis)
-	{
-		int axisLabelPad = 100;
-		
-		// X Axis Labels
-		gridXAxisName[0] = generateDecal(xAxis);
-		gridXAxisName[0].getPosition().set(gridSize / 2 + (axisLabelPad), gridSize / 2 - trans, 0);
-		gridXAxisName[0].setRotationX(90);
+		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
 
-		gridXAxisName[1] = generateDecal(xAxis);
-		gridXAxisName[1].getPosition().set(-gridSize / 2 - (axisLabelPad), gridSize / 2 - trans, 0);
-		gridXAxisName[1].setRotationX(90);
+		wallSouthWestTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize,
+				-standardTickLength, tickLabelPad, intervals, wallSouthWestTrans);
 
-		// Y Axis Labels
-		gridYAxisName[0] = generateDecal(yAxis);
-		gridYAxisName[0].getPosition().set(gridSize / 2 - trans, gridSize / 2 + (axisLabelPad), 0);
-		gridYAxisName[0].setRotationX(90);
+		// Flip Coords (Rotate around Y+Translated on z)
+		for(Decal decal : wallSouthWestTickLabels)
+		{
+			float x = decal.getPosition().x - (standardTickLength + tickLabelPad) - gridSize;
+			float y = decal.getPosition().y + (standardTickLength - (tickLabelPad * 2)) + gridSize / 2;
+			float z = decal.getPosition().z + (standardTickLength + tickLabelPad * 2) + gridSize / 2;
 
-		gridYAxisName[1] = generateDecal(yAxis);
-		gridYAxisName[1].getPosition().set(gridSize / 2 - trans, -gridSize / 2 - (axisLabelPad), 0);
-		gridYAxisName[1].setRotationX(90);
-
-		// Z Axis Column Labels (NorthEast,SouthEast,SouthWest,NorthWest)
-		gridZAxisName[0] = generateDecal(zAxis + "NorthEast");
-		gridZAxisName[0].getPosition().set(gridSize / 2 + (axisLabelPad), -gridSize / 2 - (axisLabelPad), gridSize / 2);
-		gridZAxisName[0].setRotationX(90);
-		
-		gridZAxisName[1] = generateDecal(zAxis + "SouthEast");
-		gridZAxisName[1].getPosition()
-				.set(-gridSize / 2 - (axisLabelPad), -gridSize / 2 - (axisLabelPad), gridSize / 2);
-		gridZAxisName[1].setRotationX(90);
-				
-		gridZAxisName[2] = generateDecal(zAxis + "SouthWest");
-		gridZAxisName[2].getPosition().set(-gridSize / 2 - (axisLabelPad), gridSize / 2 + (axisLabelPad), gridSize / 2);
-		gridZAxisName[2].setRotationX(90);
-
-		gridZAxisName[3] = generateDecal(zAxis + "NorthWest");
-		gridZAxisName[3].getPosition()
-				.set(+gridSize / 2 + (axisLabelPad), +gridSize / 2 + (axisLabelPad), gridSize / 2);
-		gridZAxisName[3].setRotationX(90);
+			decal.setPosition(x, z, y);
+		}
 	}
 
-	private Decal generateDecal(String decalText)
+	public Decal[] generateTickLabels(float valMin, float valMax, float gridSize, float tickLength, float pad,
+			int intervals, Vector3 translate)
 	{
-		String svalue = decalText;
-		int tWidth = (int) (decalFont.getBounds(svalue).width+2);
-		int tHeight = (int) (decalFont.getBounds(svalue).height + 2);
-		
-		FrameBuffer fbo = new FrameBuffer(Format.RGBA8888, tWidth, tHeight, false);
+		int numDecals = intervals + 1;
 
-		Matrix4 pm = new Matrix4();
-		pm.setToOrtho2D(0, 0, tWidth, tHeight);
+		Decal[] decals = new Decal[numDecals];
 
-		decalFont.setColor(Color.BLACK);
-		//decalFont.scale(0.1f);
-		SpriteBatch sb = new SpriteBatch();
-		sb.setProjectionMatrix(pm);
-		fbo.begin();
-		sb.begin();
-		decalFont.draw(sb, svalue, 0, tHeight);
-		sb.end();
-		fbo.end();
+		// float valStep = (int) ((valMax - valMin) / intervals);
+		float valStep = (int) ((valMax) / intervals);
 
-		TextureRegion t1 = new TextureRegion(fbo.getColorBufferTexture(), 0, 0, tWidth, tHeight);
-		t1.flip(false, true);
+		float posInteval = gridSize / intervals;
 
-		return Decal.newDecal(tWidth * 2, tHeight * 2, t1, true);
+		for(int i = 0; i < numDecals; i++)
+		{
+			decals[i] = generateDecal(String.valueOf((int) (i * valStep)));
+			decals[i].getPosition().set(tickLength + pad, (i * posInteval), 0);
+			decals[i].setRotationX(90);
+
+			// Apply World Trans
+			decals[i].translate(translate);
+		}
+
+		return decals;
 	}
 
-	private void generateTicks(VertexModel vModel, float gridSize, float tickSize, int div, int numTicks)
+	private VertexModel generateTicks(float gridSize, float tickLength, int div)
 	{
+		VertexModel vModel = new VertexModel(false);
+
 		float start = 0;
-		float end = tickSize;
+		float end = tickLength;
 
 		int gridSteps = div + 1;
 		float xInterval = gridSize / (gridSteps - 1);
@@ -273,111 +394,352 @@ public class AxisGrid
 		});
 
 		vModel.setVertices(cVerts, GL20.GL_LINES);
+
+		return vModel;
+	}
+
+	public void setTickIntervals(int intervals)
+	{
+		this.intervals = intervals;
+	}
+
+	public void setAxisLabels(String[] axisLabels)
+	{
+		// X Axis Labels
+		gridXAxisName[0] = generateDecal(axisLabels[XAXIS]);
+		gridXAxisName[0].getPosition().set(gridSize / 2 + (axisLabelPad), gridSize / 2 - trans, 0);
+		gridXAxisName[0].setRotationX(90);
+
+		gridXAxisName[1] = generateDecal(axisLabels[XAXIS]);
+		gridXAxisName[1].getPosition().set(-gridSize / 2 - (axisLabelPad), gridSize / 2 - trans, 0);
+		gridXAxisName[1].setRotationX(90);
+
+		// Y Axis Labels
+		gridYAxisName[0] = generateDecal(axisLabels[YAXIS]);
+		gridYAxisName[0].getPosition().set(gridSize / 2 - trans, gridSize / 2 + (axisLabelPad), 0);
+		gridYAxisName[0].setRotationX(90);
+
+		gridYAxisName[1] = generateDecal(axisLabels[YAXIS]);
+		gridYAxisName[1].getPosition().set(gridSize / 2 - trans, -gridSize / 2 - (axisLabelPad), 0);
+		gridYAxisName[1].setRotationX(90);
+
+		// Z Axis Column Labels (NorthEast,SouthEast,SouthWest,NorthWest)
+		gridZAxisName[0] = generateDecal(axisLabels[ZAXIS]/* + "NorthEast" */);
+		gridZAxisName[0].getPosition().set(gridSize / 2 + (axisLabelPad), -gridSize / 2 - (axisLabelPad), gridSize / 2);
+		gridZAxisName[0].setRotationX(90);
+
+		gridZAxisName[1] = generateDecal(axisLabels[ZAXIS]/* + "SouthEast" */);
+		gridZAxisName[1].getPosition()
+				.set(-gridSize / 2 - (axisLabelPad), -gridSize / 2 - (axisLabelPad), gridSize / 2);
+		gridZAxisName[1].setRotationX(90);
+
+		gridZAxisName[2] = generateDecal(axisLabels[ZAXIS]/* + "SouthWest" */);
+		gridZAxisName[2].getPosition().set(-gridSize / 2 - (axisLabelPad), gridSize / 2 + (axisLabelPad), gridSize / 2);
+		gridZAxisName[2].setRotationX(90);
+
+		gridZAxisName[3] = generateDecal(axisLabels[ZAXIS]/* + "NorthWest" */);
+		gridZAxisName[3].getPosition()
+				.set(+gridSize / 2 + (axisLabelPad), +gridSize / 2 + (axisLabelPad), gridSize / 2);
+		gridZAxisName[3].setRotationX(90);
+	}
+
+	private Decal generateDecal(String decalText)
+	{
+		String svalue = decalText;
+		int tWidth = (int) (decalFont.getBounds(svalue).width + 2);
+		int tHeight = (int) (decalFont.getBounds(svalue).height + 2);
+
+		FrameBuffer fbo = new FrameBuffer(Format.RGBA8888, tWidth, tHeight, false);
+
+		Matrix4 pm = new Matrix4();
+		pm.setToOrtho2D(0, 0, tWidth, tHeight);
+
+		decalFont.setColor(Color.BLACK);
+		// decalFont.scale(0.1f);
+		SpriteBatch sb = new SpriteBatch();
+		sb.setProjectionMatrix(pm);
+		fbo.begin();
+		sb.begin();
+		decalFont.draw(sb, svalue, 0, tHeight);
+		sb.end();
+		fbo.end();
+
+		TextureRegion t1 = new TextureRegion(fbo.getColorBufferTexture(), 0, 0, tWidth, tHeight);
+		t1.flip(false, true);
+
+		return Decal.newDecal(tWidth * labelSize, tHeight * labelSize, t1, true);
+	}
+
+	private void generateMinMaxLines()
+	{
+		float overlay = 25f;
+		
+		float scaleHalf = gridSize/2;
+		
+		xMaxVM = new VertexModel(false);
+		xMinVM = new VertexModel(false);
+
+		xMaxVM.setVertices(new float[]
+		{
+				xMax, -scaleHalf-overlay, 0, 0, 1, 0, 1, xMax, scaleHalf+overlay, 0, 0, 1, 0, 1
+		}, GL20.GL_LINE_STRIP);
+		xMinVM.setVertices(new float[]
+		{
+				xMin, -scaleHalf-overlay, 0, 0, 1, 0, 1, xMin, scaleHalf+overlay, 0, 0, 1, 0, 1
+		}, GL20.GL_LINE_STRIP);
+
+		yMaxVM = new VertexModel(false);
+		yMinVM = new VertexModel(false);
+
+		yMaxVM.setVertices(new float[]
+		{
+				-scaleHalf-overlay, yMax, 0, 1, 0, 0, 1, scaleHalf+overlay, yMax, 0, 1, 0, 0, 1
+		}, GL20.GL_LINE_STRIP);
+		yMinVM.setVertices(new float[]
+		{
+				-scaleHalf-overlay, yMin, 0, 1, 0, 0, 1, scaleHalf+overlay, yMin, 0, 1, 0, 0, 1
+		}, GL20.GL_LINE_STRIP);
+
+		zMaxVM = new VertexModel(false);
+		zMinVM = new VertexModel(false);
+
+		zMaxVM.setVertices(new float[]
+		{
+				-scaleHalf-overlay, -scaleHalf, zMax, 0, 0, 1, 1, scaleHalf+overlay, -scaleHalf, zMax, 0, 0, 1, 1
+		}, GL20.GL_LINE_STRIP);
+		zMinVM.setVertices(new float[]
+		{
+				-scaleHalf-overlay, -scaleHalf, zMin, 0, 0, 1, 1, scaleHalf+overlay, -scaleHalf, zMin, 0, 0, 1, 1
+		}, GL20.GL_LINE_STRIP);
+	}
+	
+	public void update()
+	{
+		this.generated = false;
 	}
 
 	public void render(Camera cam, ModelBatch modelBatch, DecalBatch db, Environment environment)
 	{
+		if(!generated)
+		{
+			generateGridsAndTicks(intervals);
+			generated = true;
+		}
+
 		float northDis = cam.position.dst2(northSide.getLocation());
 		float southDis = cam.position.dst2(southSide.getLocation());
 		float eastDis = cam.position.dst2(eastSide.getLocation());
 		float westDis = cam.position.dst2(westSide.getLocation());
-		
+
 		boolean northVis = false;
 		boolean southVis = false;
 		boolean eastVis = false;
 		boolean westVis = false;
-		
+
 		if(northDis > southDis)
 		{
 			northVis = true;
 		}
 		else
 		{
-			southVis = true;			
+			southVis = true;
 		}
 
 		if(eastDis > westDis)
 		{
-			eastVis = true;			
+			eastVis = true;
 		}
 		else
 		{
-			westVis = true;			
+			westVis = true;
 		}
-		
+
+		modelBatch.begin(cam);
+		Gdx.gl.glLineWidth(gridLineWidth);
+
 		if(northVis)
-		{	modelBatch.render(northSide.getModelInstance(), environment);
-			
+		{
+			modelBatch.render(northSide.getModelInstance(), environment);
+
 			// South Ticks
 			modelBatch.render(floorSouthTicks.getModelInstance());
 			gridXAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridXAxisName[1]);
+
+			for(Decal decal : floorSouthTickLabels)
+			{
+				decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(decal);
+			}
 		}
 
 		if(southVis)
 		{
 			modelBatch.render(southSide.getModelInstance(), environment);
-			
+
 			// North Ticks
 			modelBatch.render(floorNorthTicks.getModelInstance());
 			gridXAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridXAxisName[0]);
+
+			for(Decal decal : floorNorthTickLabels)
+			{
+				decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(decal);
+			}
 		}
 
 		if(eastVis)
 		{
 			modelBatch.render(eastSide.getModelInstance(), environment);
-			
+
 			// West Tick
 			modelBatch.render(floorWestTicks.getModelInstance());
 			gridYAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridYAxisName[0]);
+
+			for(Decal decal : floorWestTickLabels)
+			{
+				decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(decal);
+			}
 		}
 
 		if(westVis)
 		{
 			modelBatch.render(westSide.getModelInstance(), environment);
-			
+
 			// East Ticks
 			modelBatch.render(floorEastTicks.getModelInstance());
 			gridYAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
 			db.add(gridYAxisName[1]);
-		}
-		
-		// NorthWest ZColumn
-		if(southVis ^ eastVis)
-		{
-			gridZAxisName[3].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridZAxisName[3]);
-			modelBatch.render(wallNorthWestTicks.getModelInstance(), environment);	
+
+			for(Decal decal : floorEastTickLabels)
+			{
+				decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(decal);
+			}
 		}
 
-		// NorthEast ZColumn
-		if(southVis ^ westVis)
+		if(zAxisEnabled)
 		{
-			gridZAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridZAxisName[0]);
-			modelBatch.render(wallSouthWestTicks.getModelInstance(), environment);
+			// NorthWest ZColumn
+			if(southVis ^ eastVis)
+			{
+				gridZAxisName[3].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(gridZAxisName[3]);
+				modelBatch.render(wallNorthWestTicks.getModelInstance(), environment);
+				
+				for(Decal decal : wallSouthEastTickLabels)
+				{
+					decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+					db.add(decal);
+				}
+			}
+
+			// NorthEast ZColumn
+			if(southVis ^ westVis)
+			{
+				gridZAxisName[0].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(gridZAxisName[0]);
+				modelBatch.render(wallSouthWestTicks.getModelInstance(), environment);
+				
+				for(Decal decal : wallSouthWestTickLabels)
+				{
+					decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+					db.add(decal);
+				}
+			}
+
+			// SouthEast ZColumn
+			if(northVis ^ westVis)
+			{
+				gridZAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(gridZAxisName[1]);
+				modelBatch.render(wallNorthEastTicks.getModelInstance(), environment);
+				
+				for(Decal decal : wallNorthWestTickLabels)
+				{
+					decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+					db.add(decal);
+				}
+			}
+
+			// SouthWest ZColumn
+			if(northVis ^ eastVis)
+			{
+				gridZAxisName[2].lookAt(cam.position.cpy(), cam.up.cpy().nor());
+				db.add(gridZAxisName[2]);
+				modelBatch.render(wallSouthEastTicks.getModelInstance(), environment);
+				
+				for(Decal decal : wallNorthEastTickLabels)
+				{
+					decal.lookAt(cam.position.cpy(), cam.up.cpy().nor());
+					db.add(decal);
+				}
+			}
+
 		}
 
-		// SouthEast ZColumn	
-		if(northVis ^ westVis)
-		{
-			gridZAxisName[1].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridZAxisName[1]);
-			modelBatch.render(wallNorthEastTicks.getModelInstance(), environment);
-		}
-		
-		// SouthWest ZColumn
-		if(northVis ^ eastVis)
-		{
-			gridZAxisName[2].lookAt(cam.position.cpy(), cam.up.cpy().nor());
-			db.add(gridZAxisName[2]);
-			modelBatch.render(wallSouthEastTicks.getModelInstance(), environment);
-		}
-		
 		// Floor always rendered
 		modelBatch.render(floor.getModelInstance(), environment);
+
+		modelBatch.end();
+		
+		// Min Max Lines
+		if(drawMinMax)
+		{
+			modelBatch.begin(cam);
+			Gdx.gl.glLineWidth(minMaxLineWidth);
+			modelBatch.render(xMaxVM.getModelInstance(), environment);
+			modelBatch.render(xMinVM.getModelInstance(), environment);
+			modelBatch.render(yMaxVM.getModelInstance(), environment);
+			modelBatch.render(yMinVM.getModelInstance(), environment);
+			modelBatch.render(zMaxVM.getModelInstance(), environment);
+			modelBatch.render(zMinVM.getModelInstance(), environment);
+			modelBatch.end();
+		}	
+	}
+
+	public void setAxisRangeMinMax(float[][] minMax)
+	{
+		// Invert Min/Max
+		axisRanges[XAXIS][MIN] = minMax[XAXIS][0];
+		axisRanges[XAXIS][MAX] = minMax[XAXIS][1];
+		axisRanges[YAXIS][MIN] = minMax[YAXIS][0];
+		axisRanges[YAXIS][MAX] = minMax[YAXIS][1];
+		axisRanges[ZAXIS][MIN] = minMax[ZAXIS][0];
+		axisRanges[ZAXIS][MAX] = minMax[ZAXIS][1];
+	}
+
+	public void setFirstLast(float[][] firstLast)
+	{
+		// TODO
+	}
+	
+	public void setLabelSize(float size)
+	{
+		this.labelSize = size;
+	}
+
+	public void setValueMinMax(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax)
+	{
+		this.xMin = xMin;
+		this.xMax = xMax;
+		this.yMin = yMin;
+		this.yMax = yMax;
+		this.zMin = zMin;
+		this.zMax = zMax;
+	}
+	
+	public void setMinMaxLineWidth(float lineWidth)
+	{
+		this.minMaxLineWidth = lineWidth;
+	}
+	
+	public void setGridLineWidth(float lineWidth)
+	{
+		this.gridLineWidth = lineWidth;
 	}
 
 }

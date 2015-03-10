@@ -259,32 +259,35 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 
 				String file = filechooser.getSelectedFile().getAbsolutePath();
 				String fname = filechooser.getSelectedFile().getName();
-
 				gui.setTitle(fname);
-
 				System.out.println(file);
 
+				// Log Parser
 				CSVLogParser parser = new CSVLogParser(file);
 
+				// Stats
 				ArrayList<SingleStat> stats = parser.getStats();
+				
+				// Samples
 				int numSamples = parser.getSampleNum();
 
-				// names = new String[stats.size()];
 				StatSample[][] histories = new StatSample[stats.size()][];
 
+				// Stat Names
 				String[] names = new String[stats.size()];
 
+				// Convert stats link list to array (for interation)
 				for(int st = 0; st < stats.size(); st++)
 				{
 					SingleStat temp = stats.get(st);
-					names[st] = new String(temp.getStatName());
-					// historyListModel.addElement(names[st]);
 					histories[st] = temp.getHistoryAsArray();
 				}
 				System.out.println("Got Arrays");
 
+				// Get the correct scaling for the points
 				float envScale = glEnv.getScale();
 
+				// X,Y,Z
 				float[] points = new float[numSamples * 3];
 
 				float xMax = Float.NEGATIVE_INFINITY;
@@ -295,14 +298,24 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 				float yMin = Float.POSITIVE_INFINITY;
 				float zMin = Float.POSITIVE_INFINITY;
 
+				// Axis Order
+				int xAxis = 0;
+				int yAxis = 1;
+				int zAxis = 2;
+				
+				// Axis Names
+				names[xAxis] = new String(stats.get(0).getStatName());
+				names[yAxis] = new String(stats.get(1).getStatName());
+				names[zAxis] = new String(stats.get(2).getStatName());
+				
 				int point = 0;
 				// Assumes Population chart
 				for(int i = 0; i < numSamples; i++)
 				{
 					// Plants, Predator, Prey
-					float x = (float) histories[1][i].getSample();
-					float y = (float) histories[0][i].getSample();
-					float z = (float) histories[2][i].getSample();
+					float x = (float) histories[xAxis][i].getSample();
+					float y = (float) histories[yAxis][i].getSample();
+					float z = (float) histories[zAxis][i].getSample();
 
 					points[point] = x;
 
@@ -345,21 +358,66 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 
 				System.out.println("Scaling Points");
 
+				// Used for generating Tick Values
+				float[][] minMax = new float[3][2];			
+				
+				// Scaling type
 				boolean sameScale = true;
 
-				/*
-				 * float dMax = Math.max(xMax, yMax);
-				 * dMax = Math.max(dMax, zMax);
-				 */
+				if(sameScale)
+				{
+					// Set Scales to min/max for each axis
+					float scaleMin = Math.min(Math.min(xMin, yMin),zMin);
+					float scaleMax = Math.max(Math.max(xMax, yMax),zMax);
+					minMax[xAxis][0] = scaleMin;
+					minMax[xAxis][1] = scaleMax;
+					minMax[yAxis][0] = scaleMin;
+					minMax[yAxis][1] = scaleMax;
+					minMax[zAxis][0] = scaleMin;
+					minMax[zAxis][1] = scaleMax;
+				}
+				else
+				{
+					// Scale each axis independently
+					minMax[xAxis][0] = xMin;
+					minMax[xAxis][1] = xMax;
+					minMax[yAxis][0] = yMin;
+					minMax[yAxis][1] = yMax;
+					minMax[zAxis][0] = zMin;
+					minMax[zAxis][1] = zMax;
+				}
 
+				// value scaling
 				float xScale = ((envScale * 2) / xMax);
 				float yScale = ((envScale * 2) / yMax);
 				float zScale = ((envScale * 2) / zMax);
 
-				float xMid = 0;
-				float yMid = 0;
-				float zMid = 0;
+				// Mid of the phase plot values
+				float[] mids = new float[3];
 
+				mids[xAxis] = 0;
+				mids[yAxis] = 0;
+				mids[zAxis] = 0;
+				
+				// First+Last * (Actual Values + Scaled values) (For label text and display)
+				float[][] firstLast = new float[6][2];
+				
+				// First (Actual/Scaled)
+				firstLast[0][0] = points[0];
+				firstLast[1][0] = points[1];
+				firstLast[2][0] = points[2];
+				firstLast[3][0] = 0;
+				firstLast[4][0] = 0;
+				firstLast[5][0] = 0;
+				
+				// Last (Actual/Scaled)
+				firstLast[0][1] = points[(numSamples*3)-3];
+				firstLast[1][1] = points[(numSamples*3)-2];
+				firstLast[2][1] = points[(numSamples*3)-1];
+				firstLast[3][1] = 0;
+				firstLast[4][1] = 0;
+				firstLast[5][1] = 0;
+				
 				if(sameScale)
 				{
 					float scale = Math.min(xScale, yScale);
@@ -372,9 +430,9 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 						points[p + 2] = (points[p + 2] * scale) - envScale;
 					}
 
-					xMid = (((xMax / 2) + (xMin / 2)) * scale) - envScale;
-					yMid = (((yMax / 2) + (yMin / 2)) * scale) - envScale;
-					zMid = (((zMax / 2) + (zMin / 2)) * scale) - envScale;
+					mids[xAxis]  = (((xMax / 2) + (xMin / 2)) * scale) - envScale;
+					mids[yAxis]  = (((yMax / 2) + (yMin / 2)) * scale) - envScale;
+					mids[zAxis]  = (((zMax / 2) + (zMin / 2)) * scale) - envScale;
 				}
 				else
 				{
@@ -384,17 +442,23 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 						points[p + 1] = (points[p + 1] * yScale) - envScale;
 						points[p + 2] = (points[p + 2] * zScale) - envScale;
 					}
-					xMid = (((xMax / 2) + (xMin / 2)) * xScale) - envScale;
-					yMid = (((yMax / 2) + (yMin / 2)) * yScale) - envScale;
-					zMid = (((zMax / 2) + (zMin / 2)) * zScale) - envScale;
+					mids[xAxis] = (((xMax / 2) + (xMin / 2)) * xScale) - envScale;
+					mids[yAxis] = (((yMax / 2) + (yMin / 2)) * yScale) - envScale;
+					mids[zAxis] = (((zMax / 2) + (zMin / 2)) * zScale) - envScale;
 				}
 
+				// Scaled First
+				firstLast[3][0] = points[0];
+				firstLast[4][0] = points[1];
+				firstLast[5][0] = points[2];
+				// Scaled Last
+				firstLast[3][1] = points[(numSamples*3)-3];
+				firstLast[4][1] = points[(numSamples*3)-2];
+				firstLast[5][1] = points[(numSamples*3)-1];
 				System.out.println("Setting Points");
 
-				glEnv.setPlotPoints(points, new float[]
-				{
-						xMid, yMid, zMid
-				}, names[0], names[1], names[2]);
+				// Set the values
+				glEnv.setPlotPoints(points, mids, names,minMax,firstLast);
 			}
 		}
 		else if((e.getSource() == plotLineWidthButton[0] | e.getSource() == plotLineWidthButton[1]
