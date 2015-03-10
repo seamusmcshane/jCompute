@@ -24,7 +24,7 @@ public class OrbitalCameraInputController implements InputProcessor
 	private boolean button0 = false;
 	private boolean button1 = false;
 	
-	private static int defaultPos = -750;
+	private static int defaultPos = -1000;
 	
 	public OrbitalCameraInputController(PerspectiveCamera cam, float[] target,float speed)
 	{
