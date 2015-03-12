@@ -61,13 +61,17 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 	// Width Values
 	private final String[] lineWidthValues =
 	{
-			"0.5", "1", "2", "3", "4"
+		"0.5", "1", "2", "3", "4"
 	};
 
 	private JMenu mnPlotScaling;
 	private JRadioButton rdbtnDependent;
 	private JRadioButton rdbtnIndependent;
 	private final ButtonGroup scalingButtonGroup = new ButtonGroup();
+	private final ButtonGroup minMaxToogleButtonGroup = new ButtonGroup();
+	private JMenu mnMinMax;
+	private JRadioButton radioButtonMinMaxEnabled;
+	private JRadioButton radioButtonMinMaxDisabled;
 
 	public PhasePlotter3d()
 	{
@@ -146,6 +150,20 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		scalingButtonGroup.add(rdbtnIndependent);
 		mnPlotScaling.add(rdbtnIndependent);
 		rdbtnIndependent.setSelected(true);
+
+		mnMinMax = new JMenu("Min Max");
+		mnChartSettings.add(mnMinMax);
+
+		radioButtonMinMaxEnabled = new JRadioButton("Enabled");
+		minMaxToogleButtonGroup.add(radioButtonMinMaxEnabled);
+		radioButtonMinMaxEnabled.setSelected(true);
+		mnMinMax.add(radioButtonMinMaxEnabled);
+		radioButtonMinMaxDisabled = new JRadioButton("Disabled");
+		minMaxToogleButtonGroup.add(radioButtonMinMaxDisabled);
+		mnMinMax.add(radioButtonMinMaxDisabled);
+
+		radioButtonMinMaxEnabled.addActionListener(this);
+		radioButtonMinMaxDisabled.addActionListener(this);
 		rdbtnDependent.addActionListener(this);
 		rdbtnIndependent.addActionListener(this);
 
@@ -319,7 +337,8 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 					}
 				}
 
-				glEnv.setData(data, names);
+				// TODO Axis orders not fully implemented
+				glEnv.setData(data, names, 0, 1, 2);
 
 				// Populate now
 				glEnv.populateChart();
@@ -372,6 +391,11 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		else if(e.getSource() == rdbtnDependent | e.getSource() == rdbtnIndependent)
 		{
 			glEnv.setScalingMode(rdbtnDependent.isSelected());
+			glEnv.replot();
+		}
+		else if(e.getSource() == radioButtonMinMaxEnabled | e.getSource() == radioButtonMinMaxDisabled)
+		{
+			glEnv.enableMinMax(radioButtonMinMaxEnabled.isSelected());
 			glEnv.replot();
 		}
 	}
