@@ -306,7 +306,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		camController.update();
 	}
 
-	public boolean setData(float[][] inData, String[] inNames)
+	public boolean setData(float[][] inData, String[] inNames, int xAxis, int yAxis, int zAxis)
 	{
 		// Need 3 arrays for X,Y,Z + axis names same length as data
 		if(inData.length < 3 | (inData.length != inNames.length))
@@ -314,6 +314,10 @@ public class PhasePlotEnviroment implements ApplicationListener
 			return false;
 		}
 
+		this.xAxis = xAxis;
+		this.yAxis = yAxis;
+		this.zAxis = zAxis;
+		
 		this.data = inData;
 		this.axisNames = inNames;
 
