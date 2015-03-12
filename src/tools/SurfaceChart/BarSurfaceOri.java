@@ -77,18 +77,38 @@ public class BarSurfaceOri
 				
 		axisGrid = new AxisGrid(gridSize,gridSize/2,0.5f);
 		
-		//axisGrid.setAxisLabels(axisLabels);
 		axisGrid.setTickIntervals(5);
-		//axisGrid.setMinMax(minMax);
 		axisGrid.setLabelSize(2f);
-		axisGrid.setZAxisEnabled(false);
+		axisGrid.setFloorGridDisplayed(false);
+		axisGrid.setZAxisDisplayed(false);
+		
+		axisGrid.setTickIntervals(4);
+		
+		float[][] minMax = new float[3][2];
+		minMax[0][0] = 0;
+		minMax[0][1] = 100;
+		minMax[1][0] = 0;
+		minMax[1][1] = 100;
+		minMax[2][0] = 0;
+		minMax[2][1] = 100;
+		
+		axisGrid.setAxisRangeMinMax(minMax);
+		axisGrid.setValueMinMax(0, 100, 0, 100, 0, 100);
+		axisGrid.setLabelSize(2f);
+		
+		// Axis Names
+		String[] names = new String[3];
+		names[0] = new String("X");
+		names[1] = new String("Y");
+		names[2] = new String("Z");
+		
+		axisGrid.setAxisLabels(names);
+		axisGrid.setFirstLast(null);
+		axisGrid.update();
 		
 		//axisGrid.translate(0, 0, 500);
 		
 		setData(cam,50,100,50,200,null);
-		
-		axisGrid.update();
-
 	}
 	
 	public void setData(Camera cam, float xAxisMin,float xAxisMax,float yAxisMin,float yAxisMax,float data[][])
@@ -158,12 +178,13 @@ public class BarSurfaceOri
 			}
 		}*/
 		
-		modelBatch.begin(cam);
 		
 		axisGrid.render(cam, modelBatch,db, environment);
 		
+		modelBatch.begin(cam);
 		grid.render(modelBatch, cam, environment);
-				
+		modelBatch.end();
+	
 		/*Vector3 pos1 = new Vector3();
 		gridXAxisInstances1[gridSteps/2].transform.getTranslation(pos1);
 		
@@ -182,7 +203,6 @@ public class BarSurfaceOri
 		float south = cam.position.dst2(pos4);*/
 
 				
-		modelBatch.end();
 				
 		db.flush();
 	}
