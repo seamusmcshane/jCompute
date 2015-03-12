@@ -576,6 +576,11 @@ public class PhasePlotEnviroment implements ApplicationListener
 		//camController.reset();
 	}
 
+	public void resetView()
+	{
+		camController.reset();
+	}
+	
 	public void setPlotLineWidth(float lineWidth)
 	{
 		this.plotLineWidth = lineWidth;

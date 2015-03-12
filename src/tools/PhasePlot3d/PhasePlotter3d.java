@@ -72,6 +72,8 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 	private JMenu mnMinMax;
 	private JRadioButton radioButtonMinMaxEnabled;
 	private JRadioButton radioButtonMinMaxDisabled;
+	private JMenu mnView;
+	private JMenuItem mntmReset;
 
 	public PhasePlotter3d()
 	{
@@ -133,7 +135,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 			gridLineWidthButton[i].addActionListener(this);
 			mnGridLineWidth.add(gridLineWidthButton[i]);
 		}
-		gridLineWidthButton[1].setSelected(true);
+		gridLineWidthButton[0].setSelected(true);
 
 		// MinMax Line Widths
 		mnMinMaxLineWidth = new JMenu("MinMax");
@@ -161,6 +163,13 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		radioButtonMinMaxDisabled = new JRadioButton("Disabled");
 		minMaxToogleButtonGroup.add(radioButtonMinMaxDisabled);
 		mnMinMax.add(radioButtonMinMaxDisabled);
+		
+		mnView = new JMenu("View");
+		menuBar.add(mnView);
+		
+		mntmReset = new JMenuItem("Reset");
+		mnView.add(mntmReset);
+		mntmReset.addActionListener(this);
 
 		radioButtonMinMaxEnabled.addActionListener(this);
 		radioButtonMinMaxDisabled.addActionListener(this);
@@ -392,11 +401,16 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		{
 			glEnv.setScalingMode(rdbtnDependent.isSelected());
 			glEnv.replot();
+			glEnv.resetView();
 		}
 		else if(e.getSource() == radioButtonMinMaxEnabled | e.getSource() == radioButtonMinMaxDisabled)
 		{
 			glEnv.enableMinMax(radioButtonMinMaxEnabled.isSelected());
 			glEnv.replot();
+		}
+		else if(e.getSource() == mntmReset)
+		{
+			glEnv.resetView();
 		}
 	}
 }
