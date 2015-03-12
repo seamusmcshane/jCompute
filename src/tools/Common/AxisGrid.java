@@ -74,7 +74,7 @@ public class AxisGrid
 	private int intervals;
 	private float labelSize = 1f;
 
-	private float gridLineWidth = 1f;
+	private float gridLineWidth = 0.5f;
 	private float minMaxLineWidth = 3f;
 
 	// Hardcoded Sizes
@@ -118,12 +118,19 @@ public class AxisGrid
 	// Has the axis grid been populated with values
 	boolean generated = false;
 
+	private float[] gridColorRed = {1,0,0,1};
+	private float[] gridColorBlack = {0,0,0,1};
+	
+	private float[] gridNorthColor;
+	
 	public AxisGrid(float gridSize, float trans, float heightScale)
 	{
 		this.gridSize = gridSize;
 		this.trans = trans;
 		this.heightScale = heightScale;
 
+		gridNorthColor = gridColorBlack;
+		
 		setTickIntervals(4);
 
 		// Floor Tick Labels
@@ -161,45 +168,30 @@ public class AxisGrid
 		float wallHeightOffset = gridSize - (gridSize * heightScale);
 
 		// Grid Walls (height is scaled)
-		northSide = new LineGrid(intervals, gridSize, new float[]
-		{
-			1, 0, 0, 1
-		}, trans);
+		northSide = new LineGrid(intervals, gridSize, gridNorthColor, trans);
 		northSide.scale(1f, 1f, heightScale);
 		northSide.rotate(1, 0, 0, 90);
 		northSide.rotate(0, 1, 0, 90);
 		northSide.transform(gridSize, 0, -wallHeightOffset / 2);
 
-		southSide = new LineGrid(intervals, gridSize, new float[]
-		{
-			0, 0, 1, 1
-		}, trans);
+		southSide = new LineGrid(intervals, gridSize, gridColorBlack, trans);
 		southSide.scale(1f, 1f, heightScale);
 		southSide.rotate(1, 0, 0, 90);
 		southSide.rotate(0, 1, 0, 90);
 		southSide.transform(0, 0, -wallHeightOffset / 2);
 
-		eastSide = new LineGrid(intervals, gridSize, new float[]
-		{
-			0, 1, 0, 1
-		}, trans);
+		eastSide = new LineGrid(intervals, gridSize, gridColorBlack, trans);
 		eastSide.scale(1f, 1f, heightScale);
 		eastSide.rotate(1, 0, 0, 90);
 		eastSide.transform(0, -gridSize, -wallHeightOffset / 2);
 
-		westSide = new LineGrid(intervals, gridSize, new float[]
-		{
-			0, 1, 1, 1
-		}, trans);
+		westSide = new LineGrid(intervals, gridSize, gridColorBlack, trans);
 		westSide.scale(1f, 1f, heightScale);
 		westSide.rotate(1, 0, 0, 90);
 		westSide.transform(0, 0, -wallHeightOffset / 2);
 
 		// Floor
-		floor = new LineGrid(intervals, gridSize, new float[]
-		{
-			0, 0, 0, 1
-		}, trans);
+		floor = new LineGrid(intervals, gridSize, gridColorBlack, trans);
 	}
 
 	private void generateGridsAndTicks(int intervals)
