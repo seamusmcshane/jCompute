@@ -573,7 +573,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		axisGrid.setFirstLast(firstLast);
 		axisGrid.update();
 
-		camController.reset();
+		//camController.reset();
 	}
 
 	public void setPlotLineWidth(float lineWidth)
