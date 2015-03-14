@@ -11,7 +11,7 @@ public class OrbitalCameraInputController implements InputProcessor
 {	
 	private PerspectiveCamera cam;
 	private float[] target = new float[3];
-	private float altitude=1500f;
+	private float altitude=1000f;
 	private float speed;
 	
 	// Movement
