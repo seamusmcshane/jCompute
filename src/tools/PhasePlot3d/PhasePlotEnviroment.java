@@ -1,7 +1,5 @@
 package tools.PhasePlot3d;
 
-import javax.swing.SwingUtilities;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 
@@ -556,9 +554,13 @@ public class PhasePlotEnviroment implements ApplicationListener
 	private void setPlotPoints(float[] points, float[] center, String[] axisLabels, float[][] minMax,
 			float[][] firstLast)
 	{
+		
+		float camZOffset = scaleHalf/2;
+		float pointsZOffset = scaleHalf;
+		
 		camController.setTarget(new float[]
 		{
-			center[0], center[1], center[2] + scaleHalf
+			center[0], center[1], center[2] + camZOffset
 		});
 		
 		float xMax = Float.NEGATIVE_INFINITY;
@@ -574,7 +576,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		{
 			float x = points[ii];
 			float y = points[ii + 1];
-			float z = points[ii + 2] + scaleHalf;
+			float z = points[ii + 2] + pointsZOffset;
 			
 			if(x > xMax)
 			{
@@ -609,7 +611,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 		}
 		
 		ws.setVertices(MeshHelper.colorAllVerticesRGBA(points, 0.4f, 0.95f, xMin, xMax, yMin, yMax, zMin, zMax,
-				scaleHalf, yAxis, xAxis, zAxis), GL20.GL_LINE_STRIP);
+				pointsZOffset, yAxis, xAxis, zAxis), GL20.GL_LINE_STRIP);
 		
 		axisGrid.setTickIntervals(4);
 		axisGrid.setAxisRangeMinMax(minMax);
