@@ -32,9 +32,10 @@ import javax.swing.ButtonGroup;
 public class PhasePlotter3d implements WindowListener, ActionListener
 {
 	private static JFrame gui;
-	private int width = 1800;
-	private int height = 900;
+	private int width = 512;
+	private int height = 512;
 
+	private JMenu mnFile;
 	private JMenuItem mntmOpen;
 
 	private LibGDXGLPanel plotPanel;
@@ -75,6 +76,8 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 	private JMenu mnView;
 	private JMenuItem mntmReset;
 
+	private boolean standlone = true;
+	
 	public PhasePlotter3d()
 	{
 		gui = new JFrame();
@@ -96,7 +99,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		JMenuBar menuBar = new JMenuBar();
 		gui.setJMenuBar(menuBar);
 
-		JMenu mnFile = new JMenu("File");
+		mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
 		mntmOpen = new JMenuItem("Open");
@@ -191,6 +194,15 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		gui.addWindowListener(this);
 	}
 
+	public PhasePlotter3d(boolean standalone)
+	{
+		this();
+		
+		standlone = false;
+		
+		mnFile.setEnabled(false);
+	}
+	
 	public static void main(String[] args)
 	{
 		SwingUtilities.invokeLater(new Runnable()
@@ -255,36 +267,62 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 	/* Ensure the user wants to exit then exit the program */
 	private void doProgramExit()
 	{
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
+		if(standlone)
 		{
-			public void run()
+			javax.swing.SwingUtilities.invokeLater(new Runnable()
 			{
-				String message;
-				message = "Do you want to quit?";
-
-				JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-				// Center Dialog on the GUI
-				JDialog dialog = pane.createDialog(gui, "Close Application");
-
-				dialog.pack();
-				dialog.setVisible(true);
-
-				int value = ((Integer) pane.getValue()).intValue();
-
-				if(value == JOptionPane.YES_OPTION)
+				public void run()
 				{
-					// LWJGL
-					Display.destroy();
+					String message;
+					message = "Do you want to quit?";
 
-					// Do EXIT
-					System.exit(0);
+					JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+					// Center Dialog on the GUI
+					JDialog dialog = pane.createDialog(gui, "Close Application");
+
+					dialog.pack();
+					dialog.setVisible(true);
+
+					int value = ((Integer) pane.getValue()).intValue();
+
+					if(value == JOptionPane.YES_OPTION)
+					{
+						// LWJGL
+						Display.destroy();
+						
+						System.exit(0);
+
+					}
 				}
-			}
-		});
+			});
+
+		}
+		else
+		{
+			plotPanel.stop();
+			
+			gui.setVisible(false);
+			
+			gui.dispose();
+		}
 
 	}
 
+	public void close()
+	{
+		gui.dispatchEvent(new WindowEvent(gui, WindowEvent.WINDOW_CLOSING));
+	}
+	
+	public void loadData(float[][] data,String[] names)
+	{
+		// TODO Axis orders not fully implemented
+		glEnv.setData(data, names, 0, 1, 2);
+
+		// Populate now
+		glEnv.populateChart();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -346,11 +384,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 					}
 				}
 
-				// TODO Axis orders not fully implemented
-				glEnv.setData(data, names, 0, 1, 2);
-
-				// Populate now
-				glEnv.populateChart();
+				loadData(data,names);
 			}
 		}
 		else if((e.getSource() == plotLineWidthButton[0] | e.getSource() == plotLineWidthButton[1]
