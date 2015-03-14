@@ -11,7 +11,7 @@ public class OrbitalCameraInputController implements InputProcessor
 {	
 	private PerspectiveCamera cam;
 	private float[] target = new float[3];
-	private float altitude=1000f;
+	private float altitude=1500f;
 	private float speed;
 	
 	// Movement
@@ -30,9 +30,9 @@ public class OrbitalCameraInputController implements InputProcessor
 	{
 		this.cam = cam;
 		
-		target[0] = target[0];
-		target[1] = target[1];
-		target[2] = target[2];
+		this.target[0] = target[0];
+		this.target[1] = target[1];
+		this.target[2] = target[2];
 		
 		this.speed = speed;
 		
@@ -59,9 +59,9 @@ public class OrbitalCameraInputController implements InputProcessor
 	{
 		this.cam = cam;
 		
-		target[0] = target[0];
-		target[1] = target[1];
-		target[2] = target[2];
+		this.target[0] = target[0];
+		this.target[1] = target[1];
+		this.target[2] = target[2];
 		
 		this.speed = speed;
 		
