@@ -20,14 +20,14 @@ public class LibGDXGLPanel extends JPanel
 		this.add(new JLabel("No GLEnv Set"));
 	}
 	
-	public LibGDXGLPanel(ApplicationListener glEnv)
+	public LibGDXGLPanel(ApplicationListener glEnv, int mssa, boolean vsync)
 	{
 		LwjglApplicationConfiguration.disableAudio = true;
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "PhasePlot3d";
-		cfg.samples = 8;
-		cfg.vSyncEnabled = true;
+		cfg.samples = mssa;
+		cfg.vSyncEnabled = vsync;
 		cfg.useGL30 = false;
 		
 		canvas = new LwjglCanvas(glEnv, cfg);

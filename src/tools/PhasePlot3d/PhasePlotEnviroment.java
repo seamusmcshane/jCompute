@@ -76,7 +76,7 @@ public class PhasePlotEnviroment implements ApplicationListener
 	// Scaling
 	private boolean sameScale = false;
 	
-	// Display FullScreen Toogle
+	// Display FullScreen Toggle
 	boolean fullscreen = false;
 	private int dWidth = 0;
 	private int dHeight = 0;

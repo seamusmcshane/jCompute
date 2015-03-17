@@ -89,7 +89,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		glEnv = new PhasePlotEnviroment(width, height);
 
 		// PlotPanel
-		plotPanel = new LibGDXGLPanel(glEnv);
+		plotPanel = new LibGDXGLPanel(glEnv,8,true);
 
 		// Plot Panel on Frame
 		gui.getContentPane().add(plotPanel, BorderLayout.CENTER);
