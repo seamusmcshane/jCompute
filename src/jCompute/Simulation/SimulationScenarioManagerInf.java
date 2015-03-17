@@ -1,7 +1,6 @@
 package jCompute.Simulation;
 
-import jCompute.Gui.View.View;
-import jCompute.Gui.View.ViewCam;
+import jCompute.Gui.View.ViewRendererInf;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Stats.StatManager;
 
@@ -13,8 +12,6 @@ public interface SimulationScenarioManagerInf
 	
 	public StatManager getStatmanger();
 	
-	public void drawSim(View simView,boolean viewRangeDrawing,boolean viewsDrawing);
-
 	public int getUniverseSize();
 	
 	public boolean hasEndEventOccurred();
@@ -25,7 +22,7 @@ public interface SimulationScenarioManagerInf
 	
 	public ScenarioInf getScenario();
 	
-	public ViewCam getViewCam();
-
 	public String getInfo();
+
+	public ViewRendererInf getRenderer();
 }
