@@ -1,8 +1,7 @@
 package jCompute.Simulation;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.View.View;
-import jCompute.Gui.View.ViewCam;
+import jCompute.Gui.View.ViewRendererInf;
 import jCompute.Gui.View.ViewTarget;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
@@ -305,44 +304,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 			tReqSps = 0;
 		}
 	}
-
-	public boolean hasViewCam()
-	{
-		if(simManager!=null)
-		{
-			return true;
-		}
 		
-		return false;
-	}
-	
-	
-	public ViewCam getViewCam()
-	{
-		if(simManager!=null)
-		{
-			return simManager.getViewCam();
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
-	/**
-	 * 
-	 * @param simView
-	 * @param viewRangeDrawing
-	 * @param viewsDrawing
-	 */
-	public void draw(View simView,boolean viewRangeDrawing,boolean viewsDrawing)
-	{
-		if(simManager!=null)
-		{
-			simManager.drawSim(simView,viewRangeDrawing,viewsDrawing);
-		}
-	}
-	
 	/*
 	 * Call Backs from state + stat objects
 	 * (non-Javadoc)
@@ -407,5 +369,11 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	public StatManager getStatmanger()
 	{
 		return simManager.getStatmanger();
+	}
+
+	@Override
+	public ViewRendererInf getRenderer()
+	{
+		return simManager.getRenderer();
 	}
 }
