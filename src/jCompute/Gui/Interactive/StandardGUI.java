@@ -6,7 +6,6 @@ import jCompute.SimulationManager.SimulationsManagerInf;
 import java.awt.Dimension;
 import java.awt.Frame;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -19,8 +18,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -30,7 +27,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 
-public class StandardGUI implements ActionListener, ItemListener, WindowListener
+public class StandardGUI implements ActionListener, WindowListener
 {
 	// Main Frame
 	private JFrame guiFrame;
@@ -53,13 +50,10 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 	private JMenuBar menuBar;
 
 	// Menus
-	private JMenu mnFile, mnView, mnAgentDrawing, mnHelp;
+	private JMenu mnFile, mnHelp;
 
 	// Menu Items
 	private JMenuItem mntmQuit, mntmAbout;
-
-	// Menu Check Boxes
-	private JCheckBoxMenuItem chckbxmntmDisplaySimulation, chckbxmntmDrawFieldOf, chckbxmntDrawAgentViews;
 
 	public StandardGUI(SimulationsManagerInf simsManager)
 	{
@@ -77,6 +71,15 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 					registerGUIListeners();
 
 					layoutGUI();
+					
+					/* We control the exit */
+					guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+					
+					// Make it Visible
+					guiFrame.setVisible(true);
+					guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+
+					System.out.println("Created GUI");
 
 				}
 			});
@@ -85,62 +88,19 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 		{
 			System.out.println("Failed to Create GUI");
 		}
-
-		// Make it Visible
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				/* We control the exit */
-				guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-				guiFrame.setVisible(true);
-				guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-
-				System.out.println("Created GUI");
-			}
-		});
+		
 	}
 
 	private void addView()
 	{
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				if(simView == null)
-				{
-					/* Simulation View */
-					simView = new View();
+		/* Simulation View */
+		simView = new View();
 
-					/* Link up the view with the simulation manager */
-					simsManager.setSimView(simView);
+		/* Link up the view with the simulation manager */
+		simsManager.setSimView(simView);
 
-					/* Add the View to the right split pane */
-					splitPane.setRightComponent(simView.getCanvas());
-				}
-			}
-		});
-	}
-
-	private void removeView()
-	{
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				simsManager.clearActiveSim();
-
-				simsManager.setSimView(null);
-
-				splitPane.setRightComponent(null);
-
-				simView.exitDisplay();
-
-				simView = null;
-
-			}
-		});
-
+		/* Add the View to the right split pane */
+		splitPane.setRightComponent(simView.getCanvas());
 	}
 
 	private void createGUIComponents()
@@ -168,18 +128,10 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 		menuBar = new JMenuBar();
 
 		mnFile = new JMenu("File");
-		mnView = new JMenu("View");
-		mnAgentDrawing = new JMenu("Agent Drawing");
 		mnHelp = new JMenu("Help");
 
 		mntmQuit = new JMenuItem("Quit");
 		mntmAbout = new JMenuItem("About");
-
-		chckbxmntmDisplaySimulation = new JCheckBoxMenuItem("Display Simulation");
-		chckbxmntmDisplaySimulation.setSelected(true);
-		chckbxmntmDrawFieldOf = new JCheckBoxMenuItem("Draw Field of Views");
-		chckbxmntDrawAgentViews = new JCheckBoxMenuItem("Draw Agent Views");
-
 	}
 
 	private void layoutGUI()
@@ -205,30 +157,17 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 	{
 		mntmQuit.addActionListener(this);
 		mntmAbout.addActionListener(this);
-
-		chckbxmntmDisplaySimulation.addItemListener(this);
-		chckbxmntmDrawFieldOf.addItemListener(this);
-		chckbxmntDrawAgentViews.addItemListener(this);
-
+		
 		/* Window Closing */
 		guiFrame.addWindowListener(this);
-
 	}
 
 	private void addMenu()
 	{
 		menuBar.add(mnFile);
-		menuBar.add(mnView);
 		menuBar.add(mnHelp);
 		mnFile.add(mntmQuit);
 		mnHelp.add(mntmAbout);
-
-		mnView.add(chckbxmntmDisplaySimulation);
-		mnView.add(mnAgentDrawing);
-
-		mnAgentDrawing.add(chckbxmntmDrawFieldOf);
-		mnAgentDrawing.add(chckbxmntDrawAgentViews);
-
 		guiFrame.setJMenuBar(menuBar);
 	}
 
@@ -255,72 +194,6 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 			}
 		});
 
-	}
-
-	@Override
-	public void itemStateChanged(final ItemEvent e)
-	{
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				if(e.getSource() == chckbxmntmDisplaySimulation)
-				{
-					if(chckbxmntmDisplaySimulation.isSelected())
-					{
-						// have been checked
-						addView();
-					}
-					else
-					{
-						// have been unchecked
-						removeView();
-					}
-				}
-				else if(e.getSource() == chckbxmntmDrawFieldOf)
-				{
-					if(chckbxmntmDrawFieldOf.isSelected())
-					{
-						if(simView != null)
-						{
-							// have been checked
-							simView.setViewRangeDrawing(true);
-						}
-					}
-					else
-					{
-						if(simView != null)
-						{
-							// have been unchecked
-							simView.setViewRangeDrawing(false);
-						}
-					}
-				}
-				else if(e.getSource() == chckbxmntDrawAgentViews)
-				{
-					if(chckbxmntDrawAgentViews.isSelected())
-					{
-						if(simView != null)
-						{
-							// have been checked
-							simView.setViewsDrawing(true);
-						}
-					}
-					else
-					{
-						if(simView != null)
-						{
-							// have been unchecked
-							simView.setViewsDrawing(false);
-						}
-					}
-				}
-				else
-				{
-					System.out.println("Unknown Event Source :" + e.getSource().getClass().getName());
-				}
-			}
-		});
 	}
 
 	@Override
@@ -367,6 +240,7 @@ public class StandardGUI implements ActionListener, ItemListener, WindowListener
 
 			if(simView != null)
 			{
+				simView.stopDisplay();
 				simView.exitDisplay();
 			}
 
