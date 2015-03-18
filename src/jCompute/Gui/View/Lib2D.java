@@ -67,8 +67,12 @@ public class Lib2D
 		
 		float scale = min / textureSize;
 		
+		float textureScale = textureSize * scale;
+		
 		sb.begin();
-		sb.draw(tTemp, x, y, textureSize * scale, textureSize * scale);
+		
+		// Positions the resized texture in the centre of the display.
+		sb.draw(tTemp, x-(textureScale/2), y-(textureScale/2), textureScale, textureScale);
 		sb.end();
 		
 		// Dispose PixMap and Texture
