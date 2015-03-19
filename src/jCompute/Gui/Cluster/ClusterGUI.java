@@ -2,9 +2,9 @@ package jCompute.Gui.Cluster;
 
 import jCompute.IconManager;
 import jCompute.Batch.BatchManager.BatchManager;
-import jCompute.Gui.Component.JComputeProgressMonitor;
-import jCompute.Gui.Component.SimpleTabPanel;
-import jCompute.Gui.Component.XMLPreviewPanel;
+import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
+import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.util.FileUtil;
 
 import java.awt.Dimension;

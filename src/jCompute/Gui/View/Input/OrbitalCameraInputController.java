@@ -1,4 +1,4 @@
-package tools;
+package jCompute.Gui.View.Input;
 
 import org.lwjgl.input.Mouse;
 

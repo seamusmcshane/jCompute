@@ -2,8 +2,8 @@ package jCompute.Gui.Interactive.Tab;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Gui.Component.GlobalStatChartPanel;
-import jCompute.Gui.Component.XMLPreviewPanel;
+import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
+import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.Gui.Interactive.GUITabManager;
 import jCompute.Gui.Interactive.Listener.TabStatusChangedListenerInf;
 import jCompute.Simulation.SimulationState.SimState;

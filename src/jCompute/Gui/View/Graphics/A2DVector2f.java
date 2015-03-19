@@ -43,6 +43,14 @@ public class A2DVector2f
 		pos[1] = vector.getY();
 	}
 
+	public A2DVector2f sub(A2DVector2f vector)
+	{
+		pos[0] -= vector.getX();
+		pos[1] -= vector.getY();
+		
+		return this;
+	}
+	
 	public A2DVector2f add(A2DVector2f vector)
 	{
 		pos[0] += vector.getX();

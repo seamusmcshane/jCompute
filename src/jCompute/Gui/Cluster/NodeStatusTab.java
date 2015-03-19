@@ -14,9 +14,9 @@ import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
-import jCompute.Gui.Component.GlobalStatChartPanel;
-import jCompute.Gui.Component.SimpleTabPanel;
-import jCompute.Gui.Component.TablePanel;
+import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
+import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Gui.Component.Swing.TablePanel;
 
 import java.awt.GridLayout;
 

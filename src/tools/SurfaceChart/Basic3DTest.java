@@ -1,6 +1,6 @@
 package tools.SurfaceChart;
 
-import tools.OrbitalCameraInputController;
+import jCompute.Gui.View.Input.OrbitalCameraInputController;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;

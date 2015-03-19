@@ -29,7 +29,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 
-public class PhasePlotter3d implements WindowListener, ActionListener
+public class PhasePlotterUtil implements WindowListener, ActionListener
 {
 	private static JFrame gui;
 	private int width = 512;
@@ -40,7 +40,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 
 	private LibGDXGLPanel plotPanel;
 
-	private PhasePlotEnviroment glEnv;
+	private PhasePlotGDXContainer glEnv;
 	private JMenu mnChartSettings;
 	private JMenu mnLineWidths;
 
@@ -78,7 +78,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 
 	private boolean standlone = true;
 	
-	public PhasePlotter3d()
+	public PhasePlotterUtil()
 	{
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -86,7 +86,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		gui.setMinimumSize(new Dimension(width, height));
 
 		// GL Env
-		glEnv = new PhasePlotEnviroment(width, height);
+		glEnv = new PhasePlotGDXContainer(width, height);
 
 		// PlotPanel
 		plotPanel = new LibGDXGLPanel(glEnv,8,true);
@@ -194,7 +194,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 		gui.addWindowListener(this);
 	}
 
-	public PhasePlotter3d(boolean standalone)
+	public PhasePlotterUtil(boolean standalone)
 	{
 		this();
 		
@@ -210,7 +210,7 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 			@Override
 			public void run()
 			{
-				new PhasePlotter3d();
+				new PhasePlotterUtil();
 			}
 		});
 
@@ -318,9 +318,6 @@ public class PhasePlotter3d implements WindowListener, ActionListener
 	{
 		// TODO Axis orders not fully implemented
 		glEnv.setData(data, names, 0, 1, 2);
-
-		// Populate now
-		glEnv.populateChart();
 	}
 	
 	@Override

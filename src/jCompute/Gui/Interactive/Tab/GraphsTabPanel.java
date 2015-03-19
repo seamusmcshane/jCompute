@@ -1,7 +1,7 @@
 package jCompute.Gui.Interactive.Tab;
 
 import jCompute.IconManager;
-import jCompute.Gui.Component.GlobalStatChartPanel;
+import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
 import jCompute.SimulationManager.SimulationsManagerInf;
 
 import java.awt.BorderLayout;

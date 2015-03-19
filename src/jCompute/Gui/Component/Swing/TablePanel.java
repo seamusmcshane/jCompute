@@ -1,4 +1,6 @@
-package jCompute.Gui.Component;
+package jCompute.Gui.Component.Swing;
+
+import jCompute.Gui.Component.RowItem;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

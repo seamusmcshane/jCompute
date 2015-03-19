@@ -430,4 +430,51 @@ public class Lib2D
 		sr.rect(x, y, width, height);
 		sr.end();
 	}
+	
+	public static void drawTransparentFillRectangle(ViewRendererInf ren,float x, float y, float width, float height, A2RGBA color)
+	{
+		boolean pos00View = true;
+		boolean pos01View = true;
+		boolean pos11View = true;
+		boolean pos10View = true;
+		
+		Camera cam = ren.getCamera();
+		
+		if(!cam.frustum.pointInFrustum(new Vector3(x, y, 0)))
+		{
+			pos00View = false;
+		}
+		
+		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y, 0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!cam.frustum.pointInFrustum(new Vector3(x, y + height, 0)))
+		{
+			pos10View = false;
+		}
+		
+		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y + height, 0)))
+		{
+			pos11View = false;
+		}
+		
+		if(!pos00View && !pos10View && !pos01View && !pos11View)
+		{
+			return;
+		}
+		
+		ShapeRenderer sr = ren.getShapeRenderer();
+
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		
+		sr.begin(ShapeType.Filled);
+		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		sr.rect(x, y, width, height);
+		sr.end();
+		
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+	}
 }

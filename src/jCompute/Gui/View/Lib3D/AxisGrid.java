@@ -1,8 +1,4 @@
-package tools.Common;
-
-import tools.MeshHelper;
-import tools.PhasePlot3d.LineGrid;
-import tools.PhasePlot3d.VertexModel;
+package jCompute.Gui.View.Lib3D;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;

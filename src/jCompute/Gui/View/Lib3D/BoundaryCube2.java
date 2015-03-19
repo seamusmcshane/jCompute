@@ -1,4 +1,4 @@
-package tools.PhasePlot3d;
+package jCompute.Gui.View.Lib3D;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;

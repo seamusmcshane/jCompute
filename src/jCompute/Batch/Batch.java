@@ -2,7 +2,7 @@ package jCompute.Batch;
 
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Gui.Cluster.ClusterGUI;
-import jCompute.Gui.Component.JComputeProgressMonitor;
+import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Scenario.ConfigurationInterpreter;

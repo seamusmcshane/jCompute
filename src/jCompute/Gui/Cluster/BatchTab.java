@@ -20,7 +20,7 @@ import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Gui.Cluster.TableRowItems.BatchCompletedRowItem;
 import jCompute.Gui.Cluster.TableRowItems.BatchQueueRowItem;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
-import jCompute.Gui.Component.TablePanel;
+import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;

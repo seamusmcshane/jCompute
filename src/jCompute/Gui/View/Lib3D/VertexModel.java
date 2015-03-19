@@ -1,6 +1,4 @@
-package tools.PhasePlot3d;
-
-import tools.MeshHelper;
+package jCompute.Gui.View.Lib3D;
 
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;

@@ -1,4 +1,4 @@
-package jCompute.Gui.Component;
+package jCompute.Gui.Component.Swing;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

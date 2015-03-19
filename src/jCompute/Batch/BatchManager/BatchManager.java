@@ -11,7 +11,7 @@ import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
-import jCompute.Gui.Component.JComputeProgressMonitor;
+import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;

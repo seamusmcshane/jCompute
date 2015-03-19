@@ -34,7 +34,7 @@ import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.fftw3;
 import org.bytedeco.javacpp.fftw3.fftw_plan;
 
-import tools.PhasePlot3d.PhasePlotter3d;
+import tools.PhasePlot3d.PhasePlotterUtil;
 
 import javax.swing.JPanel;
 
@@ -86,7 +86,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	private boolean avgFilter = false;
 	private JSpinner spinner;
 	
-	private PhasePlotter3d pp3d;
+	private PhasePlotterUtil pp3d;
 	
 	public static void main(String args[])
 	{
@@ -269,7 +269,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 							}
 							
 							
-							pp3d = new PhasePlotter3d(false);
+							pp3d = new PhasePlotterUtil(false);
 							
 							javax.swing.SwingUtilities.invokeLater(new Runnable()
 							{

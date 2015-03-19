@@ -1,8 +1,9 @@
 package tools.SurfaceChart;
 
+import jCompute.Gui.View.Lib3D.AxisGrid;
+
 import java.util.Random;
 
-import tools.Common.AxisGrid;
 import tools.SurfaceChart.Surface.BarGrid;
 
 import com.badlogic.gdx.graphics.Camera;
