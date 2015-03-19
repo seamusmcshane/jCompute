@@ -1,6 +1,6 @@
 package jCompute.Gui.View;
 
-import jCompute.Gui.View.Graphics.A2DVector2f;
+import jCompute.Gui.View.Graphics.A2RGBA;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -15,60 +15,58 @@ import org.lwjgl.opengl.Display;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
-public class View implements ApplicationListener, InputProcessor
+public class View implements ApplicationListener, ViewRendererInf
 {
+	/** Swing base panel */
 	private JPanel basePanel;
 	
 	/** The Drawing Canvas's */
 	private LwjglCanvas glCanvas;
 	
-	/** Cameara and Shape Renderer */
-	private PerspectiveCamera globalViewCam;
-	private ExtendViewport viewport;
+	/** Overlay text */
+	private OrthographicCamera overlayCam;
+	
+	/** Needed to apply correct ViewPort during screen resize (BUG) */
+	private PerspectiveCamera viewportBugCam;
+	private ExtendViewport viewportBugCamPort;
+	
+	// OverLay Text
+	private BitmapFont overlayFont;
+	private SpriteBatch overlaySpriteBatch;
+	private ShapeRenderer overlayShapeRenderer;
+	private String overlayTitle = "";
 	
 	/** ViewTarget Reference */
 	private ViewTarget target;
 	private Semaphore viewLock = new Semaphore(1);
 	
-	private String viewTitle = "";
-	
+	// Frame Rate
 	private int defaultFrameRate = 60;
 	
-	// Display FullScreen Toggle
-	boolean fullscreen = false;
-	private int windowedWidthLatch;
-	private int windowedHeightLatch;
+	// Help overlay text
+	private boolean displayHelp = false;
 	
-	/* Mouse */
-	/** Stores the mouse vector across updates */
-	private A2DVector2f mousePos = new A2DVector2f(new float[]
-	{
-		0, 0
-	});
+	// Input
+	private InputMultiplexer inputMultiplexer;
 	
-	private boolean button1Pressed;
-	
-	private BitmapFont overlayFont;
-	private SpriteBatch overlaySpriteBatch;
-	
-	// Renderer Keyboard input delay calc
+	// Renderer Keyboard input repeat delay calc
 	private long lastPressFrame = 0;
 	
-	private final float CAMERA_FAR_CLIP = 30000f;
-	private final float CAMERA_NEAR_CLIP = 50f;
-	
-	private boolean cameraResetAnimate = false;
+	private boolean viewportNeedsupdated = true;
 	
 	public View()
 	{
@@ -77,8 +75,8 @@ public class View implements ApplicationListener, InputProcessor
 		LwjglApplicationConfiguration.disableAudio = true;
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
-		cfg.title = "PhasePlot3d";
-		cfg.samples = 2;
+		cfg.title = "View";
+		cfg.samples = 8;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
 		
@@ -91,19 +89,6 @@ public class View implements ApplicationListener, InputProcessor
 		glCanvas = new LwjglCanvas(this, cfg);
 		
 		basePanel.add(glCanvas.getCanvas(), BorderLayout.CENTER);
-		
-		Display.setVSyncEnabled(true);
-		Display.setSwapInterval(1);
-		
-		glCanvas.getInput().setInputProcessor(this);
-		
-		globalViewCam = new PerspectiveCamera();
-		viewport = new ExtendViewport(1, 1, globalViewCam);
-		
-		globalViewCam.near = CAMERA_NEAR_CLIP;
-		globalViewCam.far = CAMERA_FAR_CLIP;
-		
-		resetCamera();
 	}
 	
 	public void stopDisplay()
@@ -131,21 +116,43 @@ public class View implements ApplicationListener, InputProcessor
 	public void setViewTarget(ViewTarget simIn)
 	{
 		viewLock.acquireUninterruptibly();
+		
+		inputMultiplexer.clear();
+		
 		target = simIn;
+		
+		if(target != null)
+		{
+			target.getRenderer().setMultiplexer(inputMultiplexer);
+		}
+		
+		viewportNeedsupdated = true;
+		
 		viewLock.release();
 	}
 	
 	@Override
 	public void create()
 	{
+		Display.setVSyncEnabled(true);
+		Display.setSwapInterval(1);
+		
+		inputMultiplexer = new InputMultiplexer();
+		
+		glCanvas.getInput().setInputProcessor(inputMultiplexer);
+		
+		overlayCam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		viewportBugCam = new PerspectiveCamera();
+		
+		viewportBugCamPort = new ExtendViewport(1, 1, viewportBugCam);
+		
+		resetCamera();
+		
 		overlayFont = new BitmapFont();
 		overlayFont.setColor(Color.WHITE);
 		
 		overlaySpriteBatch = new SpriteBatch();
-		
-		overlaySpriteBatch.setProjectionMatrix(globalViewCam.combined);
-		
-		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		overlayShapeRenderer = new ShapeRenderer();
 	}
 	
 	@Override
@@ -166,7 +173,8 @@ public class View implements ApplicationListener, InputProcessor
 	
 	private void globalInput()
 	{
-		fullscreen = Gdx.graphics.isFullscreen();
+		// Display FullScreen Toggle
+		boolean fullscreen = Gdx.graphics.isFullscreen();
 		
 		// Full Screen Toggle - Uses LWJGL fullscreen methods
 		if(Gdx.input.isKeyPressed(Input.Keys.F))
@@ -177,8 +185,7 @@ public class View implements ApplicationListener, InputProcessor
 				{
 					Display.setFullscreen(true);
 					
-					viewport.update(Gdx.graphics.getDesktopDisplayMode().width,
-							Gdx.graphics.getDesktopDisplayMode().height);
+					viewportNeedsupdated = true;
 				}
 				catch(LWJGLException e)
 				{
@@ -192,7 +199,7 @@ public class View implements ApplicationListener, InputProcessor
 				{
 					Display.setFullscreen(false);
 					
-					viewport.update(windowedWidthLatch, windowedHeightLatch);					
+					viewportNeedsupdated = true;
 				}
 				catch(LWJGLException e)
 				{
@@ -202,6 +209,19 @@ public class View implements ApplicationListener, InputProcessor
 			}
 			
 		}
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.H))
+		{
+			if(displayHelp)
+			{
+				displayHelp = false;
+			}
+			else
+			{
+				displayHelp = true;
+			}
+		}
+		
 	}
 	
 	@Override
@@ -210,6 +230,11 @@ public class View implements ApplicationListener, InputProcessor
 		Display.sync(defaultFrameRate);
 		
 		globalInput();
+		
+		overlaySpriteBatch.setProjectionMatrix(overlayCam.combined);
+		overlayShapeRenderer.setProjectionMatrix(overlayCam.combined);
+		
+		overlayCam.update();
 		
 		viewLock.acquireUninterruptibly();
 		
@@ -222,33 +247,74 @@ public class View implements ApplicationListener, InputProcessor
 				if(r.needsGLInit())
 				{
 					r.glInit();
+					
+					inputMultiplexer.clear();
+					r.setMultiplexer(inputMultiplexer);
+				}
+				
+				if(viewportNeedsupdated)
+				{
+					// Display FullScreen Toggle
+					boolean fullscreen = Gdx.graphics.isFullscreen();
+					
+					if(fullscreen)
+					{
+						resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
+					}
+					else
+					{
+						resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+					}
+					
+					r.updateViewPort((int) overlayCam.viewportWidth, (int) overlayCam.viewportHeight);
+					
+					viewportNeedsupdated = false;
 				}
 				
 				doInput(r);
 				
-				target.getRenderer().updateCamera(globalViewCam);
-				
-				if(cameraResetAnimate)
-				{
-					if(target.getRenderer().getViewCam().reset())
-					{
-						cameraResetAnimate = false;
-					}
-				}
-				
 				r.render();
 				
-				viewTitle = target.getInfo();
+				overlayTitle = target.getInfo();
+				
+				if(displayHelp)
+				{
+					// Draw Help Text
+				}
 			}
 		}
 		else
 		{
+			Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			
-			viewTitle = "None";
+			if(viewportNeedsupdated)
+			{
+				// Display FullScreen Toggle
+				boolean fullscreen = Gdx.graphics.isFullscreen();
+				
+				if(fullscreen)
+				{
+					resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
+				}
+				else
+				{
+					resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+				}
+				
+				viewportNeedsupdated = false;
+			}
+			
+			overlayTitle = "None";
 		}
 		
-		drawOverlayText(10, viewport.getScreenHeight() - 10, viewTitle);
+		// View Title String (TopLeft)
+		float x = -(overlayCam.viewportWidth / 2);
+		float y = (overlayCam.viewportHeight / 2);
+		
+		Lib2D.drawTransparentFillRectangle(this, x, y - 35, overlayCam.viewportWidth, 35, new A2RGBA(0f, 0f, 0f, 0.5f));
+		
+		drawOverlayText(x + 10, y - 10, false, overlayTitle);
 		
 		viewLock.release();
 	}
@@ -271,9 +337,12 @@ public class View implements ApplicationListener, InputProcessor
 	@Override
 	public void resize(int width, int height)
 	{
-		windowedWidthLatch = width;
-		windowedHeightLatch = height;
-		viewport.update(width, height);
+		overlayCam.viewportWidth = width;
+		overlayCam.viewportHeight = height;
+		
+		viewportBugCamPort.update(width, height);
+		
+		viewportNeedsupdated = true;
 		
 		resetCamera();
 	}
@@ -284,137 +353,92 @@ public class View implements ApplicationListener, InputProcessor
 		
 	}
 	
-	public void drawOverlayText(float x, float y, String text)
+	public void drawOverlayText(float x, float y, boolean centered, String text)
 	{
-		Matrix4 viewPortTrans = globalViewCam.combined.cpy();
-		viewPortTrans.setToOrtho2D(0, 0, viewport.getScreenWidth(), viewport.getScreenHeight());
-		overlaySpriteBatch.setProjectionMatrix(viewPortTrans);
 		overlaySpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		overlaySpriteBatch.begin();
-		overlayFont.draw(overlaySpriteBatch, text, x, y);
+		if(centered)
+		{
+			TextBounds bounds = overlayFont.getBounds(text);
+			overlayFont.drawMultiLine(overlaySpriteBatch, text, -bounds.width / 2 + x, -(bounds.height / 2) - y);
+		}
+		else
+		{
+			overlayFont.drawMultiLine(overlaySpriteBatch, text, x, y);
+		}
+		
 		overlaySpriteBatch.end();
-	}
-	
-	@Override
-	public boolean keyDown(int arg0)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean keyTyped(char arg0)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean keyUp(int arg0)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean mouseMoved(int x, int y)
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean scrolled(int val)
-	{
-		if(target != null)
-		{
-			target.getRenderer().getViewCam().adjCamZoom(val);
-		}
-		
-		return false;
-	}
-	
-	@Override
-	public boolean touchDown(int x, int y, int pointer, int button)
-	{
-		if(button == 1)
-		{
-			button1Pressed = true;
-			//resetCamera();
-			
-			cameraResetAnimate = true;
-		}
-		else
-		{
-			mousePos.set(x, y);
-		}
-		
-		return true;
-	}
-	
-	@Override
-	public boolean touchDragged(int x, int y, int z)
-	{
-		
-		if(!button1Pressed)
-		{
-			// Latch the old position
-			float previousX = mousePos.getX();
-			float previousY = mousePos.getY();
-			
-			// Update newX/Y
-			mousePos.set(x, y);
-			
-			// How much did the mouse move.
-			float diffX = previousX - mousePos.getX();
-			float diffY = previousY - mousePos.getY();
-			
-			// -y for when converting from screen to graphics coordinates
-			moveCamera(diffX, -diffY);
-		}
-		
-		return false;
-	}
-	
-	@Override
-	public boolean touchUp(int x, int y, int pointer, int button)
-	{
-		if(button1Pressed)
-		{
-			button1Pressed = false;
-		}
-		else
-		{
-			mousePos.set(x, y);
-		}
-		
-		return false;
-	}
-	
-	private void moveCamera(float x, float y)
-	{
-		if(target != null)
-		{
-			target.getRenderer().getViewCam().moveCam(x, y);
-		}
 	}
 	
 	public void resetCamera()
 	{
-		// viewCam.position.set(globalTranslateDefault.getX() +
-		// Gdx.graphics.getWidth()/2, globalTranslateDefault.getY() +
-		// Gdx.graphics.getHeight()/2, 0);
-		
 		if(target != null)
 		{
-			// This can be null if a tab is added when no sim is generated and
-			// the window is resized
-			// if(target.hasViewCam())
-			{
-				/*
-				 * target.getRenderer().getViewCam().resetCamZoom();
-				 * target.getRenderer().getViewCam()
-				 * .resetCamPos(0,0);
-				 */
-				target.getRenderer().getViewCam().reset();
-			}
+			target.getRenderer().getViewCam().reset();
 		}
+	}
+	
+	@Override
+	public boolean needsGLInit()
+	{
+		// NA
+		return false;
+	}
+	
+	@Override
+	public void glInit()
+	{
+		// NA
+	}
+	
+	@Override
+	public SpriteBatch getSpriteBatch()
+	{
+		return overlaySpriteBatch;
+	}
+	
+	@Override
+	public ShapeRenderer getShapeRenderer()
+	{
+		return overlayShapeRenderer;
+	}
+	
+	@Override
+	public BitmapFont getFont()
+	{
+		return overlayFont;
+	}
+	
+	@Override
+	public ViewCam getViewCam()
+	{
+		// NA
+		
+		return null;
+	}
+	
+	@Override
+	public Camera getCamera()
+	{
+		return overlayCam;
+	}
+	
+	@Override
+	public void updateViewPort(int width, int height)
+	{
+		// NA
+	}
+	
+	@Override
+	public boolean doInput()
+	{
+		return false;
+	}
+	
+	@Override
+	public void setMultiplexer(InputMultiplexer inputMultiplexer)
+	{
+		// NA
 	}
 	
 }
