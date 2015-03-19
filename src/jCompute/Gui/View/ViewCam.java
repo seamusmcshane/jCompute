@@ -3,7 +3,7 @@ package jCompute.Gui.View;
 import jCompute.Gui.View.Graphics.A2DVector2f;
 
 public class ViewCam
-{
+{	
 	// Zoom and Reset Animation Steps
 	private final int animationSteps = 20;
 	
@@ -13,6 +13,7 @@ public class ViewCam
 	
 	// Zoom Parameters
 	private final float zoomIncr = 50f;
+	private final float minAniZoomInter = 50f;
 	private float zoomDefault = 800f;
 	private float minZoom = zoomIncr;
 	private float maxZoom = zoomDefault;
@@ -78,7 +79,12 @@ public class ViewCam
 	
 	public void setCamOffset(A2DVector2f camOffset)
 	{
+		// Remove Old offset
+		camPos.sub(this.camOffset);
+		
 		this.camOffset = camOffset;
+		
+		camPos.add(camOffset);
 	}
 	
 	public void setCamPos(A2DVector2f camPos)
@@ -127,6 +133,11 @@ public class ViewCam
 			if(!zoomInterSet)
 			{
 				aniZoomInter = Math.abs(camZoom - zoomDefault) / animationSteps;
+				
+				if(aniZoomInter < minAniZoomInter)
+				{
+					aniZoomInter = minAniZoomInter;
+				}
 				
 				zoomInterSet = true;
 			}
