@@ -593,11 +593,13 @@ public class StatExporter
 		int statIndex = 0;
 		fileData.append(statList.get(statIndex) + ",");
 		
-		System.out.print("Categories : " + statList.get(statIndex));
+		StringBuilder logString = new StringBuilder();
+		
+		logString.append("Categories : " + statList.get(statIndex));
 		
 		for(statIndex = 1; statIndex < statCount; statIndex++)
 		{
-			System.out.print(", " + statList.get(statIndex));
+			logString.append(", " + statList.get(statIndex));
 			
 			fileData.append(statList.get(statIndex));
 			
@@ -611,7 +613,8 @@ public class StatExporter
 			}
 			
 		}
-		System.out.print("\n");
+		
+		log.info(logString.toString());
 	}
 	
 	private void appendCSVStyleRow(StringBuilder data, StatSample[][] statHistorys, int history, List<String> statList)
