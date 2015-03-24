@@ -1,6 +1,7 @@
 package jCompute.Batch;
 
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
+import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Gui.Cluster.ClusterGUI;
 import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Scenario.ScenarioInf;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -110,6 +112,9 @@ public class Batch implements StoredQueuePosition
 	// Base scenario text
 	private String baseScenarioText;
 	
+	// Disk Cache for Items
+	private DiskCache itemDiskCache;
+	
 	// To protect our shared variables/data structures
 	private Semaphore batchLock = new Semaphore(1, false);
 	
@@ -131,6 +136,7 @@ public class Batch implements StoredQueuePosition
 		
 		// Active Items
 		active = 0;
+		
 	}
 	
 	public boolean loadConfig(String filePath)
@@ -193,6 +199,7 @@ public class Batch implements StoredQueuePosition
 				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
 				
 				setBatchStatExportDir();
+				
 			}
 			else
 			{
@@ -212,6 +219,11 @@ public class Batch implements StoredQueuePosition
 	
 	public void generateItems(JComputeProgressMonitor genComboMonitor)
 	{
+		log.info("Created DiskCache for Batch " + batchId);
+		
+		// Create DiskCache
+		itemDiskCache = new DiskCache(batchStatsExportDir);
+		
 		float progress = 0;
 		
 		if(genComboMonitor != null)
@@ -867,7 +879,7 @@ public class Batch implements StoredQueuePosition
 							+ File.separator + item.getItemId() + File.separator + "itemconfig-" + item.getItemHash()
 							+ ".xml", true)));
 					
-					configFile.write(item.getConfigText());
+					configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
 					configFile.flush();
 					configFile.close();
 				}
@@ -926,6 +938,9 @@ public class Batch implements StoredQueuePosition
 					log.error("Error writing info log");
 				}
 			}
+			
+			log.info("Removing Batch " + batchId + " DiskCache");
+			itemDiskCache.clear();
 		}
 		
 		ioEnd = System.currentTimeMillis();
@@ -942,14 +957,26 @@ public class Batch implements StoredQueuePosition
 		return queuedItems.size();
 	}
 	
-	// Small wrapper around queue add
+	// Small wrapper around queue add and disk cache
 	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates,
 			ArrayList<Integer> coordinatesValues)
 	{
+		byte[] configBytes = null;
+		try
+		{
+			configBytes = configText.getBytes("ISO-8859-1");
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		
+		String itemHash = itemDiskCache.addFile(configBytes);
+		
 		// SID/SampleId is 1 base/ 1=first sample
 		for(int sid = 1; sid < samples + 1; sid++)
 		{
-			queuedItems.add(new BatchItem(sid, id, batchId, name, configText, coordinates, coordinatesValues));
+			queuedItems.add(new BatchItem(sid, id, batchId, name, itemHash, coordinates, coordinatesValues));
 		}
 		
 		batchItems = batchItems + (1 * samples);
@@ -1248,5 +1275,10 @@ public class Batch implements StoredQueuePosition
 		
 		return false;
 		
+	}
+	
+	public byte[] getItemConfig(String fileHash)
+	{
+		return itemDiskCache.getFile(fileHash);
 	}
 }
