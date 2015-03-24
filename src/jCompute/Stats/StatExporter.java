@@ -52,6 +52,8 @@ public class StatExporter
 	
 	public void populateFromStatManager(StatManager sm)
 	{
+		log.info("Populating StatManager from " + sm.getname());
+		
 		Set<String> groupList = sm.getGroupList();
 		int numFiles = groupList.size();
 		
@@ -74,6 +76,8 @@ public class StatExporter
 			{
 				fileName = group;
 			}
+			
+			log.info("Adding " + fileName);
 			
 			fileNames[file] = fileName;
 			
