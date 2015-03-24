@@ -17,6 +17,7 @@ import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -428,7 +429,7 @@ public class BatchManager
 				BatchItem item = batch.getNext();
 				
 				// Schedule it
-				if(!scheduleBatchItem(item))
+				if(!scheduleBatchItem(batch, item))
 				{
 					batch.returnItemToQueue(item);
 					break;
@@ -522,7 +523,7 @@ public class BatchManager
 							
 							// Once we cannot add anymore, exit, and return the
 							// failed one to the queue
-							if(!scheduleBatchItem(item))
+							if(!scheduleBatchItem(batch, item))
 							{
 								batch.returnItemToQueue(item);
 								canContinue = false;
@@ -563,27 +564,38 @@ public class BatchManager
 		
 	}
 	
-	private boolean scheduleBatchItem(BatchItem item)
+	private boolean scheduleBatchItem(Batch batch, BatchItem nextItem)
 	{
 		log.debug("Schedule BatchItem");
 		
-		batchManagerLock.release();
+		String itemConfig = null;
 		
-		int simId = controlNode.addSimulation(item.getConfigText(), -1);
+		try
+		{
+			itemConfig = new String(batch.getItemConfig(nextItem.getItemHash()), "ISO-8859-1");
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		
+		batchManagerLock.release();
+
+		int simId = controlNode.addSimulation(itemConfig, -1);
 		
 		batchManagerLock.acquireUninterruptibly();
 		
 		// If the control node has added a simulation for us
 		if(simId > 0)
 		{
-			log.debug("Item : " + item.getItemId() + " setting simId " + simId);
+			log.debug("Item : " + nextItem.getItemId() + " setting simId " + simId);
 			
-			item.setSimId(simId);
+			nextItem.setSimId(simId);
 			
 			batchManagerLock.release();
 			
 			itemsLock.acquireUninterruptibly();
-			activeItems.add(item);
+			activeItems.add(nextItem);
 			itemsLock.release();
 			
 			controlNode.startSim(simId);
