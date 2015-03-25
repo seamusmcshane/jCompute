@@ -15,13 +15,26 @@ public class DiskCache
 {
 	private String cacheLocation;
 	private boolean compressFiles;
+	private int compressionLevel;
 	
-	public DiskCache(String storageLocation, boolean enableFileCompression)
+	public DiskCache(String storageLocation)
 	{
 		// i.e location/diskCache
 		this.cacheLocation = storageLocation + File.separator + "diskCache";
 		
-		this.compressFiles = enableFileCompression;
+		this.compressFiles = false;
+		
+		initCache();
+	}
+	
+	public DiskCache(String storageLocation, int compressionLevel)
+	{
+		// i.e location/diskCache
+		this.cacheLocation = storageLocation + File.separator + "diskCache";
+		
+		this.compressFiles = true;
+		
+		this.compressionLevel = compressionLevel;
 		
 		initCache();
 	}
@@ -47,7 +60,7 @@ public class DiskCache
 			
 			if(compressFiles)
 			{
-				fileContents = FileUtil.compressBytes(contents);
+				fileContents = FileUtil.compressBytes(contents, compressionLevel);
 			}
 			
 			try
