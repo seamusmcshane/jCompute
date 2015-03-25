@@ -651,7 +651,7 @@ public class StatExporter
 		fileData.append("% 1. Title : " + group + " Database\n");
 		fileData.append("%\n");
 		fileData.append("% 2. Sources :\n");
-		fileData.append("%		(a) Alife Sim\n");
+		fileData.append("%		(a) jCompute\n");
 		fileData.append("%\n");
 		
 		// Add Relation Field
