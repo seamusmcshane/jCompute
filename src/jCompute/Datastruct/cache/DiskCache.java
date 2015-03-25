@@ -14,11 +14,14 @@ import org.apache.commons.io.FileUtils;
 public class DiskCache
 {
 	private String cacheLocation;
+	private boolean compressFiles;
 	
-	public DiskCache(String storageLocation)
+	public DiskCache(String storageLocation, boolean enableFileCompression)
 	{
 		// i.e location/diskCache
 		this.cacheLocation = storageLocation + File.separator + "diskCache";
+		
+		this.compressFiles = enableFileCompression;
 		
 		initCache();
 	}
@@ -40,12 +43,17 @@ public class DiskCache
 		
 		if(!file.exists() && !file.isDirectory())
 		{
-			byte[] compressedContents = FileUtil.compressBytes(contents);
+			byte[] fileContents = contents;
+			
+			if(compressFiles)
+			{
+				fileContents = FileUtil.compressBytes(contents);
+			}
 			
 			try
 			{
 				FileOutputStream fos = new FileOutputStream(filePath);
-				fos.write(compressedContents);
+				fos.write(fileContents);
 				fos.close();
 			}
 			catch(IOException e)
@@ -70,17 +78,20 @@ public class DiskCache
 		{
 			Path path = Paths.get(filePath);
 			
-			byte[] compressed = null;
 			try
 			{
-				compressed = Files.readAllBytes(path);
+				contents = Files.readAllBytes(path);
 			}
 			catch(IOException e)
 			{
 				e.printStackTrace();
 			}
 			
-			contents = FileUtil.decompressBytes(compressed);
+			if(compressFiles)
+			{
+				contents = FileUtil.decompressBytes(contents);
+			}
+			
 		}
 		
 		return contents;
