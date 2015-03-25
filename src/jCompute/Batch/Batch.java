@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
+import java.util.zip.Deflater;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,7 +223,7 @@ public class Batch implements StoredQueuePosition
 		log.info("Created DiskCache for Batch " + batchId);
 		
 		// Create DiskCache
-		itemDiskCache = new DiskCache(batchStatsExportDir, false);
+		itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
 		
 		float progress = 0;
 		
