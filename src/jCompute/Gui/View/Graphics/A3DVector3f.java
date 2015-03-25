@@ -2,51 +2,82 @@ package jCompute.Gui.View.Graphics;
 
 public class A3DVector3f
 {
-	private float x;
-	private float y;
-	private float z;
+	private final int X_POS = 0;
+	private final int Y_POS = 1;
+	private final int Z_POS = 2;
 	
-	private A2RGBA color;
+	private float[] pos;
 	
-	public A3DVector3f(float x, float y, float z,A2RGBA color)
+	public A3DVector3f()
 	{
-		super();
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.setColor(color);
+		pos = new float[3];
+		
+		this.pos[X_POS] = 0;
+		this.pos[Y_POS] = 0;
+		this.pos[Z_POS] = 0;
 	}
 	
-	public A3DVector3f(double x, double y, double z,A2RGBA color)
+	public A3DVector3f(float x, float y, float z)
 	{
-		super();
-		this.x = (float)x;
-		this.y = (float)y;
-		this.z = (float)z;
-		this.setColor(color);
+		pos = new float[3];
+		
+		this.pos[X_POS] = x;
+		this.pos[Y_POS] = y;
+		this.pos[Z_POS] = z;
+	}
+	
+	public A3DVector3f(double x, double y, double z)
+	{
+		this((float) x, (float) y, (float) z);
+	}
+	
+	public A3DVector3f(float[] pos)
+	{
+		pos = new float[3];
+		
+		this.pos[X_POS] = pos[X_POS];
+		this.pos[Y_POS] = pos[Y_POS];
+		this.pos[Z_POS] = pos[Z_POS];
+	}
+	
+	public A3DVector3f(double[] pos)
+	{
+		this.pos[X_POS] = (float) pos[X_POS];
+		this.pos[Y_POS] = (float) pos[Y_POS];
+		this.pos[Z_POS] = (float) pos[Z_POS];
 	}
 	
 	public float getX()
 	{
-		return x;
+		return pos[X_POS];
 	}
+	
 	public float getY()
 	{
-		return y;
+		return pos[Y_POS];
 	}
+	
 	public float getZ()
 	{
-		return z;
+		return pos[Z_POS];
 	}
-
-	public A2RGBA getColor()
+	
+	public float distanceSquared(A3DVector3f other)
 	{
-		return color;
+		float dx = other.getX() - getX();
+		float dy = other.getY() - getY();
+		float dz = other.getZ() - getZ();
+		
+		return (dx * dx) + (dy * dy) + (dz * dz);
 	}
-
-	public void setColor(A2RGBA color)
+	
+	public float distanceSquared(float[] other)
 	{
-		this.color = color;
+		float dx = other[X_POS] - pos[X_POS];
+		float dy = other[Y_POS] - pos[Y_POS];
+		float dz = other[Z_POS] - pos[Z_POS];
+		
+		return (dx * dx) + (dy * dy) + (dz * dz);
 	}
 	
 }
