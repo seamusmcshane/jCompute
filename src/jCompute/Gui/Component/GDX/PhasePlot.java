@@ -413,7 +413,7 @@ public class PhasePlot
 	
 	public void dispose()
 	{
-		ws.dispose();
+		//ws.dispose();
 	}
 	
 }
