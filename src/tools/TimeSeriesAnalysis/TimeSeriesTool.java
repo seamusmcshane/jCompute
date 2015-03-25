@@ -432,7 +432,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		txtMaxAmp.setColumns(10);
 		
 		txtRadius = new JTextField();
-		txtRadius.setText("10000");
+		txtRadius.setText("0.05");
 		GridBagConstraints gbc_txtRadius = new GridBagConstraints();
 		gbc_txtRadius.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtRadius.gridx = 1;
