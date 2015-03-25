@@ -222,7 +222,7 @@ public class Batch implements StoredQueuePosition
 		log.info("Created DiskCache for Batch " + batchId);
 		
 		// Create DiskCache
-		itemDiskCache = new DiskCache(batchStatsExportDir);
+		itemDiskCache = new DiskCache(batchStatsExportDir, false);
 		
 		float progress = 0;
 		
