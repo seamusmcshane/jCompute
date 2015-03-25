@@ -1,7 +1,5 @@
 package tools.TimeSeriesAnalysis;
 
-import jCompute.Gui.View.Graphics.A3DVector3f;
-
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -22,11 +20,8 @@ public class RecurrencePlot extends JPanel
 	// Time Length
 	private int tMax;
 	
-	// Intermedia Vector Data
-	private A3DVector3f[] vectors;
-	
 	// Final BitMap
-	private int[][] bitmap;
+	private int[] bitmap;
 	
 	// Colors
 	private final int WHITE = 0xFFFFFF;
@@ -58,51 +53,44 @@ public class RecurrencePlot extends JPanel
 			}
 		}
 		
-		generateVectors();
-		
 	}
 	
-	private void generateVectors()
+	public void createRecurrence(double radiusThreshold)
 	{
-		if(!dataloaded)
+		if(radiusThreshold > 1.0)
 		{
-			return;
+			radiusThreshold = 1.0;
 		}
 		
-		vectors = new A3DVector3f[tMax];
+		bitmap = new int[tMax * tMax];
 		
-		// Convert array to vectors
-		for(int t = 0; t < tMax; t++)
+		double max = Double.MIN_VALUE;
+		
+		for(int i = 0; i < tMax; i++)
 		{
-			vectors[t] = new A3DVector3f(data[X_POS][t], data[Y_POS][t], data[Z_POS][t]);
+			max = Math.max(data[X_POS][i], max);;
+			max = Math.max(data[Y_POS][i], max);;
+			max = Math.max(data[Z_POS][i], max);;
 		}
 		
-		System.out.println("Generated Vectors");
+		double radius = max * radiusThreshold;
+		radius = radius * radius;
 		
-	}
-	
-	public void createRecurrence(float normRadius)
-	{
-		float radius = normRadius * normRadius;
-		
-		bitmap = new int[tMax][tMax];
-		
-		for(int x = 0; x < tMax; x++)
+		for(int y = 0; y < tMax; y++)
 		{
-			for(int y = 0; y < tMax; y++)
+			for(int x = 0; x < tMax; x++)
 			{
-				bitmap[x][y] = WHITE;
+				bitmap[x + (y * tMax)] = WHITE;
 				
-				float dis = Float.MAX_VALUE;
+				double dis = Double.MAX_VALUE;
 				
-				A3DVector3f current = vectors[y];
-				
-				dis = current.distanceSquared(vectors[x]);
+				dis = distanceSquared(data[X_POS][y], data[Y_POS][y], data[Z_POS][y], data[X_POS][x], data[Y_POS][x],
+						data[Z_POS][x]);
 				
 				if(dis <= radius)
 				{
 					// Set Value
-					bitmap[x][y] = BLACK;
+					bitmap[x + (y * tMax)] = BLACK;
 				}
 			}
 		}
@@ -138,11 +126,11 @@ public class RecurrencePlot extends JPanel
 	{
 		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
 		
-		for(int x = 0; x < tMax; x++)
+		for(int y = 0; y < tMax; y++)
 		{
-			for(int y = 0; y < tMax; y++)
+			for(int x = 0; x < tMax; x++)
 			{
-				image.setRGB(x, y, bitmap[x][y]);
+				image.setRGB(y, x, bitmap[x + (y * tMax)]);
 			}
 		}
 		
@@ -163,5 +151,14 @@ public class RecurrencePlot extends JPanel
 			g.drawRenderedImage(sbi, at);
 		}
 		return dbi;
+	}
+	
+	public double distanceSquared(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		double dx = x2 - x1;
+		double dy = y2 - y1;
+		double dz = z2 - z1;
+		
+		return (dx * dx) + (dy * dy) + (dz * dz);
 	}
 }
