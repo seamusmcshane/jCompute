@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -111,7 +110,7 @@ public class FileUtil
 		};
 	}
 	
-	public static byte[] compressBytes(byte[] contents)
+	public static byte[] compressBytes(byte[] contents, final int level)
 	{
 		byte[] compressedContents = null;
 		
@@ -123,7 +122,7 @@ public class FileUtil
 			GZIPOutputStream gzip = new GZIPOutputStream(out)
 			{
 				{
-					def.setLevel(Deflater.BEST_COMPRESSION);
+					def.setLevel(level);
 				}
 			};
 			
