@@ -8,7 +8,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -88,6 +87,10 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	
 	private PhasePlotterUtil pp3d;
 	
+	private RecurrencePlot rp;
+	private JButton btnRecurrence;
+	private JTextField txtRadius;
+	
 	public static void main(String args[])
 	{
 		SwingUtilities.invokeLater(new Runnable()
@@ -131,7 +134,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		rightPanel = new JPanel();
 		rightPanel.setLayout(new BorderLayout());
 		
-		RecurrencePlot rp = new RecurrencePlot();
+		rp = new RecurrencePlot();
 		rp.setMinimumSize(new Dimension(512, 512));
 		rp.setPreferredSize(new Dimension(512, 512));
 		
@@ -180,7 +183,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		};
 		gbl_panel.rowHeights = new int[]
 		{
-			0, 0, 0, 0, 0, 0
+			0, 0, 0, 0, 0, 0, 0
 		};
 		gbl_panel.columnWeights = new double[]
 		{
@@ -188,13 +191,13 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		};
 		gbl_panel.rowWeights = new double[]
 		{
-			0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE
+			1.0, 0.0, 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE
 		};
 		panel.setLayout(gbl_panel);
 		
 		btnDft = new JButton("DFT");
 		GridBagConstraints gbc_btnDft = new GridBagConstraints();
-		gbc_btnDft.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnDft.fill = GridBagConstraints.BOTH;
 		gbc_btnDft.insets = new Insets(0, 0, 5, 5);
 		gbc_btnDft.gridx = 0;
 		gbc_btnDft.gridy = 0;
@@ -238,27 +241,30 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 					}
 				}
 				if(indicies.length == 3 | histories.length >= 3)
-				{					
+				{
 					if(pp3d != null)
 					{
 						pp3d.close();
 					}
 					
-					final int index1 = indicies==null ? indicies[0] : 0;
-					final int index2 = indicies==null ? indicies[0] : 1;
-					final int index3 = indicies==null ? indicies[0] : 2;
+					final int index1 = indicies == null ? indicies[0] : 0;
+					final int index2 = indicies == null ? indicies[0] : 1;
+					final int index3 = indicies == null ? indicies[0] : 2;
 					
 					javax.swing.SwingUtilities.invokeLater(new Runnable()
 					{
 						public void run()
-						{							
-							final String arrayLabels[] = new String[]	{names[index1], names[index2],names[index3]};
+						{
+							final String arrayLabels[] = new String[]
+							{
+								names[index1], names[index2], names[index3]
+							};
 							
 							int statsLenght = 3;
 							int samples = histories[0].length;
 							
 							final float[][] data = new float[3][samples];
-
+							
 							for(int st = 0; st < statsLenght; st++)
 							{
 								for(int sam = 0; sam < samples; sam++)
@@ -268,14 +274,13 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 								}
 							}
 							
-							
 							pp3d = new PhasePlotterUtil(false);
 							
 							javax.swing.SwingUtilities.invokeLater(new Runnable()
 							{
 								public void run()
-								{		
-									pp3d.loadData(data,arrayLabels);
+								{
+									pp3d.loadData(data, arrayLabels);
 								}
 							});
 						}
@@ -312,10 +317,80 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		panel.add(spinner, gbc_spinner);
 		GridBagConstraints gbc_btnPhase = new GridBagConstraints();
 		gbc_btnPhase.insets = new Insets(0, 0, 5, 5);
-		gbc_btnPhase.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnPhase.fill = GridBagConstraints.BOTH;
 		gbc_btnPhase.gridx = 0;
 		gbc_btnPhase.gridy = 2;
 		panel.add(btnPhase, gbc_btnPhase);
+		
+		btnRecurrence = new JButton("Recurrence");
+		btnRecurrence.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int indicies[] = historyList.getSelectedIndices();
+				
+				if(indicies.length == 3 | histories.length >= 3)
+				{
+					System.out.println("Drawing");
+					
+					final int index1 = indicies == null ? indicies[0] : 0;
+					final int index2 = indicies == null ? indicies[0] : 1;
+					final int index3 = indicies == null ? indicies[0] : 2;
+					
+					final String arrayLabels[] = new String[]
+					{
+						names[index1], names[index2], names[index3]
+					};
+					
+					int statsLenght = 3;
+					int samples = histories[0].length;
+					
+					final double[][] data = new double[3][samples];
+					
+					for(int st = 0; st < statsLenght; st++)
+					{
+						for(int sam = 0; sam < samples; sam++)
+						{
+							// OpenGL uses floats
+							data[st][sam] = histories[st][sam].getSample();
+						}
+					}
+					
+					javax.swing.SwingUtilities.invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							rp.setData(data);
+							
+							float nVal = 1f;
+							
+							try
+							{
+								nVal = Float.parseFloat(txtRadius.getText());
+							}
+							catch(NumberFormatException exception)
+							{
+								System.out.println("Radius not Valid");
+							}
+							
+							float radius = nVal;
+							
+							rp.createRecurrence(radius);
+							rp.repaint();
+							rp.revalidate();
+						}
+					});
+					
+				}
+				
+			}
+		});
+		GridBagConstraints gbc_btnRecurrence = new GridBagConstraints();
+		gbc_btnRecurrence.fill = GridBagConstraints.BOTH;
+		gbc_btnRecurrence.insets = new Insets(0, 0, 0, 5);
+		gbc_btnRecurrence.gridx = 0;
+		gbc_btnRecurrence.gridy = 5;
+		panel.add(btnRecurrence, gbc_btnRecurrence);
 		
 		lblMaxFreq = new JLabel("Max Freq");
 		GridBagConstraints gbc_lblMaxFreq = new GridBagConstraints();
@@ -340,7 +415,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		lblMaxAmp = new JLabel("Max Amp");
 		GridBagConstraints gbc_lblMaxAmp = new GridBagConstraints();
 		gbc_lblMaxAmp.anchor = GridBagConstraints.EAST;
-		gbc_lblMaxAmp.insets = new Insets(0, 0, 0, 5);
+		gbc_lblMaxAmp.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMaxAmp.gridx = 0;
 		gbc_lblMaxAmp.gridy = 4;
 		panel.add(lblMaxAmp, gbc_lblMaxAmp);
@@ -349,11 +424,21 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		txtMaxAmp.setHorizontalAlignment(SwingConstants.CENTER);
 		txtMaxAmp.setText("All");
 		GridBagConstraints gbc_txtMaxAmp = new GridBagConstraints();
+		gbc_txtMaxAmp.insets = new Insets(0, 0, 5, 0);
 		gbc_txtMaxAmp.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtMaxAmp.gridx = 1;
 		gbc_txtMaxAmp.gridy = 4;
 		panel.add(txtMaxAmp, gbc_txtMaxAmp);
 		txtMaxAmp.setColumns(10);
+		
+		txtRadius = new JTextField();
+		txtRadius.setText("10000");
+		GridBagConstraints gbc_txtRadius = new GridBagConstraints();
+		gbc_txtRadius.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtRadius.gridx = 1;
+		gbc_txtRadius.gridy = 5;
+		panel.add(txtRadius, gbc_txtRadius);
+		txtRadius.setColumns(10);
 		txtMaxAmp.addActionListener(this);
 		btnDft.addActionListener(new ActionListener()
 		{
@@ -477,7 +562,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		
 		for(int i = 0; i < timeAxis; i++)
 		{
-			amplitude = Math.sin(2.0 * Math.PI * hertz * time);
+			amplitude = Math.sin(2.0 * Math.PI * hertz * time) + 1;
 			
 			samples[i] = new StatSample(time, amplitude);
 			
