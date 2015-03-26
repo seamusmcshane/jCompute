@@ -1,14 +1,18 @@
 package tools.TimeSeriesAnalysis;
 
+import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
 public class RecurrencePlot extends JPanel
 {
+	private static final long serialVersionUID = 1165414116871596076L;
+	
+	// Axis Indexes
 	private final int X_POS = 0;
 	private final int Y_POS = 1;
 	private final int Z_POS = 2;
@@ -21,17 +25,21 @@ public class RecurrencePlot extends JPanel
 	private int tMax;
 	
 	// Final BitMap
-	private int[] bitmap;
+	private boolean coloured = false;
+	private int[] redBitmap;
+	private int[] greenBitmap;
+	private int[] blueBitmap;
+	private int bitmapSize;
 	
-	// Colors
-	private final int WHITE = 0xFFFFFF;
-	private final int BLACK = 0x000000;
+	// Requested ImageSize
+	private int maxOutputSize;
 	
+	// Requested Image
 	private BufferedImage image;
 	
-	public RecurrencePlot()
+	public RecurrencePlot(int maxOutputSize)
 	{
-		
+		this.maxOutputSize = maxOutputSize;
 	}
 	
 	public void setData(double[][] data)
@@ -45,53 +53,109 @@ public class RecurrencePlot extends JPanel
 			if(data.length >= 3)
 			{
 				dataloaded = true;
-				
 				tMax = data[0].length;
-				
 				System.out.println("Data set / tMax " + tMax);
-				
 			}
 		}
-		
 	}
 	
-	public void createRecurrence(double radiusThreshold)
+	/**
+	 * Calculates the correct ratio base on threshold and squares it if
+	 * requested
+	 * @param threshold
+	 * @param dataIn
+	 * @param square
+	 * @return
+	 */
+	private double calcRadiusFromThreshold(double threshold, double[][] dataIn, boolean square)
 	{
-		if(radiusThreshold > 1.0)
+		if(threshold > 1.0)
 		{
-			radiusThreshold = 1.0;
+			threshold = 1.0;
 		}
 		
-		bitmap = new int[tMax * tMax];
+		if(threshold < 0)
+		{
+			threshold = 0.001;
+		}
 		
-		double max = Double.MIN_VALUE;
+		double maxDimesion = Double.MIN_VALUE;
 		
 		for(int i = 0; i < tMax; i++)
 		{
-			max = Math.max(data[X_POS][i], max);;
-			max = Math.max(data[Y_POS][i], max);;
-			max = Math.max(data[Z_POS][i], max);;
+			maxDimesion = Math.max(dataIn[X_POS][i], maxDimesion);
+			maxDimesion = Math.max(dataIn[Y_POS][i], maxDimesion);
+			maxDimesion = Math.max(dataIn[Z_POS][i], maxDimesion);
 		}
 		
-		double radius = max * radiusThreshold;
-		radius = radius * radius;
+		double radius = maxDimesion * threshold;
 		
-		for(int y = 0; y < tMax; y++)
+		if(square)
 		{
-			for(int x = 0; x < tMax; x++)
+			radius = radius * radius;
+		}
+		
+		return radius;
+	}
+	
+	/**
+	 * Toggle Drawing of coloured plot
+	 * @param coloured
+	 */
+	public void enableColor(boolean coloured)
+	{
+		this.coloured = coloured;
+	}
+	
+	/**
+	 * Initiates creation of the recurrent plot
+	 * @param radiusThreshold
+	 * @param size
+	 */
+	public void createRecurrence(double radiusThreshold, int size)
+	{
+		double radius = calcRadiusFromThreshold(radiusThreshold, data, true);
+		
+		bitmapSize = size;
+		
+		double scale = tMax / (double) bitmapSize;
+		
+		redBitmap = new int[bitmapSize * bitmapSize];
+		greenBitmap = new int[bitmapSize * bitmapSize];
+		blueBitmap = new int[bitmapSize * bitmapSize];
+		
+		for(int y = 0; y < bitmapSize; y++)
+		{
+			int by = (int) ((double) y * scale);
+			
+			for(int x = 0; x < bitmapSize; x++)
 			{
-				bitmap[x + (y * tMax)] = WHITE;
+				int bx = (int) ((double) x * scale);
+				
+				redBitmap[x + (y * bitmapSize)] = 0;
+				greenBitmap[x + (y * bitmapSize)] = 0;
+				blueBitmap[x + (y * bitmapSize)] = 0;
 				
 				double dis = Double.MAX_VALUE;
 				
-				dis = distanceSquared(data[X_POS][y], data[Y_POS][y], data[Z_POS][y], data[X_POS][x], data[Y_POS][x],
-						data[Z_POS][x]);
+				dis = distanceSquared(data[X_POS][by], data[Y_POS][by], data[Z_POS][by], data[X_POS][bx],
+						data[Y_POS][bx], data[Z_POS][bx]);
 				
-				if(dis <= radius)
+				if(dis < (radius * 2))
 				{
-					// Set Value
-					bitmap[x + (y * tMax)] = BLACK;
+					redBitmap[x + (y * bitmapSize)]++;
 				}
+				
+				if(dis < radius)
+				{
+					greenBitmap[x + (y * bitmapSize)]++;
+				}
+				
+				if(dis < (radius / 2))
+				{
+					blueBitmap[x + (y * bitmapSize)]++;
+				}
+				
 			}
 		}
 		
@@ -107,9 +171,8 @@ public class RecurrencePlot extends JPanel
 		{
 			if(image == null)
 			{
-				float scale = (float) this.getWidth() / (float) tMax;
-				image = scale(getImage(tMax), BufferedImage.TYPE_INT_RGB, this.getWidth(), this.getWidth(), scale,
-						scale);
+				float scale = (float) maxOutputSize / (float) bitmapSize;
+				image = scaleAndFlip(getPlotImage(bitmapSize), BufferedImage.TYPE_INT_RGB, scale);
 				
 				System.out.println("Scale Image " + scale);
 				
@@ -122,15 +185,46 @@ public class RecurrencePlot extends JPanel
 		
 	}
 	
-	public BufferedImage getImage(int size)
+	/**
+	 * Returns the recurrence plot image
+	 * @param bitmapSize
+	 * @return
+	 */
+	private BufferedImage getPlotImage(int bitmapSize)
 	{
-		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = new BufferedImage(bitmapSize, bitmapSize, BufferedImage.TYPE_INT_RGB);
 		
-		for(int y = 0; y < tMax; y++)
+		for(int y = 0; y < bitmapSize; y++)
 		{
-			for(int x = 0; x < tMax; x++)
+			for(int x = 0; x < bitmapSize; x++)
 			{
-				image.setRGB(y, x, bitmap[x + (y * tMax)]);
+				// WHITE
+				image.setRGB(y, x, 0xFFFFFF);
+				
+				if(coloured)
+				{
+					if(redBitmap[x + (y * bitmapSize)] > 0)
+					{
+						image.setRGB(y, x, Color.red.getRGB());
+					}
+					if(greenBitmap[x + (y * bitmapSize)] > 0)
+					{
+						image.setRGB(y, x, Color.green.getRGB());
+						
+					}
+					if(blueBitmap[x + (y * bitmapSize)] > 0)
+					{
+						image.setRGB(y, x, Color.blue.getRGB());
+					}
+					
+				}
+				else
+				{
+					if(greenBitmap[x + (y * bitmapSize)] > 0)
+					{
+						image.setRGB(y, x, Color.BLACK.getRGB());
+					}
+				}
 			}
 		}
 		
@@ -139,20 +233,47 @@ public class RecurrencePlot extends JPanel
 		return image;
 	}
 	
-	public static BufferedImage scale(BufferedImage sbi, int imageType, int dWidth, int dHeight, double fWidth,
-			double fHeight)
+	/**
+	 * Returns an Image scaled and flipped vertically
+	 * @param inImage
+	 * @param imageType
+	 * @param scale
+	 * @return
+	 */
+	private static BufferedImage scaleAndFlip(BufferedImage inImage, int imageType, float scale)
 	{
-		BufferedImage dbi = null;
-		if(sbi != null)
+		int width = (int) ((float) inImage.getWidth() * scale);
+		int height = (int) ((float) inImage.getHeight() * scale);
+		
+		BufferedImage scaledImage = new BufferedImage(width, height, imageType);
+		
+		AffineTransform scaleAF = new AffineTransform();
+		scaleAF.scale(scale, scale);
+		
+		// Choose the correct filter for scaling
+		if(scale > 1)
 		{
-			dbi = new BufferedImage(dWidth, dHeight, imageType);
-			Graphics2D g = dbi.createGraphics();
-			AffineTransform at = AffineTransform.getScaleInstance(fWidth, fHeight);
-			g.drawRenderedImage(sbi, at);
+			// Increase Size
+			AffineTransformOp operation = new AffineTransformOp(scaleAF, AffineTransformOp.TYPE_BICUBIC);
+			operation.filter(inImage, scaledImage);
 		}
-		return dbi;
+		else
+		{
+			// Reduce Size
+			AffineTransformOp operation = new AffineTransformOp(scaleAF, AffineTransformOp.TYPE_BILINEAR);
+			operation.filter(inImage, scaledImage);
+		}
+		
+		// Vertical Flip
+		AffineTransform flipAF = AffineTransform.getScaleInstance(1, -1);
+		flipAF.translate(0, -scaledImage.getHeight(null));
+		AffineTransformOp op = new AffineTransformOp(flipAF, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+		scaledImage = op.filter(scaledImage, null);
+		
+		return scaledImage;
 	}
 	
+	// 3D Euclidean Distance
 	public double distanceSquared(double x1, double y1, double z1, double x2, double y2, double z2)
 	{
 		double dx = x2 - x1;
