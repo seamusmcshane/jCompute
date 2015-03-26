@@ -723,7 +723,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 				
 				String fname = filechooser.getSelectedFile().getName();
 				
-				gui.setTitle(fname);
+				gui.setTitle(file);
 				
 				System.out.println(file);
 				
