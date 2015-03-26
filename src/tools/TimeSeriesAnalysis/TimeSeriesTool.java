@@ -53,6 +53,8 @@ import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerListModel;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 
 public class TimeSeriesTool implements WindowListener, ActionListener
 {
@@ -90,6 +92,9 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	private RecurrencePlot rp;
 	private JButton btnRecurrence;
 	private JTextField txtRadius;
+	private JCheckBox chckbxColoured;
+	private JComboBox <String>comboBoxOverSample;
+	private JLabel lblOverSampledImage;
 	
 	public static void main(String args[])
 	{
@@ -134,7 +139,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		rightPanel = new JPanel();
 		rightPanel.setLayout(new BorderLayout());
 		
-		rp = new RecurrencePlot();
+		rp = new RecurrencePlot(512);
 		rp.setMinimumSize(new Dimension(512, 512));
 		rp.setPreferredSize(new Dimension(512, 512));
 		
@@ -183,7 +188,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		};
 		gbl_panel.rowHeights = new int[]
 		{
-			0, 0, 0, 0, 0, 0, 0
+			0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 		gbl_panel.columnWeights = new double[]
 		{
@@ -191,7 +196,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		};
 		gbl_panel.rowWeights = new double[]
 		{
-			1.0, 0.0, 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE
+			1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE
 		};
 		panel.setLayout(gbl_panel);
 		
@@ -323,71 +328,10 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		panel.add(btnPhase, gbc_btnPhase);
 		
 		btnRecurrence = new JButton("Recurrence");
-		btnRecurrence.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				int indicies[] = historyList.getSelectedIndices();
-				
-				if(indicies.length == 3 | histories.length >= 3)
-				{
-					System.out.println("Drawing");
-					
-					final int index1 = indicies == null ? indicies[0] : 0;
-					final int index2 = indicies == null ? indicies[0] : 1;
-					final int index3 = indicies == null ? indicies[0] : 2;
-					
-					final String arrayLabels[] = new String[]
-					{
-						names[index1], names[index2], names[index3]
-					};
-					
-					int statsLenght = 3;
-					int samples = histories[0].length;
-					
-					final double[][] data = new double[3][samples];
-					
-					for(int st = 0; st < statsLenght; st++)
-					{
-						for(int sam = 0; sam < samples; sam++)
-						{
-							// OpenGL uses floats
-							data[st][sam] = histories[st][sam].getSample();
-						}
-					}
-					
-					javax.swing.SwingUtilities.invokeLater(new Runnable()
-					{
-						public void run()
-						{
-							rp.setData(data);
-							
-							float nVal = 1f;
-							
-							try
-							{
-								nVal = Float.parseFloat(txtRadius.getText());
-							}
-							catch(NumberFormatException exception)
-							{
-								System.out.println("Radius not Valid");
-							}
-							
-							float radius = nVal;
-							
-							rp.createRecurrence(radius);
-							rp.repaint();
-							rp.revalidate();
-						}
-					});
-					
-				}
-				
-			}
-		});
+		btnRecurrence.addActionListener(this);
 		GridBagConstraints gbc_btnRecurrence = new GridBagConstraints();
 		gbc_btnRecurrence.fill = GridBagConstraints.BOTH;
-		gbc_btnRecurrence.insets = new Insets(0, 0, 0, 5);
+		gbc_btnRecurrence.insets = new Insets(0, 0, 5, 5);
 		gbc_btnRecurrence.gridx = 0;
 		gbc_btnRecurrence.gridy = 5;
 		panel.add(btnRecurrence, gbc_btnRecurrence);
@@ -431,12 +375,41 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		panel.add(txtMaxAmp, gbc_txtMaxAmp);
 		txtMaxAmp.setColumns(10);
 		
+		lblOverSampledImage = new JLabel("Over Sampled Image Size");
+		lblOverSampledImage.setHorizontalAlignment(SwingConstants.RIGHT);
+		GridBagConstraints gbc_lblOverSampledImage = new GridBagConstraints();
+		gbc_lblOverSampledImage.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblOverSampledImage.insets = new Insets(0, 0, 5, 5);
+		gbc_lblOverSampledImage.gridx = 0;
+		gbc_lblOverSampledImage.gridy = 6;
+		panel.add(lblOverSampledImage, gbc_lblOverSampledImage);
+		
+		comboBoxOverSample = new JComboBox<String>();
+		comboBoxOverSample.setModel(new DefaultComboBoxModel<String>(new String[]
+		{
+			"512", "1024", "2048", "4096", "8192", "16384"
+		}));
+		GridBagConstraints gbc_comboBoxOverSample = new GridBagConstraints();
+		gbc_comboBoxOverSample.insets = new Insets(0, 0, 5, 0);
+		gbc_comboBoxOverSample.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBoxOverSample.gridx = 1;
+		gbc_comboBoxOverSample.gridy = 6;
+		panel.add(comboBoxOverSample, gbc_comboBoxOverSample);
+		
+		chckbxColoured = new JCheckBox("Coloured");
+		GridBagConstraints gbc_chckbxColoured = new GridBagConstraints();
+		gbc_chckbxColoured.insets = new Insets(0, 0, 0, 5);
+		gbc_chckbxColoured.gridx = 0;
+		gbc_chckbxColoured.gridy = 7;
+		panel.add(chckbxColoured, gbc_chckbxColoured);
+		
 		txtRadius = new JTextField();
 		txtRadius.setText("0.05");
+		txtRadius.addActionListener(this);
 		GridBagConstraints gbc_txtRadius = new GridBagConstraints();
 		gbc_txtRadius.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtRadius.gridx = 1;
-		gbc_txtRadius.gridy = 5;
+		gbc_txtRadius.gridy = 7;
 		panel.add(txtRadius, gbc_txtRadius);
 		txtRadius.setColumns(10);
 		txtMaxAmp.addActionListener(this);
@@ -806,6 +779,66 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		else if(e.getSource() == chckbxAvgFilter)
 		{
 			avgFilter = chckbxAvgFilter.isSelected();
+		}
+		else if(e.getSource() == btnRecurrence || e.getSource() == txtRadius)
+		{
+			int indicies[] = historyList.getSelectedIndices();
+			
+			if(indicies.length == 3 | histories.length >= 3)
+			{
+				System.out.println("Drawing");
+				
+				final int index1 = indicies == null ? indicies[0] : 0;
+				final int index2 = indicies == null ? indicies[0] : 1;
+				final int index3 = indicies == null ? indicies[0] : 2;
+				
+				final String arrayLabels[] = new String[]
+				{
+					names[index1], names[index2], names[index3]
+				};
+				
+				int statsLenght = 3;
+				int samples = histories[0].length;
+				
+				final double[][] data = new double[3][samples];
+				
+				for(int st = 0; st < statsLenght; st++)
+				{
+					for(int sam = 0; sam < samples; sam++)
+					{
+						// OpenGL uses floats
+						data[st][sam] = histories[st][sam].getSample();
+					}
+				}
+				
+				javax.swing.SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						rp.setData(data);
+						
+						float nVal = 1f;
+						
+						try
+						{
+							nVal = Float.parseFloat(txtRadius.getText());
+						}
+						catch(NumberFormatException exception)
+						{
+							System.out.println("Radius not Valid");
+						}
+						
+						float radius = nVal;
+						
+						rp.enableColor(chckbxColoured.isSelected());
+						rp.createRecurrence(radius, Integer.parseInt((String) comboBoxOverSample.getSelectedItem()));
+						rp.repaint();
+						rp.revalidate();
+					}
+				});
+				
+			}
+			
 		}
 		
 	}
