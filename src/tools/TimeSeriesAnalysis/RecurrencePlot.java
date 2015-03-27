@@ -26,9 +26,10 @@ public class RecurrencePlot extends JPanel
 	
 	// Final BitMap
 	private boolean coloured = false;
-	private int[] redBitmap;
-	private int[] greenBitmap;
-	private int[] blueBitmap;
+	private float[] redBitmap;
+	private float[] greenBitmap;
+	private float[] blueBitmap;
+	private int[] blackWhite;
 	private int bitmapSize;
 	
 	// Requested ImageSize
@@ -120,9 +121,11 @@ public class RecurrencePlot extends JPanel
 		
 		double scale = tMax / (double) bitmapSize;
 		
-		redBitmap = new int[bitmapSize * bitmapSize];
-		greenBitmap = new int[bitmapSize * bitmapSize];
-		blueBitmap = new int[bitmapSize * bitmapSize];
+		greenBitmap = new float[bitmapSize * bitmapSize];
+		blueBitmap = new float[bitmapSize * bitmapSize];
+		redBitmap = new float[bitmapSize * bitmapSize];
+		
+		blackWhite = new int[bitmapSize * bitmapSize];
 		
 		for(int y = 0; y < bitmapSize; y++)
 		{
@@ -143,17 +146,18 @@ public class RecurrencePlot extends JPanel
 				
 				if(dis < (radius * 2))
 				{
-					redBitmap[x + (y * bitmapSize)]++;
+					redBitmap[x + (y * bitmapSize)] = (int) dis;
 				}
 				
 				if(dis < radius)
 				{
-					greenBitmap[x + (y * bitmapSize)]++;
+					greenBitmap[x + (y * bitmapSize)] = (int) dis;
+					blackWhite[x + (y * bitmapSize)]++;
 				}
 				
 				if(dis < (radius / 2))
 				{
-					blueBitmap[x + (y * bitmapSize)]++;
+					blueBitmap[x + (y * bitmapSize)] = (int) dis;
 				}
 				
 			}
@@ -194,35 +198,85 @@ public class RecurrencePlot extends JPanel
 	{
 		BufferedImage image = new BufferedImage(bitmapSize, bitmapSize, BufferedImage.TYPE_INT_RGB);
 		
+		float rrMin = Integer.MAX_VALUE;
+		float rrMax = Integer.MIN_VALUE;
+		float grMin = Integer.MAX_VALUE;
+		float grMax = Integer.MIN_VALUE;
+		float brMin = Integer.MAX_VALUE;
+		float brMax = Integer.MIN_VALUE;
+		
+		int len = bitmapSize * bitmapSize;
+		for(int i = 0; i < len; i++)
+		{
+			rrMin = Math.min(rrMin, redBitmap[i]);
+			grMin = Math.min(grMin, greenBitmap[i]);
+			brMin = Math.min(brMin, blueBitmap[i]);
+			
+			rrMax = Math.max(rrMax, redBitmap[i]);
+			grMax = Math.max(grMax, greenBitmap[i]);
+			brMax = Math.max(brMax, blueBitmap[i]);
+		}
+		
+		float rcscale = 1f / (float) rrMax;
+		float gcscale = 1f / (float) grMax;
+		float bcscale = 1f / (float) brMax;
+		
+		System.out.println("Color Scale " + rcscale);
+		System.out.println("Color Scale " + gcscale);
+		System.out.println("Color Scale " + bcscale);
+		
 		for(int y = 0; y < bitmapSize; y++)
 		{
 			for(int x = 0; x < bitmapSize; x++)
 			{
-				// WHITE
-				image.setRGB(y, x, 0xFFFFFF);
-				
 				if(coloured)
 				{
+					// BLACK
+					image.setRGB(y, x, 0);
+					
 					if(redBitmap[x + (y * bitmapSize)] > 0)
 					{
-						image.setRGB(y, x, Color.red.getRGB());
+						float val = redBitmap[x + (y * bitmapSize)];
+						
+						val = (val * rcscale);
+						
+						// System.out.println("RVal " + val);
+						
+						image.setRGB(y, x, new Color(val, 0, 0).getRGB());
 					}
 					if(greenBitmap[x + (y * bitmapSize)] > 0)
 					{
-						image.setRGB(y, x, Color.green.getRGB());
+						float val = greenBitmap[x + (y * bitmapSize)];
+						
+						val = (val * gcscale);
+						
+						// System.out.println("RVal " + val);
+						
+						image.setRGB(y, x, new Color(0, val, 0).getRGB());
 						
 					}
 					if(blueBitmap[x + (y * bitmapSize)] > 0)
 					{
-						image.setRGB(y, x, Color.blue.getRGB());
+						float val = blueBitmap[x + (y * bitmapSize)];
+						
+						val = (val * bcscale);
+						
+						// System.out.println("RVal " + val);
+						
+						image.setRGB(y, x, new Color(0, 0, val).getRGB());
 					}
 					
 				}
 				else
 				{
-					if(greenBitmap[x + (y * bitmapSize)] > 0)
+					if(blackWhite[x + (y * bitmapSize)] > 0)
 					{
 						image.setRGB(y, x, Color.BLACK.getRGB());
+					}
+					else
+					{
+						// WHITE
+						image.setRGB(y, x, 0xFFFFFF);
 					}
 				}
 			}
