@@ -387,7 +387,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		comboBoxOverSample = new JComboBox<String>();
 		comboBoxOverSample.setModel(new DefaultComboBoxModel<String>(new String[]
 		{
-			"512", "1024", "2048", "4096", "8192", "16384"
+			"1024", "2048", "4096", "8192", "16384"
 		}));
 		GridBagConstraints gbc_comboBoxOverSample = new GridBagConstraints();
 		gbc_comboBoxOverSample.insets = new Insets(0, 0, 5, 0);
