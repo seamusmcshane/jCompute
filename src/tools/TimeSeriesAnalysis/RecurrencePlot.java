@@ -121,6 +121,14 @@ public class RecurrencePlot extends JPanel
 		
 		double scale = tMax / (double) bitmapSize;
 		
+		System.out.println("tMax " + tMax);
+		System.out.println("bitmapSize " + bitmapSize);
+		System.out.println("scale " + scale);
+		
+		System.out.println("tMaxArea " + tMax*tMax);
+		System.out.println("bitmapArea " + bitmapSize*bitmapSize);
+		System.out.println("SizeOffset " + (tMax*tMax)/(bitmapSize*bitmapSize));
+		
 		greenBitmap = new float[bitmapSize * bitmapSize];
 		blueBitmap = new float[bitmapSize * bitmapSize];
 		redBitmap = new float[bitmapSize * bitmapSize];
@@ -238,7 +246,7 @@ public class RecurrencePlot extends JPanel
 					{
 						float val = redBitmap[x + (y * bitmapSize)];
 						
-						val = (val * rcscale);
+						val = 1f-(val * rcscale);
 						
 						// System.out.println("RVal " + val);
 						
@@ -248,7 +256,7 @@ public class RecurrencePlot extends JPanel
 					{
 						float val = greenBitmap[x + (y * bitmapSize)];
 						
-						val = (val * gcscale);
+						val = 1f-(val * gcscale);
 						
 						// System.out.println("RVal " + val);
 						
@@ -259,7 +267,7 @@ public class RecurrencePlot extends JPanel
 					{
 						float val = blueBitmap[x + (y * bitmapSize)];
 						
-						val = (val * bcscale);
+						val = 1f-(val * bcscale);
 						
 						// System.out.println("RVal " + val);
 						
@@ -304,19 +312,9 @@ public class RecurrencePlot extends JPanel
 		AffineTransform scaleAF = new AffineTransform();
 		scaleAF.scale(scale, scale);
 		
-		// Choose the correct filter for scaling
-		if(scale > 1)
-		{
-			// Increase Size
-			AffineTransformOp operation = new AffineTransformOp(scaleAF, AffineTransformOp.TYPE_BICUBIC);
-			operation.filter(inImage, scaledImage);
-		}
-		else
-		{
-			// Reduce Size
-			AffineTransformOp operation = new AffineTransformOp(scaleAF, AffineTransformOp.TYPE_BILINEAR);
-			operation.filter(inImage, scaledImage);
-		}
+		// Increase Size
+		AffineTransformOp operation = new AffineTransformOp(scaleAF, AffineTransformOp.TYPE_BICUBIC);
+		operation.filter(inImage, scaledImage);
 		
 		// Vertical Flip
 		AffineTransform flipAF = AffineTransform.getScaleInstance(1, -1);
