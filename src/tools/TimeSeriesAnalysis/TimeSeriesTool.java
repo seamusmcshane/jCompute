@@ -8,8 +8,14 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -22,6 +28,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JMenuBar;
@@ -56,7 +63,9 @@ import javax.swing.SpinnerListModel;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
-public class TimeSeriesTool implements WindowListener, ActionListener
+import java.awt.event.MouseAdapter;
+
+public class TimeSeriesTool implements WindowListener, ActionListener, MouseListener
 {
 	private static JFrame gui;
 	private static JPanel centerPanel;
@@ -93,8 +102,10 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 	private JButton btnRecurrence;
 	private JTextField txtRadius;
 	private JCheckBox chckbxColoured;
-	private JComboBox <String>comboBoxOverSample;
+	private JComboBox<String> comboBoxOverSample;
 	private JLabel lblOverSampledImage;
+	
+	private JFrame largeRP;
 	
 	public static void main(String args[])
 	{
@@ -139,9 +150,10 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		rightPanel = new JPanel();
 		rightPanel.setLayout(new BorderLayout());
 		
-		rp = new RecurrencePlot(512);
-		rp.setMinimumSize(new Dimension(512, 512));
-		rp.setPreferredSize(new Dimension(512, 512));
+		rp = new RecurrencePlot(500);
+		rp.addMouseListener(this);
+		rp.setMinimumSize(new Dimension(500, 500));
+		rp.setPreferredSize(new Dimension(500, 500));
 		
 		gui.getContentPane().add(rightPanel, BorderLayout.EAST);
 		rightPanel.add(rp, BorderLayout.SOUTH);
@@ -387,7 +399,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		comboBoxOverSample = new JComboBox<String>();
 		comboBoxOverSample.setModel(new DefaultComboBoxModel<String>(new String[]
 		{
-			"1024", "2048", "4096", "8192", "16384"
+			"1M", "4M", "9M", "16M", "25M", "36M", "41M", "64M", "81M", "100M", "121M", "144M", "169M", "196M", "225M",
+			"256M"
 		}));
 		GridBagConstraints gbc_comboBoxOverSample = new GridBagConstraints();
 		gbc_comboBoxOverSample.insets = new Insets(0, 0, 5, 0);
@@ -831,16 +844,68 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 						float radius = nVal;
 						
 						rp.enableColor(chckbxColoured.isSelected());
-						rp.createRecurrence(radius, Integer.parseInt((String) comboBoxOverSample.getSelectedItem()));
+						
+						int sqrVal = -1;
+						String sel = (String) comboBoxOverSample.getSelectedItem();
+						
+						switch(sel)
+						{
+							case "1M":
+								sqrVal = 1000;
+							break;
+							case "4M":
+								sqrVal = 2000;
+							break;
+							case "9M":
+								sqrVal = 3000;
+							break;
+							case "16M":
+								sqrVal = 4000;
+							break;
+							case "25M":
+								sqrVal = 5000;
+							break;
+							case "36M":
+								sqrVal = 6000;
+							case "41M":
+								sqrVal = 7000;
+							break;
+							case "64M":
+								sqrVal = 8000;
+							break;
+							case "81M":
+								sqrVal = 9000;
+							break;
+							case "100M":
+								sqrVal = 10000;
+							break;
+							case "121M":
+								sqrVal = 11000;
+							break;
+							case "144M":
+								sqrVal = 12000;
+							break;
+							case "169M":
+								sqrVal = 13000;
+							break;
+							case "196M":
+								sqrVal = 14000;
+							break;
+							case "225M":
+								sqrVal = 15000;
+							break;
+							case "256M":
+								sqrVal = 16000;
+							break;
+						}
+						
+						rp.createRecurrence(radius, sqrVal);
 						rp.repaint();
 						rp.revalidate();
 					}
 				});
-				
 			}
-			
 		}
-		
 	}
 	
 	private void checkMaxAmp()
@@ -1238,5 +1303,196 @@ public class TimeSeriesTool implements WindowListener, ActionListener
 		}
 		
 		return filtered;
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+		if(e.getSource() == rp)
+		{
+			int indicies[] = historyList.getSelectedIndices();
+			
+			if(indicies.length == 3 | histories.length >= 3)
+			{
+				int sqrVal = -1;
+				String sel = (String) comboBoxOverSample.getSelectedItem();
+				
+				switch(sel)
+				{
+					case "1M":
+						sqrVal = 1000;
+					break;
+					case "4M":
+						sqrVal = 2000;
+					break;
+					case "9M":
+						sqrVal = 3000;
+					break;
+					case "16M":
+						sqrVal = 4000;
+					break;
+					case "25M":
+						sqrVal = 5000;
+					break;
+					case "36M":
+						sqrVal = 6000;
+					case "41M":
+						sqrVal = 7000;
+					break;
+					case "64M":
+						sqrVal = 8000;
+					break;
+					case "81M":
+						sqrVal = 9000;
+					break;
+					case "100M":
+						sqrVal = 10000;
+					break;
+					case "121M":
+						sqrVal = 11000;
+					break;
+					case "144M":
+						sqrVal = 12000;
+					break;
+					case "169M":
+						sqrVal = 13000;
+					break;
+					case "196M":
+						sqrVal = 14000;
+					break;
+					case "225M":
+						sqrVal = 15000;
+					break;
+					case "256M":
+						sqrVal = 16000;
+					break;
+				}
+				
+				largeRP = new JFrame();
+				largeRP.setLayout(new BorderLayout());
+				largeRP.setExtendedState(gui.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+				
+				largeRP.setMinimumSize(new Dimension(500, 500));
+				largeRP.setPreferredSize(new Dimension(500, 500));
+				
+				// 1600M
+				final int size = sqrVal;
+				final RecurrencePlot rp = new RecurrencePlot(sqrVal);
+				rp.setPreferredSize(new Dimension(sqrVal, sqrVal));
+				
+				final JScrollPane sp = new JScrollPane(rp);
+				
+				largeRP.add(sp, BorderLayout.CENTER);
+				
+				sp.getViewport().addMouseMotionListener(new MouseAdapter()
+				{
+					final Point current = new Point();
+					
+					public void mouseDragged(MouseEvent e)
+					{
+						float scaleX = size / sp.getWidth();
+						float scaleY = size / sp.getHeight();
+						float scale = Math.max(scaleX, scaleY);
+						
+						JViewport vport = (JViewport) e.getSource();
+						
+						Point newPos = new Point((int) (e.getX() * scale), (int) (e.getY() * scale));
+						Point view = vport.getViewPosition();
+						
+						view.translate(current.x - newPos.x, current.y - newPos.y);
+						
+						rp.scrollRectToVisible(new Rectangle(view, vport.getSize()));
+						
+						current.setLocation(newPos);
+					}
+					
+					// Need to track mouse or it will snap the view
+					public void mouseMoved(MouseEvent e)
+					{
+						float scaleX = size / sp.getWidth();
+						float scaleY = size / sp.getHeight();
+						float scale = Math.max(scaleX, scaleY);
+						
+						Point newPos = new Point((int) (e.getX() * scale), (int) (e.getY() * scale));
+						
+						current.setLocation(newPos);
+					}
+					
+				});
+				largeRP.setVisible(true);
+				largeRP.revalidate();
+				// Data GET
+				
+				System.out.println("Drawing");
+				
+				final int index1 = indicies == null ? indicies[0] : 0;
+				final int index2 = indicies == null ? indicies[0] : 1;
+				final int index3 = indicies == null ? indicies[0] : 2;
+				
+				final String arrayLabels[] = new String[]
+				{
+					names[index1], names[index2], names[index3]
+				};
+				
+				int statsLenght = 3;
+				int samples = histories[0].length;
+				
+				final double[][] data = new double[3][samples];
+				
+				for(int st = 0; st < statsLenght; st++)
+				{
+					for(int sam = 0; sam < samples; sam++)
+					{
+						data[st][sam] = histories[st][sam].getSample();
+					}
+				}
+				
+				rp.setData(data);
+				
+				float nVal = 1f;
+				
+				try
+				{
+					nVal = Float.parseFloat(txtRadius.getText());
+				}
+				catch(NumberFormatException exception)
+				{
+					System.out.println("Radius not Valid");
+				}
+				
+				float radius = nVal;
+				
+				rp.enableColor(chckbxColoured.isSelected());
+				
+				rp.createRecurrence(radius, sqrVal);
+				rp.repaint();
+				rp.revalidate();
+			}
+		}
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		
+	}
+	
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+		
+	}
+	
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+		
 	}
 }
