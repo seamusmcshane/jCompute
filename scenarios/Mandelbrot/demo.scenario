@@ -8,8 +8,9 @@
 		<TextureSize>1024</TextureSize>
 		<Iterations>1536</Iterations>
 		<ComputeMethod>Aparapi</ComputeMethod>
-		<Precision>Single</Precision>
-		<ZoomSpeed>0.016</ZoomSpeed>
+		<Precision>Double</Precision>
+		<ZoomSpeed>0.033</ZoomSpeed>
+		<PaletteSize>256</PaletteSize>
 	</Kernel>
 	<EndEvents>
 		<Event>
@@ -18,12 +19,6 @@
 		</Event>
 	</EndEvents>
 	<Coordinates>
-		<Coordinate>
-			<X>0.0</X>
-			<Y>0.0</Y>
-			<StartZoom>150</StartZoom>
-			<EndZoom>150</EndZoom>
-		</Coordinate>
 		<Coordinate>
 			<X>-0.75</X>
 			<Y>0.0</Y>
