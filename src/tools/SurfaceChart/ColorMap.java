@@ -76,7 +76,7 @@ public class ColorMap
 		sb.begin();
 		
 		int minPos = height - ((margin / 2) + (fHeight / 2));
-		int midPos = (height / 2) - ((margin / 2) + (fHeight / 2));
+		int midPos = (height / 2) + ((margin / 2) - (fHeight / 2));
 		int maxPos = endPad - ((margin / 2) + (fHeight / 2));
 		
 		sb.draw(ct, 0, 0);
