@@ -1,21 +1,19 @@
 package tools.SurfaceChart;
 
 import jCompute.Gui.View.Input.OrbitalCameraInputController;
+import jCompute.Gui.View.Misc.Pallete;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 
-public class Basic3DTest implements ApplicationListener
+public class SurfacePlotEnv implements ApplicationListener
 {
 	public Environment environment;
 	public PerspectiveCamera cam;
@@ -46,7 +44,7 @@ public class Basic3DTest implements ApplicationListener
 	private TextureRegion tr;
 	
 	
-	public Basic3DTest(float width,float height)
+	public SurfacePlotEnv(float width,float height)
 	{
 		this.width = width;
 		this.height = height;
@@ -72,9 +70,6 @@ public class Basic3DTest implements ApplicationListener
 
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, amb,amb,amb, 1f));
         		
-        // Pallete
-		HueColorPallete pallete = new HueColorPallete(11);
-
 		cam = new PerspectiveCamera(75f,(width/height), 1f);
 		
 		/*
@@ -82,6 +77,8 @@ public class Basic3DTest implements ApplicationListener
 			cam.translate(0, 0, 10000f);
 			cam.far = 102420f;
 		*/
+		
+		int[] pallete = Pallete.HUEPalete(true);
 		
 		// Surface
 		barSurface = new BarSurfaceOri(cam,20*20,pallete);
