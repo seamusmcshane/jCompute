@@ -43,7 +43,11 @@ public class ColorMap
 		int startPad = margin;
 		int endPad = margin * 2;
 		
-		// Create Color Bar
+		// Background
+		pixmap.setColor(0xFFFFFFFF);
+		pixmap.fillRectangle(1, 1, width - 1, height - 1);
+		
+		// Create Color Bar from Palette
 		int pval = 0;
 		for(int h = 0; h < (height - endPad); h++)
 		{
@@ -52,10 +56,11 @@ public class ColorMap
 			pixmap.drawLine(indent + margin, (int) (margin + h), (width - margin), (int) (margin + h));
 		}
 		
+		// Line Border Color bar
 		pixmap.setColor(0x000000FF);
 		pixmap.drawRectangle(indent + startPad, startPad, (width - endPad - indent), (height - endPad));
 		
-		// pixmap.setColor(0xFF0000FF);
+		// Line Border on Region
 		pixmap.drawRectangle(1, 1, width - 1, height - 1);
 		
 		Texture texture = new Texture(pixmap);
