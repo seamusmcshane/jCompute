@@ -1,7 +1,5 @@
 package tools.SurfaceChart;
 
-import jCompute.Gui.View.Misc.Palette;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -41,24 +39,24 @@ public class ColorMap
 		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
 		
 		int indent = 30;
-		int margin = (int) ((float)128*0.2f);
+		int margin = (int) ((float) 128 * 0.2f);
 		int startPad = margin;
-		int endPad = margin*2;
+		int endPad = margin * 2;
 		
 		// Create Color Bar
 		int pval = 0;
-		for(int h = 0; h < (height-endPad); h++)
+		for(int h = 0; h < (height - endPad); h++)
 		{
-			pval = (int) (((float) h / height) * (Palette.PALETTE_SIZE - 1));
+			pval = (int) (((float) h / height) * (pallete.length - 1));
 			pixmap.setColor(pallete[pval]);
-			pixmap.drawLine(indent+margin, (int) (margin + h), (width-margin), (int) (margin + h));
+			pixmap.drawLine(indent + margin, (int) (margin + h), (width - margin), (int) (margin + h));
 		}
 		
 		pixmap.setColor(0x000000FF);
-		pixmap.drawRectangle(indent+startPad,startPad, (width-endPad-indent),(height-endPad));
+		pixmap.drawRectangle(indent + startPad, startPad, (width - endPad - indent), (height - endPad));
 		
-		//pixmap.setColor(0xFF0000FF);
-		pixmap.drawRectangle(1,1, width-1,height-1);
+		// pixmap.setColor(0xFF0000FF);
+		pixmap.drawRectangle(1, 1, width - 1, height - 1);
 		
 		Texture texture = new Texture(pixmap);
 		TextureRegion ct = new TextureRegion(texture, 0, 0, width, height);
@@ -72,15 +70,15 @@ public class ColorMap
 		fbo.begin();
 		sb.begin();
 		
-		int minPos =  height - ((margin/2)+(fHeight/2));
-		int midPos =  (height/2) - ((margin/2)+(fHeight/2));
-		int maxPos =  endPad - ((margin/2)+(fHeight/2));
+		int minPos = height - ((margin / 2) + (fHeight / 2));
+		int midPos = (height / 2) - ((margin / 2) + (fHeight / 2));
+		int maxPos = endPad - ((margin / 2) + (fHeight / 2));
 		
 		sb.draw(ct, 0, 0);
 		font.scale(0.25f);
-		font.draw(sb, String.valueOf(min), fWidth/2, minPos);
-		font.draw(sb, String.valueOf(mid),fWidth/2, midPos);
-		font.draw(sb, String.valueOf(max), fWidth/2, maxPos);
+		font.draw(sb, String.valueOf(min), fWidth / 2, minPos);
+		font.draw(sb, String.valueOf(mid), fWidth / 2, midPos);
+		font.draw(sb, String.valueOf(max), fWidth / 2, maxPos);
 		sb.end();
 		fbo.end();
 		

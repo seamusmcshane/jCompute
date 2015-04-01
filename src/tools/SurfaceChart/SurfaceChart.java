@@ -25,16 +25,16 @@ public class SurfaceChart implements WindowListener
 	{
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
+		
 		LwjglApplicationConfiguration.disableAudio = true;
-
+		
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "Bar Surface";
 		cfg.samples = 8;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
-		LwjglCanvas canvas = new LwjglCanvas(new SurfacePlotEnv(width,height),cfg);
+		LwjglCanvas canvas = new LwjglCanvas(new SurfacePlotEnv(width, height), cfg);
 		
 		gui.getContentPane().add(canvas.getCanvas(), BorderLayout.CENTER);
 		canvas.getGraphics().setVSync(true);
@@ -42,7 +42,7 @@ public class SurfaceChart implements WindowListener
 		gui.pack();
 		gui.setVisible(true);
 		gui.setSize(width, height);
-
+		
 		gui.addWindowListener(this);
 	}
 	
@@ -56,50 +56,50 @@ public class SurfaceChart implements WindowListener
 				new SurfaceChart();
 			}
 		});
-
+		
 	}
-
+	
 	@Override
 	public void windowActivated(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void windowClosed(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void windowClosing(WindowEvent arg0)
 	{
-		doProgramExit();		
+		doProgramExit();
 	}
-
+	
 	@Override
 	public void windowDeactivated(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void windowDeiconified(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void windowIconified(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void windowOpened(WindowEvent arg0)
 	{
@@ -116,17 +116,17 @@ public class SurfaceChart implements WindowListener
 			{
 				String message;
 				message = "Do you want to quit?";
-
+				
 				JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
+				
 				// Center Dialog on the GUI
 				JDialog dialog = pane.createDialog(gui, "Close Application");
-
+				
 				dialog.pack();
 				dialog.setVisible(true);
-
+				
 				int value = ((Integer) pane.getValue()).intValue();
-
+				
 				if(value == JOptionPane.YES_OPTION)
 				{
 					// LWJGL
@@ -137,5 +137,6 @@ public class SurfaceChart implements WindowListener
 				}
 			}
 		});
-
-	}}
+		
+	}
+}
