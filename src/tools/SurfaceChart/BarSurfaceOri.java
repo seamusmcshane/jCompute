@@ -37,8 +37,6 @@ public class BarSurfaceOri
 	private int gridSteps;
 	private int gridSize = 1000;
 
-	private HueColorPallete pallete;
-
 	private int columns;
 	
 	private DecalBatch db;
@@ -58,7 +56,7 @@ public class BarSurfaceOri
 		
 	private AxisGrid axisGrid;
 	
-	public BarSurfaceOri(Camera cam, int samples, HueColorPallete pallete)
+	public BarSurfaceOri(Camera cam, int samples, int[] pallete)
 	{		
 		modelBatch = new ModelBatch();
 		
@@ -71,8 +69,6 @@ public class BarSurfaceOri
 
 		// 0 + 1 for top/bottom lines
 		this.gridSteps = 11;
-		
-		this.pallete = pallete;
 		
 		grid = new BarGrid(gridSize,samples,pallete);
 				

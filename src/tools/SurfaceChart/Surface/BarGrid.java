@@ -5,14 +5,12 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
-import tools.SurfaceChart.HueColorPallete;
-
 public class BarGrid
 {
 	private Bar gridBars[][];
 	private int columns;
 	
-	public BarGrid(float gridSize, int samples,HueColorPallete pallete)
+	public BarGrid(float gridSize, int samples,int[] pallete)
 	{
 		ModelBuilder modelBuilder = new ModelBuilder();
 		this.columns = (int) Math.sqrt(samples);

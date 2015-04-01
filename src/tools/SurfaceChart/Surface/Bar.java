@@ -1,6 +1,6 @@
 package tools.SurfaceChart.Surface;
 
-import tools.SurfaceChart.HueColorPallete;
+import jCompute.Gui.View.Misc.Pallete;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -20,9 +20,9 @@ public class Bar
 	private float height;
 	private float scaleReset;
 	
-	private HueColorPallete pallete;
+	private int[] pallete;
 
-	public Bar(ModelBuilder modelBuilder, float gridTrans,float barSize,HueColorPallete pallete)
+	public Bar(ModelBuilder modelBuilder, float gridTrans,float barSize,int[] pallete)
 	{
 		this.barSize = barSize;
 		this.pallete = pallete;	
@@ -62,8 +62,10 @@ public class Bar
 		bar.transform.scale(1f, 1f, scale);
 		bar.transform.trn(0,0,(newHeight/2));
 		
+		int pval = (int) (scale*(Pallete.PALETTE_SIZE-1));
+		
 		// New Colour
-		bar.materials.get(0).set(ColorAttribute.createDiffuse(pallete.getPercentageColor(percentage)));
+		bar.materials.get(0).set(ColorAttribute.createDiffuse(new Color(pallete[pval])));
 		
 		// Capture height
 		height = newHeight;
