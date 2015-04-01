@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -40,6 +41,7 @@ public class PixMapRenderer implements ViewRendererInf
 	private Semaphore computed;
 	
 	private int textureSize;
+	private float scaledSize;
 	
 	private int[] computeBuffer;
 	
@@ -47,8 +49,13 @@ public class PixMapRenderer implements ViewRendererInf
 	
 	private int[] drawBuffer;
 	
-	public PixMapRenderer(Semaphore compute, Semaphore computed, int textureSize, int[] computeBuffer)
+	private InputProcessor inputProcessor;
+	
+	public PixMapRenderer(InputProcessor inputProcessor, Semaphore compute, Semaphore computed, int textureSize,
+			int[] computeBuffer)
 	{
+		this.inputProcessor = inputProcessor;
+		
 		// To avoid concurrent access to dynamic simulation structures
 		this.compute = compute;
 		this.computed = computed;
@@ -164,7 +171,8 @@ public class PixMapRenderer implements ViewRendererInf
 			Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			
-			Lib2D.drawPixelMap(this, textureSize, drawBuffer, 0, 0);
+			scaledSize = Lib2D.drawPixelMap(this, textureSize, drawBuffer, 0, 0);
+			
 		}
 		catch(InterruptedException e)
 		{
@@ -186,7 +194,17 @@ public class PixMapRenderer implements ViewRendererInf
 	@Override
 	public void setMultiplexer(InputMultiplexer inputMultiplexer)
 	{
-		// TODO Auto-generated method stub
+		// No requirement to have input
+		if(inputProcessor != null)
+		{
+			inputMultiplexer.addProcessor(inputProcessor);
+		}
+		
+	}
+	
+	public float getTextureScale()
+	{
+		return scaledSize;
 	}
 	
 }
