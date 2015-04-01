@@ -48,10 +48,10 @@ public class Lib2D
 		sb.end();
 	}
 	
-	public static void drawPixelMap(ViewRendererInf ren, int textureSize, int[] buffer, float x, float y)
+	public static float drawPixelMap(ViewRendererInf ren, int textureSize, int[] buffer, float x, float y)
 	{
 		SpriteBatch sb = ren.getSpriteBatch();
-
+		
 		Pixmap pTemp = new Pixmap(textureSize, textureSize, Format.RGBA8888);
 		
 		Texture tTemp = new Texture(pTemp);
@@ -72,19 +72,21 @@ public class Lib2D
 		sb.begin();
 		
 		// Positions the resized texture in the centre of the display.
-		sb.draw(tTemp, x-(textureScale/2), y-(textureScale/2), textureScale, textureScale);
+		sb.draw(tTemp, x - (textureScale / 2), y - (textureScale / 2), textureScale, textureScale);
 		sb.end();
 		
 		// Dispose PixMap and Texture
 		pTemp.dispose();
 		tTemp.dispose();
+		
+		return textureScale;
 	}
 	
 	public static void drawCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color)
 	{
 		Gdx.gl20.glLineWidth(DEFAULT_LINE_WIDTH);
 		
-		drawCircle(ren,circle, color, DEFAULT_LINE_WIDTH);
+		drawCircle(ren, circle, color, DEFAULT_LINE_WIDTH);
 	}
 	
 	public static void drawCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color, float lineWidth)
@@ -95,7 +97,7 @@ public class Lib2D
 		{
 			return;
 		}
-	
+		
 		ShapeRenderer sr = ren.getShapeRenderer();
 		
 		Gdx.gl20.glLineWidth(lineWidth);
@@ -109,7 +111,7 @@ public class Lib2D
 	public static void drawFilledCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color)
 	{
 		Camera cam = ren.getCamera();
-
+		
 		if(!cam.frustum.pointInFrustum(new Vector3(circle.getX(), circle.getY(), 0)))
 		{
 			return;
@@ -123,20 +125,19 @@ public class Lib2D
 		sr.end();
 	}
 	
-	public static void drawFilledCircleBatch(ViewRendererInf ren,A2DCircle[] circles, A2RGBA[] colors)
+	public static void drawFilledCircleBatch(ViewRendererInf ren, A2DCircle[] circles, A2RGBA[] colors)
 	{
 		Camera cam = ren.getCamera();
-
+		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		sr.begin(ShapeType.Filled);
 		int size = circles.length;
 		for(int c = 0; c < size; c++)
 		{
 			if(cam.frustum.pointInFrustum(new Vector3(circles[c].getX(), circles[c].getY(), 0)))
 			{
-				sr.setColor(colors[c].getRed(), colors[c].getGreen(), colors[c].getBlue(),
-						colors[c].getAlpha());
+				sr.setColor(colors[c].getRed(), colors[c].getGreen(), colors[c].getBlue(), colors[c].getAlpha());
 				sr.circle(circles[c].getX(), circles[c].getY(), circles[c].getRadius());
 			}
 		}
@@ -144,10 +145,11 @@ public class Lib2D
 		sr.end();
 	}
 	
-	public static void drawTransparentFilledCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color, float transparency)
+	public static void drawTransparentFilledCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color,
+			float transparency)
 	{
 		Camera cam = ren.getCamera();
-
+		
 		if(!cam.frustum.pointInFrustum(new Vector3(circle.getX(), circle.getY(), 0)))
 		{
 			return;
@@ -167,10 +169,11 @@ public class Lib2D
 		
 	}
 	
-	public static void drawTransparentFilledArc(ViewRendererInf ren, float x, float y, float radius, float start, float angle, A2RGBA color)
+	public static void drawTransparentFilledArc(ViewRendererInf ren, float x, float y, float radius, float start,
+			float angle, A2RGBA color)
 	{
 		Camera cam = ren.getCamera();
-
+		
 		if(!cam.frustum.pointInFrustum(new Vector3(x, y, 0)))
 		{
 			return;
@@ -180,7 +183,7 @@ public class Lib2D
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		sr.begin(ShapeType.Filled);
 		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), 0.5f);
 		sr.arc(x, y, radius, start, angle);
@@ -190,9 +193,10 @@ public class Lib2D
 		
 	}
 	
-	public static void drawLine(ViewRendererInf ren, A2DVector2f pos1, A2DVector2f pos2, A2RGBA color, float lineWidth, boolean clipCheck)
+	public static void drawLine(ViewRendererInf ren, A2DVector2f pos1, A2DVector2f pos2, A2RGBA color, float lineWidth,
+			boolean clipCheck)
 	{
-		drawLine(ren,pos1.getX(), pos1.getY(), pos2.getX(), pos2.getY(), color, lineWidth, clipCheck);
+		drawLine(ren, pos1.getX(), pos1.getY(), pos2.getX(), pos2.getY(), color, lineWidth, clipCheck);
 	}
 	
 	// Line
@@ -201,7 +205,7 @@ public class Lib2D
 		if(clipCheck)
 		{
 			Camera cam = ren.getCamera();
-
+			
 			boolean pos00View = true;
 			boolean pos11View = true;
 			
@@ -233,13 +237,14 @@ public class Lib2D
 	}
 	
 	// Line
-	public static void drawLine(ViewRendererInf ren, float x1, float y1, float x2, float y2, A2RGBA color, float width, boolean clipCheck)
+	public static void drawLine(ViewRendererInf ren, float x1, float y1, float x2, float y2, A2RGBA color, float width,
+			boolean clipCheck)
 	{
 		
 		if(clipCheck)
 		{
 			Camera cam = ren.getCamera();
-
+			
 			boolean pos00View = true;
 			boolean pos11View = true;
 			
@@ -262,7 +267,7 @@ public class Lib2D
 		Gdx.gl20.glLineWidth(width);
 		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		sr.begin(ShapeType.Line);
 		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		sr.line(x1, y1, x2, y2);
@@ -271,12 +276,13 @@ public class Lib2D
 	}
 	
 	// Line
-	public static void drawLine(ViewRendererInf ren, float x1, float y1, float x2, float y2, A2RGBA color, boolean clipCheck)
+	public static void drawLine(ViewRendererInf ren, float x1, float y1, float x2, float y2, A2RGBA color,
+			boolean clipCheck)
 	{
 		if(clipCheck)
 		{
 			Camera cam = ren.getCamera();
-
+			
 			boolean pos00View = true;
 			boolean pos11View = true;
 			
@@ -299,7 +305,7 @@ public class Lib2D
 		Gdx.gl20.glLineWidth(DEFAULT_LINE_WIDTH);
 		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		sr.begin(ShapeType.Line);
 		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		sr.line(x1, y1, x2, y2);
@@ -310,38 +316,40 @@ public class Lib2D
 	// Outlined Rectangle
 	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle)
 	{
-		drawRectangle(ren,rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle
+		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle
 				.getColor().getRed(), rectangle.getColor().getGreen(), rectangle.getColor().getBlue(), rectangle
 				.getColor().getAlpha(), DEFAULT_LINE_WIDTH);
 	}
 	
 	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle, float lineWidth)
 	{
-		drawRectangle(ren,rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle
+		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle
 				.getColor().getRed(), rectangle.getColor().getGreen(), rectangle.getColor().getBlue(), rectangle
 				.getColor().getAlpha(), lineWidth);
 	}
 	
 	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
 	{
-		drawRectangle(ren,x, y, width, height, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(),
+		drawRectangle(ren, x, y, width, height, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(),
 				DEFAULT_LINE_WIDTH);
 	}
 	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color, float lineWidth)
+	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color,
+			float lineWidth)
 	{
-		drawRectangle(ren,x, y, width, height, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(),
+		drawRectangle(ren, x, y, width, height, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(),
 				lineWidth);
 	}
 	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a)
+	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r,
+			float g, float b, float a)
 	{
-		drawRectangle(ren,x, y, width, height, r, g, b, a, DEFAULT_LINE_WIDTH);
+		drawRectangle(ren, x, y, width, height, r, g, b, a, DEFAULT_LINE_WIDTH);
 	}
 	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a,
-			float lineWidth)
-	{		
+	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r,
+			float g, float b, float a, float lineWidth)
+	{
 		boolean pos00View = true;
 		boolean pos01View = true;
 		boolean pos11View = true;
@@ -376,7 +384,7 @@ public class Lib2D
 		Gdx.gl20.glLineWidth(lineWidth);
 		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		sr.begin(ShapeType.Line);
 		sr.setColor(r, g, b, a);
 		sr.rect(x, y, width, height);
@@ -386,10 +394,11 @@ public class Lib2D
 	// Filled Rectangle
 	public static void drawFilledRectangle(ViewRendererInf ren, A2DRectangle rectangle, A2RGBA color)
 	{
-		drawFilledRectangle(ren,rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), color);
+		drawFilledRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), color);
 	}
 	
-	public static void drawFilledRectangle(ViewRendererInf ren,float x, float y, float width, float height, A2RGBA color)
+	public static void drawFilledRectangle(ViewRendererInf ren, float x, float y, float width, float height,
+			A2RGBA color)
 	{
 		boolean pos00View = true;
 		boolean pos01View = true;
@@ -424,14 +433,15 @@ public class Lib2D
 		}
 		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		sr.begin(ShapeType.Filled);
 		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
 		sr.rect(x, y, width, height);
 		sr.end();
 	}
 	
-	public static void drawTransparentFillRectangle(ViewRendererInf ren,float x, float y, float width, float height, A2RGBA color)
+	public static void drawTransparentFillRectangle(ViewRendererInf ren, float x, float y, float width, float height,
+			A2RGBA color)
 	{
 		boolean pos00View = true;
 		boolean pos01View = true;
@@ -466,7 +476,7 @@ public class Lib2D
 		}
 		
 		ShapeRenderer sr = ren.getShapeRenderer();
-
+		
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
