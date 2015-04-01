@@ -31,13 +31,11 @@ public class SurfaceChart implements WindowListener
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "Bar Surface";
-		cfg.samples = 16;
+		cfg.samples = 8;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
-		LwjglCanvas canvas = new LwjglCanvas(new Basic3DTest(width,height),cfg);
+		LwjglCanvas canvas = new LwjglCanvas(new SurfacePlotEnv(width,height),cfg);
 		
-		
-		//LwjglAWTCanvas canvas = new LwjglAWTCanvas(new Basic3DTest(), true);
 		gui.getContentPane().add(canvas.getCanvas(), BorderLayout.CENTER);
 		canvas.getGraphics().setVSync(true);
 		
