@@ -23,6 +23,7 @@
 						<xs:element name="A" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
 						<xs:element name="B" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
 						<xs:element name="Zoom" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+						<xs:element name="PaletteSize" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

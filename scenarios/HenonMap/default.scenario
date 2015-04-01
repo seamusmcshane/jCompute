@@ -11,9 +11,10 @@
 		<Precision>Single</Precision>
 		<X>0.0</X>
 		<Y>0.0</Y>
-		<A>0.183282980</A>
-		<B>1.010316414</B>
+		<A>0.18</A>
+		<B>1.0205</B>
 		<Zoom>100</Zoom>
+		<PaletteSize>128</PaletteSize>
 	</Kernel>
 	<EndEvents>
 		<Event>
