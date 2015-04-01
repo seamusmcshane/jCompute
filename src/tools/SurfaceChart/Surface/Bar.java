@@ -1,6 +1,6 @@
 package tools.SurfaceChart.Surface;
 
-import jCompute.Gui.View.Misc.Pallete;
+import jCompute.Gui.View.Misc.Palette;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -62,7 +62,7 @@ public class Bar
 		bar.transform.scale(1f, 1f, scale);
 		bar.transform.trn(0,0,(newHeight/2));
 		
-		int pval = (int) (scale*(Pallete.PALETTE_SIZE-1));
+		int pval = (int) (scale*(Palette.PALETTE_SIZE-1));
 		
 		// New Colour
 		bar.materials.get(0).set(ColorAttribute.createDiffuse(new Color(pallete[pval])));

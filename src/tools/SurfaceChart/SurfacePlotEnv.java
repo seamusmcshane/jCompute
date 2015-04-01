@@ -1,7 +1,7 @@
 package tools.SurfaceChart;
 
 import jCompute.Gui.View.Input.OrbitalCameraInputController;
-import jCompute.Gui.View.Misc.Pallete;
+import jCompute.Gui.View.Misc.Palette;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -78,7 +78,7 @@ public class SurfacePlotEnv implements ApplicationListener
 			cam.far = 102420f;
 		*/
 		
-		int[] pallete = Pallete.HUEPalete(true);
+		int[] pallete = Palette.HUEPalete(true);
 		
 		// Surface
 		barSurface = new BarSurfaceOri(cam,20*20,pallete);

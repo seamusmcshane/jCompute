@@ -1,6 +1,6 @@
 package tools.SurfaceChart;
 
-import jCompute.Gui.View.Misc.Pallete;
+import jCompute.Gui.View.Misc.Palette;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -49,7 +49,7 @@ public class ColorMap
 		int pval = 0;
 		for(int h = 0; h < (height-endPad); h++)
 		{
-			pval = (int) (((float) h / height) * (Pallete.PALETTE_SIZE - 1));
+			pval = (int) (((float) h / height) * (Palette.PALETTE_SIZE - 1));
 			pixmap.setColor(pallete[pval]);
 			pixmap.drawLine(indent+margin, (int) (margin + h), (width-margin), (int) (margin + h));
 		}
