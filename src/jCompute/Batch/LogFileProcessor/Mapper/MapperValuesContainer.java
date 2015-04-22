@@ -1,4 +1,4 @@
-package tools.SurfacePlotGenerator;
+package jCompute.Batch.LogFileProcessor.Mapper;
 
 public class MapperValuesContainer
 {
@@ -191,6 +191,16 @@ public class MapperValuesContainer
 	public int getYSteps()
 	{
 		return ySteps;
+	}
+
+	public double[][] getAvgData()
+	{
+		return avg;
+	}
+	
+	public double[][] getStdDevData()
+	{
+		return stdDev;
 	}
 
 }
