@@ -50,4 +50,15 @@ public class BarGrid
 		}
 	}
 	
+	public void dispose()
+	{
+		for(int y=0;y<columns;y++)
+		{
+			for(int x=0;x<columns;x++)
+			{
+				gridBars[y][x].dispose();
+			}
+		}
+	}
+	
 }

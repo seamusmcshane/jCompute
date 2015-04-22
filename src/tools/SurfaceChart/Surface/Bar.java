@@ -11,10 +11,11 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 public class Bar
 {
 	private ModelInstance bar;
+	private Model barModel;
 	
 	private float gridTrans;
 	private float barSize;
-	private float barMax = 500f;
+	private float barMax = 200f;
 	private float height;
 	private float scaleReset;
 	
@@ -26,7 +27,7 @@ public class Bar
 		this.pallete = pallete;
 		this.gridTrans = gridTrans;
 		
-		Model barModel = modelBuilder.createBox(barSize, barSize, barMax,
+		barModel = modelBuilder.createBox(barSize, barSize, barMax,
 				new Material(ColorAttribute.createDiffuse(Color.WHITE)), Usage.Position | Usage.Normal);
 		bar = new ModelInstance(barModel);
 		// bar.transform.trn(0,0,height/2);
@@ -81,6 +82,11 @@ public class Bar
 	public float getHeight()
 	{
 		return height;
+	}
+
+	public void dispose()
+	{
+		barModel.dispose();
 	}
 	
 }

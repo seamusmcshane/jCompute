@@ -1,5 +1,7 @@
 package tools.SurfaceChart;
 
+import tools.SurfaceChart.Surface.BarSurface;
+import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Gui.View.Input.OrbitalCameraInputController;
 import jCompute.Gui.View.Misc.Palette;
 
@@ -31,7 +33,7 @@ public class SurfacePlotEnv implements ApplicationListener
 	
 	private float lightScale = 1f;
 	
-	private BarSurfaceOri barSurface;
+	private BarSurface barSurface;
 	private ColorMap colorMap;
 	
 	private OrbitalCameraInputController camController;
@@ -42,6 +44,11 @@ public class SurfacePlotEnv implements ApplicationListener
 	// test
 	private SpriteBatch batch;
 	private TextureRegion tr;
+	
+	// Axis Order
+	private int xAxis = 0;
+	private int yAxis = 1;
+	private int zAxis = 2;
 	
 	public SurfacePlotEnv(float width, float height)
 	{
@@ -80,7 +87,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		int[] pallete = Palette.HUEPalete(true, 2048);
 		
 		// Surface
-		barSurface = new BarSurfaceOri(cam, 20 * 20, pallete);
+		barSurface = new BarSurface(cam, pallete);
 		
 		batch = new SpriteBatch();
 		colorMap = new ColorMap(barSurface.getZmin(), barSurface.getZmax(), pallete);
@@ -96,6 +103,23 @@ public class SurfacePlotEnv implements ApplicationListener
 			0, 0, 0
 		}, 25f);
 		Gdx.input.setInputProcessor(camController);
+	}
+	
+	public void setData(BatchLogInf mapper)
+	{
+		float xMin = mapper.getXMin();
+		float xMax = mapper.getXMax();
+		
+		float yMin = mapper.getYMin();
+		float yMax = mapper.getYMax();
+		
+		float zMin = (float) mapper.getZmin();
+		float zMax = (float) mapper.getZmax();
+		
+		double[][] data = mapper.getAvgData();
+		String[] names = mapper.getAxisNames();
+		
+		barSurface.setData(xMin, xMax, yMin, yMax, zMin, zMax, data, names);
 	}
 	
 	@Override
@@ -124,7 +148,7 @@ public class SurfacePlotEnv implements ApplicationListener
 	@Override
 	public void dispose()
 	{
-		barSurface.dispose();
+		// barSurface.dispose();
 	}
 	
 	@Override

@@ -1,30 +1,52 @@
 package tools.SurfaceChart;
 
+import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
+import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
+import jCompute.util.FileUtil;
+
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
 
 import org.lwjgl.opengl.Display;
 
-public class SurfaceChart implements WindowListener
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.File;
+
+public class SurfaceChart implements WindowListener, ActionListener
 {
+	private static String openCD = "./stats";
+	
 	private static JFrame gui;
-	private int width = 1800;
-	private int height = 900;
+	
+	private JMenuItem mntmOpen;
+	
+	private int width = 900;
+	private int height = 450;
+	
+	private SurfacePlotEnv glEnv;
 	
 	public SurfaceChart()
 	{
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		gui.setMinimumSize(new Dimension((int) width, (int) height));
 		
 		LwjglApplicationConfiguration.disableAudio = true;
 		
@@ -34,7 +56,10 @@ public class SurfaceChart implements WindowListener
 		cfg.samples = 8;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
-		LwjglCanvas canvas = new LwjglCanvas(new SurfacePlotEnv(width, height), cfg);
+		
+		glEnv = new SurfacePlotEnv(width, height);
+		
+		LwjglCanvas canvas = new LwjglCanvas(glEnv, cfg);
 		
 		gui.getContentPane().add(canvas.getCanvas(), BorderLayout.CENTER);
 		canvas.getGraphics().setVSync(true);
@@ -42,6 +67,16 @@ public class SurfaceChart implements WindowListener
 		gui.pack();
 		gui.setVisible(true);
 		gui.setSize(width, height);
+		
+		JMenuBar menuBar = new JMenuBar();
+		gui.setJMenuBar(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		mntmOpen = new JMenuItem("Open");
+		mntmOpen.addActionListener(this);
+		mnFile.add(mntmOpen);
 		
 		gui.addWindowListener(this);
 	}
@@ -138,5 +173,60 @@ public class SurfaceChart implements WindowListener
 			}
 		});
 		
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		if(e.getSource() == mntmOpen)
+		{
+			final JFileChooser filechooser = new JFileChooser(new File(openCD));
+			
+			System.out.println("Open Dialog");
+			
+			int val = filechooser.showOpenDialog(filechooser);
+			
+			if(val == JFileChooser.APPROVE_OPTION)
+			{
+				System.out.println("New File Choosen");
+				
+				String file = filechooser.getSelectedFile().getAbsolutePath();
+				
+				openCD = filechooser.getCurrentDirectory().getAbsolutePath();
+				
+				gui.setTitle(filechooser.getSelectedFile().getName());
+				
+				System.out.println(file);
+				
+				System.out.println("Creating Mapper");
+				BatchLogInf mapper = null;
+				
+				String ext = FileUtil.getFileNameExtension(file);
+				System.out.println(ext);
+				
+				switch(ext)
+				{
+					case "xml":
+						
+						mapper = new XMLBatchLogProcessorMapper(file);
+					
+					break;
+					
+					case "log":
+						
+						mapper = new TextBatchLogProcessorMapper(file);
+					
+					break;
+					default:
+						System.out.println("Unsupported LogType " + ext);
+					break;
+				}
+				
+				glEnv.setData(mapper);
+				
+				gui.validate();
+				
+			}
+		}
 	}
 }
