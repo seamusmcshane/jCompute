@@ -14,6 +14,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 public class FileUtil
@@ -178,6 +179,16 @@ public class FileUtil
 		}
 		
 		return fileHash;
+	}
+	
+	/**
+	 * Wrapper Around ApacheIO
+	 * @param path
+	 * @return
+	 */
+	public static String getFileNameExtension(String path)
+	{
+		return FilenameUtils.getExtension(path);
 	}
 	
 	public static FileFilter scenarioFileFilter()
