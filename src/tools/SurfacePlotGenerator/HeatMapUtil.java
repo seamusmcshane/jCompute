@@ -1,5 +1,7 @@
 package tools.SurfacePlotGenerator;
 
+import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

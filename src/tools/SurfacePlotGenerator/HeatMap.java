@@ -1,5 +1,8 @@
 package tools.SurfacePlotGenerator;
 
+import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
+import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
