@@ -15,7 +15,7 @@ public class Bar
 	
 	private float gridTrans;
 	private float barSize;
-	private float barMax = 200f;
+	private float barMax = 25f;
 	private float height;
 	private float scaleReset;
 	
@@ -53,7 +53,7 @@ public class Bar
 		bar.transform.trn(0, 0, -(height / 2));
 		
 		// Cannot scale by 0.
-		if(scale == 0)
+		if(scale <= 0)
 		{
 			scale = 0.001f;
 		}
@@ -83,7 +83,7 @@ public class Bar
 	{
 		return height;
 	}
-
+	
 	public void dispose()
 	{
 		barModel.dispose();
