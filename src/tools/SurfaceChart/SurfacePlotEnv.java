@@ -7,6 +7,7 @@ import jCompute.Gui.View.Misc.Palette;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -49,6 +50,8 @@ public class SurfacePlotEnv implements ApplicationListener
 	private int xAxis = 0;
 	private int yAxis = 1;
 	private int zAxis = 2;
+	
+	private float targetInc = 25f;
 	
 	public SurfacePlotEnv(float width, float height)
 	{
@@ -107,11 +110,11 @@ public class SurfacePlotEnv implements ApplicationListener
 	
 	public void setData(BatchLogInf mapper)
 	{
-		float xMin = mapper.getXMin();
-		float xMax = mapper.getXMax();
+		float xMin = (float) mapper.getXValMin();
+		float xMax = (float) mapper.getXValMax();
 		
-		float yMin = mapper.getYMin();
-		float yMax = mapper.getYMax();
+		float yMin = (float) mapper.getYValMin();
+		float yMax = (float) mapper.getYValMax();
 		
 		float zMin = (float) mapper.getZmin();
 		float zMax = (float) mapper.getZmax();
@@ -125,6 +128,8 @@ public class SurfacePlotEnv implements ApplicationListener
 	@Override
 	public void render()
 	{
+		doInputKeys();
+		
 		camController.update();
 		// cam.rotateAround(new Vector3(0,0,0), new Vector3(0,0,1f), 0.4f);
 		// cam.update();
@@ -143,6 +148,44 @@ public class SurfacePlotEnv implements ApplicationListener
 		
 		batch.end();
 		
+	}
+	
+	private void doInputKeys()
+	{
+		float[] target = camController.getTarget();
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.W))
+		{
+			target[yAxis] += targetInc;
+		}
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.S))
+		{
+			target[yAxis] -= targetInc;
+			
+		}
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.A))
+		{
+			target[xAxis] -= targetInc;
+			
+		}
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.D))
+		{
+			target[xAxis] += targetInc;
+		}
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.R))
+		{
+			target[xAxis] = 0;
+			target[yAxis] = 0;
+			target[zAxis] = 0;
+			
+			camController.reset();
+		}
+		
+		camController.setTarget(target);
 	}
 	
 	@Override
