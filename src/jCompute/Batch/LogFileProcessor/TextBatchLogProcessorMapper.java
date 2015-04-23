@@ -32,6 +32,11 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	
 	private static ArrayList<TextBatchLogItem> logItems;
 	
+	private double xValMin = Double.MAX_VALUE;
+	private double xValMax = Double.MIN_VALUE;
+	private double yValMin = Double.MAX_VALUE;
+	private double yValMax = Double.MIN_VALUE;
+	
 	public TextBatchLogProcessorMapper(String fileName)
 	{
 		logItems = new ArrayList<TextBatchLogItem>();
@@ -91,29 +96,25 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		
 		values = new MapperValuesContainer(sufaceWidthHeight, sufaceWidthHeight, samples);
 		
-		double xValMin = Double.MAX_VALUE;
-		double xValMax = Double.MIN_VALUE;
-		
-		double yValMin = Double.MAX_VALUE;
-		double yValMax = Double.MIN_VALUE;
-		
 		for(TextBatchLogItem item : logItems)
 		{
 			// Choose Plot Source
 			double val = item.getStepCount();
 			zAxisName = "StepCount";
 			
-			System.out.println("------------------ ");
-			System.out.println("Item ");
-			System.out.println("IID       :" + item.getItemId());
-			System.out.println("SID       :" + item.getSampleId());
-			System.out.println("Hash      :" + item.getHash());
-			System.out.println("Pos       :" + item.getCoordsPos()[0] + "x" + item.getCoordsPos()[1]);
-			System.out.println("Val       :" + item.getCoordsVals()[0] + "x" + item.getCoordsVals()[0]);
-			System.out.println("RunTime   :" + item.getRunTime());
-			System.out.println("StepCount :" + item.getStepCount());
-			System.out.println("EndEvent  :" + item.getEndEvent());
-			
+			if(false)
+			{
+				System.out.println("------------------ ");
+				System.out.println("Item ");
+				System.out.println("IID       :" + item.getItemId());
+				System.out.println("SID       :" + item.getSampleId());
+				System.out.println("Hash      :" + item.getHash());
+				System.out.println("Pos       :" + item.getCoordsPos()[0] + "x" + item.getCoordsPos()[1]);
+				System.out.println("Val       :" + item.getCoordsVals()[0] + "x" + item.getCoordsVals()[0]);
+				System.out.println("RunTime   :" + item.getRunTime());
+				System.out.println("StepCount :" + item.getStepCount());
+				System.out.println("EndEvent  :" + item.getEndEvent());
+			}
 			values.setSampleValue(item.getCoordsPos()[0], item.getCoordsPos()[1], val);
 			
 			if(item.getCoordsVals()[0] > xValMax)
@@ -124,6 +125,16 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			if(item.getCoordsVals()[1] > yValMax)
 			{
 				yValMax = item.getCoordsVals()[1];
+			}
+			
+			if(item.getCoordsVals()[0] < xValMin)
+			{
+				xValMin = item.getCoordsVals()[0];
+			}
+			
+			if(item.getCoordsVals()[1] < yValMin)
+			{
+				yValMin = item.getCoordsVals()[1];
 			}
 		}
 		
@@ -137,6 +148,27 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		
 		xMapper = new TickValueMapper(values.getXMax(), xValMax);
 		yMapper = new TickValueMapper(values.getYMax(), yValMax);
+	}
+	
+	public double getXValMin()
+	{
+		return xValMin;
+	}
+	
+	public double getXValMax()
+	{
+		return xValMax;
+		
+	}
+	
+	public double getYValMin()
+	{
+		return yValMin;
+	}
+	
+	public double getYValMax()
+	{
+		return xValMax;
 	}
 	
 	private class TickValueMapper implements ITickRenderer

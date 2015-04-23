@@ -19,8 +19,10 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 	private File file;
 	private XMLConfiguration logFile;
 	
-	private int xValMax = Integer.MIN_VALUE;
-	private int yValMax = Integer.MIN_VALUE;
+	private double xValMin = Double.MAX_VALUE;
+	private double xValMax = Double.MIN_VALUE;
+	private double yValMin = Double.MAX_VALUE;
+	private double yValMax = Double.MIN_VALUE;
 	
 	private String xAxisName = "";
 	private TickValueMapper xMapper;
@@ -202,6 +204,16 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 							yValMax = coordinateXYvals[1];
 						}
 						
+						if(coordinateXYvals[0] < xValMin)
+						{
+							xValMin = coordinateXYvals[0];
+						}
+						
+						if(coordinateXYvals[1] < yValMin)
+						{
+							yValMin = coordinateXYvals[1];
+						}
+						
 						if(i % mod == 0)
 						{
 							System.out.printf(" %.2f\n", (double) i / itemTotal);
@@ -352,5 +364,26 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		{
 			xAxisName, yAxisName, zAxisName
 		};
+	}
+	
+	public double getXValMin()
+	{
+		return xValMin;
+	}
+	
+	public double getXValMax()
+	{
+		return xValMax;
+		
+	}
+	
+	public double getYValMin()
+	{
+		return yValMin;
+	}
+	
+	public double getYValMax()
+	{
+		return xValMax;
 	}
 }
