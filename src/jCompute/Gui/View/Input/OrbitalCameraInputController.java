@@ -303,12 +303,21 @@ public class OrbitalCameraInputController implements InputProcessor
 	
 	public void setTarget(float[] target)
 	{
-		this.target = target;
+		this.target[0] = target[0];
+		this.target[1] = target[1];
+		this.target[2] = target[2];
+		
+		cam.lookAt(target[0],target[1],target[2]);
 	}
 
 	public void setAltitude(float altitude)
 	{
 		this.altitude = altitude;		
+	}
+
+	public float[] getTarget()
+	{
+		return new float[]{target[0],target[1],target[2]};
 	}
 
 }
