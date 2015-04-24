@@ -3,9 +3,7 @@ package tools.SurfaceChart.Surface;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Vector3;
 
 public class BarGrid
 {

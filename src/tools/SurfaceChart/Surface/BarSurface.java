@@ -66,6 +66,7 @@ public class BarSurface
 		axisGrid.setLabelSize(2f);
 		axisGrid.setFloorGridDisplayed(false);
 		axisGrid.setZAxisDisplayed(false);
+		axisGrid.setMinMaxDisplayed(false);
 		
 		axisGrid.setTickIntervals(4);
 		

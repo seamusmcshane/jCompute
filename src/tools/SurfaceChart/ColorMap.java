@@ -38,7 +38,7 @@ public class ColorMap
 		FrameBuffer fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
 		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
 		
-		int indent = 30;
+		int indent = 60;
 		int margin = (int) ((float) 128 * 0.2f);
 		int startPad = margin;
 		int endPad = margin * 2;
