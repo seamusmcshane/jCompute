@@ -36,6 +36,8 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	private double xValMax = Double.MIN_VALUE;
 	private double yValMin = Double.MAX_VALUE;
 	private double yValMax = Double.MIN_VALUE;
+	private double zValMin = Double.MAX_VALUE;
+	private double zValMax = Double.MIN_VALUE;
 	
 	public TextBatchLogProcessorMapper(String fileName)
 	{
@@ -135,6 +137,16 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			if(item.getCoordsVals()[1] < yValMin)
 			{
 				yValMin = item.getCoordsVals()[1];
+			}
+			
+			if(item.getStepCount() < zValMin)
+			{
+				zValMin = item.getStepCount();
+			}
+			
+			if(item.getStepCount()  > zValMax)
+			{
+				zValMax = item.getStepCount() ;
 			}
 		}
 		
@@ -469,6 +481,18 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	public double[][] getAvgData()
 	{
 		return values.getAvgData();
+	}
+
+	@Override
+	public double getZValMin()
+	{
+		return zValMin;
+	}
+
+	@Override
+	public double getZValMax()
+	{
+		return zValMax;
 	}
 	
 }

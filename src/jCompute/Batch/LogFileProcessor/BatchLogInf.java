@@ -36,5 +36,7 @@ public interface BatchLogInf
 	public double getXValMax();
 	public double getYValMin();
 	public double getYValMax();
+	public double getZValMin();
+	public double getZValMax();
 	
 }
