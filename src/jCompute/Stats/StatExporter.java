@@ -363,6 +363,34 @@ public class StatExporter
 		
 	}
 	
+	public void exportAllStatsToZipDir(ZipOutputStream zipOut, int itemId, int sampleId)
+	{
+		// Create Zip Directories
+		try
+		{
+			int numFiles = fileNames.length;
+			
+			for(int f = 0; f < numFiles; f++)
+			{
+				// FileName
+				zipOut.putNextEntry(new ZipEntry(itemId + "/" + sampleId + "/" + fileNames[f] + ".csv"));
+				
+				// Data
+				zipOut.write(textData[f].getBytes());
+				
+				// Entry end
+				zipOut.closeEntry();
+			}
+			
+		}
+		catch(IOException e)
+		{
+			log.error("Could not create export files for " + itemId);
+			
+			e.printStackTrace();
+		}
+	}
+	
 	private void writeZipArchive(String directory, String name)
 	{
 		String archiveName = name;
