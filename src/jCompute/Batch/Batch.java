@@ -128,8 +128,6 @@ public class Batch implements StoredQueuePosition
 	
 	public Batch(int batchId, BatchPriority priority)
 	{
-		statsMethodSingleArchive = true;
-		
 		this.batchId = batchId;
 		this.priority = priority;
 		
@@ -204,6 +202,7 @@ public class Batch implements StoredQueuePosition
 				
 				// Logs + Stats
 				storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
+				statsMethodSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive");
 				infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
 				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
 				
@@ -1213,6 +1212,8 @@ public class Batch implements StoredQueuePosition
 				infoCache.add("");
 				infoCache.add("Stats Store");
 				infoCache.add(storeStats == true ? "Enabled" : "Disabled");
+				infoCache.add("Single Archive");
+				infoCache.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
 				infoCache.add("Info Log");
 				infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
 				infoCache.add("Item Log");
@@ -1254,6 +1255,8 @@ public class Batch implements StoredQueuePosition
 			info.add("");
 			info.add("Stats Store");
 			info.add(storeStats == true ? "Enabled" : "Disabled");
+			info.add("Single Archive");
+			info.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
 			info.add("Info Log");
 			info.add(infoLogEnabled == true ? "Enabled" : "Disabled");
 			info.add("Item Log");

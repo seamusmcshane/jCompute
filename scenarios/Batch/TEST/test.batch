@@ -12,7 +12,8 @@
 		<ItemLog>true</ItemLog>
 	</Log>
 	<Stats>
-		<Store>false</Store>
+		<Store>true</Store>
+		<SingleArchive>true</SingleArchive>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchGroupDir>TEST-Batch</BatchGroupDir>
 	</Stats>
