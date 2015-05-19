@@ -447,7 +447,7 @@ public class Node
 			{
 				int simId = e.getSimId();
 				
-				StatExporter exporter = simsManager.getStatExporter(simId, "", ExportFormat.ZCSV);
+				StatExporter exporter = simsManager.getStatExporter(simId, "", ExportFormat.CSV);
 				
 				log.info("Stored Stats for Simulation " + simId);
 				statCache.put(simId, exporter);
