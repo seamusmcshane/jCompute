@@ -2,7 +2,6 @@ package jCompute.Batch;
 
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Datastruct.cache.DiskCache;
-import jCompute.Gui.Cluster.ClusterGUI;
 import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
@@ -13,6 +12,8 @@ import jCompute.util.Text;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,6 +26,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class Batch implements StoredQueuePosition
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(ClusterGUI.class);
+	private static Logger log = LoggerFactory.getLogger(Batch.class);
 	
 	// Batch Attributes
 	private int position;
@@ -77,8 +80,12 @@ public class Batch implements StoredQueuePosition
 	// Enable / Disable writing the generated statistic files to disk
 	private boolean storeStats;
 	
+	// Write stats to a single archive or directories with sub archives
+	private boolean statsMethodSingleArchive;
+	
 	// The export dir for stats
 	private String batchStatsExportDir;
+	private ZipOutputStream resultsZipOut;
 	
 	// Item log writer
 	private PrintWriter itemLog;
@@ -121,6 +128,8 @@ public class Batch implements StoredQueuePosition
 	
 	public Batch(int batchId, BatchPriority priority)
 	{
+		statsMethodSingleArchive = true;
+		
 		this.batchId = batchId;
 		this.priority = priority;
 		
@@ -137,7 +146,6 @@ public class Batch implements StoredQueuePosition
 		
 		// Active Items
 		active = 0;
-		
 	}
 	
 	public boolean loadConfig(String filePath)
@@ -371,9 +379,74 @@ public class Batch implements StoredQueuePosition
 		// For progress monitoring during generation
 		float progressInc = 100f / (float) combinations;
 		
+		// Create and populate Results Zip Aachive with Directories
+		String zipFileName = batchStatsExportDir + File.separator + "results.zip";
+		log.info("Zip Archive : " + zipFileName);
+		
+		if(storeStats)
+		{
+			if(statsMethodSingleArchive)
+			{
+				try
+				{
+					resultsZipOut = new ZipOutputStream(new FileOutputStream(zipFileName));
+					resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
+					resultsZipOut.setLevel(Deflater.BEST_COMPRESSION);
+				}
+				catch(FileNotFoundException e1)
+				{
+					log.error("Could not create create  " + zipFileName);
+					
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 		// Set the combination Values
 		for(int combo = 1; combo < combinations + 1; combo++)
 		{
+			if(storeStats)
+			{
+				if(statsMethodSingleArchive)
+				{
+					// Create Sub Directories in Zip Archive or Directory
+					try
+					{
+						// Create Item Directories
+						resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(combo) + "/"));
+						resultsZipOut.closeEntry();
+						
+						for(int sid = 1; sid < itemSamples + 1; sid++)
+						{
+							// Create Sample Directories
+							resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(combo) + "/"
+									+ Integer.toString(sid) + "/"));
+							resultsZipOut.closeEntry();
+						}
+						
+					}
+					catch(IOException e)
+					{
+						log.error("Could not create create directory " + combo + " in " + zipFileName);
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					// Create the item export dir
+					FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + combo);
+					
+					for(int sid = 1; sid < itemSamples + 1; sid++)
+					{
+						String fullExportPath = batchStatsExportDir + File.separator + combo + File.separator + sid;
+						
+						// Create the item sample full export path dir
+						FileUtil.createDirIfNotExist(fullExportPath);
+					}
+				}
+			}
+			
 			// Create a copy of the base scenario
 			temp = new ConfigurationInterpreter();
 			temp.loadConfig(baseScenarioText);
@@ -855,40 +928,66 @@ public class Batch implements StoredQueuePosition
 		// Only Save configs if stats are enabled
 		if(storeStats)
 		{
-			// Create the item export dir
-			FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + item.getItemId());
-			
-			String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator
-					+ item.getSampleId();
-			
-			// Create the item sample full export path dir
-			FileUtil.createDirIfNotExist(fullExportPath);
-			
-			// Export the stats
-			exporter.exportAllStatsToDir(fullExportPath);
+			if(statsMethodSingleArchive)
+			{
+				// Export the stats
+				exporter.exportAllStatsToZipDir(resultsZipOut, item.getItemId(), item.getSampleId());
+			}
+			else
+			{
+				String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator
+						+ item.getSampleId();
+				
+				// Export the stats
+				exporter.exportAllStatsToDir(fullExportPath);
+			}
 			
 			// Only the first sample needs to save the item config (all
 			// identical
 			// samples)
 			if(item.getSampleId() == 1)
 			{
-				// Save the Item Config
-				try
+				if(statsMethodSingleArchive)
 				{
-					// All Item samples use same config so overwrite.
-					PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir
-							+ File.separator + item.getItemId() + File.separator + "itemconfig-" + item.getItemHash()
-							+ ".xml", true)));
-					
-					configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
-					configFile.flush();
-					configFile.close();
+					try
+					{
+						// FileName
+						resultsZipOut.putNextEntry(new ZipEntry(item.getItemId() + "/" + "itemconfig-"
+								+ item.getItemHash() + ".xml"));
+						
+						// Data
+						resultsZipOut.write(itemDiskCache.getFile(item.getItemHash()));
+						
+						// Entry end
+						resultsZipOut.closeEntry();
+					}
+					catch(IOException e1)
+					{
+						log.error("Unable to save item config " + item.getItemId() + " to results zip");
+						e1.printStackTrace();
+					}
 				}
-				catch(IOException e)
+				else
 				{
-					System.out.println("Could not save item " + item.getItemId() + " config (Batch "
-							+ item.getBatchId() + ")");
+					// Save the Item Config
+					try
+					{
+						// All Item samples use same config so overwrite.
+						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir
+								+ File.separator + item.getItemId() + File.separator + "itemconfig-"
+								+ item.getItemHash() + ".xml", true)));
+						
+						configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
+						configFile.flush();
+						configFile.close();
+					}
+					catch(IOException e)
+					{
+						System.out.println("Could not save item " + item.getItemId() + " config (Batch "
+								+ item.getBatchId() + ")");
+					}
 				}
+				
 			}
 		}
 		
@@ -896,6 +995,21 @@ public class Batch implements StoredQueuePosition
 		
 		if(completed == batchItems)
 		{
+			if(storeStats)
+			{
+				if(statsMethodSingleArchive)
+				{
+					try
+					{
+						resultsZipOut.close();
+					}
+					catch(IOException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+			
 			if(itemLogEnabled)
 			{
 				// Close Batch Log

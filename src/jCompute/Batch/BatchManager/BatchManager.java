@@ -580,7 +580,7 @@ public class BatchManager
 		}
 		
 		batchManagerLock.release();
-
+		
 		int simId = controlNode.addSimulation(itemConfig, -1);
 		
 		batchManagerLock.acquireUninterruptibly();
