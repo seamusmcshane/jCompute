@@ -296,7 +296,7 @@ public class BatchManager
 				
 				// Export Stats // ExportFormat.ZCSV - Compressed CSV Files
 				StatExporter exporter = controlNode.getStatExporter(item.getSimId(),
-						String.valueOf(item.getItemHash()), ExportFormat.ZCSV);
+						String.valueOf(item.getItemHash()), ExportFormat.CSV);
 				
 				timeEnd = System.currentTimeMillis();
 				
