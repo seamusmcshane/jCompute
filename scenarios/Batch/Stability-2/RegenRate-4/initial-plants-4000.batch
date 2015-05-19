@@ -13,6 +13,7 @@
 	</Log>
 	<Stats>
 		<Store>false</Store>
+		<SingleArchive>true</SingleArchive>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchGroupDir>stability</BatchGroupDir>
 		<BatchSubGroupDirName>regen-rate-4</BatchSubGroupDirName>

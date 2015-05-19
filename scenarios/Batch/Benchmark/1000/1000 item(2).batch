@@ -13,6 +13,7 @@
 	</Log>
 	<Stats>
 		<Store>true</Store>
+		<SingleArchive>true</SingleArchive>
 		<BatchStatsExportDir>stats</BatchStatsExportDir>
 		<BatchGroupDir>Benchmark</BatchGroupDir>
 		<BatchSubGroupDirName>1000Item</BatchSubGroupDirName>
