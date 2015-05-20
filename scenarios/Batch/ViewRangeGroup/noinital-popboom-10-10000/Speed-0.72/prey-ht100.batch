@@ -14,6 +14,7 @@
 	<Stats>
 		<Store>false</Store>
 		<SingleArchive>true</SingleArchive>
+		<CompressionLevel>2</CompressionLevel>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchGroupDir>ViewRange-nopopboom-10</BatchGroupDir>
 		<BatchSubGroupDirName>speed-(0.72)</BatchSubGroupDirName>

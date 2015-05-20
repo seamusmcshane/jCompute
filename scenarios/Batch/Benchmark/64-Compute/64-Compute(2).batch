@@ -14,6 +14,7 @@
 	<Stats>
 		<Store>true</Store>
 		<SingleArchive>true</SingleArchive>
+		<CompressionLevel>2</CompressionLevel>
 		<BatchStatsExportDir>stats</BatchStatsExportDir>
 		<BatchGroupDir>Benchmark</BatchGroupDir>
 		<BatchSubGroupDirName>Compute64</BatchSubGroupDirName>
