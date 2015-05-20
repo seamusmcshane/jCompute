@@ -11,7 +11,6 @@ import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
-import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
@@ -70,9 +69,6 @@ public class BatchManager
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
 	
-	// For progress monitoring (if set)
-	private JComputeProgressMonitor genComboMonitor;
-	
 	public BatchManager()
 	{
 		this.controlNode = new ControlNode();
@@ -122,11 +118,6 @@ public class BatchManager
 			
 		}, 0, 10000);
 		
-	}
-	
-	public void setProgressMonitor(JComputeProgressMonitor genComboMonitor)
-	{
-		this.genComboMonitor = genComboMonitor;
 	}
 	
 	public boolean addBatch(String filePath)
@@ -419,26 +410,29 @@ public class BatchManager
 			
 			if(batch.itemsNeedGenerated())
 			{
-				batch.generateItems(genComboMonitor);
+				batch.generateItems();
 			}
-			
-			// While there are items to add and the control node can add them
-			while((batch.getRemaining() > 0) && controlNode.hasFreeSlot())
+			else
 			{
-				// dequeue the next item in the batch
-				BatchItem item = batch.getNext();
-				
-				// Schedule it
-				if(!scheduleBatchItem(batch, item))
+				// While there are items to add and the control node can add them
+				while((batch.getRemaining() > 0) && controlNode.hasFreeSlot())
 				{
-					batch.returnItemToQueue(item);
-					break;
-				}
-				else
-				{
-					JComputeEventBus.post(new BatchProgressEvent(batch));
+					// dequeue the next item in the batch
+					BatchItem item = batch.getNext();
+					
+					// Schedule it
+					if(!scheduleBatchItem(batch, item))
+					{
+						batch.returnItemToQueue(item);
+						break;
+					}
+					else
+					{
+						JComputeEventBus.post(new BatchProgressEvent(batch));
+					}
 				}
 			}
+
 		}
 		
 		return true;
@@ -487,7 +481,7 @@ public class BatchManager
 				
 				if(batch.itemsNeedGenerated())
 				{
-					batch.generateItems(genComboMonitor);
+					batch.generateItems();
 				}
 				
 				// Is this batch finished
