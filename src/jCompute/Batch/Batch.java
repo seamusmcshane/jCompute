@@ -82,6 +82,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Write stats to a single archive or directories with sub archives
 	private boolean statsMethodSingleArchive;
+	private int singleArchiveCompressionLevel;
 	
 	// The export dir for stats
 	private String batchStatsExportDir;
@@ -203,6 +204,7 @@ public class Batch implements StoredQueuePosition
 				// Logs + Stats
 				storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
 				statsMethodSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive");
+				singleArchiveCompressionLevel = batchConfigProcessor.getIntValue("Stats", "CompressionLevel");
 				infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
 				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
 				
@@ -389,8 +391,19 @@ public class Batch implements StoredQueuePosition
 				try
 				{
 					resultsZipOut = new ZipOutputStream(new FileOutputStream(zipFileName));
+					
+					if(singleArchiveCompressionLevel > 9)
+					{
+						singleArchiveCompressionLevel = 9;
+					}
+					
+					if(singleArchiveCompressionLevel < 0)
+					{
+						singleArchiveCompressionLevel = 0;
+					}
+					
 					resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
-					resultsZipOut.setLevel(Deflater.BEST_COMPRESSION);
+					resultsZipOut.setLevel(singleArchiveCompressionLevel);
 				}
 				catch(FileNotFoundException e1)
 				{
@@ -1214,6 +1227,8 @@ public class Batch implements StoredQueuePosition
 				infoCache.add(storeStats == true ? "Enabled" : "Disabled");
 				infoCache.add("Single Archive");
 				infoCache.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
+				infoCache.add("Compression Level");
+				infoCache.add(String.valueOf(singleArchiveCompressionLevel));
 				infoCache.add("Info Log");
 				infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
 				infoCache.add("Item Log");
@@ -1257,6 +1272,8 @@ public class Batch implements StoredQueuePosition
 			info.add(storeStats == true ? "Enabled" : "Disabled");
 			info.add("Single Archive");
 			info.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
+			info.add("Compression Level");
+			info.add(String.valueOf(singleArchiveCompressionLevel));
 			info.add("Info Log");
 			info.add(infoLogEnabled == true ? "Enabled" : "Disabled");
 			info.add("Item Log");
