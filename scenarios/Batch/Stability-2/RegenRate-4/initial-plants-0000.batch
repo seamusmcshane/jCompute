@@ -5,14 +5,14 @@
 	</Header>
 	<Config>
 		<BaseScenarioFileName>0000.scenario</BaseScenarioFileName>
-		<ItemSamples>10</ItemSamples>
+		<ItemSamples>100</ItemSamples>
 	</Config>
 	<Log>
 		<InfoLog>true</InfoLog>
 		<ItemLog>true</ItemLog>
 	</Log>
 	<Stats>
-		<Store>false</Store>
+		<Store>true</Store>
 		<SingleArchive>true</SingleArchive>
 		<CompressionLevel>2</CompressionLevel>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
@@ -27,7 +27,7 @@
 			<ParameterName>InitialNumbers</ParameterName>
 			<Intial>0</Intial>
 			<Increment>25</Increment>
-			<Combinations>201</Combinations>
+			<Combinations>200</Combinations>
 		</Parameter>
 		<Parameter>
 			<Type>Group</Type>
@@ -36,7 +36,7 @@
 			<ParameterName>InitialNumbers</ParameterName>
 			<Intial>0</Intial>
 			<Increment>25</Increment>
-			<Combinations>201</Combinations>
+			<Combinations>200</Combinations>
 		</Parameter>
 	</Parameters>
 </Batch>
