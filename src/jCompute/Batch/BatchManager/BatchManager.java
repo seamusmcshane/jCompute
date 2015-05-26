@@ -414,7 +414,8 @@ public class BatchManager
 			}
 			else
 			{
-				// While there are items to add and the control node can add them
+				// While there are items to add and the control node can add
+				// them
 				while((batch.getRemaining() > 0) && controlNode.hasFreeSlot())
 				{
 					// dequeue the next item in the batch
@@ -432,7 +433,7 @@ public class BatchManager
 					}
 				}
 			}
-
+			
 		}
 		
 		return true;

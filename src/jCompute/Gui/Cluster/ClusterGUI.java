@@ -23,8 +23,6 @@ import javax.swing.SwingWorker;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
