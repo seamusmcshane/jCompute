@@ -9,6 +9,7 @@ import jCompute.Stats.StatExporter;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -84,6 +85,7 @@ public class Batch implements StoredQueuePosition
 	private boolean storeStats;
 	
 	// Write stats to a single archive or directories with sub archives
+	private final int BOS_BUFFER_SIZE = 1024 * 10000;
 	private boolean statsMethodSingleArchive;
 	private int singleArchiveCompressionLevel;
 	
@@ -92,6 +94,7 @@ public class Batch implements StoredQueuePosition
 	private ZipOutputStream resultsZipOut;
 	
 	// Item log writer
+	private final int BW_BUFFER_SIZE = 1024 * 1000;
 	private PrintWriter itemLog;
 	private boolean itemLogEnabled;
 	
@@ -399,7 +402,10 @@ public class Batch implements StoredQueuePosition
 					{
 						try
 						{
-							resultsZipOut = new ZipOutputStream(new FileOutputStream(zipFileName));
+							BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFileName),
+									BOS_BUFFER_SIZE);
+							
+							resultsZipOut = new ZipOutputStream(bos);
 							
 							if(singleArchiveCompressionLevel > 9)
 							{
@@ -721,34 +727,8 @@ public class Batch implements StoredQueuePosition
 			try
 			{
 				itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
-						+ "ItemLog.log", true)));
-				
-				/* Common Log Header */
-				/*
-				 * itemLog.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
-				 * );
-				 * itemLog.println(
-				 * "<Log xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"schemas/batchItemLog.xsd\">"
-				 * );
-				 * itemLog.println("<Header>");
-				 * itemLog.println("<Name>" + batchName + "</Name>");
-				 * itemLog.println("<LogType>" + "BatchItems" + "</LogType>");
-				 * itemLog.println("<SamplesPerItem>" + itemSamples +
-				 * "</SamplesPerItem>");
-				 * itemLog.println("<AxisLabels>");
-				 * for(int c = 1; c < numCordinates + 1; c++)
-				 * {
-				 * itemLog.println("<AxisLabel>");
-				 * itemLog.println("<ID>" + c + "</ID>");
-				 * itemLog.println("<Name>" + groupName[c - 1] + parameterName[c
-				 * - 1] + "</Name>");
-				 * itemLog.println("</AxisLabel>");
-				 * }
-				 * itemLog.println("</AxisLabels>");
-				 * itemLog.println("</Header>");
-				 * itemLog.println("<Items>");
-				 */
-				
+						+ "ItemLog.log", true), BW_BUFFER_SIZE));
+								
 				itemLog.println("[+Header]");
 				itemLog.println("Name=" + batchName);
 				itemLog.println("LogType=BatchItems");
@@ -1037,6 +1017,7 @@ public class Batch implements StoredQueuePosition
 				{
 					try
 					{
+						resultsZipOut.flush();
 						resultsZipOut.close();
 					}
 					catch(IOException e)
