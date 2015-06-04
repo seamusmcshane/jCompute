@@ -1213,9 +1213,9 @@ public class Batch implements StoredQueuePosition
 				infoCache.add(storeStats == true ? "Enabled" : "Disabled");
 				infoCache.add("Single Archive");
 				infoCache.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
-				infoCache.add("Compression Level");
 				infoCache.add("Buffer Size");
 				infoCache.add(String.valueOf(bosBufferSize));
+				infoCache.add("Compression Level");
 				infoCache.add(String.valueOf(singleArchiveCompressionLevel));
 				infoCache.add("Info Log");
 				infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
