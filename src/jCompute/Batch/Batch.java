@@ -85,7 +85,8 @@ public class Batch implements StoredQueuePosition
 	private boolean storeStats;
 	
 	// Write stats to a single archive or directories with sub archives
-	private final int BOS_BUFFER_SIZE = 1024 * 10000;
+	private final int BOS_DEFAULT_BUFFER_SIZE = 8192;
+	private int bosBufferSize;
 	private boolean statsMethodSingleArchive;
 	private int singleArchiveCompressionLevel;
 	
@@ -213,9 +214,16 @@ public class Batch implements StoredQueuePosition
 				singleArchiveCompressionLevel = batchConfigProcessor.getIntValue("Stats", "CompressionLevel");
 				infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
 				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
+				bosBufferSize = batchConfigProcessor.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
+				
+				log.info("Store Stats " + storeStats);
+				log.info("Single Archive " + statsMethodSingleArchive);
+				log.info("BufferSize " + bosBufferSize);
+				log.info("Compression Level " + singleArchiveCompressionLevel);
+				log.info("InfoLog " + infoLogEnabled);
+				log.info("ItemLog " + itemLogEnabled);
 				
 				setBatchStatExportDir();
-				
 			}
 			else
 			{
@@ -403,7 +411,7 @@ public class Batch implements StoredQueuePosition
 						try
 						{
 							BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFileName),
-									BOS_BUFFER_SIZE);
+									bosBufferSize);
 							
 							resultsZipOut = new ZipOutputStream(bos);
 							
@@ -728,7 +736,7 @@ public class Batch implements StoredQueuePosition
 			{
 				itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
 						+ "ItemLog.log", true), BW_BUFFER_SIZE));
-								
+				
 				itemLog.println("[+Header]");
 				itemLog.println("Name=" + batchName);
 				itemLog.println("LogType=BatchItems");
@@ -888,39 +896,12 @@ public class Batch implements StoredQueuePosition
 		
 		log.debug("Setting Completed Sim " + item.getSimId() + " Item " + item.getItemId());
 		
-		// activeItems.remove(item);
-		
 		// For estimated complete time calculation
 		cpuTotalTimes += item.getCPUTime();
 		netTotalTimes += item.getNetTime();
 		
 		if(itemLogEnabled)
 		{
-			/*
-			 * itemLog.println("<Item>");
-			 * itemLog.println("<IID>" + item.getItemId() + "</IID>");
-			 * itemLog.println("<SID>" + item.getSampleId() + "</SID>");
-			 * itemLog.println("<Coordinates>");
-			 * ArrayList<Integer> coords = item.getCoordinates();
-			 * ArrayList<Integer> coordsValues = item.getCoordinatesValues();
-			 * for(int c = 0; c < coords.size(); c++)
-			 * {
-			 * itemLog.println("<Coordinate>");
-			 * itemLog.println("<Pos>" + coords.get(c) + "</Pos>");
-			 * itemLog.println("<Value>" + coordsValues.get(c) + "</Value>");
-			 * itemLog.println("</Coordinate>");
-			 * }
-			 * itemLog.println("</Coordinates>");
-			 * itemLog.println("<Hash>" + item.getItemHash() + "</Hash>");
-			 * itemLog.println("<RunTime>" +
-			 * jCompute.util.Text.longTimeToDHMS(item.getTotalTime()) +
-			 * "</RunTime>");
-			 * itemLog.println("<EndEvent>" + item.getEndEvent() +
-			 * "</EndEvent>");
-			 * itemLog.println("<StepCount>" + item.getStepCount() +
-			 * "</StepCount>");
-			 * itemLog.println("</Item>");
-			 */
 			
 			itemLog.println("[+Item]");
 			itemLog.println("IID=" + item.getItemId());
@@ -1277,6 +1258,8 @@ public class Batch implements StoredQueuePosition
 			info.add(storeStats == true ? "Enabled" : "Disabled");
 			info.add("Single Archive");
 			info.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
+			info.add("Buffer Size");
+			info.add(String.valueOf(bosBufferSize));
 			info.add("Compression Level");
 			info.add(String.valueOf(singleArchiveCompressionLevel));
 			info.add("Info Log");

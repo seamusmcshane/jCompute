@@ -178,6 +178,11 @@ public class ConfigurationInterpreter
 	{
 		return configurationFile.getInt(section + "." + value);
 	}
+	
+	public int getIntValue(String section, String value,int defaultValue)
+	{
+		return configurationFile.getInt(section + "." + value, defaultValue);
+	}
 
 	public float getFloatValue(String section, String value)
 	{

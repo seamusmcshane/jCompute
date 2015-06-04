@@ -1,0 +1,34 @@
+<Batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/batch.xsd">
+	<Header>
+		<Version>0.01</Version>
+		<Type>Batch</Type>
+	</Header>	
+	<Config>
+		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
+		<ItemSamples>256</ItemSamples>
+	</Config>
+	<Log>
+		<InfoLog>true</InfoLog>
+		<ItemLog>true</ItemLog>
+	</Log>
+	<Stats>
+		<Store>true</Store>
+		<SingleArchive>true</SingleArchive>
+		<BufferSize>16384</BufferSize>
+		<CompressionLevel>2</CompressionLevel>
+		<BatchStatsExportDir>stats</BatchStatsExportDir>
+		<BatchGroupDir>Benchmark</BatchGroupDir>
+		<BatchSubGroupDirName>64-BufferSizeTest</BatchSubGroupDirName>
+	</Stats>	
+	<Parameters>
+		<Parameter>
+			<Type>Group</Type>
+			<Path>Agents.SimpleAgent</Path>
+			<GroupName>Predator</GroupName>
+			<ParameterName>InitialNumbers</ParameterName>
+			<Intial>200</Intial>
+			<Increment>0</Increment>
+			<Combinations>1</Combinations>
+		</Parameter>
+	</Parameters>
+</Batch>

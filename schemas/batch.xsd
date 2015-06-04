@@ -31,6 +31,7 @@
 	<xs:sequence>
 		<xs:element name="Store" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
 		<xs:element name="SingleArchive" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="BufferSize" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 		<xs:element name="CompressionLevel" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 		<xs:element name="BatchStatsExportDir" type="xs:string" minOccurs="1" maxOccurs="1"/>
 		<xs:element name="BatchGroupDir" type="xs:string" minOccurs="0" maxOccurs="1"/>
