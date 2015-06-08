@@ -13,7 +13,7 @@
 	</Log>
 	<Stats>
 		<Store>true</Store>
-		<SingleArchive>true</SingleArchive>
+		<SingleArchive>false</SingleArchive>
 		<CompressionLevel>2</CompressionLevel>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchGroupDir>stability</BatchGroupDir>
