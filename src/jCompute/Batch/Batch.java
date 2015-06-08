@@ -85,7 +85,7 @@ public class Batch implements StoredQueuePosition
 	private boolean storeStats;
 	
 	// Write stats to a single archive or directories with sub archives
-	private final int BOS_DEFAULT_BUFFER_SIZE = 8192;
+	private final int BOS_DEFAULT_BUFFER_SIZE = 512;
 	private int bosBufferSize;
 	private boolean statsMethodSingleArchive;
 	private int singleArchiveCompressionLevel;
