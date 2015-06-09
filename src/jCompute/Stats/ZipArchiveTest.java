@@ -14,11 +14,18 @@ public class ZipArchiveTest
 		long bytes_wrote = 0;
 		long total_bytes = 0;
 		int DATA_LEN = 512;
-		int BUFF_LEN = 1024;
+		int BUFF_LEN = 1024*64;
 		int FLUSH = BUFF_LEN*1024*16;
 		
-		int size = 15000;
-		int num_files = 1000*size;
+		int combos = 200*200;
+		int statfiles = 1;
+		int averages = 100;
+		
+		int items = combos;
+		int item_configs = items;
+		int item_stats = items*statfiles;
+		int item_realated_entries = item_configs+item_stats;
+		int num_files = item_realated_entries*averages;
 		
 		byte[] data = new byte[DATA_LEN];
 		
@@ -31,6 +38,15 @@ public class ZipArchiveTest
 		BufferedOutputStream bos = null;
 		try
 		{
+			Runtime runtime = Runtime.getRuntime();
+			long max_mem = runtime.maxMemory();
+			long total_mem = runtime.totalMemory();
+			long mb = 1024*1024;
+
+			System.out.println("Max Heap Memory (MB)" + max_mem/mb);
+			System.out.println("Current Heap Memory (MB)" + total_mem/mb);
+			System.out.println("Used Heap Memory (MB)" + (runtime.totalMemory() - runtime.freeMemory())/mb);
+			
 			FileOutputStream fo = new FileOutputStream("test.zip");
 			FileDescriptor fd = fo.getFD();
 			
@@ -46,8 +62,10 @@ public class ZipArchiveTest
 			zipOut.putNextEntry(new ZipEntry("Data/"));
 			zipOut.closeEntry();
 			
-			System.out.println("Adding Files");
+			System.out.println("Adding Files : " + num_files );
 			
+			
+			System.out.println("%"+"\t\t\t\t"+"Files"+"\t\t\t\t\t\t"+"Bytes Compressed (MB)"+"\t\t\t"+"Heap Mem Used (MB)");
 			for(int f=0;f<num_files;f++)
 			{
 				// Entry start
@@ -69,13 +87,17 @@ public class ZipArchiveTest
 					bytes_wrote=0;
 				}
 				
+				if(f%item_realated_entries == 0 && (f!=0))
+				{
+					System.out.println(((float)f/num_files)+"\t\t\t\t"+f+"\t\t\t\t\t\t"+total_bytes/mb+"\t\t\t\t\t"+((runtime.totalMemory() - runtime.freeMemory())/mb));
+				}
+				
 			}
-			
 			zipOut.flush();
 			fd.sync();
 			zipOut.close();
 			
-			System.out.println("Sync Buffer (MB): " + BUFF_LEN/1024/1024);
+			System.out.println("Buffer (MB): " + BUFF_LEN/1024);
 			System.out.println("Bytes : " + total_bytes/1000/1000);
 			System.out.println("Files : " + num_files);
 		}
