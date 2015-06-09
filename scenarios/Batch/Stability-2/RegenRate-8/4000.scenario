@@ -21,7 +21,7 @@
 	<Statistics>
 		<Stat>
 			<Name>Population</Name>
-			<Enabled>false</Enabled>
+			<Enabled>true</Enabled>
 			<TotalStat>true</TotalStat>
 			<Graph>true</Graph>
 			<StatSampleRate>100</StatSampleRate>
