@@ -12,9 +12,10 @@
 		<ItemLog>true</ItemLog>
 	</Log>
 	<Stats>
-		<Store>false</Store>
-		<SingleArchive>false</SingleArchive>
-		<CompressionLevel>2</CompressionLevel>
+		<Store>true</Store>
+		<SingleArchive>true</SingleArchive>
+		<BufferSize>65536</BufferSize>
+		<CompressionLevel>1</CompressionLevel>
 		<BatchStatsExportDir>stats/</BatchStatsExportDir>
 		<BatchGroupDir>stability</BatchGroupDir>
 		<BatchSubGroupDirName>regen-rate-4</BatchSubGroupDirName>
