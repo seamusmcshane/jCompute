@@ -101,7 +101,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	private void createFrame()
 	{
 		// Frame
-		guiFrame = new JFrame("Batch Interface");
+		guiFrame = new JFrame("Cluster Interface");
 		guiFrame.getContentPane().setLayout(new BorderLayout());
 		guiFrame.setMinimumSize(new Dimension(900, 700));
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

@@ -24,6 +24,7 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.SimulationManager.SimulationsManager;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.util.JVMInfo;
 import jCompute.util.OSInfo;
 
 import java.io.BufferedInputStream;
@@ -69,6 +70,8 @@ public class Node
 	
 	private NodeStats nodeStats;
 	private long simulationsProcessed;
+	private long bytesTX;
+	private long bytesRX;
 	
 	public Node(String address, SimulationsManager simsManager)
 	{
@@ -78,16 +81,16 @@ public class Node
 		nodeStats = new NodeStats();
 		
 		nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
-		nodeStats.setFreeMemory(OSInfo.getSystemFreeMemory());
 		nodeStats.setSimulationsProcessed(simulationsProcessed);
 		
 		/* Our Configuration */
 		NodeInfo nodeInfo = new NodeInfo();
 		
 		nodeInfo.setOperatingSystem(OSInfo.getOSName());
+		nodeInfo.setMaxJVMMemory(JVMInfo.getMaxMemory());
 		nodeInfo.setSystemArch(OSInfo.getSystemArch());
 		nodeInfo.setHWThreads(OSInfo.getHWThreads());
-		nodeInfo.setTotalMemory(OSInfo.getSystemTotalMemory());
+		nodeInfo.setTotalOSMemory(OSInfo.getSystemTotalMemory());
 		
 		int port = NCP.StandardServerPort;
 		
@@ -190,6 +193,9 @@ public class Node
 						data = ByteBuffer.wrap(backingArray);
 						
 						log.debug("Type " + type + " len " + len);
+						
+						bytesRX += backingArray.length;
+						
 					}
 					
 					switch(type)
@@ -236,11 +242,14 @@ public class Node
 							// Read here
 							int sequenceNum = data.getInt();
 							
-							nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
-							nodeStats.setFreeMemory(OSInfo.getSystemFreeMemory());
+							// Update Node Stats
 							nodeStats.setSimulationsProcessed(simulationsProcessed);
 							nodeStats.setSimulationsActive(simsManager.getActiveSims());
 							nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
+							nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
+							nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
+							nodeStats.setBytesTX(bytesTX);
+							nodeStats.setBytesRX(bytesRX);
 							
 							NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStats);
 							
@@ -343,6 +352,8 @@ public class Node
 				
 				// Wrap the backingArray
 				data = ByteBuffer.wrap(backingArray);
+				
+				bytesRX += backingArray.length;
 			}
 			
 			switch(type)
@@ -415,6 +426,8 @@ public class Node
 		
 		commandOutput.write(bytes);
 		commandOutput.flush();
+		
+		bytesTX += bytes.length;
 		
 		cmdTxLock.release();
 	}

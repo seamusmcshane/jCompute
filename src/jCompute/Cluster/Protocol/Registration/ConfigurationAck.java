@@ -13,20 +13,22 @@ public class ConfigurationAck
 	private String os;
 	private String arch;
 	private int hwThreads;
-	private int totalMemory;
-
+	private int totalOSMemory;
+	private int maxJVMMemory;
+	
 	public ConfigurationAck(NodeInfo conf)
 	{
 		this.maxSims = conf.getMaxSims();
 		this.weighting = conf.getWeighting();
-
+		
 		this.os = conf.getOperatingSystem();
 		this.arch = conf.getSystemArch();
 		this.hwThreads = conf.getHWThreads();
-
-		this.totalMemory = conf.getTotalMemory();
+		
+		this.totalOSMemory = conf.getTotalOSMemory();
+		this.maxJVMMemory = conf.getMaxJVMMemory();
 	}
-
+	
 	// Construct from an input stream
 	public ConfigurationAck(ByteBuffer source) throws IOException
 	{
@@ -34,81 +36,88 @@ public class ConfigurationAck
 		int tLen;
 		maxSims = source.getInt();
 		weighting = source.getLong();
-
+		
 		// OS Len
 		tLen = source.getInt();
 		tBytes = new byte[tLen];
 		// OS
 		source.get(tBytes, 0, tLen);
 		os = new String(tBytes);
-
+		
 		// Arch Len
 		tLen = source.getInt();
 		tBytes = new byte[tLen];
 		// Arch
 		source.get(tBytes, 0, tLen);
 		arch = new String(tBytes);
-
+		
 		hwThreads = source.getInt();
-		totalMemory = source.getInt();
+		totalOSMemory = source.getInt();
+		maxJVMMemory = source.getInt();
 	}
-
+	
 	public int getMaxSims()
 	{
 		return maxSims;
 	}
-
+	
 	public long getWeighting()
 	{
 		return weighting;
 	}
-
+	
 	public String getOs()
 	{
 		return os;
 	}
-
+	
 	public String getArch()
 	{
 		return arch;
 	}
-
+	
 	public int getHwThreads()
 	{
 		return hwThreads;
 	}
-
-	public int getTotalMemory()
+	
+	public int getTotalOSMemory()
 	{
-		return totalMemory;
+		return totalOSMemory;
+	}
+	
+	public int getMaxJVMMemory()
+	{
+		return maxJVMMemory;
 	}
 	
 	public byte[] toBytes()
 	{
 		int osLen = os.getBytes().length;
 		int archLen = arch.getBytes().length;
-
-		int dataLen = 28 + osLen + archLen;
-
+		
+		int dataLen = 32 + osLen + archLen;
+		
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
-
+		
 		// Header
 		tbuffer.putInt(NCP.ConfAck);
 		tbuffer.putInt(dataLen);
-
+		
 		// Data
 		tbuffer.putInt(maxSims);
 		tbuffer.putLong(weighting);
-
+		
 		tbuffer.putInt(osLen);
 		tbuffer.put(os.getBytes());
-
+		
 		tbuffer.putInt(archLen);
 		tbuffer.put(arch.getBytes());
-
+		
 		tbuffer.putInt(hwThreads);
-		tbuffer.putInt(totalMemory);
-
+		tbuffer.putInt(totalOSMemory);
+		tbuffer.putInt(maxJVMMemory);
+		
 		return tbuffer.array();
 	}
 }

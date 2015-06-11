@@ -23,10 +23,12 @@ public class NodeStatsReply
 		stats = new NodeStats();
 		
 		stats.setCpuUsage(source.getInt());
-		stats.setFreeMemory(source.getInt());
 		stats.setSimulationsProcessed(source.getLong());
 		stats.setSimulationsActive(source.getInt());
-		stats.setStatisticsPendingFetch(source.getInt());		
+		stats.setStatisticsPendingFetch(source.getInt());
+		stats.setJvmMemoryUsedPercentage(source.getInt());
+		stats.setBytesTX(source.getLong());
+		stats.setBytesRX(source.getLong());
 	}
 	
 	public NodeStats getNodeStats()
@@ -41,9 +43,9 @@ public class NodeStatsReply
 	
 	public byte[] toBytes()
 	{
-		int dataLen = 28;
-
-		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NCP.HEADER_SIZE);  
+		int dataLen = 44;
+		
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
 		// Header
 		tbuffer.putInt(NCP.NodeStatsReply);
@@ -52,10 +54,12 @@ public class NodeStatsReply
 		tbuffer.putInt(sequenceNum);
 		
 		tbuffer.putInt(stats.getCpuUsage());
-		tbuffer.putInt(stats.getFreeMemory());
 		tbuffer.putLong(stats.getSimulationsProcessed());
 		tbuffer.putInt(stats.getSimulationsActive());
 		tbuffer.putInt(stats.getStatisticsPendingFetch());
+		tbuffer.putInt(stats.getJvmMemoryUsedPercentage());
+		tbuffer.putLong(stats.getBytesTX());
+		tbuffer.putLong(stats.getBytesRX());
 		
 		return tbuffer.array();
 	}

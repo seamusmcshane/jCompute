@@ -3,37 +3,50 @@ package jCompute.Cluster.Node;
 public class NodeStats
 {
 	private int cpuUsage;
-	private int freeMemory;
 	private int simulationsActive;
 	private int statisticsPendingFetch;
+	private int jvmMemoryUsedPercentage;
 	
 	private long simulationsProcessed;
-
+	
+	private long bytesTX;
+	private long bytesRX;
+	
+	public void setBytesTX(long bytesTX)
+	{
+		this.bytesTX = bytesTX;
+	}
+	
+	public long getBytesTX()
+	{
+		return bytesTX;
+	}
+	
+	public void setBytesRX(long bytesRX)
+	{
+		this.bytesRX = bytesRX;
+	}
+	
+	public long getBytesRX()
+	{
+		return bytesRX;
+	}
+	
 	public void setCpuUsage(int cpuUsage)
 	{
 		this.cpuUsage = cpuUsage;
 	}
-
-	public void setFreeMemory(int freeMemory)
-	{
-		this.freeMemory = freeMemory;
-	}
-
+	
 	public void setSimulationsProcessed(long simulationsProcessed)
 	{
 		this.simulationsProcessed = simulationsProcessed;
 	}
-
+	
 	public int getCpuUsage()
 	{
 		return cpuUsage;
 	}
-
-	public int getFreeMemory()
-	{
-		return freeMemory;
-	}
-
+	
 	public long getSimulationsProcessed()
 	{
 		return simulationsProcessed;
@@ -43,29 +56,41 @@ public class NodeStats
 	{
 		return simulationsActive;
 	}
-
+	
 	public int getStatisticsPendingFetch()
 	{
 		return statisticsPendingFetch;
 	}
-
+	
 	public void setSimulationsActive(int simulationsActive)
 	{
 		this.simulationsActive = simulationsActive;
 	}
-
+	
 	public void setStatisticsPendingFetch(int statisticsPendingFetch)
 	{
 		this.statisticsPendingFetch = statisticsPendingFetch;
 	}
-
+	
+	public void setJvmMemoryUsedPercentage(int jvmMemoryUsedPercentage)
+	{
+		this.jvmMemoryUsedPercentage = jvmMemoryUsedPercentage;
+	}
+	
+	public int getJvmMemoryUsedPercentage()
+	{
+		return jvmMemoryUsedPercentage;
+	}
+	
 	public void reset()
 	{
 		cpuUsage = 0;
-		freeMemory = 0;
-		simulationsProcessed=0;
-		simulationsActive=0;
-		statisticsPendingFetch=0;
+		simulationsProcessed = 0;
+		simulationsActive = 0;
+		statisticsPendingFetch = 0;
+		jvmMemoryUsedPercentage = 0;
+		bytesTX = 0;
+		bytesRX = 0;
 	}
-
+	
 }

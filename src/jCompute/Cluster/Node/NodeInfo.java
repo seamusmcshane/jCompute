@@ -10,53 +10,64 @@ public class NodeInfo
 	private String operatingSystem;
 	private String systemArch;
 	private int totalThreads;
-	private int totalMemory;
+	private int totalOSMemory;
+	private int maxJVMMemory;
 	
-	public int getTotalMemory()
+	public int getTotalOSMemory()
 	{
-		return totalMemory;
+		return totalOSMemory;
 	}
-
-	public void setTotalMemory(int totalMemory)
+	
+	public void setTotalOSMemory(int totalOSMemory)
 	{
-		this.totalMemory = totalMemory;
+		this.totalOSMemory = totalOSMemory;
 	}
-
+	
+	public int getMaxJVMMemory()
+	{
+		return maxJVMMemory;
+	}
+	
+	public void setMaxJVMMemory(int maxJVMMemory)
+	{
+		this.maxJVMMemory = maxJVMMemory;
+	}
+	
 	public void setUid(int uid)
 	{
 		this.uid = uid;
 	}
-
+	
 	public int getUid()
 	{
 		return uid;
 	}
-
+	
 	public void setMaxSims(int maxSims)
 	{
 		this.maxSims = maxSims;
 	}
-
+	
 	public int getMaxSims()
 	{
 		return maxSims;
 	}
-
+	
 	public long getWeighting()
 	{
 		return weighting;
 	}
-
+	
 	public void setWeighting(long weighting)
 	{
 		this.weighting = weighting;
 	}
-
+	
 	public String getAddress()
 	{
 		return address;
 	}
-
+	
 	public void setAddress(String address)
 	{
 		this.address = address;
@@ -66,27 +77,27 @@ public class NodeInfo
 	{
 		return operatingSystem;
 	}
-
+	
 	public String getSystemArch()
 	{
 		return systemArch;
 	}
-
+	
 	public int getHWThreads()
 	{
 		return totalThreads;
 	}
-
+	
 	public void setOperatingSystem(String operatingSystem)
 	{
 		this.operatingSystem = operatingSystem;
 	}
-
+	
 	public void setSystemArch(String systemArch)
 	{
 		this.systemArch = systemArch;
 	}
-
+	
 	public void setHWThreads(int totalThreads)
 	{
 		this.totalThreads = totalThreads;

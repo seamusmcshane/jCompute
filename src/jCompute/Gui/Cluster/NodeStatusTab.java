@@ -5,8 +5,6 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-
 import com.google.common.eventbus.Subscribe;
 
 import jCompute.JComputeEventBus;
@@ -20,78 +18,93 @@ import jCompute.Gui.Component.Swing.TablePanel;
 
 import java.awt.GridLayout;
 
-import javax.swing.JLabel;
-
 public class NodeStatusTab extends JPanel
 {
+	private final int MEGABYTE = 1048576;
+	private final int CHART_HEIGHT = 175;
 	private SimpleTabPanel nodeStatusTabPanel;
 	private JScrollPane scrollPane;
 	private JPanel container;
-	private GlobalStatChartPanel clusterNodeUtilChar;
-	private GlobalStatChartPanel clusterNodeMemChar;
-	private GlobalStatChartPanel clusterSimProChart;
+	
+	// Processing
 	private GlobalStatChartPanel clusterNodeActiveSims;
 	private GlobalStatChartPanel clusterNodeStatsPending;
-
+	private GlobalStatChartPanel clusterSimProChart;
+	
+	// Node OS/JVM
+	private GlobalStatChartPanel clusterNodeUtilChar;
+	private GlobalStatChartPanel clusterNodeMemUsedPerChar;
+	private GlobalStatChartPanel clusterNodeTXChar;
+	private GlobalStatChartPanel clusterNodeRXChar;
+	
 	// Left
 	private TablePanel clusterNodesTablePanel;
-
+	
 	private int rightPanelsMinWidth;
-
+	
 	public NodeStatusTab(int rightPanelsMinWidth)
 	{
 		this.nodeStatusTabPanel = new SimpleTabPanel();
-
+		
 		// Min Width of rightPanel
 		this.rightPanelsMinWidth = rightPanelsMinWidth;
-
+		
 		this.setLayout(new BorderLayout());
-
+		
 		container = new JPanel();
-
-		container.setLayout(new GridLayout(5, 1, 0, 0));
-
+		
+		container.setLayout(new GridLayout(7, 1, 0, 0));
+		
 		scrollPane = new JScrollPane(container);
-
+		
 		scrollPane.setPreferredSize(new Dimension(600, 240));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(15);
-
+		
 		// this.add(scrollPane, BorderLayout.NORTH);
 		// splitPane.setLeftComponent(scrollPane);
-
-		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
-		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, 200));
-		clusterNodeUtilChar.setPreferredSize(new Dimension(600, 200));
-
-		container.add(clusterNodeUtilChar);
-
-		clusterNodeMemChar = new GlobalStatChartPanel("Node Mem Utilisation", "Nodes", true, false, 60, true);
-		clusterNodeMemChar.setMaximumSize(new Dimension(1920, 200));
-		clusterNodeMemChar.setPreferredSize(new Dimension(600, 200));
-
-		container.add(clusterNodeMemChar);
-
+		
 		clusterSimProChart = new GlobalStatChartPanel("Simulations Processed", "Nodes", true, false, 60, true);
-		clusterSimProChart.setMaximumSize(new Dimension(1920, 200));
-		clusterSimProChart.setPreferredSize(new Dimension(600, 200));
-
-		container.add(clusterSimProChart);
-
+		clusterSimProChart.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterSimProChart.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
 		clusterNodeActiveSims = new GlobalStatChartPanel("Active Simulations", "Nodes", true, false, 60, true);
-		clusterNodeActiveSims.setMaximumSize(new Dimension(1920, 200));
-		clusterNodeActiveSims.setPreferredSize(new Dimension(600, 200));
-
-		container.add(clusterNodeActiveSims);
-
+		clusterNodeActiveSims.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeActiveSims.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
 		clusterNodeStatsPending = new GlobalStatChartPanel("Statistics Pending", "Nodes", true, false, 60, true);
-		clusterNodeStatsPending.setMaximumSize(new Dimension(1920, 200));
-		clusterNodeStatsPending.setPreferredSize(new Dimension(600, 200));
-
+		clusterNodeStatsPending.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeStatsPending.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
+		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeUtilChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("Node JVM Mem Utilisation", "Nodes", true, false, 60, true);
+		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		clusterNodeTXChar = new GlobalStatChartPanel("Network TX", "Nodes", true, false, 60, true);
+		clusterNodeTXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeTXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		clusterNodeRXChar = new GlobalStatChartPanel("Network RX", "Nodes", true, false, 60, true);
+		clusterNodeRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		// Processing
+		container.add(clusterNodeActiveSims);
 		container.add(clusterNodeStatsPending);
-
+		container.add(clusterSimProChart);
+		
+		// Node OS/JVM
+		container.add(clusterNodeUtilChar);
+		container.add(clusterNodeMemUsedPerChar);
+		container.add(clusterNodeTXChar);
+		container.add(clusterNodeRXChar);
+		
 		// Nodes Tab
 		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
-
+		
 		clusterNodesTablePanel.setColumWidth(0, 50);
 		clusterNodesTablePanel.setColumWidth(1, 75);
 		// clusterNodesTablePanel.setColumWidth(2, 60);
@@ -100,65 +113,63 @@ public class NodeStatusTab extends JPanel
 		clusterNodesTablePanel.setColumWidth(5, 75);
 		clusterNodesTablePanel.setColumWidth(6, 75);
 		clusterNodesTablePanel.setColumWidth(7, 75);
-
+		
 		// this.add(clusterNodesTablePanel, BorderLayout.CENTER);
 		// splitPane.setRightComponent(clusterNodesTablePanel);
 		nodeStatusTabPanel.addTab(clusterNodesTablePanel, "Information");
 		nodeStatusTabPanel.addTab(scrollPane, "Activity");
-
+		
 		this.add(nodeStatusTabPanel);
-
-		JPanel statusPanel = new JPanel();
-		this.add(statusPanel, BorderLayout.SOUTH);
-		statusPanel.setLayout(new GridLayout(1, 0, 0, 0));
-		JLabel lblNodes = new JLabel("Nodes");
-		statusPanel.add(lblNodes);
-		JLabel lblNodeNum = new JLabel("0");
-		statusPanel.add(lblNodeNum);
-		JLabel lblClusterUsage = new JLabel("Utilisation");
-		statusPanel.add(lblClusterUsage);
-
+		
 		// Register on the event bus
 		JComputeEventBus.register(this);
 	}
-
+	
 	@Subscribe
 	public void ControlNodeEvent(NodeAdded e)
 	{
 		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration()));
 	}
-
+	
 	@Subscribe
 	public void ControlNodeEvent(NodeRemoved e)
 	{
 		clusterNodesTablePanel.removeRow(e.getNodeConfiguration().getUid());
-
+		
 		clusterNodeUtilChar.removeStat("Node " + e.getNodeConfiguration().getUid());
-
-		clusterNodeMemChar.removeStat("Node " + e.getNodeConfiguration().getUid());
-
+		
+		clusterNodeMemUsedPerChar.removeStat("Node " + e.getNodeConfiguration().getUid());
+		
 		clusterSimProChart.removeStat("Node " + e.getNodeConfiguration().getUid());
 		
 		clusterNodeActiveSims.removeStat("Node " + e.getNodeConfiguration().getUid());
 		
 		clusterNodeStatsPending.removeStat("Node " + e.getNodeConfiguration().getUid());
 	}
-
+	
 	@Subscribe
 	public void NodeStatsUpdateEvent(NodeStatsUpdate e)
 	{
-		clusterNodeUtilChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(),
-				e.getNodeId());
-		clusterNodeMemChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getFreeMemory(),
-				e.getNodeId());
 		clusterSimProChart.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
 				.getSimulationsProcessed(), e.getNodeId());
-
+		
 		clusterNodeActiveSims.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
 				.getSimulationsActive(), e.getNodeId());
 		
 		clusterNodeStatsPending.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
 				.getStatisticsPendingFetch(), e.getNodeId());
+		
+		clusterNodeUtilChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(),
+				e.getNodeId());
+		
+		clusterNodeMemUsedPerChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
+				.getJvmMemoryUsedPercentage(), e.getNodeId());
+		
+		clusterNodeTXChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(),
+				(e.getStats().getBytesTX() / MEGABYTE), e.getNodeId());
+		
+		clusterNodeRXChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(),
+				(e.getStats().getBytesRX() / MEGABYTE), e.getNodeId());
+		
 	}
-
 }
