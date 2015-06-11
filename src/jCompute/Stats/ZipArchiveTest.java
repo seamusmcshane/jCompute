@@ -1,5 +1,7 @@
 package jCompute.Stats;
 
+import jCompute.util.JVMInfo;
+
 import java.io.BufferedOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -14,44 +16,38 @@ public class ZipArchiveTest
 		long bytes_wrote = 0;
 		long total_bytes = 0;
 		int DATA_LEN = 512;
-		int BUFF_LEN = 1024*64;
-		int FLUSH = BUFF_LEN*1024*16;
+		int BUFF_LEN = 1024 * 64;
+		int FLUSH = BUFF_LEN * 1024 * 16;
 		
-		int combos = 200*200;
+		int combos = 200 * 200;
 		int statfiles = 1;
-		int averages = 100;
+		int averages = 20;
 		
 		int items = combos;
 		int item_configs = items;
-		int item_stats = items*statfiles;
-		int item_realated_entries = item_configs+item_stats;
-		int num_files = item_realated_entries*averages;
+		int item_stats = items * statfiles;
+		int item_realated_entries = item_configs + item_stats;
+		int num_files = item_realated_entries * averages;
 		
 		byte[] data = new byte[DATA_LEN];
 		
 		// Fill with values
-		for(int i=0;i<DATA_LEN;i++)
+		for(int i = 0; i < DATA_LEN; i++)
 		{
-			data[i]=(byte)i;
+			data[i] = (byte) i;
 		}
 		
 		BufferedOutputStream bos = null;
 		try
 		{
-			Runtime runtime = Runtime.getRuntime();
-			long max_mem = runtime.maxMemory();
-			long total_mem = runtime.totalMemory();
-			long mb = 1024*1024;
-
-			System.out.println("Max Heap Memory (MB)" + max_mem/mb);
-			System.out.println("Current Heap Memory (MB)" + total_mem/mb);
-			System.out.println("Used Heap Memory (MB)" + (runtime.totalMemory() - runtime.freeMemory())/mb);
+			System.out.println("Max Heap Memory (MB)" + JVMInfo.getMaxMemory());
+			System.out.println("Current Heap Memory (MB)" + JVMInfo.getTotalJVMMemory());
+			System.out.println("Used Heap Memory (MB)" + JVMInfo.getUsedJVMMemory());
 			
 			FileOutputStream fo = new FileOutputStream("test.zip");
 			FileDescriptor fd = fo.getFD();
 			
-			bos = new BufferedOutputStream(fo,
-					BUFF_LEN);
+			bos = new BufferedOutputStream(fo, BUFF_LEN);
 			
 			System.out.println("Creating Archive");
 			
@@ -62,34 +58,36 @@ public class ZipArchiveTest
 			zipOut.putNextEntry(new ZipEntry("Data/"));
 			zipOut.closeEntry();
 			
-			System.out.println("Adding Files : " + num_files );
+			System.out.println("Adding Files : " + num_files);
 			
-			
-			System.out.println("%"+"\t\t\t\t"+"Files"+"\t\t\t\t\t\t"+"Bytes Compressed (MB)"+"\t\t\t"+"Heap Mem Used (MB)");
-			for(int f=0;f<num_files;f++)
+			System.out.println("%" + "\t\t\t\t" + "Files" + "\t\t\t\t\t\t" + "Bytes Compressed (MB)" + "\t\t\t"
+					+ "Heap Mem Used (MB)");
+			for(int f = 0; f < num_files; f++)
 			{
 				// Entry start
-				zipOut.putNextEntry(new ZipEntry("Data/"+f));
+				zipOut.putNextEntry(new ZipEntry("Data/" + f));
 				
 				// Data
 				zipOut.write(data);
 				
 				// Entry end
 				zipOut.closeEntry();
-
-				total_bytes+=data.length;
 				
-				bytes_wrote+=data.length;
+				total_bytes += data.length;
+				
+				bytes_wrote += data.length;
 				
 				if(bytes_wrote >= FLUSH)
 				{
 					zipOut.flush();
-					bytes_wrote=0;
+					bytes_wrote = 0;
 				}
 				
-				if(f%item_realated_entries == 0 && (f!=0))
+				if(f % item_realated_entries == 0 && (f != 0))
 				{
-					System.out.println(((float)f/num_files)+"\t\t\t\t"+f+"\t\t\t\t\t\t"+total_bytes/mb+"\t\t\t\t\t"+((runtime.totalMemory() - runtime.freeMemory())/mb));
+					System.out.println(((float) f / num_files) + "\t\t\t\t" + f + "\t\t\t\t\t\t" + total_bytes / 1024
+							/ 1024 + "\t\t\t\t\t" + JVMInfo.getUsedJVMMemory() + " :: "
+							+ JVMInfo.getUsedJVMMemoryPercentage() + " / " + JVMInfo.getFreeJVMMemoryPercentage());
 				}
 				
 			}
@@ -97,8 +95,8 @@ public class ZipArchiveTest
 			fd.sync();
 			zipOut.close();
 			
-			System.out.println("Buffer (MB): " + BUFF_LEN/1024);
-			System.out.println("Bytes : " + total_bytes/1000/1000);
+			System.out.println("Buffer (MB): " + BUFF_LEN / 1024);
+			System.out.println("Bytes : " + total_bytes / 1000 / 1000);
 			System.out.println("Files : " + num_files);
 		}
 		catch(IOException e)

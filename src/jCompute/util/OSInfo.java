@@ -6,8 +6,8 @@ import com.sun.management.OperatingSystemMXBean;
 
 public class OSInfo
 {
-	// CPU Usage
 	private static OperatingSystemMXBean mx = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+	private static final int MEGABYTE = 1048576;
 	
 	public static String getOSName()
 	{
@@ -27,18 +27,11 @@ public class OSInfo
 	public static int getSystemCpuUsage()
 	{
 		// Converted to 100% and . removed
-		return (int)(mx.getSystemCpuLoad()*100);
+		return (int) (mx.getSystemCpuLoad() * 100);
 	}
 	
 	public static int getSystemTotalMemory()
 	{
-		// Converted to megabytes
-		return (int)(mx.getTotalPhysicalMemorySize()/1024/1024);
-	}
-	
-	public static int getSystemFreeMemory()
-	{
-		// Converted to megabytes
-		return (int)(mx.getFreePhysicalMemorySize()/1024/1024);
+		return (int) (mx.getTotalPhysicalMemorySize() / MEGABYTE);
 	}
 }
