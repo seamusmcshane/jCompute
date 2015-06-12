@@ -44,10 +44,13 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	
 	// Main Frame
 	private JFrame guiFrame;
-	private JMenuItem mntmQuit;
 	
 	// Menu Bar
 	private JMenuBar menuBar;
+	private JMenuItem mntmQuit;
+	
+	private JMenu mnHelp;
+	private JMenuItem mntmAbout;
 	
 	// Batch Add
 	private JComputeProgressMonitor openBatchProgressMonitor;
@@ -145,6 +148,13 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		mntmQuit = new JMenuItem("Quit");
 		mnFileMenu.add(mntmQuit);
 		mntmQuit.addActionListener(this);
+		
+		mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+		
+		mntmAbout = new JMenuItem("About");
+		mnHelp.add(mntmAbout);
+		mntmAbout.addActionListener(this);
 	}
 	
 	public void createToolbar()
@@ -369,6 +379,12 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		if(e.getSource() == mntmQuit)
 		{
 			doProgramExit();
+		}
+		else if(e.getSource() == mntmAbout)
+		{
+			AboutWindow jvmInfo = new AboutWindow();
+			jvmInfo.setLocationRelativeTo(guiFrame);
+			jvmInfo.setVisible(true);
 		}
 	}
 	
