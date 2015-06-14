@@ -20,17 +20,28 @@ import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 
 public class AboutWindow extends JFrame
 {
 	private final AboutWindow self;
 	private static final long serialVersionUID = -6597372249572030L;
+	private Timer updateTimer;
+	private JLabel lblUsedVal;
+	private JLabel lblTotalVal;
+	private JLabel lblMaxVal;
 	
 	public AboutWindow()
 	{
+		setResizable(false);
 		self = this;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setType(Type.POPUP);
@@ -38,58 +49,44 @@ public class AboutWindow extends JFrame
 		getRootPane().setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
 		
 		setTitle("JVM Info");
-		setMinimumSize(new Dimension(500, 250));
-		setResizable(false);
+		setMinimumSize(new Dimension(600, 125));
 		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		JPanel infoPanel = new JPanel();
 		getContentPane().add(infoPanel);
-		infoPanel.setLayout(new GridLayout(6, 0, 25, 0));
+		infoPanel.setLayout(new GridLayout(0, 6, 0, 0));
 		
-		JLabel label_2 = new JLabel("Max Memory");
-		label_2.setHorizontalAlignment(SwingConstants.CENTER);
-		label_2.setFont(label_2.getFont().deriveFont(label_2.getFont().getStyle() | Font.BOLD));
-		infoPanel.add(label_2);
+		JLabel lblUsed = new JLabel("Used Memory");
+		lblUsed.setHorizontalAlignment(SwingConstants.CENTER);
+		lblUsed.setFont(lblUsed.getFont().deriveFont(lblUsed.getFont().getStyle() | Font.BOLD));
+		infoPanel.add(lblUsed);
 		
-		JLabel label_3 = new JLabel(String.valueOf(JVMInfo.getMaxMemory()));
-		label_3.setHorizontalAlignment(SwingConstants.CENTER);
-		infoPanel.add(label_3);
+		lblUsedVal = new JLabel("");
+		lblUsedVal.setHorizontalAlignment(SwingConstants.CENTER);
+		infoPanel.add(lblUsedVal);
 		
-		JLabel label_4 = new JLabel("Total Memory");
-		label_4.setHorizontalAlignment(SwingConstants.CENTER);
-		label_4.setFont(label_4.getFont().deriveFont(label_4.getFont().getStyle() | Font.BOLD));
-		infoPanel.add(label_4);
+		JLabel lblTotal = new JLabel("Total Memory");
+		lblTotal.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTotal.setFont(lblTotal.getFont().deriveFont(lblTotal.getFont().getStyle() | Font.BOLD));
+		infoPanel.add(lblTotal);
 		
-		JLabel label_5 = new JLabel(String.valueOf(JVMInfo.getTotalJVMMemory()));
-		label_5.setHorizontalAlignment(SwingConstants.CENTER);
-		infoPanel.add(label_5);
+		lblTotalVal = new JLabel("");
+		lblTotalVal.setHorizontalAlignment(SwingConstants.CENTER);
+		infoPanel.add(lblTotalVal);
 		
-		JLabel label_6 = new JLabel("Used Memory");
-		label_6.setHorizontalAlignment(SwingConstants.CENTER);
-		label_6.setFont(label_6.getFont().deriveFont(label_6.getFont().getStyle() | Font.BOLD));
-		infoPanel.add(label_6);
+		JLabel lblMax = new JLabel("Max Memory");
+		lblMax.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMax.setFont(lblMax.getFont().deriveFont(lblMax.getFont().getStyle() | Font.BOLD));
+		infoPanel.add(lblMax);
 		
-		JLabel label_7 = new JLabel(String.valueOf(JVMInfo.getUsedJVMMemory()));
-		label_7.setHorizontalAlignment(SwingConstants.CENTER);
-		infoPanel.add(label_7);
+		lblMaxVal = new JLabel("");
+		lblMaxVal.setHorizontalAlignment(SwingConstants.CENTER);
+		infoPanel.add(lblMaxVal);
 		
 		JPanel titlePanel = new JPanel();
 		getContentPane().add(titlePanel, BorderLayout.NORTH);
 		titlePanel.setLayout(new BorderLayout(0, 0));
-		
-		JPanel buildPanelCont = new JPanel();
-		titlePanel.add(buildPanelCont);
-		buildPanelCont.setLayout(new GridLayout(2, 2, 0, 5));
-		
-		JLabel lblBuilt = new JLabel("Built");
-		lblBuilt.setFont(lblBuilt.getFont().deriveFont(lblBuilt.getFont().getStyle() | Font.BOLD));
-		lblBuilt.setHorizontalAlignment(SwingConstants.CENTER);
-		buildPanelCont.add(lblBuilt);
-		
-		JLabel lblJcompute_1 = new JLabel("JCOMPUTE");
-		buildPanelCont.add(lblJcompute_1);
-		lblJcompute_1.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		JPanel titlePanelCont = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) titlePanelCont.getLayout();
@@ -101,7 +98,43 @@ public class AboutWindow extends JFrame
 		titlePanelCont.add(lblJcompute);
 		lblJcompute.setFont(lblJcompute.getFont().deriveFont(lblJcompute.getFont().getStyle() | Font.BOLD,
 				lblJcompute.getFont().getSize() + 6f));
-		lblJcompute.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		JPanel buildPanelCont = new JPanel();
+		titlePanel.add(buildPanelCont);
+		GridBagLayout gbl_buildPanelCont = new GridBagLayout();
+		gbl_buildPanelCont.columnWidths = new int[]
+		{
+			100, 100
+		};
+		gbl_buildPanelCont.rowHeights = new int[]
+		{
+			20, 20
+		};
+		gbl_buildPanelCont.columnWeights = new double[]
+		{
+			1.0, 1.0
+		};
+		gbl_buildPanelCont.rowWeights = new double[]
+		{
+			1.0
+		};
+		buildPanelCont.setLayout(gbl_buildPanelCont);
+		
+		JLabel lblBuilt = new JLabel("Built");
+		lblBuilt.setFont(lblBuilt.getFont().deriveFont(lblBuilt.getFont().getStyle() | Font.BOLD));
+		GridBagConstraints gbc_lblBuilt = new GridBagConstraints();
+		gbc_lblBuilt.fill = GridBagConstraints.VERTICAL;
+		gbc_lblBuilt.gridx = 0;
+		gbc_lblBuilt.gridy = 0;
+		buildPanelCont.add(lblBuilt, gbc_lblBuilt);
+		
+		JLabel lblBuildDate = new JLabel("JCOMPUTE");
+		GridBagConstraints gbc_lblBuildDate = new GridBagConstraints();
+		gbc_lblBuildDate.fill = GridBagConstraints.BOTH;
+		gbc_lblBuildDate.gridx = 1;
+		gbc_lblBuildDate.gridy = 0;
+		buildPanelCont.add(lblBuildDate, gbc_lblBuildDate);
+		lblBuildDate.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		addFocusListener(new FocusListener()
 		{
@@ -127,16 +160,37 @@ public class AboutWindow extends JFrame
 			Properties prop = new Properties();
 			prop.load(input);
 			
-			lblJcompute_1.setText(prop.getProperty("BuildDateTime"));
+			lblBuildDate.setText(prop.getProperty("BuildDateTime"));
 			
-			JLabel label = new JLabel("JVM");
-			buildPanelCont.add(label);
-			label.setHorizontalAlignment(SwingConstants.CENTER);
-			label.setFont(label.getFont().deriveFont(label.getFont().getStyle() | Font.BOLD));
+			JLabel lblJvm = new JLabel("JVM");
+			GridBagConstraints gbc_lblJvm = new GridBagConstraints();
+			gbc_lblJvm.fill = GridBagConstraints.VERTICAL;
+			gbc_lblJvm.gridx = 0;
+			gbc_lblJvm.gridy = 1;
+			buildPanelCont.add(lblJvm, gbc_lblJvm);
+			lblJvm.setFont(lblJvm.getFont().deriveFont(lblJvm.getFont().getStyle() | Font.BOLD));
 			
-			JLabel label_1 = new JLabel(System.getProperty("java.vm.name") + " " + System.getProperty("java.version"));
-			buildPanelCont.add(label_1);
-			label_1.setHorizontalAlignment(SwingConstants.LEFT);
+			lblJvm.setFont(lblJvm.getFont().deriveFont(lblJvm.getFont().getStyle() | Font.BOLD));
+			
+			JLabel lblJvmNameVer = new JLabel();
+			GridBagConstraints gbc_lblJvmNameVer = new GridBagConstraints();
+			gbc_lblJvmNameVer.fill = GridBagConstraints.BOTH;
+			gbc_lblJvmNameVer.gridx = 1;
+			gbc_lblJvmNameVer.gridy = 1;
+			lblJvmNameVer.setText(System.getProperty("java.vm.name") + " " + System.getProperty("java.version"));
+			buildPanelCont.add(lblJvmNameVer, gbc_lblJvmNameVer);
+			
+			updateTimer = new Timer("About Update Timer");
+			updateTimer.scheduleAtFixedRate(new TimerTask()
+			{
+				@Override
+				public void run()
+				{
+					lblUsedVal.setText(String.valueOf(JVMInfo.getUsedJVMMemory()));
+					lblTotalVal.setText(String.valueOf(JVMInfo.getTotalJVMMemory()));
+					lblMaxVal.setText(String.valueOf(JVMInfo.getMaxMemory()));
+				}
+			}, 1000, 1000);
 			
 		}
 		catch(IOException e1)
@@ -144,6 +198,16 @@ public class AboutWindow extends JFrame
 			e1.printStackTrace();
 		}
 		
+	}
+	
+	@Override
+	public void dispose()
+	{
+		super.dispose();
+		
+		updateTimer.cancel();
+		
+		updateTimer = null;
 	}
 	
 }
