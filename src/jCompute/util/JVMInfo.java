@@ -3,13 +3,12 @@ package jCompute.util;
 public class JVMInfo
 {
 	private static Runtime runtime = Runtime.getRuntime();
-	private static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 	
 	private static final int MEGABYTE = 1048576;
 	
 	public static int getMaxMemory()
 	{
-		return (int) (MAX_MEMORY / MEGABYTE);
+		return (int) (Runtime.getRuntime().maxMemory() / MEGABYTE);
 	}
 	
 	public static int getTotalJVMMemory()
@@ -26,7 +25,7 @@ public class JVMInfo
 	{
 		long used = runtime.totalMemory() - runtime.freeMemory();
 		
-		return Math.round((((float) used / (float) MAX_MEMORY) * 100));
+		return Math.round((((float) used / (float) Runtime.getRuntime().maxMemory()) * 100));
 	}
 	
 	public static long getFreeJVMMemory()
@@ -42,7 +41,7 @@ public class JVMInfo
 		
 		long jvmused = runtime.maxMemory() - used;
 		
-		return Math.round((((float) jvmused / (float) MAX_MEMORY) * 100));
+		return Math.round((((float) jvmused / (float) Runtime.getRuntime().maxMemory()) * 100));
 	}
 	
 }
