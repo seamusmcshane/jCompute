@@ -4,11 +4,9 @@ import jCompute.util.JVMInfo;
 
 import javax.swing.JFrame;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
@@ -44,8 +42,7 @@ public class AboutWindow extends JFrame
 		setResizable(false);
 		self = this;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setType(Type.POPUP);
-		getRootPane().setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
+		setType(Type.NORMAL);
 		
 		setTitle("jCompute");
 		setMinimumSize(new Dimension(600, 150));
@@ -199,7 +196,7 @@ public class AboutWindow extends JFrame
 		{
 			e1.printStackTrace();
 		}
-		
+
 	}
 	
 	@Override

@@ -384,6 +384,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		{
 			AboutWindow jvmInfo = new AboutWindow();
 			jvmInfo.setLocationRelativeTo(guiFrame);
+			jvmInfo.pack();
 			jvmInfo.setVisible(true);
 		}
 	}
