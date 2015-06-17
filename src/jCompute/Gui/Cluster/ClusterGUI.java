@@ -411,6 +411,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 				
 				if(value == JOptionPane.YES_OPTION)
 				{
+					log.info("Application exit requested.");
 					// Do EXIT
 					System.exit(0);
 				}
