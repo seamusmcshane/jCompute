@@ -6,12 +6,23 @@ public class NodeInfo
 	private int uid = -1;
 	private long weighting = Long.MAX_VALUE;
 	private String address = "0.0.0.0";
+	private String desc = "";
 	
 	private String operatingSystem;
 	private String systemArch;
 	private int totalThreads;
 	private int totalOSMemory;
 	private int maxJVMMemory;
+	
+	public void setDescription(String desc)
+	{
+		this.desc = desc;
+	}
+	
+	public String getDescription()
+	{
+		return desc;
+	}
 	
 	public int getTotalOSMemory()
 	{

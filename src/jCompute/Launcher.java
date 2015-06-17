@@ -52,7 +52,8 @@ public class Launcher
 		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"),
 		new CommandLineArg("bText", "1", "Button Text (0/1)"),
 		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"),
-		new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"), new CommandLineArg("desc", "", "Node Description")
+		new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
+		new CommandLineArg("desc", "not set", "Node Description")
 	};
 	
 	public static void main(String args[])
@@ -146,10 +147,11 @@ public class Launcher
 			case 2:
 				
 				String address = opts.get("addr").getValue();
+				String desc = opts.get("desc").getValue();
 				
-				log.info("Creating Node : " + address);
+				log.info("Creating Node : " + address + " (" + desc + ")");
 				
-				node = new Node(address, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+				node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 			
 			break;
 			default:

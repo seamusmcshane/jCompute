@@ -73,7 +73,7 @@ public class Node
 	private long bytesTX;
 	private long bytesRX;
 	
-	public Node(String address, SimulationsManager simsManager)
+	public Node(String address, String desc, SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
 		simulationsProcessed = 0;
@@ -85,6 +85,9 @@ public class Node
 		
 		/* Our Configuration */
 		NodeInfo nodeInfo = new NodeInfo();
+		
+		nodeInfo.setAddress(address);
+		nodeInfo.setDescription(desc);
 		
 		nodeInfo.setOperatingSystem(OSInfo.getOSName());
 		nodeInfo.setMaxJVMMemory(JVMInfo.getMaxMemory());
