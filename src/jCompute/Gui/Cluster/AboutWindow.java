@@ -45,11 +45,10 @@ public class AboutWindow extends JFrame
 		self = this;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setType(Type.POPUP);
-		setUndecorated(true);
 		getRootPane().setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
 		
-		setTitle("JVM Info");
-		setMinimumSize(new Dimension(600, 125));
+		setTitle("jCompute");
+		setMinimumSize(new Dimension(600, 150));
 		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -94,7 +93,7 @@ public class AboutWindow extends JFrame
 		flowLayout.setVgap(10);
 		titlePanel.add(titlePanelCont, BorderLayout.NORTH);
 		
-		JLabel lblJcompute = new JLabel("JCompute");
+		JLabel lblJcompute = new JLabel("jCompute");
 		titlePanelCont.add(lblJcompute);
 		lblJcompute.setFont(lblJcompute.getFont().deriveFont(lblJcompute.getFont().getStyle() | Font.BOLD,
 				lblJcompute.getFont().getSize() + 6f));
@@ -180,6 +179,9 @@ public class AboutWindow extends JFrame
 			lblJvmNameVer.setText(JVMInfo.getJVMName() + " " + JVMInfo.getJVMVersion());
 			buildPanelCont.add(lblJvmNameVer, gbc_lblJvmNameVer);
 			
+			JPanel panel = new JPanel();
+			getContentPane().add(panel, BorderLayout.SOUTH);
+			
 			updateTimer = new Timer("About Update Timer");
 			updateTimer.scheduleAtFixedRate(new TimerTask()
 			{
@@ -205,7 +207,10 @@ public class AboutWindow extends JFrame
 	{
 		super.dispose();
 		
-		updateTimer.cancel();
+		if(updateTimer != null)
+		{
+			updateTimer.cancel();
+		}
 		
 		updateTimer = null;
 	}
