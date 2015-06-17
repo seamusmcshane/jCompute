@@ -177,7 +177,7 @@ public class AboutWindow extends JFrame
 			gbc_lblJvmNameVer.fill = GridBagConstraints.BOTH;
 			gbc_lblJvmNameVer.gridx = 1;
 			gbc_lblJvmNameVer.gridy = 1;
-			lblJvmNameVer.setText(System.getProperty("java.vm.name") + " " + System.getProperty("java.version"));
+			lblJvmNameVer.setText(JVMInfo.getJVMName() + " " + JVMInfo.getJVMVersion());
 			buildPanelCont.add(lblJvmNameVer, gbc_lblJvmNameVer);
 			
 			updateTimer = new Timer("About Update Timer");

@@ -44,4 +44,35 @@ public class JVMInfo
 		return Math.round((((float) jvmused / (float) Runtime.getRuntime().maxMemory()) * 100));
 	}
 	
+	public static String getJVMVersion()
+	{
+		return System.getProperty("java.version");
+	}
+	
+	public static String getJVMName()
+	{
+		return System.getProperty("java.vm.name");
+	}
+	
+	public static String getJVMInfoString()
+	{
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(getJVMName());
+		builder.append(' ');
+		builder.append(getJVMVersion());
+		builder.append(" (");
+		builder.append("Max Mem:");
+		builder.append(getMaxMemory());
+		builder.append('|');
+		builder.append("Total Mem:");
+		builder.append(getTotalJVMMemory());
+		builder.append('|');
+		builder.append("Used Mem:");
+		builder.append(getUsedJVMMemory());
+		builder.append(')');
+		
+		return builder.toString();
+	}
+	
 }
