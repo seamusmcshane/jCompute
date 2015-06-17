@@ -15,6 +15,7 @@ public class ConfigurationAck
 	private int hwThreads;
 	private int totalOSMemory;
 	private int maxJVMMemory;
+	private String desc;
 	
 	public ConfigurationAck(NodeInfo conf)
 	{
@@ -27,6 +28,8 @@ public class ConfigurationAck
 		
 		this.totalOSMemory = conf.getTotalOSMemory();
 		this.maxJVMMemory = conf.getMaxJVMMemory();
+		
+		this.desc = conf.getDescription();
 	}
 	
 	// Construct from an input stream
@@ -54,6 +57,14 @@ public class ConfigurationAck
 		hwThreads = source.getInt();
 		totalOSMemory = source.getInt();
 		maxJVMMemory = source.getInt();
+		
+		// Desc Len
+		tLen = source.getInt();
+		tBytes = new byte[tLen];
+		// Desc
+		source.get(tBytes, 0, tLen);
+		desc = new String(tBytes);
+		
 	}
 	
 	public int getMaxSims()
@@ -91,12 +102,19 @@ public class ConfigurationAck
 		return maxJVMMemory;
 	}
 	
+	public String getDescription()
+	{
+		return desc;
+	}
+	
 	public byte[] toBytes()
 	{
 		int osLen = os.getBytes().length;
 		int archLen = arch.getBytes().length;
 		
-		int dataLen = 32 + osLen + archLen;
+		int descLen = desc.getBytes().length;
+		
+		int dataLen = 36 + osLen + archLen + descLen;
 		
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
@@ -117,6 +135,10 @@ public class ConfigurationAck
 		tbuffer.putInt(hwThreads);
 		tbuffer.putInt(totalOSMemory);
 		tbuffer.putInt(maxJVMMemory);
+		
+		tbuffer.putInt(descLen);
+		
+		tbuffer.put(desc.getBytes());
 		
 		return tbuffer.array();
 	}

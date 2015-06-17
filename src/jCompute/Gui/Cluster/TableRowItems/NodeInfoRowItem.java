@@ -14,6 +14,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	private String arch;
 	private int totalOSMem;
 	private int maxJVMMemory;
+	private String desc;
 	
 	public NodeInfoRowItem()
 	{
@@ -21,6 +22,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 		this.weighting = Long.MAX_VALUE;
 		this.address = "Invalid";
 		this.maxSims = 0;
+		this.desc = "";
 	}
 	
 	public NodeInfoRowItem(NodeInfo node)
@@ -34,13 +36,14 @@ public class NodeInfoRowItem implements RowItem, Comparable
 		this.arch = node.getSystemArch();
 		this.totalOSMem = node.getTotalOSMemory();
 		this.maxJVMMemory = node.getMaxJVMMemory();
+		this.desc = node.getDescription();
 	}
 	
 	public String[] getFieldList()
 	{
 		return new String[]
 		{
-			"uid", "weighting", "address", "maxSims", "hwThreads", "os", "arch", "totalOSMem", "maxJVMMemory"
+			"uid", "weighting", "address", "maxSims", "hwThreads", "os", "arch", "totalOSMem", "maxJVMMemory", "desc"
 		};
 	}
 	
@@ -48,7 +51,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory"
+			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory", "Description"
 		};
 	}
 	
@@ -75,6 +78,8 @@ public class NodeInfoRowItem implements RowItem, Comparable
 				return totalOSMem;
 			case 8:
 				return maxJVMMemory;
+			case 9:
+				return desc;
 		}
 		
 		return null;
@@ -111,6 +116,9 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			break;
 			case 8:
 				maxJVMMemory = (int) value;
+			break;
+			case 9:
+				desc = (String) value;
 			break;
 		}
 	}
@@ -158,6 +166,11 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	public int getMaxJVMMemory()
 	{
 		return maxJVMMemory;
+	}
+	
+	public String getDesc()
+	{
+		return desc;
 	}
 	
 	@Override

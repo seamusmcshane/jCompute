@@ -277,13 +277,15 @@ public class NodeManager
 						nodeInfo.setSystemArch(reqAck.getArch());
 						nodeInfo.setTotalOSMemory(reqAck.getTotalOSMemory());
 						nodeInfo.setMaxJVMMemory(reqAck.getMaxJVMMemory());
+						nodeInfo.setDescription(reqAck.getDescription());
 						
-						log.debug("Node " + nodeInfo.getUid() + " Max Sims  : " + nodeInfo.getMaxSims());
-						log.debug("Node " + nodeInfo.getUid() + " HW Threads: " + nodeInfo.getHWThreads());
-						log.debug("Node " + nodeInfo.getUid() + " Weighting : " + nodeInfo.getWeighting());
-						log.debug("Node " + nodeInfo.getUid() + " OS        : " + nodeInfo.getOperatingSystem());
-						log.debug("Node " + nodeInfo.getUid() + " Arch      : " + nodeInfo.getSystemArch());
-						log.debug("Node " + nodeInfo.getUid() + " TotalMem  : " + nodeInfo.getTotalOSMemory());
+						log.debug("Node " + nodeInfo.getUid() + " Max Sims   : " + nodeInfo.getMaxSims());
+						log.debug("Node " + nodeInfo.getUid() + " HW Threads : " + nodeInfo.getHWThreads());
+						log.debug("Node " + nodeInfo.getUid() + " Weighting  : " + nodeInfo.getWeighting());
+						log.debug("Node " + nodeInfo.getUid() + " OS         : " + nodeInfo.getOperatingSystem());
+						log.debug("Node " + nodeInfo.getUid() + " Arch       : " + nodeInfo.getSystemArch());
+						log.debug("Node " + nodeInfo.getUid() + " TotalMem   : " + nodeInfo.getTotalOSMemory());
+						log.debug("Node " + nodeInfo.getUid() + " Description: " + nodeInfo.getDescription());
 						
 						nodeState = ProtocolState.RDY;
 						
