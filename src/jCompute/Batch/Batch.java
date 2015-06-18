@@ -887,7 +887,7 @@ public class Batch implements StoredQueuePosition
 		batchLock.release();
 	}
 	
-	public void setItemComplete(BatchItem item)
+	public void setItemComplete(BatchItem item, StatExporter exporter)
 	{
 		batchLock.acquireUninterruptibly();
 		
@@ -923,7 +923,6 @@ public class Batch implements StoredQueuePosition
 		// Only Save configs if stats are enabled
 		if(storeStats)
 		{
-			StatExporter exporter = item.getStatExporter();
 			
 			if(statsMethodSingleArchive)
 			{

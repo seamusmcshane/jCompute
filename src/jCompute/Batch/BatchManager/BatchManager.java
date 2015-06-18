@@ -14,7 +14,6 @@ import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Stats.StatExporter;
-import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class BatchManager
 	private ArrayList<BatchItem> activeItems;
 	private Semaphore itemsLock = new Semaphore(1, false);
 	
-	private ArrayList<BatchItem> completeItems;
+	private ArrayList<CompletedItemsNode> completeItems;
 	
 	private ArrayList<Integer> recoveredSimIds;
 	
@@ -81,7 +80,7 @@ public class BatchManager
 		
 		activeItems = new ArrayList<BatchItem>(16);
 		
-		completeItems = new ArrayList<BatchItem>();
+		completeItems = new ArrayList<CompletedItemsNode>();
 		
 		recoveredSimIds = new ArrayList<Integer>();
 		
@@ -209,27 +208,26 @@ public class BatchManager
 	{
 		itemsLock.acquireUninterruptibly();
 		
-		Iterator<BatchItem> itr = completeItems.iterator();
+		Iterator<CompletedItemsNode> itr = completeItems.iterator();
 		
 		while(itr.hasNext())
 		{
-			BatchItem item = itr.next();
+			CompletedItemsNode node = itr.next();
 			
 			Batch batch = null;
+			BatchItem item = node.getItem();
+			StatExporter exporter = node.getExporter();
 			
 			batchManagerLock.acquireUninterruptibly();
 			
-			if(item != null)
-			{
-				log.debug("Item : " + item.getItemId());
-				batch = findBatch(item.getBatchId());
-			}
+			log.debug("Item : " + item.getItemId());
+			batch = findBatch(item.getBatchId());
 			
 			batchManagerLock.release();
 			
 			if(batch != null)
 			{
-				batch.setItemComplete(item);
+				batch.setItemComplete(item, exporter);
 				
 				log.info("Batch Item Finished : " + batch.getBatchId());
 				
@@ -246,7 +244,7 @@ public class BatchManager
 			
 		}
 		
-		completeItems = new ArrayList<BatchItem>();
+		completeItems = new ArrayList<CompletedItemsNode>();
 		
 		itemsLock.release();
 	}
@@ -550,10 +548,9 @@ public class BatchManager
 				if(item != null)
 				{
 					item.setComputeTime(e.getRunTime(), e.getEndEvent(), e.getStepCount());
-					item.setStatExporter(e.getStatExporter());
 					
 					activeItems.remove(item);
-					completeItems.add(item);
+					completeItems.add(new CompletedItemsNode(item, e.getStatExporter()));
 					
 					// Tell the batch this item is no longer active
 					Batch batch = findBatch(item.getBatchId());
