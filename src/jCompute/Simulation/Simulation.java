@@ -316,7 +316,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	{
 		log.debug("StateChanged " + simId + " " + state.toString());
 		
-		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state,simStats.getTotalTime(),simStats.getSimulationSteps(),endEvent));
+		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state,simStats.getTotalTime(),simStats.getSimulationSteps(),endEvent,null));
 	}
 
 	@Override
