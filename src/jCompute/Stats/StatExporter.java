@@ -206,7 +206,7 @@ public class StatExporter
 		return tbuffer.array();
 	}
 	
-	public void populateFromByteBuffer(ByteBuffer source) throws IOException
+	public void populateFromByteBuffer(ByteBuffer source)
 	{
 		log.debug("StatExporter : populating from ByteBuffer");
 		
