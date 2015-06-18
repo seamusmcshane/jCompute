@@ -1,5 +1,6 @@
 package jCompute.Gui.Interactive;
 
+import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.View.View;
 import jCompute.SimulationManager.SimulationsManagerInf;
 
@@ -184,8 +185,10 @@ public class StandardGUI implements ActionListener, WindowListener
 				}
 				else if(e.getSource() == mntmAbout)
 				{
-					// TODO About info
-					System.out.println("About");
+					AboutWindow jvmInfo = new AboutWindow();
+					jvmInfo.setLocationRelativeTo(guiFrame);
+					jvmInfo.pack();
+					jvmInfo.setVisible(true);
 				}
 				else
 				{
