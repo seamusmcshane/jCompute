@@ -2,6 +2,7 @@ package jCompute.Gui.Cluster;
 
 import jCompute.IconManager;
 import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.XMLPreviewPanel;

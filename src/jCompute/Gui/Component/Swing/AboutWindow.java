@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster;
+package jCompute.Gui.Component.Swing;
 
 import jCompute.util.JVMInfo;
 
