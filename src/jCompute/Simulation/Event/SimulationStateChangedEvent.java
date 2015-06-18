@@ -1,6 +1,7 @@
 package jCompute.Simulation.Event;
 
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Stats.StatExporter;
 
 public class SimulationStateChangedEvent
 {
@@ -9,14 +10,16 @@ public class SimulationStateChangedEvent
 	private long runTime;
 	private String endEvent;
 	private long stepCount;
+	private StatExporter exporter;
 	
-	public SimulationStateChangedEvent(int simId, SimState state, long runTime, long stepCount , String endEvent)
+	public SimulationStateChangedEvent(int simId, SimState state, long runTime, long stepCount , String endEvent, StatExporter exporter)
 	{
 		this.simId = simId;
 		this.state = state;
 		this.runTime = runTime;
 		this.stepCount = stepCount;
 		this.endEvent = endEvent;
+		this.exporter = exporter;
 	}
 
 	public int getSimId()
@@ -42,6 +45,11 @@ public class SimulationStateChangedEvent
 	public String getEndEvent()
 	{
 		return endEvent;
+	}
+	
+	public StatExporter getStatExporter()
+	{
+		return exporter;
 	}
 	
 }

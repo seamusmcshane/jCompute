@@ -1,5 +1,6 @@
 package jCompute.Cluster.Protocol.Command;
 
+import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.Stats.StatExporter.ExportFormat;
 
@@ -11,10 +12,10 @@ public class SimulationStatsRequest
 	private int simId;
 	private ExportFormat format;
 	
-	public SimulationStatsRequest(int simId, ExportFormat format)
+	public SimulationStatsRequest(RemoteSimulationMapping mapping)
 	{
-		this.simId = simId;
-		this.format = format;
+		this.simId = mapping.getRemoteSimId();
+		this.format = mapping.getExportFormat();
 	}
 	
 	// Construct from an input stream

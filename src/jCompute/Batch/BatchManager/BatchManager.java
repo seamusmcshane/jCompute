@@ -59,8 +59,6 @@ public class BatchManager
 	
 	private ArrayList<BatchItem> completeItems;
 	
-	private ArrayList<BatchItem> failedStatFetchItems;
-	
 	private ArrayList<Integer> recoveredSimIds;
 	
 	// Scheduler
@@ -84,8 +82,6 @@ public class BatchManager
 		activeItems = new ArrayList<BatchItem>(16);
 		
 		completeItems = new ArrayList<BatchItem>();
-		
-		failedStatFetchItems = new ArrayList<BatchItem>();
 		
 		recoveredSimIds = new ArrayList<Integer>();
 		
@@ -175,25 +171,9 @@ public class BatchManager
 		itr = recoveredSimIds.iterator();
 		while(itr.hasNext())
 		{
-			boolean itemActive = true;
 			int simId = itr.next();
 			
 			BatchItem item = findActiveBatchItemFromSimId(simId);
-			
-			// Item was not active but the mapping still exists - look in the
-			// failed list.
-			if(item == null)
-			{
-				item = getFailedFetchItemsFromSimId(simId);
-				
-				itemsLock.acquireUninterruptibly();
-				
-				failedStatFetchItems.remove(item);
-				
-				itemActive = false;
-				
-				itemsLock.release();
-			}
 			
 			// System.out.println("SimId " + simId);
 			// System.out.println("itemActive " + itemActive);
@@ -203,19 +183,12 @@ public class BatchManager
 			
 			itemsLock.acquireUninterruptibly();
 			
-			if(itemActive)
-			{
-				activeItems.remove(item);
-			}
-			else
-			{
-				failedStatFetchItems.remove(item);
-			}
+			activeItems.remove(item);
 			
 			itemsLock.release();
 			
 			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch "
-					+ item.getBatchId() + " for SimId " + simId + "(" + itemActive + ")");
+					+ item.getBatchId() + " for SimId " + simId);
 			
 			batch.returnItemToQueue(item);
 			
@@ -230,32 +203,6 @@ public class BatchManager
 		
 		batchManagerLock.release();
 		
-	}
-	
-	private BatchItem getFailedFetchItemsFromSimId(int simId)
-	{
-		itemsLock.acquireUninterruptibly();
-		
-		Iterator<BatchItem> itr = failedStatFetchItems.iterator();
-		
-		BatchItem item = null;
-		BatchItem tItem = null;
-		
-		while(itr.hasNext())
-		{
-			tItem = itr.next();
-			
-			if(tItem.getSimId() == simId)
-			{
-				item = tItem;
-				break;
-			}
-			
-		}
-		
-		itemsLock.release();
-		
-		return item;
 	}
 	
 	private void processCompletedItems()
@@ -282,30 +229,9 @@ public class BatchManager
 			
 			if(batch != null)
 			{
-				long timeStart = System.currentTimeMillis();
-				long timeEnd;
+				batch.setItemComplete(item);
 				
-				// Export Stats // ExportFormat.ZCSV - Compressed CSV Files
-				StatExporter exporter = controlNode.getStatExporter(item.getSimId(),
-						String.valueOf(item.getItemHash()), ExportFormat.CSV);
-				
-				timeEnd = System.currentTimeMillis();
-				
-				// The stats fetch time
-				item.setNetTime(timeEnd - timeStart);
-				
-				if(exporter != null)
-				{
-					batch.setItemComplete(item, exporter);
-					
-					log.info("Batch Item Finished : " + batch.getBatchId());
-				}
-				else
-				{
-					log.warn("Statistics not retrieved for Item " + item.getItemId());
-					
-					failedStatFetchItems.add(item);
-				}
+				log.info("Batch Item Finished : " + batch.getBatchId());
 				
 				// Batch Progress
 				JComputeEventBus.post(new BatchProgressEvent(batch));
@@ -328,8 +254,6 @@ public class BatchManager
 	private void schedule()
 	{
 		// log.info("Scheduler Tick");
-		
-		// processCompletedItems();
 		
 		itemsLock.acquireUninterruptibly();
 		int size = activeItems.size();
@@ -576,7 +500,7 @@ public class BatchManager
 		
 		batchManagerLock.release();
 		
-		int simId = controlNode.addSimulation(itemConfig, -1);
+		int simId = controlNode.addSimulation(itemConfig, batch.getStatExportFormat(), nextItem.getItemHash());
 		
 		batchManagerLock.acquireUninterruptibly();
 		
@@ -625,7 +549,9 @@ public class BatchManager
 				
 				if(item != null)
 				{
-					item.setComputeFinish(e.getRunTime(), e.getEndEvent(), e.getStepCount());
+					item.setComputeTime(e.getRunTime(), e.getEndEvent(), e.getStepCount());
+					item.setStatExporter(e.getStatExporter());
+					
 					activeItems.remove(item);
 					completeItems.add(item);
 					

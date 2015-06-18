@@ -46,8 +46,8 @@ public class NCP
     // Simulations 
     public static final int AddSimReq	= 31;	// Node Add Simulation Request - request from controller to add a sim (with config) 
     public static final int AddSimReply	= 32;	// Node Add Simulation Acknowledgement	- reply with a sim slot id or -1 denied
-    public static final int RemSimReq	= 33;	// Node Remove Simulation Request - request from controller remove a simulation 
-    public static final int RemSimAck	= 34;	// Node Remove Simulation Acknowledgement	- reply confirming removal 
+    public static final int RemSimReq	= 33;	// Node Remove Simulation Request - request from controller remove a simulation (DEFUNCT)
+    public static final int RemSimAck	= 34;	// Node Remove Simulation Acknowledgement	- reply confirming removal (DEFUNCT)
     public static final int StartSimCMD	= 35;	// Node Start Simulation Request (Command not Request)
     
     // Simulation Statistics Retrieval 

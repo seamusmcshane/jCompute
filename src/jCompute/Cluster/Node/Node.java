@@ -227,7 +227,7 @@ public class Node
 							simsManager.startSim(cmd.getSimid());
 						}
 						break;
-						case NCP.RemSimReq:
+						/*case NCP.RemSimReq:
 						{
 							RemoveSimReq removeSimReq = new RemoveSimReq(data);
 							
@@ -239,7 +239,7 @@ public class Node
 							
 							sendMessage(new RemoveSimAck(simId).toBytes());
 						}
-						break;
+						break;*/
 						case NCP.NodeStatsRequest:
 						{
 							// Read here
@@ -266,20 +266,37 @@ public class Node
 						{
 							SimulationStatsRequest statsReq = new SimulationStatsRequest(data);
 							
-							log.info("SimStatsReq " + statsReq.getSimId());
+							int simId = statsReq.getSimId();
 							
-							// Get the stat exporter for this simId and
-							// create a Stats Reply
-							SimulationStatsReply statsReply = new SimulationStatsReply(statsReq.getSimId(),
-									statCache.remove(statsReq.getSimId()));
+							log.info("SimStatsReq " + simId);
 							
-							// NCP.SimStats
-							byte[] tempB = statsReply.toBytes();
-							
-							sendMessage(tempB);
-							
-							log.info("Sent SimStats " + statsReq.getSimId() + " Size "
-									+ (int) Math.ceil(tempB.length / 1024) + "kB");
+							// Is this an active simulation we have got a stat request for
+							if(simsManager.hasSimWithId(simId))
+							{
+								// Simulations are autoremoved when finished but this simulation was not finished
+								simsManager.removeSimulation(simId);
+								
+								// Remove it from the statCache (to cover a possible memory leak with the race - has sim/sim-finished/remove sim)
+								statCache.remove(simId);
+								
+								log.warn("Got Stat request for active simulation " + simId + " - removing simulation/stats - NOT sending SimStats!!!");
+							}
+							else
+							{
+								// Get the stat exporter for this simId and
+								// create a Stats Reply
+								SimulationStatsReply statsReply = new SimulationStatsReply(simId,
+										statCache.remove(simId));
+								
+								// NCP.SimStats
+								byte[] tempB = statsReply.toBytes();
+								
+								sendMessage(tempB);
+								
+								log.info("Sent SimStats " + statsReq.getSimId() + " Size "
+										+ (int) Math.ceil(tempB.length / 1024) + "kB");
+							}
+
 						}
 						break;
 						// Default / Invalid

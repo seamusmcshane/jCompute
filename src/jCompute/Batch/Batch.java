@@ -6,6 +6,7 @@ import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Stats.StatExporter;
+import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
@@ -77,7 +78,6 @@ public class Batch implements StoredQueuePosition
 	
 	// Items processing times and eta calculation
 	private long cpuTotalTimes;
-	private long netTotalTimes;
 	private long ioTotalTimes;
 	private long lastCompletedItemTime;
 	
@@ -89,6 +89,7 @@ public class Batch implements StoredQueuePosition
 	private int bosBufferSize;
 	private boolean statsMethodSingleArchive;
 	private int singleArchiveCompressionLevel;
+	private final ExportFormat statExportFormat = ExportFormat.CSV;
 	
 	// The export dir for stats
 	private String batchStatsExportDir;
@@ -141,7 +142,6 @@ public class Batch implements StoredQueuePosition
 		
 		// Processing Times
 		cpuTotalTimes = 0;
-		netTotalTimes = 0;
 		ioTotalTimes = 0;
 		
 		addedDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -887,7 +887,7 @@ public class Batch implements StoredQueuePosition
 		batchLock.release();
 	}
 	
-	public void setItemComplete(BatchItem item, StatExporter exporter)
+	public void setItemComplete(BatchItem item)
 	{
 		batchLock.acquireUninterruptibly();
 		
@@ -897,12 +897,10 @@ public class Batch implements StoredQueuePosition
 		log.debug("Setting Completed Sim " + item.getSimId() + " Item " + item.getItemId());
 		
 		// For estimated complete time calculation
-		cpuTotalTimes += item.getCPUTime();
-		netTotalTimes += item.getNetTime();
+		cpuTotalTimes += item.getComputeTime();
 		
 		if(itemLogEnabled)
 		{
-			
 			itemLog.println("[+Item]");
 			itemLog.println("IID=" + item.getItemId());
 			itemLog.println("SID=" + item.getSampleId());
@@ -916,7 +914,7 @@ public class Batch implements StoredQueuePosition
 				itemLog.println("[-Coordinate]");
 			}
 			itemLog.println("Hash=" + item.getItemHash());
-			itemLog.println("RunTime=" + item.getTotalTime());
+			itemLog.println("RunTime=" + item.getComputeTime());
 			itemLog.println("EndEvent=" + item.getEndEvent());
 			itemLog.println("StepCount=" + item.getStepCount());
 			itemLog.println("[-Item]");
@@ -925,6 +923,8 @@ public class Batch implements StoredQueuePosition
 		// Only Save configs if stats are enabled
 		if(storeStats)
 		{
+			StatExporter exporter = item.getStatExporter();
+			
 			if(statsMethodSingleArchive)
 			{
 				// Export the stats
@@ -1159,7 +1159,7 @@ public class Batch implements StoredQueuePosition
 	{
 		if(active > 0 && completed > 0)
 		{
-			return ((cpuTotalTimes + netTotalTimes + ioTotalTimes) / completed) * (batchItems - completed) / active;
+			return ((cpuTotalTimes + ioTotalTimes) / completed) * (batchItems - completed) / active;
 		}
 		
 		return 0;
@@ -1302,20 +1302,15 @@ public class Batch implements StoredQueuePosition
 		info.add("Items Cpu Avg");
 		info.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
 		
-		info.add("Items Net Time");
-		info.add(Text.longTimeToDHMSM(netTotalTimes));
-		info.add("Items Net Avg");
-		info.add(Text.longTimeToDHMSM(netTotalTimes / div));
-		
 		info.add("Items IO Time");
 		info.add(Text.longTimeToDHMSM(ioTotalTimes));
 		info.add("Items IO Avg");
 		info.add(Text.longTimeToDHMSM(ioTotalTimes / div));
 		
 		info.add("Items Total Time");
-		info.add(Text.longTimeToDHMSM(cpuTotalTimes + netTotalTimes + ioTotalTimes));
+		info.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
 		info.add("Items Avg Time");
-		info.add(Text.longTimeToDHMSM((cpuTotalTimes + netTotalTimes + ioTotalTimes) / div));
+		info.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
 		
 		info.add("");
 		info.add("");
@@ -1412,5 +1407,10 @@ public class Batch implements StoredQueuePosition
 	public byte[] getItemConfig(String fileHash)
 	{
 		return itemDiskCache.getFile(fileHash);
+	}
+	
+	public ExportFormat getStatExportFormat()
+	{
+		return statExportFormat;
 	}
 }

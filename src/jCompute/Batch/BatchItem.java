@@ -1,5 +1,7 @@
 package jCompute.Batch;
 
+import jCompute.Stats.StatExporter;
+
 import java.util.ArrayList;
 
 public class BatchItem
@@ -23,8 +25,10 @@ public class BatchItem
 	private long stepCount;
 	
 	// Times
-	private long cpuTime;
-	private long netTime;
+	private long computeTime;
+	
+	// Stats
+	private StatExporter exporter;
 	
 	public BatchItem(int sampleId, int itemId, int batchId, String name, String hash, ArrayList<Integer> coordinates,
 			ArrayList<Integer> coordinatesValues)
@@ -83,31 +87,16 @@ public class BatchItem
 		return sampleId;
 	}
 	
-	public void setComputeFinish(long cpuTime, String endEvent, long stepCount)
+	public void setComputeTime(long computeTime, String endEvent, long stepCount)
 	{
-		this.cpuTime = cpuTime;
+		this.computeTime = computeTime;
 		this.endEvent = endEvent;
 		this.stepCount = stepCount;
 	}
 	
-	public void setNetTime(long netTime)
+	public long getComputeTime()
 	{
-		this.netTime = netTime;
-	}
-	
-	public long getCPUTime()
-	{
-		return cpuTime;
-	}
-	
-	public long getNetTime()
-	{
-		return netTime;
-	}
-	
-	public long getTotalTime()
-	{
-		return cpuTime + netTime;
+		return computeTime;
 	}
 	
 	public String getEndEvent()
@@ -118,6 +107,16 @@ public class BatchItem
 	public long getStepCount()
 	{
 		return stepCount;
+	}
+
+	public void setStatExporter(StatExporter exporter)
+	{
+		this.exporter = exporter;		
+	}
+	
+	public StatExporter getStatExporter()
+	{
+		return exporter;
 	}
 	
 }

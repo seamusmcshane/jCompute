@@ -9,7 +9,6 @@ import jCompute.Cluster.Node.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
-import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.io.IOException;
@@ -423,7 +422,7 @@ public class ControlNode
 	
 	/* Simulation Manager Logic */
 	
-	public int addSimulation(String scenarioText, int initialStepRate)
+	public int addSimulation(String scenarioText, ExportFormat statExportFormat, String fileNameSuffix)
 	{
 		controlNodeLock.acquireUninterruptibly();
 		
@@ -449,7 +448,7 @@ public class ControlNode
 				
 				log.info("Add Simulation to Node " + node.getUid());
 				
-				int remoteSimId = node.addSim(scenarioText, initialStepRate, mapping);
+				int remoteSimId = node.addSim(scenarioText, mapping);
 				
 				// Incase the remote node goes down while in this method
 				if(remoteSimId > 0)
@@ -460,6 +459,12 @@ public class ControlNode
 					simulations++;
 					
 					mapping.setLocalSimId(simulationNum);
+					
+					// Stat Export format for this sim
+					mapping.setExportFormat(statExportFormat);
+					
+					// suffix for exported stat files
+					mapping.setFileNameSuffix(fileNameSuffix);
 					
 					// Locally cache the mapping
 					localSimulationMap.put(simulationNum, mapping);
@@ -541,32 +546,6 @@ public class ControlNode
 		nodeManager.startSim(mapping.getRemoteSimId());
 		
 		controlNodeLock.release();
-	}
-	
-	public StatExporter getStatExporter(int simId, String fileNameSuffix, ExportFormat format)
-	{
-		StatExporter exporter = null;
-		
-		controlNodeLock.acquireUninterruptibly();
-		
-		// Look up mapping
-		RemoteSimulationMapping mapping = localSimulationMap.get(simId);
-		
-		log.info("Exports Stats for Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId
-				+ " Remote SimId " + mapping.getRemoteSimId());
-		
-		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
-		
-		controlNodeLock.release();
-		
-		// If the node has gone, we can get null.
-		if(nodeManager != null)
-		{
-			// Here so we can avoid blocking during transfer
-			exporter = nodeManager.getStatExporter(mapping.getRemoteSimId(), fileNameSuffix, format);
-		}
-		
-		return exporter;
 	}
 	
 	private NodeManager findNodeManagerFromUID(int uid)

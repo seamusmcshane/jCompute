@@ -9,8 +9,8 @@ import jCompute.Stats.StatExporter.ExportFormat;
 
 public class SimulationStatsReply
 {
-	int simId;
-	public StatExporter exporter;
+	private int simId;
+	private StatExporter exporter;
 
 	public SimulationStatsReply(int simId, StatExporter exporter)
 	{
@@ -50,6 +50,11 @@ public class SimulationStatsReply
 		return tbuffer.array();
 	}
 
+	public int getSimId()
+	{
+		return simId;
+	}
+	
 	public StatExporter getStatExporter()
 	{
 		return exporter;

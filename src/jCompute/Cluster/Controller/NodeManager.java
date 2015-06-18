@@ -2,7 +2,6 @@ package jCompute.Cluster.Controller;
 
 import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
-import jCompute.Cluster.Controller.Mapping.NodeManagerStatRequestMapping;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 import jCompute.Cluster.Node.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
@@ -25,8 +24,6 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
-import jCompute.Stats.StatExporter;
-import jCompute.Stats.StatExporter.ExportFormat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -39,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -89,16 +85,11 @@ public class NodeManager
 	 */
 	private ConcurrentHashMap<Integer, RemoteSimulationMapping> remoteSimulationMap;
 	
-	// Stats Request map
-	private ConcurrentHashMap<Integer, NodeManagerStatRequestMapping> statRequests;
-	
 	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
 		nodeInfo = new NodeInfo();
 		
 		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(8);
-		
-		statRequests = new ConcurrentHashMap<Integer, NodeManagerStatRequestMapping>(8);
 		
 		NSMCPReadyTimeOut = 0;
 		
@@ -398,26 +389,25 @@ public class NodeManager
 									log.info(stateChanged.info());
 									log.debug("New " + mapping.info());
 									
-									// Post the event as if from a local
-									// simulation
-									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
-											stateChanged.getState(), stateChanged.getRunTime(), stateChanged
-													.getStepCount(), stateChanged.getEndEvent()));
-									
 									if(stateChanged.getState() == SimState.FINISHED)
 									{
+										// Track the final state
+										mapping.setFinalStateChanged(stateChanged);
 										
-										activeSimsLock.acquireUninterruptibly();
+										// Send a stats request
+										sendCMDMessage(new SimulationStatsRequest(mapping).toBytes());
 										
-										// Remote Sim is auto-removed when
-										// finished
-										activeSims--;
+										// The finished state is not posted yet
+										// - stats have to be fetched first
 										
-										activeSimsLock.release();
-										
-										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),
-												SimulationsManagerEventType.RemovedSim));
-										
+									}
+									else
+									{
+										// Post the event as if from a local
+										// simulation
+										JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
+												stateChanged.getState(), stateChanged.getRunTime(), stateChanged
+														.getStepCount(), stateChanged.getEndEvent(), null));
 									}
 									
 								}
@@ -504,20 +494,35 @@ public class NodeManager
 								{
 									log.info("Recieved Sim Stats");
 									
-									// Read this here as we need it for the stat
-									// request mapping lookup
+									// Needed for the mapping lookup
 									int simId = data.getInt();
 									
-									// Remove Request Mapping
-									NodeManagerStatRequestMapping request = statRequests.remove(simId);
+									// find and remove mapping
+									RemoteSimulationMapping mapping = remoteSimulationMap.remove(simId);
 									
 									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data,
-											request.getFormat(), request.getFileNameSuffix());
+											mapping.getExportFormat(), mapping.getFileNameSuffix());
 									
-									request.setStatExporter(statsReply.getStatExporter());
+									activeSimsLock.acquireUninterruptibly();
 									
-									// Signal the waiting thread.
-									request.signalReply();
+									// Remote Sim is auto-removed when
+									// finished
+									activeSims--;
+									
+									activeSimsLock.release();
+									
+									// Post the event as if from a local
+									// simulation
+									SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
+									
+									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
+											finalStateChanged.getState(), finalStateChanged.getRunTime(),
+											finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(),
+											statsReply.getStatExporter()));
+									
+									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),
+											SimulationsManagerEventType.RemovedSim));
+									
 								}
 								else
 								{
@@ -547,7 +552,7 @@ public class NodeManager
 					// Exit // Do Node Shutdown
 					
 				}
-				catch(IOException e1)
+				catch(IOException e)
 				{
 					log.warn("Node " + nodeInfo.getUid() + " Recieve Thread exited");
 					// Exit // Do Node Shutdown
@@ -559,22 +564,6 @@ public class NodeManager
 					// Explicit release of all semaphores
 					addSimWait.release();
 					remSimWait.release();
-					
-					// Release any threads waiting on a stat reply - they will
-					// get a null stat exporter object.
-					KeySetView<Integer, NodeManagerStatRequestMapping> keys = statRequests.keySet();
-					
-					for(Integer key : keys)
-					{
-						NodeManagerStatRequestMapping request = statRequests.remove(key);
-						
-						log.info("Aborting Stat fetch for Request " + key);
-						
-						request.setStatExporter(null);
-						
-						request.signalReply();
-					}
-					
 				}
 				
 			}
@@ -705,7 +694,7 @@ public class NodeManager
 	 * @param mapping
 	 * @return
 	 */
-	public int addSim(String scenarioText, int initialStepRate, RemoteSimulationMapping mapping)
+	public int addSim(String scenarioText, RemoteSimulationMapping mapping)
 	{
 		nodeLock.acquireUninterruptibly();
 		
@@ -718,8 +707,8 @@ public class NodeManager
 			// Shared variable
 			addSimId = -1;
 			
-			// Create and Send add Sim Req
-			sendCMDMessage(new AddSimReq(scenarioText, initialStepRate).toBytes());
+			// Create and Send add Sim Req - simulation Max speed
+			sendCMDMessage(new AddSimReq(scenarioText, -1).toBytes());
 			
 			// addSimMsgBoxVarLock.release();
 			
@@ -767,21 +756,6 @@ public class NodeManager
 		
 	}
 	
-	/**
-	 * Removes a simulation. Blocking.
-	 * @param remoteSimId
-	 */
-	public void removeSim(int remoteSimId)
-	{
-		// NA - Finished Simulation are auto-removed, but the remote node will
-		// still have the stats in the cache
-		// - we assume calling this method means you do not want stats or the
-		// simulation.
-		
-		getStatExporter(remoteSimId, "", ExportFormat.XML);
-		
-	}
-	
 	public void startSim(int remoteSimId)
 	{
 		nodeLock.acquireUninterruptibly();
@@ -798,48 +772,6 @@ public class NodeManager
 		}
 		
 		nodeLock.release();
-	}
-	
-	/**
-	 * Method returns a stat exporter for the request simulation id - Method
-	 * Blocks.
-	 * @param remoteSimId
-	 * @param fileNameSuffix
-	 * @param format
-	 * @return
-	 */
-	public StatExporter getStatExporter(int remoteSimId, String fileNameSuffix, ExportFormat format)
-	{
-		StatExporter returnedExporter = null;
-		
-		log.info("Requesting SimStats for remote sim : " + remoteSimId);
-		
-		// create a new request
-		NodeManagerStatRequestMapping request = new NodeManagerStatRequestMapping(format, fileNameSuffix);
-		
-		// Add the request to the map
-		statRequests.put(remoteSimId, request);
-		
-		try
-		{
-			// Send the request
-			sendCMDMessage(new SimulationStatsRequest(remoteSimId, format).toBytes());
-			
-			request.waitOnReply();
-			
-			returnedExporter = request.getExporter();
-			
-			// Mapping no longer needed
-			remoteSimulationMap.remove(remoteSimId);
-			
-		}
-		catch(IOException e)
-		{
-			// Connection is gone...
-			log.error("Node " + nodeInfo.getUid() + " Error in get Stats Exporter - SimId " + remoteSimId);
-		}
-		
-		return returnedExporter;
 	}
 	
 	public long getWeighting()
@@ -880,6 +812,38 @@ public class NodeManager
 		{
 			log.error("Fail to send Node stats request for Node " + nodeInfo.getUid());
 		}
+	}
+	
+	/**
+	 * Removes a simulation.
+	 * @param remoteSimId
+	 */
+	public void removeSim(int remoteSimId)
+	{
+		nodeLock.acquireUninterruptibly();
+		
+		// NA - Finished Simulation are auto-removed when stats are fetched.
+		// - we assume calling this method means you do not want stats or the
+		// simulation.
+		
+		RemoteSimulationMapping mapping = remoteSimulationMap.remove(remoteSimId);
+		
+		try
+		{
+			// Stats have already been recieved if the mapping is null
+			if(mapping != null)
+			{
+				// Send a stats request
+				sendCMDMessage(new SimulationStatsRequest(mapping).toBytes());
+			}
+			
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		nodeLock.release();
 	}
 	
 }
