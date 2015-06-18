@@ -357,6 +357,25 @@ public class SimulationsManager implements SimulationsManagerInf
 	}
 	
 	@Override
+	public boolean hasSimWithId(int simId)
+	{
+		boolean simIdExists = false;
+		
+		simulationsManagerLock.acquireUninterruptibly();
+		
+		Simulation sim = simulations.get(simId);
+		
+		if(sim != null)
+		{
+			simIdExists = true;
+		}
+		
+		simulationsManagerLock.release();
+		
+		return simIdExists;
+	}
+	
+	@Override
 	public int getMaxSims()
 	{
 		return maxSims;
