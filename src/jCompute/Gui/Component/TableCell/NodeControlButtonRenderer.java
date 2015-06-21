@@ -6,9 +6,11 @@ import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
 import jCompute.Gui.Component.Swing.TablePanel;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -200,7 +202,36 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 		}
 		else if(e.getSource() == eShutdownToggle)
 		{
-			int result = JOptionPane.showConfirmDialog(null, "Shutdown node " + uid + "?", "Warning", JOptionPane.YES_NO_OPTION);
+			String desc = (String) tablePanel.getValueAt(row, 9);
+			String address = (String) tablePanel.getValueAt(row, 2);
+			
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("<html>");
+			sb.append("<h3>");
+			sb.append("Shutdown Node ?");
+			sb.append("</h3>");
+			sb.append("Node&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;:&emsp;");
+			sb.append("<font color=red>");
+			sb.append(uid);
+			sb.append("</font>");
+			sb.append("<br>");
+			sb.append("Decription&emsp;&emsp;&nbsp;:&emsp;");
+			sb.append("<font color=red>");
+			sb.append(desc);
+			sb.append("</font>");
+			sb.append("<br>");
+			sb.append("Address&emsp;&emsp;&emsp;:&emsp;");
+			sb.append("<font color=red>");
+			sb.append(address);
+			sb.append("</font>");
+			sb.append("</html>");
+			
+			JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+			
+			messagePanel.add(new JLabel(sb.toString()));
+			
+			int result = JOptionPane.showConfirmDialog(null, messagePanel, "Node Shutdown", JOptionPane.YES_NO_OPTION);
 			
 			if(result == JOptionPane.YES_OPTION)
 			{
