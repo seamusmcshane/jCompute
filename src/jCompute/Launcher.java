@@ -49,10 +49,8 @@ public class Launcher
 	{
 		new CommandLineArg("mcs", "8", "Max Concurrent Simulations (Int)"),
 		new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
-		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"),
-		new CommandLineArg("bText", "1", "Button Text (0/1)"),
-		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"),
-		new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
+		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
+		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
 		new CommandLineArg("desc", "not set", "Node Description")
 	};
 	
@@ -146,12 +144,24 @@ public class Launcher
 			break;
 			case 2:
 				
-				String address = opts.get("addr").getValue();
-				String desc = opts.get("desc").getValue();
+				final String address = opts.get("addr").getValue();
+				final String desc = opts.get("desc").getValue();
 				
 				log.info("Creating Node : " + address + " (" + desc + ")");
 				
-				node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+				Thread nodeLauncher = new Thread(new Runnable()
+				{
+					
+					@Override
+					public void run()
+					{
+						node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+						
+						log.info("Node Exited");
+					}
+				});
+				nodeLauncher.setName("Node");
+				nodeLauncher.start();
 			
 			break;
 			default:
