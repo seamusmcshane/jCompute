@@ -166,6 +166,10 @@ public class NodeStatusTab extends JPanel
 		clusterNodeActiveSims.removeStat("Node " + e.getNodeConfiguration().getUid());
 		
 		clusterNodeStatsPending.removeStat("Node " + e.getNodeConfiguration().getUid());
+		
+		clusterNodeTXChar.removeStat("Node " + e.getNodeConfiguration().getUid());
+		
+		clusterNodeRXChar.removeStat("Node " + e.getNodeConfiguration().getUid());
 	}
 	
 	@Subscribe
