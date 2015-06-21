@@ -35,6 +35,15 @@ public class BatchInfoQueueRowItem implements RowItem, Comparable
 	}
 	
 	@Override
+	public boolean[] getEditableCells()
+	{
+		return new boolean[]
+		{
+			false, false, false
+		};
+	}
+	
+	@Override
 	public Object getFieldValue(int field)
 	{
 		switch(field)
