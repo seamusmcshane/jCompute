@@ -5,9 +5,13 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 import com.google.common.eventbus.Subscribe;
 
+import jCompute.IconManager;
 import jCompute.JComputeEventBus;
+import jCompute.Cluster.Controller.NodeManager.NodeManagerState;
+import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
@@ -15,6 +19,7 @@ import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
 
 import java.awt.GridLayout;
 
@@ -39,6 +44,7 @@ public class NodeStatusTab extends JPanel
 	
 	// Left
 	private TablePanel clusterNodesTablePanel;
+	private int stateColumn = 10;
 	
 	private int rightPanelsMinWidth;
 	
@@ -114,6 +120,12 @@ public class NodeStatusTab extends JPanel
 		clusterNodesTablePanel.setColumWidth(6, 75);
 		clusterNodesTablePanel.setColumWidth(7, 75);
 		clusterNodesTablePanel.setColumWidth(8, 75);
+		clusterNodesTablePanel.setColumWidth(9, 75);
+		clusterNodesTablePanel.setColumWidth(stateColumn, 75);
+		
+		clusterNodesTablePanel.addColumRenderer(
+				new NodeControlButtonRenderer(clusterNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager
+						.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
 		
 		// this.add(clusterNodesTablePanel, BorderLayout.CENTER);
 		// splitPane.setRightComponent(clusterNodesTablePanel);
@@ -129,7 +141,15 @@ public class NodeStatusTab extends JPanel
 	@Subscribe
 	public void ControlNodeEvent(NodeAdded e)
 	{
-		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration()));
+		// Assuming Starting State
+		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+	}
+	
+	@Subscribe
+	public void NodeManagerStateChange(NodeManagerStateChange e)
+	{
+		System.out.println("NodeManagerStateChange " + e.getUid() + " state " + e.getState());
+		clusterNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
 	}
 	
 	@Subscribe
@@ -151,26 +171,21 @@ public class NodeStatusTab extends JPanel
 	@Subscribe
 	public void NodeStatsUpdateEvent(NodeStatsUpdate e)
 	{
-		clusterSimProChart.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
-				.getSimulationsProcessed(), e.getNodeId());
+		clusterSimProChart.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getSimulationsProcessed(), e.getNodeId());
 		
-		clusterNodeActiveSims.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
-				.getSimulationsActive(), e.getNodeId());
+		clusterNodeActiveSims.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getSimulationsActive(), e.getNodeId());
 		
-		clusterNodeStatsPending.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
-				.getStatisticsPendingFetch(), e.getNodeId());
-		
-		clusterNodeUtilChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(),
+		clusterNodeStatsPending.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getStatisticsPendingFetch(),
 				e.getNodeId());
 		
-		clusterNodeMemUsedPerChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats()
-				.getJvmMemoryUsedPercentage(), e.getNodeId());
+		clusterNodeUtilChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getCpuUsage(), e.getNodeId());
 		
-		clusterNodeTXChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(),
-				(e.getStats().getBytesTX() / MEGABYTE), e.getNodeId());
+		clusterNodeMemUsedPerChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage(),
+				e.getNodeId());
 		
-		clusterNodeRXChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(),
-				(e.getStats().getBytesRX() / MEGABYTE), e.getNodeId());
+		clusterNodeTXChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), (e.getStats().getBytesTX() / MEGABYTE), e.getNodeId());
+		
+		clusterNodeRXChar.statUpdate("Node " + e.getNodeId(), e.getSequenceNum(), (e.getStats().getBytesRX() / MEGABYTE), e.getNodeId());
 		
 	}
 }

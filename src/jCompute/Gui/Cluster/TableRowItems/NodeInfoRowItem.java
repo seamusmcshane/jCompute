@@ -15,6 +15,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	private int totalOSMem;
 	private int maxJVMMemory;
 	private String desc;
+	private int nodeState;
 	
 	public NodeInfoRowItem()
 	{
@@ -23,9 +24,10 @@ public class NodeInfoRowItem implements RowItem, Comparable
 		this.address = "Invalid";
 		this.maxSims = 0;
 		this.desc = "";
+		this.nodeState = -1;
 	}
 	
-	public NodeInfoRowItem(NodeInfo node)
+	public NodeInfoRowItem(NodeInfo node, int nodeState)
 	{
 		this.uid = node.getUid();
 		this.weighting = node.getWeighting();
@@ -37,13 +39,14 @@ public class NodeInfoRowItem implements RowItem, Comparable
 		this.totalOSMem = node.getTotalOSMemory();
 		this.maxJVMMemory = node.getMaxJVMMemory();
 		this.desc = node.getDescription();
+		this.nodeState = nodeState;
 	}
 	
 	public String[] getFieldList()
 	{
 		return new String[]
 		{
-			"uid", "weighting", "address", "maxSims", "hwThreads", "os", "arch", "totalOSMem", "maxJVMMemory", "desc"
+			"uid", "weighting", "address", "maxSims", "hwThreads", "os", "arch", "totalOSMem", "maxJVMMemory", "desc", "nodeState"
 		};
 	}
 	
@@ -51,7 +54,16 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory", "Description"
+			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory", "Description", "Node State"
+		};
+	}
+	
+	@Override
+	public boolean[] getEditableCells()
+	{
+		return new boolean[]
+		{
+			false, false, false, false, false, false, false, false, false, false, true
 		};
 	}
 	
@@ -80,6 +92,8 @@ public class NodeInfoRowItem implements RowItem, Comparable
 				return maxJVMMemory;
 			case 9:
 				return desc;
+			case 10:
+				return nodeState;
 		}
 		
 		return null;
@@ -119,6 +133,9 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			break;
 			case 9:
 				desc = (String) value;
+			break;
+			case 10:
+				nodeState = (int) value;
 			break;
 		}
 	}
@@ -171,6 +188,16 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	public String getDesc()
 	{
 		return desc;
+	}
+	
+	public void setNodeState(int nodeState)
+	{
+		this.nodeState = nodeState;
+	}
+	
+	public int getNodeState()
+	{
+		return nodeState;
 	}
 	
 	@Override
