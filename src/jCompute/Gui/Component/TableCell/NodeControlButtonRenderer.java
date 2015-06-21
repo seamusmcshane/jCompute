@@ -216,7 +216,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 			sb.append(uid);
 			sb.append("</font>");
 			sb.append("<br>");
-			sb.append("Decription&emsp;&emsp;&nbsp;:&emsp;");
+			sb.append("Description&emsp;&emsp;&nbsp;:&emsp;");
 			sb.append("<font color=red>");
 			sb.append(desc);
 			sb.append("</font>");
@@ -231,7 +231,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 			
 			messagePanel.add(new JLabel(sb.toString()));
 			
-			int result = JOptionPane.showConfirmDialog(null, messagePanel, "Node Shutdown", JOptionPane.YES_NO_OPTION);
+			int result = JOptionPane.showConfirmDialog(tablePanel, messagePanel, "Node Shutdown", JOptionPane.YES_NO_OPTION);
 			
 			if(result == JOptionPane.YES_OPTION)
 			{
