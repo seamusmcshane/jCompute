@@ -62,6 +62,7 @@ public class NCP
     public static final int NodeStatsRequest	= 61;	// Request for Statistic Information related to the node
     public static final int NodeStatsReply		= 62;	// Reply with Node Statistics
     
+    public static final int NodeOrderlyShutdown	= 70;		// Request that the node does an orderly shutdown and not reconnect.
     
     // The standard port
     public static final int StandardServerPort	= 10000;	// Control Node Listening Port
