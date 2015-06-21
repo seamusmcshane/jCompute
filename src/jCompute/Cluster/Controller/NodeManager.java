@@ -1,6 +1,8 @@
 package jCompute.Cluster.Controller;
 
 import jCompute.JComputeEventBus;
+import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
+import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 import jCompute.Cluster.Node.NodeInfo;
@@ -41,6 +43,8 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.Subscribe;
+
 public class NodeManager
 {
 	// SL4J Logger
@@ -64,13 +68,15 @@ public class NodeManager
 	private Semaphore cmdTxLock = new Semaphore(1, false);
 	private Thread cmdRecieveThread;
 	
-	private ProtocolState nodeState;
+	private ProtocolState protocolState;
 	
 	// Counter for NCP state machine
 	private int NSMCPReadyTimeOut;
 	
 	// Is the remote node active. (connection up)
-	private boolean active = false;
+	// private boolean nodeManagerRunnning = false;
+	
+	private NodeManagerState nodeState;
 	
 	// Semaphores for methods to wait on
 	private Semaphore addSimWait = new Semaphore(0, false);
@@ -87,6 +93,8 @@ public class NodeManager
 	
 	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
+		nodeState = NodeManagerState.STARTING;
+		
 		nodeInfo = new NodeInfo();
 		
 		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(8);
@@ -110,7 +118,9 @@ public class NodeManager
 		// Cmd Input Stream
 		cmdInput = new DataInputStream(new BufferedInputStream(cmdSocket.getInputStream()));
 		
-		nodeState = ProtocolState.CON;
+		protocolState = ProtocolState.CON;
+		
+		JComputeEventBus.register(this);
 		
 		Thread nodeManager = new Thread(new Runnable()
 		{
@@ -127,13 +137,13 @@ public class NodeManager
 					else
 					{
 						log.info("Registration Failed");
-						active = false;
+						nodeState = NodeManagerState.SHUTDOWN;
 					}
 					
 				}
 				catch(IOException e)
 				{
-					active = false;
+					nodeState = NodeManagerState.SHUTDOWN;
 				}
 			}
 		});
@@ -184,7 +194,7 @@ public class NodeManager
 					 * A socket has been connected and we have just received a
 					 * registration request
 					 */
-					if(nodeState == ProtocolState.CON)
+					if(protocolState == ProtocolState.CON)
 					{
 						/*
 						 * Later if needed Validate Request Info.... Maybe
@@ -196,15 +206,14 @@ public class NodeManager
 						
 						log.info("Sent Registration Ack");
 						
-						nodeState = ProtocolState.REG;
+						protocolState = ProtocolState.REG;
 					}
 					else
 					{
-						log.error("Registration Request for node " + nodeInfo.getUid() + " not valid in state "
-								+ nodeState.toString());
+						log.error("Registration Request for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 						
 						// invalid sequence
-						nodeState = ProtocolState.DIS;
+						protocolState = ProtocolState.DIS;
 					}
 				break;
 				case NCP.RegAck:
@@ -215,7 +224,7 @@ public class NodeManager
 					 * confirmation. - We get confirmation and request the node
 					 * configuration.
 					 */
-					if(nodeState == ProtocolState.REG)
+					if(protocolState == ProtocolState.REG)
 					{
 						RegistrationReqAck reqAck = new RegistrationReqAck(data);
 						
@@ -234,7 +243,7 @@ public class NodeManager
 						{
 							log.error("Node registration not ok " + ruid);
 							
-							nodeState = ProtocolState.DIS;
+							protocolState = ProtocolState.DIS;
 						}
 						
 					}
@@ -245,16 +254,16 @@ public class NodeManager
 					 * A socket has been connected, Remote node has decided to
 					 * cancel the registration
 					 */
-					if(nodeState == ProtocolState.CON || nodeState == ProtocolState.REG)
+					if(protocolState == ProtocolState.CON || protocolState == ProtocolState.REG)
 					{
 						log.info("Node registration nack");
-						nodeState = ProtocolState.DIS;
+						protocolState = ProtocolState.DIS;
 					}
 				
 				break;
 				case NCP.ConfAck:
 					
-					if(nodeState == ProtocolState.REG)
+					if(protocolState == ProtocolState.REG)
 					{
 						log.info("Recieved Conf Ack");
 						
@@ -278,13 +287,12 @@ public class NodeManager
 						log.debug("Node " + nodeInfo.getUid() + " TotalMem   : " + nodeInfo.getTotalOSMemory());
 						log.debug("Node " + nodeInfo.getUid() + " Description: " + nodeInfo.getDescription());
 						
-						nodeState = ProtocolState.RDY;
+						protocolState = ProtocolState.RDY;
 						
 					}
 					else
 					{
-						log.error("ConfAck for node " + nodeInfo.getUid() + " not valid in state "
-								+ nodeState.toString());
+						log.error("ConfAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 					}
 				
 				break;
@@ -292,13 +300,13 @@ public class NodeManager
 				case NCP.INVALID:
 				default:
 					log.error("Recieved Invalid Frame");
-					nodeState = ProtocolState.DIS;
+					protocolState = ProtocolState.DIS;
 					log.error("Error Type " + type + " len " + len);
 				break;
 			}
 			
 			// Check Node State
-			switch(nodeState)
+			switch(protocolState)
 			{
 				case DIS:
 					log.info("Protocol State DIS : Closing Socket");
@@ -310,6 +318,7 @@ public class NodeManager
 					log.info("Protocol State RDY");
 					finished = true;
 					registered = true;
+					ChangeManagerState(NodeManagerState.RUNNING);
 				break;
 			}
 		}
@@ -332,10 +341,16 @@ public class NodeManager
 					byte[] backingArray = null;
 					ByteBuffer data = null;
 					
-					active = true;
-					
-					while(active)
+					while(nodeState != NodeManagerState.SHUTDOWN)
 					{
+						if(nodeState == NodeManagerState.PAUSING)
+						{
+							if(activeSims == 0)
+							{
+								ChangeManagerState(NodeManagerState.PAUSED);
+							}
+						}
+						
 						// Detect Frame
 						type = cmdInput.readInt();
 						len = cmdInput.readInt();
@@ -359,7 +374,7 @@ public class NodeManager
 						{
 							case NCP.AddSimReply:
 								
-								if(nodeState == ProtocolState.RDY)
+								if(protocolState == ProtocolState.RDY)
 								{
 									AddSimReply addSimReply = new AddSimReply(data);
 									addSimId = addSimReply.getSimId();
@@ -371,13 +386,13 @@ public class NodeManager
 								else
 								{
 									log.error("AddSimReply for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
+											+ protocolState.toString());
 								}
 							
 							break;
 							case NCP.SimStateNoti:
 								
-								if(nodeState == ProtocolState.RDY)
+								if(protocolState == ProtocolState.RDY)
 								{
 									// Create the state object
 									SimulationStateChanged stateChanged = new SimulationStateChanged(data);
@@ -405,22 +420,22 @@ public class NodeManager
 									{
 										// Post the event as if from a local
 										// simulation
-										JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
-												stateChanged.getState(), stateChanged.getRunTime(), stateChanged
-														.getStepCount(), stateChanged.getEndEvent(), null));
+										JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(), stateChanged
+												.getState(), stateChanged.getRunTime(), stateChanged.getStepCount(), stateChanged
+												.getEndEvent(), null));
 									}
 									
 								}
 								else
 								{
 									log.error("SimStateNoti for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
+											+ protocolState.toString());
 								}
 							
 							break;
 							case NCP.SimStatNoti:
 								
-								if(nodeState == ProtocolState.RDY)
+								if(protocolState == ProtocolState.RDY)
 								{
 									// Create the state object
 									SimulationStatChanged statChanged = new SimulationStatChanged(data);
@@ -439,8 +454,8 @@ public class NodeManager
 										// Post the event as if from a local
 										// simulation
 										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),
-												statChanged.getTime(), statChanged.getStepNo(), statChanged
-														.getProgress(), statChanged.getAsps()));
+												statChanged.getTime(), statChanged.getStepNo(), statChanged.getProgress(), statChanged
+														.getAsps()));
 										
 									}
 									else
@@ -452,12 +467,12 @@ public class NodeManager
 								else
 								{
 									log.error("SimStatNoti for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
+											+ protocolState.toString());
 								}
 							
 							break;
 							case NCP.RemSimAck:
-								if(nodeState == ProtocolState.RDY)
+								if(protocolState == ProtocolState.RDY)
 								{
 									RemoveSimAck removeSimAck = new RemoveSimAck(data);
 									
@@ -467,30 +482,29 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("RemSimAck for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
+									log.error("RemSimAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 							break;
 							case NCP.NodeStatsReply:
-								if(nodeState == ProtocolState.RDY)
+								if(protocolState == ProtocolState.RDY)
 								{
 									NodeStatsReply nodeStatsReply = new NodeStatsReply(data);
 									
 									log.debug("Recieved NodeStatsReply");
 									
-									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply
-											.getSequenceNum(), nodeStatsReply.getNodeStats()));
+									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply.getSequenceNum(),
+											nodeStatsReply.getNodeStats()));
 									
 								}
 								else
 								{
 									log.error("NodeStatsReply for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
+											+ protocolState.toString());
 								}
 							break;
 							case NCP.SimStats:
 								
-								if(nodeState == ProtocolState.RDY)
+								if(protocolState == ProtocolState.RDY)
 								{
 									log.info("Recieved Sim Stats");
 									
@@ -500,8 +514,8 @@ public class NodeManager
 									// find and remove mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.remove(simId);
 									
-									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data,
-											mapping.getExportFormat(), mapping.getFileNameSuffix());
+									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(),
+											mapping.getFileNameSuffix());
 									
 									activeSimsLock.acquireUninterruptibly();
 									
@@ -515,10 +529,9 @@ public class NodeManager
 									// simulation
 									SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
 									
-									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
-											finalStateChanged.getState(), finalStateChanged.getRunTime(),
-											finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(),
-											statsReply.getStatExporter()));
+									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged
+											.getState(), finalStateChanged.getRunTime(), finalStateChanged.getStepCount(),
+											finalStateChanged.getEndEvent(), statsReply.getStatExporter()));
 									
 									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),
 											SimulationsManagerEventType.RemovedSim));
@@ -526,8 +539,7 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state "
-											+ nodeState.toString());
+									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 							
 							break;
@@ -535,7 +547,7 @@ public class NodeManager
 							case NCP.INVALID:
 							default:
 								log.error("Recieved Invalid Frame");
-								nodeState = ProtocolState.DIS;
+								protocolState = ProtocolState.DIS;
 								
 								log.error("Error Type " + type + " len " + len);
 							
@@ -543,10 +555,10 @@ public class NodeManager
 						
 						}
 						
-						if(nodeState == ProtocolState.DIS)
+						if(protocolState == ProtocolState.DIS)
 						{
-							log.info("Protocol State : " + nodeState.toString());
-							active = false;
+							log.info("Protocol State : " + protocolState.toString());
+							nodeState = NodeManagerState.SHUTDOWN;
 						}
 					}
 					// Exit // Do Node Shutdown
@@ -557,9 +569,8 @@ public class NodeManager
 					log.warn("Node " + nodeInfo.getUid() + " Recieve Thread exited");
 					// Exit // Do Node Shutdown
 					
-					active = false;
-					
-					nodeState = ProtocolState.DIS;
+					protocolState = ProtocolState.DIS;
+					nodeState = NodeManagerState.SHUTDOWN;
 					
 					// Explicit release of all semaphores
 					addSimWait.release();
@@ -592,17 +603,12 @@ public class NodeManager
 	 */
 	public boolean isReady()
 	{
-		if(nodeState == ProtocolState.RDY)
+		if(protocolState == ProtocolState.RDY)
 		{
 			return true;
 		}
 		
 		return false;
-	}
-	
-	public boolean isActive()
-	{
-		return active;
 	}
 	
 	public void incrementTimeOut()
@@ -666,11 +672,21 @@ public class NodeManager
 		return nodeInfo.getMaxSims();
 	}
 	
+	public boolean isShutdown()
+	{
+		return (nodeState == NodeManagerState.SHUTDOWN) ? true : false;
+	}
+	
+	public boolean isRunning()
+	{
+		return (nodeState == NodeManagerState.RUNNING) ? true : false;
+	}
+	
 	public boolean hasFreeSlot()
 	{
 		int tActive = 0;
 		
-		if(isActive())
+		if(isRunning())
 		{
 			activeSimsLock.acquireUninterruptibly();
 			
@@ -845,5 +861,141 @@ public class NodeManager
 		
 		nodeLock.release();
 	}
+	
+	/**
+	 * Check for valid orderly state transitions.
+	 * Direct changes to SHUTDOWN state are handled programmatically as error
+	 * conditions.
+	 * @param newState
+	 */
+	private void ChangeManagerState(NodeManagerState newState)
+	{
+		NodeManagerState[] validStates = null;
+		
+		switch(nodeState)
+		{
+			case STARTING:
+				validStates = new NodeManagerState[]
+				{
+					NodeManagerState.RUNNING
+				};
+			break;
+			case RUNNING:
+				validStates = new NodeManagerState[]
+				{
+					NodeManagerState.PAUSING
+				};
+			break;
+			case PAUSING:
+				validStates = new NodeManagerState[]
+				{
+					NodeManagerState.PAUSED
+				};
+			break;
+			case PAUSED:
+				
+				// Now that the NodeManager is Paused it can resume or do a
+				// complete shutdown.
+				validStates = new NodeManagerState[]
+				{
+					NodeManagerState.RUNNING, NodeManagerState.SHUTDOWN
+				};
+			break;
+			case SHUTDOWN:
+				validStates = new NodeManagerState[]
+				{
+					NodeManagerState.SHUTDOWN
+				};
+			break;
+			default:
+				validStates = new NodeManagerState[]{};
+			break;
+		}
+		
+		System.out.println("State " + nodeState.toString() + " to " + newState.toString());
+		
+		// Check Valid Trans
+		if(containsState(validStates, newState))
+		{
+			System.out.println("State Changed");
+			
+			nodeState = newState;
+			
+			JComputeEventBus.post(new NodeManagerStateChange(nodeInfo.getUid(), newState));
+		}
+		else
+		{
+			log.error("Invalid Transition Attempted - from state " + nodeState.toString() + " to invalid state - " + newState.toString());
+		}
+	}
+	
+	private boolean containsState(NodeManagerState[] states, NodeManagerState target)
+	{
+		for(NodeManagerState state : states)
+		{
+			System.out.println("State " + state.toString() + " Target " + target);
+			if(state == target)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	@Subscribe
+	public void NodeManagerStateChangeRequest(NodeManagerStateChangeRequest e)
+	{
+		if(nodeInfo.getUid() == e.getUid())
+		{
+			ChangeManagerState(e.getState());
+		}
+	}
+	
+	/** State Enum */
+	public enum NodeManagerState
+	{
+		STARTING("Starting"), RUNNING("Running"), PAUSING("PAUSING"), PAUSED("Paused"), SHUTDOWN("Shutdown");
+		
+		private final String name;
+		
+		private NodeManagerState(String name)
+		{
+			this.name = name;
+		}
+		
+		public String toString()
+		{
+			return name;
+		}
+		
+		public static NodeManagerState fromInt(int v)
+		{
+			NodeManagerState state = null;
+			switch(v)
+			{
+				case 0:
+					state = NodeManagerState.STARTING;
+				break;
+				case 1:
+					state = NodeManagerState.RUNNING;
+				break;
+				case 2:
+					state = NodeManagerState.PAUSING;
+				break;
+				case 3:
+					state = NodeManagerState.PAUSED;
+				break;
+				case 4:
+					state = NodeManagerState.SHUTDOWN;
+				break;
+				default:
+					/* Invalid Usage */
+					state = null;
+			}
+			
+			return state;
+		}
+	};
 	
 }

@@ -187,7 +187,7 @@ public class ControlNode
 				{
 					NodeManager node = itr.next();
 					
-					if(!node.isActive())
+					if(node.isShutdown())
 					{
 						
 						ArrayList<Integer> nodeRecoveredSimIds = node.getRecoverableSimsIds();
@@ -221,9 +221,9 @@ public class ControlNode
 				
 				controlNodeLock.release();
 				
-				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String
-						.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()), String
-						.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulations)));
+				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String.valueOf(listenSocket
+						.getLocalPort()), String.valueOf(connectingNodes.size()), String.valueOf(activeNodes.size()), String
+						.valueOf(maxSims), String.valueOf(simulations)));
 				
 				timerCount += ncpTimerVal;
 			}
@@ -320,17 +320,21 @@ public class ControlNode
 									
 									connectingNodes.remove(existingNode);
 									
-									existingNode.destroy("A new node from " + existingNode.getAddress()
-											+ " has connected");
+									existingNode.destroy("A new node from " + existingNode.getAddress() + " has connected");
+									
+									nodeSocket.close();
+								}
+								else
+								{
+									// Add to NodeManager list of connecting
+									// node
+									connectingNodes.add(new NodeManager(++connectionNumber, nodeSocket));
 								}
 								
-								// Add to NodeManager list of connecting node
-								connectingNodes.add(new NodeManager(++connectionNumber, nodeSocket));
 							}
 							else
 							{
-								log.warn("Closing Socket as a Node already exists on :"
-										+ nodeSocket.getRemoteSocketAddress());
+								log.warn("Closing Socket as a Node already exists on :" + nodeSocket.getRemoteSocketAddress());
 								nodeSocket.close();
 							}
 							
@@ -433,7 +437,7 @@ public class ControlNode
 		for(NodeManager node : activeNodes)
 		{
 			log.debug("Node " + node.getUid());
-			if(node.hasFreeSlot() && node.isActive())
+			if(node.hasFreeSlot() && node.isRunning())
 			{
 				log.debug(node.getUid() + " hasFreeSlot ");
 				
@@ -471,18 +475,16 @@ public class ControlNode
 					
 					simAdded = true;
 					
-					log.info("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum
-							+ " Remote SimId " + remoteSimId);
+					log.info("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
 					
-					JComputeEventBus.post(new SimulationsManagerEvent(simulationNum,
-							SimulationsManagerEventType.AddedSim));
+					JComputeEventBus.post(new SimulationsManagerEvent(simulationNum, SimulationsManagerEventType.AddedSim));
 					
 					break;
 				}
 				else
 				{
-					log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId(pending) "
-							+ (simulationNum + 1) + " Remote SimId " + remoteSimId);
+					log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId(pending) " + (simulationNum + 1)
+							+ " Remote SimId " + remoteSimId);
 				}
 				
 			}
@@ -540,8 +542,7 @@ public class ControlNode
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		log.info("Start Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId "
-				+ mapping.getRemoteSimId());
+		log.info("Start Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());
 		
 		nodeManager.startSim(mapping.getRemoteSimId());
 		
