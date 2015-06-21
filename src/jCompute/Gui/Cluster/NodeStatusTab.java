@@ -148,7 +148,6 @@ public class NodeStatusTab extends JPanel
 	@Subscribe
 	public void NodeManagerStateChange(NodeManagerStateChange e)
 	{
-		System.out.println("NodeManagerStateChange " + e.getUid() + " state " + e.getState());
 		clusterNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
 	}
 	

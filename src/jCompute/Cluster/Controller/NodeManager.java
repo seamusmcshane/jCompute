@@ -907,19 +907,18 @@ public class NodeManager
 			break;
 		}
 		
-		System.out.println("State " + nodeState.toString() + " to " + newState.toString());
-		
 		// Check Valid Trans
 		if(containsState(validStates, newState))
 		{
-			System.out.println("State Changed");
-			
 			// The remote node will perform an orderly shutdown if it has no
-			// outstanding stats or running simulations. After which it disconnects and the NodeManager will enter the shutdown state.
+			// outstanding stats or running simulations. After which it
+			// disconnects and the NodeManager will enter the shutdown state.
 			if(newState == NodeManagerState.SHUTDOWN)
 			{
 				try
 				{
+					log.info("Sending NodeOrderlyShutdown");
+					
 					sendCMDMessage(new NodeOrderlyShutdown().toBytes());
 				}
 				catch(IOException e)
@@ -931,14 +930,15 @@ public class NodeManager
 			else
 			{
 				nodeState = newState;
+				
+				log.info("now " + nodeState.toString());
 			}
 			
 			JComputeEventBus.post(new NodeManagerStateChange(nodeInfo.getUid(), newState));
 		}
 		else
 		{
-			log.error("Invalid Transition Attempted - from state " + nodeState.toString() + " to invalid state - "
-					+ newState.toString());
+			log.error("Invalid Transition Attempted - from state " + nodeState.toString() + " to invalid state - " + newState.toString());
 		}
 	}
 	
@@ -946,7 +946,6 @@ public class NodeManager
 	{
 		for(NodeManagerState state : states)
 		{
-			System.out.println("State " + state.toString() + " Target " + target);
 			if(state == target)
 			{
 				return true;
@@ -968,7 +967,7 @@ public class NodeManager
 	/** State Enum */
 	public enum NodeManagerState
 	{
-		STARTING("Starting"), RUNNING("Running"), PAUSING("PAUSING"), PAUSED("Paused"), SHUTDOWN("Shutdown");
+		STARTING("Starting"), RUNNING("Running"), PAUSING("Pausing"), PAUSED("Paused"), SHUTDOWN("Shutdown");
 		
 		private final String name;
 		

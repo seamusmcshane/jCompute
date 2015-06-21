@@ -95,8 +95,6 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 	{
 		NodeManagerState state = NodeManagerState.fromInt((int) value);
 		
-		System.out.println("getTableCellRendererComponent row " + row + " state" + state.toString());
-		
 		rPanel.setBackground(UIManager.getColor("Table.background"));
 		
 		switch(state)
@@ -128,8 +126,6 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 	@Override
 	public Object getCellEditorValue()
 	{
-		System.out.println("editorValue " + editorValue);
-		
 		return editorValue;
 	}
 	
@@ -186,8 +182,6 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 		int row = jTable.convertRowIndexToModel(jTable.getEditingRow());
 		int uid = (int) tablePanel.getValueAt(row, 0);
 		
-		System.out.println("Row " + row + " uid " + uid);
-		
 		if(e.getSource() == ePauseResumeToggle)
 		{
 			if(ePauseResumeToggle.getIcon() == pauseIcon)
@@ -211,17 +205,17 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 			sb.append("<h3>");
 			sb.append("Shutdown Node ?");
 			sb.append("</h3>");
-			sb.append("Node&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;:&emsp;");
+			sb.append("Node&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;:&emsp;");
 			sb.append("<font color=red>");
 			sb.append(uid);
 			sb.append("</font>");
 			sb.append("<br>");
-			sb.append("Description&emsp;&emsp;&nbsp;:&emsp;");
+			sb.append("Description&emsp;&emsp;:&emsp;");
 			sb.append("<font color=red>");
 			sb.append(desc);
 			sb.append("</font>");
 			sb.append("<br>");
-			sb.append("Address&emsp;&emsp;&emsp;:&emsp;");
+			sb.append("Address&emsp;&emsp;&emsp;&nbsp;&nbsp;:&emsp;");
 			sb.append("<font color=red>");
 			sb.append(address);
 			sb.append("</font>");
