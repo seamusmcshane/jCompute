@@ -4,8 +4,6 @@ import jCompute.JComputeEventBus;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.Cluster.Protocol.Command.AddSimReply;
 import jCompute.Cluster.Protocol.Command.AddSimReq;
-import jCompute.Cluster.Protocol.Command.RemoveSimAck;
-import jCompute.Cluster.Protocol.Command.RemoveSimReq;
 import jCompute.Cluster.Protocol.Command.SimulationStatsReply;
 import jCompute.Cluster.Protocol.Command.SimulationStatsRequest;
 import jCompute.Cluster.Protocol.Command.StartSimCMD;
@@ -63,7 +61,7 @@ public class Node
 	private Socket socket;
 	
 	// ProtocolState
-	private ProtocolState state = ProtocolState.CON;
+	private ProtocolState protocolState = ProtocolState.CON;
 	
 	// Cache of Stats from finished simulations
 	private NodeStatCache statCache;
@@ -76,6 +74,7 @@ public class Node
 	public Node(String address, String desc, SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
+		
 		simulationsProcessed = 0;
 		
 		nodeStats = new NodeStats();
@@ -162,13 +161,12 @@ public class Node
 			commandOutput = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
 			
 			// Input Stream
-			final DataInputStream commandInput = new DataInputStream(new BufferedInputStream(
-					clientSocket.getInputStream()));
+			final DataInputStream commandInput = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
 			
 			doRegistration(nodeInfo, commandInput);
 			
 			// if Registered successfully
-			if(state == ProtocolState.RDY)
+			if(protocolState == ProtocolState.RDY)
 			{
 				log.info("Registration complete");
 				
@@ -227,19 +225,17 @@ public class Node
 							simsManager.startSim(cmd.getSimid());
 						}
 						break;
-						/*case NCP.RemSimReq:
-						{
-							RemoveSimReq removeSimReq = new RemoveSimReq(data);
-							
-							int simId = removeSimReq.getSimid();
-							
-							simsManager.removeSimulation(simId);
-							
-							log.info("RemoveSimReq " + simId);
-							
-							sendMessage(new RemoveSimAck(simId).toBytes());
-						}
-						break;*/
+						/*
+						 * case NCP.RemSimReq:
+						 * {
+						 * RemoveSimReq removeSimReq = new RemoveSimReq(data);
+						 * int simId = removeSimReq.getSimid();
+						 * simsManager.removeSimulation(simId);
+						 * log.info("RemoveSimReq " + simId);
+						 * sendMessage(new RemoveSimAck(simId).toBytes());
+						 * }
+						 * break;
+						 */
 						case NCP.NodeStatsRequest:
 						{
 							// Read here
@@ -270,33 +266,36 @@ public class Node
 							
 							log.info("SimStatsReq " + simId);
 							
-							// Is this an active simulation we have got a stat request for
+							// Is this an active simulation we have got a stat
+							// request for
 							if(simsManager.hasSimWithId(simId))
 							{
-								// Simulations are autoremoved when finished but this simulation was not finished
+								// Simulations are autoremoved when finished but
+								// this simulation was not finished
 								simsManager.removeSimulation(simId);
 								
-								// Remove it from the statCache (to cover a possible memory leak with the race - has sim/sim-finished/remove sim)
+								// Remove it from the statCache (to cover a
+								// possible memory leak with the race - has
+								// sim/sim-finished/remove sim)
 								statCache.remove(simId);
 								
-								log.warn("Got Stat request for active simulation " + simId + " - removing simulation/stats - NOT sending SimStats!!!");
+								log.warn("Got Stat request for active simulation " + simId
+										+ " - removing simulation/stats - NOT sending SimStats!!!");
 							}
 							else
 							{
 								// Get the stat exporter for this simId and
 								// create a Stats Reply
-								SimulationStatsReply statsReply = new SimulationStatsReply(simId,
-										statCache.remove(simId));
+								SimulationStatsReply statsReply = new SimulationStatsReply(simId, statCache.remove(simId));
 								
 								// NCP.SimStats
 								byte[] tempB = statsReply.toBytes();
 								
 								sendMessage(tempB);
 								
-								log.info("Sent SimStats " + statsReq.getSimId() + " Size "
-										+ (int) Math.ceil(tempB.length / 1024) + "kB");
+								log.info("Sent SimStats " + statsReq.getSimId() + " Size " + (int) Math.ceil(tempB.length / 1024) + "kB");
 							}
-
+							
 						}
 						break;
 						// Default / Invalid
@@ -305,14 +304,14 @@ public class Node
 						{
 							log.error("Invalid NCP Message Recieved");
 							
-							state = ProtocolState.DIS;
+							protocolState = ProtocolState.DIS;
 							
 							log.error("Error Type " + type + " len " + len);
 						}
 						break;
 					}
 					
-					if(state == ProtocolState.DIS)
+					if(protocolState == ProtocolState.DIS)
 					{
 						clientSocket.close();
 					}
@@ -344,7 +343,7 @@ public class Node
 		
 		log.info("Attempting Registration");
 		
-		state = ProtocolState.REG;
+		protocolState = ProtocolState.REG;
 		
 		// Create a registration request and send it
 		sendMessage(new RegistrationRequest().toBytes());
@@ -403,8 +402,7 @@ public class Node
 					if(benchMark > 0)
 					{
 						log.info("Running Weighting Benchmark");
-						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(confReq.getObjects(),
-								confReq.getIterations());
+						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(confReq.getObjects(), confReq.getIterations());
 						bench.warmUp(confReq.getWarmup());
 						long weighting = bench.weightingBenchmark(confReq.getRuns());
 						nodeInfo.setWeighting(weighting);
@@ -412,11 +410,12 @@ public class Node
 					}
 					
 					// Create and send the Configuration ack via TransferSocket
+					// + Initial NodeState
 					sendMessage(new ConfigurationAck(nodeInfo).toBytes());
 					
 					log.info("Sent Conf Ack : Max Sims " + nodeInfo.getMaxSims());
 					
-					state = ProtocolState.RDY;
+					protocolState = ProtocolState.RDY;
 					
 					// Now Registered
 					finished = true;
@@ -425,14 +424,14 @@ public class Node
 				case NCP.INVALID:
 				default:
 					log.error("Recieved Invalid Frame Type " + type);
-					state = ProtocolState.DIS;
+					protocolState = ProtocolState.DIS;
 				break;
 			
 			}
 			
-			if(state == ProtocolState.DIS)
+			if(protocolState == ProtocolState.DIS)
 			{
-				log.info("Protocol State : " + state.toString());
+				log.info("Protocol State : " + protocolState.toString());
 				finished = true;
 			}
 			
