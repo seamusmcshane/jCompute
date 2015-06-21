@@ -71,6 +71,9 @@ public class Node
 	private long bytesTX;
 	private long bytesRX;
 	
+	/* Shutdown requested */
+	private boolean shutdownRequested = false;
+	
 	public Node(String address, String desc, SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
@@ -104,7 +107,7 @@ public class Node
 		log.info("Created Node Stat Cache");
 		
 		// Disconnect Recovery Loop
-		while(true)
+		while(!shutdownRequested)
 		{
 			// Connecting to Server
 			socket = null;
@@ -297,6 +300,31 @@ public class Node
 							}
 							
 						}
+						break;
+						case NCP.NodeOrderlyShutdown:
+							
+							log.info("Recieved NodeOrderlyShutdown");
+							
+							int activeSims = simsManager.getActiveSims();
+							int statsOutStanding = statCache.getStatsStore();
+							
+							// If there are no active sim and no outstanding
+							// stats needing fetched.
+							if((activeSims == 0) && (statsOutStanding == 0))
+							{
+								// Ensure the node does not attempt to
+								// reconnect.
+								shutdownRequested = true;
+								
+								// Enter disconnect state
+								protocolState = ProtocolState.DIS;
+							}
+							else
+							{
+								log.warn("Refusing NodeOrderlyShutdown due to active sims " + activeSims + " & stats outstanding "
+										+ statsOutStanding);
+							}
+						
 						break;
 						// Default / Invalid
 						case NCP.INVALID:
