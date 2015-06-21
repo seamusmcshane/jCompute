@@ -13,6 +13,7 @@ import jCompute.Cluster.Protocol.Command.RemoveSimAck;
 import jCompute.Cluster.Protocol.Command.SimulationStatsReply;
 import jCompute.Cluster.Protocol.Command.SimulationStatsRequest;
 import jCompute.Cluster.Protocol.Command.StartSimCMD;
+import jCompute.Cluster.Protocol.Control.NodeOrderlyShutdown;
 import jCompute.Cluster.Protocol.NCP.ProtocolState;
 import jCompute.Cluster.Protocol.Monitoring.NodeStatsReply;
 import jCompute.Cluster.Protocol.Monitoring.NodeStatsRequest;
@@ -901,12 +902,6 @@ public class NodeManager
 					NodeManagerState.RUNNING, NodeManagerState.SHUTDOWN
 				};
 			break;
-			case SHUTDOWN:
-				validStates = new NodeManagerState[]
-				{
-					NodeManagerState.SHUTDOWN
-				};
-			break;
 			default:
 				validStates = new NodeManagerState[]{};
 			break;
@@ -919,13 +914,31 @@ public class NodeManager
 		{
 			System.out.println("State Changed");
 			
-			nodeState = newState;
+			// The remote node will perform an orderly shutdown if it has no
+			// outstanding stats or running simulations. After which it disconnects and the NodeManager will enter the shutdown state.
+			if(newState == NodeManagerState.SHUTDOWN)
+			{
+				try
+				{
+					sendCMDMessage(new NodeOrderlyShutdown().toBytes());
+				}
+				catch(IOException e)
+				{
+					log.error("Error Sending node shutdown - node " + nodeInfo.getUid());
+					e.printStackTrace();
+				}
+			}
+			else
+			{
+				nodeState = newState;
+			}
 			
 			JComputeEventBus.post(new NodeManagerStateChange(nodeInfo.getUid(), newState));
 		}
 		else
 		{
-			log.error("Invalid Transition Attempted - from state " + nodeState.toString() + " to invalid state - " + newState.toString());
+			log.error("Invalid Transition Attempted - from state " + nodeState.toString() + " to invalid state - "
+					+ newState.toString());
 		}
 	}
 	
