@@ -158,6 +158,8 @@ public class Launcher
 						node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 						
 						log.info("Node Exited");
+						
+						System.exit(0);
 					}
 				});
 				nodeLauncher.setName("Node");
