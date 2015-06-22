@@ -240,7 +240,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 	public void mouseExited(MouseEvent e)
 	{
 		// Editing Cell and mouse leaves it
-		fireEditingStopped();
+		fireEditingCanceled();
 	}
 	
 	@Override
@@ -248,7 +248,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 	{
 		// Mouse is release on a cell, handles clicking the panel or disabled
 		// buttons.
-		fireEditingStopped();
+		fireEditingCanceled();
 	}
 	
 	@Override
