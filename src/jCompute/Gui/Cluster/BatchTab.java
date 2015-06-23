@@ -370,6 +370,23 @@ public class BatchTab extends JPanel
 		batchManager.setStatus(batchId, true);
 	}
 	
+	public String[] getSelectedBatchInfo()
+	{
+		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
+		{
+			queuedSelectedBatchRowIndex = 0;
+			
+			// invalid row selected
+			return null;
+		}
+		
+		String batchId = String.valueOf((int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn));
+		String name = (String)  batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, nameColumn);
+		String progress =  String.valueOf((int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, progressColumn));
+		
+		return new String[]{batchId,name,progress};
+	}
+	
 	public void removeBatch()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)

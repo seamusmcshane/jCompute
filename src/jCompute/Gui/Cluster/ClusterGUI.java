@@ -9,6 +9,7 @@ import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.util.FileUtil;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -26,12 +27,15 @@ import java.awt.BorderLayout;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,7 +220,62 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				batchTab.removeBatch();
+				String[] info = batchTab.getSelectedBatchInfo();
+				
+				if(info != null)
+				{
+					StringBuilder sb = new StringBuilder();
+					
+					String batch = "Batch";
+					String name = "Name";
+					String progress = "Progress (%)";
+					String batchVal = info[0];
+					String nameVal = info[1];
+					String progressVal = info[2];
+					
+					int pad = progress.length() + 2;
+					
+					String font = "monospace";
+					
+					sb.append("<html>");
+					sb.append("<h3>");
+					sb.append("Remove Batch ?");
+					sb.append("</h3>");
+					sb.append("<font face='");
+					sb.append(font);
+					sb.append("'>");
+					sb.append(StringUtils.rightPad(batch, pad, '\u00A0'));
+					sb.append(" : ");
+					sb.append("<font color=red>");
+					sb.append(batchVal);
+					sb.append("</font>");
+					sb.append("<br>");
+					sb.append(StringUtils.rightPad(name, pad, '\u00A0'));
+					sb.append(" : ");
+					sb.append("<font color=red>");
+					sb.append(nameVal);
+					sb.append("</font>");
+					sb.append("<br>");
+					sb.append(StringUtils.rightPad(progress, pad, '\u00A0'));
+					sb.append(" : ");
+					sb.append("<font color=red>");
+					sb.append(progressVal);
+					sb.append("</font>");
+					sb.append("</font>");
+					sb.append("</html>");
+					
+					JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+					
+					messagePanel.add(new JLabel(sb.toString()));
+					
+					int result = JOptionPane.showConfirmDialog(guiFrame, messagePanel, "Remove Batch", JOptionPane.YES_NO_OPTION);
+					
+					if(result == JOptionPane.YES_OPTION)
+					{
+						batchTab.removeBatch();
+					}
+					
+				}
 			}
 		});
 		btnRemove.setIcon(IconManager.getIcon("removeBatch"));
