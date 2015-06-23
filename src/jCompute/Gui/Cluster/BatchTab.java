@@ -2,11 +2,15 @@ package jCompute.Gui.Cluster;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
@@ -20,26 +24,40 @@ import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Gui.Cluster.TableRowItems.BatchCompletedRowItem;
 import jCompute.Gui.Cluster.TableRowItems.BatchQueueRowItem;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
+import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
 import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.PriorityIconRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
+import jCompute.util.FileUtil;
 
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+
+import javax.swing.JToolBar;
 
 public class BatchTab extends JPanel
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchTab.class);
 	private static final long serialVersionUID = 662715907114338723L;
+	
+	private BatchTab self;
 	
 	// Left Split
 	private JPanel batchQueuedAndCompletePanel;
@@ -55,6 +73,22 @@ public class BatchTab extends JPanel
 	// Right Split
 	private TablePanel batchInfo;
 	private int rightPanelsMinWidth;
+	
+	// Toolbar
+	private JToolBar toolBar;
+	// Batch Add
+	private JButton btnAdd;
+	private JComputeProgressMonitor openBatchProgressMonitor;
+	private OpenBatchFileTask openBatchProgressMonitorTask;
+	private JButton btnRemove;
+	private JButton btnStart;
+	private JButton btnPause;
+	private JButton btnMoveForward;
+	private JButton btnMoveFirst;
+	private JButton btnMoveBackward;
+	private JButton btnMoveLast;
+	private JButton btnHighpriority;
+	private JButton btnStandardpriority;
 	
 	// Queue Table Positions
 	private int positionColumn = 0;
@@ -74,8 +108,11 @@ public class BatchTab extends JPanel
 	
 	private BatchManager batchManager;
 	
-	public BatchTab(BatchManager batchManager, int rightPanelsMinWidth)
+	public BatchTab(BatchManager batchManager, int rightPanelsMinWidth, boolean buttonText)
 	{
+		// Reference to self
+		self = this;
+		
 		// Batch Manager
 		this.batchManager = batchManager;
 		
@@ -93,10 +130,238 @@ public class BatchTab extends JPanel
 		
 		this.add(batchInfo, BorderLayout.EAST);
 		
-		// Register on the event bus
-		JComputeEventBus.register(this);
+		// Tool Bar
+		createToolbar(buttonText);
+		add(toolBar, BorderLayout.NORTH);
 		
 		registerTableMouseListeners();
+		
+		// Register on the event bus
+		JComputeEventBus.register(this);
+	}
+	
+	private void createToolbar(boolean buttonText)
+	{
+		toolBar = new JToolBar();
+		
+		toolBar.setFloatable(false);
+		
+		btnStart = new JButton();
+		btnStart.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				startBatch();
+			}
+		});
+		
+		openBatchProgressMonitor = new JComputeProgressMonitor(self, "Loading BatchFiles", 0, 100);
+		btnAdd = new JButton();
+		btnAdd.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+				
+				filechooser.setFileFilter(FileUtil.batchFileFilter());
+				
+				filechooser.setPreferredSize(new Dimension(800, 600));
+				filechooser.setMultiSelectionEnabled(true);
+				
+				XMLPreviewPanel xmlPreview = new XMLPreviewPanel();
+				filechooser.setAccessory(xmlPreview);
+				filechooser.addPropertyChangeListener(xmlPreview);
+				Action details = filechooser.getActionMap().get("viewTypeDetails");
+				details.actionPerformed(null);
+				
+				log.info("Batch Open Dialog");
+				
+				int val = filechooser.showOpenDialog(filechooser);
+				
+				if(val == JFileChooser.APPROVE_OPTION)
+				{
+					log.info("New Batch Choosen");
+					
+					File[] files = filechooser.getSelectedFiles();
+					
+					openBatchProgressMonitorTask = new OpenBatchFileTask(openBatchProgressMonitor, files);
+					
+					openBatchProgressMonitorTask.start();
+					
+				}
+			}
+		});
+		btnAdd.setIcon(IconManager.getIcon("addBatch"));
+		toolBar.add(btnAdd);
+		
+		btnRemove = new JButton();
+		btnRemove.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String[] info = getSelectedBatchInfo();
+				
+				if(info != null)
+				{
+					StringBuilder sb = new StringBuilder();
+					
+					String batch = "Batch";
+					String name = "Name";
+					String progress = "Progress (%)";
+					String batchVal = info[0];
+					String nameVal = info[1];
+					String progressVal = info[2];
+					
+					int pad = progress.length() + 2;
+					
+					String font = "monospace";
+					
+					sb.append("<html>");
+					sb.append("<h3>");
+					sb.append("Remove Batch ?");
+					sb.append("</h3>");
+					sb.append("<font face='");
+					sb.append(font);
+					sb.append("'>");
+					sb.append(StringUtils.rightPad(batch, pad, '\u00A0'));
+					sb.append(" : ");
+					sb.append("<font color=red>");
+					sb.append(batchVal);
+					sb.append("</font>");
+					sb.append("<br>");
+					sb.append(StringUtils.rightPad(name, pad, '\u00A0'));
+					sb.append(" : ");
+					sb.append("<font color=red>");
+					sb.append(nameVal);
+					sb.append("</font>");
+					sb.append("<br>");
+					sb.append(StringUtils.rightPad(progress, pad, '\u00A0'));
+					sb.append(" : ");
+					sb.append("<font color=red>");
+					sb.append(progressVal);
+					sb.append("</font>");
+					sb.append("</font>");
+					sb.append("</html>");
+					
+					JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+					
+					messagePanel.add(new JLabel(sb.toString()));
+					
+					int result = JOptionPane.showConfirmDialog(self, messagePanel, "Remove Batch", JOptionPane.YES_NO_OPTION);
+					
+					if(result == JOptionPane.YES_OPTION)
+					{
+						removeBatch();
+					}
+					
+				}
+			}
+		});
+		btnRemove.setIcon(IconManager.getIcon("removeBatch"));
+		toolBar.add(btnRemove);
+		toolBar.addSeparator();
+		
+		btnStart.setIcon(IconManager.getIcon("simRunningIcon"));
+		toolBar.add(btnStart);
+		
+		btnPause = new JButton();
+		btnPause.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				pauseBatch();
+			}
+		});
+		btnPause.setIcon(IconManager.getIcon("simPausedIcon"));
+		toolBar.add(btnPause);
+		
+		toolBar.addSeparator();
+		
+		btnMoveLast = new JButton();
+		btnMoveLast.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				moveLast();
+			}
+		});
+		btnMoveLast.setIcon(IconManager.getIcon("moveToBack"));
+		toolBar.add(btnMoveLast);
+		
+		btnMoveBackward = new JButton();
+		btnMoveBackward.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				moveBackward();
+			}
+		});
+		btnMoveBackward.setIcon(IconManager.getIcon("moveBackward"));
+		toolBar.add(btnMoveBackward);
+		
+		btnMoveForward = new JButton();
+		btnMoveForward.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				moveForward();
+			}
+		});
+		btnMoveForward.setIcon(IconManager.getIcon("moveForward"));
+		toolBar.add(btnMoveForward);
+		
+		btnMoveFirst = new JButton();
+		btnMoveFirst.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				moveFirst();
+			}
+		});
+		btnMoveFirst.setIcon(IconManager.getIcon("moveToFront"));
+		toolBar.add(btnMoveFirst);
+		
+		toolBar.addSeparator();
+		
+		btnStandardpriority = new JButton();
+		btnStandardpriority.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				setBatchStandardPri();
+			}
+		});
+		btnStandardpriority.setIcon(IconManager.getIcon("standardPriority"));
+		toolBar.add(btnStandardpriority);
+		
+		btnHighpriority = new JButton();
+		btnHighpriority.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				setBatchHighPri();
+			}
+		});
+		btnHighpriority.setIcon(IconManager.getIcon("highPriority"));
+		toolBar.add(btnHighpriority);
+		
+		toolBar.addSeparator();
+		
+		// Icons or Text Only
+		if(buttonText)
+		{
+			btnAdd.setText("Add");
+			btnRemove.setText("Remove");
+			btnStart.setText("Start");
+			btnPause.setText("Pause");
+			btnMoveForward.setText("Forward");
+			btnMoveBackward.setText("Backward");
+			btnMoveFirst.setText("First");
+			btnMoveLast.setText("Last");
+			
+			btnHighpriority.setText("High");
+			btnStandardpriority.setText("Standard");
+		}
 	}
 	
 	private void createBatchInfoPanel()
@@ -140,13 +405,11 @@ public class BatchTab extends JPanel
 		
 		// Batch Priority
 		batchQueuedTable.addColumRenderer(
-				new PriorityIconRenderer(IconManager.getIcon("highPriorityIcon"), IconManager
-						.getIcon("standardPriorityIcon")), priColumn);
+				new PriorityIconRenderer(IconManager.getIcon("highPriorityIcon"), IconManager.getIcon("standardPriorityIcon")), priColumn);
 		
 		// Batch State
 		batchQueuedTable.addColumRenderer(
-				new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")),
-				statusColumn);
+				new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")), statusColumn);
 		
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), progressColumn);
@@ -355,7 +618,7 @@ public class BatchTab extends JPanel
 		
 	}
 	
-	public void startBatch()
+	private void startBatch()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -370,7 +633,7 @@ public class BatchTab extends JPanel
 		batchManager.setStatus(batchId, true);
 	}
 	
-	public String[] getSelectedBatchInfo()
+	private String[] getSelectedBatchInfo()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -381,13 +644,16 @@ public class BatchTab extends JPanel
 		}
 		
 		String batchId = String.valueOf((int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn));
-		String name = (String)  batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, nameColumn);
-		String progress =  String.valueOf((int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, progressColumn));
+		String name = (String) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, nameColumn);
+		String progress = String.valueOf((int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, progressColumn));
 		
-		return new String[]{batchId,name,progress};
+		return new String[]
+		{
+			batchId, name, progress
+		};
 	}
 	
-	public void removeBatch()
+	private void removeBatch()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -405,7 +671,7 @@ public class BatchTab extends JPanel
 		batchManager.removeBatch(batchId);
 	}
 	
-	public void pauseBatch()
+	private void pauseBatch()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -418,7 +684,7 @@ public class BatchTab extends JPanel
 		batchManager.setStatus(batchId, false);
 	}
 	
-	public void moveLast()
+	private void moveLast()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0
 				|| queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount() - 1)
@@ -429,8 +695,7 @@ public class BatchTab extends JPanel
 		
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 		
-		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId
-				+ " moveToEnd...");
+		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToEnd...");
 		
 		batchManager.moveToEnd(batchId);
 		
@@ -440,7 +705,7 @@ public class BatchTab extends JPanel
 		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
 	}
 	
-	public void moveBackward()
+	private void moveBackward()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0
 				|| queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount() - 1)
@@ -451,8 +716,7 @@ public class BatchTab extends JPanel
 		
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 		
-		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId
-				+ " moveToBack...");
+		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToBack...");
 		
 		batchManager.moveBackward(batchId);
 		
@@ -462,7 +726,7 @@ public class BatchTab extends JPanel
 		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
 	}
 	
-	public void moveForward()
+	private void moveForward()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -472,8 +736,7 @@ public class BatchTab extends JPanel
 		
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 		
-		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId
-				+ " moveToFront...");
+		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
 		
 		batchManager.moveForward(batchId);
 		
@@ -481,7 +744,7 @@ public class BatchTab extends JPanel
 		batchQueuedTable.setSelection(queuedSelectedBatchRowIndex, 0);
 	}
 	
-	public void moveFirst()
+	private void moveFirst()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -493,8 +756,7 @@ public class BatchTab extends JPanel
 		
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 		
-		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId
-				+ " moveToFront...");
+		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " moveToFront...");
 		
 		batchManager.moveToFront(batchId);
 		
@@ -504,7 +766,7 @@ public class BatchTab extends JPanel
 		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
 	}
 	
-	public void setBatchStandardPri()
+	private void setBatchStandardPri()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -519,7 +781,7 @@ public class BatchTab extends JPanel
 		batchManager.setPriority(batchId, BatchPriority.STANDARD);
 	}
 	
-	public void setBatchHighPri()
+	private void setBatchHighPri()
 	{
 		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
 		{
@@ -570,8 +832,8 @@ public class BatchTab extends JPanel
 		// remove row
 		batchQueuedTable.removeRow(batch.getBatchId());
 		
-		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(),
-				jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
+		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(), jCompute.util.Text
+				.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
 		
 		queuedSelectedBatchRowIndex = -1;
 		
@@ -581,5 +843,86 @@ public class BatchTab extends JPanel
 		}
 		
 		batchQueuedTable.clearSelection();
+	}
+	
+	private class OpenBatchFileTask extends SwingWorker<Void, Void>
+	{
+		private JComputeProgressMonitor openBatchProgressMonitor;
+		private File[] files;
+		
+		private float progressInc;
+		private int loaded = 0;
+		private int error = 0;
+		
+		public OpenBatchFileTask(JComputeProgressMonitor openBatchProgressMonitor, File[] files)
+		{
+			this.openBatchProgressMonitor = openBatchProgressMonitor;
+			this.files = files;
+			
+			log.info("Requested that " + files.length + " Batch Files be loaded");
+			
+			progressInc = 100f / (float) files.length;
+		}
+		
+		@Override
+		public Void doInBackground()
+		{
+			int progress = 0;
+			setProgress(progress);
+			
+			StringBuilder errorMessage = new StringBuilder();
+			
+			for(File file : files)
+			{
+				String batchFile = file.getAbsolutePath();
+				
+				log.info("Batch File : " + batchFile);
+				
+				if(!batchManager.addBatch(batchFile))
+				{
+					log.error("Error Creating Batch from : " + batchFile);
+					
+					if(error == 0)
+					{
+						errorMessage.append("Error Creating Batch(s) from - \n");
+						
+					}
+					
+					errorMessage.append(error + " " + batchFile + "\n");
+					
+					error++;
+				}
+				else
+				{
+					loaded++;
+				}
+				
+				progress += progressInc;
+				
+				openBatchProgressMonitor.setProgress(Math.min(progress, 100));
+			}
+			
+			if(error > 0)
+			{
+				JOptionPane.showMessageDialog(self, errorMessage.toString());
+			}
+			
+			openBatchProgressMonitor.setProgress(100);
+			
+			return null;
+		}
+		
+		public void start()
+		{
+			openBatchProgressMonitor.setProgress(0);
+			this.execute();
+		}
+		
+		@Override
+		public void done()
+		{
+			log.info(loaded + " Batch Files were loaded");
+			log.info(error + " Batch Files were NOT loaded!");
+		}
 	}
 }
