@@ -48,6 +48,8 @@ public class NodeStatusTab extends JPanel
 	
 	private int rightPanelsMinWidth;
 	
+	private final int legendMaxNodes = 6;
+	
 	public NodeStatusTab(int rightPanelsMinWidth)
 	{
 		this.nodeStatusTabPanel = new SimpleTabPanel();
@@ -69,31 +71,31 @@ public class NodeStatusTab extends JPanel
 		// this.add(scrollPane, BorderLayout.NORTH);
 		// splitPane.setLeftComponent(scrollPane);
 		
-		clusterSimProChart = new GlobalStatChartPanel("Simulations Processed", "Nodes", true, false, 60, true);
+		clusterSimProChart = new GlobalStatChartPanel("Simulations Processed", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterSimProChart.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterSimProChart.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeActiveSims = new GlobalStatChartPanel("Active Simulations", "Nodes", true, false, 60, true);
+		clusterNodeActiveSims = new GlobalStatChartPanel("Active Simulations", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeActiveSims.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeActiveSims.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeStatsPending = new GlobalStatChartPanel("Statistics Pending", "Nodes", true, false, 60, true);
+		clusterNodeStatsPending = new GlobalStatChartPanel("Statistics Pending", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeStatsPending.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeStatsPending.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true);
+		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeUtilChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("Node JVM Mem Utilisation", "Nodes", true, false, 60, true);
+		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("Node JVM Mem Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeTXChar = new GlobalStatChartPanel("Network TX", "Nodes", true, false, 60, true);
+		clusterNodeTXChar = new GlobalStatChartPanel("Network TX", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeTXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeTXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeRXChar = new GlobalStatChartPanel("Network RX", "Nodes", true, false, 60, true);
+		clusterNodeRXChar = new GlobalStatChartPanel("Network RX", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
