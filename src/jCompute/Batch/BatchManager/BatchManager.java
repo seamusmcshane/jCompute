@@ -186,8 +186,8 @@ public class BatchManager
 			
 			itemsLock.release();
 			
-			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch "
-					+ item.getBatchId() + " for SimId " + simId);
+			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch " + item.getBatchId() + " for SimId "
+					+ simId);
 			
 			batch.returnItemToQueue(item);
 			
@@ -227,9 +227,9 @@ public class BatchManager
 			
 			if(batch != null)
 			{
-				batch.setItemComplete(item, exporter);
+				log.info("Batch " + batch.getBatchId() + " Item " + item.getItemId() + " Sample " + item.getSampleId() + " Finished");
 				
-				log.info("Batch Item Finished : " + batch.getBatchId());
+				batch.setItemComplete(item, exporter);
 				
 				// Batch Progress
 				JComputeEventBus.post(new BatchProgressEvent(batch));
@@ -431,8 +431,8 @@ public class BatchManager
 				{
 					if(batch.getRemaining() > 0)
 					{
-						log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " + batch.getActiveItemsCount()
-								+ " fairTotal" + fairTotal);
+						log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " + batch.getActiveItemsCount() + " fairTotal"
+								+ fairTotal);
 						
 						if(batch.getActiveItemsCount() < fairTotal)
 						{
