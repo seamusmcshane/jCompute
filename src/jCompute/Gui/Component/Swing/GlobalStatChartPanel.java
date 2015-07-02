@@ -313,41 +313,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 	}
 	
-	public void removeStat(String name)
+	public void addStat(String name, int colorOffset)
 	{
-		XYSeries tempS = seriesMap.get(name);
-		
-		if(tempS != null)
-		{
-			seriesMap.remove(name);
-			
-			dataset.removeSeries(tempS);
-			
-			statDataset.removeValue(name, category);
-		}
-	}
-	
-	public void statUpdate(String name, int time, double value, int colorOffset)
-	{
-		dataset.setNotify(false);
-		statDataset.setNotify(false);
-		
-		// Legend will cause the graphs to become too small, so disable them
-		// when needed
-		if(dynamicLegend)
-		{
-			if(seriesMap.size() > dynamicLegendLimit)
-			{
-				statBarChart.getLegend().setVisible(false);
-				historyChart.getLegend().setVisible(false);
-			}
-			else
-			{
-				statBarChart.getLegend().setVisible(true);
-				historyChart.getLegend().setVisible(true);
-			}
-		}
-		
 		XYSeries tempS = seriesMap.get(name);
 		
 		// This is a new stat being detected
@@ -382,6 +349,44 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			// Update series totals
 			series++;
 		}
+	}
+	
+	public void removeStat(String name)
+	{
+		XYSeries tempS = seriesMap.get(name);
+		
+		if(tempS != null)
+		{
+			seriesMap.remove(name);
+			
+			dataset.removeSeries(tempS);
+			
+			statDataset.removeValue(name, category);
+		}
+	}
+	
+	public void statUpdate(String name, int time, double value)
+	{
+		dataset.setNotify(false);
+		statDataset.setNotify(false);
+		
+		// Legend will cause the graphs to become too small, so disable them
+		// when needed
+		if(dynamicLegend)
+		{
+			if(seriesMap.size() > dynamicLegendLimit)
+			{
+				statBarChart.getLegend().setVisible(false);
+				historyChart.getLegend().setVisible(false);
+			}
+			else
+			{
+				statBarChart.getLegend().setVisible(true);
+				historyChart.getLegend().setVisible(true);
+			}
+		}
+		
+		XYSeries tempS = seriesMap.get(name);
 		
 		if(value > maxValue)
 		{
