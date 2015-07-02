@@ -1,6 +1,5 @@
 package jCompute.Gui.Cluster;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JPanel;
@@ -17,7 +16,6 @@ import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
-import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
 
@@ -26,10 +24,10 @@ import java.awt.GridLayout;
 public class NodeStatusTab extends JPanel
 {
 	private final int MEGABYTE = 1048576;
-	private final int CHART_HEIGHT = 175;
-	private SimpleTabPanel nodeStatusTabPanel;
-	private JScrollPane scrollPane;
-	private JPanel container;
+	private final int CHART_HEIGHT = 200;
+	
+	private JScrollPane graphScrollPane;
+	private JPanel graphsJPanelContainer;
 	
 	// Processing
 	private GlobalStatChartPanel clusterNodeActiveSims;
@@ -46,30 +44,39 @@ public class NodeStatusTab extends JPanel
 	private TablePanel clusterNodesTablePanel;
 	private int stateColumn = 10;
 	
-	private int rightPanelsMinWidth;
-	
 	private final int legendMaxNodes = 6;
 	
 	public NodeStatusTab(int rightPanelsMinWidth)
 	{
-		this.nodeStatusTabPanel = new SimpleTabPanel();
+		setLayout(new GridLayout(0, 2, 0, 0));
 		
-		// Min Width of rightPanel
-		this.rightPanelsMinWidth = rightPanelsMinWidth;
+		// Nodes Tab
+		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
 		
-		this.setLayout(new BorderLayout());
+		clusterNodesTablePanel.setColumWidth(0, 50);
+		clusterNodesTablePanel.setColumWidth(1, 75);
+		// clusterNodesTablePanel.setColumWidth(2, 60);
+		clusterNodesTablePanel.setColumWidth(3, 75);
+		clusterNodesTablePanel.setColumWidth(4, 75);
+		clusterNodesTablePanel.setColumWidth(5, 75);
+		clusterNodesTablePanel.setColumWidth(6, 75);
+		clusterNodesTablePanel.setColumWidth(7, 75);
+		clusterNodesTablePanel.setColumWidth(8, 75);
+		clusterNodesTablePanel.setColumWidth(9, 75);
+		clusterNodesTablePanel.setColumWidth(stateColumn, 75);
 		
-		container = new JPanel();
+		clusterNodesTablePanel.addColumRenderer(
+				new NodeControlButtonRenderer(clusterNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager
+						.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
 		
-		container.setLayout(new GridLayout(7, 1, 0, 0));
+		graphsJPanelContainer = new JPanel();
 		
-		scrollPane = new JScrollPane(container);
+		graphsJPanelContainer.setLayout(new GridLayout(7, 1, 0, 0));
 		
-		scrollPane.setPreferredSize(new Dimension(600, 240));
-		scrollPane.getVerticalScrollBar().setUnitIncrement(15);
+		graphScrollPane = new JScrollPane(graphsJPanelContainer);
 		
-		// this.add(scrollPane, BorderLayout.NORTH);
-		// splitPane.setLeftComponent(scrollPane);
+		graphScrollPane.setPreferredSize(new Dimension(600, 240));
+		graphScrollPane.getVerticalScrollBar().setUnitIncrement(15);
 		
 		clusterSimProChart = new GlobalStatChartPanel("Simulations Processed", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterSimProChart.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
@@ -100,41 +107,25 @@ public class NodeStatusTab extends JPanel
 		clusterNodeRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
 		// Processing
-		container.add(clusterNodeActiveSims);
-		container.add(clusterNodeStatsPending);
-		container.add(clusterSimProChart);
+		graphsJPanelContainer.add(clusterNodeActiveSims);
+		graphsJPanelContainer.add(clusterNodeStatsPending);
+		graphsJPanelContainer.add(clusterSimProChart);
 		
 		// Node OS/JVM
-		container.add(clusterNodeUtilChar);
-		container.add(clusterNodeMemUsedPerChar);
-		container.add(clusterNodeTXChar);
-		container.add(clusterNodeRXChar);
-		
-		// Nodes Tab
-		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
-		
-		clusterNodesTablePanel.setColumWidth(0, 50);
-		clusterNodesTablePanel.setColumWidth(1, 75);
-		// clusterNodesTablePanel.setColumWidth(2, 60);
-		clusterNodesTablePanel.setColumWidth(3, 75);
-		clusterNodesTablePanel.setColumWidth(4, 75);
-		clusterNodesTablePanel.setColumWidth(5, 75);
-		clusterNodesTablePanel.setColumWidth(6, 75);
-		clusterNodesTablePanel.setColumWidth(7, 75);
-		clusterNodesTablePanel.setColumWidth(8, 75);
-		clusterNodesTablePanel.setColumWidth(9, 75);
-		clusterNodesTablePanel.setColumWidth(stateColumn, 75);
-		
-		clusterNodesTablePanel.addColumRenderer(
-				new NodeControlButtonRenderer(clusterNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager
-						.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
+		graphsJPanelContainer.add(clusterNodeUtilChar);
+		graphsJPanelContainer.add(clusterNodeMemUsedPerChar);
+		graphsJPanelContainer.add(clusterNodeTXChar);
+		graphsJPanelContainer.add(clusterNodeRXChar);
 		
 		// this.add(clusterNodesTablePanel, BorderLayout.CENTER);
 		// splitPane.setRightComponent(clusterNodesTablePanel);
-		nodeStatusTabPanel.addTab(clusterNodesTablePanel, "Information");
-		nodeStatusTabPanel.addTab(scrollPane, "Activity");
+		// nodeStatusTabPanel.addTab(clusterNodesTablePanel, "Information");
+		// nodeStatusTabPanel.addTab(scrollPane, "Activity");
 		
-		this.add(nodeStatusTabPanel);
+		// this.add(nodeStatusTabPanel);
+		
+		this.add(clusterNodesTablePanel);
+		this.add(graphScrollPane);
 		
 		// Register on the event bus
 		JComputeEventBus.register(this);
