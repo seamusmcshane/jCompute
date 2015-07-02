@@ -70,6 +70,8 @@ public class NodeStatusTab extends JPanel
 				new NodeControlButtonRenderer(clusterNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager
 						.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
 		
+		clusterNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
+		
 		graphsJPanelContainer = new JPanel();
 		
 		graphsJPanelContainer.setLayout(new GridLayout(7, 1, 0, 0));

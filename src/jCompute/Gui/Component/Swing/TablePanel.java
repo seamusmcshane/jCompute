@@ -110,6 +110,9 @@ public class TablePanel extends JPanel
 			table.setRowSelectionAllowed(rowSelection);
 			table.setRowHeight(20);
 			
+			table.setShowGrid(true);
+			table.setGridColor(Color.LIGHT_GRAY);
+			
 			this.add(scrollPane, BorderLayout.CENTER);
 			
 		}

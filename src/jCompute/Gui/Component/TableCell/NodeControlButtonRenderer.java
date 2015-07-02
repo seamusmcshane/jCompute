@@ -5,6 +5,7 @@ import jCompute.Cluster.Controller.NodeManager.NodeManagerState;
 import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
 import jCompute.Gui.Component.Swing.TablePanel;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 
@@ -14,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -64,6 +64,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 		
 		rPanel = new JPanel();
 		rPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		rPanel.setBackground(Color.white);
 		rPauseResumeToggle = new JButton("");
 		rPauseResumeToggle.setIcon(pauseIcon);
 		rPanel.add(rPauseResumeToggle);
@@ -73,6 +74,8 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 		
 		ePanel = new JPanel();
 		ePanel.setLayout(new GridLayout(0, 2, 0, 0));
+		ePanel.setBackground(Color.white);
+		
 		ePauseResumeToggle = new JButton("");
 		ePauseResumeToggle.setIcon(pauseIcon);
 		ePauseResumeToggle.addActionListener(this);
@@ -94,8 +97,6 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		NodeManagerState state = NodeManagerState.fromInt((int) value);
-		
-		rPanel.setBackground(UIManager.getColor("Table.background"));
 		
 		switch(state)
 		{
@@ -145,8 +146,6 @@ public class NodeControlButtonRenderer extends AbstractCellEditor
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
 	{
 		NodeManagerState state = NodeManagerState.fromInt((int) value);
-		
-		ePanel.setBackground(UIManager.getColor("Table.background"));
 		
 		switch(state)
 		{
