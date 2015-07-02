@@ -1,6 +1,5 @@
 package jCompute.Gui.Cluster;
 
-import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JPanel;
@@ -18,6 +17,7 @@ import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
 import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.TableCell.ColorLabelRenderer;
 import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
 
 import java.awt.GridLayout;
