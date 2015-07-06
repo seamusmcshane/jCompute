@@ -495,4 +495,10 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		return zValMax;
 	}
 	
+	@Override 
+	public void clear()
+	{
+		logItems.clear();
+	}
+	
 }

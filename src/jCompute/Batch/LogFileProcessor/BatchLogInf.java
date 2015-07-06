@@ -39,4 +39,6 @@ public interface BatchLogInf
 	public double getZValMin();
 	public double getZValMax();
 	
+	public void clear();
+	
 }
