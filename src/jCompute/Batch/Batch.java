@@ -997,6 +997,8 @@ public class Batch implements StoredQueuePosition
 					{
 						resultsZipOut.flush();
 						resultsZipOut.close();
+						
+						log.info("Closed Results Zip for " + "Batch " + batchId);
 					}
 					catch(IOException e)
 					{
@@ -1355,7 +1357,7 @@ public class Batch implements StoredQueuePosition
 		infoCache.add("Max Steps");
 		infoCache.add(String.valueOf(maxSteps));
 		
-		// Add The parameters and free
+		// Add The parameters
 		infoCache.addAll(parameters);
 		
 		infoCache.add("");
@@ -1440,17 +1442,56 @@ public class Batch implements StoredQueuePosition
 		
 		infoCache.add(String.valueOf(((double) getRunTime() / (double) 1000)));
 		
-		parameterName = null;
-		groupName = null;
+		// Batch Attributes
+		//batchName = null;
+		//priority = null;
+		baseScenarioFileName = null;
+		baseScenarioFileName = null;
 		parameters = null;
 		
+		// Set if this batch's items can be processed (stop/start)
+		type = null;
+		
+		// For human readable date/time info
+		addedDateTime = null;
+		
+		// Log - total time calc
+		startDateTime = null;
+		//endDateTime = null;
+		
+		// The export dir for stats
+		batchStatsExportDir = null;
+		resultsZipOut = null;
+		
+		// Item log writer
+		itemLog = null;
+		
+		// Used for combination and for saving axis names
+		parameterName = null;
+		groupName = null;
+		
+		// Our Queue of Items yet to be processed
+		queuedItems = null;
+		
+		// The active Items currently being processed.
+		activeItems =null;
+		
+		// Get Batch Info Cache (Non Changing Data / All Final Info )
+		//infoCache =null;
+		
+		// The Batch Configuration Text
 		batchConfigText = null;
 		
+		// The Configuration Processor
+		batchConfigProcessor = null;
+		
+		// The base scenario
+		basePath = null;
+		
+		// Base scenario text
 		baseScenarioText = null;
 		
-		queuedItems = null;
-		activeItems = null;
-		
+		// Disk Cache for Items
 		itemDiskCache = null;
 		
 		log.info("Batch Info Compacted");
