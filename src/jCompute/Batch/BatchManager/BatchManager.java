@@ -238,9 +238,10 @@ public class BatchManager
 			else
 			{
 				log.warn("Simulation Event for NULL batch " + item.getBatchId());
-				
-				controlNode.removeSimulation(item.getSimId());
 			}
+			
+			// Remove the related simulation for this completed sim.
+			controlNode.removeSimulation(item.getSimId());
 			
 		}
 		

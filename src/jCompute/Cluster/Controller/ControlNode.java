@@ -510,7 +510,7 @@ public class ControlNode
 		
 	}
 	
-	public void remsoveSimulation(int simId)
+	public void removeSimulation(int simId)
 	{
 		controlNodeLock.acquireUninterruptibly();
 		

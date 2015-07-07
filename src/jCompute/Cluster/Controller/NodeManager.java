@@ -533,10 +533,6 @@ public class NodeManager
 									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged
 											.getState(), finalStateChanged.getRunTime(), finalStateChanged.getStepCount(),
 											finalStateChanged.getEndEvent(), statsReply.getStatExporter()));
-									
-									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(),
-											SimulationsManagerEventType.RemovedSim));
-									
 								}
 								else
 								{
@@ -839,7 +835,7 @@ public class NodeManager
 	{
 		nodeLock.acquireUninterruptibly();
 		
-		// NA - Finished Simulation are auto-removed when stats are fetched.
+		// NA - Finished Simulation are auto-removed when stats are fetched, calling this will remove the mapping.
 		// - we assume calling this method means you do not want stats or the
 		// simulation.
 		
