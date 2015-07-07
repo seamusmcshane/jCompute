@@ -510,12 +510,12 @@ public class ControlNode
 		
 	}
 	
-	public void removeSimulation(int simId)
+	public void remsoveSimulation(int simId)
 	{
 		controlNodeLock.acquireUninterruptibly();
 		
-		// Look up mapping
-		RemoteSimulationMapping mapping = localSimulationMap.get(simId);
+		// Look up and remove the mapping
+		RemoteSimulationMapping mapping = localSimulationMap.remove(simId);
 		
 		log.info("Remove Simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId "
 				+ mapping.getRemoteSimId());
@@ -523,9 +523,6 @@ public class ControlNode
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
 		nodeManager.removeSim(mapping.getRemoteSimId());
-		
-		// Remove the mapping
-		localSimulationMap.remove(mapping);
 		
 		controlNodeLock.release();
 		
