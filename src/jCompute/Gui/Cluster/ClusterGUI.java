@@ -1,8 +1,10 @@
 package jCompute.Gui.Cluster;
 
 import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Cluster.Protocol.NCP;
 import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Server.StatsFTP;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -17,11 +19,16 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.ButtonGroup;
 
 public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 {
@@ -31,12 +38,22 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	// Batch Manager
 	private BatchManager batchManager;
 	
+	// Stats FTP Server
+	private StatsFTP ftpServer;
+	private boolean ftpStarted;
+	
 	// Main Frame
 	private JFrame guiFrame;
 	
 	// Menu Bar
 	private JMenuBar menuBar;
 	private JMenuItem mntmQuit;
+	
+	private JMenu mnTools;
+	private JMenu mnStatsFtp;
+	private JRadioButtonMenuItem rdbtnmntmFTPStart;
+	private JRadioButtonMenuItem rdbtnmntmFTPStop;
+	private final ButtonGroup buttonGroup = new ButtonGroup();
 	
 	private JMenu mnHelp;
 	private JMenuItem mntmAbout;
@@ -57,13 +74,14 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		
 		batchManager = new BatchManager();
 		
+		ftpStarted = false;
+		
 		createAndAddTabs(buttonText);
 		
 		guiFrame.getContentPane().add(guiTabs, BorderLayout.CENTER);
 		
 		// Show Frame
 		guiFrame.setVisible(true);
-		
 	}
 	
 	private void createFrame()
@@ -110,6 +128,24 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		mntmQuit = new JMenuItem("Quit");
 		mnFileMenu.add(mntmQuit);
 		mntmQuit.addActionListener(this);
+		
+		mnTools = new JMenu("Tools");
+		menuBar.add(mnTools);
+		
+		mnStatsFtp = new JMenu("Stats FTP");
+		mnTools.add(mnStatsFtp);
+		
+		rdbtnmntmFTPStart = new JRadioButtonMenuItem("Start");
+		buttonGroup.add(rdbtnmntmFTPStart);
+		mnStatsFtp.add(rdbtnmntmFTPStart);
+		
+		rdbtnmntmFTPStop = new JRadioButtonMenuItem("Stop");
+		rdbtnmntmFTPStop.setSelected(true);
+		buttonGroup.add(rdbtnmntmFTPStop);
+		mnStatsFtp.add(rdbtnmntmFTPStop);
+		
+		rdbtnmntmFTPStart.addActionListener(this);
+		rdbtnmntmFTPStop.addActionListener(this);
 		
 		mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
@@ -181,6 +217,25 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 			jvmInfo.setLocationRelativeTo(guiFrame);
 			jvmInfo.pack();
 			jvmInfo.setVisible(true);
+		}
+		else if(e.getSource() == rdbtnmntmFTPStart)
+		{
+			if(!ftpStarted)
+			{
+				// One port above NCP protocol port
+				ftpServer = new StatsFTP(NCP.StandardServerPort + 1);
+				ftpServer.start();
+				ftpStarted = true;
+			}
+		}
+		else if(e.getSource() == rdbtnmntmFTPStop)
+		{
+			if(ftpStarted)
+			{
+				ftpServer.stop();
+				ftpServer = null;
+				ftpStarted = false;
+			}
 		}
 	}
 	
