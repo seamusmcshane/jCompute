@@ -124,7 +124,6 @@ public class SurfacePlotEnv implements ApplicationListener
 		colorMap = new ColorMap(zMin, zMax, pallete);
 		
 		tr = colorMap.getTextureRegion();
-
 		
 		double[][] data = mapper.getAvgData();
 		String[] names = mapper.getAxisNames();
@@ -160,27 +159,31 @@ public class SurfacePlotEnv implements ApplicationListener
 	private void doInputKeys()
 	{
 		float[] target = camController.getTarget();
+		float[] position = camController.getPos();
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.W))
 		{
 			target[yAxis] += targetInc;
+			position[yAxis] += targetInc;
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.S))
 		{
 			target[yAxis] -= targetInc;
+			position[yAxis] -= targetInc;
 			
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.A))
 		{
 			target[xAxis] -= targetInc;
-			
+			position[xAxis] -= targetInc;
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.D))
 		{
 			target[xAxis] += targetInc;
+			position[xAxis] += targetInc;
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.R))
@@ -193,6 +196,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		}
 		
 		camController.setTarget(target);
+		camController.setLocationXYZ(position);
 	}
 	
 	@Override
