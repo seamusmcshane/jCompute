@@ -1443,8 +1443,8 @@ public class Batch implements StoredQueuePosition
 		infoCache.add(String.valueOf(((double) getRunTime() / (double) 1000)));
 		
 		// Batch Attributes
-		//batchName = null;
-		//priority = null;
+		// batchName = null;
+		// priority = null;
 		baseScenarioFileName = null;
 		baseScenarioFileName = null;
 		parameters = null;
@@ -1457,7 +1457,7 @@ public class Batch implements StoredQueuePosition
 		
 		// Log - total time calc
 		startDateTime = null;
-		//endDateTime = null;
+		// endDateTime = null;
 		
 		// The export dir for stats
 		batchStatsExportDir = null;
@@ -1474,10 +1474,10 @@ public class Batch implements StoredQueuePosition
 		queuedItems = null;
 		
 		// The active Items currently being processed.
-		activeItems =null;
+		activeItems = null;
 		
 		// Get Batch Info Cache (Non Changing Data / All Final Info )
-		//infoCache =null;
+		// infoCache =null;
 		
 		// The Batch Configuration Text
 		batchConfigText = null;

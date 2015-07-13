@@ -45,8 +45,5 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/javacpp.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-0.10-bin/fftw-linux-x86_64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-io/commons-io-2.4/commons-io-2.4.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-mina/apache-mina-2.0.9/dist/mina-core-2.0.9.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-ftpserver/apache-ftpserver-1.0.6/ftplet-api-1.0.6.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-ftpserver/apache-ftpserver-1.0.6/ftpserver-core-1.0.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
