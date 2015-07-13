@@ -16,6 +16,7 @@ public class StatsFTP
 	private static Logger log = LoggerFactory.getLogger(StatsFTP.class);
 	
 	private FtpServer server;
+	private final int TIMEOUT = 3600;
 	
 	public StatsFTP(int port)
 	{
@@ -44,6 +45,11 @@ public class StatsFTP
 		ListenerFactory factory = new ListenerFactory();
 		
 		factory.setPort(port);
+		
+		// 1hr
+		factory.setIdleTimeout(TIMEOUT);
+		log.info("Set server timout to " + TIMEOUT);
+		
 		serverFactory.addListener("default", factory.createListener());
 		serverFactory.setUserManager(um);
 		
