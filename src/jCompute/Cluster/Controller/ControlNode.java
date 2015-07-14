@@ -352,7 +352,7 @@ public class ControlNode
 						}
 						catch(IOException e)
 						{
-							log.error("Server socket Closed");
+							log.info(e.toString());
 						}
 						
 					}
