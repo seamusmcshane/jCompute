@@ -20,6 +20,9 @@ public class NodeWeightingBenchmark
 	private TimerObj search = new TimerObj();
 	private long searchTime = 0;
 
+	private boolean running = false;
+	private boolean cancelled = false;
+	
 	public NodeWeightingBenchmark(int objectCount, int iterations)
 	{
 		this.objectCount = objectCount;
@@ -68,8 +71,15 @@ public class NodeWeightingBenchmark
 
 		for(int w = 0; w < warmup; w++)
 		{
-			populateTree();
-			searchTree();
+			if(!cancelled)
+			{
+				populateTree();
+				searchTree();
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 
@@ -95,15 +105,25 @@ public class NodeWeightingBenchmark
 	
 	public long weightingBenchmark(int runs)
 	{
+		running = true;
 		long fullWeighting = 0;
 		long weightings[] = new long[runs];
 		
 		for(int r=0;r<runs;r++)
 		{
-			singleBenchmark();
-			weightings[r] = getWeighting();
-			fullWeighting=fullWeighting+weightings[r];
+			if(!cancelled)
+			{
+				singleBenchmark();
+				weightings[r] = getWeighting();
+				fullWeighting=fullWeighting+weightings[r];
+			}
+			else
+			{
+				break;
+			}
 		}
+		
+		running = false;
 		
 		return fullWeighting;
 	}
@@ -120,6 +140,16 @@ public class NodeWeightingBenchmark
 	public long getWeighting()
 	{
 		return addTime+searchTime;
+	}
+	
+	public void cancel()
+	{
+		cancelled = true;
+	}
+
+	public boolean running()
+	{
+		return running;
 	}
 
 }

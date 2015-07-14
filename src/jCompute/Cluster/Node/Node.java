@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -74,6 +76,14 @@ public class Node
 	/* Shutdown requested */
 	private boolean shutdownRequested = false;
 	
+	/* Benchmark */
+	private NodeWeightingBenchmark nodeWeightingBenchmark;
+	
+	/* NCP Ready State management */
+	private Timer ncpReadyStateTimer;
+	private final int ncpTimerVal = 5;
+	private int timerCount;
+	
 	public Node(String address, String desc, SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
@@ -112,13 +122,77 @@ public class Node
 			// Connecting to Server
 			socket = null;
 			
+			// Handle a loop when ready state is not reached
+			if(ncpReadyStateTimer != null)
+			{
+				log.info("Stoping existing NCP timer");
+				ncpReadyStateTimer.cancel();
+			}
+			
+			timerCount = 0;
+			
+			ncpReadyStateTimer = new Timer("NCP Timer");
+			ncpReadyStateTimer.schedule(new TimerTask()
+			{
+				boolean timerEnd = false;
+				
+				@Override
+				public void run()
+				{
+					if(protocolState == ProtocolState.RDY)
+					{
+						log.info("Reached Ready State stoping NCP timer");
+						// End the ready state timer
+						ncpReadyStateTimer.cancel();
+					}
+					else
+					{
+						timerCount += ncpTimerVal;
+						
+						log.info("NCP TimeOut@" + timerCount);
+					}
+					
+					if(timerCount == NCP.ReadyStateTimeOut)
+					{
+						log.info("Ready State Timeout");
+					
+						timerEnd = true;
+					}
+					
+					if(timerEnd)
+					{
+						ncpReadyStateTimer.cancel();
+						
+						if(nodeWeightingBenchmark.running())
+						{
+							log.info("Cancelling Weighting benchmark");
+							nodeWeightingBenchmark.cancel();
+						}
+						
+						if(socket!=null)
+						{
+							// Close Connection
+							if(!socket.isClosed())
+							{
+								try
+								{
+									socket.close();
+								}
+								catch(IOException e)
+								{
+								}
+							}
+						}
+
+					}
+					
+				}
+			}, 0, ncpTimerVal * 1000);
+			
 			try
 			{
 				// Reset stats on reconnection.
 				nodeStats.reset();
-				
-				// Only attempt to connect every 5 seconds
-				Thread.sleep(5000);
 				
 				log.info("Connecting to : " + address + "@" + port);
 				
@@ -145,6 +219,12 @@ public class Node
 			catch(IOException e)
 			{
 				log.warn("Connection to " + address + " failed");
+			}
+			
+			// Only attempt to connect every 5 seconds
+			try
+			{
+				Thread.sleep(5000);
 			}
 			catch(InterruptedException e)
 			{
@@ -430,9 +510,9 @@ public class Node
 					if(benchMark > 0)
 					{
 						log.info("Running Weighting Benchmark");
-						NodeWeightingBenchmark bench = new NodeWeightingBenchmark(confReq.getObjects(), confReq.getIterations());
-						bench.warmUp(confReq.getWarmup());
-						long weighting = bench.weightingBenchmark(confReq.getRuns());
+						nodeWeightingBenchmark = new NodeWeightingBenchmark(confReq.getObjects(), confReq.getIterations());
+						nodeWeightingBenchmark.warmUp(confReq.getWarmup());
+						long weighting = nodeWeightingBenchmark.weightingBenchmark(confReq.getRuns());
 						nodeInfo.setWeighting(weighting);
 						log.info("Weighting\t " + weighting);
 					}
