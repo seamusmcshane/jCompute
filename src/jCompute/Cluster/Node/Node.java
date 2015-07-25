@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,10 +231,14 @@ public class Node
 				
 			}
 			
-			// Only attempt to connect every 5 seconds
+			// Re-attempt to connect
 			try
 			{
-				Thread.sleep(5000);
+				int sleep = (ThreadLocalRandom.current().nextInt(4750)) + 250;
+				
+				log.info("Waiting " + sleep);
+				
+				Thread.sleep(sleep);
 			}
 			catch(InterruptedException e)
 			{
