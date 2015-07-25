@@ -24,6 +24,9 @@ public class NCP
 	    }
 	};
 	
+	// Protocol version - prevent mismatched nodes
+	public static final int NCP_PROTOCOL_VERSION = 1;
+	
 	public static final int HEADER_SIZE = 8; // Type + Len Fields (int)
 	
 	// Invalid Frame 
@@ -69,4 +72,8 @@ public class NCP
     public static final int NodeTransferPort 	= 10001;	// Nodes Transfer Listening Port
     
     public static final int ReadyStateTimeOut = 120;		// Max time to wait for a node to enter ready state (120 seconds)
+    
+    // Registration Nack Reasons
+    public static final int ProtocolVersionMismatch = 01;		// Protocol Versions do not match - value contains local node version.
+    
 }

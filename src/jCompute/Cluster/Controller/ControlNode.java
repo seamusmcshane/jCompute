@@ -164,6 +164,11 @@ public class ControlNode
 						connectingNodes.remove(tNode);
 						tNode.destroy("Ready State Timeout");
 					}
+					else if(tNode.hasFailedReg())
+					{
+						connectingNodes.remove(tNode);
+						tNode.destroy("failed to register " + tNode.getRegFailedReason());
+					}
 					else
 					{
 						tNode.incrementTimeOut();
@@ -367,6 +372,8 @@ public class ControlNode
 		catch(Exception e)
 		{
 			log.error("Server Recieve Thread Exited : " + e.getMessage());
+			
+			System.exit(-1);
 		}
 	}
 	

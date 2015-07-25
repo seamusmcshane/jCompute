@@ -22,6 +22,7 @@ import jCompute.Cluster.Protocol.Notification.SimulationStateChanged;
 import jCompute.Cluster.Protocol.Registration.ConfigurationAck;
 import jCompute.Cluster.Protocol.Registration.ConfigurationRequest;
 import jCompute.Cluster.Protocol.Registration.RegistrationReqAck;
+import jCompute.Cluster.Protocol.Registration.RegistrationReqNack;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
@@ -73,6 +74,11 @@ public class NodeManager
 	
 	// Counter for NCP state machine
 	private int NSMCPReadyTimeOut;
+	
+	// Has the node failed Registration
+	private boolean NCPRegFailed = false;
+	private int reason = 0;
+	private int value = 0;
 	
 	// Is the remote node active. (connection up)
 	// private boolean nodeManagerRunnning = false;
@@ -197,17 +203,44 @@ public class NodeManager
 					 */
 					if(protocolState == ProtocolState.CON)
 					{
-						/*
-						 * Later if needed Validate Request Info.... Maybe
-						 * protocol version etc
-						 */
+						// Use to determine if to send a reg ack
+						boolean ackReg = true;
 						
-						// Create and Send Reg Ack
-						sendCMDMessage(new RegistrationReqAck(nodeInfo.getUid()).toBytes());
+						// Check the protocl versions match
+						int remoteProtocolVersion = data.getInt();
+						if(remoteProtocolVersion != NCP.NCP_PROTOCOL_VERSION)
+						{
+							log.warn("Protocol Version Mismatch");
+							
+							sendCMDMessage(new RegistrationReqNack(NCP.ProtocolVersionMismatch, NCP.NCP_PROTOCOL_VERSION).toBytes());
+							
+							log.info("Sent Registration nack");
+							
+							protocolState = ProtocolState.DIS;
+							
+							ackReg = false;
+							
+							// Record that reg has failed
+							NCPRegFailed = true;
+							
+							reason = NCP.ProtocolVersionMismatch;
+							value = remoteProtocolVersion;
+						}
+						else
+						{
+							log.info("Protocol Version OK!");
+						}
 						
-						log.info("Sent Registration Ack");
-						
-						protocolState = ProtocolState.REG;
+						if(ackReg)
+						{
+							
+							// If we are ok to proceed the ack the reg
+							sendCMDMessage(new RegistrationReqAck(nodeInfo.getUid()).toBytes());
+							
+							log.info("Sent Registration Ack");
+							
+							protocolState = ProtocolState.REG;
+						}
 					}
 					else
 					{
@@ -608,6 +641,25 @@ public class NodeManager
 		return false;
 	}
 	
+	public boolean hasFailedReg()
+	{
+		return NCPRegFailed;
+	}
+	
+	public String getRegFailedReason()
+	{
+		switch(reason)
+		{
+			case NCP.ProtocolVersionMismatch:
+				
+				return "Protocol Version Mismatch - Local " + NCP.NCP_PROTOCOL_VERSION + " Remote " + value;
+				
+			default:
+				
+				return "RegNack : Unknown Reason " + reason + " value " + value;
+		}
+	}
+	
 	public void incrementTimeOut()
 	{
 		NSMCPReadyTimeOut += 5;
@@ -835,7 +887,8 @@ public class NodeManager
 	{
 		nodeLock.acquireUninterruptibly();
 		
-		// NA - Finished Simulation are auto-removed when stats are fetched, calling this will remove the mapping.
+		// NA - Finished Simulation are auto-removed when stats are fetched,
+		// calling this will remove the mapping.
 		// - we assume calling this method means you do not want stats or the
 		// simulation.
 		

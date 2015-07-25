@@ -73,8 +73,8 @@ public class Node
 	private long bytesTX;
 	private long bytesRX;
 	
-	/* Shutdown requested */
-	private boolean shutdownRequested = false;
+	/* Shutdown Node */
+	private boolean shutdown = false;
 	
 	/* Benchmark */
 	private NodeWeightingBenchmark nodeWeightingBenchmark;
@@ -117,7 +117,7 @@ public class Node
 		log.info("Created Node Stat Cache");
 		
 		// Disconnect Recovery Loop
-		while(!shutdownRequested)
+		while(!shutdown)
 		{
 			// Connecting to Server
 			socket = null;
@@ -155,7 +155,7 @@ public class Node
 					if(timerCount == NCP.ReadyStateTimeOut)
 					{
 						log.info("Ready State Timeout");
-					
+						
 						timerEnd = true;
 					}
 					
@@ -169,7 +169,7 @@ public class Node
 							nodeWeightingBenchmark.cancel();
 						}
 						
-						if(socket!=null)
+						if(socket != null)
 						{
 							// Close Connection
 							if(!socket.isClosed())
@@ -183,7 +183,7 @@ public class Node
 								}
 							}
 						}
-
+						
 					}
 					
 				}
@@ -219,6 +219,15 @@ public class Node
 			catch(IOException e)
 			{
 				log.warn("Connection to " + address + " failed");
+				
+				protocolState = ProtocolState.DIS;
+				
+				if(ncpReadyStateTimer != null)
+				{
+					log.info("Stoping existing NCP timer");
+					ncpReadyStateTimer.cancel();
+				}
+				
 			}
 			
 			// Only attempt to connect every 5 seconds
@@ -394,7 +403,7 @@ public class Node
 							{
 								// Ensure the node does not attempt to
 								// reconnect.
-								shutdownRequested = true;
+								shutdown = true;
 								
 								// Enter disconnect state
 								protocolState = ProtocolState.DIS;
@@ -495,6 +504,33 @@ public class Node
 					
 					// We Ack the Ack
 					sendMessage(reqAck.toBytes());
+				
+				break;
+				case NCP.RegNack:
+					
+					int reason = data.getInt();
+					int value = data.getInt();
+					
+					switch(reason)
+					{
+						case NCP.ProtocolVersionMismatch:
+							
+							log.error("RegNack : Protocol Version Mismatch");
+							log.error("Local " + NCP.NCP_PROTOCOL_VERSION + " Remote " + value);
+						
+						break;
+						default:
+							
+							log.error("RegNack : Unknown Reason " + reason + " value " + value);
+						
+						break;
+					}
+					
+					// Unrecoverable
+					protocolState = ProtocolState.DIS;
+					shutdown = true;
+					
+					log.info("Shuting Down due to RegNack");
 				
 				break;
 				case NCP.ConfReq:
