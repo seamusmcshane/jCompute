@@ -303,7 +303,7 @@ public class Launcher
 	{
 		Set<String> index = opts.keySet();
 		
-		log.info("Launching...");
+		log.info("Launch Values");
 		for(String name : index)
 		{
 			

@@ -1,7 +1,6 @@
 package jCompute.Gui.Cluster;
 
 import jCompute.Batch.BatchManager.BatchManager;
-import jCompute.Cluster.Protocol.NCP;
 import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 
@@ -18,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -25,9 +25,6 @@ import javax.swing.JMenuItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.ButtonGroup;
 
 public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 {
@@ -55,20 +52,35 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	private ClusterStatusTab clusterStatusTab;
 	private NodeStatusTab nodeStatusTab;
 	
-	public ClusterGUI(boolean buttonText)
+	public ClusterGUI(final boolean buttonText)
 	{
-		log.info("Started ClusterGUI");
-		
-		createFrame();
+		try
+		{
+			javax.swing.SwingUtilities.invokeAndWait(new Runnable()
+			{
+				public void run()
+				{
+					createFrame();
+					
+					createAndAddTabs(buttonText);
+					
+					guiFrame.getContentPane().add(guiTabs, BorderLayout.CENTER);
+					
+					// Show Frame
+					guiFrame.setVisible(true);
+					
+					log.info("Created GUI");
+				}
+			});
+		}
+		catch(InvocationTargetException | InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 		
 		batchManager = new BatchManager();
 		
-		createAndAddTabs(buttonText);
-		
-		guiFrame.getContentPane().add(guiTabs, BorderLayout.CENTER);
-		
-		// Show Frame
-		guiFrame.setVisible(true);
+		batchTab.setBatchManager(batchManager);
 	}
 	
 	private void createFrame()
@@ -92,7 +104,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	{
 		guiTabs = new SimpleTabPanel();
 		
-		batchTab = new BatchTab(batchManager, rightPanelsMinWidth, buttonText);
+		batchTab = new BatchTab(rightPanelsMinWidth, buttonText);
 		
 		guiTabs.addTab(batchTab, "Batches");
 		

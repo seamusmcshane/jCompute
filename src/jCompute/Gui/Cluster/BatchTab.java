@@ -108,13 +108,10 @@ public class BatchTab extends JPanel
 	
 	private BatchManager batchManager;
 	
-	public BatchTab(BatchManager batchManager, int rightPanelsMinWidth, boolean buttonText)
+	public BatchTab(int rightPanelsMinWidth, boolean buttonText)
 	{
 		// Reference to self
 		self = this;
-		
-		// Batch Manager
-		this.batchManager = batchManager;
 		
 		// Min Width of rightPanel
 		this.rightPanelsMinWidth = rightPanelsMinWidth;
@@ -924,5 +921,11 @@ public class BatchTab extends JPanel
 			log.info(loaded + " Batch Files were loaded");
 			log.info(error + " Batch Files were NOT loaded!");
 		}
+	}
+
+	// Batch Manager
+	public void setBatchManager(BatchManager batchManager)
+	{
+		this.batchManager = batchManager;
 	}
 }
