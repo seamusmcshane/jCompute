@@ -15,7 +15,7 @@ public class Bar
 	
 	private float gridTrans;
 	private float barSize;
-	private float barMax = 25f;
+	private float barMax = 100f;
 	private float height;
 	private float scaleReset;
 	

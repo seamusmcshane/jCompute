@@ -53,7 +53,7 @@ public class SurfaceChart implements WindowListener, ActionListener
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "Bar Surface";
-		cfg.samples = 2;
+		cfg.samples = 16;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
 		
