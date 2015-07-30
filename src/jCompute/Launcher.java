@@ -30,9 +30,9 @@ public class Launcher
 	@SuppressWarnings("unused")
 	private static StandardGUI standardGUI;
 	
-	// Batch GUI
+	// Cluster GUI
 	@SuppressWarnings("unused")
-	private static ClusterGUI batchGUI;
+	private static ClusterGUI clusterGUI;
 	
 	// Remote Node
 	@SuppressWarnings("unused")
@@ -137,9 +137,9 @@ public class Launcher
 				
 			break;
 			case 1:
-				lookandFeel(opts.get("lookandfeel").getValue());
+				lookandFeel(opts.get("jLook").getValue());
 				
-				batchGUI = new ClusterGUI(buttonText);
+				clusterGUI = new ClusterGUI(buttonText);
 				
 			break;
 			case 2:
