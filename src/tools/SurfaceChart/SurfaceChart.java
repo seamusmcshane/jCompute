@@ -4,6 +4,7 @@ import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
 import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
 import jCompute.util.FileUtil;
+import jCompute.util.LookAndFeel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -44,6 +45,8 @@ public class SurfaceChart implements WindowListener, ActionListener
 	
 	public SurfaceChart()
 	{
+		LookAndFeel.setLookandFeel("default");
+		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		gui.setMinimumSize(new Dimension((int) width, (int) height));

@@ -6,6 +6,7 @@ import jCompute.Gui.Interactive.StandardGUI;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.SimulationManager.SimulationsManager;
 import jCompute.util.JVMInfo;
+import jCompute.util.LookAndFeel;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -130,14 +131,14 @@ public class Launcher
 		switch(mode)
 		{
 			case 0:
-				lookandFeel(opts.get("jLook").getValue());
+				LookAndFeel.setLookandFeel(opts.get("jLook").getValue());
 				log.info("Requested Standard GUI");
 				/* Local Simulation Manager */
 				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
 				
 			break;
 			case 1:
-				lookandFeel(opts.get("jLook").getValue());
+				LookAndFeel.setLookandFeel(opts.get("jLook").getValue());
 				
 				clusterGUI = new ClusterGUI(buttonText);
 				
@@ -258,45 +259,6 @@ public class Launcher
 		}
 		
 		System.exit(0);
-	}
-	
-	/* If possible set the requested look and feel else use system default */
-	private static void lookandFeel(String conflookandfeel)
-	{
-		// Default to the system provided look and feel
-		String lookandfeel = UIManager.getSystemLookAndFeelClassName();
-		
-		UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
-		
-		for(int i = 0; i < lookAndFeels.length; i++)
-		{
-			if(lookAndFeels[i].getClassName().toLowerCase().contains(conflookandfeel))
-			{
-				lookandfeel = lookAndFeels[i].getClassName();
-				break;
-			}
-		}
-		
-		try
-		{
-			UIManager.setLookAndFeel(lookandfeel);
-		}
-		catch(ClassNotFoundException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch(InstantiationException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch(IllegalAccessException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch(UnsupportedLookAndFeelException e1)
-		{
-			e1.printStackTrace();
-		}
 	}
 	
 	private static void displayValues()
