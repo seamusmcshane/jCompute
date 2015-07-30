@@ -51,7 +51,7 @@ public class Launcher
 		new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
 		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
 		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
-		new CommandLineArg("desc", "not set", "Node Description")
+		new CommandLineArg("desc", "not set", "Node Description"), new CommandLineArg("lookandfeel", "default", "Set JavaUI Look and Feel")
 	};
 	
 	public static void main(String args[])
@@ -130,17 +130,17 @@ public class Launcher
 		switch(mode)
 		{
 			case 0:
-				lookandFeel();
+				lookandFeel(opts.get("lookandfeel").getValue());
 				log.info("Requested Standard GUI");
 				/* Local Simulation Manager */
 				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
-			
+				
 			break;
 			case 1:
-				lookandFeel();
+				lookandFeel(opts.get("lookandfeel").getValue());
 				
 				batchGUI = new ClusterGUI(buttonText);
-			
+				
 			break;
 			case 2:
 				
@@ -164,14 +164,14 @@ public class Launcher
 				});
 				nodeLauncher.setName("Node");
 				nodeLauncher.start();
-			
+				
 			break;
 			default:
 				
 				displayHelp();
-			
+				
 			break;
-		
+			
 		}
 		
 	}
@@ -260,8 +260,8 @@ public class Launcher
 		System.exit(0);
 	}
 	
-	/* Set Nimbus Look and feel */
-	private static void lookandFeel()
+	/* If possible set the requested look and feel else use system default */
+	private static void lookandFeel(String conflookandfeel)
 	{
 		// Default to the system provided look and feel
 		String lookandfeel = UIManager.getSystemLookAndFeelClassName();
@@ -270,7 +270,7 @@ public class Launcher
 		
 		for(int i = 0; i < lookAndFeels.length; i++)
 		{
-			if(lookAndFeels[i].getClassName().toLowerCase().contains("nimbus"))
+			if(lookAndFeels[i].getClassName().toLowerCase().contains(conflookandfeel))
 			{
 				lookandfeel = lookAndFeels[i].getClassName();
 				break;
