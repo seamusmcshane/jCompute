@@ -51,7 +51,7 @@ public class Launcher
 		new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
 		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
 		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
-		new CommandLineArg("desc", "not set", "Node Description"), new CommandLineArg("iLook", "default", "Set JavaUI Look and Feel")
+		new CommandLineArg("desc", "not set", "Node Description"), new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel")
 	};
 	
 	public static void main(String args[])
@@ -130,7 +130,7 @@ public class Launcher
 		switch(mode)
 		{
 			case 0:
-				lookandFeel(opts.get("lookandfeel").getValue());
+				lookandFeel(opts.get("jLook").getValue());
 				log.info("Requested Standard GUI");
 				/* Local Simulation Manager */
 				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
