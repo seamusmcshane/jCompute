@@ -7,8 +7,8 @@
 		<xs:element name="Path" type="xs:string" minOccurs="1" maxOccurs="1"/>
 		<xs:element name="GroupName" type="xs:string" minOccurs="0" maxOccurs="1"/>										
 		<xs:element name="ParameterName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-		<xs:element name="Intial" type="xs:string" minOccurs="1" maxOccurs="1"/>
-		<xs:element name="Increment" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="Intial" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="Increment" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
 		<xs:element name="Combinations" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 	</xs:sequence>
 </xs:complexType>
