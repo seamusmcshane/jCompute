@@ -2,6 +2,7 @@ package tools.SurfacePlotGenerator;
 
 import jCompute.Thread.SimpleNamedThreadFactory;
 import jCompute.util.FileUtil;
+import jCompute.util.LookAndFeel;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,7 +33,7 @@ public class PDFReport
 	
 	private final static String itemLog = "ItemLog.log";
 	
-	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(1, new SimpleNamedThreadFactory("Image Exporter"));
+	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(8, new SimpleNamedThreadFactory("Image Exporter"));
 	
 	private final static ArrayList<String> rowNames = new ArrayList<String>();
 	private final static ArrayList<String> colNames = new ArrayList<String>();
@@ -40,7 +41,9 @@ public class PDFReport
 	
 	public static void main(String args[])
 	{
-		final JFileChooser filechooser = new JFileChooser(new File("\\\\Nanoserv\\results\\ViewRange"));
+		LookAndFeel.setLookandFeel("default");
+		
+		final JFileChooser filechooser = new JFileChooser(new File("\\\\Nanoserv\\results\\"));
 		
 		filechooser.setDialogTitle("Choose Directory");
 		filechooser.setMultiSelectionEnabled(false);
@@ -77,9 +80,13 @@ public class PDFReport
 			
 			generateReport(documentName, rowNames, colNames, fullPath, scale);
 			
+			System.out.println("Report Finished");
+		}
+		else
+		{
+			System.out.println("Report Cancelled");
 		}
 		
-		System.out.println("Report Finished");
 		System.exit(0);
 		
 	}
@@ -192,9 +199,8 @@ public class PDFReport
 			cos.beginText();
 			
 			cos.setFont(PDType1Font.HELVETICA_BOLD, documentTitleSize);
-			cos.moveTextPositionByAmount(
-					pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2, pageBox.getHeight()
-							- documentTitleSize);
+			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2,
+					pageBox.getHeight() - documentTitleSize);
 			cos.drawString(documentName);
 			
 			cos.endText();
@@ -202,9 +208,8 @@ public class PDFReport
 			cos.beginText();
 			
 			cos.setFont(PDType1Font.HELVETICA_BOLD, pageTitleSize);
-			cos.moveTextPositionByAmount(
-					pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2, pageBox.getHeight()
-							- documentTitleSize - pageTitleSize);
+			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2,
+					pageBox.getHeight() - documentTitleSize - pageTitleSize);
 			cos.drawString(pageTitle);
 			
 			cos.endText();
