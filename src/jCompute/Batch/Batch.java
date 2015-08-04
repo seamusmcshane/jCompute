@@ -287,16 +287,16 @@ public class Batch implements StoredQueuePosition
 				parameterName = new String[parameterGroups];
 				
 				// Initial values of each parameter
-				int Intial[] = new int[parameterGroups];
+				float Intial[] = new float[parameterGroups];
 				
 				// Increment values of each parameter
-				int Increment[] = new int[parameterGroups];
+				float Increment[] = new float[parameterGroups];
 				
 				// Combinations for each parameter
 				int Combinations[] = new int[parameterGroups];
 				
 				// Value of the max combination for each parameter
-				int IncrementMaxValue[] = new int[parameterGroups];
+				float IncrementMaxValue[] = new float[parameterGroups];
 				
 				// The value in the combination at which to increment the value
 				// of
@@ -332,10 +332,10 @@ public class Batch implements StoredQueuePosition
 					parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
 					
 					// Intial value
-					Intial[p] = batchConfigProcessor.getIntValue(section, "Intial");
+					Intial[p] = batchConfigProcessor.getFloatValue(section, "Intial");
 					
 					// Increment value
-					Increment[p] = batchConfigProcessor.getIntValue(section, "Increment");
+					Increment[p] = batchConfigProcessor.getFloatValue(section, "Increment");
 					
 					// Combinations e.g 2 = initial value + 1 increment
 					Combinations[p] = batchConfigProcessor.getIntValue(section, "Combinations");
@@ -372,7 +372,7 @@ public class Batch implements StoredQueuePosition
 					
 				}
 				
-				int currentValues[] = new int[parameterGroups];
+				float currentValues[] = new float[parameterGroups];
 				int combinations = 1;
 				for(int p = 0; p < parameterGroups; p++)
 				{
@@ -544,7 +544,7 @@ public class Batch implements StoredQueuePosition
 									String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
 									
 									// Currently only decimal and integer are
-									// used.
+									// supported.
 									if(dtype.equals("boolean"))
 									{
 										temp.changeValue(groupSection, parameterName[p], new Boolean(true));
@@ -559,7 +559,9 @@ public class Batch implements StoredQueuePosition
 									}
 									else if(dtype.equals("integer"))
 									{
-										temp.changeValue(groupSection, parameterName[p], currentValues[p]);
+										// The configuration file wants Integer
+										// values - Cast floats to ints
+										temp.changeValue(groupSection, parameterName[p], (int) currentValues[p]);
 									}
 									else
 									{
@@ -634,7 +636,7 @@ public class Batch implements StoredQueuePosition
 					// DebugLogger.output(temp.getScenarioXMLText());
 					logLine.append("ComboPos(");
 					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
-					ArrayList<Integer> tempCoordValues = new ArrayList<Integer>();
+					ArrayList<Float> tempCoordValues = new ArrayList<Float>();
 					for(int p = 0; p < parameterGroups; p++)
 					{
 						logLine.append(String.valueOf(comboCoordinates.get(p)));
@@ -736,9 +738,9 @@ public class Batch implements StoredQueuePosition
 		{
 			try
 			{
-				itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true),
-						BW_BUFFER_SIZE));
-				
+				itemLog = new PrintWriter(
+						new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
+						
 				itemLog.println("[+Header]");
 				itemLog.println("Name=" + batchName);
 				itemLog.println("LogType=BatchItems");
@@ -806,7 +808,7 @@ public class Batch implements StoredQueuePosition
 		
 		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems
 				+ "-" + batchItems + "-" + maxSteps + "] " + batchName;
-		
+				
 		FileUtil.createDirIfNotExist(batchStatsExportDir);
 		
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
@@ -907,7 +909,7 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("IID=" + item.getItemId());
 			itemLog.println("SID=" + item.getSampleId());
 			ArrayList<Integer> coords = item.getCoordinates();
-			ArrayList<Integer> coordsValues = item.getCoordinatesValues();
+			ArrayList<Float> coordsValues = item.getCoordinatesValues();
 			for(int c = 0; c < coords.size(); c++)
 			{
 				itemLog.println("[+Coordinate]");
@@ -971,7 +973,7 @@ public class Batch implements StoredQueuePosition
 						// All Item samples use same config so overwrite.
 						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
 								+ item.getItemId() + File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
-						
+								
 						configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
 						configFile.flush();
 						configFile.close();
@@ -1029,8 +1031,8 @@ public class Batch implements StoredQueuePosition
 				try
 				{
 					// Close Info Log
-					PrintWriter infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
-							+ "InfoLog.xml", true)));
+					PrintWriter infoLog = new PrintWriter(
+							new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.xml", true)));
 					infoLog.println("<Batch>");
 					infoLog.println("<ID>" + batchId + "</ID>");
 					infoLog.println("<ScenarioType>" + type + "</ScenarioType>");
@@ -1038,8 +1040,8 @@ public class Batch implements StoredQueuePosition
 					infoLog.println("<BaseFile>" + baseScenarioFileName + "</BaseFile>");
 					infoLog.println("<Start>" + startDateTime + "</Start>");
 					infoLog.println("<Finished>" + endDateTime + "</Finished>");
-					infoLog.println("<TotalTime>" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime)
-							+ "</TotalTime>");
+					infoLog.println(
+							"<TotalTime>" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime) + "</TotalTime>");
 					infoLog.println("<Batch>");
 					infoLog.flush();
 					infoLog.close();
@@ -1074,7 +1076,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Small wrapper around queue add and disk cache
 	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates,
-			ArrayList<Integer> coordinatesValues)
+			ArrayList<Float> coordinatesValues)
 	{
 		byte[] configBytes = null;
 		try
