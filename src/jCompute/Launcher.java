@@ -13,9 +13,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Set;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
