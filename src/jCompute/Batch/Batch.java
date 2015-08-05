@@ -343,32 +343,37 @@ public class Batch implements StoredQueuePosition
 					// Max value = Combinations-1 as initial is the first
 					IncrementMaxValue[p] = Intial[p] + ((Combinations[p] - 1) * Increment[p]);
 					
+					// Optimise slightly the concatenations
+					String pNumString = "("+p+") ";
+					
 					parameters.add("");
 					parameters.add("");
-					parameters.add("ParameterType");
+					parameters.add(pNumString+"ParameterType");
 					parameters.add(ParameterType[p]);
-					parameters.add("Path");
+					parameters.add(pNumString+"Path");
 					parameters.add(Path[p]);
-					parameters.add("GroupName");
+					parameters.add(pNumString+"GroupName");
 					parameters.add(groupName[p]);
-					parameters.add("Intial");
+					parameters.add(pNumString+"ParameterName");
+					parameters.add(parameterName[p]);
+					parameters.add(pNumString+"Intial");
 					parameters.add(String.valueOf(Intial[p]));
-					parameters.add("Increment");
+					parameters.add(pNumString+"Increment");
 					parameters.add(String.valueOf(Increment[p]));
-					parameters.add("Combinations");
+					parameters.add(pNumString+"Combinations");
 					parameters.add(String.valueOf(Combinations[p]));
-					parameters.add("IncrementMaxValue");
+					parameters.add(pNumString+"IncrementMaxValue");
 					parameters.add(String.valueOf(IncrementMaxValue[p]));
 					
 					// Logging
-					log.info("ParameterType : " + ParameterType[p]);
-					log.info("Path : " + Path[p]);
-					log.info("GroupName : " + groupName[p]);
-					log.info("ParameterName : " + parameterName[p]);
-					log.info("Intial : " + Intial[p]);
-					log.info("Increment : " + Increment[p]);
-					log.info("Combinations : " + Combinations[p]);
-					log.info("IncrementMaxValue : " + IncrementMaxValue[p]);
+					log.info(pNumString+"ParameterType : " + ParameterType[p]);
+					log.info(pNumString+"Path : " + Path[p]);
+					log.info(pNumString+"GroupName : " + groupName[p]);
+					log.info(pNumString+"ParameterName : " + parameterName[p]);
+					log.info(pNumString+"Intial : " + Intial[p]);
+					log.info(pNumString+"Increment : " + Increment[p]);
+					log.info(pNumString+"Combinations : " + Combinations[p]);
+					log.info(pNumString+"IncrementMaxValue : " + IncrementMaxValue[p]);
 					
 				}
 				
