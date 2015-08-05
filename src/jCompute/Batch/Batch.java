@@ -599,7 +599,7 @@ public class Batch implements StoredQueuePosition
 							
 							// Fine the datatype for this parameter
 							String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
-							
+
 							// Currently only decimal and integer are used.
 							if(dtype.equals("boolean"))
 							{
@@ -615,7 +615,7 @@ public class Batch implements StoredQueuePosition
 							}
 							else if(dtype.equals("integer"))
 							{
-								temp.changeValue(Path[p], parameterName[p], currentValues[p]);
+								temp.changeValue(Path[p], parameterName[p], (int)currentValues[p]);
 							}
 							else
 							{
