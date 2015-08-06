@@ -16,9 +16,9 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jcommon-1.0.23.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/knn-benchmark.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/Aparapi_2014_04_29/aparapi.jar">
+	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi_2014_04_29/aparapi.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="S:/PHD/ComputeOverlay/aparapi/Aparapi_2014_04_29"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="S:/PHD/ComputeOverlay/aparapi/aparapi_2014_04_29"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
