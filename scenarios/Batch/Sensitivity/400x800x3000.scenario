@@ -86,6 +86,10 @@
 			<EnergyConsumptionRate>100</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.50</ReproductionCost>
+			<RoamMaxMoves>20</RoamMaxMoves>
+			<HuntMaxMoves>50</HuntMaxMoves>
+			<HuntExitMaxWait>10</HuntExitMaxWait>
+			<LearnToMoveMax>15</LearnToMoveMax>
 		</SimpleAgent>
 		<SimpleAgent>
 			<Name>Prey</Name>
@@ -106,6 +110,8 @@
 			<EnergyConsumptionRate>10</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.50</ReproductionCost>
+			<RoamMaxMoves>20</RoamMaxMoves>
+			<LearnToMoveMax>15</LearnToMoveMax>
 		</SimpleAgent>
 	</Agents>
 	<Plants>
