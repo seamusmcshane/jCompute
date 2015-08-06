@@ -33,8 +33,8 @@
 			<Type>Parameter</Type>
 			<Path>World</Path>
 			<ParameterName>Size</ParameterName>
-			<Intial>64</Intial>
-			<Increment>64</Increment>
+			<Intial>32</Intial>
+			<Increment>32</Increment>
 			<Combinations>100</Combinations>
 		</Parameter>
 	</Parameters>
