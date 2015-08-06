@@ -287,16 +287,16 @@ public class Batch implements StoredQueuePosition
 				parameterName = new String[parameterGroups];
 				
 				// Initial values of each parameter
-				float Intial[] = new float[parameterGroups];
+				double Intial[] = new double[parameterGroups];
 				
 				// Increment values of each parameter
-				float Increment[] = new float[parameterGroups];
+				double Increment[] = new double[parameterGroups];
 				
 				// Combinations for each parameter
 				int Combinations[] = new int[parameterGroups];
 				
 				// Value of the max combination for each parameter
-				float IncrementMaxValue[] = new float[parameterGroups];
+				double IncrementMaxValue[] = new double[parameterGroups];
 				
 				// The value in the combination at which to increment the value
 				// of
@@ -332,10 +332,10 @@ public class Batch implements StoredQueuePosition
 					parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
 					
 					// Intial value
-					Intial[p] = batchConfigProcessor.getFloatValue(section, "Intial");
+					Intial[p] = batchConfigProcessor.getDoubleValue(section, "Intial");
 					
 					// Increment value
-					Increment[p] = batchConfigProcessor.getFloatValue(section, "Increment");
+					Increment[p] = batchConfigProcessor.getDoubleValue(section, "Increment");
 					
 					// Combinations e.g 2 = initial value + 1 increment
 					Combinations[p] = batchConfigProcessor.getIntValue(section, "Combinations");
@@ -377,7 +377,7 @@ public class Batch implements StoredQueuePosition
 					
 				}
 				
-				float currentValues[] = new float[parameterGroups];
+				double currentValues[] = new double[parameterGroups];
 				int combinations = 1;
 				for(int p = 0; p < parameterGroups; p++)
 				{
@@ -641,7 +641,7 @@ public class Batch implements StoredQueuePosition
 					// DebugLogger.output(temp.getScenarioXMLText());
 					logLine.append("ComboPos(");
 					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
-					ArrayList<Float> tempCoordValues = new ArrayList<Float>();
+					ArrayList<Double> tempCoordValues = new ArrayList<Double>();
 					for(int p = 0; p < parameterGroups; p++)
 					{
 						logLine.append(String.valueOf(comboCoordinates.get(p)));
@@ -914,7 +914,7 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("IID=" + item.getItemId());
 			itemLog.println("SID=" + item.getSampleId());
 			ArrayList<Integer> coords = item.getCoordinates();
-			ArrayList<Float> coordsValues = item.getCoordinatesValues();
+			ArrayList<Double> coordsValues = item.getCoordinatesValues();
 			for(int c = 0; c < coords.size(); c++)
 			{
 				itemLog.println("[+Coordinate]");
@@ -1081,7 +1081,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Small wrapper around queue add and disk cache
 	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates,
-			ArrayList<Float> coordinatesValues)
+			ArrayList<Double> coordinatesValues)
 	{
 		byte[] configBytes = null;
 		try
