@@ -50,7 +50,7 @@ public class Batch implements StoredQueuePosition
 	// Item Generation
 	private boolean needGenerated = true;
 	private boolean generating = false;
-	private float progress = 0;
+	private float generationProgress = 0;
 	
 	// Set if this batch's items can be processed (stop/start)
 	private boolean status = true;
@@ -447,7 +447,7 @@ public class Batch implements StoredQueuePosition
 					}
 				}
 				
-				progress = 0;
+				generationProgress = 0;
 				
 				// Set the combination Values
 				for(int combo = 1; combo < combinations + 1; combo++)
@@ -691,10 +691,10 @@ public class Batch implements StoredQueuePosition
 						
 					}
 					
-					progress = ((float) combo / (float) combinations) * 100f;
+					generationProgress = ((float) combo / (float) combinations) * 100f;
 				}
 				
-				progress = 100;
+				generationProgress = 100;
 				
 				// All the items need to get processed, but the ett is
 				// influenced by
@@ -1263,7 +1263,7 @@ public class Batch implements StoredQueuePosition
 			info.add("Items Generated");
 			info.add(needGenerated == false ? "Yes" : "No");
 			info.add("Generation Progress");
-			info.add(String.valueOf(progress));
+			info.add(String.valueOf(generationProgress));
 			
 			if(!needGenerated)
 			{
@@ -1385,7 +1385,7 @@ public class Batch implements StoredQueuePosition
 		infoCache.add("Items Generated");
 		infoCache.add(needGenerated == false ? "Yes" : "No");
 		infoCache.add("Generation Progress");
-		infoCache.add(String.valueOf(progress));
+		infoCache.add(String.valueOf(generationProgress));
 		
 		infoCache.add("");
 		infoCache.add("");
