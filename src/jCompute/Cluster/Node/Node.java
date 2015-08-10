@@ -94,24 +94,6 @@ public class Node
 		simulationsProcessed = 0;
 		this.simsManager = simsManager;
 		
-		nodeStats = new NodeStats();
-		nodeStatsUpdateTimer = new Timer("Node Stats Update Timer");
-		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
-		{
-			@Override
-			public void run()
-			{
-				// Update Node Stats
-				nodeStats.setSimulationsProcessed(simulationsProcessed);
-				nodeStats.setSimulationsActive(simsManager.getActiveSims());
-				nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
-				nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
-				nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
-				nodeStats.setBytesTX(bytesTX);
-				nodeStats.setBytesRX(bytesRX);
-			}
-		}, 0, 1000);
-		
 		/* Our Configuration */
 		NodeInfo nodeInfo = new NodeInfo();
 		
@@ -130,6 +112,26 @@ public class Node
 		
 		statCache = new NodeStatCache();
 		log.info("Created Node Stat Cache");
+		
+		nodeStats = new NodeStats();
+		nodeStatsUpdateTimer = new Timer("Node Stats Update Timer");
+		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
+		{
+
+			@Override
+			public void run()
+			{
+				// Update Node Stats
+				nodeStats.setSimulationsProcessed(simulationsProcessed);
+				nodeStats.setSimulationsActive(simsManager.getActiveSims());
+				nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
+				nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
+				nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
+				nodeStats.setBytesTX(bytesTX);
+				nodeStats.setBytesRX(bytesRX);
+			}
+		}, 0, 1000);
+		log.info("Node Stats Update Timer Started");
 		
 		// Disconnect Recovery Loop
 		while(!shutdown)
