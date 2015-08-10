@@ -3,11 +3,11 @@ package jCompute.Cluster.Node;
 import jCompute.Stats.StatExporter;
 import java.util.HashMap;
 
-public class NodeStatCache
+public class NodeProcessedItemStatCache
 {
 	private HashMap<Integer,StatExporter> statMap;
 	
-	public NodeStatCache()
+	public NodeProcessedItemStatCache()
 	{
 		statMap = new HashMap<Integer,StatExporter>();
 	}

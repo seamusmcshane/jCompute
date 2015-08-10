@@ -67,9 +67,9 @@ public class Node
 	private ProtocolState protocolState = ProtocolState.CON;
 	
 	// Cache of Stats from finished simulations
-	private NodeStatCache statCache;
+	private NodeProcessedItemStatCache statCache;
 	
-	private NodeStats nodeStats;
+	private NodeStatsSample nodeStats;
 	private long simulationsProcessed;
 	private long bytesTX;
 	private long bytesRX;
@@ -110,10 +110,10 @@ public class Node
 		
 		JComputeEventBus.register(this);
 		
-		statCache = new NodeStatCache();
+		statCache = new NodeProcessedItemStatCache();
 		log.info("Created Node Stat Cache");
 		
-		nodeStats = new NodeStats();
+		nodeStats = new NodeStatsSample();
 		nodeStatsUpdateTimer = new Timer("Node Stats Update Timer");
 		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
 		{
@@ -129,6 +129,8 @@ public class Node
 				nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
 				nodeStats.setBytesTX(bytesTX);
 				nodeStats.setBytesRX(bytesRX);
+				
+				// nodeStats.update(simulationsProcessed,simsManager.getActiveSims(),statCache.getStatsStore(),OSInfo.getSystemCpuUsage(),JVMInfo.getUsedJVMMemoryPercentage(),bytesTX,bytesRX);
 			}
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
@@ -464,7 +466,7 @@ public class Node
 			log.info("Removed all Simulations as connection lost");
 			
 			// Any stats in the cache are not going to be requested.
-			statCache = new NodeStatCache();
+			statCache = new NodeProcessedItemStatCache();
 			log.info("Recreated Node Stat Cache");
 		}
 		

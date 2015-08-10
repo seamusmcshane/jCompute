@@ -1,6 +1,6 @@
 package jCompute.Cluster.Node;
 
-public class NodeStats
+public class NodeStatsSample
 {
 	private int cpuUsage;
 	private int simulationsActive;

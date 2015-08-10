@@ -1,14 +1,14 @@
 package jCompute.Cluster.Controller.Event;
 
-import jCompute.Cluster.Node.NodeStats;
+import jCompute.Cluster.Node.NodeStatsSample;
 
 public class NodeStatsUpdate
 {
 	private int nodeId;
 	private int sequenceNum;
-	private NodeStats stats;
+	private NodeStatsSample stats;
 
-	public NodeStatsUpdate(int nodeId, int sequenceNum, NodeStats stats)
+	public NodeStatsUpdate(int nodeId, int sequenceNum, NodeStatsSample stats)
 	{
 		super();
 		this.nodeId = nodeId;
@@ -26,7 +26,7 @@ public class NodeStatsUpdate
 		return sequenceNum;
 	}
 
-	public NodeStats getStats()
+	public NodeStatsSample getStats()
 	{
 		return stats;
 	}
