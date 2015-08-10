@@ -2,15 +2,15 @@ package jCompute.Cluster.Protocol.Monitoring;
 
 import java.nio.ByteBuffer;
 
-import jCompute.Cluster.Node.NodeStats;
+import jCompute.Cluster.Node.NodeStatsSample;
 import jCompute.Cluster.Protocol.NCP;
 
 public class NodeStatsReply
 {
 	private int sequenceNum;
-	private NodeStats stats;
+	private NodeStatsSample stats;
 	
-	public NodeStatsReply(int sequenceNum, NodeStats stats)
+	public NodeStatsReply(int sequenceNum, NodeStatsSample stats)
 	{
 		this.sequenceNum = sequenceNum;
 		this.stats = stats;
@@ -20,7 +20,7 @@ public class NodeStatsReply
 	{
 		this.sequenceNum = source.getInt();
 		
-		stats = new NodeStats();
+		stats = new NodeStatsSample();
 		
 		stats.setCpuUsage(source.getInt());
 		stats.setSimulationsProcessed(source.getLong());
@@ -31,7 +31,7 @@ public class NodeStatsReply
 		stats.setBytesRX(source.getLong());
 	}
 	
-	public NodeStats getNodeStats()
+	public NodeStatsSample getNodeStats()
 	{
 		return this.stats;
 	}
