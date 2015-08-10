@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
@@ -108,6 +110,8 @@ public class BatchTab extends JPanel
 	
 	private BatchManager batchManager;
 	
+	private Timer timer;
+	
 	public BatchTab(int rightPanelsMinWidth, boolean buttonText)
 	{
 		// Reference to self
@@ -127,6 +131,9 @@ public class BatchTab extends JPanel
 		
 		this.add(batchInfo, BorderLayout.EAST);
 		
+		// Always Visible but not always populated
+		batchInfo.setVisible(true);
+		
 		// Tool Bar
 		createToolbar(buttonText);
 		add(toolBar, BorderLayout.NORTH);
@@ -135,6 +142,21 @@ public class BatchTab extends JPanel
 		
 		// Register on the event bus
 		JComputeEventBus.register(this);
+		
+		timer = new Timer("Batch Info Timer");
+		timer.scheduleAtFixedRate(new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				// Update if Visible
+				if(batchInfo.isVisible())
+				{
+					updateBatchInfo(queuedOrCompleted);
+				}
+				
+			}
+		}, 0, 5000);
 	}
 	
 	private void createToolbar(boolean buttonText)
@@ -403,11 +425,11 @@ public class BatchTab extends JPanel
 		// Batch Priority
 		batchQueuedTable.addColumRenderer(
 				new PriorityIconRenderer(IconManager.getIcon("highPriorityIcon"), IconManager.getIcon("standardPriorityIcon")), priColumn);
-		
+				
 		// Batch State
 		batchQueuedTable.addColumRenderer(
 				new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")), statusColumn);
-		
+				
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), progressColumn);
 		
@@ -486,14 +508,13 @@ public class BatchTab extends JPanel
 					else
 					{
 						queuedSelectedBatchRowIndex = table.rowAtPoint(p);
+						
+						updateBatchInfo(queuedOrCompleted);
 					}
 					
 					// Clear any selection in the completed table
 					clearCompletedSelection();
 				}
-				
-				updateBatchInfo(queuedOrCompleted);
-				
 			}
 		});
 		
@@ -518,14 +539,12 @@ public class BatchTab extends JPanel
 					{
 						completedSelectedBatchRowIndex = table.rowAtPoint(p);
 						
+						updateBatchInfo(queuedOrCompleted);
 					}
 					
 					// Clear any selection in the queued table
 					clearQueuedSelection();
 				}
-				
-				updateBatchInfo(queuedOrCompleted);
-				
 			}
 		});
 	}
@@ -587,6 +606,7 @@ public class BatchTab extends JPanel
 			// Batch Info
 			int batchInfoLength = info.length;
 			
+			// Batch was just selected
 			if(batchInfo.getRowsCount() <= 0)
 			{
 				for(int i = 0; i < batchInfoLength; i += 2)
@@ -596,10 +616,22 @@ public class BatchTab extends JPanel
 			}
 			else
 			{
+				// Displayed info and returned info not equal in length
+				// (generated batch / generating batch / non generated batch)
+				if(batchInfo.getRowsCount() != info.length)
+				{
+					batchInfo.clearTable();
+					
+					for(int i = 0; i < batchInfoLength; i += 2)
+					{
+						batchInfo.addRow(new SimpleInfoRowItem(info[i], info[i + 1]));
+					}
+					
+				}
+				
 				for(int i = 0; i < batchInfoLength; i += 2)
 				{
 					batchInfo.updateRow(info[i], new SimpleInfoRowItem(info[i], info[i + 1]));
-					
 				}
 			}
 			
@@ -609,9 +641,6 @@ public class BatchTab extends JPanel
 			// Clear Batch info tables
 			batchInfo.clearTable();
 		}
-		
-		// Display the info pane based on if we have data to put in it.
-		batchInfo.setVisible(!skipData);
 		
 	}
 	
@@ -808,8 +837,6 @@ public class BatchTab extends JPanel
 		Batch batch = event.getBatch();
 		
 		batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
-		
-		updateBatchInfo(queuedOrCompleted);
 	}
 	
 	@Subscribe
@@ -829,9 +856,9 @@ public class BatchTab extends JPanel
 		// remove row
 		batchQueuedTable.removeRow(batch.getBatchId());
 		
-		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(), jCompute.util.Text
-				.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
-		
+		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(),
+				jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
+				
 		queuedSelectedBatchRowIndex = -1;
 		
 		if(queuedOrCompleted == 1)
@@ -922,7 +949,7 @@ public class BatchTab extends JPanel
 			log.info(error + " Batch Files were NOT loaded!");
 		}
 	}
-
+	
 	// Batch Manager
 	public void setBatchManager(BatchManager batchManager)
 	{
