@@ -186,8 +186,7 @@ public class Batch implements StoredQueuePosition
 	/**
 	 * Processes and Validates the batch config text
 	 * @param fileText
-	 * @param genComboMonitor
-	 * @return
+	 * @return boolean
 	 * @throws IOException
 	 */
 	private boolean processBatchConfig(String fileText)
@@ -344,36 +343,36 @@ public class Batch implements StoredQueuePosition
 					IncrementMaxValue[p] = Intial[p] + ((Combinations[p] - 1) * Increment[p]);
 					
 					// Optimise slightly the concatenations
-					String pNumString = "("+p+") ";
+					String pNumString = "(" + p + ") ";
 					
 					parameters.add("");
 					parameters.add("");
-					parameters.add(pNumString+"ParameterType");
+					parameters.add(pNumString + "ParameterType");
 					parameters.add(ParameterType[p]);
-					parameters.add(pNumString+"Path");
+					parameters.add(pNumString + "Path");
 					parameters.add(Path[p]);
-					parameters.add(pNumString+"GroupName");
+					parameters.add(pNumString + "GroupName");
 					parameters.add(groupName[p]);
-					parameters.add(pNumString+"ParameterName");
+					parameters.add(pNumString + "ParameterName");
 					parameters.add(parameterName[p]);
-					parameters.add(pNumString+"Intial");
+					parameters.add(pNumString + "Intial");
 					parameters.add(String.valueOf(Intial[p]));
-					parameters.add(pNumString+"Increment");
+					parameters.add(pNumString + "Increment");
 					parameters.add(String.valueOf(Increment[p]));
-					parameters.add(pNumString+"Combinations");
+					parameters.add(pNumString + "Combinations");
 					parameters.add(String.valueOf(Combinations[p]));
-					parameters.add(pNumString+"IncrementMaxValue");
+					parameters.add(pNumString + "IncrementMaxValue");
 					parameters.add(String.valueOf(IncrementMaxValue[p]));
 					
 					// Logging
-					log.info(pNumString+"ParameterType : " + ParameterType[p]);
-					log.info(pNumString+"Path : " + Path[p]);
-					log.info(pNumString+"GroupName : " + groupName[p]);
-					log.info(pNumString+"ParameterName : " + parameterName[p]);
-					log.info(pNumString+"Intial : " + Intial[p]);
-					log.info(pNumString+"Increment : " + Increment[p]);
-					log.info(pNumString+"Combinations : " + Combinations[p]);
-					log.info(pNumString+"IncrementMaxValue : " + IncrementMaxValue[p]);
+					log.info(pNumString + "ParameterType : " + ParameterType[p]);
+					log.info(pNumString + "Path : " + Path[p]);
+					log.info(pNumString + "GroupName : " + groupName[p]);
+					log.info(pNumString + "ParameterName : " + parameterName[p]);
+					log.info(pNumString + "Intial : " + Intial[p]);
+					log.info(pNumString + "Increment : " + Increment[p]);
+					log.info(pNumString + "Combinations : " + Combinations[p]);
+					log.info(pNumString + "IncrementMaxValue : " + IncrementMaxValue[p]);
 					
 				}
 				
@@ -604,7 +603,7 @@ public class Batch implements StoredQueuePosition
 							
 							// Fine the datatype for this parameter
 							String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
-
+							
 							// Currently only decimal and integer are used.
 							if(dtype.equals("boolean"))
 							{
@@ -620,7 +619,7 @@ public class Batch implements StoredQueuePosition
 							}
 							else if(dtype.equals("integer"))
 							{
-								temp.changeValue(Path[p], parameterName[p], (int)currentValues[p]);
+								temp.changeValue(Path[p], parameterName[p], (int) currentValues[p]);
 							}
 							else
 							{
@@ -654,7 +653,7 @@ public class Batch implements StoredQueuePosition
 						tempCoordValues.add(currentValues[p]);
 					}
 					logLine.append(")");
-					log.debug(logLine.toString());
+					log.info(logLine.toString());
 					
 					// Add the new Batch Item combo used for batch item id,
 					// getScenarioXMLText is the new scenario xml configuration
@@ -684,20 +683,10 @@ public class Batch implements StoredQueuePosition
 								currentValues[p] = Intial[p];
 							}
 							
-							// P[0] increments 1 each time, wrap it by the roll
+							// P increments 1 each time, wrap it by the roll
 							// over
 							// value of its combinations number
-							if(p == 0)
-							{
-								// Increment the coordinate by 1
-								comboCoordinates.set(p, (comboCoordinates.get(p) % Combinations[p]) + 1);
-							}
-							else
-							{
-								// Increment the coordinate by 1
-								comboCoordinates.set(p, comboCoordinates.get(p) + 1);
-							}
-							
+							comboCoordinates.set(p, (comboCoordinates.get(p) % Combinations[p]) + 1);
 						}
 						
 					}
