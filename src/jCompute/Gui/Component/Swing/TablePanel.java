@@ -29,6 +29,7 @@ public class TablePanel extends JPanel
 	private static final long serialVersionUID = 7193787210494563482L;
 	private JLabel lblTitle;
 	private JTable table;
+	
 	private JScrollPane scrollPane;
 	private int indexColumn;
 	
@@ -39,7 +40,7 @@ public class TablePanel extends JPanel
 	
 	private Class rowClass;
 	
-	public TablePanel(Class rowClass, int indexColumn, boolean sortable, boolean rowSelection)
+	public TablePanel(Class rowClass, int indexColumn, boolean sortable, boolean rowSelection, boolean hScroll)
 	{
 		super();
 		
@@ -51,7 +52,12 @@ public class TablePanel extends JPanel
 		
 		this.setBorder(null);
 		
-		setUpTable(sortable, rowSelection);
+		setUpTable(sortable, rowSelection, hScroll);
+	}
+	
+	public TablePanel(Class rowClass, int indexColumn, boolean sortable, boolean rowSelection)
+	{
+		this(rowClass, indexColumn, sortable, rowSelection, false);
 	}
 	
 	/**
@@ -69,7 +75,7 @@ public class TablePanel extends JPanel
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void setUpTable(boolean sortable, boolean rowSelection)
+	private void setUpTable(boolean sortable, boolean rowSelection, boolean hScroll)
 	{
 		RowItem rowItem;
 		
@@ -96,12 +102,21 @@ public class TablePanel extends JPanel
 				table = new JTable(GlazedListsSwing.eventTableModelWithThreadProxyList(baseList, tf));
 				activeList = baseList;
 			}
-			table.setDoubleBuffered(true);
-			
+			table.setDoubleBuffered(false);
+
 			scrollPane = new JScrollPane(table);
-			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			
+			if(hScroll == true)
+			{
+				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			}
+			else
+			{
+				table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			}
 			scrollPane.setWheelScrollingEnabled(true);
-			table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			
 			table.setBackground(Color.white);
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
