@@ -1,14 +1,15 @@
-package jCompute.Cluster.Node;
+package jCompute.Cluster.Node.NodeDetails;
 
 public class NodeStatsSample
 {
+	// Historical Averaged
 	private int cpuUsage;
 	private int simulationsActive;
 	private int statisticsPendingFetch;
 	private int jvmMemoryUsedPercentage;
 	
+	// Instant
 	private long simulationsProcessed;
-	
 	private long bytesTX;
 	private long bytesRX;
 	

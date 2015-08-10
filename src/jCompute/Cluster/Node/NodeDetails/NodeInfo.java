@@ -1,4 +1,4 @@
-package jCompute.Cluster.Node;
+package jCompute.Cluster.Node.NodeDetails;
 
 public class NodeInfo
 {

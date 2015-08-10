@@ -2,7 +2,7 @@ package jCompute.Cluster.Protocol.Monitoring;
 
 import java.nio.ByteBuffer;
 
-import jCompute.Cluster.Node.NodeStatsSample;
+import jCompute.Cluster.Node.NodeDetails.NodeStatsSample;
 import jCompute.Cluster.Protocol.NCP;
 
 public class NodeStatsReply

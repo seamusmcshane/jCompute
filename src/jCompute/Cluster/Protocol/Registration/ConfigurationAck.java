@@ -1,6 +1,6 @@
 package jCompute.Cluster.Protocol.Registration;
 
-import jCompute.Cluster.Node.NodeInfo;
+import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 
 import java.io.IOException;

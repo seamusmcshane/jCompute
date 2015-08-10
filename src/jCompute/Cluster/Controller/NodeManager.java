@@ -5,7 +5,7 @@ import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
-import jCompute.Cluster.Node.NodeInfo;
+import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.Cluster.Protocol.Command.AddSimReply;
 import jCompute.Cluster.Protocol.Command.AddSimReq;

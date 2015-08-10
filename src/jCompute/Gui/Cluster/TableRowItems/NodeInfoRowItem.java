@@ -1,6 +1,6 @@
 package jCompute.Gui.Cluster.TableRowItems;
 
-import jCompute.Cluster.Node.NodeInfo;
+import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Gui.Component.RowItem;
 
 public class NodeInfoRowItem implements RowItem, Comparable

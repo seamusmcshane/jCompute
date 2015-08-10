@@ -1,6 +1,6 @@
 package jCompute.Cluster.Controller.Event;
 
-import jCompute.Cluster.Node.NodeStatsSample;
+import jCompute.Cluster.Node.NodeDetails.NodeStatsSample;
 
 public class NodeStatsUpdate
 {

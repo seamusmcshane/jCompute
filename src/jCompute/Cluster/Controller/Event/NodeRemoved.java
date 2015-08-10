@@ -1,6 +1,6 @@
 package jCompute.Cluster.Controller.Event;
 
-import jCompute.Cluster.Node.NodeInfo;
+import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 
 public class NodeRemoved
 {
