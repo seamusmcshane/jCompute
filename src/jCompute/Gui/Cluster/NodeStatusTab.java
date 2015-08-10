@@ -52,19 +52,19 @@ public class NodeStatusTab extends JPanel
 		setLayout(new GridLayout(0, 2, 0, 0));
 		
 		// Nodes Tab
-		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false);
+		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false,true);
 		
 		clusterNodesTablePanel.setColumWidth(0, 50);
 		clusterNodesTablePanel.setColumWidth(1, 75);
 		// clusterNodesTablePanel.setColumWidth(2, 60);
-		clusterNodesTablePanel.setColumWidth(3, 75);
-		clusterNodesTablePanel.setColumWidth(4, 75);
+		clusterNodesTablePanel.setColumWidth(3, 60);
+		clusterNodesTablePanel.setColumWidth(4, 60);
 		clusterNodesTablePanel.setColumWidth(5, 75);
 		clusterNodesTablePanel.setColumWidth(6, 75);
 		clusterNodesTablePanel.setColumWidth(7, 75);
 		clusterNodesTablePanel.setColumWidth(8, 75);
-		clusterNodesTablePanel.setColumWidth(9, 75);
-		clusterNodesTablePanel.setColumWidth(stateColumn, 75);
+		clusterNodesTablePanel.setColumWidth(9, 120);
+		clusterNodesTablePanel.setColumWidth(stateColumn, 120);
 		
 		clusterNodesTablePanel.addColumRenderer(
 				new NodeControlButtonRenderer(clusterNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager
