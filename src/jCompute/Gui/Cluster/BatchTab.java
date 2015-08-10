@@ -618,7 +618,7 @@ public class BatchTab extends JPanel
 			{
 				// Displayed info and returned info not equal in length
 				// (generated batch / generating batch / non generated batch)
-				if(batchInfo.getRowsCount() != info.length)
+				if(batchInfo.getRowsCount() != (info.length/2))
 				{
 					batchInfo.clearTable();
 					
