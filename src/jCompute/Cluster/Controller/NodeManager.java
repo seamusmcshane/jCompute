@@ -660,9 +660,9 @@ public class NodeManager
 		}
 	}
 	
-	public void incrementTimeOut()
+	public void incrementTimeOut(int value)
 	{
-		NSMCPReadyTimeOut += 5;
+		NSMCPReadyTimeOut += value;
 		log.info("Node " + nodeInfo.getUid() + " TimeOut@" + NSMCPReadyTimeOut);
 	}
 	

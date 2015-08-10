@@ -54,7 +54,7 @@ public class ControlNode
 	/* Connecting Nodes List */
 	private LinkedList<NodeManager> connectingNodes;
 	private Timer ncpTimer;
-	private int ncpTimerVal = 5;
+	private int ncpTimerSpeed = 1;
 	/*
 	 * List of priority re-scheduled Simulations (recovered from nodes that
 	 * disappear)
@@ -171,7 +171,7 @@ public class ControlNode
 					}
 					else
 					{
-						tNode.incrementTimeOut();
+						tNode.incrementTimeOut(ncpTimerSpeed);
 					}
 				}
 				
@@ -226,13 +226,13 @@ public class ControlNode
 				
 				controlNodeLock.release();
 				
-				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String.valueOf(listenSocket
-						.getLocalPort()), String.valueOf(connectingNodes.size()), String.valueOf(activeNodes.size()), String
-						.valueOf(maxSims), String.valueOf(simulations)));
-				
-				timerCount += ncpTimerVal;
+				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(),
+						String.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()),
+						String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulations)));
+						
+				timerCount += ncpTimerSpeed;
 			}
-		}, 0, ncpTimerVal * 1000);
+		}, 0, ncpTimerSpeed * 1000);
 	}
 	
 	public boolean hasFreeSlot()
@@ -482,8 +482,9 @@ public class ControlNode
 					
 					simAdded = true;
 					
-					log.info("Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
-					
+					log.info(
+							"Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
+							
 					JComputeEventBus.post(new SimulationsManagerEvent(simulationNum, SimulationsManagerEventType.AddedSim));
 					
 					break;
@@ -526,7 +527,7 @@ public class ControlNode
 		
 		log.info("Remove Simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId "
 				+ mapping.getRemoteSimId());
-		
+				
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
 		nodeManager.removeSim(mapping.getRemoteSimId());
@@ -546,8 +547,9 @@ public class ControlNode
 		
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		log.info("Start Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());
-		
+		log.info(
+				"Start Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());
+				
 		nodeManager.startSim(mapping.getRemoteSimId());
 		
 		controlNodeLock.release();
