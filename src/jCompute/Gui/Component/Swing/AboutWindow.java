@@ -189,7 +189,7 @@ public class AboutWindow extends JFrame
 					lblTotalVal.setText(String.valueOf(JVMInfo.getTotalJVMMemory()));
 					lblMaxVal.setText(String.valueOf(JVMInfo.getMaxMemory()));
 				}
-			}, 1000, 1000);
+			}, 0, 5000);
 			
 		}
 		catch(IOException e1)
