@@ -8,32 +8,32 @@ import jCompute.Cluster.Protocol.NCP;
 public class NodeStatsReply
 {
 	private int sequenceNum;
-	private NodeStatsSample stats;
+	private NodeStatsSample nodeStatsSample;
 	
-	public NodeStatsReply(int sequenceNum, NodeStatsSample stats)
+	public NodeStatsReply(int sequenceNum, NodeStatsSample nodeStatsSample)
 	{
 		this.sequenceNum = sequenceNum;
-		this.stats = stats;
+		this.nodeStatsSample = nodeStatsSample;
 	}
 	
 	public NodeStatsReply(ByteBuffer source)
 	{
 		this.sequenceNum = source.getInt();
 		
-		stats = new NodeStatsSample();
+		nodeStatsSample = new NodeStatsSample();
 		
-		stats.setCpuUsage(source.getInt());
-		stats.setSimulationsProcessed(source.getLong());
-		stats.setSimulationsActive(source.getInt());
-		stats.setStatisticsPendingFetch(source.getInt());
-		stats.setJvmMemoryUsedPercentage(source.getInt());
-		stats.setBytesTX(source.getLong());
-		stats.setBytesRX(source.getLong());
+		nodeStatsSample.setCpuUsage(source.getInt());
+		nodeStatsSample.setSimulationsProcessed(source.getLong());
+		nodeStatsSample.setSimulationsActive(source.getInt());
+		nodeStatsSample.setStatisticsPendingFetch(source.getInt());
+		nodeStatsSample.setJvmMemoryUsedPercentage(source.getInt());
+		nodeStatsSample.setBytesTX(source.getLong());
+		nodeStatsSample.setBytesRX(source.getLong());
 	}
 	
 	public NodeStatsSample getNodeStats()
 	{
-		return this.stats;
+		return this.nodeStatsSample;
 	}
 	
 	public int getSequenceNum()
@@ -53,13 +53,13 @@ public class NodeStatsReply
 		
 		tbuffer.putInt(sequenceNum);
 		
-		tbuffer.putInt(stats.getCpuUsage());
-		tbuffer.putLong(stats.getSimulationsProcessed());
-		tbuffer.putInt(stats.getSimulationsActive());
-		tbuffer.putInt(stats.getStatisticsPendingFetch());
-		tbuffer.putInt(stats.getJvmMemoryUsedPercentage());
-		tbuffer.putLong(stats.getBytesTX());
-		tbuffer.putLong(stats.getBytesRX());
+		tbuffer.putInt(nodeStatsSample.getCpuUsage());
+		tbuffer.putLong(nodeStatsSample.getSimulationsProcessed());
+		tbuffer.putInt(nodeStatsSample.getSimulationsActive());
+		tbuffer.putInt(nodeStatsSample.getStatisticsPendingFetch());
+		tbuffer.putInt(nodeStatsSample.getJvmMemoryUsedPercentage());
+		tbuffer.putLong(nodeStatsSample.getBytesTX());
+		tbuffer.putLong(nodeStatsSample.getBytesRX());
 		
 		return tbuffer.array();
 	}
