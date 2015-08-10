@@ -1,6 +1,7 @@
 package jCompute.Cluster.Node;
 
 import jCompute.JComputeEventBus;
+import jCompute.Cluster.Node.NodeDetails.NodeAveragedStats;
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Cluster.Node.NodeDetails.NodeStatsSample;
 import jCompute.Cluster.Protocol.NCP;
@@ -71,7 +72,8 @@ public class Node
 	// Cache of Stats from finished simulations
 	private NodeProcessedItemStatCache statCache;
 	
-	private NodeStatsSample nodeStats;
+	private Timer nodeStatsUpdateTimer;
+	private NodeAveragedStats nodeAveragedStats;
 	private long simulationsProcessed;
 	private long bytesTX;
 	private long bytesRX;
@@ -87,7 +89,6 @@ public class Node
 	private final int ncpTimerVal = 5;
 	private int timerCount;
 	
-	private Timer nodeStatsUpdateTimer;
 	
 	public Node(String address, String desc, final SimulationsManager simsManager)
 	{
@@ -115,7 +116,9 @@ public class Node
 		statCache = new NodeProcessedItemStatCache();
 		log.info("Created Node Stat Cache");
 		
-		nodeStats = new NodeStatsSample();
+		// Average over 60 Seconds
+		nodeAveragedStats = new NodeAveragedStats(60);
+		
 		nodeStatsUpdateTimer = new Timer("Node Stats Update Timer");
 		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
 		{
@@ -123,16 +126,7 @@ public class Node
 			@Override
 			public void run()
 			{
-				// Update Node Stats
-				nodeStats.setSimulationsProcessed(simulationsProcessed);
-				nodeStats.setSimulationsActive(simsManager.getActiveSims());
-				nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
-				nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
-				nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
-				nodeStats.setBytesTX(bytesTX);
-				nodeStats.setBytesRX(bytesRX);
-				
-				// nodeStats.update(simulationsProcessed,simsManager.getActiveSims(),statCache.getStatsStore(),OSInfo.getSystemCpuUsage(),JVMInfo.getUsedJVMMemoryPercentage(),bytesTX,bytesRX);
+				nodeAveragedStats.update(OSInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), JVMInfo.getUsedJVMMemoryPercentage());
 			}
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
@@ -212,12 +206,14 @@ public class Node
 			
 			try
 			{
-				// Reset stats on reconnection.
+				// Reset Average stats on reconnection.
+				nodeAveragedStats.reset();
+
+				// Reset Instant stats on reconnection.
 				simulationsProcessed = 0;
 				bytesTX = 0;
 				bytesRX = 0;
 				
-				nodeStats.reset();
 				
 				log.info("Connecting to : " + address + "@" + port);
 				
@@ -362,7 +358,17 @@ public class Node
 							// Read here
 							int sequenceNum = data.getInt();
 							
-							NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStats);
+							NodeStatsSample nodeStatsSample = new NodeStatsSample();
+							
+							// Averaged Stats
+							nodeAveragedStats.populateStatSample(nodeStatsSample);
+							
+							// Instant Stats
+							nodeStatsSample.setSimulationsProcessed(simulationsProcessed);
+							nodeStatsSample.setBytesTX(bytesTX);
+							nodeStatsSample.setBytesRX(bytesRX);
+							
+							NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStatsSample);
 							
 							log.debug("Node " + nodeInfo.getUid() + " NodeStatsRequest : " + sequenceNum);
 							

@@ -214,7 +214,12 @@ public class ControlNode
 					}
 					else
 					{
-						node.triggerNodeStatRequest(timerCount);
+						// Every minute
+						if(timerCount % 60 == 0)
+						{
+							// Seconds to Minutes
+							node.triggerNodeStatRequest(timerCount / 60);
+						}
 					}
 					
 				}
