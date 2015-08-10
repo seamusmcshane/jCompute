@@ -85,16 +85,32 @@ public class Node
 	private final int ncpTimerVal = 5;
 	private int timerCount;
 	
-	public Node(String address, String desc, SimulationsManager simsManager)
+	private Timer nodeStatsUpdateTimer;
+	
+	public Node(String address, String desc, final SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
 		
 		simulationsProcessed = 0;
+		this.simsManager = simsManager;
 		
 		nodeStats = new NodeStats();
-		
-		nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
-		nodeStats.setSimulationsProcessed(simulationsProcessed);
+		nodeStatsUpdateTimer = new Timer("Node Stats Update Timer");
+		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				// Update Node Stats
+				nodeStats.setSimulationsProcessed(simulationsProcessed);
+				nodeStats.setSimulationsActive(simsManager.getActiveSims());
+				nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
+				nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
+				nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
+				nodeStats.setBytesTX(bytesTX);
+				nodeStats.setBytesRX(bytesRX);
+			}
+		}, 0, 1000);
 		
 		/* Our Configuration */
 		NodeInfo nodeInfo = new NodeInfo();
@@ -109,8 +125,6 @@ public class Node
 		nodeInfo.setTotalOSMemory(OSInfo.getSystemTotalMemory());
 		
 		int port = NCP.StandardServerPort;
-		
-		this.simsManager = simsManager;
 		
 		JComputeEventBus.register(this);
 		
@@ -193,6 +207,10 @@ public class Node
 			try
 			{
 				// Reset stats on reconnection.
+				simulationsProcessed = 0;
+				bytesTX = 0;
+				bytesRX = 0;
+				
 				nodeStats.reset();
 				
 				log.info("Connecting to : " + address + "@" + port);
@@ -337,15 +355,6 @@ public class Node
 						{
 							// Read here
 							int sequenceNum = data.getInt();
-							
-							// Update Node Stats
-							nodeStats.setSimulationsProcessed(simulationsProcessed);
-							nodeStats.setSimulationsActive(simsManager.getActiveSims());
-							nodeStats.setStatisticsPendingFetch(statCache.getStatsStore());
-							nodeStats.setCpuUsage(OSInfo.getSystemCpuUsage());
-							nodeStats.setJvmMemoryUsedPercentage(JVMInfo.getUsedJVMMemoryPercentage());
-							nodeStats.setBytesTX(bytesTX);
-							nodeStats.setBytesRX(bytesRX);
 							
 							NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStats);
 							
