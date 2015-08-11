@@ -237,7 +237,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			if(line.equals("[+Coordinate]"))
 			{
 				int pos[] = new int[2];
-				int vals[] = new int[2];
+				float vals[] = new float[2];
 				
 				String cline = inputFile.readLine();
 				String cpos1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
@@ -245,7 +245,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				
 				cline = inputFile.readLine();
 				String cval1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
-				vals[0] = Integer.parseInt(cval1);
+				vals[0] = Float.parseFloat(cval1);
 				
 				while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 				{
@@ -261,7 +261,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 					
 					cline = inputFile.readLine();
 					String cval2 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
-					vals[1] = Integer.parseInt(cval2);
+					vals[1] = Float.parseFloat(cval2);
 					
 					while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 					{
