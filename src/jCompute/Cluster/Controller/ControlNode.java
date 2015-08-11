@@ -530,12 +530,19 @@ public class ControlNode
 		// Look up and remove the mapping
 		RemoteSimulationMapping mapping = localSimulationMap.remove(simId);
 		
-		log.info("Remove Simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId "
-				+ mapping.getRemoteSimId());
-				
 		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
 		
-		nodeManager.removeSim(mapping.getRemoteSimId());
+		if(nodeManager!=null)
+		{
+			nodeManager.removeSim(mapping.getRemoteSimId());
+			
+			log.info("Removed Simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId "
+					+ mapping.getRemoteSimId());
+		}
+		else
+		{
+			log.warn("Cannot remove simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId : Node Manager not found");
+		}
 		
 		controlNodeLock.release();
 		
