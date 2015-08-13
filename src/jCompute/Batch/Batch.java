@@ -257,27 +257,25 @@ public class Batch implements StoredQueuePosition
 		
 		generating = true;
 		
-		// This avoids lockup the GUI during item generation
+		// This avoids a GUI lockup during item generation
 		Thread backgroundGenerate = new Thread(new Runnable()
 		{
 			public void run()
 			{
-				log.info("Generating Items Batch " + batchId);
+				log.info("Generating Items for Batch " + batchId);
 				
-				log.info("Created DiskCache Batch " + batchId);
-				
+				log.info("Created an Item DiskCache for Batch " + batchId);
 				// Create DiskCache
 				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
 				
 				// Get a count of the parameter groups.
 				int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
-				log.debug("Number of Parameter Groups : " + parameterGroups);
 				
 				// Array to hold the parameter type (group/single)
-				String ParameterType[] = new String[parameterGroups];
+				String parameterType[] = new String[parameterGroups];
 				
 				// Array to hold the path to group/parameter
-				String Path[] = new String[parameterGroups];
+				String path[] = new String[parameterGroups];
 				
 				// Array to hold the unique identifier for the group.
 				groupName = new String[parameterGroups];
@@ -285,27 +283,19 @@ public class Batch implements StoredQueuePosition
 				// Array to hold the parameter name that will be changed.
 				parameterName = new String[parameterGroups];
 				
-				// Initial values of each parameter
-				double Intial[] = new double[parameterGroups];
+				// Base values of each parameter
+				double baseValue[] = new double[parameterGroups];
 				
 				// Increment values of each parameter
-				double Increment[] = new double[parameterGroups];
+				double increment[] = new double[parameterGroups];
 				
-				// Combinations for each parameter
-				int Combinations[] = new int[parameterGroups];
+				// steps for each parameter
+				int step[] = new int[parameterGroups];
 				
-				// Value of the max combination for each parameter
-				double IncrementMaxValue[] = new double[parameterGroups];
-				
-				// The value in the combination at which to increment the value
-				// of
-				// the
-				// parameter
-				int IncrementMod[] = new int[parameterGroups];
-				
+				// Batch Info Parameters list
 				parameters = new ArrayList<String>();
 				
-				// Iterate over the detected parameters and populate the arrays
+				// Iterate over the detected parameters and read values
 				String section = "";
 				for(int p = 0; p < parameterGroups; p++)
 				{
@@ -314,15 +304,15 @@ public class Batch implements StoredQueuePosition
 					section = "Parameters.Parameter(" + p + ")";
 					
 					// Get the type (group/single)
-					ParameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
+					parameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
 					
 					// Populate the path to this parameter.
-					Path[p] = batchConfigProcessor.getStringValue(section, "Path");
+					path[p] = batchConfigProcessor.getStringValue(section, "Path");
 					
 					// Store the group name if this parameter changes one in a
 					// group.
 					groupName[p] = "";
-					if(ParameterType[p].equalsIgnoreCase("Group"))
+					if(parameterType[p].equalsIgnoreCase("Group"))
 					{
 						groupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
 					}
@@ -330,85 +320,46 @@ public class Batch implements StoredQueuePosition
 					// Store the name of the paramter to change
 					parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
 					
-					// Intial value
-					Intial[p] = batchConfigProcessor.getDoubleValue(section, "Intial");
+					// Base value
+					baseValue[p] = batchConfigProcessor.getDoubleValue(section, "Intial");
 					
 					// Increment value
-					Increment[p] = batchConfigProcessor.getDoubleValue(section, "Increment");
+					increment[p] = batchConfigProcessor.getDoubleValue(section, "Increment");
 					
-					// Combinations e.g 2 = initial value + 1 increment
-					Combinations[p] = batchConfigProcessor.getIntValue(section, "Combinations");
-					
-					// Max value = Combinations-1 as initial is the first
-					IncrementMaxValue[p] = Intial[p] + ((Combinations[p] - 1) * Increment[p]);
-					
-					// Optimise slightly the concatenations
-					String pNumString = "(" + p + ") ";
-					
-					parameters.add("");
-					parameters.add("");
-					parameters.add(pNumString + "ParameterType");
-					parameters.add(ParameterType[p]);
-					parameters.add(pNumString + "Path");
-					parameters.add(Path[p]);
-					parameters.add(pNumString + "GroupName");
-					parameters.add(groupName[p]);
-					parameters.add(pNumString + "ParameterName");
-					parameters.add(parameterName[p]);
-					parameters.add(pNumString + "Intial");
-					parameters.add(String.valueOf(Intial[p]));
-					parameters.add(pNumString + "Increment");
-					parameters.add(String.valueOf(Increment[p]));
-					parameters.add(pNumString + "Combinations");
-					parameters.add(String.valueOf(Combinations[p]));
-					parameters.add(pNumString + "IncrementMaxValue");
-					parameters.add(String.valueOf(IncrementMaxValue[p]));
-					
-					// Logging
-					log.info(pNumString + "ParameterType : " + ParameterType[p]);
-					log.info(pNumString + "Path : " + Path[p]);
-					log.info(pNumString + "GroupName : " + groupName[p]);
-					log.info(pNumString + "ParameterName : " + parameterName[p]);
-					log.info(pNumString + "Intial : " + Intial[p]);
-					log.info(pNumString + "Increment : " + Increment[p]);
-					log.info(pNumString + "Combinations : " + Combinations[p]);
-					log.info(pNumString + "IncrementMaxValue : " + IncrementMaxValue[p]);
-					
+					// Steps for each values
+					step[p] = batchConfigProcessor.getIntValue(section, "Combinations");
 				}
 				
-				double currentValues[] = new double[parameterGroups];
+				// Calculate Total Combinations
 				int combinations = 1;
-				for(int p = 0; p < parameterGroups; p++)
+				for(int s = 0; s < step.length; s++)
 				{
-					// Set Initial Values used in generation
-					currentValues[p] = Intial[p];
-					
-					// Calculate Total Combinations
-					combinations *= Combinations[p];
-					
-					if(p > 0)
-					{
-						IncrementMod[p] = IncrementMod[p - 1] * Combinations[p];
-					}
-					else
-					{
-						// P[0] always increments
-						IncrementMod[p] = 1;
-					}
-					log.info("Group " + p + " Increments @Combo%" + IncrementMod[p]);
-					
+					combinations *= step[s];
 				}
-				log.info("Combinations " + combinations);
 				
-				// The temp scenario used to generate the xml.
-				ConfigurationInterpreter temp;
-				
-				// Combination space coordinates X,Y,Z..
-				ArrayList<Integer> comboCoordinates = new ArrayList<Integer>(parameterGroups);
+				// When to increment values in the combos
+				int incrementMods[] = new int[parameterGroups];
+				int div = combinations;
 				for(int p = 0; p < parameterGroups; p++)
 				{
-					// Initialise the coordinates (1 base)
-					comboCoordinates.add(1);
+					div = div / step[p];
+					// Increment depending on the step div
+					incrementMods[p] = div;
+					log.info("p " + p + " increments every " + incrementMods[p]);
+				}
+				
+				// Roll over value of the max combination for each parameter
+				double maxValue[] = new double[parameterGroups];
+				for(int p = 0; p < parameterGroups; p++)
+				{
+					maxValue[p] = baseValue[p] + (increment[p] * (step[p] - 1));
+				}
+				
+				// Init combo initial starting bases
+				double value[] = new double[parameterGroups];
+				for(int p = 0; p < parameterGroups; p++)
+				{
+					value[p] = baseValue[p];
 				}
 				
 				// Create and populate Results Zip archive with Directories
@@ -447,10 +398,14 @@ public class Batch implements StoredQueuePosition
 					}
 				}
 				
+				// Combo x,y,z... parameter spatial grid position
+				int pos[] = new int[parameterGroups];
+				
+				// The temp scenario used to generate the xml.
+				ConfigurationInterpreter temp;
 				generationProgress = 0;
 				
-				// Set the combination Values
-				for(int combo = 1; combo < combinations + 1; combo++)
+				for(int c = 0; c < combinations; c++)
 				{
 					if(storeStats)
 					{
@@ -461,20 +416,20 @@ public class Batch implements StoredQueuePosition
 							try
 							{
 								// Create Item Directories
-								resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(combo) + "/"));
+								resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/"));
 								resultsZipOut.closeEntry();
 								
 								for(int sid = 1; sid < itemSamples + 1; sid++)
 								{
 									// Create Sample Directories
-									resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(combo) + "/" + Integer.toString(sid) + "/"));
+									resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/" + Integer.toString(sid) + "/"));
 									resultsZipOut.closeEntry();
 								}
 								
 							}
 							catch(IOException e)
 							{
-								log.error("Could not create create directory " + combo + " in " + zipFileName);
+								log.error("Could not create create directory " + c + " in " + zipFileName);
 								
 								e.printStackTrace();
 							}
@@ -482,11 +437,11 @@ public class Batch implements StoredQueuePosition
 						else
 						{
 							// Create the item export dir
-							FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + combo);
+							FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + c);
 							
 							for(int sid = 1; sid < itemSamples + 1; sid++)
 							{
-								String fullExportPath = batchStatsExportDir + File.separator + combo + File.separator + sid;
+								String fullExportPath = batchStatsExportDir + File.separator + c + File.separator + sid;
 								
 								// Create the item sample full export path dir
 								FileUtil.createDirIfNotExist(fullExportPath);
@@ -501,24 +456,44 @@ public class Batch implements StoredQueuePosition
 					StringBuilder itemName = new StringBuilder();
 					
 					// Start of log line + itemName
-					itemName.append("Combo " + combo);
+					itemName.append("Combo " + c);
 					
-					// Change the value for each parameter group
+					StringBuilder comboPosString = new StringBuilder();
+					
+					// DebugLogger.output(temp.getScenarioXMLText());
+					comboPosString.append("ComboPos(");
+					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
+					ArrayList<Double> tempCoordValues = new ArrayList<Double>();
+					
 					for(int p = 0; p < parameterGroups; p++)
 					{
+						// Increment this parameter? (avoid increment the first
+						// combo c>0)
+						if((c) % incrementMods[p] == 0 && c > 0)
+						{
+							pos[p] = (pos[p] + 1) % step[p];
+							
+							value[p] = (value[p] + increment[p]);
+							
+							// Has a roll over occured
+							if(value[p] > maxValue[p])
+							{
+								value[p] = baseValue[p];
+							}
+						}
 						
 						// This is a group parameter
-						if(ParameterType[p].equalsIgnoreCase("Group"))
+						if(parameterType[p].equalsIgnoreCase("Group"))
 						{
 							// Log line middle
-							itemName.append(" " + Path[p] + "." + groupName[p] + "." + parameterName[p] + " " + currentValues[p]);
+							itemName.append(" " + path[p] + "." + groupName[p] + "." + parameterName[p] + " " + value[p]);
 							
-							int groups = temp.getSubListSize(Path[p]);
+							int groups = temp.getSubListSize(path[p]);
 							
 							// Find the correct group that matches the name
 							for(int sg = 0; sg < groups; sg++)
 							{
-								String groupSection = Path[sg] + "(" + sg + ")";
+								String groupSection = path[sg] + "(" + sg + ")";
 								
 								String searchGroupName = temp.getStringValue(groupSection, "Name");
 								
@@ -545,7 +520,7 @@ public class Batch implements StoredQueuePosition
 									// temp.getIntValue(groupSection,ParameterName[p]));
 									
 									// Find the datatype to change
-									String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
+									String dtype = temp.findDataType(path[p] + "." + parameterName[p]);
 									
 									// Currently only decimal and integer are
 									// supported.
@@ -559,13 +534,13 @@ public class Batch implements StoredQueuePosition
 									}
 									else if(dtype.equals("decimal"))
 									{
-										temp.changeValue(groupSection, parameterName[p], currentValues[p]);
+										temp.changeValue(groupSection, parameterName[p], value[p]);
 									}
 									else if(dtype.equals("integer"))
 									{
 										// The configuration file wants Integer
 										// values - Cast floats to ints
-										temp.changeValue(groupSection, parameterName[p], (int) currentValues[p]);
+										temp.changeValue(groupSection, parameterName[p], (int) value[p]);
 									}
 									else
 									{
@@ -599,27 +574,27 @@ public class Batch implements StoredQueuePosition
 						else
 						{
 							// Log line middle
-							itemName.append(" " + Path[p] + "." + parameterName[p] + " " + currentValues[p]);
+							itemName.append(" " + path[p] + "." + parameterName[p] + " " + value[p]);
 							
 							// Fine the datatype for this parameter
-							String dtype = temp.findDataType(Path[p] + "." + parameterName[p]);
+							String dtype = temp.findDataType(path[p] + "." + parameterName[p]);
 							
 							// Currently only decimal and integer are used.
 							if(dtype.equals("boolean"))
 							{
-								temp.changeValue(Path[p], parameterName[p], new Boolean(true));
+								temp.changeValue(path[p], parameterName[p], new Boolean(true));
 							}
 							else if(dtype.equals("string"))
 							{
-								temp.changeValue(Path[p], parameterName[p], " ");
+								temp.changeValue(path[p], parameterName[p], " ");
 							}
 							else if(dtype.equals("decimal"))
 							{
-								temp.changeValue(Path[p], parameterName[p], currentValues[p]);
+								temp.changeValue(path[p], parameterName[p], value[p]);
 							}
 							else if(dtype.equals("integer"))
 							{
-								temp.changeValue(Path[p], parameterName[p], (int) currentValues[p]);
+								temp.changeValue(path[p], parameterName[p], (int) value[p]);
 							}
 							else
 							{
@@ -631,70 +606,36 @@ public class Batch implements StoredQueuePosition
 							
 						}
 						
-					}
-					// Log line end
-					log.debug(itemName.toString());
-					
-					StringBuilder logLine = new StringBuilder();
-					
-					// DebugLogger.output(temp.getScenarioXMLText());
-					logLine.append("ComboPos(");
-					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
-					ArrayList<Double> tempCoordValues = new ArrayList<Double>();
-					for(int p = 0; p < parameterGroups; p++)
-					{
-						logLine.append(String.valueOf(comboCoordinates.get(p)));
+						// Set the pos and val
+						tempCoord.add(pos[p]);
+						tempCoordValues.add(value[p]);
+						
+						comboPosString.append(String.valueOf(pos[p]));
 						if(p < (parameterGroups - 1))
 						{
-							logLine.append('x');
+							comboPosString.append('x');
 						}
 						
-						tempCoord.add(comboCoordinates.get(p));
-						tempCoordValues.add(currentValues[p]);
 					}
-					logLine.append(")");
-					log.info(logLine.toString());
+					// Log line end
+					comboPosString.append(")");
+					log.debug(comboPosString.toString());
+					log.debug(itemName.toString());
 					
-					// Add the new Batch Item combo used for batch item id,
-					// getScenarioXMLText is the new scenario xml configuration
-					// -
-					// samples is the number of identical items to generate
-					// (used as
-					// a
-					// sample/average)
-					addBatchItem(itemSamples, combo, itemName.toString(), temp.getScenarioXMLText(), tempCoord, tempCoordValues);
+					addBatchItem(itemSamples, c, itemName.toString(), temp.getScenarioXMLText(), tempCoord, tempCoordValues);
 					
-					// Increment the combinatorics values.
-					for(int p = 0; p < parameterGroups; p++)
+					generationProgress = ((float) c / (float) combinations) * 100f;
+					
+					// Every 10%
+					if(c % (combinations / 10) == 0)
 					{
-						
-						// Work out if the current c value is a increment for
-						// this
-						// group.
-						if(combo % (IncrementMod[p]) == 0)
-						{
-							currentValues[p] = (currentValues[p] + Increment[p]);
-							
-							// Increment after currentValues is greater than
-							// IncrementMaxValue
-							if(currentValues[p] > IncrementMaxValue[p])
-							{
-								// Reset to initial value
-								currentValues[p] = Intial[p];
-							}
-							
-							// P increments 1 each time, wrap it by the roll
-							// over
-							// value of its combinations number
-							comboCoordinates.set(p, (comboCoordinates.get(p) % Combinations[p]) + 1);
-						}
-						
+						log.info((int) generationProgress + "%");
 					}
-					
-					generationProgress = ((float) combo / (float) combinations) * 100f;
+					// END COMBO
 				}
 				
 				generationProgress = 100;
+				log.info((int) generationProgress + "%");
 				
 				// All the items need to get processed, but the ett is
 				// influenced by
@@ -705,12 +646,11 @@ public class Batch implements StoredQueuePosition
 				needGenerated = false;
 				
 				log.info("Generated Items Batch " + batchId);
+				
 			}
 		});
-		
-		backgroundGenerate.setName("Generate Thread Batch " + batchId);
+		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
 		backgroundGenerate.start();
-		
 	}
 	
 	private boolean checkBatchFile()
@@ -753,7 +693,7 @@ public class Batch implements StoredQueuePosition
 			}
 			catch(IOException e)
 			{
-				System.out.println("Could not created item log file");
+				log.error("Could not created item log file");
 			}
 		}
 	}
@@ -974,7 +914,7 @@ public class Batch implements StoredQueuePosition
 					}
 					catch(IOException e)
 					{
-						System.out.println("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId() + ")");
+						log.error("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId() + ")");
 					}
 				}
 				
