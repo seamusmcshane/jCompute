@@ -626,11 +626,17 @@ public class Batch implements StoredQueuePosition
 					
 					generationProgress = ((float) c / (float) combinations) * 100f;
 					
-					// Every 10%
-					if(c % (combinations / 10) == 0)
+					
+					// Avoid div by zero on <10 combinations
+					if(combinations > 10)
 					{
-						log.info((int) generationProgress + "%");
+						// Every 10%
+						if((c % (combinations / 10)) == 0)
+						{
+							log.info((int) generationProgress + "%");
+						}
 					}
+
 					// END COMBO
 				}
 				
