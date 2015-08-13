@@ -67,7 +67,7 @@ public class Node
 	private Socket socket;
 	
 	// ProtocolState
-	private ProtocolState protocolState = ProtocolState.CON;
+	private ProtocolState protocolState;
 	
 	// Cache of Stats from finished simulations
 	private NodeProcessedItemStatCache statCache;
@@ -134,6 +134,9 @@ public class Node
 		// Disconnect Recovery Loop
 		while(!shutdown)
 		{
+			// We are in the connecting state
+			protocolState = ProtocolState.CON;
+			
 			// Connecting to Server
 			socket = null;
 			
@@ -235,6 +238,9 @@ public class Node
 				{
 					socket.close();
 				}
+				
+				// We are in the disconnect state
+				protocolState = ProtocolState.DIS;
 				
 			}
 			catch(IOException e)
