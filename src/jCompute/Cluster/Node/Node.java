@@ -89,7 +89,6 @@ public class Node
 	private final int ncpTimerVal = 5;
 	private int timerCount;
 	
-	
 	public Node(String address, String desc, final SimulationsManager simsManager)
 	{
 		log.info("Starting Node");
@@ -122,11 +121,12 @@ public class Node
 		nodeStatsUpdateTimer = new Timer("Node Stats Update Timer");
 		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
 		{
-
+			
 			@Override
 			public void run()
 			{
-				nodeAveragedStats.update(OSInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), JVMInfo.getUsedJVMMemoryPercentage());
+				nodeAveragedStats.update(OSInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(),
+						JVMInfo.getUsedJVMMemoryPercentage());
 			}
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
@@ -211,12 +211,11 @@ public class Node
 			{
 				// Reset Average stats on reconnection.
 				nodeAveragedStats.reset();
-
+				
 				// Reset Instant stats on reconnection.
 				simulationsProcessed = 0;
 				bytesTX = 0;
 				bytesRX = 0;
-				
 				
 				log.info("Connecting to : " + address + "@" + port);
 				
@@ -445,7 +444,7 @@ public class Node
 								log.warn("Refusing NodeOrderlyShutdown due to active sims " + activeSims + " & stats outstanding "
 										+ statsOutStanding);
 							}
-						
+							
 						break;
 						// Default / Invalid
 						case NCP.INVALID:
@@ -478,6 +477,12 @@ public class Node
 			// Our connection to the remote manager is gone.
 			simsManager.removeAll();
 			log.info("Removed all Simulations as connection lost");
+			
+			// The exception happen during TX, thus release the lock
+			if(cmdTxLock.availablePermits() != 1)
+			{
+				cmdTxLock.release();
+			}
 			
 			// Any stats in the cache are not going to be requested.
 			statCache = new NodeProcessedItemStatCache();
@@ -536,7 +541,7 @@ public class Node
 					
 					// We Ack the Ack
 					sendMessage(reqAck.toBytes());
-				
+					
 				break;
 				case NCP.RegNack:
 					
@@ -549,12 +554,12 @@ public class Node
 							
 							log.error("RegNack : Protocol Version Mismatch");
 							log.error("Local " + NCP.NCP_PROTOCOL_VERSION + " Remote " + value);
-						
+							
 						break;
 						default:
 							
 							log.error("RegNack : Unknown Reason " + reason + " value " + value);
-						
+							
 						break;
 					}
 					
@@ -563,7 +568,7 @@ public class Node
 					shutdown = true;
 					
 					log.info("Shuting Down due to RegNack");
-				
+					
 				break;
 				case NCP.ConfReq:
 					
@@ -595,14 +600,14 @@ public class Node
 					
 					// Now Registered
 					finished = true;
-				
+					
 				break;
 				case NCP.INVALID:
 				default:
 					log.error("Recieved Invalid Frame Type " + type);
 					protocolState = ProtocolState.DIS;
 				break;
-			
+				
 			}
 			
 			if(protocolState == ProtocolState.DIS)
@@ -630,26 +635,27 @@ public class Node
 	@Subscribe
 	public void SimulationStatChangedEvent(SimulationStatChangedEvent e)
 	{
+		rxLockEvents.acquireUninterruptibly();
+		
 		try
 		{
-			rxLockEvents.acquireUninterruptibly();
-			
 			sendMessage(new SimulationStatChanged(e).toBytes());
-			
-			rxLockEvents.release();
 		}
 		catch(IOException e1)
 		{
 			log.error("Failed Sending Simulation Stat Changed " + e.getSimId());
 		}
+		
+		rxLockEvents.release();
 	}
 	
 	@Subscribe
 	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
+		rxLockEvents.acquireUninterruptibly();
+		
 		try
 		{
-			rxLockEvents.acquireUninterruptibly();
 			
 			if(e.getState() == SimState.FINISHED)
 			{
@@ -669,11 +675,12 @@ public class Node
 			sendMessage(new SimulationStateChanged(e).toBytes());
 			log.info("Sent Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
 			
-			rxLockEvents.release();
 		}
 		catch(IOException e1)
 		{
 			log.error("Failed Sending Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
 		}
+		
+		rxLockEvents.release();
 	}
 }
