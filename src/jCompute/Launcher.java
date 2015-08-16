@@ -33,7 +33,6 @@ public class Launcher
 	private static ClusterGUI clusterGUI;
 	
 	// Remote Node
-	@SuppressWarnings("unused")
 	private static Node node;
 	
 	// Command Line HashMap
@@ -149,11 +148,12 @@ public class Launcher
 				
 				Thread nodeLauncher = new Thread(new Runnable()
 				{
-					
 					@Override
 					public void run()
 					{
 						node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+						
+						node.start();
 						
 						log.info("Node Exited");
 						
