@@ -119,6 +119,7 @@ public class NodeWeightingBenchmark
 			}
 			else
 			{
+				fullWeighting = -1;
 				break;
 			}
 		}
