@@ -1,6 +1,5 @@
 package jCompute.Cluster.Protocol.Registration;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import jCompute.Cluster.Protocol.NCP;
@@ -15,7 +14,7 @@ public class RegistrationReqAck
 	}
 	
 	// Construct from an input stream
-	public RegistrationReqAck(ByteBuffer source) throws IOException
+	public RegistrationReqAck(ByteBuffer source)
 	{		
 		uid = source.getInt();
 	}

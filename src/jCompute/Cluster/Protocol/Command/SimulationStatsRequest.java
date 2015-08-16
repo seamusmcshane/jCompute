@@ -4,7 +4,6 @@ import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.Stats.StatExporter.ExportFormat;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class SimulationStatsRequest
@@ -19,7 +18,7 @@ public class SimulationStatsRequest
 	}
 	
 	// Construct from an input stream
-	public SimulationStatsRequest(ByteBuffer source) throws IOException
+	public SimulationStatsRequest(ByteBuffer source)
 	{		
 		simId = source.getInt();
 		format = ExportFormat.fromInt(source.getInt());

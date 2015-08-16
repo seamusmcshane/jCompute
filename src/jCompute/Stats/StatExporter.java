@@ -134,7 +134,7 @@ public class StatExporter
 	/*
 	 * Bytes
 	 */
-	public byte[] toBytes() throws IOException
+	public byte[] toBytes()
 	{
 		ByteBuffer tbuffer;
 		
@@ -303,7 +303,6 @@ public class StatExporter
 	}
 	
 	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, String fileData)
-			throws IOException
 	{
 		// FileNum
 		tbuffer.putInt(fileNum);
@@ -322,7 +321,6 @@ public class StatExporter
 	}
 	
 	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, byte[] binData)
-			throws IOException
 	{
 		// Number of file
 		tbuffer.putInt(fileNum);

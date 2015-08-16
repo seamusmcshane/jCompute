@@ -2,7 +2,6 @@ package jCompute.Cluster.Protocol.Command;
 
 import jCompute.Cluster.Protocol.NCP;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class StartSimCMD
@@ -16,7 +15,7 @@ public class StartSimCMD
 	}
 	
 	// Construct from an input stream
-	public StartSimCMD(ByteBuffer source) throws IOException
+	public StartSimCMD(ByteBuffer source)
 	{		
 		simId = source.getInt();	
 	}

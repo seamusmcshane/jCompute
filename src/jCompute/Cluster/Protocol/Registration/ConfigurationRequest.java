@@ -2,7 +2,6 @@ package jCompute.Cluster.Protocol.Registration;
 
 import jCompute.Cluster.Protocol.NCP;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ConfigurationRequest
@@ -23,7 +22,7 @@ public class ConfigurationRequest
 	}
 
 	// Construct from an input stream
-	public ConfigurationRequest(ByteBuffer source) throws IOException
+	public ConfigurationRequest(ByteBuffer source)
 	{
 		bench = source.getInt();
 

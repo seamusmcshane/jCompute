@@ -2,7 +2,6 @@ package jCompute.Cluster.Protocol.Command;
 
 import jCompute.Cluster.Protocol.NCP;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class AddSimReq
@@ -18,7 +17,7 @@ public class AddSimReq
 	}
 
 	// Construct from an input stream
-	public AddSimReq(ByteBuffer source) throws IOException
+	public AddSimReq(ByteBuffer source)
 	{		
 		initialStepRate = source.getInt();
 		int len = source.getInt();		

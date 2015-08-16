@@ -1,6 +1,5 @@
 package jCompute.Cluster.Protocol.Command;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import jCompute.Cluster.Protocol.NCP;
@@ -19,14 +18,14 @@ public class SimulationStatsReply
 	}
 	
 	// Construct from a ByteBuffer
-	public SimulationStatsReply(int simId, ByteBuffer source, ExportFormat format, String fileNameSuffix) throws IOException
+	public SimulationStatsReply(int simId, ByteBuffer source, ExportFormat format, String fileNameSuffix)
 	{		
 		this.simId = simId;
 		exporter = new StatExporter(format, fileNameSuffix);
 		exporter.populateFromByteBuffer(source);
 	}
 
-	public byte[] toBytes() throws IOException
+	public byte[] toBytes()
 	{
 		byte[] data = exporter.toBytes();
 		
