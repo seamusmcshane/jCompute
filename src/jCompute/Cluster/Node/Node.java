@@ -96,7 +96,7 @@ public class Node
 	/* Node Info */
 	private NodeInfo nodeInfo;
 	
-	private final int NODE_TX_FREQUENCY = 100;
+	private final int NODE_TX_FREQUENCY = 10;
 	
 	public Node(final String address, String desc, final SimulationsManager simsManager)
 	{
