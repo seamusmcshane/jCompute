@@ -8,11 +8,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TextBatchLogProcessorMapper implements BatchLogInf
 {
+	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessorMapper.class);
+
 	private File file;
 	
 	private String logName = "";
@@ -56,7 +61,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				if(readingItems)
 				{
 					// Items
-					System.out.println("finished");
+					log.info("finished");
 					
 					if(inputFile.readLine().equals("[+Items]"))
 					{
@@ -77,7 +82,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 					else
 					{
 						finished = true;
-						System.out.println("Could not find log file");
+						log.info("Could not find log file");
 					}
 				}
 			}
@@ -89,35 +94,18 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		{
 			e.printStackTrace();
 		}
+
+		HashMap<Integer,Integer> xUnique = new HashMap<Integer, Integer>();
+		HashMap<Integer,Integer> yUnique = new HashMap<Integer, Integer>();
 		
-		// +1 for array size dim
-		sufaceWidthHeight = (int) Math.sqrt((logItems.size() / samples)) + 1;
-		
-		System.out.println("Surface Size : " + sufaceWidthHeight);
-		System.out.println("Item Total   : " + logItems.size());
-		
-		values = new MapperValuesContainer(sufaceWidthHeight, sufaceWidthHeight, samples);
+		log.info("Num coords : " + logItems.get(0).getCoordsPos().length );
 		
 		for(TextBatchLogItem item : logItems)
 		{
-			// Choose Plot Source
-			double val = item.getStepCount();
-			zAxisName = "StepCount";
-			
-			if(false)
-			{
-				System.out.println("------------------ ");
-				System.out.println("Item ");
-				System.out.println("IID       :" + item.getItemId());
-				System.out.println("SID       :" + item.getSampleId());
-				System.out.println("Hash      :" + item.getHash());
-				System.out.println("Pos       :" + item.getCoordsPos()[0] + "x" + item.getCoordsPos()[1]);
-				System.out.println("Val       :" + item.getCoordsVals()[0] + "x" + item.getCoordsVals()[0]);
-				System.out.println("RunTime   :" + item.getRunTime());
-				System.out.println("StepCount :" + item.getStepCount());
-				System.out.println("EndEvent  :" + item.getEndEvent());
-			}
-			values.setSampleValue(item.getCoordsPos()[0], item.getCoordsPos()[1], val);
+			int x = item.getCoordsPos()[0];
+			int y = item.getCoordsPos()[1];
+			xUnique.put(x, x);
+			yUnique.put(y, y);
 			
 			if(item.getCoordsVals()[0] > xValMax)
 			{
@@ -148,15 +136,119 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			{
 				zValMax = item.getStepCount() ;
 			}
+			
 		}
+		
+		int xDimSize = xUnique.size();
+		int yDimSize = yUnique.size();
+		
+		log.info("X Dim : " + xDimSize);
+		log.info("Y Dim : " + yDimSize);
+		
+		// +1 for array size dim
+		// sufaceWidthHeight = (int) Math.sqrt((logItems.size() / samples)) + 1;
+		
+		log.info("Surface Size : " + xDimSize*yDimSize);
+		log.info("Item Total   : " + logItems.size());
+		
+		values = new MapperValuesContainer(xDimSize, yDimSize, samples);
+		
+		int[] IIDS = new int[logItems.size()/samples];
+		int[] SIDS = new int[samples];
+		
+		int storeErrors = 0;
+		
+		for(TextBatchLogItem item : logItems)
+		{
+			// zAxis = StepCount
+			double val = item.getStepCount();
+
+			if(false)
+			{
+				log.info("------------------ ");
+				log.info("Item ");
+				log.info("IID       :" + item.getItemId());
+				log.info("SID       :" + item.getSampleId());
+				log.info("Hash      :" + item.getHash());
+				log.info("Pos       :" + item.getCoordsPos()[0] + "x" + item.getCoordsPos()[1]);
+				log.info("Val       :" + item.getCoordsVals()[0] + "x" + item.getCoordsVals()[0]);
+				log.info("RunTime   :" + item.getRunTime());
+				log.info("StepCount :" + item.getStepCount());
+				log.info("EndEvent  :" + item.getEndEvent());
+			}
+			int iid = item.getItemId();
+			int sid = item.getSampleId()-1;
+			
+			IIDS[iid]++;
+			SIDS[sid]++;
+			// Combo Pos starts at 1, array pos at 0 -  index offset corrected here
+			boolean stored = values.setSampleValue(item.getCoordsPos()[0], item.getCoordsPos()[1], val);
+			
+			if(!stored)
+			{
+				storeErrors++;
+			}
+		}
+
+		boolean itemsSamplesCorrect = true;
+		for(int i=0;i<IIDS.length;i++)
+		{
+			//log.info("Unique Items " + IIDS[i]);
+			if(IIDS[i] == samples)
+			{
+				log.debug("Item Samples OK : " + (i+1));
+			}
+			else
+			{
+				itemsSamplesCorrect = false;
+				
+				log.warn("Item " + i + " Not correct : " + IIDS[i] + " " + samples);
+			}
+		}
+		
+		if(itemsSamplesCorrect)
+		{
+			log.info("All items have correct number of samples("+samples+").");
+		}
+		else
+		{
+			log.warn("Some items do not have the correct number of samples. ");
+		}
+		
+		boolean itemsSamplesNumbersCorrect = true;
+		for(int i=0;i<SIDS.length;i++)
+		{
+			if(SIDS[i] == logItems.size()/samples)
+			{
+				log.debug("Item Sample Numbers OK : " + (i+1));
+			}
+			else
+			{
+				itemsSamplesNumbersCorrect = false;
+				
+				log.warn("Item " + i + " Not correct : " + SIDS[i] + " " + samples);
+			}
+			
+		}
+		
+		if(itemsSamplesNumbersCorrect)
+		{
+			log.info("All sample numbers appear correct("+logItems.size()/samples+").");
+		}
+		else
+		{
+			log.warn("Sample numbers do not appear correct.");
+		}
+		
+		log.warn("Store Errors " + storeErrors);
 		
 		values.compute();
 		
-		System.out.println("xValMax" + xValMax);
-		System.out.println("yValMax" + yValMax);
+		log.info("xValMax" + xValMax);
+		log.info("yValMax" + yValMax);
 		
-		System.out.println("xMax" + values.getXMax());
-		System.out.println("yMax" + values.getYMax());
+		log.info("xMax" + values.getXMax());
+		log.info("yMax" + values.getYMax());
 		
 		xMapper = new TickValueMapper(values.getXMax(), xValMax);
 		yMapper = new TickValueMapper(values.getYMax(), yValMax);
@@ -249,7 +341,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				
 				while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 				{
-					System.out.println("> 2 Coords");
+					log.info("> 2 Coords");
 				}
 				
 				cline = inputFile.readLine();
@@ -265,12 +357,12 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 					
 					while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 					{
-						System.out.println("> 2 Coords");
+						log.info("> 2 Coords");
 					}
 				}
 				else
 				{
-					System.out.println("Error Parsing Coords");
+					log.info("Error Parsing Coords");
 				}
 				
 				item.setCoordsPos(pos);
@@ -334,18 +426,18 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				if(field.equals("Name"))
 				{
 					this.logName = val;
-					System.out.println("LogName :" + logName);
+					log.info("LogName :" + logName);
 				}
 				else if(field.equals("LogType"))
 				{
 					this.logType = val;
-					System.out.println("LogType :" + logType);
+					log.info("LogType :" + logType);
 					
 				}
 				else if(field.equals("Samples"))
 				{
 					this.samples = Integer.parseInt(val);
-					System.out.println("Samples :" + samples);
+					log.info("Samples :" + samples);
 				}
 			}
 			
@@ -379,11 +471,14 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 					yAxisName = axisName;
 				}
 				
-				System.out.println("Axis " + id + " :" + axisName);
+				log.info("Axis " + id + " :" + axisName);
 				
 				axisCount++;
 			}
 		}
+		
+		// Choose Plot Source
+		zAxisName = "StepCount";
 	}
 	
 	public String[] getAxisNames()

@@ -8,22 +8,28 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 public class BarGrid
 {
 	private Bar gridBars[][];
-	private int columns;
+	private int xColumns;
+	private int yColumns;
 	
-	public BarGrid(float gridSize, int samples, int[] pallete)
+	public BarGrid(float gridSize, int xColumns, int yColumns, int[] pallete)
 	{
 		ModelBuilder modelBuilder = new ModelBuilder();
-		this.columns = (int) Math.sqrt(samples);
 		
-		float barSize = gridSize / columns;
-		float trans = columns * barSize / 2;
+		this.xColumns = xColumns;
+		this.yColumns = yColumns;
 		
-		gridBars = new Bar[columns][columns];
-		for(int y = 0; y < columns; y++)
+		float barWidth = gridSize / xColumns;
+		float barDepth = gridSize / yColumns;
+		
+		float xTrans = xColumns * barWidth / 2;
+		float yTrans = yColumns * barDepth / 2;
+		
+		gridBars = new Bar[yColumns][xColumns];
+		for(int y = 0; y < yColumns; y++)
 		{
-			for(int x = 0; x < columns; x++)
+			for(int x = 0; x < xColumns; x++)
 			{
-				gridBars[y][x] = new Bar(modelBuilder, trans, barSize, pallete);
+				gridBars[y][x] = new Bar(modelBuilder, xTrans, barWidth, yTrans, barDepth, pallete);
 				gridBars[y][x].setBarLocation(x, y);
 			}
 		}
@@ -41,9 +47,9 @@ public class BarGrid
 	
 	public void render(ModelBatch modelBatch, Camera cam, Environment environment)
 	{
-		for(int y = 0; y < columns; y++)
+		for(int y = 0; y < yColumns; y++)
 		{
-			for(int x = 0; x < columns; x++)
+			for(int x = 0; x < xColumns; x++)
 			{
 				modelBatch.render(gridBars[y][x].getInstance(), environment);
 			}
@@ -52,9 +58,9 @@ public class BarGrid
 	
 	public void dispose()
 	{
-		for(int y = 0; y < columns; y++)
+		for(int y = 0; y < yColumns; y++)
 		{
-			for(int x = 0; x < columns; x++)
+			for(int x = 0; x < xColumns; x++)
 			{
 				gridBars[y][x].dispose();
 			}

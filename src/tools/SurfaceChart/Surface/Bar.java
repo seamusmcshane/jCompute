@@ -13,21 +13,29 @@ public class Bar
 	private ModelInstance bar;
 	private Model barModel;
 	
-	private float gridTrans;
-	private float barSize;
+	private float barWidth;
+	private float xTrans;
+	
+	private float barDepth;
+	private float yTrans;
+	
 	private float barMax = 100f;
 	private float height;
 	private float scaleReset;
 	
 	private int[] pallete;
 	
-	public Bar(ModelBuilder modelBuilder, float gridTrans, float barSize, int[] pallete)
+	public Bar(ModelBuilder modelBuilder, float xTrans, float barWidth, float yTrans, float barDepth, int[] pallete)
 	{
-		this.barSize = barSize;
-		this.pallete = pallete;
-		this.gridTrans = gridTrans;
+		this.xTrans = xTrans;
+		this.barWidth = barWidth;
 		
-		barModel = modelBuilder.createBox(barSize, barSize, barMax,
+		this.yTrans = yTrans;
+		this.barDepth = barDepth;
+
+		this.pallete = pallete;
+		
+		barModel = modelBuilder.createBox(barDepth, barWidth, barMax,
 				new Material(ColorAttribute.createDiffuse(Color.WHITE)), Usage.Position | Usage.Normal);
 		bar = new ModelInstance(barModel);
 		// bar.transform.trn(0,0,height/2);
@@ -40,7 +48,7 @@ public class Bar
 	
 	public void setBarLocation(int x, int y)
 	{
-		bar.transform.trn((y * barSize) - gridTrans + (barSize / 2), (x * barSize) - gridTrans + (barSize / 2), 0);
+		bar.transform.trn((y * barDepth) - yTrans + (barDepth / 2), (x * barWidth) - xTrans + (barWidth / 2), 0);
 	}
 	
 	public void setHeight(float percentage)

@@ -338,13 +338,14 @@ public class AxisGrid
 		Decal[] decals = new Decal[numDecals];
 
 		// float valStep = (int) ((valMax - valMin) / intervals);
-		float valStep = (int) ((valMax) / intervals);
+		float valStep = (int) ((valMax-valMin) / intervals);
 
 		float posInteval = gridSize / intervals;
 
 		for(int i = 0; i < numDecals; i++)
 		{
-			decals[i] = generateDecal(String.valueOf((int) (i * valStep)));
+			int val = (int)((i*valStep)+valMin);
+			decals[i] = generateDecal(String.valueOf(val));
 			decals[i].getPosition().set(tickLength + pad, (i * posInteval), 0);
 			decals[i].setRotationX(90);
 

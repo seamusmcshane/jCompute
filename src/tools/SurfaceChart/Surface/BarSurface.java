@@ -1,13 +1,9 @@
 package tools.SurfaceChart.Surface;
 
 import jCompute.Gui.View.Lib3D.AxisGrid;
-
-import java.util.Random;
-
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 
@@ -15,7 +11,6 @@ public class BarSurface
 {
 	private ModelBatch modelBatch;
 	
-	float trans;
 	private float barSize;
 	
 	private int gridSize = 1000;
@@ -25,8 +20,6 @@ public class BarSurface
 	private DecalBatch db;
 	
 	private BarGrid barGrid;
-	
-	private Random r = new Random();
 	
 	// Data Limits (min/max)
 	float xAxisMin;
@@ -52,13 +45,13 @@ public class BarSurface
 		// setData(cam, 50, 100, 50, 200, null);
 	}
 	
-	private void createBarSurfaceObjects(int samples, float xAxisMin, float xAxisMax, float yAxisMin, float yAxisMax,
+	private void createBarSurfaceObjects(int xSteps, float xAxisMin, float xAxisMax, int ySteps, float yAxisMin, float yAxisMax,
 			float zAxisMin, float zAxisMax, String[] axisNames)
 	{
-		this.columns = (int) Math.sqrt(samples);
+		this.columns = (int) Math.sqrt(xSteps * ySteps);
 		this.barSize = gridSize / columns;
 		
-		barGrid = new BarGrid(gridSize, samples, palette);
+		barGrid = new BarGrid(gridSize, ySteps, xSteps, palette);
 		
 		axisGrid = new AxisGrid(gridSize, gridSize / 2, 0.5f);
 		
@@ -88,7 +81,7 @@ public class BarSurface
 		axisGrid.update();
 	}
 	
-	public void setData(double xAxisMin, double xAxisMax, double yAxisMin, double yAxisMax, double zAxisMin,
+	public void setData(int xSteps, double xAxisMin, double xAxisMax, int ySteps, double yAxisMin, double yAxisMax, double zAxisMin,
 			double zAxisMax, double data[][], String[] axisNames)
 	{
 		if(data == null)
@@ -105,36 +98,32 @@ public class BarSurface
 		}
 		
 		// Square
-		int samples = (data.length - 1) * (data[0].length - 1);
-		
-		createBarSurfaceObjects(samples, (float) xAxisMin, (float) xAxisMax, (float) yAxisMin, (float) yAxisMax,
-				(float) zAxisMin, (float) zAxisMax, axisNames);
-		
+		// int samples = (data.length - 1) * (data[0].length - 1);
+		createBarSurfaceObjects(xSteps, (float) xAxisMin, (float) xAxisMax, ySteps, (float) yAxisMin, (float) yAxisMax, (float) zAxisMin,
+				(float) zAxisMax, axisNames);
+				
 		// Data X/Y Axis Limits
 		this.xAxisMin = (float) xAxisMin;
 		this.xAxisMax = (float) xAxisMax;
 		this.yAxisMin = (float) yAxisMin;
 		this.yAxisMax = (float) yAxisMax;
 		
-		trans = columns * barSize / 2;
-		
 		float height = 0;
 		
 		float valM = (float) (100f / zAxisMax);
 		
-		int xMax = data.length - 1;
-		int yMax = data[0].length - 1;
-		
 		System.out.println("vaM " + valM);
 		
-		for(int y = 0; y < yMax; y++)
+		// Random r = new Random();
+		
+		for(int y = 0; y < ySteps; y++)
 		{
-			for(int x = 0; x < xMax; x++)
+			for(int x = 0; x < xSteps; x++)
 			{
 				// height = r.nextFloat() * (100f);
 				height = (float) (valM * data[x][y]);
 				
-				System.out.println(x + "x" + y + " : " + data[y][x] + " > " + height);
+				System.out.println(x + "x" + y + " : " + data[x][y] + " > " + height);
 				
 				barGrid.setBarHeight(y, x, height);
 			}

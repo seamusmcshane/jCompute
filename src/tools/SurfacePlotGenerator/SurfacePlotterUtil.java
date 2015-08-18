@@ -43,6 +43,8 @@ import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -59,6 +61,8 @@ import java.awt.Insets;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
 {
+	private static Logger log;
+	
 	private static JFrame gui;
 	private static JMenuBar menuBar;
 	private static JMenu mnFile;
@@ -93,6 +97,10 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	public SurfacePlotterUtil()
 	{
+		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+		
+		log = LoggerFactory.getLogger(SurfacePlotterUtil.class);
+		
 		lookandFeel();
 		
 		gui = new JFrame();
@@ -240,7 +248,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					}
 					else
 					{
-						System.out.println(drawable.getClass().getName());
+						log.info(drawable.getClass().getName());
 					}
 				}
 				
@@ -304,10 +312,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range avgXRange = new Range(mapper.getXMin(), mapper.getXMax());
 		Range avgYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
-		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, mapper.getXSteps() * subDiv,
-				avgYRange, mapper.getYSteps() * subDiv), mapper.getAvg());
-		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(), new Color(
-				1, 1, 1, 1f)));
+		Shape surfaceAvg = Builder.buildOrthonormal(
+				new OrthonormalGrid(avgXRange, mapper.getXSteps() * subDiv, avgYRange, mapper.getYSteps() * subDiv), mapper.getAvg());
+		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(), new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
 		surfaceAvg.setWireframeColor(Color.BLACK);
@@ -357,7 +364,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				else
 				{
-					System.out.println(drawable.getClass().getName());
+					log.info(drawable.getClass().getName());
 				}
 			}
 			
@@ -391,7 +398,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				else
 				{
-					System.out.println(drawable.getClass().getName());
+					log.info(drawable.getClass().getName());
 				}
 			}
 			
@@ -412,8 +419,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range stdDevXRange = new Range(mapper.getXMin(), mapper.getXMax());
 		Range stdDevYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
-		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, mapper.getXSteps() * subDiv,
-				stdDevYRange, mapper.getYSteps() * subDiv), mapper.getStdDev());
+		Shape surfaceStdDev = Builder.buildOrthonormal(
+				new OrthonormalGrid(stdDevXRange, mapper.getXSteps() * subDiv, stdDevYRange, mapper.getYSteps() * subDiv),
+				mapper.getStdDev());
 		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRBG(), surfaceStdDev.getBounds().getZmin(),
 				surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 1f)));
 		surfaceStdDev.setFaceDisplayed(true);
@@ -426,8 +434,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		chartStdDev.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
 		chartStdDev.getScene().getGraph().add(surfaceStdDev);
 		
-		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe()
-				.getLayout());
+		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
 		surfaceStdDev.setLegend(stdDevColorBar);
 		
 		chartStdDev.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
@@ -451,84 +458,89 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		{
 			final JFileChooser filechooser = new JFileChooser(new File(openCD));
 			
-			System.out.println("Open Dialog");
+			log.info("Open Dialog");
 			
 			int val = filechooser.showOpenDialog(filechooser);
 			
 			if(val == JFileChooser.APPROVE_OPTION)
 			{
-				removeCharts();
-				
-				System.out.println("New File Choosen");
-				
-				String file = filechooser.getSelectedFile().getAbsolutePath();
-				
-				openCD = filechooser.getCurrentDirectory().getAbsolutePath();
-				
-				gui.setTitle(filechooser.getSelectedFile().getName());
-				
-				System.out.println(file);
-				
-				System.out.println("Creating Mapper");
-				
-				String ext = FileUtil.getFileNameExtension(file);
-				System.out.println(ext);
-				
-				switch(ext)
+				SwingUtilities.invokeLater(new Runnable()
 				{
-					case "xml":
+					public void run()
+					{
+						removeCharts();
 						
-						mapper = new XMLBatchLogProcessorMapper(file);
-					
-					break;
-					
-					case "log":
+						log.info("New File Choosen");
 						
-						mapper = new TextBatchLogProcessorMapper(file);
-					
-					break;
-					default:
-						System.out.println("Unsupported LogType " + ext);
-					break;
-				}
-				
-				System.out.println("Average Chart");
-				addAvgChart();
-				
-				System.out.println("Standard Deviation Chart");
-				addStdDevChart();
-				
-				// chart = new Chart(factory, Quality.Fastest);
-				// MapperContourPictureGenerator avgContour = new
-				// MapperContourPictureGenerator(avgMapper, avgXRange,
-				// avgYRange);
-				// ContourAxeBox avgCab = new
-				// ContourAxeBox(chartAvg.getView().getAxe().getBoxBounds());
-				// avgCab.setContourImg(avgContour.getHeightMap(new
-				// DefaultContourColoringPolicy(new ColorMapper(new
-				// ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(),
-				// surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1,
-				// 0.95f))), (int)avgXRange.getMax(), (int)avgYRange.getMax(),
-				// (int)avgMapper.getValueMax()), avgXRange, avgYRange);
-				// chartAvg.getView().setAxe(avgCab);
-				
-				/*
-				 * GLSLProgram.DEFAULT_STRICTNESS =
-				 * Strictness.CONSOLE_NO_WARN_UNIFORM_NOT_FOUND;
-				 * IChartComponentFactory factory = new
-				 * PeelingComponentFactory(PeelingMethod.DUAL_PEELING_MODE);
-				 * GLProfile profile = GLProfile.getMaxProgrammable(true);
-				 * GLCapabilities capabilities = new GLCapabilities(profile);
-				 * capabilities.setHardwareAccelerated(true);
-				 */
-				
-				gui.validate();
-				
-				Coord3d coord = new Coord3d(defaultPos.x, defaultPos.y, defaultPos.z);
-				
-				chartAvg.getView().setViewPoint(coord);
-				chartStdDev.getView().setViewPoint(coord);
-				
+						String file = filechooser.getSelectedFile().getAbsolutePath();
+						
+						openCD = filechooser.getCurrentDirectory().getAbsolutePath();
+						
+						gui.setTitle(filechooser.getSelectedFile().getName());
+						
+						log.info(file);
+						
+						log.info("Creating Mapper");
+						
+						String ext = FileUtil.getFileNameExtension(file);
+						log.info("File ext : " + ext);
+						
+						switch(ext)
+						{
+							case "xml":
+								
+								mapper = new XMLBatchLogProcessorMapper(file);
+								
+							break;
+							
+							case "log":
+								
+								mapper = new TextBatchLogProcessorMapper(file);
+								
+							break;
+							default:
+								log.info("Unsupported LogType " + ext);
+							break;
+						}
+						
+						log.info("Average Chart");
+						addAvgChart();
+						
+						log.info("Standard Deviation Chart");
+						addStdDevChart();
+						
+						// chart = new Chart(factory, Quality.Fastest);
+						// MapperContourPictureGenerator avgContour = new
+						// MapperContourPictureGenerator(avgMapper, avgXRange,
+						// avgYRange);
+						// ContourAxeBox avgCab = new
+						// ContourAxeBox(chartAvg.getView().getAxe().getBoxBounds());
+						// avgCab.setContourImg(avgContour.getHeightMap(new
+						// DefaultContourColoringPolicy(new ColorMapper(new
+						// ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(),
+						// surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1,
+						// 0.95f))), (int)avgXRange.getMax(), (int)avgYRange.getMax(),
+						// (int)avgMapper.getValueMax()), avgXRange, avgYRange);
+						// chartAvg.getView().setAxe(avgCab);
+						
+						/*
+						 * GLSLProgram.DEFAULT_STRICTNESS =
+						 * Strictness.CONSOLE_NO_WARN_UNIFORM_NOT_FOUND;
+						 * IChartComponentFactory factory = new
+						 * PeelingComponentFactory(PeelingMethod.DUAL_PEELING_MODE);
+						 * GLProfile profile = GLProfile.getMaxProgrammable(true);
+						 * GLCapabilities capabilities = new GLCapabilities(profile);
+						 * capabilities.setHardwareAccelerated(true);
+						 */
+						
+						gui.validate();
+						
+						Coord3d coord = new Coord3d(defaultPos.x, defaultPos.y, defaultPos.z);
+						
+						chartAvg.getView().setViewPoint(coord);
+						chartStdDev.getView().setViewPoint(coord);
+					}
+				});
 			}
 		}
 		if(e.getSource() == mntmExit)
@@ -578,9 +590,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					avgImg = avgOp.filter(avgImg, null);
 					stddevImg = stddevOp.filter(stddevImg, null);
 					
-					BufferedImage exportImage = new BufferedImage(avgImg.getWidth() + stddevImg.getWidth(),
-							avgImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
-					
+					BufferedImage exportImage = new BufferedImage(avgImg.getWidth() + stddevImg.getWidth(), avgImg.getHeight(),
+							BufferedImage.TYPE_INT_ARGB);
+							
 					exportImage.getGraphics().drawImage(avgImg, 0, 0, null);
 					exportImage.getGraphics().drawImage(stddevImg, avgImg.getWidth(), 0, null);
 					
@@ -637,13 +649,13 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	@Override
 	public void windowActivated(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowClosed(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
@@ -655,25 +667,25 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	@Override
 	public void windowDeactivated(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowDeiconified(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowIconified(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowOpened(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	/* Use the java provided system look and feel */

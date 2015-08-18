@@ -112,9 +112,11 @@ public class SurfacePlotEnv implements ApplicationListener
 	
 	public void setData(BatchLogInf mapper)
 	{
+		int xSteps = mapper.getXSteps();
 		float xMin = (float) mapper.getXValMin();
 		float xMax = (float) mapper.getXValMax();
 		
+		int ySteps = mapper.getYSteps();
 		float yMin = (float) mapper.getYValMin();
 		float yMax = (float) mapper.getYValMax();
 		
@@ -128,7 +130,11 @@ public class SurfacePlotEnv implements ApplicationListener
 		double[][] data = mapper.getAvgData();
 		String[] names = mapper.getAxisNames();
 		
-		barSurface.setData(xMin, xMax, yMin, yMax, zMin, zMax, data, names);
+		System.out.println("xRange " + xMin + " " + xMax);
+		System.out.println("yRange " + yMin + " " + yMax);
+		System.out.println("zRange " + zMin + " " + zMax);
+		
+		barSurface.setData(xSteps,xMin, xMax, ySteps,yMin, yMax, zMin, zMax, data, names);
 	}
 	
 	@Override
