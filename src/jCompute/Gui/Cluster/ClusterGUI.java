@@ -52,7 +52,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	private ClusterStatusTab clusterStatusTab;
 	private NodeStatusTab nodeStatusTab;
 	
-	public ClusterGUI(final boolean buttonText)
+	public ClusterGUI(final boolean buttonText, boolean allowMulti)
 	{
 		try
 		{
@@ -78,7 +78,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 			e.printStackTrace();
 		}
 		
-		batchManager = new BatchManager();
+		batchManager = new BatchManager(allowMulti);
 		
 		batchTab.setBatchManager(batchManager);
 	}

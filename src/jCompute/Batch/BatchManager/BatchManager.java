@@ -66,9 +66,9 @@ public class BatchManager
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
 	
-	public BatchManager()
+	public BatchManager(boolean allowMulti)
 	{
-		this.controlNode = new ControlNode();
+		this.controlNode = new ControlNode(allowMulti);
 		
 		fifoQueue = new ManagedBypassableQueue();
 		

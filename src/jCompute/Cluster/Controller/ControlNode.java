@@ -53,6 +53,8 @@ public class ControlNode
 	
 	/* Connecting Nodes List */
 	private LinkedList<NodeManager> connectingNodes;
+	private boolean allowMulti;
+	
 	private Timer ncpTimer;
 	private int ncpTimerSpeed = 1;
 	/*
@@ -72,9 +74,13 @@ public class ControlNode
 	
 	private int timerCount;
 	
-	public ControlNode()
+	public ControlNode(boolean allowMulti)
 	{
 		log.info("Starting ControlNode");
+		
+		this.allowMulti = allowMulti;
+		
+		log.info("Allow multiple nodes to connect from same address : " + allowMulti);
 		
 		localSimulationMap = new HashMap<Integer, RemoteSimulationMapping>();
 		
@@ -315,8 +321,16 @@ public class ControlNode
 							// Accept new Connections
 							controlNodeLock.acquireUninterruptibly();
 							
-							boolean existingActive = existingActiveNode(nodeSocket);
-							boolean existingConnecting = existingConnectingNode(nodeSocket);
+							// Default to ignoring existing active/connecting nodes
+							boolean existingActive = false;
+							boolean existingConnecting = false;
+							
+							// if we do not allow multple connections from the same address, check for existing active/connecting nodes.
+							if(!allowMulti)
+							{
+								existingActive = existingActiveNode(nodeSocket);
+								existingConnecting = existingConnectingNode(nodeSocket);
+							}
 							
 							// If there is existing active node from this
 							// address
