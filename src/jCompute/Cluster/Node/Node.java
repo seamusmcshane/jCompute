@@ -714,6 +714,7 @@ public class Node
 	
 	private void txData() throws IOException
 	{
+		boolean needsFlush = false;
 		Iterator<byte[]> itr = txQueue.iterator();
 		
 		while(itr.hasNext())
@@ -724,8 +725,13 @@ public class Node
 			commandOutput.write(bytes);
 			bytesTX += bytes.length;
 			log.debug(bytes.length + " Bytes Sent");
+			needsFlush = true;
 		}
-		commandOutput.flush();
+		
+		if(needsFlush)
+		{
+			commandOutput.flush();
+		}
 	}
 	
 	/*
