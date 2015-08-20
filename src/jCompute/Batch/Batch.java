@@ -336,6 +336,36 @@ public class Batch implements StoredQueuePosition
 					
 					// Steps for each values
 					step[p] = batchConfigProcessor.getIntValue(section, "Combinations");
+					
+					// Optimise slightly the concatenations
+					String pNumString = "(" + p + ") ";
+					
+					// Used in batch info.
+					parameters.add("");
+					parameters.add("");
+					parameters.add(pNumString + "ParameterType");
+					parameters.add(parameterType[p]);
+					parameters.add(pNumString + "Path");
+					parameters.add(path[p]);
+					parameters.add(pNumString + "GroupName");
+					parameters.add(groupName[p]);
+					parameters.add(pNumString + "ParameterName");
+					parameters.add(parameterName[p]);
+					parameters.add(pNumString + "Intial");
+					parameters.add(String.valueOf(baseValue[p]));
+					parameters.add(pNumString + "Increment");
+					parameters.add(String.valueOf(increment[p]));
+					parameters.add(pNumString + "Steps");
+					parameters.add(String.valueOf(step[p]));
+					
+					// Logging
+					log.info(pNumString + "ParameterType : " + parameterType[p]);
+					log.info(pNumString + "Path : " + path[p]);
+					log.info(pNumString + "GroupName : " + groupName[p]);
+					log.info(pNumString + "ParameterName : " + parameterName[p]);
+					log.info(pNumString + "Intial : " + baseValue[p]);
+					log.info(pNumString + "Increment : " + increment[p]);
+					log.info(pNumString + "Combinations : " + step[p]);
 				}
 				
 				// Calculate Total Combinations
