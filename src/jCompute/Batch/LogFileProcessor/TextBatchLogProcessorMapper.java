@@ -179,10 +179,22 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			int iid = item.getItemId();
 			int sid = item.getSampleId()-1;
 			
+			int c0 = item.getCoordsPos()[0];
+			int c1 = item.getCoordsPos()[1];
+			
+			boolean oldLog = false;
+			
+			if(oldLog)
+			{
+				iid = iid - 1;
+				c0 = c0 - 1;
+				c1 = c1 - 1;
+			}
+			
 			IIDS[iid]++;
 			SIDS[sid]++;
 			// Combo Pos starts at 1, array pos at 0 -  index offset corrected here
-			boolean stored = values.setSampleValue(item.getCoordsPos()[0], item.getCoordsPos()[1], val);
+			boolean stored = values.setSampleValue(c0, c1, val);
 			
 			if(!stored)
 			{
