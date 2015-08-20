@@ -495,6 +495,8 @@ public class BatchManager
 		catch(UnsupportedEncodingException e)
 		{
 			e.printStackTrace();
+			
+			return false;
 		}
 		
 		batchManagerLock.release();
