@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -65,9 +66,8 @@ public class NodeManager
 	private final Socket cmdSocket;
 	
 	// Output Stream
-	private DataOutputStream cmdOutput;
+	private DataOutputStream commandOutput;
 	private DataInputStream cmdInput;
-	private Semaphore cmdTxLock = new Semaphore(1, false);
 	private Thread cmdRecieveThread;
 	
 	private ProtocolState protocolState;
@@ -91,6 +91,11 @@ public class NodeManager
 	
 	// Add Sim MSG box Vars
 	private int addSimId = -1;
+	
+	private final int NODEMANAGER_TX_FREQUENCY = 10;
+	
+	// TX Message Queue
+	private LinkedTransferQueue<byte[]> txQueue;
 	
 	/*
 	 * Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (REMOTE)
@@ -120,10 +125,14 @@ public class NodeManager
 		this.cmdSocket = cmdSocket;
 		
 		// Cmd Output Stream
-		cmdOutput = new DataOutputStream(new BufferedOutputStream(cmdSocket.getOutputStream()));
+		commandOutput = new DataOutputStream(new BufferedOutputStream(cmdSocket.getOutputStream()));
 		
 		// Cmd Input Stream
 		cmdInput = new DataInputStream(new BufferedInputStream(cmdSocket.getInputStream()));
+		
+		// TX Message Queue
+		txQueue = new LinkedTransferQueue<byte[]>();
+		log.info("Created TX Queue");
 		
 		protocolState = ProtocolState.CON;
 		
@@ -157,6 +166,37 @@ public class NodeManager
 		
 		nodeManager.setName("NodeManager");
 		nodeManager.start();
+		
+		Thread txThread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				// Disconnect Recovery Loop
+				while(nodeState != NodeManagerState.SHUTDOWN)
+				{
+					try
+					{
+						txData();
+						
+						Thread.sleep(NODEMANAGER_TX_FREQUENCY);
+					}
+					catch(InterruptedException e)
+					{
+						log.info(e.getMessage());
+					}
+					catch(IOException e)
+					{
+						log.info(e.getMessage());
+						
+						// Socket is closed but node will remain up to reconnect
+						protocolState = ProtocolState.DIS;
+					}
+				}
+			}
+		});
+		txThread.setName("NodeManager TX");
+		txThread.start();
 	}
 	
 	private boolean handleRegistration() throws IOException
@@ -212,7 +252,7 @@ public class NodeManager
 						{
 							log.warn("Protocol Version Mismatch");
 							
-							sendCMDMessage(new RegistrationReqNack(NCP.ProtocolVersionMismatch, NCP.NCP_PROTOCOL_VERSION).toBytes());
+							txDataEnqueue(new RegistrationReqNack(NCP.ProtocolVersionMismatch, NCP.NCP_PROTOCOL_VERSION).toBytes());
 							
 							log.info("Sent Registration nack");
 							
@@ -235,7 +275,7 @@ public class NodeManager
 						{
 							
 							// If we are ok to proceed the ack the reg
-							sendCMDMessage(new RegistrationReqAck(nodeInfo.getUid()).toBytes());
+							txDataEnqueue(new RegistrationReqAck(nodeInfo.getUid()).toBytes());
 							
 							log.info("Sent Registration Ack");
 							
@@ -271,7 +311,7 @@ public class NodeManager
 							log.info("Node registration ok");
 							
 							log.info("Now requesting node configuration and weighting");
-							sendCMDMessage(new ConfigurationRequest(1, 1024, 10000, 10000, 6).toBytes());
+							txDataEnqueue(new ConfigurationRequest(1, 1024, 10000, 10000, 6).toBytes());
 						}
 						else
 						{
@@ -293,7 +333,7 @@ public class NodeManager
 						log.info("Node registration nack");
 						protocolState = ProtocolState.DIS;
 					}
-				
+					
 				break;
 				case NCP.ConfAck:
 					
@@ -328,7 +368,7 @@ public class NodeManager
 					{
 						log.error("ConfAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 					}
-				
+					
 				break;
 				// Test Frame or Garbage
 				case NCP.INVALID:
@@ -422,7 +462,7 @@ public class NodeManager
 									log.error("AddSimReply for node " + nodeInfo.getUid() + " not valid in state "
 											+ protocolState.toString());
 								}
-							
+								
 							break;
 							case NCP.SimStateNoti:
 								
@@ -444,7 +484,7 @@ public class NodeManager
 										mapping.setFinalStateChanged(stateChanged);
 										
 										// Send a stats request
-										sendCMDMessage(new SimulationStatsRequest(mapping).toBytes());
+										txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
 										
 										// The finished state is not posted yet
 										// - stats have to be fetched first
@@ -454,9 +494,9 @@ public class NodeManager
 									{
 										// Post the event as if from a local
 										// simulation
-										JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(), stateChanged
-												.getState(), stateChanged.getRunTime(), stateChanged.getStepCount(), stateChanged
-												.getEndEvent(), null));
+										JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
+												stateChanged.getState(), stateChanged.getRunTime(), stateChanged.getStepCount(),
+												stateChanged.getEndEvent(), null));
 									}
 									
 								}
@@ -465,7 +505,7 @@ public class NodeManager
 									log.error("SimStateNoti for node " + nodeInfo.getUid() + " not valid in state "
 											+ protocolState.toString());
 								}
-							
+								
 							break;
 							case NCP.SimStatNoti:
 								
@@ -487,10 +527,9 @@ public class NodeManager
 										
 										// Post the event as if from a local
 										// simulation
-										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(),
-												statChanged.getTime(), statChanged.getStepNo(), statChanged.getProgress(), statChanged
-														.getAsps()));
-										
+										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(), statChanged.getTime(),
+												statChanged.getStepNo(), statChanged.getProgress(), statChanged.getAsps()));
+												
 									}
 									else
 									{
@@ -503,7 +542,7 @@ public class NodeManager
 									log.error("SimStatNoti for node " + nodeInfo.getUid() + " not valid in state "
 											+ protocolState.toString());
 								}
-							
+								
 							break;
 							case NCP.RemSimAck:
 								if(protocolState == ProtocolState.RDY)
@@ -516,7 +555,8 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("RemSimAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
+									log.error(
+											"RemSimAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 							break;
 							case NCP.NodeStatsReply:
@@ -528,7 +568,7 @@ public class NodeManager
 									
 									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply.getSequenceNum(),
 											nodeStatsReply.getNodeStats()));
-									
+											
 								}
 								else
 								{
@@ -550,7 +590,7 @@ public class NodeManager
 									
 									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(),
 											mapping.getFileNameSuffix());
-									
+											
 									activeSimsLock.acquireUninterruptibly();
 									
 									// Remote Sim is auto-removed when
@@ -563,15 +603,15 @@ public class NodeManager
 									// simulation
 									SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
 									
-									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged
-											.getState(), finalStateChanged.getRunTime(), finalStateChanged.getStepCount(),
+									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
+											finalStateChanged.getState(), finalStateChanged.getRunTime(), finalStateChanged.getStepCount(),
 											finalStateChanged.getEndEvent(), statsReply.getStatExporter()));
 								}
 								else
 								{
 									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
-							
+								
 							break;
 							// Test Frame or Garbage
 							case NCP.INVALID:
@@ -580,9 +620,9 @@ public class NodeManager
 								protocolState = ProtocolState.DIS;
 								
 								log.error("Error Type " + type + " len " + len);
-							
+								
 							break;
-						
+							
 						}
 						
 						if(protocolState == ProtocolState.DIS)
@@ -617,14 +657,33 @@ public class NodeManager
 		
 	}
 	
-	private void sendCMDMessage(byte[] bytes) throws IOException
+	/*
+	 * Enqueue Messages to be sent
+	 */
+	private void txDataEnqueue(byte[] bytes)
 	{
-		cmdTxLock.acquireUninterruptibly();
+		txQueue.add(bytes);
+	}
+	
+	private void txData() throws IOException
+	{
+		boolean needsFlush = false;
+		Iterator<byte[]> itr = txQueue.iterator();
 		
-		cmdOutput.write(bytes);
-		cmdOutput.flush();
+		while(itr.hasNext())
+		{
+			byte[] bytes = itr.next();
+			itr.remove();
+			
+			commandOutput.write(bytes);
+			log.debug(bytes.length + " Bytes Sent");
+			needsFlush = true;
+		}
 		
-		cmdTxLock.release();
+		if(needsFlush)
+		{
+			commandOutput.flush();
+		}
 	}
 	
 	/**
@@ -765,76 +824,53 @@ public class NodeManager
 		
 		log.info("Node " + nodeInfo.getUid() + " AddSim");
 		
-		try
+		// addSimMsgBoxVarLock.acquireUninterruptibly();
+		
+		// Shared variable
+		addSimId = -1;
+		
+		// Create and Send add Sim Req - simulation Max speed
+		txDataEnqueue(new AddSimReq(scenarioText, -1).toBytes());
+		
+		// addSimMsgBoxVarLock.release();
+		
+		// Wait until we are released (by timer or receive thread)
+		addSimWait.acquireUninterruptibly();
+		
+		// addSimMsgBoxVarLock.acquireUninterruptibly();
+		
+		if(addSimId == -1)
 		{
-			// addSimMsgBoxVarLock.acquireUninterruptibly();
-			
-			// Shared variable
-			addSimId = -1;
-			
-			// Create and Send add Sim Req - simulation Max speed
-			sendCMDMessage(new AddSimReq(scenarioText, -1).toBytes());
-			
 			// addSimMsgBoxVarLock.release();
-			
-			// Wait until we are released (by timer or receive thread)
-			addSimWait.acquireUninterruptibly();
-			
-			// addSimMsgBoxVarLock.acquireUninterruptibly();
-			
-			if(addSimId == -1)
-			{
-				// addSimMsgBoxVarLock.release();
-				nodeLock.release();
-				
-				return -1;
-			}
-			else
-			{
-				
-				mapping.setRemoteSimId(addSimId);
-				
-				remoteSimulationMap.put(addSimId, mapping);
-				
-				activeSimsLock.acquireUninterruptibly();
-				
-				activeSims++;
-				
-				activeSimsLock.release();
-				
-				// addSimMsgBoxVarLock.release();
-				nodeLock.release();
-				
-				return addSimId;
-			}
-			
-		}
-		catch(IOException e)
-		{
 			nodeLock.release();
-			
-			// Connection is gone add sim failed
-			log.error("Node " + nodeInfo.getUid() + " Error in add Sim");
 			
 			return -1;
 		}
-		
+		else
+		{
+			
+			mapping.setRemoteSimId(addSimId);
+			
+			remoteSimulationMap.put(addSimId, mapping);
+			
+			activeSimsLock.acquireUninterruptibly();
+			
+			activeSims++;
+			
+			activeSimsLock.release();
+			
+			// addSimMsgBoxVarLock.release();
+			nodeLock.release();
+			
+			return addSimId;
+		}
 	}
 	
 	public void startSim(int remoteSimId)
 	{
 		nodeLock.acquireUninterruptibly();
 		
-		try
-		{
-			sendCMDMessage(new StartSimCMD(remoteSimId).toBytes());
-		}
-		catch(IOException e)
-		{
-			// Connection is gone...
-			log.error("Node " + nodeInfo.getUid() + " Error in Start Sim");
-			
-		}
+		txDataEnqueue(new StartSimCMD(remoteSimId).toBytes());
 		
 		nodeLock.release();
 	}
@@ -869,14 +905,7 @@ public class NodeManager
 	
 	public void triggerNodeStatRequest(int id)
 	{
-		try
-		{
-			sendCMDMessage(new NodeStatsRequest(id).toBytes());
-		}
-		catch(IOException e)
-		{
-			log.error("Fail to send Node stats request for Node " + nodeInfo.getUid());
-		}
+		txDataEnqueue(new NodeStatsRequest(id).toBytes());
 	}
 	
 	/**
@@ -894,19 +923,11 @@ public class NodeManager
 		
 		RemoteSimulationMapping mapping = remoteSimulationMap.remove(remoteSimId);
 		
-		try
+		// Stats have already been received if the mapping is null
+		if(mapping != null)
 		{
-			// Stats have already been recieved if the mapping is null
-			if(mapping != null)
-			{
-				// Send a stats request
-				sendCMDMessage(new SimulationStatsRequest(mapping).toBytes());
-			}
-			
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
+			// Send a stats request
+			txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
 		}
 		
 		nodeLock.release();
@@ -964,17 +985,9 @@ public class NodeManager
 			// disconnects and the NodeManager will enter the shutdown state.
 			if(newState == NodeManagerState.SHUTDOWN)
 			{
-				try
-				{
-					log.info("Sending NodeOrderlyShutdown");
-					
-					sendCMDMessage(new NodeOrderlyShutdown().toBytes());
-				}
-				catch(IOException e)
-				{
-					log.error("Error Sending node shutdown - node " + nodeInfo.getUid());
-					e.printStackTrace();
-				}
+				log.info("Sending NodeOrderlyShutdown");
+				
+				txDataEnqueue(new NodeOrderlyShutdown().toBytes());
 			}
 			else
 			{
