@@ -38,6 +38,10 @@ public class Batch implements StoredQueuePosition
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(Batch.class);
 	
+	// Do this batch need initialised.
+	private boolean needsInit = true;
+	private boolean initialising = false;
+	
 	// Batch Attributes
 	private int position;
 	private int batchId;
@@ -49,7 +53,6 @@ public class Batch implements StoredQueuePosition
 	
 	// Item Generation
 	private boolean needGenerated = true;
-	private boolean generating = false;
 	private float generationProgress = 0;
 	
 	// Set if this batch's items can be processed (stop/start)
@@ -91,7 +94,7 @@ public class Batch implements StoredQueuePosition
 	private final ExportFormat statExportFormat = ExportFormat.CSV;
 	
 	// The export dir for stats
-	private String batchStatsExportDir;
+	private String batchStatsExportDir = "";
 	private ZipOutputStream resultsZipOut;
 	
 	// Item log writer
@@ -228,8 +231,6 @@ public class Batch implements StoredQueuePosition
 				log.info("Compression Level " + singleArchiveCompressionLevel);
 				log.info("InfoLog " + infoLogEnabled);
 				log.info("ItemLog " + itemLogEnabled);
-				
-				setBatchStatExportDir();
 			}
 			else
 			{
@@ -242,21 +243,28 @@ public class Batch implements StoredQueuePosition
 		return status;
 	}
 	
-	public boolean itemsNeedGenerated()
+	public boolean needsInit()
 	{
-		return needGenerated;
+		return needsInit;
 	}
 	
-	public void generateItems()
+	public void init()
 	{
-		// Don't generate if generating
-		if(generating)
+		if(initialising)
 		{
 			return;
 		}
 		
-		generating = true;
+		initialising = true;
 		
+		// Init batch
+		createBatchStatExportDir();
+		
+		generateItems();
+	}
+	
+	private void generateItems()
+	{
 		// This avoids a GUI lockup during item generation
 		Thread backgroundGenerate = new Thread(new Runnable()
 		{
@@ -626,7 +634,6 @@ public class Batch implements StoredQueuePosition
 					
 					generationProgress = ((float) c / (float) combinations) * 100f;
 					
-					
 					// Avoid div by zero on <10 combinations
 					if(combinations > 10)
 					{
@@ -636,7 +643,7 @@ public class Batch implements StoredQueuePosition
 							log.info((int) generationProgress + "%");
 						}
 					}
-
+					
 					// END COMBO
 				}
 				
@@ -653,7 +660,9 @@ public class Batch implements StoredQueuePosition
 				
 				log.info("Generated Items Batch " + batchId);
 				
+				needsInit = false;
 			}
+			
 		});
 		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
 		backgroundGenerate.start();
@@ -704,7 +713,7 @@ public class Batch implements StoredQueuePosition
 		}
 	}
 	
-	private void setBatchStatExportDir()
+	private void createBatchStatExportDir()
 	{
 		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
@@ -752,6 +761,8 @@ public class Batch implements StoredQueuePosition
 		FileUtil.createDirIfNotExist(batchStatsExportDir);
 		
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
+		
+		baseExportDir = null;
 	}
 	
 	public String getBatchStatsExportDir()

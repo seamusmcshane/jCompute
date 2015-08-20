@@ -331,9 +331,9 @@ public class BatchManager
 		if(controlNode.hasFreeSlot())
 		{
 			
-			if(batch.itemsNeedGenerated())
+			if(batch.needsInit())
 			{
-				batch.generateItems();
+				batch.init();
 			}
 			else
 			{
@@ -403,9 +403,9 @@ public class BatchManager
 					return;
 				}
 				
-				if(batch.itemsNeedGenerated())
+				if(batch.needsInit())
 				{
-					batch.generateItems();
+					batch.init();
 				}
 				
 				// Is this batch finished

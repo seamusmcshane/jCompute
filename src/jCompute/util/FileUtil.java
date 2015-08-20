@@ -91,7 +91,6 @@ public class FileUtil
 		{
 			directory.mkdir();
 		}
-		
 	}
 	
 	public static FileFilter batchFileFilter()
