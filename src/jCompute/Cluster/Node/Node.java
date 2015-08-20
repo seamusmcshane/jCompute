@@ -714,18 +714,16 @@ public class Node
 	
 	private void txData() throws IOException
 	{
-		
 		Iterator<byte[]> itr = txQueue.iterator();
 		
 		while(itr.hasNext())
 		{
 			byte[] bytes = itr.next();
+			itr.remove();
 			
 			commandOutput.write(bytes);
 			bytesTX += bytes.length;
 			log.debug(bytes.length + " Bytes Sent");
-			
-			itr.remove();
 		}
 		commandOutput.flush();
 	}
