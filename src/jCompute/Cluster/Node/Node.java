@@ -172,14 +172,7 @@ public class Node
 				{
 					try
 					{
-						Iterator<byte[]> itr = txQueue.iterator();
-						
-						while(itr.hasNext())
-						{
-							txData(itr.next());
-							itr.remove();
-						}
-						
+						txData();
 						Thread.sleep(NODE_TX_FREQUENCY);
 					}
 					catch(InterruptedException e)
@@ -719,13 +712,22 @@ public class Node
 		txQueue.add(bytes);
 	}
 	
-	private void txData(byte[] bytes) throws IOException
+	private void txData() throws IOException
 	{
-		commandOutput.write(bytes);
-		commandOutput.flush();
-		bytesTX += bytes.length;
 		
-		log.debug(bytes.length + " Bytes Sent");
+		Iterator<byte[]> itr = txQueue.iterator();
+		
+		while(itr.hasNext())
+		{
+			byte[] bytes = itr.next();
+			
+			commandOutput.write(bytes);
+			bytesTX += bytes.length;
+			log.debug(bytes.length + " Bytes Sent");
+			
+			itr.remove();
+		}
+		commandOutput.flush();
 	}
 	
 	/*
