@@ -312,7 +312,7 @@ public class NodeManager
 							log.info("Node registration ok");
 							
 							log.info("Now requesting node configuration and weighting");
-							txDataEnqueue(new ConfigurationRequest(0, 1024, 10000, 10000, 6).toBytes());
+							txDataEnqueue(new ConfigurationRequest(1, 1024, 10000, 10000, 6).toBytes());
 						}
 						else
 						{
