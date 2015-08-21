@@ -551,7 +551,7 @@ public class ControlNode
 			log.debug("Node " + node.getUid());
 			if(node.hasFreeSlot() && node.isRunning())
 			{
-				log.info("Adding Item to Node " + node.getUid());
+				log.info("Adding Batch " + item.getBatchId() + " Item " + item.getItemId() + " SampleId " + item.getSampleId() + " to Node " + node.getUid());
 				
 				// Record Node in mapping
 				mapping.setNodeUid(node.getUid());
