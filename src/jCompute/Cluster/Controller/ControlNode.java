@@ -558,6 +558,8 @@ public class ControlNode
 				
 				// Add the item
 				node.addSimulation(config, mapping);
+				
+				break;
 			}
 		}
 		
