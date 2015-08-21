@@ -17,7 +17,6 @@ import java.util.TimerTask;
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
-import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
 import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
@@ -89,17 +88,14 @@ public class BatchTab extends JPanel
 	private JButton btnMoveFirst;
 	private JButton btnMoveBackward;
 	private JButton btnMoveLast;
-	private JButton btnHighpriority;
-	private JButton btnStandardpriority;
 	
 	// Queue Table Positions
 	private int positionColumn = 0;
 	private int idColumn = 1;
 	private int nameColumn = 2;
-	private int priColumn = 3;
-	private int statusColumn = 4;
-	private int progressColumn = 5;
-	private int estimatedFinishColumn = 6;
+	private int statusColumn = 3;
+	private int progressColumn = 4;
+	private int estimatedFinishColumn = 5;
 	private int batchQueueIndexColumn = idColumn;
 	
 	private int numericColumnWidth = 60;
@@ -342,30 +338,6 @@ public class BatchTab extends JPanel
 		
 		toolBar.addSeparator();
 		
-		btnStandardpriority = new JButton();
-		btnStandardpriority.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				setBatchStandardPri();
-			}
-		});
-		btnStandardpriority.setIcon(IconManager.getIcon("standardPriority"));
-		toolBar.add(btnStandardpriority);
-		
-		btnHighpriority = new JButton();
-		btnHighpriority.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent arg0)
-			{
-				setBatchHighPri();
-			}
-		});
-		btnHighpriority.setIcon(IconManager.getIcon("highPriority"));
-		toolBar.add(btnHighpriority);
-		
-		toolBar.addSeparator();
-		
 		// Icons or Text Only
 		if(buttonText)
 		{
@@ -377,9 +349,6 @@ public class BatchTab extends JPanel
 			btnMoveBackward.setText("Backward");
 			btnMoveFirst.setText("First");
 			btnMoveLast.setText("Last");
-			
-			btnHighpriority.setText("High");
-			btnStandardpriority.setText("Standard");
 		}
 	}
 	
@@ -422,10 +391,6 @@ public class BatchTab extends JPanel
 		
 		batchQueuedTable = new TablePanel(BatchQueueRowItem.class, batchQueueIndexColumn, "Queued", true, true);
 		
-		// Batch Priority
-		batchQueuedTable.addColumRenderer(
-				new PriorityIconRenderer(IconManager.getIcon("highPriorityIcon"), IconManager.getIcon("standardPriorityIcon")), priColumn);
-				
 		// Batch State
 		batchQueuedTable.addColumRenderer(
 				new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")), statusColumn);
@@ -446,7 +411,6 @@ public class BatchTab extends JPanel
 		batchQueuedTable.setColumWidth(idColumn, numericColumnWidth);
 		
 		// batchQueuedTable.setColumWidth(nameColumn, 175);
-		batchQueuedTable.setColumWidth(priColumn, iconColumnWidth);
 		batchQueuedTable.setColumWidth(statusColumn, iconColumnWidth);
 		batchQueuedTable.setColumWidth(progressColumn, progressColumnWidth);
 		batchQueuedTable.setColumWidth(estimatedFinishColumn, dateColumnWidth);
@@ -618,7 +582,7 @@ public class BatchTab extends JPanel
 			{
 				// Displayed info and returned info not equal in length
 				// (generated batch / generating batch / non generated batch)
-				if(batchInfo.getRowsCount() != (info.length/2))
+				if(batchInfo.getRowsCount() != (info.length / 2))
 				{
 					batchInfo.clearTable();
 					
@@ -790,36 +754,6 @@ public class BatchTab extends JPanel
 		batchQueuedTable.setSelection(queuedSelectedBatchRowIndex, 0);
 		
 		log.debug("queuedSelectedBatchRowIndex " + queuedSelectedBatchRowIndex + " Batch ID " + batchId + " MOVED...");
-	}
-	
-	private void setBatchStandardPri()
-	{
-		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
-		{
-			queuedSelectedBatchRowIndex = 0;
-			
-			// invalid row selected
-			return;
-		}
-		
-		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
-		
-		batchManager.setPriority(batchId, BatchPriority.STANDARD);
-	}
-	
-	private void setBatchHighPri()
-	{
-		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0)
-		{
-			queuedSelectedBatchRowIndex = 0;
-			
-			// invalid row selected
-			return;
-		}
-		
-		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
-		
-		batchManager.setPriority(batchId, BatchPriority.HIGH);
 	}
 	
 	@Subscribe

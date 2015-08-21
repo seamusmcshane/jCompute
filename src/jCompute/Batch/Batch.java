@@ -46,7 +46,6 @@ public class Batch implements StoredQueuePosition
 	private int position;
 	private int batchId;
 	private String batchName;
-	private BatchPriority priority;
 	private String baseScenarioFileName;
 	private String batchFileName;
 	private ArrayList<String> parameters;
@@ -143,10 +142,9 @@ public class Batch implements StoredQueuePosition
 	// To protect our shared variables/data structures
 	private Semaphore batchLock = new Semaphore(1, false);
 	
-	public Batch(int batchId, BatchPriority priority)
+	public Batch(int batchId)
 	{
 		this.batchId = batchId;
-		this.priority = priority;
 		
 		// Processing Times
 		cpuTotalTimes = 0;
@@ -1203,8 +1201,6 @@ public class Batch implements StoredQueuePosition
 			info.add(String.valueOf(position));
 			info.add("Status");
 			info.add(status == true ? "Enabled" : "Disabled");
-			info.add("Priority");
-			info.add(priority.toString());
 			
 			if(!needGenerated)
 			{
@@ -1478,33 +1474,6 @@ public class Batch implements StoredQueuePosition
 		itemDiskCache = null;
 		
 		log.info("Batch Info Compacted");
-	}
-	
-	public enum BatchPriority
-	{
-		HIGH("HIGH"), STANDARD("Standard");
-		
-		private final String name;
-		
-		private BatchPriority(String name)
-		{
-			this.name = name;
-		}
-		
-		public String toString()
-		{
-			return name;
-		}
-	}
-	
-	public BatchPriority getPriority()
-	{
-		return priority;
-	}
-	
-	public void setPriority(BatchPriority priority)
-	{
-		this.priority = priority;
 	}
 	
 	public void setStatus(boolean status)

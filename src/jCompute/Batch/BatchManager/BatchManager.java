@@ -3,12 +3,14 @@ package jCompute.Batch.BatchManager;
 import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
-import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
 import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
 import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
 import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode;
+import jCompute.Cluster.Controller.Request.ControlNodeItemRequest;
+import jCompute.Cluster.Controller.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
+import jCompute.Cluster.Controller.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
@@ -44,10 +46,7 @@ public class BatchManager
 	
 	// The queues of batches
 	private ManagedBypassableQueue fifoQueue;
-	private ManagedBypassableQueue fairQueue;
 	private LinkedList<Batch> stoppedBatches;
-	
-	private int fairQueueLast = 0;
 	
 	// Finished Batches
 	private ArrayList<Batch> finishedBatches;
@@ -71,8 +70,6 @@ public class BatchManager
 		this.controlNode = new ControlNode(allowMulti);
 		
 		fifoQueue = new ManagedBypassableQueue();
-		
-		fairQueue = new ManagedBypassableQueue();
 		
 		finishedBatches = new ArrayList<Batch>(16);
 		
@@ -106,8 +103,10 @@ public class BatchManager
 			@Override
 			public void run()
 			{
+				// Process Completed Items
 				processCompletedItems();
 				
+				// Process Items from nodes that have been removed.
 				recoverItemsFromInactiveNodes();
 			}
 			
@@ -124,7 +123,7 @@ public class BatchManager
 		
 		// Try generating a batch and adding it to the queue. - Default to High
 		// priority
-		tempBatch = new Batch(batchId, BatchPriority.HIGH);
+		tempBatch = new Batch(batchId);
 		
 		if(tempBatch.loadConfig(filePath))
 		{
@@ -188,7 +187,7 @@ public class BatchManager
 			
 			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch " + item.getBatchId() + " for SimId "
 					+ simId);
-			
+					
 			batch.returnItemToQueue(item);
 			
 			processedIds.add(simId);
@@ -241,8 +240,7 @@ public class BatchManager
 			}
 			
 			// Remove the related simulation for this completed sim.
-			controlNode.removeSimulation(item.getSimId());
-			
+			controlNode.removeCompletedSim(item.getSimId());
 		}
 		
 		completeItems = new ArrayList<CompletedItemsNode>();
@@ -272,7 +270,7 @@ public class BatchManager
 			
 			// Safe to release and recapture here
 			batchManagerLock.acquireUninterruptibly();
-			scheduleFair();
+			// scheduleFair();
 		}
 		
 		batchManagerLock.release();
@@ -341,20 +339,12 @@ public class BatchManager
 				// them
 				while((batch.getRemaining() > 0) && controlNode.hasFreeSlot())
 				{
-					// dequeue the next item in the batch
-					BatchItem item = batch.getNext();
-					
-					// Schedule it
-					if(!scheduleBatchItem(batch, item))
-					{
-						batch.returnItemToQueue(item);
-						break;
-					}
-					else
-					{
-						JComputeEventBus.post(new BatchProgressEvent(batch));
-					}
+					// Schedule and item from batch
+					scheduleNextBatchItem(batch);
 				}
+				
+				// Post the progress made
+				JComputeEventBus.post(new BatchProgressEvent(batch));
 			}
 			
 		}
@@ -362,130 +352,114 @@ public class BatchManager
 		return true;
 	}
 	
-	private void scheduleFair()
-	{
-		// log.debug("Schedule Fair");
-		
-		int size = fairQueue.size();
-		double maxActive = controlNode.getMaxSims() - fifoQueue.size();
-		int fairTotal, pos;
-		
-		if(size > 0)
-		{
-			pos = fairQueueLast % size;
-			fairTotal = (int) Math.ceil(maxActive / size);
-			
-			log.debug("Size " + size + " maxActive " + maxActive + " fairTotal " + fairTotal);
-			
-		}
-		else
-		{
-			// Queue Empty
-			return;
-		}
-		
-		Batch batch = null;
-		BatchItem item = null;
-		
-		boolean canContinue = true;
-		
-		// Cycle over the batches and add one item from each to the run queue
-		do
-		{
-			// Is there a free slot
-			if(controlNode.hasFreeSlot())
-			{
-				batch = (Batch) fairQueue.get(pos);
-				
-				if(batch == null)
-				{
-					// no batches
-					return;
-				}
-				
-				if(batch.needsInit())
-				{
-					batch.init();
-				}
-				
-				// Is this batch finished
-				if(batch.isFinished())
-				{
-					// Add the batch to the completed list
-					finishedBatches.add(batch);
-					
-					// Remove batch as its complete.
-					fairQueue.remove(batch);
-					
-					batchManagerLock.release();
-					
-					// Notify listeners the batch is removed.
-					JComputeEventBus.post(new BatchFinishedEvent(batch));
-					
-					positionsChangedInQueue(fairQueue);
-					
-					batchManagerLock.acquireUninterruptibly();
-					// exit this tick
-					canContinue = false;
-				}
-				else
-				{
-					if(batch.getRemaining() > 0)
-					{
-						log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " + batch.getActiveItemsCount() + " fairTotal"
-								+ fairTotal);
-						
-						if(batch.getActiveItemsCount() < fairTotal)
-						{
-							item = batch.getNext();
-							
-							// Once we cannot add anymore, exit, and return the
-							// failed one to the queue
-							if(!scheduleBatchItem(batch, item))
-							{
-								batch.returnItemToQueue(item);
-								canContinue = false;
-							}
-							else
-							{
-								pos = (pos + 1) % size;
-							}
-						}
-						else
-						{
-							pos = (pos + 1) % size;
-							
-							// Avoid infinite loop due having reached the fair
-							// total
-							if(batch.getActiveItemsCount() == fairTotal)
-							{
-								canContinue = false;
-							}
-						}
-					}
-					else
-					{
-						canContinue = false;
-					}
-					
-				}
-			}
-			else
-			{
-				canContinue = false;
-			}
-			
-		}
-		while(canContinue);
-		
-		fairQueueLast = pos;
-		
-	}
+	/*
+	 * private void scheduleFair()
+	 * {
+	 * // log.debug("Schedule Fair");
+	 * int size = fairQueue.size();
+	 * double maxActive = controlNode.getMaxSims() - fifoQueue.size();
+	 * int fairTotal, pos;
+	 * if(size > 0)
+	 * {
+	 * pos = fairQueueLast % size;
+	 * fairTotal = (int) Math.ceil(maxActive / size);
+	 * log.debug("Size " + size + " maxActive " + maxActive + " fairTotal " +
+	 * fairTotal);
+	 * }
+	 * else
+	 * {
+	 * // Queue Empty
+	 * return;
+	 * }
+	 * Batch batch = null;
+	 * BatchItem item = null;
+	 * boolean canContinue = true;
+	 * // Cycle over the batches and add one item from each to the run queue
+	 * do
+	 * {
+	 * // Is there a free slot
+	 * if(controlNode.hasFreeSlot())
+	 * {
+	 * batch = (Batch) fairQueue.get(pos);
+	 * if(batch == null)
+	 * {
+	 * // no batches
+	 * return;
+	 * }
+	 * if(batch.needsInit())
+	 * {
+	 * batch.init();
+	 * }
+	 * // Is this batch finished
+	 * if(batch.isFinished())
+	 * {
+	 * // Add the batch to the completed list
+	 * finishedBatches.add(batch);
+	 * // Remove batch as its complete.
+	 * fairQueue.remove(batch);
+	 * batchManagerLock.release();
+	 * // Notify listeners the batch is removed.
+	 * JComputeEventBus.post(new BatchFinishedEvent(batch));
+	 * positionsChangedInQueue(fairQueue);
+	 * batchManagerLock.acquireUninterruptibly();
+	 * // exit this tick
+	 * canContinue = false;
+	 * }
+	 * else
+	 * {
+	 * if(batch.getRemaining() > 0)
+	 * {
+	 * log.debug("Batch " + batch.getBatchId() + " ActiveItemsCount " +
+	 * batch.getActiveItemsCount() + " fairTotal"
+	 * + fairTotal);
+	 * if(batch.getActiveItemsCount() < fairTotal)
+	 * {
+	 * item = batch.getNext();
+	 * // Once we cannot add anymore, exit, and return the
+	 * // failed one to the queue
+	 * if(!scheduleBatchItem(batch, item))
+	 * {
+	 * batch.returnItemToQueue(item);
+	 * canContinue = false;
+	 * }
+	 * else
+	 * {
+	 * pos = (pos + 1) % size;
+	 * }
+	 * }
+	 * else
+	 * {
+	 * pos = (pos + 1) % size;
+	 * // Avoid infinite loop due having reached the fair
+	 * // total
+	 * if(batch.getActiveItemsCount() == fairTotal)
+	 * {
+	 * canContinue = false;
+	 * }
+	 * }
+	 * }
+	 * else
+	 * {
+	 * canContinue = false;
+	 * }
+	 * }
+	 * }
+	 * else
+	 * {
+	 * canContinue = false;
+	 * }
+	 * }
+	 * while(canContinue);
+	 * fairQueueLast = pos;
+	 * }
+	 */
 	
-	private boolean scheduleBatchItem(Batch batch, BatchItem nextItem)
+	private boolean scheduleNextBatchItem(Batch batch)
 	{
 		log.debug("Schedule BatchItem");
 		
+		// Get the next item in the batch
+		BatchItem nextItem = batch.getNext();
 		String itemConfig = null;
 		
 		try
@@ -494,39 +468,58 @@ public class BatchManager
 		}
 		catch(UnsupportedEncodingException e)
 		{
+			log.error(e.getMessage());
+			
 			e.printStackTrace();
 			
 			return false;
 		}
 		
+		// Got ItemConfig now we can add the item
+		
 		batchManagerLock.release();
 		
-		int simId = controlNode.addSimulation(itemConfig, batch.getStatExportFormat(), nextItem.getItemHash());
+		controlNode.addSimulation(nextItem, itemConfig, batch.getStatExportFormat());
 		
 		batchManagerLock.acquireUninterruptibly();
 		
-		// If the control node has added a simulation for us
-		if(simId > 0)
-		{
-			log.debug("Item : " + nextItem.getItemId() + " setting simId " + simId);
-			
-			nextItem.setSimId(simId);
-			
-			batchManagerLock.release();
-			
-			itemsLock.acquireUninterruptibly();
-			activeItems.add(nextItem);
-			itemsLock.release();
-			
-			controlNode.startSim(simId);
-			
-			batchManagerLock.acquireUninterruptibly();
-			
-			return true;
-		}
-		
-		return false;
+		return true;
 	}
+	
+	/*
+	 * private boolean scheduleBatchItemOLD(Batch batch, BatchItem nextItem)
+	 * {
+	 * log.debug("Schedule BatchItem");
+	 * String itemConfig = null;
+	 * try
+	 * {
+	 * itemConfig = new String(batch.getItemConfig(nextItem.getItemHash()),
+	 * "ISO-8859-1");
+	 * }
+	 * catch(UnsupportedEncodingException e)
+	 * {
+	 * e.printStackTrace();
+	 * return false;
+	 * }
+	 * batchManagerLock.release();
+	 * int simId =
+	 * controlNode.addItem(nextItem,itemConfig,batch.getStatExportFormat());
+	 * batchManagerLock.acquireUninterruptibly();
+	 * // If the control node has added a simulation for us
+	 * if(simId > 0)
+	 * {
+	 * log.debug("Item : " + nextItem.getItemId() + " setting simId " + simId);
+	 * nextItem.setSimId(simId);
+	 * batchManagerLock.release();
+	 * itemsLock.acquireUninterruptibly();
+	 * activeItems.add(nextItem);
+	 * itemsLock.release();
+	 * batchManagerLock.acquireUninterruptibly();
+	 * return true;
+	 * }
+	 * return false;
+	 * }
+	 */
 	
 	@Subscribe
 	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
@@ -563,9 +556,13 @@ public class BatchManager
 					}
 					
 				}
+				else
+				{
+					log.error("SimulationStateChangedEvent matching item not found for simId " + simId);
+				}
 				
 				itemsLock.release();
-			
+				
 			break;
 			case PAUSED:
 			break;
@@ -576,7 +573,7 @@ public class BatchManager
 				{
 					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + e.getSimId());
 				}
-			
+				
 			break;
 		}
 		
@@ -602,29 +599,6 @@ public class BatchManager
 				break;
 			}
 			
-		}
-		
-		// Search fair queue
-		if(batch == null)
-		{
-			qitr = fairQueue.iterator();
-			
-			batch = null;
-			tBatch = null;
-			
-			while(qitr.hasNext())
-			{
-				tBatch = (Batch) qitr.next();
-				
-				if(tBatch.getBatchId() == batchId)
-				{
-					
-					batch = tBatch;
-					
-					break;
-				}
-				
-			}
 		}
 		
 		Iterator<Batch> litr;
@@ -727,30 +701,14 @@ public class BatchManager
 		if(status == false)
 		{
 			// In Fifo
-			if(batch.getPriority() == BatchPriority.HIGH)
-			{
-				fifoQueue.remove(batch);
-			}
-			else
-			{
-				// In Fair
-				fairQueue.remove(batch);
-			}
+			fifoQueue.remove(batch);
 			
 			stoppedBatches.add(batch);
 		}
 		else
 		{
 			// In Fifo
-			if(batch.getPriority() == BatchPriority.HIGH)
-			{
-				fifoQueue.add(batch);
-			}
-			else
-			{
-				// In Fair
-				fairQueue.add(batch);
-			}
+			fifoQueue.add(batch);
 			
 			stoppedBatches.remove(batch);
 			
@@ -759,66 +717,6 @@ public class BatchManager
 		batchManagerLock.release();
 		
 		JComputeEventBus.post(new BatchProgressEvent(batch));
-	}
-	
-	public void setPriority(int batchId, BatchPriority priority)
-	{
-		batchManagerLock.acquireUninterruptibly();
-		
-		Batch batch = findBatch(batchId);
-		
-		if(batch == null)
-		{
-			batchManagerLock.release();
-			return;
-		}
-		
-		// Do not set the priority if its the same
-		if(batch.getPriority() != priority)
-		{
-			// if the batch is enabled switch the queue (as its not in one if
-			// not
-			// enabled)
-			if(batch.getStatus() == true)
-			{
-				if(batch.getPriority() == BatchPriority.STANDARD)
-				{
-					// Move to High (Standard to FIFO)
-					fairQueue.remove(batch);
-					fifoQueue.add(batch);
-				}
-				else
-				{
-					// Move To Standard (FIFO to Standard)
-					fifoQueue.remove(batch);
-					fairQueue.add(batch);
-				}
-				
-			}
-			
-			// New Priority
-			batch.setPriority(priority);
-			
-			batchManagerLock.release();
-			
-			positionsChangedInbothQueues();
-			
-		}
-		else
-		{
-			batchManagerLock.release();
-		}
-		
-	}
-	
-	/**
-	 * This method does the position changed notifications, for when items move
-	 * between queues. Positions in both will have changed.
-	 */
-	private void positionsChangedInbothQueues()
-	{
-		positionsChangedInQueue(fifoQueue);
-		positionsChangedInQueue(fairQueue);
 	}
 	
 	private void positionsChangedInQueue(ManagedBypassableQueue queue)
@@ -846,26 +744,14 @@ public class BatchManager
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
-		ManagedBypassableQueue queue = null;
-		
-		if(batch.getPriority() == BatchPriority.STANDARD)
-		{
-			fairQueue.moveToFront(batch);
-			
-			queue = fairQueue;
-		}
-		else
-		{
-			fifoQueue.moveToFront(batch);
-			
-			queue = fifoQueue;
-		}
+
+		fifoQueue.moveToFront(batch);
 		
 		// for the temp reference
 		Batch tBatch = null;
-		itr = queue.iterator();
+		itr = fifoQueue.iterator();
 		
-		log.debug("queue " + queue.size());
+		log.debug("queue " + fifoQueue.size());
 		
 		// Batch Orders Changed refresh all data
 		while(itr.hasNext())
@@ -891,26 +777,14 @@ public class BatchManager
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
-		ManagedBypassableQueue queue = null;
 		
-		if(batch.getPriority() == BatchPriority.STANDARD)
-		{
-			fairQueue.moveToEnd(batch);
-			
-			queue = fairQueue;
-		}
-		else
-		{
-			fifoQueue.moveToEnd(batch);
-			
-			queue = fifoQueue;
-		}
+		fifoQueue.moveToEnd(batch);
 		
 		// for the temp reference
 		Batch tBatch = null;
-		itr = queue.iterator();
+		itr = fifoQueue.iterator();
 		
-		log.debug("queue " + queue.size());
+		log.debug("queue " + fifoQueue.size());
 		
 		// Batch Orders Changed refresh all data
 		while(itr.hasNext())
@@ -936,26 +810,14 @@ public class BatchManager
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
-		ManagedBypassableQueue queue = null;
 		
-		if(batch.getPriority() == BatchPriority.STANDARD)
-		{
-			fairQueue.moveForward(batch);
-			
-			queue = fairQueue;
-		}
-		else
-		{
-			fifoQueue.moveForward(batch);
-			
-			queue = fifoQueue;
-		}
+		fifoQueue.moveForward(batch);
 		
 		// for the temp reference
 		Batch tBatch = null;
-		itr = queue.iterator();
+		itr = fifoQueue.iterator();
 		
-		log.debug("queue " + queue.size());
+		log.debug("queue " + fifoQueue.size());
 		
 		// Batch Orders Changed refresh all data
 		while(itr.hasNext())
@@ -980,26 +842,15 @@ public class BatchManager
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
-		ManagedBypassableQueue queue = null;
 		
-		if(batch.getPriority() == BatchPriority.STANDARD)
-		{
-			fairQueue.moveBackward(batch);
-			
-			queue = fairQueue;
-		}
-		else
-		{
-			fifoQueue.moveBackward(batch);
-			
-			queue = fifoQueue;
-		}
+		fifoQueue.moveBackward(batch);
+
 		
 		// for the temp reference
 		Batch tBatch = null;
-		itr = queue.iterator();
+		itr = fifoQueue.iterator();
 		
-		log.debug("queue " + queue.size());
+		log.debug("queue " + fifoQueue.size());
 		
 		// Batch Orders Changed refresh all data
 		while(itr.hasNext())
@@ -1026,20 +877,7 @@ public class BatchManager
 		if(status)
 		{
 			// In Fifo
-			if(batch.getPriority() == BatchPriority.HIGH)
-			{
-				fifoQueue.remove(batch);
-				
-				positionsChangedInQueue(fifoQueue);
-			}
-			else
-			{
-				// In Fair
-				fairQueue.remove(batch);
-				
-				positionsChangedInQueue(fairQueue);
-			}
-			
+			fifoQueue.remove(batch);
 		}
 		else
 		{
@@ -1048,6 +886,49 @@ public class BatchManager
 		}
 		
 		batchManagerLock.release();
+		
+	}
+	
+	@Subscribe
+	public void ControlNodeItemRequestReply(ControlNodeItemRequest request)
+	{
+		BatchItem batchItem = request.getBatchItem();
+		ControlNodeItemRequestOperation operation = request.getOperation();
+		ControlNodeItemRequestResult result = request.getResult();
+		
+		switch(result)
+		{
+			case SUCESSFUL:
+				
+				switch(operation)
+				{
+					case ADD:
+						
+						//
+						itemsLock.acquireUninterruptibly();
+						activeItems.add(batchItem);
+						itemsLock.release();
+						
+					break;
+					case REMOVE:
+					
+					// TODO
+					
+					break;
+					
+				}
+				log.info("ControlNodeItemRequestReply " + result.toString() + "Operation " + operation.toString() + " Batch "
+						+ batchItem.getBatchId() + "Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId "
+						+ batchItem.getSimId());
+						
+			break;
+			case FAILED:
+				
+				// BATCH has also failed
+				log.error("FATAL");
+				
+			break;
+		}
 		
 	}
 	

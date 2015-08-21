@@ -1,10 +1,12 @@
 package jCompute.Cluster.Controller.Mapping;
 
+import jCompute.Batch.BatchItem;
 import jCompute.Cluster.Protocol.Notification.SimulationStateChanged;
 import jCompute.Stats.StatExporter.ExportFormat;
 
 public class RemoteSimulationMapping
 {
+	private BatchItem batchItem;
 	private int localSimId;
 	private int remoteSimId;
 	private int nodeUid;
@@ -12,14 +14,15 @@ public class RemoteSimulationMapping
 	private String fileNameSuffix;
 	private SimulationStateChanged finalStateChanged;
 	
-	public RemoteSimulationMapping(int nodeUid)
+	public RemoteSimulationMapping(BatchItem batchItem, int localSimId)
 	{
-		this.nodeUid = nodeUid;
-	}	
+		this.batchItem = batchItem;
+		this.localSimId = localSimId;
+	}
 	
-	public int getNodeUid()
+	public BatchItem getBatchItem()
 	{
-		return nodeUid;
+		return batchItem;
 	}
 	
 	public int getLocalSimId()
@@ -27,21 +30,26 @@ public class RemoteSimulationMapping
 		return localSimId;
 	}
 	
+	public void setNodeUid(int nodeUid)
+	{
+		this.nodeUid = nodeUid;
+	}
+	
+	public int getNodeUid()
+	{
+		return nodeUid;
+	}
+	
+	public void setRemoteSimId(int remoteSimId)
+	{
+		this.remoteSimId = remoteSimId;
+	}
+	
 	public int getRemoteSimId()
 	{
 		return remoteSimId;
 	}
-
-	public void setLocalSimId(int localSimId)
-	{
-		this.localSimId = localSimId;		
-	}
-
-	public void setRemoteSimId(int remoteSimId)
-	{
-		this.remoteSimId = remoteSimId;		
-	}
-
+	
 	public String info()
 	{
 		return "Mapping - Node : " + nodeUid + " Lsid " + localSimId + " rSid " + remoteSimId;
@@ -56,17 +64,17 @@ public class RemoteSimulationMapping
 	{
 		return exportFormat;
 	}
-
+	
 	public String getFileNameSuffix()
 	{
 		return fileNameSuffix;
 	}
-
+	
 	public void setFileNameSuffix(String fileNameSuffix)
 	{
 		this.fileNameSuffix = fileNameSuffix;
 	}
-
+	
 	public void setFinalStateChanged(SimulationStateChanged finalStateChanged)
 	{
 		this.finalStateChanged = finalStateChanged;
@@ -76,5 +84,5 @@ public class RemoteSimulationMapping
 	{
 		return finalStateChanged;
 	}
-
+	
 }

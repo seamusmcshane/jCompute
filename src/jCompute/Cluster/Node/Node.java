@@ -547,20 +547,19 @@ public class Node
 				{
 					AddSimReq req = new AddSimReq(data);
 					
-					int simId = simsManager.addSimulation(req.getScenarioText(), req.getInitialStepRate());
+					int simId = simsManager.addSimulation(req.getScenarioText(), -1);
+					long requestId = req.getRequestId();
 					
-					log.info("Added Sim " + simId);
+					log.info("Request " + requestId + " Add Sim - Result " + simId);
 					
-					txDataEnqueue(new AddSimReply(simId).toBytes());
-				}
-				break;
-				case NCP.StartSimCMD:
-				{
-					StartSimCMD cmd = new StartSimCMD(data);
+					txDataEnqueue(new AddSimReply(requestId,simId).toBytes());
 					
-					log.info("StartSimCMD " + cmd.getSimid());
+					// If the sim was added sucessfully then start it
+					if(simId > 0)
+					{
+						simsManager.startSim(simId);
+					}
 					
-					simsManager.startSim(cmd.getSimid());
 				}
 				break;
 				/*

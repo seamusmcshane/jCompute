@@ -25,7 +25,7 @@ public class NCP
 	};
 	
 	// Protocol version - prevent mismatched nodes
-	public static final int NCP_PROTOCOL_VERSION = 2;
+	public static final int NCP_PROTOCOL_VERSION = 3;
 	
 	public static final int HEADER_SIZE = 8; // Type + Len Fields (int)
 	
@@ -51,7 +51,7 @@ public class NCP
     public static final int AddSimReply	= 32;	// Node Add Simulation Acknowledgement	- reply with a sim slot id or -1 denied
     public static final int RemSimReq	= 33;	// Node Remove Simulation Request - request from controller remove a simulation (DEFUNCT)
     public static final int RemSimAck	= 34;	// Node Remove Simulation Acknowledgement	- reply confirming removal (DEFUNCT)
-    public static final int StartSimCMD	= 35;	// Node Start Simulation Request (Command not Request)
+    public static final int StartSimCMD	= 35;	// Node Start Simulation Request (Command not Request) (DEFUNCT)
     
     // Simulation Statistics Retrieval 
     public static final int SimStatsReq 	= 41;	// Node Statistics Req - request from controller to retrieve the finished simulation statistics 

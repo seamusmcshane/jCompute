@@ -1,7 +1,6 @@
 package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Batch.Batch;
-import jCompute.Batch.Batch.BatchPriority;
 import jCompute.Gui.Component.RowItem;
 
 public class BatchQueueRowItem implements RowItem, Comparable
@@ -9,7 +8,6 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	private int position;
 	private int batch;
 	private String name;
-	private BatchPriority pri;
 	private boolean status;
 	private int progress;
 	private String estimatedFinish;
@@ -19,7 +17,6 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.position = -1;
 		this.batch = -1;
 		this.name = "NULL";
-		this.pri = BatchPriority.STANDARD;
 		this.status = false;
 		this.progress = -1;
 		this.estimatedFinish = "Never";
@@ -30,7 +27,6 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		this.position = batch.getPosition();
 		this.batch = batch.getBatchId();
 		this.name = batch.getFileName();
-		this.pri = batch.getPriority();
 		this.status = batch.getStatus();
 		this.progress = batch.getProgress();
 
@@ -49,7 +45,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-				"position", "batch", "name", "pri", "status", "progress", "estimatedFinish"
+				"position", "batch", "name", "status", "progress", "estimatedFinish"
 		};
 	}
 
@@ -57,7 +53,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	{
 		return new String[]
 		{
-				"Position", "Batch", "Name", "Pri", "Status", "Progress", "Est Finish"
+				"Position", "Batch", "Name", "Status", "Progress", "Est Finish"
 		};
 	}
 
@@ -82,12 +78,10 @@ public class BatchQueueRowItem implements RowItem, Comparable
 			case 2:
 				return name;
 			case 3:
-				return pri;
-			case 4:
 				return status;
-			case 5:
+			case 4:
 				return progress;
-			case 6:
+			case 5:
 				return estimatedFinish;
 		}
 
@@ -109,15 +103,12 @@ public class BatchQueueRowItem implements RowItem, Comparable
 				name = (String) value;
 			break;
 			case 3:
-				pri = (BatchPriority) value;
-			break;
-			case 4:
 				status = (boolean) value;
 			break;
-			case 5:
+			case 4:
 				progress = (int) value;
 			break;
-			case 6:
+			case 5:
 				estimatedFinish = (String) value;
 			break;
 		}
@@ -151,16 +142,6 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	public void setName(String name)
 	{
 		this.name = name;
-	}
-
-	public BatchPriority getPri()
-	{
-		return pri;
-	}
-
-	public void setPri(BatchPriority priority)
-	{
-		this.pri = priority;
 	}
 
 	public boolean getStatus()
@@ -199,25 +180,14 @@ public class BatchQueueRowItem implements RowItem, Comparable
 		BatchQueueRowItem otherRow = (BatchQueueRowItem) rowObject;
 		int value = 0;
 
-		// Evaluate the priorities
-		int eval = pri.compareTo(otherRow.getPri());
-
-		// if the priorities are not equal we can use this as the value.
-		if(eval < 0 || eval > 0)
+		// Otherwise we sort by the position in the queue
+		if(this.position < otherRow.getPosition())
 		{
-			value = eval;
+			value = -1;
 		}
-		else
+		else if(this.position > otherRow.getPosition())
 		{
-			// Otherwise we sort by the position in the queue
-			if(this.position < otherRow.getPosition())
-			{
-				value = -1;
-			}
-			else if(this.position > otherRow.getPosition())
-			{
-				value = 1;
-			}
+			value = 1;
 		}
 
 		return value;

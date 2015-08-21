@@ -22,7 +22,7 @@ public class SimulationStats
 	 * Stat Event Freq Rate Limit (every valueof eventFreq in milliseconds)
 	 */
 	private int eventFreq = 2500;
-	private long prevEventTimeMillis = 0;
+	private long prevEventTimeMillis = Long.MAX_VALUE;
 	
 	public SimulationStats(Simulation sim)
 	{

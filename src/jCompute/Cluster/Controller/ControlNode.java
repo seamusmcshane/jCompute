@@ -1,10 +1,17 @@
 package jCompute.Cluster.Controller;
 
 import jCompute.JComputeEventBus;
+import jCompute.Batch.BatchItem;
 import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.StatusChanged;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
+import jCompute.Cluster.Controller.Request.ControlNodeItemRequest;
+import jCompute.Cluster.Controller.Request.NodeItemRequest;
+import jCompute.Cluster.Controller.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
+import jCompute.Cluster.Controller.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
+import jCompute.Cluster.Controller.Request.NodeItemRequest.NodeItemRequestOperation;
+import jCompute.Cluster.Controller.Request.NodeItemRequest.NodeItemRequestResult;
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
@@ -28,6 +35,8 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.Subscribe;
+
 public class ControlNode
 {
 	// SL4J Logger
@@ -36,11 +45,8 @@ public class ControlNode
 	// Dynamic based on total of active nodes max sims
 	private int maxSims = 0;
 	
-	// Value Used for mapping
+	// Value Used for mapping + Total of the simulation processed
 	private int simulationNum = 0;
-	
-	// Total of the simulation processed
-	private long simulations = 0;
 	
 	/* Server Listening Socket */
 	private ServerSocket listenSocket;
@@ -82,8 +88,10 @@ public class ControlNode
 		
 		log.info("Allow multiple nodes to connect from same address : " + allowMulti);
 		
+		// Local to remote simulation map
 		localSimulationMap = new HashMap<Integer, RemoteSimulationMapping>();
 		
+		// Recovered Simulation Numbers
 		recoveredSimIds = new ArrayList<Integer>();
 		
 		// List of simulation nodes.
@@ -239,7 +247,7 @@ public class ControlNode
 				
 				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(),
 						String.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()),
-						String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulations)));
+						String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulationNum)));
 						
 				timerCount += ncpTimerSpeed;
 			}
@@ -321,11 +329,14 @@ public class ControlNode
 							// Accept new Connections
 							controlNodeLock.acquireUninterruptibly();
 							
-							// Default to ignoring existing active/connecting nodes
+							// Default to ignoring existing active/connecting
+							// nodes
 							boolean existingActive = false;
 							boolean existingConnecting = false;
 							
-							// if we do not allow multple connections from the same address, check for existing active/connecting nodes.
+							// if we do not allow multiple connections from the
+							// same address, check for existing
+							// active/connecting nodes.
 							if(!allowMulti)
 							{
 								existingActive = existingActiveNode(nodeSocket);
@@ -376,7 +387,7 @@ public class ControlNode
 						}
 						catch(IOException e)
 						{
-							log.info(e.toString());
+							log.error(e.toString());
 						}
 						
 					}
@@ -450,158 +461,167 @@ public class ControlNode
 		return tNode;
 	}
 	
-	/* Simulation Manager Logic */
-	
-	public int addSimulation(String scenarioText, ExportFormat statExportFormat, String fileNameSuffix)
+	@Subscribe
+	public void NodeItemRequestProcessed(NodeItemRequest request)
 	{
 		controlNodeLock.acquireUninterruptibly();
 		
-		boolean simAdded = false;
+		RemoteSimulationMapping mapping = request.getMapping();
+		NodeItemRequestOperation operation = request.getOperation();
+		NodeItemRequestResult result = request.getResult();
 		
-		// Find a node with a free slot
-		log.debug(" Find a node (" + activeNodes.size() + ")");
+		switch(result)
+		{
+			case SUCESSFUL:
+				
+				log.debug("NodeItemRequestProcessed " + result.toString() + " Operation " + operation.toString() + " Simulation on Node "
+						+ mapping.getNodeUid() + " Local SimId " + mapping.getLocalSimId() + " Remote SimId " + mapping.getRemoteSimId());
+						
+				switch(operation)
+				{
+					case ADD:
+						// Locally cache the mapping index by the new local sim
+						// number
+						localSimulationMap.put(mapping.getLocalSimId(), mapping);
+						
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.ADD,
+								ControlNodeItemRequestResult.SUCESSFUL));
+					break;
+					case REMOVE:
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.REMOVE,
+								ControlNodeItemRequestResult.SUCESSFUL));
+					break;
+					default:
+						log.error("Unhandled Operation " + operation.toString() + " " + this.getClass() + " NodeItemRequestProcessed");
+					break;
+				}
+				
+			break;
+			case FAILED:
+				
+				// TODO - forward error
+				
+				log.error("Node Item Request Failed - " + operation.toString() + " SimId " + mapping.getLocalSimId() + " Node "
+						+ mapping.getNodeUid());
+						
+				// Remove the mapping
+				localSimulationMap.remove(mapping.getLocalSimId());
+				
+			break;
+		}
+		
+		controlNodeLock.release();
+	}
+	
+	/**
+	 * Add an item for processing to the cluster
+	 * @param item
+	 * @param itemConfig
+	 * @param statExportFormat
+	 */
+	public void addSimulation(BatchItem item, String itemConfig, ExportFormat statExportFormat)
+	{
+		controlNodeLock.acquireUninterruptibly();
+		
+		// The item config
+		String config = itemConfig;
+		
+		// Suffix is item Hash
+		String fileNameSuffix = item.getItemHash();
+		
+		// Increment the simulation counter values (1 Base)
+		simulationNum++;
+		
+		// Assign the item a simulation number
+		item.setSimId(simulationNum);
+		
+		// Create a mapping with the newly assigned local simulation number
+		RemoteSimulationMapping mapping = new RemoteSimulationMapping(item, simulationNum);
+		
+		// Stat Export format for this sim
+		mapping.setExportFormat(statExportFormat);
+		
+		// suffix for exported stat files
+		mapping.setFileNameSuffix(fileNameSuffix);
+		
+		// Find the node with a free slot
+		log.debug("Finding free node (" + activeNodes.size() + ")");
 		for(NodeManager node : activeNodes)
 		{
 			log.debug("Node " + node.getUid());
 			if(node.hasFreeSlot() && node.isRunning())
 			{
-				log.debug(node.getUid() + " hasFreeSlot ");
+				log.info("Adding Item to Node " + node.getUid());
 				
-				/*
-				 * Valid mapping values are set at various points int the
-				 * sequence
-				 */
+				// Record Node in mapping
+				mapping.setNodeUid(node.getUid());
 				
-				// remoteId -1 as the remote id is filled in by the NODE and
-				// indexed on it
-				RemoteSimulationMapping mapping = new RemoteSimulationMapping(node.getUid());
-				
-				log.info("Add Simulation to Node " + node.getUid());
-				
-				int remoteSimId = node.addSim(scenarioText, mapping);
-				
-				// Incase the remote node goes down while in this method
-				if(remoteSimId > 0)
-				{
-					// Increment the simUID values
-					simulationNum++;
-					
-					simulations++;
-					
-					mapping.setLocalSimId(simulationNum);
-					
-					// Stat Export format for this sim
-					mapping.setExportFormat(statExportFormat);
-					
-					// suffix for exported stat files
-					mapping.setFileNameSuffix(fileNameSuffix);
-					
-					// Locally cache the mapping
-					localSimulationMap.put(simulationNum, mapping);
-					
-					simAdded = true;
-					
-					log.info(
-							"Added Simulation to Node " + node.getUid() + " Local SimId " + simulationNum + " Remote SimId " + remoteSimId);
-							
-					JComputeEventBus.post(new SimulationsManagerEvent(simulationNum, SimulationsManagerEventType.AddedSim));
-					
-					break;
-				}
-				else
-				{
-					log.warn("Remote Node " + node.getUid() + " Could not add Simulation - Local SimId(pending) " + (simulationNum + 1)
-							+ " Remote SimId " + remoteSimId);
-				}
-				
+				// Add the item
+				node.addSimulation(config, mapping);
 			}
-			
 		}
 		
-		// Most likely A node has gone down mid method - or other network
-		// problem.
-		if(!simAdded)
-		{
-			log.error("Could not add Simulation - no nodes accepted ");
-			
-			controlNodeLock.release();
-			
-			return -1;
-		}
-		else
-		{
-			controlNodeLock.release();
-			
-			return simulationNum;
-		}
-		
+		controlNodeLock.release();
 	}
 	
-	public void removeSimulation(int simId)
+	public void removeCompletedSim(int simId)
 	{
 		controlNodeLock.acquireUninterruptibly();
 		
 		// Look up and remove the mapping
-		RemoteSimulationMapping mapping = localSimulationMap.remove(simId);
-		
-		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
-		
-		if(nodeManager!=null)
-		{
-			nodeManager.removeSim(mapping.getRemoteSimId());
-			
-			log.info("Removed Simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId "
-					+ mapping.getRemoteSimId());
-		}
-		else
-		{
-			log.warn("Cannot remove simulation from Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId : Node Manager not found");
-		}
-		
-		controlNodeLock.release();
+		localSimulationMap.remove(simId);
 		
 		JComputeEventBus.post(new SimulationsManagerEvent(simId, SimulationsManagerEventType.RemovedSim));
 		
-	}
-	
-	public void startSim(int simId)
-	{
-		controlNodeLock.acquireUninterruptibly();
-		
-		// Look up mapping
-		RemoteSimulationMapping mapping = localSimulationMap.get(simId);
-		
-		NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
-		
-		log.info(
-				"Start Simulation on Node " + mapping.getNodeUid() + " Local SimId " + simId + " Remote SimId " + mapping.getRemoteSimId());
-				
-		nodeManager.startSim(mapping.getRemoteSimId());
-		
 		controlNodeLock.release();
 	}
 	
-	private NodeManager findNodeManagerFromUID(int uid)
-	{
-		Iterator<NodeManager> itr = activeNodes.iterator();
-		NodeManager temp = null;
-		NodeManager nodeManager = null;
-		
-		while(itr.hasNext())
-		{
-			temp = itr.next();
-			
-			if(temp.getUid() == uid)
-			{
-				nodeManager = temp;
-				
-				break;
-			}
-			
-		}
-		
-		return nodeManager;
-	}
+	/*
+	 * public void removeSimulation(int simId)
+	 * {
+	 * controlNodeLock.acquireUninterruptibly();
+	 * // Look up and remove the mapping
+	 * RemoteSimulationMapping mapping = localSimulationMap.remove(simId);
+	 * NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
+	 * if(nodeManager!=null)
+	 * {
+	 * nodeManager.removeSim(mapping.getRemoteSimId());
+	 * log.info("Removed Simulation from Node " + mapping.getNodeUid() +
+	 * " Local SimId " + simId + " Remote SimId "
+	 * + mapping.getRemoteSimId());
+	 * }
+	 * else
+	 * {
+	 * log.warn("Cannot remove simulation from Node " + mapping.getNodeUid() +
+	 * " Local SimId " + simId + " Remote SimId : Node Manager not found");
+	 * }
+	 * controlNodeLock.release();
+	 * JComputeEventBus.post(new SimulationsManagerEvent(simId,
+	 * SimulationsManagerEventType.RemovedSim));
+	 * }
+	 */
+	
+	// private NodeManager findNodeManagerFromUID(int uid)
+	// {
+	// Iterator<NodeManager> itr = activeNodes.iterator();
+	// NodeManager temp = null;
+	// NodeManager nodeManager = null;
+	//
+	// while(itr.hasNext())
+	// {
+	// temp = itr.next();
+	//
+	// if(temp.getUid() == uid)
+	// {
+	// nodeManager = temp;
+	//
+	// break;
+	// }
+	//
+	// }
+	//
+	// return nodeManager;
+	// }
 	
 	public int getMaxSims()
 	{
@@ -652,7 +672,7 @@ public class ControlNode
 		status.add(String.valueOf(maxSims));
 		
 		status.add("Added Sims");
-		status.add(String.valueOf(simulations));
+		status.add(String.valueOf(simulationNum));
 		
 		return status.toArray(new String[status.size()]);
 	}

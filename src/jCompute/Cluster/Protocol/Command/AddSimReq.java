@@ -1,28 +1,27 @@
 package jCompute.Cluster.Protocol.Command;
 
 import jCompute.Cluster.Protocol.NCP;
-
 import java.nio.ByteBuffer;
 
 public class AddSimReq
 {
-	String scenarioText;
-	int initialStepRate;
+	private long requestId;
+	private String scenarioText;
 	
 	// Standard Constructor
-	public AddSimReq(String scenarioText, int initialStepRate)
+	public AddSimReq(long requestId, String scenarioText)
 	{
+		this.requestId = requestId;
 		this.scenarioText = scenarioText;
-		this.initialStepRate = initialStepRate;
 	}
-
+	
 	// Construct from an input stream
 	public AddSimReq(ByteBuffer source)
-	{		
-		initialStepRate = source.getInt();
-		int len = source.getInt();		
-		byte[] bytes= new byte[len];
-		source.get(bytes, 0, len);
+	{
+		requestId = source.getLong();
+		int configLen = source.getInt();
+		byte[] bytes = new byte[configLen];
+		source.get(bytes, 0, configLen);
 		scenarioText = new String(bytes);
 	}
 	
@@ -30,26 +29,27 @@ public class AddSimReq
 	{
 		return scenarioText;
 	}
-
-	public int getInitialStepRate()
+	
+	public long getRequestId()
 	{
-		return initialStepRate;
+		return requestId;
 	}
 	
 	public byte[] toBytes()
 	{
 		int configLen = scenarioText.getBytes().length;
-		int dataLen = configLen + 8;
+		int dataLen = configLen + 12;
 		
-		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NCP.HEADER_SIZE);  
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
 		// Header
 		tbuffer.putInt(NCP.AddSimReq);
 		tbuffer.putInt(dataLen);
-
-		// Data		
-		// Intial Step Rate
-		tbuffer.putInt(initialStepRate);		
+		
+		// Data
+		// Request Id
+		tbuffer.putLong(requestId);
+		
 		// Config follows (len is chars)
 		tbuffer.putInt(configLen);
 		

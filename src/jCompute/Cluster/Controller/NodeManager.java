@@ -5,6 +5,9 @@ import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
+import jCompute.Cluster.Controller.Request.NodeItemRequest;
+import jCompute.Cluster.Controller.Request.NodeItemRequest.NodeItemRequestOperation;
+import jCompute.Cluster.Controller.Request.NodeItemRequest.NodeItemRequestResult;
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Cluster.Protocol.NCP;
 import jCompute.Cluster.Protocol.Command.AddSimReply;
@@ -12,7 +15,6 @@ import jCompute.Cluster.Protocol.Command.AddSimReq;
 import jCompute.Cluster.Protocol.Command.RemoveSimAck;
 import jCompute.Cluster.Protocol.Command.SimulationStatsReply;
 import jCompute.Cluster.Protocol.Command.SimulationStatsRequest;
-import jCompute.Cluster.Protocol.Command.StartSimCMD;
 import jCompute.Cluster.Protocol.Control.NodeOrderlyShutdown;
 import jCompute.Cluster.Protocol.NCP.ProtocolState;
 import jCompute.Cluster.Protocol.Monitoring.NodeStatsReply;
@@ -85,13 +87,6 @@ public class NodeManager
 	
 	private NodeManagerState nodeState;
 	
-	// Semaphores for methods to wait on
-	private Semaphore addSimWait = new Semaphore(0, false);
-	private Semaphore remSimWait = new Semaphore(0, false);
-	
-	// Add Sim MSG box Vars
-	private int addSimId = -1;
-	
 	private final int NODEMANAGER_TX_FREQUENCY = 10;
 	
 	// TX Message Queue
@@ -103,13 +98,19 @@ public class NodeManager
 	 */
 	private ConcurrentHashMap<Integer, RemoteSimulationMapping> remoteSimulationMap;
 	
+	// Request Map
+	private ConcurrentHashMap<Long, NodeItemRequest> remoteRequestMap;
+	private long requestNum = 0;
+	
 	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
 		nodeState = NodeManagerState.STARTING;
 		
 		nodeInfo = new NodeInfo();
 		
-		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(8);
+		remoteSimulationMap = new ConcurrentHashMap<Integer, RemoteSimulationMapping>(8, 0.8f, 2);
+		
+		remoteRequestMap = new ConcurrentHashMap<Long, NodeItemRequest>(8, 0.8f, 2);
 		
 		NSMCPReadyTimeOut = 0;
 		
@@ -311,7 +312,7 @@ public class NodeManager
 							log.info("Node registration ok");
 							
 							log.info("Now requesting node configuration and weighting");
-							txDataEnqueue(new ConfigurationRequest(1, 1024, 10000, 10000, 6).toBytes());
+							txDataEnqueue(new ConfigurationRequest(0, 1024, 10000, 10000, 6).toBytes());
 						}
 						else
 						{
@@ -451,11 +452,39 @@ public class NodeManager
 								if(protocolState == ProtocolState.RDY)
 								{
 									AddSimReply addSimReply = new AddSimReply(data);
-									addSimId = addSimReply.getSimId();
 									
-									log.info("AddSimReply : " + addSimId);
+									long requestId = addSimReply.getRequestId();
+									int simId = addSimReply.getSimId();
 									
-									addSimWait.release();
+									log.info("AddSimReply : " + simId + " Request " + requestId);
+									
+									NodeItemRequest req = remoteRequestMap.remove(requestId);
+									
+									if(simId > 0)
+									{
+										req.setResult(NodeItemRequestResult.SUCESSFUL);
+										
+										RemoteSimulationMapping mapping = req.getMapping();
+										
+										mapping.setRemoteSimId(simId);
+										
+										remoteSimulationMap.put(simId, mapping);
+										
+										JComputeEventBus.post(
+												new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
+									}
+									else
+									{
+										req.setResult(NodeItemRequestResult.FAILED);
+										
+										activeSimsLock.acquireUninterruptibly();
+										
+										activeSims--;
+										
+										activeSimsLock.release();
+									}
+									
+									JComputeEventBus.post(req);
 								}
 								else
 								{
@@ -551,7 +580,11 @@ public class NodeManager
 									
 									log.info("Recieved RemSimAck : " + removeSimAck.getSimId());
 									
-									remSimWait.release();
+									// TODO
+									RemoteSimulationMapping mapping = remoteSimulationMap.get(removeSimAck.getSimId());
+									
+									JComputeEventBus.post(
+											new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.RemovedSim));
 								}
 								else
 								{
@@ -641,10 +674,6 @@ public class NodeManager
 					
 					protocolState = ProtocolState.DIS;
 					nodeState = NodeManagerState.SHUTDOWN;
-					
-					// Explicit release of all semaphores
-					addSimWait.release();
-					remSimWait.release();
 				}
 				
 			}
@@ -818,59 +847,29 @@ public class NodeManager
 	 * @param mapping
 	 * @return
 	 */
-	public int addSim(String scenarioText, RemoteSimulationMapping mapping)
+	public void addSimulation(String scenarioText, RemoteSimulationMapping mapping)
 	{
 		nodeLock.acquireUninterruptibly();
 		
-		log.info("Node " + nodeInfo.getUid() + " AddSim");
+		log.debug("Node " + nodeInfo.getUid() + " AddSim");
 		
-		// addSimMsgBoxVarLock.acquireUninterruptibly();
+		// Increment the request id
+		requestNum++;
 		
-		// Shared variable
-		addSimId = -1;
+		// Create the request
+		NodeItemRequest request = new NodeItemRequest(mapping, NodeItemRequestOperation.ADD);
 		
-		// Create and Send add Sim Req - simulation Max speed
-		txDataEnqueue(new AddSimReq(scenarioText, -1).toBytes());
+		// Map it for later look up
+		remoteRequestMap.put(requestNum, request);
 		
-		// addSimMsgBoxVarLock.release();
+		// Enqueue an add sim req - with the requestNum
+		txDataEnqueue(new AddSimReq(requestNum, scenarioText).toBytes());
 		
-		// Wait until we are released (by timer or receive thread)
-		addSimWait.acquireUninterruptibly();
+		activeSimsLock.acquireUninterruptibly();
 		
-		// addSimMsgBoxVarLock.acquireUninterruptibly();
+		activeSims++;
 		
-		if(addSimId == -1)
-		{
-			// addSimMsgBoxVarLock.release();
-			nodeLock.release();
-			
-			return -1;
-		}
-		else
-		{
-			
-			mapping.setRemoteSimId(addSimId);
-			
-			remoteSimulationMap.put(addSimId, mapping);
-			
-			activeSimsLock.acquireUninterruptibly();
-			
-			activeSims++;
-			
-			activeSimsLock.release();
-			
-			// addSimMsgBoxVarLock.release();
-			nodeLock.release();
-			
-			return addSimId;
-		}
-	}
-	
-	public void startSim(int remoteSimId)
-	{
-		nodeLock.acquireUninterruptibly();
-		
-		txDataEnqueue(new StartSimCMD(remoteSimId).toBytes());
+		activeSimsLock.release();
 		
 		nodeLock.release();
 	}
@@ -912,26 +911,25 @@ public class NodeManager
 	 * Removes a simulation.
 	 * @param remoteSimId
 	 */
-	public void removeSim(int remoteSimId)
-	{
-		nodeLock.acquireUninterruptibly();
-		
-		// NA - Finished Simulation are auto-removed when stats are fetched,
-		// calling this will remove the mapping.
-		// - we assume calling this method means you do not want stats or the
-		// simulation.
-		
-		RemoteSimulationMapping mapping = remoteSimulationMap.remove(remoteSimId);
-		
-		// Stats have already been received if the mapping is null
-		if(mapping != null)
-		{
-			// Send a stats request
-			txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
-		}
-		
-		nodeLock.release();
-	}
+	/*
+	 * public void removeSim(int remoteSimId)
+	 * {
+	 * nodeLock.acquireUninterruptibly();
+	 * // NA - Finished Simulation are auto-removed when stats are fetched,
+	 * // calling this will remove the mapping.
+	 * // - we assume calling this method means you do not want stats or the
+	 * // simulation.
+	 * RemoteSimulationMapping mapping =
+	 * remoteSimulationMap.remove(remoteSimId);
+	 * // Stats have already been received if the mapping is null
+	 * if(mapping != null)
+	 * {
+	 * // Send a stats request
+	 * txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
+	 * }
+	 * nodeLock.release();
+	 * }
+	 */
 	
 	/**
 	 * Check for valid orderly state transitions.
