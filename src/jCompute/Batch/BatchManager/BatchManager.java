@@ -694,12 +694,12 @@ public class BatchManager
 		
 		Batch batch = findBatch(batchId);
 		
-		batch.setStatus(status);
-		
 		// Remove batch from queues if disabled and add to stop else the reverse
 		// process for enabling
 		if(status == false)
 		{
+			batch.setStatus(status);
+			
 			// In Fifo
 			fifoQueue.remove(batch);
 			
@@ -707,11 +707,15 @@ public class BatchManager
 		}
 		else
 		{
-			// In Fifo
-			fifoQueue.add(batch);
-			
-			stoppedBatches.remove(batch);
-			
+			if(!batch.hasFailed())
+			{
+				batch.setStatus(status);
+				
+				// In Fifo
+				fifoQueue.add(batch);
+				
+				stoppedBatches.remove(batch);
+			}
 		}
 		
 		batchManagerLock.release();
@@ -873,6 +877,8 @@ public class BatchManager
 		
 		boolean status = batch.getStatus();
 		
+		log.info("Batch " + batch.getBatchId() + " " + batch.getFileName() + " Removed");
+		
 		// Remove batch from one of the queues
 		if(status)
 		{
@@ -912,8 +918,8 @@ public class BatchManager
 					break;
 					case REMOVE:
 					
-					// TODO
-					
+						// TODO
+						
 					break;
 					
 				}
@@ -925,7 +931,20 @@ public class BatchManager
 			case FAILED:
 				
 				// BATCH has also failed
-				log.error("FATAL");
+				log.error("ControlNodeItemRequestReply " + result.toString() + " Operation " + operation.toString() + " Batch "
+						+ batchItem.getBatchId() + " Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId "
+						+ batchItem.getSimId());
+				
+				Batch batch = findBatch(batchItem.getBatchId());
+				
+				if(batch!=null)
+				{
+					batch.setFailed();
+					// Stop Batch Processing
+					setStatus(batchItem.getBatchId(),false);
+				}
+				
+				log.error("Processing Batch " + batchItem.getBatchId() + " Failed");
 				
 			break;
 		}

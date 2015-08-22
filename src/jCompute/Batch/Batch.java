@@ -120,6 +120,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Batch Finished Status
 	private boolean finished;
+	private boolean failed;
 	
 	// Get Batch Info Cache (Non Changing Data / All Final Info )
 	private ArrayList<String> infoCache;
@@ -160,6 +161,7 @@ public class Batch implements StoredQueuePosition
 		active = 0;
 		
 		finished = false;
+		failed = false;
 	}
 	
 	public boolean loadConfig(String filePath)
@@ -1197,6 +1199,11 @@ public class Batch implements StoredQueuePosition
 			}
 			
 			// Add The Cache Header
+			if(failed)
+			{
+				info.add("Warning");
+				info.add("Batch Failed");
+			}
 			info.add("Queue Position");
 			info.add(String.valueOf(position));
 			info.add("Status");
@@ -1535,5 +1542,15 @@ public class Batch implements StoredQueuePosition
 	public ExportFormat getStatExportFormat()
 	{
 		return statExportFormat;
+	}
+
+	public void setFailed()
+	{
+		failed = true;
+	}
+	
+	public boolean hasFailed()
+	{
+		return failed;
 	}
 }

@@ -492,13 +492,23 @@ public class ControlNode
 			break;
 			case FAILED:
 				
-				// TODO - forward error
-				
 				log.error("Node Item Request Failed - " + operation.toString() + " SimId " + mapping.getLocalSimId() + " Node "
 						+ mapping.getNodeUid());
 						
-				// Remove the mapping
-				localSimulationMap.remove(mapping.getLocalSimId());
+				switch(operation)
+				{
+					case ADD:
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.ADD,
+								ControlNodeItemRequestResult.FAILED));
+					break;
+					case REMOVE:
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.REMOVE,
+								ControlNodeItemRequestResult.FAILED));
+					break;
+					default:
+						log.error("Unhandled Operation " + operation.toString() + " " + this.getClass() + " NodeItemRequestProcessed");
+					break;
+				}
 				
 			break;
 		}
