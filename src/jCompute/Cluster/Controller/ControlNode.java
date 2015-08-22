@@ -146,50 +146,8 @@ public class ControlNode
 				log.debug("------------------------------------");
 				
 				// Detect nodes that are now ready in the connected nodes list
-				// and add them to the active nodes.
-				// Must be a for loop as we dont want to stay in this loop.
-				for(NodeManager tNode : connectingNodes)
-				{
-					if(tNode.isReady())
-					{
-						activeNodes.add(tNode);
-						
-						maxSims += tNode.getMaxSims();
-						
-						log.debug("Node " + tNode.getUid() + " now Active (Max Sims " + maxSims + ")");
-						
-						// Sort the Node by weighting
-						Collections.sort(activeNodes, new NodeManagerComparator());
-						
-						log.info("------------------------------------");
-						log.info("Active (" + activeNodes.size() + ")");
-						log.info("------------------------------------");
-						for(NodeManager node : activeNodes)
-						{
-							log.info("Node " + node.getUid() + ": " + node.getWeighting());
-							
-						}
-						log.info("------------------------------------");
-						
-						JComputeEventBus.post(new NodeAdded(tNode.getNodeConfig()));
-					}
-					else if(tNode.getReadyStateTimeOutValue() == NCP.ReadyStateTimeOut)
-					{
-						connectingNodes.remove(tNode);
-						tNode.destroy("Ready State Timeout");
-					}
-					else if(tNode.hasFailedReg())
-					{
-						connectingNodes.remove(tNode);
-						tNode.destroy("failed to register " + tNode.getRegFailedReason());
-					}
-					else
-					{
-						tNode.incrementTimeOut(ncpTimerSpeed);
-					}
-				}
-				
-				// Now remove ready nodes in the connecting nodes list
+				// and add them to the active nodes
+				// Now remove any ready / failed nodes in the connecting nodes list
 				Iterator<NodeManager> itr = connectingNodes.iterator();
 				while(itr.hasNext())
 				{
@@ -198,6 +156,41 @@ public class ControlNode
 					if(node.isReady())
 					{
 						itr.remove();
+						
+						activeNodes.add(node);
+						
+						maxSims += node.getMaxSims();
+						
+						log.debug("Node " + node.getUid() + " now Active (Max Sims " + maxSims + ")");
+						
+						// Sort the Node by weighting
+						Collections.sort(activeNodes, new NodeManagerComparator());
+						
+						log.info("------------------------------------");
+						log.info("Active (" + activeNodes.size() + ")");
+						log.info("------------------------------------");
+						for(NodeManager aNode : activeNodes)
+						{
+							log.info("Node " + aNode.getUid() + ": " + aNode.getWeighting());
+							
+						}
+						log.info("------------------------------------");
+						
+						JComputeEventBus.post(new NodeAdded(node.getNodeConfig()));
+					}
+					else if(node.getReadyStateTimeOutValue() == NCP.ReadyStateTimeOut)
+					{
+						itr.remove();
+						node.destroy("Ready State Timeout");
+					}
+					else if(node.hasFailedReg())
+					{
+						itr.remove();
+						node.destroy("failed to register " + node.getRegFailedReason());
+					}
+					else
+					{
+						node.incrementTimeOut(ncpTimerSpeed);
 					}
 				}
 				
