@@ -236,7 +236,7 @@ public class BatchManager
 			}
 			else
 			{
-				log.warn("Processed completed item " + item.getItemId() + " Sample " + item.getSampleId() + " for removed batch " + item.getBatchId());
+				log.warn("Discarding completed item " + item.getItemId() + " Sample " + item.getSampleId() + " for removed batch " + item.getBatchId());
 			}
 			
 			// Remove the related simulation for this completed sim.
