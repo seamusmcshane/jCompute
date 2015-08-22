@@ -102,6 +102,13 @@ public class NodeManager
 	private ConcurrentHashMap<Long, NodeItemRequest> remoteRequestMap;
 	private long requestNum = 0;
 	
+	// Benchmark Configuration
+	private final int BENCHMARK = 0;
+	private final int NUM_OBJECTS = 1024;
+	private final int ITERATIONS = 10000;
+	private final int WARM_UP_ITERATIONS = 10000;
+	private final int NUM_RUNS = 6;
+	
 	public NodeManager(int uid, Socket cmdSocket) throws IOException
 	{
 		nodeState = NodeManagerState.STARTING;
@@ -312,7 +319,8 @@ public class NodeManager
 							log.info("Node registration ok");
 							
 							log.info("Now requesting node configuration and weighting");
-							txDataEnqueue(new ConfigurationRequest(1, 1024, 10000, 10000, 6).toBytes());
+							
+							txDataEnqueue(new ConfigurationRequest(BENCHMARK, NUM_OBJECTS, ITERATIONS, WARM_UP_ITERATIONS, NUM_RUNS).toBytes());
 						}
 						else
 						{
@@ -345,7 +353,16 @@ public class NodeManager
 						ConfigurationAck reqAck = new ConfigurationAck(data);
 						
 						nodeInfo.setMaxSims(reqAck.getMaxSims());
-						nodeInfo.setWeighting(reqAck.getWeighting());
+						
+						// Set weighting if it is was requested
+						if(BENCHMARK==1)
+						{
+							nodeInfo.setWeighting(reqAck.getWeighting());
+						}
+						else
+						{
+							nodeInfo.setWeighting(Long.MAX_VALUE);
+						}
 						
 						nodeInfo.setHWThreads(reqAck.getHwThreads());
 						nodeInfo.setOperatingSystem(reqAck.getOs());
