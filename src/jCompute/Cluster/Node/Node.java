@@ -9,7 +9,6 @@ import jCompute.Cluster.Protocol.Command.AddSimReply;
 import jCompute.Cluster.Protocol.Command.AddSimReq;
 import jCompute.Cluster.Protocol.Command.SimulationStatsReply;
 import jCompute.Cluster.Protocol.Command.SimulationStatsRequest;
-import jCompute.Cluster.Protocol.Command.StartSimCMD;
 import jCompute.Cluster.Protocol.NCP.ProtocolState;
 import jCompute.Cluster.Protocol.Monitoring.NodeStatsReply;
 import jCompute.Cluster.Protocol.Notification.SimulationStatChanged;
