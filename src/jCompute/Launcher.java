@@ -74,7 +74,7 @@ public class Launcher
 		
 		try
 		{
-			hostAddress = InetAddress.getLocalHost().getHostAddress();
+			hostAddress = InetAddress.getLocalHost().getHostName();
 		}
 		catch(UnknownHostException e)
 		{
