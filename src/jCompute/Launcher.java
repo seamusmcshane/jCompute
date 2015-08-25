@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,24 +68,74 @@ public class Launcher
 	{
 		int loglevel = Integer.parseInt(opts.get("loglevel").getValue());
 		
+		int mode = Integer.parseInt(opts.get("mode").getValue());
+		
+		String hostAddress = "";
+		
+		try
+		{
+			hostAddress = InetAddress.getLocalHost().getHostAddress();
+		}
+		catch(UnknownHostException e)
+		{
+			e.printStackTrace();
+		}
+		
+		StringBuilder logPrefix = new StringBuilder();
+		
+		switch(mode)
+		{
+			case 0:
+				logPrefix.append("StandardGUI_");
+			break;
+			case 1:
+				logPrefix.append("ClusterGUI_");
+				logPrefix.append(hostAddress);
+			break;
+			case 2:
+				logPrefix.append("Node_");
+				logPrefix.append(hostAddress);
+			break;
+		}
+		
 		switch(loglevel)
 		{
 			case 2:
 				// Debug
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-debug.xml");
-				System.out.println("Enabled Debug Log Level");
+				System.out.println("Debug Logging Level");
 			break;
 			case 1:
 				// Standard
 				System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
-				System.out.println("Enabled Standard Log Level");
+				System.out.println("Info level Logging to file and errors logged to file.");
 			break;
 			case 0:
 			default:
 				// Standard
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
-				System.out.println("Logging to Console Only at Standard Log Level");
+				System.out.println("Info level console Logging, with errors logged to file.");
 			break;
+		}
+		
+		String errorLog = logPrefix.toString() + "_error";
+		String standardLog = logPrefix.toString() + "_standard";
+		String debugLog = logPrefix.toString() + "_debug";
+		
+		System.setProperty("ERROR_LOG_FILENAME", errorLog);
+		System.setProperty("STANDARD_LOG_FILENAME", standardLog);
+		System.setProperty("DEBUG_LOG_FILENAME", debugLog);
+		
+		try
+		{
+			Class.forName("org.apache.logging.log4j.core.LoggerContext");
+			
+			// Update the loggers with the correct log filenames
+			((org.apache.logging.log4j.core.LoggerContext) LogManager.getContext()).reconfigure();
+		}
+		catch(ClassNotFoundException e)
+		{
+			log.warn("Skipping log4j reconfigure - classes not loaded.");
 		}
 		
 		// Configure the launcher logger - as it is the first class it needs to
@@ -93,16 +144,9 @@ public class Launcher
 		
 		log.info(JVMInfo.getJVMInfoString());
 		
-		try
-		{
-			String hostAddress = InetAddress.getLocalHost().getHostAddress();
-			log.info("Host Address : " + hostAddress);
-		}
-		catch(UnknownHostException e)
-		{
-			log.error("Hostname lookup failed");
-			e.printStackTrace();
-		}
+		log.info("Standard Log " + standardLog);
+		log.info("Error Log    " + errorLog);
+		log.info("Debug Log    " + debugLog);
 		
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		log.info("Temp dir provided by OS : " + tmpDir);
@@ -122,8 +166,6 @@ public class Launcher
 		
 		/* Init the Event bus in Async Mode */
 		JComputeEventBus.initAsync();
-		
-		int mode = Integer.parseInt(opts.get("mode").getValue());
 		
 		switch(mode)
 		{
@@ -145,7 +187,7 @@ public class Launcher
 					allowMulti = true;
 				}
 				
-				clusterGUI = new ClusterGUI(buttonText,allowMulti);
+				clusterGUI = new ClusterGUI(buttonText, allowMulti);
 				
 			break;
 			case 2:

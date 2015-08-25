@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
+	<properties>
+		<property name="ERROR_LOG_FILENAME">$${sys:ERROR_LOG_FILENAME}</property>
+		<property name="STANDARD_LOG_FILENAME">$${sys:STANDARD_LOG_FILENAME}</property>
+	</properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} | %r | %5p [%t] - %msg %n"  />
 		</Console>
-		<File name="file-info" fileName="log/jCompute.log" immediateFlush="false" append="false">
+		<File name="file-info" fileName="log/${STANDARD_LOG_FILENAME}.log" bufferedIO="true" immediateFlush="false" append="false">
 			<PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} | %r | %5p [%t] - %msg %n"  />
 		</File>
-		<File name="file-error" fileName="log/error.log" immediateFlush="true" append="false">
+		<File name="file-error" fileName="log/${ERROR_LOG_FILENAME}.log" bufferedIO="true" immediateFlush="true" append="false">
 			<PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} | %r | %5p [%t] - %msg %n"  />
 		</File>
 	</Appenders>
