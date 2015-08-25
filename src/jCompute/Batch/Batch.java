@@ -783,11 +783,8 @@ public class Batch implements StoredQueuePosition
 		// How many times to run each batchItem.
 		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
 		
-		int uniqueItems = batchItems / itemSamples;
+		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
 		
-		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "][" + itemSamples + "-" + uniqueItems
-				+ "-" + batchItems + "-" + maxSteps + "] " + batchName;
-				
 		FileUtil.createDirIfNotExist(batchStatsExportDir);
 		
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
@@ -970,6 +967,12 @@ public class Batch implements StoredQueuePosition
 		
 		completed++;
 		
+		ioEnd = System.currentTimeMillis();
+		
+		ioTotalTimes += ioEnd - ioStart;
+		
+		lastCompletedItemTime = System.currentTimeMillis();
+		
 		if(completed == batchItems)
 		{
 			if(storeStats)
@@ -1013,17 +1016,26 @@ public class Batch implements StoredQueuePosition
 				{
 					// Close Info Log
 					PrintWriter infoLog = new PrintWriter(
-							new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.xml", true)));
-					infoLog.println("<Batch>");
-					infoLog.println("<ID>" + batchId + "</ID>");
-					infoLog.println("<ScenarioType>" + type + "</ScenarioType>");
-					infoLog.println("<Description>" + batchName + "</Description>");
-					infoLog.println("<BaseFile>" + baseScenarioFileName + "</BaseFile>");
-					infoLog.println("<Start>" + startDateTime + "</Start>");
-					infoLog.println("<Finished>" + endDateTime + "</Finished>");
-					infoLog.println(
-							"<TotalTime>" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime) + "</TotalTime>");
-					infoLog.println("<Batch>");
+							new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.log", true)));
+					infoLog.println("BatchId=" + batchId);
+					infoLog.println("ScenarioType=" + type);
+					infoLog.println("Description=" + batchName);
+					infoLog.println("BaseFile=" + baseScenarioFileName);
+					int uniqueItems = batchItems / itemSamples;
+					infoLog.println("Items=" + batchItems);
+					infoLog.println("ItemSamples=" + itemSamples);
+					infoLog.println("UniqueItems=" + uniqueItems);
+					infoLog.println("MaxSteps=" + maxSteps);
+					infoLog.println("AddedDateTime=" + addedDateTime);
+					infoLog.println("StartDateTime=" + startDateTime);
+					infoLog.println("FinishedDateTime=" + endDateTime);
+					infoLog.println("TotalTime=" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime));
+					infoLog.println("CpuTotalTime=" + cpuTotalTimes);
+					infoLog.println("CpuAvgTime=" + cpuTotalTimes / completed);
+					infoLog.println("IOTotalTime=" + ioTotalTimes);
+					infoLog.println("IOAvgTime=" + ioTotalTimes / completed);
+					infoLog.println("ItemTotalTime=" + cpuTotalTimes + ioTotalTimes);
+					infoLog.println("ItemAvgTime=" + ((cpuTotalTimes + ioTotalTimes) / completed));
 					infoLog.flush();
 					infoLog.close();
 				}
@@ -1040,12 +1052,6 @@ public class Batch implements StoredQueuePosition
 			
 			finished = true;
 		}
-		
-		ioEnd = System.currentTimeMillis();
-		
-		ioTotalTimes += ioEnd - ioStart;
-		
-		lastCompletedItemTime = System.currentTimeMillis();
 		
 		batchLock.release();
 	}
@@ -1543,7 +1549,7 @@ public class Batch implements StoredQueuePosition
 	{
 		return statExportFormat;
 	}
-
+	
 	public void setFailed()
 	{
 		failed = true;
