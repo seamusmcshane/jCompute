@@ -36,6 +36,13 @@ public class SimpleTabPanel extends JPanel
 		this(TOP);
 	}
 	
+	
+	public void addTab(Component component,SimpleTabTabTitle tabTitle)
+	{
+		tabs.addTab("",null,component);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, tabTitle);
+	}
+	
 	/**
 	 * Add Tab with an Icon
 	 * @param component
