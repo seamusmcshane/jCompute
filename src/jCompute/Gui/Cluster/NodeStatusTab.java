@@ -56,7 +56,7 @@ public class NodeStatusTab extends JPanel
 		
 		clusterNodesTablePanel.setColumWidth(0, 50);
 		clusterNodesTablePanel.setColumWidth(1, 65);
-		// clusterNodesTablePanel.setColumWidth(2, 60);
+		clusterNodesTablePanel.setColumWidth(2, 80);
 		clusterNodesTablePanel.setColumWidth(3, 65);
 		clusterNodesTablePanel.setColumWidth(4, 65);
 		clusterNodesTablePanel.setColumWidth(5, 75);
