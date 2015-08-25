@@ -4,6 +4,7 @@ import jCompute.IconManager;
 import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -53,7 +54,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	private BatchTab batchTab;
 	private ClusterStatusTab clusterStatusTab;
 	private NodeStatusTab nodeStatusTab;
-	
+
 	/* Icons */ 
 	ImageIcon batchTabIcon = IconManager.getIcon("list");
 	ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon");
@@ -109,19 +110,21 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	
 	public void createAndAddTabs(boolean buttonText)
 	{
+		int tabWidth = 100;
+		
 		guiTabs = new SimpleTabPanel(SimpleTabPanel.LEFT);
 		
 		batchTab = new BatchTab(rightPanelsMinWidth, buttonText);
 		
-		guiTabs.addTab(batchTab, batchTabIcon, "Batches");
-		
+		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth,batchTabIcon,"Batches"));
+
 		clusterStatusTab = new ClusterStatusTab(rightPanelsMinWidth);
 		
-		guiTabs.addTab(clusterStatusTab, clusterIcon, "Cluster");
+		guiTabs.addTab(clusterStatusTab, new SimpleTabTabTitle(tabWidth,clusterIcon,"Cluster"));
 		
 		nodeStatusTab = new NodeStatusTab(rightPanelsMinWidth);
 		
-		guiTabs.addTab(nodeStatusTab, nodesIcon, "Nodes");
+		guiTabs.addTab(nodeStatusTab, new SimpleTabTabTitle(tabWidth,nodesIcon,"Nodes"));
 	}
 	
 	public void createMenuBar()
