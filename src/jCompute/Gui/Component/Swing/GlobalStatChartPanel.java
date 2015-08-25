@@ -94,7 +94,9 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		if(displayTitle)
 		{
-			this.add(new JLabel(statChartPanelName), BorderLayout.NORTH);
+			JLabel title = new JLabel("    " +statChartPanelName);
+			title.setFont(this.getFont().deriveFont(Font.BOLD));
+			this.add(title, BorderLayout.NORTH);
 		}
 		
 		if(splitleftRight)
