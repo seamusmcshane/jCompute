@@ -137,67 +137,55 @@ public class NodeStatusTab extends JPanel
 	@Subscribe
 	public void ControlNodeEvent(NodeAdded e)
 	{
-	    synchronized(this)
-	    {
-			int nid = e.getNodeConfiguration().getUid();
-			String nodeId = "Node " + e.getNodeConfiguration().getUid();
-			
-			// Assuming Starting State
-			clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
-			
-			clusterSimProChart.addStat(nodeId, nid);
-			clusterNodeActiveSims.addStat(nodeId, nid);
-			clusterNodeStatsPending.addStat(nodeId, nid);
-			clusterNodeUtilChar.addStat(nodeId, nid);
-			clusterNodeMemUsedPerChar.addStat(nodeId, nid);
-			clusterNodeTXChar.addStat(nodeId, nid);
-			clusterNodeRXChar.addStat(nodeId, nid);
-	    }
+		int nid = e.getNodeConfiguration().getUid();
+		String nodeId = "Node " + e.getNodeConfiguration().getUid();
+		
+		// Assuming Starting State
+		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+		
+		clusterSimProChart.addStat(nodeId, nid);
+		clusterNodeActiveSims.addStat(nodeId, nid);
+		clusterNodeStatsPending.addStat(nodeId, nid);
+		clusterNodeUtilChar.addStat(nodeId, nid);
+		clusterNodeMemUsedPerChar.addStat(nodeId, nid);
+		clusterNodeTXChar.addStat(nodeId, nid);
+		clusterNodeRXChar.addStat(nodeId, nid);
 	}
 	
 	@Subscribe
 	public void NodeManagerStateChange(NodeManagerStateChange e)
 	{
-	    synchronized(this)
-	    {
-			clusterNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
-	    }
+		clusterNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
 	}
 	
 	@Subscribe
 	public void ControlNodeEvent(NodeRemoved e)
 	{
-	    synchronized(this)
-	    {
-			int nid = e.getNodeConfiguration().getUid();
-			String nodeId = "Node " + e.getNodeConfiguration().getUid();
-			
-			clusterNodesTablePanel.removeRow(nid);
-			
-			clusterNodeUtilChar.removeStat(nodeId);
-			clusterNodeMemUsedPerChar.removeStat(nodeId);
-			clusterSimProChart.removeStat(nodeId);
-			clusterNodeActiveSims.removeStat(nodeId);
-			clusterNodeStatsPending.removeStat(nodeId);
-			clusterNodeTXChar.removeStat(nodeId);
-			clusterNodeRXChar.removeStat(nodeId);
-	    }
+		int nid = e.getNodeConfiguration().getUid();
+		String nodeId = "Node " + e.getNodeConfiguration().getUid();
+		
+		clusterNodesTablePanel.removeRow(nid);
+		
+		clusterNodeUtilChar.removeStat(nodeId);
+		clusterNodeMemUsedPerChar.removeStat(nodeId);
+		clusterSimProChart.removeStat(nodeId);
+		clusterNodeActiveSims.removeStat(nodeId);
+		clusterNodeStatsPending.removeStat(nodeId);
+		clusterNodeTXChar.removeStat(nodeId);
+		clusterNodeRXChar.removeStat(nodeId);
 	}
 	
 	@Subscribe
 	public void NodeStatsUpdateEvent(NodeStatsUpdate e)
 	{
-	    synchronized(this)
-	    {
-			String nodeId = "Node " + e.getNodeId();
-			
-			clusterSimProChart.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsProcessed());
-			clusterNodeActiveSims.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsActive());
-			clusterNodeStatsPending.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getStatisticsPendingFetch());
-			clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
-			clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
-			clusterNodeTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / MEGABYTE));
-			clusterNodeRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / MEGABYTE));
-	    }
+		String nodeId = "Node " + e.getNodeId();
+		
+		clusterSimProChart.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsProcessed());
+		clusterNodeActiveSims.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsActive());
+		clusterNodeStatsPending.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getStatisticsPendingFetch());
+		clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
+		clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
+		clusterNodeTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / MEGABYTE));
+		clusterNodeRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / MEGABYTE));
 	}
 }

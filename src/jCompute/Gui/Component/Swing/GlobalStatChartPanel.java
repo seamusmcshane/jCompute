@@ -339,9 +339,11 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			// Add Sample Name+Trace to Index of Known SampleNames
 			seriesMap.put(name, tempS);
 			
+			// We need to create a value for the series to exist in a bar chart.
+			statDataset.setValue(0, name, category);
+			
 			// Update the series in the bar chart with the new stats color
 			statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series, color);
-			
 			// Set the outline on the bar
 			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlinePaint(series, Color.black);
 			
