@@ -2,6 +2,7 @@ package jCompute.Gui.Cluster;
 
 import java.awt.Dimension;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -14,19 +15,38 @@ import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.Event.NodeAdded;
 import jCompute.Cluster.Controller.Event.NodeRemoved;
 import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
+import jCompute.Gui.Cluster.TableRowItems.NodeConnectionLogRowItem;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
+import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.ColorLabelRenderer;
 import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
 
 import java.awt.GridLayout;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class NodeStatusTab extends JPanel
 {
+	private static final long serialVersionUID = 5930193868612200324L;
+	
 	private final int MEGABYTE = 1048576;
 	private final int CHART_HEIGHT = 200;
 	
+	// Left
+	private SimpleTabPanel tabPanel;
+	private int stateColumn = 10;
+	
+	// Tabs
+	private TablePanel clusterConnectedNodesTablePanel;
+	private TablePanel clusterNodesLogTablePanel;
+	
+	private AtomicInteger eventIds;
+	
+	// Right
 	private JScrollPane graphScrollPane;
 	private JPanel graphsJPanelContainer;
 	
@@ -40,37 +60,42 @@ public class NodeStatusTab extends JPanel
 	private GlobalStatChartPanel clusterNodeMemUsedPerChar;
 	private GlobalStatChartPanel clusterNodeTXChar;
 	private GlobalStatChartPanel clusterNodeRXChar;
-	
-	// Left
-	private TablePanel clusterNodesTablePanel;
-	private int stateColumn = 10;
-	
 	private final int legendMaxNodes = 6;
 	
 	public NodeStatusTab(int rightPanelsMinWidth)
 	{
 		setLayout(new GridLayout(0, 2, 0, 0));
 		
-		// Nodes Tab
-		clusterNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false,true);
+		tabPanel = new SimpleTabPanel();
 		
-		clusterNodesTablePanel.setColumWidth(0, 50);
-		clusterNodesTablePanel.setColumWidth(1, 65);
-		clusterNodesTablePanel.setColumWidth(2, 80);
-		clusterNodesTablePanel.setColumWidth(3, 65);
-		clusterNodesTablePanel.setColumWidth(4, 65);
-		clusterNodesTablePanel.setColumWidth(5, 75);
-		clusterNodesTablePanel.setColumWidth(6, 60);
-		clusterNodesTablePanel.setColumWidth(7, 65);
-		clusterNodesTablePanel.setColumWidth(8, 75);
-		clusterNodesTablePanel.setColumWidth(9, 120);
-		clusterNodesTablePanel.setColumWidth(stateColumn, 75);
+		// Connected Nodes Tab
+		clusterConnectedNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false, true);
 		
-		clusterNodesTablePanel.addColumRenderer(
-				new NodeControlButtonRenderer(clusterNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager
-						.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
+		clusterConnectedNodesTablePanel.setColumWidth(0, 50);
+		clusterConnectedNodesTablePanel.setColumWidth(1, 65);
+		clusterConnectedNodesTablePanel.setColumWidth(2, 90);
+		clusterConnectedNodesTablePanel.setColumWidth(3, 65);
+		clusterConnectedNodesTablePanel.setColumWidth(4, 65);
+		clusterConnectedNodesTablePanel.setColumWidth(5, 75);
+		clusterConnectedNodesTablePanel.setColumWidth(6, 60);
+		clusterConnectedNodesTablePanel.setColumWidth(7, 65);
+		clusterConnectedNodesTablePanel.setColumWidth(8, 75);
+		clusterConnectedNodesTablePanel.setColumWidth(9, 120);
+		clusterConnectedNodesTablePanel.setColumWidth(stateColumn, 75);
 		
-		clusterNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
+		clusterConnectedNodesTablePanel.addColumRenderer(new NodeControlButtonRenderer(clusterConnectedNodesTablePanel, stateColumn,
+				IconManager.getIcon("startSimIcon"), IconManager.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
+				
+		clusterConnectedNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
+		
+		clusterNodesLogTablePanel = new TablePanel(NodeConnectionLogRowItem.class, 0, true, false, false);
+		clusterNodesLogTablePanel.addColumRenderer(new ColorLabelRenderer(), 1);
+		eventIds = new AtomicInteger();
+		
+		clusterNodesLogTablePanel.setColumWidth(0, 50);
+		clusterNodesLogTablePanel.setColumWidth(1, 50);
+		clusterNodesLogTablePanel.setColumWidth(2, 90);
+		clusterNodesLogTablePanel.setColumWidth(3, 75);
 		
 		graphsJPanelContainer = new JPanel();
 		
@@ -120,14 +145,13 @@ public class NodeStatusTab extends JPanel
 		graphsJPanelContainer.add(clusterNodeTXChar);
 		graphsJPanelContainer.add(clusterNodeRXChar);
 		
-		// this.add(clusterNodesTablePanel, BorderLayout.CENTER);
-		// splitPane.setRightComponent(clusterNodesTablePanel);
-		// nodeStatusTabPanel.addTab(clusterNodesTablePanel, "Information");
-		// nodeStatusTabPanel.addTab(scrollPane, "Activity");
+		ImageIcon nodesIcon = IconManager.getIcon("Nodes16");
+		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, nodesIcon, "Connected Nodes"));
 		
-		// this.add(nodeStatusTabPanel);
+		ImageIcon logIcon = IconManager.getIcon("Log16");
+		tabPanel.addTab(clusterNodesLogTablePanel, new SimpleTabTabTitle(160, logIcon, "Nodes Log"));
 		
-		this.add(clusterNodesTablePanel);
+		this.add(tabPanel);
 		this.add(graphScrollPane);
 		
 		// Register on the event bus
@@ -141,7 +165,7 @@ public class NodeStatusTab extends JPanel
 		String nodeId = "Node " + e.getNodeConfiguration().getUid();
 		
 		// Assuming Starting State
-		clusterNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+		clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
 		
 		clusterSimProChart.addStat(nodeId, nid);
 		clusterNodeActiveSims.addStat(nodeId, nid);
@@ -150,12 +174,16 @@ public class NodeStatusTab extends JPanel
 		clusterNodeMemUsedPerChar.addStat(nodeId, nid);
 		clusterNodeTXChar.addStat(nodeId, nid);
 		clusterNodeRXChar.addStat(nodeId, nid);
+		
+		clusterNodesLogTablePanel
+				.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), "Added",
+						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
 	}
 	
 	@Subscribe
 	public void NodeManagerStateChange(NodeManagerStateChange e)
 	{
-		clusterNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
+		clusterConnectedNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
 	}
 	
 	@Subscribe
@@ -164,7 +192,7 @@ public class NodeStatusTab extends JPanel
 		int nid = e.getNodeConfiguration().getUid();
 		String nodeId = "Node " + e.getNodeConfiguration().getUid();
 		
-		clusterNodesTablePanel.removeRow(nid);
+		clusterConnectedNodesTablePanel.removeRow(nid);
 		
 		clusterNodeUtilChar.removeStat(nodeId);
 		clusterNodeMemUsedPerChar.removeStat(nodeId);
@@ -173,6 +201,10 @@ public class NodeStatusTab extends JPanel
 		clusterNodeStatsPending.removeStat(nodeId);
 		clusterNodeTXChar.removeStat(nodeId);
 		clusterNodeRXChar.removeStat(nodeId);
+		
+		clusterNodesLogTablePanel
+				.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), "Removed",
+						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
 	}
 	
 	@Subscribe
