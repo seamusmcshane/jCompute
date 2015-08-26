@@ -58,7 +58,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	/* Icons */ 
 	ImageIcon batchTabIcon = IconManager.getIcon("list");
 	ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon");
-	ImageIcon nodesIcon = IconManager.getIcon("hwinfo");
+	ImageIcon nodesIcon = IconManager.getIcon("Nodes32");
 	
 	public ClusterGUI(final boolean buttonText, boolean allowMulti)
 	{
