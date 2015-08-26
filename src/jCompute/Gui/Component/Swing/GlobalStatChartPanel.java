@@ -322,6 +322,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		// This is a new stat being detected
 		if(tempS == null)
 		{
+			// Color
 			Color color = new Color(Color.HSBtoRGB(((0.13f * colorOffset) - 0.13f), 1f, 1f));
 			
 			// New Sample Trace for Chart
@@ -331,24 +332,26 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			// Set Sample Trace Name
 			tempS.setDescription(name);
 			
-			// Set Sample Trace Color
-			dataset.addSeries(tempS);
-			
-			historyChart.getXYPlot().getRenderer().setSeriesPaint(series, color);
-			
 			// Add Sample Name+Trace to Index of Known SampleNames
 			seriesMap.put(name, tempS);
 			
+			// Set Sample Trace Color
+			dataset.addSeries(tempS);
+
+			int hci = dataset.getSeriesIndex(name);
+			historyChart.getXYPlot().getRenderer().setSeriesPaint(hci, color);
+			
 			// We need to create a value for the series to exist in a bar chart.
 			statDataset.setValue(0, name, category);
+			int bci = statDataset.getRowIndex(name);
 			
 			// Update the series in the bar chart with the new stats color
-			statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(series, color);
+			statBarChart.getCategoryPlot().getRenderer().setSeriesPaint(bci, color);
 			// Set the outline on the bar
-			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlinePaint(series, Color.black);
+			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlinePaint(bci, Color.black);
 			
 			// Outline the bars
-			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlineStroke(series, new BasicStroke(1));
+			statBarChart.getCategoryPlot().getRenderer().setSeriesOutlineStroke(bci, new BasicStroke(1));
 			
 			// Update series totals
 			series++;
