@@ -31,7 +31,6 @@ import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
-import jCompute.Gui.Component.TableCell.PriorityIconRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.util.FileUtil;
 
