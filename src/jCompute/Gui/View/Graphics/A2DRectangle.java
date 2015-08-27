@@ -61,6 +61,34 @@ public class A2DRectangle
 		return true;	
 	}
 	
+	public boolean contains(double[] pos)
+	{
+		// outside left wall?
+		if(pos[0]<coords[0])
+		{
+			return false;
+		}
+		
+		// outside bottom wall
+		if(pos[1]<coords[1])
+		{
+			return false;
+		}
+		
+		// outside right wall
+		if(pos[0]>coords[2])
+		{
+			return false;
+		}
+		
+		if(pos[1]>coords[3])
+		{
+			return false;
+		}
+		
+		return true;	
+	}
+	
 	public float getX()
 	{
 		return coords[0];
