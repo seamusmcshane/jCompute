@@ -18,10 +18,10 @@ public class KDTreeTest
 		ArrayList<TreeBenchObject> list = new ArrayList<TreeBenchObject>(num);
 		
 		Random r = new Random();
-		float[] pos;
+		double[] pos;
 		for(int o=0;o<num;o++)
 		{
-			pos = new float[]{r.nextFloat()*25,r.nextFloat()*25};
+			pos = new double[]{r.nextDouble()*25.0,r.nextDouble()*25.0};
 			list.add(new TreeBenchObject(o,pos));
 		}
 				

@@ -1,18 +1,15 @@
 package jCompute.Datastruct.knn.benchmark;
 
-import jCompute.Datastruct.knn.kdtree.KNNNodeInf;
-
-public class TreeBenchObject implements KNNNodeInf
+public class TreeBenchObject
 {
-	
 	private int id;
-	private float pos[];
+	private double pos[];
 	
 	private TreeBenchObject nearestObject;
 	private int nearestObjectID;
 	private double nearestObjectDistance;
 	
-	public TreeBenchObject(int id,float[] pos) 
+	public TreeBenchObject(int id,double[] pos) 
 	{
 		this.id = id;
 		this.pos = pos;
@@ -39,12 +36,12 @@ public class TreeBenchObject implements KNNNodeInf
 		return id;
 	}
 
-	public float getX()
+	public double getX()
 	{
 		return pos[0];
 	}
 
-	public float getY()
+	public double getY()
 	{
 		return pos[1];
 	}
@@ -58,7 +55,7 @@ public class TreeBenchObject implements KNNNodeInf
 		/* ignore self */
 		if(this.getX() == nearestObject.getX() && this.getY() == nearestObject.getY())
 		{
-			dis = Float.MAX_VALUE;
+			dis = Double.MAX_VALUE;
 		}
 
 		/* Distance */
@@ -76,13 +73,11 @@ public class TreeBenchObject implements KNNNodeInf
 		this.nearestObjectID = nearestObjectID;
 	}
 
-	@Override
-	public float[] getPos()
+	public double[] getPos()
 	{
 		return pos;
 	}
 
-	@Override
 	public TreeBenchObject getObject()
 	{
 		return this;

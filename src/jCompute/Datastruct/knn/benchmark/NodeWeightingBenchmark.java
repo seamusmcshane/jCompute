@@ -2,13 +2,11 @@ package jCompute.Datastruct.knn.benchmark;
 
 import java.util.ArrayList;
 
-import jCompute.Datastruct.knn.KNNInf;
-import jCompute.Datastruct.knn.thirdGenKDWrapper;
-import jCompute.Datastruct.knn.benchmark.TreeBenchmarks.TimerObj;
+import jCompute.Datastruct.knn.ThirdGenKDWrapper;
 
 public class NodeWeightingBenchmark
 {
-	private KNNInf<TreeBenchObject> tree;
+	private ThirdGenKDWrapper<TreeBenchObject> tree;
 	private int objectCount;
 
 	private ArrayList<TreeBenchObject> list;
@@ -36,12 +34,12 @@ public class NodeWeightingBenchmark
 
 		list = new ArrayList<TreeBenchObject>();
 
-		float[] pos;
+		double[] pos;
 		for(int y = 0; y < yMax; y++)
 		{
 			for(int x = 0; x < xMax; x++)
 			{
-				pos = new float[]{x,y};
+				pos = new double[]{x,y};
 				list.add(new TreeBenchObject(x * y + x, pos));
 			}
 		}
@@ -49,7 +47,7 @@ public class NodeWeightingBenchmark
 
 	private void populateTree()
 	{
-		tree = new thirdGenKDWrapper(2);
+		tree = new ThirdGenKDWrapper<TreeBenchObject>(2);
 
 		for(TreeBenchObject object : list)
 		{
@@ -85,9 +83,7 @@ public class NodeWeightingBenchmark
 
 	public void singleBenchmark()
 	{
-		add.resetTimer();
 		addTime = 0;
-		search.resetTimer();
 		searchTime = 0;
 		for(int b = 0; b < iterations; b++)
 		{
