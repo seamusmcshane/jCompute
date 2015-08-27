@@ -52,7 +52,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Item Generation
 	private boolean needGenerated = true;
-	private float generationProgress = 0;
+	private double generationProgress = 0;
 	
 	// Set if this batch's items can be processed (stop/start)
 	private boolean status = true;
@@ -577,7 +577,7 @@ public class Batch implements StoredQueuePosition
 									else if(dtype.equals("integer"))
 									{
 										// The configuration file wants Integer
-										// values - Cast floats to ints
+										// values - Cast double to ints
 										temp.changeValue(groupSection, parameterName[p], (int) value[p]);
 									}
 									else
@@ -662,7 +662,7 @@ public class Batch implements StoredQueuePosition
 					
 					addBatchItem(itemSamples, c, itemName.toString(), temp.getScenarioXMLText(), tempCoord, tempCoordValues);
 					
-					generationProgress = ((float) c / (float) combinations) * 100f;
+					generationProgress = ((double) c / (double) combinations) * 100.0;
 					
 					// Avoid div by zero on <10 combinations
 					if(combinations > 10)
@@ -1111,7 +1111,7 @@ public class Batch implements StoredQueuePosition
 	
 	public int getProgress()
 	{
-		return (int) (((float) completed / (float) batchItems) * 100f);
+		return (int) (((double) completed / (double) batchItems) * 100.0);
 	}
 	
 	public int getCompleted()
