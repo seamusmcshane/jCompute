@@ -57,8 +57,6 @@ public class BatchManager
 	
 	private ArrayList<CompletedItemsNode> completeItems;
 	
-	private ArrayList<Integer> recoveredSimIds;
-	
 	// Scheduler
 	private Timer batchScheduler;
 	
@@ -72,14 +70,10 @@ public class BatchManager
 		fifoQueue = new ManagedBypassableQueue();
 		
 		finishedBatches = new ArrayList<Batch>(16);
-		
 		stoppedBatches = new LinkedList<Batch>();
 		
 		activeItems = new ArrayList<BatchItem>(16);
-		
 		completeItems = new ArrayList<CompletedItemsNode>();
-		
-		recoveredSimIds = new ArrayList<Integer>();
 		
 		// Register on the event bus
 		JComputeEventBus.register(this);
@@ -94,7 +88,7 @@ public class BatchManager
 				schedule();
 			}
 			
-		}, 0, 100);
+		}, 0, 10);
 		
 		// Completed Items Processor Tick
 		batchCompletedItemsProcessor = new Timer("Batch Completed Items Processor");
@@ -150,56 +144,36 @@ public class BatchManager
 	
 	private void recoverItemsFromInactiveNodes()
 	{
-		batchManagerLock.acquireUninterruptibly();
-		
-		Iterator<Integer> itr;
-		ArrayList<Integer> processedIds = new ArrayList<Integer>();
-		
 		if(controlNode.hasRecoverableSimIds())
 		{
-			ArrayList<Integer> tIds = controlNode.getRecoverableSimIds();
-			itr = tIds.iterator();
+			ArrayList<Integer> recoveredSimIds = controlNode.getRecoverableSimIds();
 			
+			Iterator<Integer> itr = recoveredSimIds.iterator();
 			while(itr.hasNext())
 			{
-				recoveredSimIds.add(itr.next());
+				int simId = itr.next();
+				
+				BatchItem item = findActiveBatchItemFromSimId(simId);
+				
+				// System.out.println("SimId " + simId);
+				// System.out.println("itemActive " + itemActive);
+				// System.out.println("Item " + item);
+				
+				batchManagerLock.acquireUninterruptibly();
+				Batch batch = findBatch(item.getBatchId());
+				batchManagerLock.release();
+				
+				itemsLock.acquireUninterruptibly();
+				activeItems.remove(item);
+				itemsLock.release();
+				
+				log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch " + item.getBatchId()
+						+ " for SimId " + simId);
+						
+				batch.returnItemToQueue(item);
 			}
-		}
-		
-		itr = recoveredSimIds.iterator();
-		while(itr.hasNext())
-		{
-			int simId = itr.next();
-			
-			BatchItem item = findActiveBatchItemFromSimId(simId);
-			
-			// System.out.println("SimId " + simId);
-			// System.out.println("itemActive " + itemActive);
-			// System.out.println("Item " + item);
-			
-			Batch batch = findBatch(item.getBatchId());
-			
-			itemsLock.acquireUninterruptibly();
-			
-			activeItems.remove(item);
-			
-			itemsLock.release();
-			
-			log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch " + item.getBatchId() + " for SimId "
-					+ simId);
-					
-			batch.returnItemToQueue(item);
-			
-			processedIds.add(simId);
 			
 		}
-		
-		for(Integer i : processedIds)
-		{
-			recoveredSimIds.remove(i);
-		}
-		
-		batchManagerLock.release();
 		
 	}
 	
@@ -217,11 +191,9 @@ public class BatchManager
 			BatchItem item = node.getItem();
 			StatExporter exporter = node.getExporter();
 			
-			batchManagerLock.acquireUninterruptibly();
-			
 			log.debug("Item : " + item.getItemId());
+			batchManagerLock.acquireUninterruptibly();
 			batch = findBatch(item.getBatchId());
-			
 			batchManagerLock.release();
 			
 			if(batch != null)
@@ -236,7 +208,8 @@ public class BatchManager
 			}
 			else
 			{
-				log.warn("Discarding completed item " + item.getItemId() + " Sample " + item.getSampleId() + " for removed batch " + item.getBatchId());
+				log.warn("Discarding completed item " + item.getItemId() + " Sample " + item.getSampleId() + " for removed batch "
+						+ item.getBatchId());
 			}
 			
 			// Remove the related simulation for this completed sim.
@@ -256,25 +229,16 @@ public class BatchManager
 		int size = activeItems.size();
 		itemsLock.release();
 		
+		// If there are no activeItems, initiate completed item processing now
+		// as we may have just finished the batch
 		if(size == 0)
 		{
 			processCompletedItems();
 		}
 		
 		batchManagerLock.acquireUninterruptibly();
-		
-		// Schedule from the fifo only if it contains batches
-		if(!scheduleFifo())
-		{
-			batchManagerLock.release();
-			
-			// Safe to release and recapture here
-			batchManagerLock.acquireUninterruptibly();
-			// scheduleFair();
-		}
-		
+		scheduleFifo();
 		batchManagerLock.release();
-		
 	}
 	
 	// High Priority FIFO
@@ -283,7 +247,6 @@ public class BatchManager
 	 */
 	private boolean scheduleFifo()
 	{
-		
 		// Get the first batch - FIFO
 		Batch batch = (Batch) fifoQueue.peek();
 		
@@ -302,14 +265,14 @@ public class BatchManager
 			// Remove first batch as its complete.
 			fifoQueue.poll();
 			
-			batchManagerLock.release();
+			// batchManagerLock.release();
 			
 			// Notify listeners the batch is removed.
 			JComputeEventBus.post(new BatchFinishedEvent(batch));
 			
 			positionsChangedInQueue(fifoQueue);
 			
-			batchManagerLock.acquireUninterruptibly();
+			// batchManagerLock.acquireUninterruptibly();
 			
 			// exit this tick
 			if(fifoQueue.size() > 0)
@@ -521,64 +484,6 @@ public class BatchManager
 	 * }
 	 */
 	
-	@Subscribe
-	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
-	{
-		SimState state = e.getState();
-		int simId = e.getSimId();
-		
-		log.debug("SimulationStateChangedEvent " + e.getSimId());
-		
-		switch(state)
-		{
-			case RUNNING:
-			break;
-			case NEW:
-			break;
-			case FINISHED:
-				
-				BatchItem item = findActiveBatchItemFromSimId(simId);
-				
-				itemsLock.acquireUninterruptibly();
-				
-				if(item != null)
-				{
-					item.setComputeTime(e.getRunTime(), e.getEndEvent(), e.getStepCount());
-					
-					activeItems.remove(item);
-					completeItems.add(new CompletedItemsNode(item, e.getStatExporter()));
-					
-					// Tell the batch this item is no longer active
-					Batch batch = findBatch(item.getBatchId());
-					if(batch != null)
-					{
-						batch.setItemNotActive(item);
-					}
-					
-				}
-				else
-				{
-					log.error("SimulationStateChangedEvent matching item not found for simId " + simId);
-				}
-				
-				itemsLock.release();
-				
-			break;
-			case PAUSED:
-			break;
-			default:
-				
-				// Ensures this is spotted
-				for(int i = 0; i < 100; i++)
-				{
-					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + e.getSimId());
-				}
-				
-			break;
-		}
-		
-	}
-	
 	private Batch findBatch(int batchId)
 	{
 		Iterator<StoredQueuePosition> qitr = fifoQueue.iterator();
@@ -748,7 +653,7 @@ public class BatchManager
 		log.debug("batch was Batch " + batch.getBatchId() + " Pos" + batch.getPosition());
 		
 		Iterator<StoredQueuePosition> itr;
-
+		
 		fifoQueue.moveToFront(batch);
 		
 		// for the temp reference
@@ -848,7 +753,6 @@ public class BatchManager
 		Iterator<StoredQueuePosition> itr;
 		
 		fifoQueue.moveBackward(batch);
-
 		
 		// for the temp reference
 		Batch tBatch = null;
@@ -896,6 +800,65 @@ public class BatchManager
 	}
 	
 	@Subscribe
+	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
+	{
+		SimState state = e.getState();
+		int simId = e.getSimId();
+		
+		log.debug("SimulationStateChangedEvent " + e.getSimId());
+		
+		switch(state)
+		{
+			case RUNNING:
+			break;
+			case NEW:
+			break;
+			case FINISHED:
+				
+				BatchItem item = findActiveBatchItemFromSimId(simId);
+				
+				if(item != null)
+				{
+					item.setComputeTime(e.getRunTime(), e.getEndEvent(), e.getStepCount());
+					
+					itemsLock.acquireUninterruptibly();
+					activeItems.remove(item);
+					completeItems.add(new CompletedItemsNode(item, e.getStatExporter()));
+					itemsLock.release();
+					
+					// Tell the batch this item is no longer active
+					batchManagerLock.acquireUninterruptibly();
+					Batch batch = findBatch(item.getBatchId());
+					batchManagerLock.release();
+					
+					if(batch != null)
+					{
+						batch.setItemNotActive(item);
+					}
+					
+				}
+				else
+				{
+					log.error("SimulationStateChangedEvent matching item not found for simId " + simId);
+				}
+				
+			break;
+			case PAUSED:
+			break;
+			default:
+				
+				// Ensures this is spotted
+				for(int i = 0; i < 100; i++)
+				{
+					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + e.getSimId());
+				}
+				
+			break;
+		}
+		
+	}
+	
+	@Subscribe
 	public void ControlNodeItemRequestReply(ControlNodeItemRequest request)
 	{
 		BatchItem batchItem = request.getBatchItem();
@@ -918,8 +881,8 @@ public class BatchManager
 					break;
 					case REMOVE:
 					
-						// TODO
-						
+					// TODO
+					
 					break;
 					
 				}
@@ -934,14 +897,16 @@ public class BatchManager
 				log.error("ControlNodeItemRequestReply " + result.toString() + " Operation " + operation.toString() + " Batch "
 						+ batchItem.getBatchId() + " Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId "
 						+ batchItem.getSimId());
-				
+						
+				batchManagerLock.acquireUninterruptibly();
 				Batch batch = findBatch(batchItem.getBatchId());
+				batchManagerLock.release();
 				
-				if(batch!=null)
+				if(batch != null)
 				{
 					batch.setFailed();
 					// Stop Batch Processing
-					setStatus(batchItem.getBatchId(),false);
+					setStatus(batchItem.getBatchId(), false);
 				}
 				
 				log.error("Processing Batch " + batchItem.getBatchId() + " Failed");
@@ -950,5 +915,4 @@ public class BatchManager
 		}
 		
 	}
-	
 }
