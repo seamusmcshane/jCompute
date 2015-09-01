@@ -1,7 +1,7 @@
 package jCompute.Gui.Interactive.Tab;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.Cluster.TableRowItems.ActiveSimulationRowItem;
+import jCompute.Gui.Cluster.TableRowItems.SimulationListRowItem;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Gui.Interactive.GUITabManager;
@@ -60,7 +60,7 @@ public class SimulationListTabPanel extends JPanel
 	 */
 	private void setUpTable()
 	{
-		table = new TablePanel(ActiveSimulationRowItem.class,0,"Active Simulations",true,true);
+		table = new TablePanel(SimulationListRowItem.class,0,"Active Simulations",true,true);
 			
 		table.setColumWidth(0,65);
 		table.setColumWidth(1,50);
@@ -130,7 +130,7 @@ public class SimulationListTabPanel extends JPanel
 		if(type == SimulationsManagerEventType.AddedSim)
 		{	
 			// Add a row
-			table.addRow(new ActiveSimulationRowItem(simId));
+			table.addRow(new SimulationListRowItem(simId));
 			
 		}
 		else if(type == SimulationsManagerEventType.RemovedSim)

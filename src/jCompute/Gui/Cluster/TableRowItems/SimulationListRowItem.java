@@ -4,7 +4,7 @@ import jCompute.Gui.Component.RowItem;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.util.Text;
 
-public class ActiveSimulationRowItem implements RowItem, Comparable
+public class SimulationListRowItem implements RowItem, Comparable
 {
 	private int simId;
 	private SimState state;
@@ -13,7 +13,7 @@ public class ActiveSimulationRowItem implements RowItem, Comparable
 	private int asps;
 	private long runTime;
 
-	public ActiveSimulationRowItem()
+	public SimulationListRowItem()
 	{
 		super();
 		this.simId = -1;
@@ -24,7 +24,7 @@ public class ActiveSimulationRowItem implements RowItem, Comparable
 		this.runTime = -1;
 	}
 	
-	public ActiveSimulationRowItem(int simId)
+	public SimulationListRowItem(int simId)
 	{
 		super();
 		this.simId = simId;
@@ -35,7 +35,7 @@ public class ActiveSimulationRowItem implements RowItem, Comparable
 		this.runTime = 0;
 	}
 
-	public ActiveSimulationRowItem(int simId, SimState state, int stepNo, int progress, int asps, long runTime)
+	public SimulationListRowItem(int simId, SimState state, int stepNo, int progress, int asps, long runTime)
 	{
 		super();
 		this.simId = simId;
@@ -165,7 +165,7 @@ public class ActiveSimulationRowItem implements RowItem, Comparable
 	@Override
 	public int compareTo(Object rowObject)
 	{
-		ActiveSimulationRowItem otherRow = (ActiveSimulationRowItem)rowObject;
+		SimulationListRowItem otherRow = (SimulationListRowItem)rowObject;
 		int value = 0;
 		
 		if(this.simId > otherRow.getSimId())
