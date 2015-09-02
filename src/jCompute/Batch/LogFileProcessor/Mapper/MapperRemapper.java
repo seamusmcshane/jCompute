@@ -21,18 +21,21 @@ public class MapperRemapper extends Mapper
 	{
 		double value = Double.NaN;
 		
+		int ix = (int) Math.round(x);
+		int iy = (int) Math.round(y);
+		
 		switch(target)
 		{
 			case 0:
 			{
-				value = values.getAvgs((int) x, (int) y);
+				value = values.getAvgs(ix, iy);
 				
 				break;
 			}
 			case 1:
 			{
 				
-				value = values.getStandardDeviations((int) x, (int) y);
+				value = values.getStandardDeviations(ix, iy);
 				
 				break;
 			}
