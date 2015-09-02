@@ -35,7 +35,7 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Prey</GroupName>
 			<ParameterName>LearnToMoveMax</ParameterName>
-			<Intial>1</Intial>
+			<Intial>0</Intial>
 			<Increment>1</Increment>
 			<Combinations>100</Combinations>
 		</Parameter>
