@@ -332,6 +332,12 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	{
 		TextBatchLogItem item = new TextBatchLogItem();
 		
+		// Max Coords to set as item pos/values
+		int maxCoords = 2;
+		
+		// Per item Coord Count
+		int coord = 0;
+		
 		String line;
 		while(!(line = inputFile.readLine()).equals("[-Item]"))
 		{
@@ -340,45 +346,60 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			
 			if(line.equals("[+Coordinate]"))
 			{
+				// Increment count of Coords
+				coord++;
+				
 				int pos[] = new int[2];
 				float vals[] = new float[2];
 				
+				// Read POS 0
 				String cline = inputFile.readLine();
 				String cpos1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
 				pos[0] = Integer.parseInt(cpos1);
 				
+				// Read VAL 0
 				cline = inputFile.readLine();
 				String cval1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
 				vals[0] = Float.parseFloat(cval1);
 				
 				while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 				{
-					log.info("> 2 Coords");
+					log.info("Coordinate contains unexpect data");
 				}
 				
 				cline = inputFile.readLine();
 				if(cline.equals("[+Coordinate]"))
 				{
+					// Increment count of Coords
+					coord++;
+					
+					// Read POS 1
 					cline = inputFile.readLine();
 					String cpos2 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
 					pos[1] = Integer.parseInt(cpos2);
 					
+					// Read VAL 0
 					cline = inputFile.readLine();
 					String cval2 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
 					vals[1] = Float.parseFloat(cval2);
 					
 					while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 					{
-						log.info("> 2 Coords");
+						log.info("Coordinate contains unexpect data");
 					}
 				}
 				else
 				{
-					log.info("Error Parsing Coords");
+					log.info("Error Parsing Coordinates");
 				}
 				
-				item.setCoordsPos(pos);
-				item.setCoordsVals(vals);
+				// Only set the values for the first two coordinates read (Otherwise 3,4 will overwrite them)
+				if(coord  <= maxCoords)
+				{
+					item.setCoordsPos(pos);
+					item.setCoordsVals(vals);
+				}
+
 			}
 			else
 			{
@@ -417,6 +438,10 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			}
 		}
 		
+		log.debug("Coord : " + coord);
+		
+		// Reset the coord counted (per item)
+		coord = 0;
 		logItems.add(item);
 	}
 	
