@@ -24,7 +24,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -45,6 +45,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	private ExtendViewport viewportBugCamPort;
 	
 	// OverLay Text
+	private GlyphLayout layout;
 	private BitmapFont overlayFont;
 	private SpriteBatch overlaySpriteBatch;
 	private ShapeRenderer overlayShapeRenderer;
@@ -148,6 +149,7 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 		resetCamera();
 		
+		layout = new GlyphLayout();
 		overlayFont = new BitmapFont();
 		overlayFont.setColor(Color.WHITE);
 		
@@ -359,12 +361,12 @@ public class View implements ApplicationListener, ViewRendererInf
 		overlaySpriteBatch.begin();
 		if(centered)
 		{
-			TextBounds bounds = overlayFont.getBounds(text);
-			overlayFont.drawMultiLine(overlaySpriteBatch, text, -bounds.width / 2 + x, -(bounds.height / 2) - y);
+			layout.setText(overlayFont, text);
+			overlayFont.draw(overlaySpriteBatch, text, -layout.width / 2 + x, -(layout.height / 2) - y);
 		}
 		else
 		{
-			overlayFont.drawMultiLine(overlaySpriteBatch, text, x, y);
+			overlayFont.draw(overlaySpriteBatch, text, x, y);
 		}
 		
 		overlaySpriteBatch.end();

@@ -220,7 +220,7 @@ public class LineStrip3d
 				}
 				
 				mesh = new Mesh(true, vertexCount, indices.length, new VertexAttribute(Usage.Position, POSITION_COMPONENTS, "a_position"),
-						new VertexAttribute(Usage.Color, COLOR_COMPONENTS, "a_color"));
+						new VertexAttribute(Usage.ColorPacked, COLOR_COMPONENTS, "a_color"));
 				
 				mesh.setVertices(glLines);
 				

@@ -31,7 +31,7 @@ public class LineStripMesh
 			indices[i] = (short)i;
 		}
 		
-		mesh = new Mesh(false, vertexCount, indices.length, new VertexAttribute(Usage.Position, POSITION_COMPONENTS, "a_position"), new VertexAttribute(Usage.Color, COLOR_COMPONENTS, "a_color"));
+		mesh = new Mesh(false, vertexCount, indices.length, new VertexAttribute(Usage.Position, POSITION_COMPONENTS, "a_position"), new VertexAttribute(Usage.ColorPacked, COLOR_COMPONENTS, "a_color"));
 
 		mesh.setVertices(glLines);	
 		mesh.setIndices(indices);

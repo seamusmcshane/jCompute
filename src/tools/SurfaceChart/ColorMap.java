@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -32,8 +33,12 @@ public class ColorMap
 		
 		font = new BitmapFont();
 		font.setColor(Color.BLACK);
-		int fHeight = (int) font.getBounds(String.valueOf(max)).height;
-		int fWidth = (int) font.getBounds(String.valueOf(max)).width;
+		
+		GlyphLayout layout = new GlyphLayout();
+		layout.setText(font, String.valueOf(max));
+		
+		int fHeight = (int) layout.height;
+		int fWidth = (int) layout.width;
 		
 		FrameBuffer fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
 		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
@@ -80,7 +85,8 @@ public class ColorMap
 		int maxPos = endPad - ((margin / 2) + (fHeight / 2));
 		
 		sb.draw(ct, 0, 0);
-		font.scale(0.25f);
+		
+		font.getData().setScale(2f);
 		font.draw(sb, String.valueOf(min), fWidth / 2, minPos);
 		font.draw(sb, String.valueOf(mid), fWidth / 2, midPos);
 		font.draw(sb, String.valueOf(max), fWidth / 2, maxPos);
