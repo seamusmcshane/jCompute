@@ -296,15 +296,22 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			super();
 			
 			multi = valueMax / (double) coordMax;
-			
 		}
 		
 		@Override
 		public String format(double pos)
 		{
-			return String.valueOf((int) (multi * pos));
+			double val =  (multi * pos);
+			
+			if (val % 1.0 == 0)
+			{
+			    return String.valueOf((int)(val));
+			}
+			else
+			{
+			    return String.format("%.3g%n", val);
+			}
 		}
-		
 	}
 	
 	private void readItems(BufferedReader inputFile) throws IOException
@@ -350,7 +357,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				coord++;
 				
 				int pos[] = new int[2];
-				float vals[] = new float[2];
+				double vals[] = new double[2];
 				
 				// Read POS 0
 				String cline = inputFile.readLine();
@@ -360,7 +367,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				// Read VAL 0
 				cline = inputFile.readLine();
 				String cval1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
-				vals[0] = Float.parseFloat(cval1);
+				vals[0] = Double.parseDouble(cval1);
 				
 				while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 				{
