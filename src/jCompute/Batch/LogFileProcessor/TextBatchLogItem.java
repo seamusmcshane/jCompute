@@ -5,7 +5,7 @@ public class TextBatchLogItem
 	private int itemId;
 	private int sampleId;
 	private int[] coordsPos;
-	private float[] coordsVals;
+	private double[] coordsVals;
 	private String hash;
 	private int runTime;
 	private String endEvent;
@@ -14,7 +14,7 @@ public class TextBatchLogItem
 	public TextBatchLogItem()
 	{
 		coordsPos = new int[2];
-		coordsVals = new float[2];
+		coordsVals = new double[2];
 	}
 	
 	public int getItemId()
@@ -32,7 +32,7 @@ public class TextBatchLogItem
 		return coordsPos;
 	}
 	
-	public float[] getCoordsVals()
+	public double[] getCoordsVals()
 	{
 		return coordsVals;
 	}
@@ -73,7 +73,7 @@ public class TextBatchLogItem
 		coordsPos[1] = pos[1];
 	}
 	
-	public void setCoordsVals(float[] vals)
+	public void setCoordsVals(double[] vals)
 	{
 		coordsVals[0] = vals[0];
 		coordsVals[1] = vals[1];
