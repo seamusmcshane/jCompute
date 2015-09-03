@@ -1,6 +1,10 @@
 package tools.SurfacePlotGenerator;
 
+import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
 import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
+import jCompute.util.FileUtil;
+import jCompute.util.LookAndFeel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -9,8 +13,11 @@ import java.awt.Graphics;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,13 +44,63 @@ public class HeatMapUtil implements WindowListener
 
 		gui.setLayout(new BorderLayout());
 		
-		XMLBatchLogProcessorMapper batchLog = new XMLBatchLogProcessorMapper("stats/ItemLog-nohunger-prey.xml");
+		LookAndFeel.setLookandFeel("default");
+		
+		final JFileChooser filechooser = new JFileChooser(new File("\\\\Nanoserv\\results\\"));
+		
+		filechooser.setDialogTitle("Choose Directory");
+		filechooser.setMultiSelectionEnabled(false);
+		filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int val = filechooser.showOpenDialog(filechooser);
+		
+		float scale = 1f;
+		
+		if(val == JFileChooser.APPROVE_OPTION)
+		{
+			String fullPath = filechooser.getSelectedFile().getPath();
+			System.out.println("Path : " + fullPath);
+			
+			// Level 0
+			String documentName = filechooser.getSelectedFile().getName();
+			System.out.println("Document Name will be : " + documentName);
+			
+			BatchLogInf batchLog = null;
+			
+			String ext = FileUtil.getFileNameExtension(documentName);
+			System.out.println("File ext : " + ext);
+			
+			switch(ext)
+			{
+				case "xml":
+					
+					batchLog = new XMLBatchLogProcessorMapper(fullPath);
+					
+				break;
+				
+				case "log":
+					
+					batchLog = new TextBatchLogProcessorMapper(fullPath);
+					
+				break;
+				default:
+					System.out.println("Unsupported LogType " + ext);
+				break;
+			}
+			
+			hm = new HeatMap(batchLog);
+			
+			gui.add(hm);
+			
+			gui.setVisible(true);	
+			
+			System.out.println("Report Finished");
+		}
+		else
+		{
+			System.out.println("Report Cancelled");
+		}
+		
 
-		hm = new HeatMap(batchLog);
-		
-		gui.add(hm);
-		
-		gui.setVisible(true);	
 	
 	}
 	

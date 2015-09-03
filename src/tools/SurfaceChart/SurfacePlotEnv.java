@@ -89,7 +89,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		 * cam.far = 102420f;
 		 */
 		
-		pallete = Palette.HUEPalete(true, 128);
+		pallete = Palette.SpectrumPalete(true, 256);
 		
 		// Surface
 		barSurface = new BarSurface(cam, pallete);

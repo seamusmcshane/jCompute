@@ -1,14 +1,18 @@
 package jCompute.Batch.LogFileProcessor.Mapper;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import org.jzy3d.plot3d.builder.Mapper;
+
+import jCompute.Gui.View.Misc.Palette;
 
 public class MapperRemapper extends Mapper
 {
 	private MapperValuesContainer values;
 	private int target;
+	
+	private final int PALLET_SIZE = 256;
+	private final int[] pallete = Palette.SpectrumPalete(false, PALLET_SIZE);
 	
 	public MapperRemapper(MapperValuesContainer values, int target)
 	{
@@ -69,9 +73,10 @@ public class MapperRemapper extends Mapper
 			}
 		}
 		
-		double hue = (1.0 / max) * value;
+		double one = ((double) PALLET_SIZE - 1) / max;
+		int index = (int) (one * value);
 		
-		return new Color(Color.HSBtoRGB((float) hue, 1f, 1f)).getRGB();
+		return pallete[index];
 	}
 	
 	public void populateImage(BufferedImage image)
