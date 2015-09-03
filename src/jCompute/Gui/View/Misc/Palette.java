@@ -49,7 +49,7 @@ public class Palette
 		// ARGB
 		for(int i = 0; i < paletteSize; i++)
 		{
-			float[] rgb = WavelengthToFloatRGB(min+(i*step));
+			float[] rgb = WavelengthToFloatRGB(min+(i*step),100);
 			int red = (int) (rgb[RED]*RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
@@ -82,7 +82,7 @@ public class Palette
 		// ARGB
 		for(int i = 0; i < paletteSize/2; i++)
 		{
-			float[] rgb = WavelengthToFloatRGB(min+(i*step));
+			float[] rgb = WavelengthToFloatRGB(min+(i*step),0);
 			int red = (int) (rgb[RED]*RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
@@ -96,7 +96,7 @@ public class Palette
 		int s=0;
 		for(int i = paletteSize-1; i > paletteSize/2; i--)
 		{
-			float[] rgb = WavelengthToFloatRGB(min+(s*step));
+			float[] rgb = WavelengthToFloatRGB(min+(s*step),0);
 			int red = (int) (rgb[RED]*RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
@@ -120,7 +120,7 @@ public class Palette
 		return palette;
 	}
 
-	public static float[] WavelengthToFloatRGB(float wavelength)
+	public static float[] WavelengthToFloatRGB(float wavelength, int dropoff)
 	{
 		float[] rgb = new float[3];
 		
@@ -163,7 +163,6 @@ public class Palette
 		else if((wavelength >= 620) && (wavelength < SPECTURM_RANGE_MAX))
 		{
 			// Drop-off - allows the red part of the spectrum to go into the black
-			int dropoff = 100;
 			rgb[RED] = (SPECTURM_RANGE_MAX+dropoff - wavelength) / ( (SPECTURM_RANGE_MAX+dropoff) - 620);
 			rgb[GREEN] = 0;
 			rgb[BLUE] = 0;
