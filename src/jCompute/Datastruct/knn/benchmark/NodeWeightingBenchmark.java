@@ -2,11 +2,11 @@ package jCompute.Datastruct.knn.benchmark;
 
 import java.util.ArrayList;
 
-import jCompute.Datastruct.knn.ThirdGenKDWrapper;
+import jCompute.Datastruct.knn.ThirdGenKDWrapperDouble;
 
 public class NodeWeightingBenchmark
 {
-	private ThirdGenKDWrapper<TreeBenchObject> tree;
+	private ThirdGenKDWrapperDouble<TreeBenchObject> tree;
 	private int objectCount;
 
 	private ArrayList<TreeBenchObject> list;
@@ -47,7 +47,7 @@ public class NodeWeightingBenchmark
 
 	private void populateTree()
 	{
-		tree = new ThirdGenKDWrapper<TreeBenchObject>(2);
+		tree = new ThirdGenKDWrapperDouble<TreeBenchObject>(2);
 
 		for(TreeBenchObject object : list)
 		{
