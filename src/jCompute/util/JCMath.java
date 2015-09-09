@@ -1,6 +1,7 @@
 package jCompute.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class JCMath
 {
@@ -42,6 +43,13 @@ public class JCMath
 	public static float distanceSquared(float fromX, float fromY, float toX, float toY)
 	{
 		return ((toX - fromX) * (toX - fromX)) + ((toY - fromY) * (toY - fromY));
+	}
+	
+	public static double round(double value, int places)
+	{
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
 	}
 	
 	public static int getNumberOfDecimalPlaces(float val)
