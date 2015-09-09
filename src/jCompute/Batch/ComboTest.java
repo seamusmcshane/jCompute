@@ -1,31 +1,22 @@
 package jCompute.Batch;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jCompute.util.JCMath;
 
 public class ComboTest
 {
-	private static Logger log;
-	
 	public static void main(String args[])
 	{
-		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
-		
-		log = LoggerFactory.getLogger(ComboTest.class);
-		
 		double[] bases = new double[]
 		{
 			0, 0
 		};
 		double[] incr = new double[]
 		{
-			0.05, 0.05
+			0.02857142857142857142857142857143, 0.02857142857142857142857142857143
 		};
 		int[] steps = new int[]
 		{
-			20, 20
+			35, 35
 		};
 		
 		doCombos(bases, incr, steps);
@@ -42,31 +33,47 @@ public class ComboTest
 		
 		// Dims
 		int dimensions = bases.length;
-
+		
 		// Floating point equality ranges
 		// Get the number of decimal places
 		// Get 10^places
-		// divide 1 by 10^places to get 
+		// divide 1 by 10^places to get
 		// n places .1 above the the significant value to test for
 		double[] errormargin = new double[dimensions];
-		for(int d=0;d<dimensions;d++)
+		for(int d = 0; d < dimensions; d++)
 		{
 			int places = JCMath.getNumberOfDecimalPlaces(incr[d]);
 			
 			if(places > 0)
 			{
-				// + 1 places to set the range for the unit after the number of decimals places
-				errormargin[d] = 1.0 / (Math.pow(10, (places+1)));
+				// We cannot represent error margins for values with more than
+				// 14 decimals
+				if(places > 14)
+				{
+					places = 14;
+					
+					double prev = incr[d];
+					
+					incr[d] = JCMath.round(incr[d], places);
+					
+					System.out.println("incr " + d + " rounded " + prev + " to " + incr[d]);
+				}
+				
+				// + 1 places to set the range for the unit after the number of
+				// decimals places
+				errormargin[d] = 1.0 / (Math.pow(10, (places + 1)));
 			}
 			else
 			{
 				errormargin[d] = 0;
 			}
-			log.info("e " + d + " " + errormargin[d]);
+			System.out.println("Error     : " + d + " " + errormargin[d]);
+			System.out.println("places    : " + d + " " + places);
+			System.out.println("Increment : " + d + " " + incr[d]);
 		}
 		
-		log.info("Combinations : " + combinations);
-		log.info("Dimensions : " + dimensions);
+		System.out.println("Combinations : " + combinations);
+		System.out.println("Dimensions : " + dimensions);
 		
 		// Combo Arrays
 		ComboItem[] comboItems = new ComboItem[combinations];
@@ -83,7 +90,7 @@ public class ComboTest
 			div = div / steps[d];
 			// Increment depending on the step div
 			incrementMods[d] = div;
-			log.info("d " + d + " increments every " + incrementMods[d]);
+			System.out.println("d " + d + " increments every " + incrementMods[d]);
 		}
 		
 		double[] max = new double[dimensions];
@@ -125,18 +132,18 @@ public class ComboTest
 		}
 		
 		// Output
-		log.info("Pos : ");
-		log.info("----------------------");
+		System.out.println("Pos : ");
+		System.out.println("----------------------");
 		for(int c = 0; c < combinations; c++)
 		{
-			log.info("c" + c + " " + comboItems[c].posToString());
+			System.out.println("c" + c + " " + comboItems[c].posToString());
 		}
 		
-		log.info("Combo");
-		log.info("----------------------");
+		System.out.println("Combo");
+		System.out.println("----------------------");
 		for(int c = 0; c < combinations; c++)
 		{
-			log.info("c" + c + " " + comboItems[c].valToString());
+			System.out.println("c" + c + " " + comboItems[c].valToString());
 		}
 	}
 	
