@@ -8,6 +8,7 @@ import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.FileUtil;
+import jCompute.util.JCMath;
 import jCompute.util.Text;
 
 import java.io.BufferedOutputStream;
@@ -300,6 +301,13 @@ public class Batch implements StoredQueuePosition
 				// steps for each parameter
 				int step[] = new int[parameterGroups];
 				
+				// Floating point equality ranges
+				// Get the number of decimal places
+				// Get 10^places
+				// divide 1 by 10^places to get 
+				// n places .1 above the the significant value to test for
+				double[] errormargin = new double[parameterGroups];
+				
 				// Batch Info Parameters list
 				parameters = new ArrayList<String>();
 				
@@ -337,6 +345,21 @@ public class Batch implements StoredQueuePosition
 					// Steps for each values
 					step[p] = batchConfigProcessor.getIntValue(section, "Combinations");
 					
+					// Find the number of decimal places
+					int places = JCMath.getNumberOfDecimalPlaces(increment[p]);
+					
+					// if A decimal value - calculate the error margin to use for floating point equality tests
+					// else for integer values epsilon is 0
+					if(places > 0)
+					{
+						// + 1 places to set the range for the unit after the number of decimals places
+						errormargin[p] = 1.0 / (Math.pow(10, (places+1)));
+					}
+					else
+					{
+						errormargin[p] = 0;
+					}
+					
 					// Optimise slightly the concatenations
 					String pNumString = "(" + p + ") ";
 					
@@ -366,6 +389,7 @@ public class Batch implements StoredQueuePosition
 					log.info(pNumString + "Intial : " + baseValue[p]);
 					log.info(pNumString + "Increment : " + increment[p]);
 					log.info(pNumString + "Combinations : " + step[p]);
+					log.info(pNumString + "Epsilon : " + errormargin[p]);
 				}
 				
 				// Calculate Total Combinations
@@ -513,8 +537,8 @@ public class Batch implements StoredQueuePosition
 							
 							value[p] = (value[p] + increment[p]);
 							
-							// Has a roll over occured
-							if(value[p] > maxValue[p])
+							// Has a roll over occurred ( > with in a calculated epsilon (floating point equalities))
+							if(value[p] > (maxValue[p]+errormargin[p]))
 							{
 								value[p] = baseValue[p];
 							}
