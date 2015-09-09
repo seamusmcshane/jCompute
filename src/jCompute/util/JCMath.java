@@ -1,5 +1,7 @@
 package jCompute.util;
 
+import java.math.BigDecimal;
+
 public class JCMath
 {
 	public static float distance(float[] from, float[] to)
@@ -40,5 +42,23 @@ public class JCMath
 	public static float distanceSquared(float fromX, float fromY, float toX, float toY)
 	{
 		return ((toX - fromX) * (toX - fromX)) + ((toY - fromY) * (toY - fromY));
+	}
+	
+	public static int getNumberOfDecimalPlaces(float val)
+	{
+		// String constructor required for correct conversion
+		BigDecimal bigDecimal = new BigDecimal(String.valueOf(val));
+		String string = bigDecimal.stripTrailingZeros().toPlainString();
+		int index = string.indexOf(".");
+		return index < 0 ? 0 : string.length() - index - 1;
+	}
+	
+	public static int getNumberOfDecimalPlaces(double val)
+	{
+		// String constructor required for correct conversion
+		BigDecimal bigDecimal = new BigDecimal(String.valueOf(val));
+		String string = bigDecimal.stripTrailingZeros().toPlainString();
+		int index = string.indexOf(".");
+		return index < 0 ? 0 : string.length() - index - 1;
 	}
 }
