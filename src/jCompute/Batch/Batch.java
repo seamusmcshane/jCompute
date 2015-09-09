@@ -304,7 +304,7 @@ public class Batch implements StoredQueuePosition
 				// Floating point equality ranges
 				// Get the number of decimal places
 				// Get 10^places
-				// divide 1 by 10^places to get 
+				// divide 1 by 10^places to get
 				// n places .1 above the the significant value to test for
 				double[] errormargin = new double[parameterGroups];
 				
@@ -347,13 +347,30 @@ public class Batch implements StoredQueuePosition
 					
 					// Find the number of decimal places
 					int places = JCMath.getNumberOfDecimalPlaces(increment[p]);
+					boolean incRounded = false;
 					
-					// if A decimal value - calculate the error margin to use for floating point equality tests
+					// if A decimal value - calculate the error margin to use
+					// for floating point equality tests
 					// else for integer values epsilon is 0
 					if(places > 0)
 					{
-						// + 1 places to set the range for the unit after the number of decimals places
-						errormargin[p] = 1.0 / (Math.pow(10, (places+1)));
+						// We cannot represent error margins for values with
+						// more than 14 decimals
+						if(places > 14)
+						{
+							places = 14;
+							
+							double prev = increment[p];
+							
+							increment[p] = JCMath.round(increment[p], places);
+							
+							log.warn("increment " + p + " rounded " + prev + " to " + increment[p]);
+							incRounded = true;
+						}
+						
+						// + 1 places to set the range for the unit after the
+						// number of decimals places
+						errormargin[p] = 1.0 / (Math.pow(10, (places + 1)));
 					}
 					else
 					{
@@ -382,6 +399,8 @@ public class Batch implements StoredQueuePosition
 					parameters.add(String.valueOf(step[p]));
 					parameters.add(pNumString + "Error Margin");
 					parameters.add(String.valueOf(errormargin[p]));
+					parameters.add(pNumString + "Increment Rounded");
+					parameters.add(String.valueOf(incRounded));
 					
 					// Logging
 					log.info(pNumString + "ParameterType : " + parameterType[p]);
@@ -392,6 +411,7 @@ public class Batch implements StoredQueuePosition
 					log.info(pNumString + "Increment : " + increment[p]);
 					log.info(pNumString + "Combinations : " + step[p]);
 					log.info(pNumString + "Error Margin : " + errormargin[p]);
+					log.info(pNumString + "Increment Rounded : " + String.valueOf(incRounded));
 				}
 				
 				// Calculate Total Combinations
@@ -539,8 +559,9 @@ public class Batch implements StoredQueuePosition
 							
 							value[p] = (value[p] + increment[p]);
 							
-							// Has a roll over occurred ( > with in a calculated epsilon (floating point equalities))
-							if(value[p] > (maxValue[p]+errormargin[p]))
+							// Has a roll over occurred ( > with in a calculated
+							// epsilon (floating point equalities))
+							if(value[p] > (maxValue[p] + errormargin[p]))
 							{
 								value[p] = baseValue[p];
 							}
@@ -1062,6 +1083,16 @@ public class Batch implements StoredQueuePosition
 					infoLog.println("IOAvgTime=" + ioTotalTimes / completed);
 					infoLog.println("ItemTotalTime=" + cpuTotalTimes + ioTotalTimes);
 					infoLog.println("ItemAvgTime=" + ((cpuTotalTimes + ioTotalTimes) / completed));
+					
+					for(int i = 0; i < parameters.size(); i += 2)
+					{
+						// Skip "" ""
+						if(i > 2)
+						{
+							infoLog.println(parameters.get(i) + "=" + parameters.get(i + 1));
+						}
+					}
+					
 					infoLog.flush();
 					infoLog.close();
 				}
