@@ -6,14 +6,14 @@ public class ComboItem
 	
 	private int dims;
 	private int pos[];
-	private int vals[];
+	private double vals[];
 	
 	public ComboItem(int cid, int dims)
 	{
 		this.cid = cid;
 		this.dims = dims;
 		pos = new int[dims];
-		vals = new int[dims];
+		vals = new double[dims];
 	}
 	
 	public void setDimPos(int dim, int val)
@@ -60,7 +60,7 @@ public class ComboItem
 		return builder.toString();
 	}
 
-	public void setDimVals(int d, int val)
+	public void setDimVals(int d, double val)
 	{
 		vals[d] = val;		
 	}
