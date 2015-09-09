@@ -380,6 +380,8 @@ public class Batch implements StoredQueuePosition
 					parameters.add(String.valueOf(increment[p]));
 					parameters.add(pNumString + "Steps");
 					parameters.add(String.valueOf(step[p]));
+					parameters.add(pNumString + "Error Margin");
+					parameters.add(String.valueOf(errormargin[p]));
 					
 					// Logging
 					log.info(pNumString + "ParameterType : " + parameterType[p]);
@@ -389,7 +391,7 @@ public class Batch implements StoredQueuePosition
 					log.info(pNumString + "Intial : " + baseValue[p]);
 					log.info(pNumString + "Increment : " + increment[p]);
 					log.info(pNumString + "Combinations : " + step[p]);
-					log.info(pNumString + "Epsilon : " + errormargin[p]);
+					log.info(pNumString + "Error Margin : " + errormargin[p]);
 				}
 				
 				// Calculate Total Combinations
