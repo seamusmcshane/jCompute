@@ -40,7 +40,7 @@ public class HeatMapUtil implements WindowListener
 		
 		gui.addWindowListener(this);
 		
-		gui.setMinimumSize(new Dimension((int) width, (int) height));
+		gui.setMinimumSize(new Dimension((int) width+15, (int) height+35));
 
 		gui.setLayout(new BorderLayout());
 		
