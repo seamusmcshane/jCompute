@@ -15,7 +15,7 @@ public class Palette
 	private static int SPECTURM_RANGE_MAX = 750;
 	private static int SPECTURM_RANGE= SPECTURM_RANGE_MAX-SPECTURM_RANGE_MIN;
 	
-	public static int[] HUEPalete(boolean rgba, int paletteSize)
+	public static int[] HUEPalette(boolean rgba, int paletteSize)
 	{
 		int palette[] = new int[paletteSize];
 		
@@ -37,7 +37,7 @@ public class Palette
 		return palette;
 	}
 	
-	public static int[] SpectrumPalete(boolean rgba, int paletteSize)
+	public static int[] SpectrumPalette(boolean rgba, int paletteSize)
 	{
 		int palette[] = new int[paletteSize];
 		
@@ -49,7 +49,10 @@ public class Palette
 		// ARGB
 		for(int i = 0; i < paletteSize; i++)
 		{
-			float[] rgb = WavelengthToFloatRGB(min+(i*step),100);
+			float[] unnorm = WavelengthToFloatRGB(min+(i*step),100);
+			
+			float[] rgb = normalizeLuminance(unnorm,0.93f);
+			
 			int red = (int) (rgb[RED]*RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
@@ -70,7 +73,7 @@ public class Palette
 		return palette;
 	}
 	
-	public static int[] SpectrumPaleteWrapped(boolean rgba, int paletteSize)
+	public static int[] SpectrumPaletteWrapped(boolean rgba, int paletteSize)
 	{
 		int palette[] = new int[paletteSize];
 		
@@ -82,7 +85,10 @@ public class Palette
 		// ARGB
 		for(int i = 0; i < paletteSize/2; i++)
 		{
-			float[] rgb = WavelengthToFloatRGB(min+(i*step),0);
+			float[] unnorm = WavelengthToFloatRGB(min+(i*step),0);
+			
+			float[] rgb = normalizeLuminance(unnorm,0.93f);
+			
 			int red = (int) (rgb[RED]*RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
@@ -96,7 +102,10 @@ public class Palette
 		int s=0;
 		for(int i = paletteSize-1; i > paletteSize/2; i--)
 		{
-			float[] rgb = WavelengthToFloatRGB(min+(s*step),0);
+			float[] unnorm = WavelengthToFloatRGB(min+(s*step),0);
+			
+			float[] rgb = normalizeLuminance(unnorm,0.93f);
+			
 			int red = (int) (rgb[RED]*RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
@@ -119,7 +128,34 @@ public class Palette
 		
 		return palette;
 	}
+	
+	private static float[] normalizeLuminance(float[] rgb, float maxLuminance)
+	{
+		int red = (int) (rgb[RED]*RGBCOLORDEPTH);
+		int green = (int) (rgb[GREEN]*RGBCOLORDEPTH);
+		int blue = (int) (rgb[BLUE]*RGBCOLORDEPTH);
+		
+		float[] hsb = new float[3];
+		Color.RGBtoHSB(red,green,blue, hsb);
+		
+		if(hsb[2]>maxLuminance)
+		{
+			hsb[2] = maxLuminance;
+		}
 
+	    int newColor = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
+	    
+		float[] norm = new float[3];
+		
+		float multi = 1f/255f;
+		
+		norm[RED] = multi*((newColor >> 16) & 0xFF);
+		norm[GREEN] = multi*((newColor >> 8) & 0xFF);
+		norm[BLUE] = multi*((newColor & 0xFF));
+		
+		return norm;
+	}
+	
 	public static float[] WavelengthToFloatRGB(float wavelength, int dropoff)
 	{
 		float[] rgb = new float[3];

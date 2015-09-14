@@ -53,7 +53,7 @@ public class SurfacePlotEnv implements ApplicationListener
 	
 	private float targetInc = 25f;
 	
-	private int[] pallete;
+	private int[] palette;
 	
 	public SurfacePlotEnv(float width, float height)
 	{
@@ -89,13 +89,13 @@ public class SurfacePlotEnv implements ApplicationListener
 		 * cam.far = 102420f;
 		 */
 		
-		pallete = Palette.SpectrumPalete(true, 256);
+		palette = Palette.SpectrumPalette(true, 256);
 		
 		// Surface
-		barSurface = new BarSurface(cam, pallete);
+		barSurface = new BarSurface(cam, palette);
 		
 		batch = new SpriteBatch();
-		colorMap = new ColorMap(barSurface.getZmin(), barSurface.getZmax(), pallete);
+		colorMap = new ColorMap(barSurface.getZmin(), barSurface.getZmax(), palette);
 		
 		tr = colorMap.getTextureRegion();
 		
@@ -123,7 +123,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		float zMin = (float) mapper.getZValMin();
 		float zMax = (float) mapper.getZValMax();
 		
-		colorMap = new ColorMap(zMin, zMax, pallete);
+		colorMap = new ColorMap(zMin, zMax, palette);
 		
 		tr = colorMap.getTextureRegion();
 		

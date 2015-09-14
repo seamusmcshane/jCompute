@@ -11,13 +11,15 @@ public class MapperRemapper extends Mapper
 	private MapperValuesContainer values;
 	private int target;
 	
-	private final int PALLET_SIZE = 256;
-	private final int[] pallete = Palette.SpectrumPalete(false, PALLET_SIZE);
+	private final int PALETTE_SIZE = 256;
+	private int[] palette;
 	
 	public MapperRemapper(MapperValuesContainer values, int target)
 	{
 		this.values = values;
 		this.target = target;
+		
+		palette = Palette.SpectrumPalette(false, PALETTE_SIZE);
 	}
 	
 	@Override
@@ -73,10 +75,10 @@ public class MapperRemapper extends Mapper
 			}
 		}
 		
-		double one = ((double) PALLET_SIZE - 1) / max;
+		double one = ((double) PALETTE_SIZE - 1) / max;
 		int index = (int) (one * value);
 		
-		return pallete[index];
+		return palette[index];
 	}
 	
 	public void populateImage(BufferedImage image)
