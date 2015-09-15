@@ -52,6 +52,13 @@ public class JCMath
 		return bd.doubleValue();
 	}
 	
+	public static float round(float value, int places)
+	{
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.floatValue();
+	}
+	
 	public static int getNumberOfDecimalPlaces(float val)
 	{
 		// String constructor required for correct conversion
