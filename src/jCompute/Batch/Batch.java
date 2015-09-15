@@ -547,7 +547,7 @@ public class Batch implements StoredQueuePosition
 					// DebugLogger.output(temp.getScenarioXMLText());
 					comboPosString.append("ComboPos(");
 					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
-					ArrayList<Double> tempCoordValues = new ArrayList<Double>();
+					ArrayList<Float> tempCoordValues = new ArrayList<Float>();
 					
 					for(int p = 0; p < parameterGroups; p++)
 					{
@@ -693,7 +693,7 @@ public class Batch implements StoredQueuePosition
 						
 						// Set the pos and val
 						tempCoord.add(pos[p]);
-						tempCoordValues.add(value[p]);
+						tempCoordValues.add((float)JCMath.round(value[p], 7));
 						
 						comboPosString.append(String.valueOf(pos[p]));
 						if(p < (parameterGroups - 1))
@@ -934,7 +934,7 @@ public class Batch implements StoredQueuePosition
 			itemLog.println("IID=" + item.getItemId());
 			itemLog.println("SID=" + item.getSampleId());
 			ArrayList<Integer> coords = item.getCoordinates();
-			ArrayList<Double> coordsValues = item.getCoordinatesValues();
+			ArrayList<Float> coordsValues = item.getCoordinatesValues();
 			for(int c = 0; c < coords.size(); c++)
 			{
 				itemLog.println("[+Coordinate]");
@@ -1120,7 +1120,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Small wrapper around queue add and disk cache
 	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates,
-			ArrayList<Double> coordinatesValues)
+			ArrayList<Float> coordinatesValues)
 	{
 		byte[] configBytes = null;
 		try

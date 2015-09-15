@@ -13,7 +13,7 @@ public class BatchItem
 	private ArrayList<Integer> coordinates;
 	
 	// Real Values
-	private ArrayList<Double> coordinatesValues;
+	private ArrayList<Float> coordinatesValues;
 	private int simId;
 	
 	private String itemHash;
@@ -26,7 +26,7 @@ public class BatchItem
 	private long computeTime;
 	
 	public BatchItem(int sampleId, int itemId, int batchId, String name, String hash, ArrayList<Integer> coordinates,
-			ArrayList<Double> coordinatesValues)
+			ArrayList<Float> coordinatesValues)
 	{
 		this.sampleId = sampleId;
 		this.itemId = itemId;
@@ -42,7 +42,7 @@ public class BatchItem
 		return coordinates;
 	}
 	
-	public ArrayList<Double> getCoordinatesValues()
+	public ArrayList<Float> getCoordinatesValues()
 	{
 		return coordinatesValues;
 	}
