@@ -1,19 +1,21 @@
 package jCompute.Batch;
 
+import jCompute.util.JCMath;
+
 public class ComboItem
 {
 	private int cid;
 	
 	private int dims;
 	private int pos[];
-	private double vals[];
+	private float vals[];
 	
 	public ComboItem(int cid, int dims)
 	{
 		this.cid = cid;
 		this.dims = dims;
 		pos = new int[dims];
-		vals = new double[dims];
+		vals = new float[dims];
 	}
 	
 	public void setDimPos(int dim, int val)
@@ -62,7 +64,7 @@ public class ComboItem
 
 	public void setDimVals(int d, double val)
 	{
-		vals[d] = val;		
+		vals[d] = (float)JCMath.round(val, 7);		
 	}
 			
 }
