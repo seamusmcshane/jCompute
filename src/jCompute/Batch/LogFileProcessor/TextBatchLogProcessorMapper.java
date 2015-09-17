@@ -23,7 +23,6 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	private String logName = "";
 	private String logType = "";
 	private int samples = 0;
-	private int sufaceWidthHeight = 0;
 	
 	private String xAxisName = "";
 	private TickValueMapper xMapper;
@@ -145,8 +144,10 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		log.info("X Dim : " + xDimSize);
 		log.info("Y Dim : " + yDimSize);
 		
-		// +1 for array size dim
-		// sufaceWidthHeight = (int) Math.sqrt((logItems.size() / samples)) + 1;
+		// System.out.println("xValMin " + xValMin);
+		// System.out.println("xValMax " + xValMax);
+		// System.out.println("yValMin " + yValMin);
+		// System.out.println("yValMax " + yValMax);
 		
 		log.info("Surface Size : " + xDimSize*yDimSize);
 		log.info("Item Total   : " + logItems.size());
