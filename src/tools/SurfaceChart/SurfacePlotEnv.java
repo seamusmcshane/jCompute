@@ -113,12 +113,12 @@ public class SurfacePlotEnv implements ApplicationListener
 	public void setData(BatchLogInf mapper)
 	{
 		int xSteps = mapper.getXSteps();
-		float xMin = (float) mapper.getXMin();
-		float xMax = (float) mapper.getXMax();
+		float xMin = (float) mapper.getXValMin();
+		float xMax = (float) mapper.getXValMax();
 		
 		int ySteps = mapper.getYSteps();
-		float yMin = (float) mapper.getYMin();
-		float yMax = (float) mapper.getYMax();
+		float yMin = (float) mapper.getYValMin();
+		float yMax = (float) mapper.getYValMax();
 		
 		float zMin = (float) mapper.getZValMin();
 		float zMax = (float) mapper.getZValMax();

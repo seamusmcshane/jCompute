@@ -55,13 +55,14 @@ public class BarSurface
 		
 		axisGrid = new AxisGrid(gridSize, gridSize / 2, 0.5f);
 		
-		axisGrid.setTickIntervals(5);
+		int tickX = xSteps-1;
+		int tickY = ySteps-1;
+		int tickZ = 5;
+		axisGrid.setTickIntervals(tickX,tickY,tickZ);
 		axisGrid.setLabelSize(2f);
 		axisGrid.setFloorGridDisplayed(false);
 		axisGrid.setZAxisDisplayed(false);
 		axisGrid.setMinMaxDisplayed(false);
-		
-		axisGrid.setTickIntervals(4);
 		
 		float[][] minMax = new float[3][2];
 		minMax[0][0] = xAxisMin;
