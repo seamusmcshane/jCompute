@@ -148,7 +148,7 @@ public class PhasePlot
 			populated = true;
 		}
 		
-		axisGrid.setTickIntervals(4);
+		axisGrid.setTickIntervals(4,4,4);
 		axisGrid.setAxisRangeMinMax(minMax);
 		axisGrid.setValueMinMax(xMin, xMax, yMin, yMax, zMin, zMax);
 		axisGrid.setLabelSize(2f);
