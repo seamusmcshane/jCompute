@@ -284,7 +284,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	
 	public double getYValMax()
 	{
-		return xValMax;
+		return yValMax;
 	}
 	
 	private class TickValueMapper implements ITickRenderer
