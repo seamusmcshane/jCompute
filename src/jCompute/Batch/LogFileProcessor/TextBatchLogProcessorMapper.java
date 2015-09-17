@@ -388,7 +388,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 					// Read VAL 0
 					cline = inputFile.readLine();
 					String cval2 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
-					vals[1] = Float.parseFloat(cval2);
+					vals[1] = Double.parseDouble(cval2);
 					
 					while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 					{
