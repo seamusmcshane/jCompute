@@ -58,6 +58,36 @@ public class BarSurface
 		int tickX = xSteps-1;
 		int tickY = ySteps-1;
 		int tickZ = 5;
+		
+		int maxTicks = 10;
+		
+		if(tickX > maxTicks)
+		{
+			for(int i=maxTicks;i>0;i--)
+			{
+				if(tickX % i == 0)
+				{
+					tickX = i;
+					break;
+				}
+			}
+		}
+		
+		if(tickY > maxTicks)
+		{
+			for(int i=maxTicks;i>0;i--)
+			{
+					if(tickY % i == 0)
+					{
+						tickY = i;
+						break;
+					}
+			}
+		}
+		
+		System.out.println("tickX : " + tickX);
+		System.out.println("tickY : " + tickY);
+		
 		axisGrid.setTickIntervals(tickX,tickY,tickZ);
 		axisGrid.setLabelSize(2f);
 		axisGrid.setFloorGridDisplayed(false);
