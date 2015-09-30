@@ -28,6 +28,14 @@
 			<GraphSampleWindow>100</GraphSampleWindow>
 		</Stat>
 		<Stat>
+			<Name>Density</Name>
+			<Enabled>true</Enabled>
+			<TotalStat>true</TotalStat>
+			<Graph>true</Graph>
+			<StatSampleRate>100</StatSampleRate>
+			<GraphSampleWindow>100</GraphSampleWindow>
+		</Stat>			
+		<Stat>
 			<Name>Births-Deaths</Name>
 			<Enabled>true</Enabled>
 			<TotalStat>false</TotalStat>
