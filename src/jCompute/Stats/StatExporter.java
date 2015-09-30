@@ -699,7 +699,7 @@ public class StatExporter
 	
 	public enum ExportFormat
 	{
-		XML("Extensible Markup Language", "xml"), CSV("Comma Separated Values", "csv"), ARFF(
+		CSV("Comma Separated Values", "csv"), XML("Extensible Markup Language", "xml"), ARFF(
 				"Attribute-Relation File Format", "arff"), ZXML("Extensible Markup Language in a Zip Archive", "xml"), ZCSV(
 				"Comma Separated Values in a Zip Archive", "csv");
 		
