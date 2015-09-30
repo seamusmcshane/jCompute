@@ -23,6 +23,12 @@ public class ThirdGenKDWrapperDouble<Datatype>
 		tree = new ThirdGenKdTreeDouble<Datatype>(dim, 24);
 	}
 	
+	public ThirdGenKDWrapperDouble(int dim, int bucketSize)
+	{
+		treenodes = 0;
+		tree = new ThirdGenKdTreeDouble<Datatype>(dim, bucketSize);
+	}
+	
 	public void add(double kd[], Datatype agent)
 	{
 		tree.addPoint(kd, agent);

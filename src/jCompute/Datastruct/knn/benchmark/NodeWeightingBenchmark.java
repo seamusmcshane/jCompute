@@ -2,16 +2,21 @@ package jCompute.Datastruct.knn.benchmark;
 
 import java.util.ArrayList;
 
+import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.Datastruct.knn.ThirdGenKDWrapperDouble;
+import jCompute.Datastruct.knn.ThirdGenKDWrapperFloat;
 
 public class NodeWeightingBenchmark
 {
-	private ThirdGenKDWrapperDouble<TreeBenchObject> tree;
+	private ThirdGenKDWrapperFloat<KNNPosInf> tree;
 	private int objectCount;
 
 	private ArrayList<TreeBenchObject> list;
 
 	private int iterations;
+
+	// Default
+	private int bucketSize = 24;
 
 	private TimerObj add = new TimerObj();
 	private long addTime = 0;
@@ -27,6 +32,13 @@ public class NodeWeightingBenchmark
 		this.iterations = iterations;
 	}
 	
+	public NodeWeightingBenchmark(int objectCount, int iterations, int buckSize)
+	{
+		this.objectCount = objectCount;
+		this.iterations = iterations;
+		this.bucketSize = buckSize;
+	}
+	
 	private void generateObjects()
 	{
 		int xMax = (int) Math.sqrt(objectCount);
@@ -34,12 +46,12 @@ public class NodeWeightingBenchmark
 
 		list = new ArrayList<TreeBenchObject>();
 
-		double[] pos;
+		float[] pos;
 		for(int y = 0; y < yMax; y++)
 		{
 			for(int x = 0; x < xMax; x++)
 			{
-				pos = new double[]{x,y};
+				pos = new float[]{x,y};
 				list.add(new TreeBenchObject(x * y + x, pos));
 			}
 		}
@@ -47,19 +59,22 @@ public class NodeWeightingBenchmark
 
 	private void populateTree()
 	{
-		tree = new ThirdGenKDWrapperDouble<TreeBenchObject>(2);
+		tree = new ThirdGenKDWrapperFloat<KNNPosInf>(2,bucketSize);
 
-		for(TreeBenchObject object : list)
+		for(KNNPosInf object : list)
 		{
-			tree.add(object.getPos(), object);
+			tree.add(object.getKNNPos(), object);
 		}
 	}
 
 	private void searchTree()
 	{
-		for(TreeBenchObject object : list)
+		for(KNNPosInf object : list)
 		{
-			object.setNearestObject(tree.nearestNeighbour(object.getPos()));
+			TreeBenchObject cto = (TreeBenchObject)object;
+			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object.getKNNPos());
+			
+			cto.setNearestObject(no);
 		}
 	}
 

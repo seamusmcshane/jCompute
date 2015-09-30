@@ -5,6 +5,7 @@ import java.util.List;
 
 import ags.utils.dataStructures.singlePrecision.kdTree.thirdGen.ThirdGenKdTreeFloat;
 import ags.utils.dataStructures.singlePrecision.kdTree.thirdGen.SquareEuclideanDistanceFunctionFloat;
+import ags.utils.dataStructures.doublePrecision.kdTree.thirdGen.ThirdGenKdTreeDouble;
 import ags.utils.dataStructures.singlePrecision.MaxHeapFloat;
 
 public class ThirdGenKDWrapperFloat<Datatype>
@@ -21,6 +22,12 @@ public class ThirdGenKDWrapperFloat<Datatype>
 	{
 		treenodes = 0;
 		tree = new ThirdGenKdTreeFloat<Datatype>(dim, 24);
+	}
+	
+	public ThirdGenKDWrapperFloat(int dim, int bucketSize)
+	{
+		treenodes = 0;
+		tree = new ThirdGenKdTreeFloat<Datatype>(dim, bucketSize);
 	}
 	
 	public void add(float kd[], Datatype agent)

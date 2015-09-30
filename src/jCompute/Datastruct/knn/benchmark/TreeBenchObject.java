@@ -1,15 +1,18 @@
 package jCompute.Datastruct.knn.benchmark;
 
-public class TreeBenchObject
+import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.util.JCMath;
+
+public class TreeBenchObject implements KNNPosInf
 {
 	private int id;
-	private double pos[];
+	private float pos[];
 	
 	private TreeBenchObject nearestObject;
 	private int nearestObjectID;
-	private double nearestObjectDistance;
+	private float nearestObjectDistance;
 	
-	public TreeBenchObject(int id,double[] pos) 
+	public TreeBenchObject(int id,float[] pos) 
 	{
 		this.id = id;
 		this.pos = pos;
@@ -18,6 +21,7 @@ public class TreeBenchObject
 	public void setNearestObject(TreeBenchObject nearestObject)
 	{
 		this.nearestObject = nearestObject;
+		
 		this.nearestObjectDistance = distanceTo(nearestObject);
 	}
 	
@@ -36,26 +40,28 @@ public class TreeBenchObject
 		return id;
 	}
 
-	public double getX()
+	public float getX()
 	{
 		return pos[0];
 	}
 
-	public double getY()
+	public float getY()
 	{
 		return pos[1];
 	}
 
-	public double distanceTo(TreeBenchObject nearestObject)
+	public float distanceTo(TreeBenchObject nearestObject)
 	{
-		double dis;
-		/* Much much faster */
-		dis = (((this.getX()-nearestObject.getX())*(this.getX()-nearestObject.getX())) + ((this.getY()-nearestObject.getY())*(this.getY()-nearestObject.getY())));
+		float dis;
 		
 		/* ignore self */
 		if(this.getX() == nearestObject.getX() && this.getY() == nearestObject.getY())
 		{
-			dis = Double.MAX_VALUE;
+			dis = Float.MAX_VALUE;
+		}
+		else
+		{
+			dis = JCMath.distanceSquared(pos, nearestObject.getKNNPos());
 		}
 
 		/* Distance */
@@ -73,7 +79,7 @@ public class TreeBenchObject
 		this.nearestObjectID = nearestObjectID;
 	}
 
-	public double[] getPos()
+	public float[] getKNNPos()
 	{
 		return pos;
 	}
