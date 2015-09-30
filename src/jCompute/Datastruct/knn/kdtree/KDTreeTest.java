@@ -1,5 +1,6 @@
 package jCompute.Datastruct.knn.kdtree;
 
+import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.Datastruct.knn.benchmark.TreeBenchObject;
 
 import java.util.ArrayList;
@@ -15,17 +16,17 @@ public class KDTreeTest
 		
 		System.out.println("Object count " + num);
 
-		ArrayList<TreeBenchObject> list = new ArrayList<TreeBenchObject>(num);
+		ArrayList<KNNPosInf> list = new ArrayList<KNNPosInf>(num);
 		
 		Random r = new Random();
-		double[] pos;
+		float[] pos;
 		for(int o=0;o<num;o++)
 		{
-			pos = new double[]{r.nextDouble()*25.0,r.nextDouble()*25.0};
+			pos = new float[]{r.nextFloat()*25.0f,r.nextFloat()*25.0f};
 			list.add(new TreeBenchObject(o,pos));
 		}
 				
-		KDTreeBulk<TreeBenchObject> tree = new KDTreeBulk<TreeBenchObject>(2);
+		KDTreeBulk<KNNPosInf> tree = new KDTreeBulk<KNNPosInf>(2);
 		
 		tree.load(list);
 		
