@@ -76,4 +76,46 @@ public class JCMath
 		int index = string.indexOf(".");
 		return index < 0 ? 0 : string.length() - index - 1;
 	}
+	
+	/**
+	 * Returns if a point is in a Square.
+	 * Square is Centred on 0,0
+	 * @param x
+	 * @param y
+	 * @param size
+	 * @param pointX
+	 * @param pointY
+	 * @return
+	 */
+	public static boolean SquareContainsPoint(float cx, float cy, float size, float pointX, float pointY)
+	{
+		float halfSize = size*0.5f;
+		float xMin = cx-halfSize;
+		float yMin = cy-halfSize;
+		float xMax = cx+halfSize;
+		float yMax = cy+halfSize;
+		
+		return (pointX >= xMin && pointX <= (xMax) && pointY >= yMin && pointY <= yMax);
+	}
+	
+	/**
+	 * Returns if a point is in a Square.
+	 * Square is Centred on 0,0
+	 * @param x
+	 * @param y
+	 * @param size
+	 * @param pointX
+	 * @param pointY
+	 * @return
+	 */
+	public static boolean SquareContainsPoint(float[] xy, float size, float[] xy2)
+	{
+		float halfSize = size*0.5f;
+		float xMin = xy[0]-halfSize;
+		float yMin = xy[1]-halfSize;
+		float xMax = xy[0]+halfSize;
+		float yMax = xy[1]+halfSize;
+		
+		return (xy2[0] >= xMin && xy2[0] <= (xMax) && xy2[1] >= yMin && xy2[1] <= yMax);
+	}
 }
