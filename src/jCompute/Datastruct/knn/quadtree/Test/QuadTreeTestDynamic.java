@@ -21,7 +21,7 @@ public class QuadTreeTestDynamic
 {
 	public static int size = 768;
 	public static QuadPanel qpanel;
-	public static RegionQuadTree quadTree = new RegionQuadTree(size);
+	public static RegionQuadTree quadTree = new RegionQuadTree(size*0.5f,size*0.5f,size);
 	
 	public static Semaphore listLock = new Semaphore(1,true);
 	public static ArrayList<KNNPosInf> list = new ArrayList<KNNPosInf>();
@@ -188,7 +188,7 @@ public class QuadTreeTestDynamic
 				
 				if(checkCollisions)
 				{
-					ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(pos, pointRadius);
+					ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(pos, pointRadius*pointRadius);
 					
 					if(overlaps.size() > 0)
 					{
@@ -229,7 +229,7 @@ public class QuadTreeTestDynamic
 							
 							if(checkCollisions)
 							{
-								ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(next.getKNNPos(), pointRadius);
+								ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(next.getKNNPos(), pointRadius*pointRadius);
 
 								if(overlaps !=null)
 								{
@@ -260,7 +260,7 @@ public class QuadTreeTestDynamic
 							
 							qpanel.setLines(lines);
 							
-							ArrayList<KNNPosInf> allList = quadTree.findNearestNeighbours(search, 10240);
+							ArrayList<KNNPosInf> allList = quadTree.findNearestNeighbours(search, 10240*10240);
 							qpanel.setPoints(allList);
 							
 							if(searchEntered)
@@ -270,16 +270,16 @@ public class QuadTreeTestDynamic
 								// System.out.println("Search " +
 								// search[0]+"x"+search[1]);
 								
-								KNNResult result = new KNNResult(null, viewRange);
+								KNNResult result = new KNNResult(null, viewRange*viewRange);
 								
 								ArrayList<KNNPosInf> nearestNeighbours = new ArrayList<KNNPosInf>();
 								
 								int x=0;
 								// for(int i=0;i<10000;i++)
 								{
-									quadTree.setNearestNeighbour(result, search, viewRange);
+									quadTree.setNearestNeighbour(result, search, viewRange*viewRange);
 
-									nearestNeighbours = quadTree.findNearestNeighbours(search, viewRange);
+									nearestNeighbours = quadTree.findNearestNeighbours(search, viewRange*viewRange);
 									x+=1;
 								}
 								
@@ -300,7 +300,7 @@ public class QuadTreeTestDynamic
 									qpanel.setShow1NNResult(result.getPos().getKNNPos());
 								}
 								
-								if(result.getDis() < pointRadius)
+								if(result.getDis() < (pointRadius*pointRadius))
 								{
 									// System.out.println("Remove" + result.getPos().getKNNPos()[0] + "x" + result.getPos().getKNNPos()[1]);
 									

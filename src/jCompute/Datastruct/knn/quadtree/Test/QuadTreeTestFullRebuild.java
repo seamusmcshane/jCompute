@@ -18,7 +18,7 @@ public class QuadTreeTestFullRebuild
 {
 	public static int size = 768;
 	public static QuadPanel qpanel;
-	public static RegionQuadTree quadTree = new RegionQuadTree(size);
+	public static RegionQuadTree quadTree = new RegionQuadTree(size*0.5f,size*0.5f,size);
 	public static ArrayList<KNNPosInf> list = new ArrayList<KNNPosInf>();
 	
 	public static int mouseX = 0;
@@ -144,7 +144,7 @@ public class QuadTreeTestFullRebuild
 					{
 						if(qpanel != null)
 						{
-							quadTree = new RegionQuadTree(size, list);
+							quadTree = new RegionQuadTree(size*0.5f,size*0.5f,size, list);
 							
 							float[][] lines = quadTree.getQuadTreePartitionLines();
 							
@@ -161,10 +161,10 @@ public class QuadTreeTestFullRebuild
 								float removeDis = 10f;
 								float distance = 100f;
 								
-								KNNResult result = new KNNResult(null, distance);
+								KNNResult result = new KNNResult(null, distance*distance);
 								
-								quadTree.setNearestNeighbour(result, search, distance);
-								ArrayList<KNNPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, distance);
+								quadTree.setNearestNeighbour(result, search, distance*distance);
+								ArrayList<KNNPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, distance*distance);
 								
 								// Display the Search point
 								qpanel.showSearchPointAndRange(search, distance);
@@ -181,7 +181,7 @@ public class QuadTreeTestFullRebuild
 									qpanel.setShow1NNResult(result.getPos().getKNNPos());
 								}
 								
-								if(result.getDis() < removeDis)
+								if(result.getDis() < (removeDis*removeDis))
 								{
 									System.out.println("Remove" + result.getPos().getKNNPos()[0] + "x" + result.getPos().getKNNPos()[1]);
 									

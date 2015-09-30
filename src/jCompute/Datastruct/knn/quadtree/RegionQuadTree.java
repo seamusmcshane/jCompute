@@ -778,7 +778,7 @@ public class RegionQuadTree
 			
 			for(KNNPosInf object : objects)
 			{
-				float dis = JCMath.distance(point, object.getKNNPos());
+				float dis = JCMath.distanceSquared(point, object.getKNNPos());
 				
 				if(dis < result.getDis())
 				{
@@ -810,7 +810,7 @@ public class RegionQuadTree
 			
 			for(KNNPosInf object : objects)
 			{
-				float dis = JCMath.distance(point, object.getKNNPos());
+				float dis = JCMath.distanceSquared(point, object.getKNNPos());
 				
 				if(dis < maxDistance)
 				{
