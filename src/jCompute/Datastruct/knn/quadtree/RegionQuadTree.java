@@ -32,7 +32,7 @@ public class RegionQuadTree
 	 * Creates an empty Tree
 	 * @param size
 	 */
-	public RegionQuadTree(float size)
+	public RegionQuadTree(float xOffset,float yOffset,float size)
 	{
 		this.size = size;
 		
@@ -40,8 +40,8 @@ public class RegionQuadTree
 		
 		float center[] = new float[2];
 		
-		this.treeCenterX = size * 0.5f;
-		this.treeCenterY = size * 0.5f;
+		this.treeCenterX = xOffset;
+		this.treeCenterY = yOffset;
 		
 		center[0] = treeCenterX;
 		center[1] = treeCenterY;
@@ -54,7 +54,7 @@ public class RegionQuadTree
 	 * @param size
 	 * @param objects
 	 */
-	public RegionQuadTree(float size, ArrayList<KNNPosInf> objects)
+	public RegionQuadTree(float xOffset,float yOffset,float size, ArrayList<KNNPosInf> objects)
 	{
 		this.size = size;
 		
@@ -62,8 +62,8 @@ public class RegionQuadTree
 		
 		float center[] = new float[2];
 		
-		this.treeCenterX = size * 0.5f;
-		this.treeCenterY = size * 0.5f;
+		this.treeCenterX = xOffset;
+		this.treeCenterY = yOffset;
 		
 		center[0] = treeCenterX;
 		center[1] = treeCenterY;
@@ -186,6 +186,16 @@ public class RegionQuadTree
 		}
 		
 		return node;
+	}
+	
+	public float getCenterX()
+	{
+		return treeCenterX;
+	}
+	
+	public float getCenterY()
+	{
+		return treeCenterY;
 	}
 	
 	/**
