@@ -13,8 +13,8 @@ import jCompute.util.JCMath;
  */
 public class RegionQuadTree
 {
-	private final int MAX_OBJECTS_PER_NODE = 4;
-	private final int MAX_LEVEL = 8;
+	private final int MAX_OBJECTS_PER_NODE = 64;
+	private final int MAX_LEVEL = 6;
 	
 	private int level;
 	private RegionQuadTreeNode rootNode;
@@ -427,7 +427,6 @@ public class RegionQuadTree
 	
 	private void find1NN(KNNResult result, RegionQuadTreeNode node, float[] point, float maxDistance)
 	{
-		
 		if(node.isLeaf())
 		{
 			if(debug)
@@ -440,27 +439,27 @@ public class RegionQuadTree
 		else
 		{
 			// Top Left
-			if(point[0] - maxDistance <= node.center[0] && point[1] - maxDistance <= node.center[1])
+			if(point[0] - result.getDis()  <= node.center[0] && point[1] - result.getDis()  <= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(0), point, maxDistance);
+				find1NN(result, node.getSubNodeNode(0), point, maxDistance );
 			}
 			
 			// Top Right
-			if(point[0] + maxDistance >= node.center[0] && point[1] - maxDistance <= node.center[1])
+			if(point[0] + result.getDis()  >= node.center[0] && point[1] - result.getDis()  <= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(1), point, maxDistance);
+				find1NN(result, node.getSubNodeNode(1), point, maxDistance );
 			}
 			
 			// Bottom Left
-			if(point[0] - maxDistance <= node.center[0] && point[1] + maxDistance >= node.center[1])
+			if(point[0] - result.getDis()  <= node.center[0] && point[1] + result.getDis()  >= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(2), point, maxDistance);
+				find1NN(result, node.getSubNodeNode(2), point, maxDistance );
 			}
 			
 			// Bottom Right
-			if(point[0] + maxDistance >= node.center[0] && point[1] + maxDistance >= node.center[1])
+			if(point[0] + result.getDis()  >= node.center[0] && point[1] + result.getDis()  >= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(3), point, maxDistance);
+				find1NN(result, node.getSubNodeNode(3), point, maxDistance );
 			}
 		}
 	}

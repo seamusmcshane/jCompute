@@ -5,6 +5,10 @@ public class KNNResult
 	private KNNPosInf pos;
 	private float dis;
 
+	public KNNResult()
+	{
+	}
+	
 	public KNNResult(KNNPosInf pos, float dis)
 	{
 		this.pos = pos;
