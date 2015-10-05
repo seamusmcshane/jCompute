@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -15,7 +16,7 @@ import jCompute.Datastruct.knn.KNNPosInf;
 public class QuadPanel extends JPanel
 {
 	private float[][] lines;
-	private ArrayList<KNNPosInf> list;
+	private List<KNNPosInf> list;
 	private int size;
 	
 	private float[] search;
@@ -24,7 +25,7 @@ public class QuadPanel extends JPanel
 	private boolean searchValid1NN = false;
 	private float[] result;
 	
-	private ArrayList<KNNPosInf> nearestNeighbours;
+	private List<KNNPosInf> nearestNeighbours;
 	private boolean searchValidKNN = false;
 	
 	private float pointSize;
@@ -61,7 +62,7 @@ public class QuadPanel extends JPanel
 		searchValid1NN = true;
 	}
 	
-	public void setShowKNNResult(ArrayList<KNNPosInf> nearestNeighbours)
+	public void setShowKNNResult(List<KNNPosInf> nearestNeighbours)
 	{
 		this.nearestNeighbours = nearestNeighbours;
 		searchValidKNN = true;
@@ -155,7 +156,7 @@ public class QuadPanel extends JPanel
 		g2.drawOval((int) (search[0] - radius), (int) (search[1] - radius), (int) diameter, (int) diameter);
 	}
 	
-	public void setPoints(ArrayList<KNNPosInf> list)
+	public void setPoints(List<KNNPosInf> list)
 	{
 		this.list = list;
 	}

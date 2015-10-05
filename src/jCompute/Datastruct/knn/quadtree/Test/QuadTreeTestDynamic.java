@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.Datastruct.knn.KNNResult;
 import jCompute.Datastruct.knn.benchmark.TreeBenchObject;
-import jCompute.Datastruct.knn.quadtree.RegionQuadTree;
+import jCompute.Datastruct.knn.quadtree.RecursiveRegionQuadTree;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,7 +21,7 @@ public class QuadTreeTestDynamic
 {
 	public static int size = 768;
 	public static QuadPanel qpanel;
-	public static RegionQuadTree quadTree = new RegionQuadTree(size*0.5f,size*0.5f,size);
+	public static RecursiveRegionQuadTree quadTree = new RecursiveRegionQuadTree(size*0.5f,size*0.5f,size);
 	
 	public static Semaphore listLock = new Semaphore(1,true);
 	public static ArrayList<KNNPosInf> list = new ArrayList<KNNPosInf>();

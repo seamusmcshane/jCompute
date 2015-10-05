@@ -11,10 +11,10 @@ import jCompute.util.JCMath;
  * RegionQuadTree
  * @author Seamus McShane
  */
-public class RegionQuadTree
+public class RecursiveRegionQuadTree
 {
 	private final int MAX_OBJECTS_PER_NODE = 64;
-	private final int MAX_LEVEL = 6;
+	private final int MAX_LEVEL = 5;
 	
 	private int level;
 	private RegionQuadTreeNode rootNode;
@@ -32,7 +32,7 @@ public class RegionQuadTree
 	 * Creates an empty Tree
 	 * @param size
 	 */
-	public RegionQuadTree(float xOffset,float yOffset,float size)
+	public RecursiveRegionQuadTree(float xOffset,float yOffset,float size)
 	{
 		this.size = size;
 		
@@ -54,7 +54,7 @@ public class RegionQuadTree
 	 * @param size
 	 * @param objects
 	 */
-	public RegionQuadTree(float xOffset,float yOffset,float size, ArrayList<KNNPosInf> objects)
+	public RecursiveRegionQuadTree(float xOffset,float yOffset,float size, ArrayList<KNNPosInf> objects)
 	{
 		this.size = size;
 		
@@ -484,7 +484,7 @@ public class RegionQuadTree
 			
 			node.removePoint(searchPoint);
 			
-			points++;
+			points--;
 		}
 		else
 		{
