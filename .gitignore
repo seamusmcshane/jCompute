@@ -1,3 +1,8 @@
 /bin
 
 /stats
+
+/scenarios/HenonMap.jar
+/scenarios/LV.jar
+/scenarios/Mandelbrot.jar
+/scenarios/SAPP.jar
