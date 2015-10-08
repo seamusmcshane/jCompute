@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
