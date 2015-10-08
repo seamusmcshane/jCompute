@@ -1,8 +1,6 @@
 package jCompute.Datastruct.knn.quadtree;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.Datastruct.knn.KNNResult;
 import jCompute.util.JCMath;
@@ -14,7 +12,7 @@ import jCompute.util.JCMath;
 public class RecursiveRegionQuadTree
 {
 	private final int MAX_OBJECTS_PER_NODE = 64;
-	private final int MAX_LEVEL = 5;
+	private final int MAX_LEVEL = 10;
 	
 	private int level;
 	private RegionQuadTreeNode rootNode;
@@ -24,7 +22,7 @@ public class RecursiveRegionQuadTree
 	private float treeCenterX;
 	private float treeCenterY;
 	
-	private static int points = 0;
+	private int points = 0;
 	
 	private final boolean debug = false;
 	
@@ -32,7 +30,7 @@ public class RecursiveRegionQuadTree
 	 * Creates an empty Tree
 	 * @param size
 	 */
-	public RecursiveRegionQuadTree(float xOffset,float yOffset,float size)
+	public RecursiveRegionQuadTree(float xOffset, float yOffset, float size)
 	{
 		this.size = size;
 		
@@ -46,7 +44,7 @@ public class RecursiveRegionQuadTree
 		center[0] = treeCenterX;
 		center[1] = treeCenterY;
 		
-		rootNode = new RegionQuadTreeNode(center, size, level);
+		rootNode = new RegionQuadTreeNode(0, center, size, level, MAX_OBJECTS_PER_NODE);
 	}
 	
 	/**
@@ -54,7 +52,7 @@ public class RecursiveRegionQuadTree
 	 * @param size
 	 * @param objects
 	 */
-	public RecursiveRegionQuadTree(float xOffset,float yOffset,float size, ArrayList<KNNPosInf> objects)
+	public RecursiveRegionQuadTree(float xOffset, float yOffset, float size, ArrayList<KNNPosInf> objects)
 	{
 		this.size = size;
 		
@@ -81,7 +79,7 @@ public class RecursiveRegionQuadTree
 		// System.out.println("level " + level + " size " + objects.size());
 		
 		// New Node
-		RegionQuadTreeNode node = new RegionQuadTreeNode(center, size, level);
+		RegionQuadTreeNode node = new RegionQuadTreeNode(0, center, size, level, MAX_OBJECTS_PER_NODE);
 		
 		if(objects.size() <= MAX_OBJECTS_PER_NODE || level == MAX_LEVEL)
 		{
@@ -246,25 +244,34 @@ public class RecursiveRegionQuadTree
 					// From 0,0 Center (X+/Y+)
 					float centers[][] = new float[4][2];
 					
+					int parentIndex = node.nodeIndex;
+					int parentLevel = node.level;
+					
+					int childIndexBase = (int) Math.pow(4, parentLevel) * parentIndex;
+					
 					// Top Left
+					childIndexBase++;
 					centers[0][0] = node.center[0] - quaterSize;
 					centers[0][1] = node.center[1] - quaterSize;
-					nodes[0] = new RegionQuadTreeNode(centers[0], halfSize, node.level + 1);
+					nodes[0] = new RegionQuadTreeNode(childIndexBase, centers[0], halfSize, node.level + 1, MAX_OBJECTS_PER_NODE);
 					
 					// Top Right
+					childIndexBase++;
 					centers[1][0] = node.center[0] + quaterSize;
 					centers[1][1] = node.center[1] - quaterSize;
-					nodes[1] = new RegionQuadTreeNode(centers[1], halfSize, node.level + 1);
+					nodes[1] = new RegionQuadTreeNode(childIndexBase, centers[1], halfSize, node.level + 1, MAX_OBJECTS_PER_NODE);
 					
 					// Bottom Left
+					childIndexBase++;
 					centers[2][0] = node.center[0] - quaterSize;
 					centers[2][1] = node.center[1] + quaterSize;
-					nodes[2] = new RegionQuadTreeNode(centers[2], halfSize, node.level + 1);
+					nodes[2] = new RegionQuadTreeNode(childIndexBase, centers[2], halfSize, node.level + 1, MAX_OBJECTS_PER_NODE);
 					
 					// Bottom Right
+					childIndexBase++;
 					centers[3][0] = node.center[0] + quaterSize;
 					centers[3][1] = node.center[1] + quaterSize;
-					nodes[3] = new RegionQuadTreeNode(centers[3], halfSize, node.level + 1);
+					nodes[3] = new RegionQuadTreeNode(childIndexBase, centers[3], halfSize, node.level + 1, MAX_OBJECTS_PER_NODE);
 					
 					// Link the new nodes
 					node.setSubNodes(nodes);
@@ -439,27 +446,27 @@ public class RecursiveRegionQuadTree
 		else
 		{
 			// Top Left
-			if(point[0] - result.getDis()  <= node.center[0] && point[1] - result.getDis()  <= node.center[1])
+			if(point[0] - result.getDis() <= node.center[0] && point[1] - result.getDis() <= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(0), point, maxDistance );
+				find1NN(result, node.getSubNodeNode(0), point, maxDistance);
 			}
 			
 			// Top Right
-			if(point[0] + result.getDis()  >= node.center[0] && point[1] - result.getDis()  <= node.center[1])
+			if(point[0] + result.getDis() >= node.center[0] && point[1] - result.getDis() <= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(1), point, maxDistance );
+				find1NN(result, node.getSubNodeNode(1), point, maxDistance);
 			}
 			
 			// Bottom Left
-			if(point[0] - result.getDis()  <= node.center[0] && point[1] + result.getDis()  >= node.center[1])
+			if(point[0] - result.getDis() <= node.center[0] && point[1] + result.getDis() >= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(2), point, maxDistance );
+				find1NN(result, node.getSubNodeNode(2), point, maxDistance);
 			}
 			
 			// Bottom Right
-			if(point[0] + result.getDis()  >= node.center[0] && point[1] + result.getDis()  >= node.center[1])
+			if(point[0] + result.getDis() >= node.center[0] && point[1] + result.getDis() >= node.center[1])
 			{
-				find1NN(result, node.getSubNodeNode(3), point, maxDistance );
+				find1NN(result, node.getSubNodeNode(3), point, maxDistance);
 			}
 		}
 	}
@@ -701,258 +708,4 @@ public class RecursiveRegionQuadTree
 		
 		return lines;
 	}
-	
-	/**
-	 * Quad Tree Node
-	 * @author Seamus McShane
-	 */
-	private class RegionQuadTreeNode
-	{
-		// Center of the partition
-		private float center[];
-		
-		// Size of the partition
-		private float size;
-		
-		// Level of the Node
-		private int level;
-		
-		// Sub Nodes
-		private RegionQuadTreeNode nodes[];
-		
-		// Object in partition
-		private ArrayList<KNNPosInf> objects;
-		
-		public RegionQuadTreeNode(float[] center, float size, int level)
-		{
-			super();
-			this.center = center;
-			this.size = size;
-			this.level = level;
-		}
-		
-		/**
-		 * Sets this node as empty with no subnodes.
-		 */
-		public void collapseNode()
-		{
-			nodes = null;
-			objects = null;
-		}
-		
-		/**
-		 * Adds a point to this node.
-		 * This method does not check for if the objects will go over
-		 * MAX_OBJECTS_PER_NODE, as the tree may have reached the max level.
-		 * @param object
-		 */
-		public void addPoint(KNNPosInf object)
-		{
-			if(objects == null)
-			{
-				objects = new ArrayList<KNNPosInf>(MAX_OBJECTS_PER_NODE);
-			}
-			
-			objects.add(object);
-			
-			if(debug)
-			{
-				System.out.println("Node Added point ");
-			}
-		}
-		
-		/**
-		 * Finds the nearest neighbour to point with in maxDistance and sets the
-		 * nearest neighbour in a result object.
-		 * @param result
-		 * @param point
-		 * @param maxDistance
-		 */
-		public void setNearestObject(KNNResult result, float[] point, float maxDistance)
-		{
-			if(objects == null)
-			{
-				return;
-			}
-			
-			for(KNNPosInf object : objects)
-			{
-				float dis = JCMath.distanceSquared(point, object.getKNNPos());
-				
-				if(dis < result.getDis())
-				{
-					if(debug)
-					{
-						System.out.println("Dis " + dis);
-						System.out.println("minDis " + result.getDis());
-					}
-					
-					result.setDis(dis);
-					result.setPos(object);
-				}
-			}
-		}
-		
-		/**
-		 * Find the nearest neighbours to point with in maxDistance and adds
-		 * them to a results array list.
-		 * @param result
-		 * @param point
-		 * @param maxDistance
-		 */
-		public void getNearestObjects(ArrayList<KNNPosInf> result, float[] point, float maxDistance)
-		{
-			if(objects == null)
-			{
-				return;
-			}
-			
-			for(KNNPosInf object : objects)
-			{
-				float dis = JCMath.distanceSquared(point, object.getKNNPos());
-				
-				if(dis < maxDistance)
-				{
-					if(debug)
-					{
-						System.out.println("Dis " + dis);
-						System.out.println("maxDistance " + maxDistance);
-					}
-					
-					result.add(object);
-				}
-			}
-		}
-		
-		/**
-		 * Explicitly sets the objects in this node.
-		 * @param objects
-		 */
-		public void setPoints(ArrayList<KNNPosInf> objects)
-		{
-			this.objects = objects;
-		}
-		
-		/**
-		 * Explicitly removes the objects in this node.
-		 * @return
-		 */
-		public ArrayList<KNNPosInf> removeObjects()
-		{
-			ArrayList<KNNPosInf> currentObjects = objects;
-			
-			// Clear internal reference
-			objects = null;
-			
-			return currentObjects;
-		}
-		
-		/**
-		 * Explicitly sets the sub nodes of this node.
-		 * @param nodes
-		 */
-		public void setSubNodes(RegionQuadTreeNode nodes[])
-		{
-			this.nodes = nodes;
-		}
-		
-		/**
-		 * Returns a sub node.
-		 * @param num
-		 * @return
-		 */
-		public RegionQuadTreeNode getSubNodeNode(int num)
-		{
-			return nodes[num];
-		}
-		
-		/**
-		 * If this node has no sub nodes then isLeft() returns true.
-		 * @return
-		 */
-		public boolean isLeaf()
-		{
-			return(nodes == null);
-		}
-		
-		/**
-		 * If there are no objects in this node then the node is empty.
-		 * @return
-		 */
-		public boolean isEmpty()
-		{
-			return(objects == null);
-		}
-		
-		/**
-		 * If this node is a leaf and the objects size is under the max per node
-		 * then this method returns true.
-		 * @return
-		 */
-		public boolean canStorePoint()
-		{
-			boolean isLeaf = isLeaf();
-			boolean objectsStatus = true;
-			
-			if(objects != null)
-			{
-				objectsStatus = (objects.size() < MAX_OBJECTS_PER_NODE);
-				
-				if(debug)
-				{
-					System.out.println(objects.size() + " objectsStatus" + objectsStatus);
-				}
-			}
-			
-			return isLeaf && objectsStatus;
-		}
-		
-		/**
-		 * removes a point from this node.
-		 * @param searchPoint
-		 */
-		public void removePoint(KNNPosInf searchPoint)
-		{
-			float[] searchPos = searchPoint.getKNNPos();
-			
-			if(objects != null)
-			{
-				Iterator<KNNPosInf> itr = objects.iterator();
-				
-				if(debug)
-				{
-					System.out.println("ITR " + objects.size());
-				}
-				
-				while(itr.hasNext())
-				{
-					KNNPosInf object = itr.next();
-					float[] objectPos = object.getKNNPos();
-					
-					if(objectPos[0] == searchPos[0] && objectPos[1] == searchPos[1])
-					{
-						itr.remove();
-						
-						if(debug)
-						{
-							System.out.println("Removed");
-						}
-					}
-				}
-				
-				if(objects.size() == 0)
-				{
-					if(debug)
-					{
-						System.out.println("SIZE " + objects.size());
-					}
-					
-					objects = null;
-				}
-				
-			}
-		}
-		
-	}
-	
 }
