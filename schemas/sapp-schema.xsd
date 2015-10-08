@@ -68,7 +68,8 @@
 											<xs:element name="Blue" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 										</xs:sequence>
 									</xs:complexType>
-								</xs:element> 							
+								</xs:element> 		
+								<xs:element name="Overlap" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
 								<xs:element name="AgentType" type="xs:string" minOccurs="1" maxOccurs="1"/>
 								<xs:element name="InitialNumbers" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 								<xs:element name="Size" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
@@ -97,8 +98,10 @@
 						<xs:element name="GenericPlant" minOccurs="1" maxOccurs="1">
 							<xs:complexType>
 								<xs:sequence>
+									<xs:element name="Overlap" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
 									<xs:element name="Type" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 									<xs:element name="InitialNumbers" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+									<xs:element name="Size" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
 									<xs:element name="StartingEnergy" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 									<xs:element name="PlantRegeratonRate" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 									<xs:element name="PlantRegenerationNSteps" type="xs:integer" minOccurs="1" maxOccurs="1"/>
