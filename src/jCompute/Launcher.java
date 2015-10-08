@@ -135,7 +135,7 @@ public class Launcher
 		}
 		catch(ClassNotFoundException e)
 		{
-			log.warn("Skipping log4j reconfigure - classes not loaded.");
+			System.out.println("Skipping log4j reconfigure - classes not loaded.");
 		}
 		
 		// Configure the launcher logger - as it is the first class it needs to
