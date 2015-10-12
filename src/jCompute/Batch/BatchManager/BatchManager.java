@@ -167,9 +167,8 @@ public class BatchManager
 				activeItems.remove(item);
 				itemsLock.release();
 				
-				log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch " + item.getBatchId()
-						+ " for SimId " + simId);
-						
+				log.info("Recovered Item (" + item.getItemId() + "/" + item.getSampleId() + ") from Batch " + item.getBatchId() + " for SimId " + simId);
+				
 				batch.returnItemToQueue(item);
 			}
 			
@@ -208,8 +207,7 @@ public class BatchManager
 			}
 			else
 			{
-				log.warn("Discarding completed item " + item.getItemId() + " Sample " + item.getSampleId() + " for removed batch "
-						+ item.getBatchId());
+				log.warn("Discarding completed item " + item.getItemId() + " Sample " + item.getSampleId() + " for removed batch " + item.getBatchId());
 			}
 			
 			// Remove the related simulation for this completed sim.
@@ -603,29 +601,45 @@ public class BatchManager
 		// process for enabling
 		if(status == false)
 		{
-			batch.setStatus(status);
+			if(batch.getStatus() != status)
+			{
+				batch.setStatus(status);
+				
+				// In Fifo
+				fifoQueue.remove(batch);
+				
+				stoppedBatches.add(batch);
+				
+				batch.setPosition((Integer.MAX_VALUE));
+				
+				JComputeEventBus.post(new BatchProgressEvent(batch));
+				
+				positionsChangedInQueue(fifoQueue);
+			}
 			
-			// In Fifo
-			fifoQueue.remove(batch);
-			
-			stoppedBatches.add(batch);
 		}
 		else
 		{
 			if(!batch.hasFailed())
 			{
-				batch.setStatus(status);
-				
-				// In Fifo
-				fifoQueue.add(batch);
-				
-				stoppedBatches.remove(batch);
+				if(batch.getStatus() != status)
+				{
+					batch.setStatus(status);
+					
+					// In Fifo
+					fifoQueue.add(batch);
+					
+					stoppedBatches.remove(batch);
+					
+					JComputeEventBus.post(new BatchProgressEvent(batch));
+					
+					positionsChangedInQueue(fifoQueue);
+				}
 			}
 		}
 		
 		batchManagerLock.release();
 		
-		JComputeEventBus.post(new BatchProgressEvent(batch));
 	}
 	
 	private void positionsChangedInQueue(ManagedBypassableQueue queue)
@@ -886,17 +900,15 @@ public class BatchManager
 					break;
 					
 				}
-				log.info("ControlNodeItemRequestReply " + result.toString() + "Operation " + operation.toString() + " Batch "
-						+ batchItem.getBatchId() + "Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId "
-						+ batchItem.getSimId());
+				log.info("ControlNodeItemRequestReply " + result.toString() + "Operation " + operation.toString() + " Batch " + batchItem.getBatchId() + "Item " + batchItem.getItemId() + " Sample "
+						+ batchItem.getSampleId() + " Local SimId " + batchItem.getSimId());
 						
 			break;
 			case FAILED:
 				
 				// BATCH has also failed
-				log.error("ControlNodeItemRequestReply " + result.toString() + " Operation " + operation.toString() + " Batch "
-						+ batchItem.getBatchId() + " Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId "
-						+ batchItem.getSimId());
+				log.error("ControlNodeItemRequestReply " + result.toString() + " Operation " + operation.toString() + " Batch " + batchItem.getBatchId() + " Item " + batchItem.getItemId() + " Sample "
+						+ batchItem.getSampleId() + " Local SimId " + batchItem.getSimId());
 						
 				batchManagerLock.acquireUninterruptibly();
 				Batch batch = findBatch(batchItem.getBatchId());
