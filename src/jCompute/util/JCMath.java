@@ -2,6 +2,7 @@ package jCompute.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class JCMath
 {
@@ -89,13 +90,13 @@ public class JCMath
 	 */
 	public static boolean SquareContainsPoint(float cx, float cy, float size, float pointX, float pointY)
 	{
-		float halfSize = size*0.5f;
-		float xMin = cx-halfSize;
-		float yMin = cy-halfSize;
-		float xMax = cx+halfSize;
-		float yMax = cy+halfSize;
+		float halfSize = size * 0.5f;
+		float xMin = cx - halfSize;
+		float yMin = cy - halfSize;
+		float xMax = cx + halfSize;
+		float yMax = cy + halfSize;
 		
-		return (pointX >= xMin && pointX <= (xMax) && pointY >= yMin && pointY <= yMax);
+		return(pointX >= xMin && pointX <= (xMax) && pointY >= yMin && pointY <= yMax);
 	}
 	
 	/**
@@ -110,12 +111,69 @@ public class JCMath
 	 */
 	public static boolean SquareContainsPoint(float[] xy, float size, float[] xy2)
 	{
-		float halfSize = size*0.5f;
-		float xMin = xy[0]-halfSize;
-		float yMin = xy[1]-halfSize;
-		float xMax = xy[0]+halfSize;
-		float yMax = xy[1]+halfSize;
+		float halfSize = size * 0.5f;
+		float xMin = xy[0] - halfSize;
+		float yMin = xy[1] - halfSize;
+		float xMax = xy[0] + halfSize;
+		float yMax = xy[1] + halfSize;
 		
-		return (xy2[0] >= xMin && xy2[0] <= (xMax) && xy2[1] >= yMin && xy2[1] <= yMax);
+		return(xy2[0] >= xMin && xy2[0] <= (xMax) && xy2[1] >= yMin && xy2[1] <= yMax);
+	}
+	
+	/**
+	 * Returns the angle from a point to another point, and adds an adjustment to the angle - in the range (0-360).
+	 * Y is inverted - thus direction is inverted
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public static float calculateAdjustedEuclideanVectorDirection(float[] from, float[] to, float adjustmentAngle)
+	{
+		float direction = (float) Math.toDegrees(Math.atan2(to[0] - from[0], from[1] - to[1]));
+		
+		direction = direction + adjustmentAngle;
+		
+		if(direction < 0)
+		{
+			direction += 360;
+		}
+		
+		return direction % 360;
+	}
+	
+	/**
+	 * Adds an angle to another angle, ensuring the result wraps correctly - in the range (0-360).
+	 * @param angle
+	 * @param adjustmentAngle
+	 * @return
+	 */
+	public static float adjustAngle(float angle, float adjustmentAngle)
+	{
+		float newAngle = angle;
+		
+		newAngle = newAngle + adjustmentAngle;
+		
+		if(newAngle < 0)
+		{
+			newAngle += 360;
+		}
+		
+		return newAngle % 360;
+	}
+	
+	/**
+	 * Returns a random integer from the requested signed number range centred on 0
+	 * +/- range / 2
+	 * @param range
+	 * @return
+	 */
+	public static int getRandomInt(int range)
+	{
+		return ThreadLocalRandom.current().nextInt(range) - (range / 2);
+	}
+	
+	public static float getRandomFloat(float range)
+	{
+		return (ThreadLocalRandom.current().nextFloat() * range) - (range / 2);
 	}
 }
