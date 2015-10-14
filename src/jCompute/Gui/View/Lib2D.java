@@ -36,6 +36,9 @@ public class Lib2D
 		sb.end();
 	}
 	
+	/*
+	 * Text
+	 */
 	public static void drawText(ViewRendererInf ren, float x, float y, String text, A2RGBA color)
 	{
 		SpriteBatch sb = ren.getSpriteBatch();
@@ -48,6 +51,9 @@ public class Lib2D
 		sb.end();
 	}
 	
+	/*
+	 * PixelMap
+	 */
 	public static float drawPixelMap(ViewRendererInf ren, int textureSize, int[] buffer, float x, float y)
 	{
 		SpriteBatch sb = ren.getSpriteBatch();
@@ -82,6 +88,9 @@ public class Lib2D
 		return textureScale;
 	}
 	
+	/*
+	 * Circle
+	 */
 	public static void drawCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color)
 	{
 		Gdx.gl20.glLineWidth(DEFAULT_LINE_WIDTH);
@@ -108,6 +117,28 @@ public class Lib2D
 		sr.end();
 	}
 	
+	public static void drawCircle(ViewRendererInf ren, float[] pos, float radius, A2RGBA color, float lineWidth)
+	{
+		Camera cam = ren.getCamera();
+		
+		if(!cam.frustum.pointInFrustum(new Vector3(pos[0], pos[1], 0)))
+		{
+			return;
+		}
+		
+		ShapeRenderer sr = ren.getShapeRenderer();
+		
+		Gdx.gl20.glLineWidth(lineWidth);
+		
+		sr.begin(ShapeType.Line);
+		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+		sr.circle(pos[0], pos[1], radius);
+		sr.end();
+	}
+	
+	/*
+	 * Filled Circle
+	 */
 	public static void drawFilledCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color)
 	{
 		Camera cam = ren.getCamera();
@@ -125,6 +156,9 @@ public class Lib2D
 		sr.end();
 	}
 	
+	/*
+	 * Filled Circle Batch
+	 */
 	public static void drawFilledCircleBatch(ViewRendererInf ren, A2DCircle[] circles, A2RGBA[] colors)
 	{
 		Camera cam = ren.getCamera();
@@ -145,6 +179,9 @@ public class Lib2D
 		sr.end();
 	}
 	
+	/*
+	 * Transparent Filled Circle
+	 */
 	public static void drawTransparentFilledCircle(ViewRendererInf ren, A2DCircle circle, A2RGBA color, float transparency)
 	{
 		Camera cam = ren.getCamera();
@@ -168,6 +205,31 @@ public class Lib2D
 		
 	}
 	
+	public static void drawTransparentFilledCircle(ViewRendererInf ren, float[] pos, float radius, A2RGBA color, float transparency)
+	{
+		Camera cam = ren.getCamera();
+		
+		if(!cam.frustum.pointInFrustum(new Vector3(pos[0], pos[1], 0)))
+		{
+			return;
+		}
+		
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		
+		ShapeRenderer sr = ren.getShapeRenderer();
+		
+		sr.begin(ShapeType.Filled);
+		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), transparency);
+		sr.circle(pos[0], pos[1], radius);
+		sr.end();
+		
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+	}
+	
+	/*
+	 * Transparent Filled Arc
+	 */
 	public static void drawTransparentFilledArc(ViewRendererInf ren, float x, float y, float radius, float start, float angle, A2RGBA color)
 	{
 		Camera cam = ren.getCamera();
@@ -191,12 +253,14 @@ public class Lib2D
 		
 	}
 	
+	/*
+	 * Line
+	 */
 	public static void drawLine(ViewRendererInf ren, A2DVector2f pos1, A2DVector2f pos2, A2RGBA color, float lineWidth, boolean clipCheck)
 	{
 		drawLine(ren, pos1.getX(), pos1.getY(), pos2.getX(), pos2.getY(), color, lineWidth, clipCheck);
 	}
 	
-	// Line
 	public static void drawLine(ViewRendererInf ren, A2DLine line, A2RGBA color, float width, boolean clipCheck)
 	{
 		if(clipCheck)
@@ -233,7 +297,6 @@ public class Lib2D
 		
 	}
 	
-	// Line
 	public static void drawLine(ViewRendererInf ren, float x1, float y1, float x2, float y2, A2RGBA color, float width, boolean clipCheck)
 	{
 		
@@ -271,7 +334,6 @@ public class Lib2D
 		
 	}
 	
-	// Line
 	public static void drawLine(ViewRendererInf ren, float x1, float y1, float x2, float y2, A2RGBA color, boolean clipCheck)
 	{
 		if(clipCheck)
@@ -308,7 +370,9 @@ public class Lib2D
 		
 	}
 	
-	// Batch Line Drawing
+	/*
+	 * Line Batch
+	 */
 	public static void drawLineBatch(ViewRendererInf ren, float[][] vertices, A2RGBA color, float width, boolean clipCheck)
 	{
 		Gdx.gl20.glLineWidth(width);
@@ -355,20 +419,22 @@ public class Lib2D
 		
 		sr.end();
 		Gdx.gl.glDisable(GL20.GL_BLEND);
-
+		
 	}
 	
-	// Outlined Rectangle
+	/*
+	 * Rectangle
+	 */
 	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle)
 	{
-		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(),
-				rectangle.getColor().getGreen(), rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), DEFAULT_LINE_WIDTH);
+		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor().getGreen(),
+				rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), DEFAULT_LINE_WIDTH);
 	}
 	
 	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle, float lineWidth)
 	{
-		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(),
-				rectangle.getColor().getGreen(), rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), lineWidth);
+		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor().getGreen(),
+				rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), lineWidth);
 	}
 	
 	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
@@ -386,8 +452,7 @@ public class Lib2D
 		drawRectangle(ren, x, y, width, height, r, g, b, a, DEFAULT_LINE_WIDTH);
 	}
 	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a,
-			float lineWidth)
+	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a, float lineWidth)
 	{
 		boolean pos00View = true;
 		boolean pos01View = true;
@@ -430,7 +495,9 @@ public class Lib2D
 		sr.end();
 	}
 	
-	// Filled Rectangle
+	/*
+	 * Filled Rectangle
+	 */
 	public static void drawFilledRectangle(ViewRendererInf ren, A2DRectangle rectangle, A2RGBA color)
 	{
 		drawFilledRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), color);
@@ -478,6 +545,9 @@ public class Lib2D
 		sr.end();
 	}
 	
+	/*
+	 * Transparent Filled Rectangle
+	 */
 	public static void drawTransparentFillRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
 	{
 		boolean pos00View = true;
