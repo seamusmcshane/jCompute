@@ -118,6 +118,12 @@ public class ClusterStatusTab extends JPanel
 		simulationListsContainer.add(finishedSimulationsListTable);
 	}
 	
+	/*
+	 * ************************************************************************************************************************************************************
+	 * Event Bus Subscribers
+	 * ************************************************************************************************************************************************************
+	 */
+	
 	/**
 	 * SimulationsManagerEvent handler method
 	 * @param e
@@ -167,8 +173,7 @@ public class ClusterStatusTab extends JPanel
 		if(e.getState() == SimState.FINISHED)
 		{
 			activeSimulationsListTable.removeRow(e.getSimId());
-			finishedSimulationsListTable
-					.addRow(new SimulationListRowItem(e.getSimId(), e.getState(), (int) e.getStepCount(), 100, -1, e.getRunTime()));
+			finishedSimulationsListTable.addRow(new SimulationListRowItem(e.getSimId(), e.getState(), (int) e.getStepCount(), 100, 0, e.getRunTime()));
 		}
 		else
 		{
