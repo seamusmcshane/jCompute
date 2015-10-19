@@ -582,53 +582,6 @@ public class ControlNode
 		controlNodeLock.release();
 	}
 	
-	/*
-	 * public void removeSimulation(int simId)
-	 * {
-	 * controlNodeLock.acquireUninterruptibly();
-	 * // Look up and remove the mapping
-	 * RemoteSimulationMapping mapping = localSimulationMap.remove(simId);
-	 * NodeManager nodeManager = findNodeManagerFromUID(mapping.getNodeUid());
-	 * if(nodeManager!=null)
-	 * {
-	 * nodeManager.removeSim(mapping.getRemoteSimId());
-	 * log.info("Removed Simulation from Node " + mapping.getNodeUid() +
-	 * " Local SimId " + simId + " Remote SimId "
-	 * + mapping.getRemoteSimId());
-	 * }
-	 * else
-	 * {
-	 * log.warn("Cannot remove simulation from Node " + mapping.getNodeUid() +
-	 * " Local SimId " + simId + " Remote SimId : Node Manager not found");
-	 * }
-	 * controlNodeLock.release();
-	 * JComputeEventBus.post(new SimulationsManagerEvent(simId,
-	 * SimulationsManagerEventType.RemovedSim));
-	 * }
-	 */
-	
-	// private NodeManager findNodeManagerFromUID(int uid)
-	// {
-	// Iterator<NodeManager> itr = activeNodes.iterator();
-	// NodeManager temp = null;
-	// NodeManager nodeManager = null;
-	//
-	// while(itr.hasNext())
-	// {
-	// temp = itr.next();
-	//
-	// if(temp.getUid() == uid)
-	// {
-	// nodeManager = temp;
-	//
-	// break;
-	// }
-	//
-	// }
-	//
-	// return nodeManager;
-	// }
-	
 	public int getMaxSims()
 	{
 		return maxSims;
