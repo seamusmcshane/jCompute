@@ -8,6 +8,7 @@ import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
 import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
 import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode.ControlNode;
+import jCompute.Cluster.Controller.ControlNode.Event.ControlNodeItemStateEvent;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
@@ -820,12 +821,14 @@ public class BatchManager
 	 */
 	
 	@Subscribe
-	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
+	public void ControlNodeItemStateChangedEvent(ControlNodeItemStateEvent e)
 	{
-		SimState state = e.getState();
-		int simId = e.getSimId();
+		SimulationStateChangedEvent simStateEvent = e.getSimStateEvent();
 		
-		log.debug("SimulationStateChangedEvent " + e.getSimId());
+		SimState state = simStateEvent.getState();
+		int simId = simStateEvent.getSimId();
+		
+		log.debug("SimulationStateChangedEvent " + simStateEvent.getSimId());
 		
 		switch(state)
 		{
@@ -839,11 +842,11 @@ public class BatchManager
 				
 				if(item != null)
 				{
-					item.setComputeTime(e.getRunTime(), e.getEndEvent(), e.getStepCount());
+					item.setComputeTime(simStateEvent.getRunTime(), simStateEvent.getEndEvent(), simStateEvent.getStepCount());
 					
 					itemsLock.acquireUninterruptibly();
 					activeItems.remove(item);
-					completeItems.add(new CompletedItemsNode(item, e.getStatExporter()));
+					completeItems.add(new CompletedItemsNode(item, simStateEvent.getStatExporter()));
 					itemsLock.release();
 					
 					// Tell the batch this item is no longer active
@@ -870,12 +873,14 @@ public class BatchManager
 				// Ensures this is spotted
 				for(int i = 0; i < 100; i++)
 				{
-					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + e.getSimId());
+					log.error("Invalid/Unhandled SimState passed to Batch Manager for Simulation : " + simId);
 				}
 				
 			break;
 		}
 		
+		// It is now safe to post the simStateEvent
+		JComputeEventBus.post(simStateEvent);
 	}
 	
 	@Subscribe

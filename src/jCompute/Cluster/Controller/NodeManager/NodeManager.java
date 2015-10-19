@@ -2,6 +2,7 @@ package jCompute.Cluster.Controller.NodeManager;
 
 import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerItemStateEvent;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChangeRequest;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
@@ -355,7 +356,7 @@ public class NodeManager
 						nodeInfo.setMaxSims(reqAck.getMaxSims());
 						
 						// Set weighting if it is was requested
-						if(BENCHMARK==1)
+						if(BENCHMARK == 1)
 						{
 							nodeInfo.setWeighting(reqAck.getWeighting());
 						}
@@ -487,8 +488,7 @@ public class NodeManager
 										
 										remoteSimulationMap.put(simId, mapping);
 										
-										JComputeEventBus.post(
-												new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
+										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
 									}
 									else
 									{
@@ -505,8 +505,7 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("AddSimReply for node " + nodeInfo.getUid() + " not valid in state "
-											+ protocolState.toString());
+									log.error("AddSimReply for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 								
 							break;
@@ -538,18 +537,15 @@ public class NodeManager
 									}
 									else
 									{
-										// Post the event as if from a local
-										// simulation
-										JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
-												stateChanged.getState(), stateChanged.getRunTime(), stateChanged.getStepCount(),
-												stateChanged.getEndEvent(), null));
+										// Forward an encapsulated simstate event
+										JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), stateChanged.getState(), stateChanged.getRunTime(),
+												stateChanged.getStepCount(), stateChanged.getEndEvent(), null)));
 									}
 									
 								}
 								else
 								{
-									log.error("SimStateNoti for node " + nodeInfo.getUid() + " not valid in state "
-											+ protocolState.toString());
+									log.error("SimStateNoti for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 								
 							break;
@@ -571,10 +567,11 @@ public class NodeManager
 									{
 										log.debug("New " + mapping.info());
 										
-										// Post the event as if from a local
-										// simulation
-										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(), statChanged.getTime(),
-												statChanged.getStepNo(), statChanged.getProgress(), statChanged.getAsps()));
+										// Post the event as if from a local simulation
+										// This is unsafe but fast as this event can and WILL arrive before add/remove/finished events.
+										// Listeners as such need to deal with null lookups.
+										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(), statChanged.getTime(), statChanged.getStepNo(), statChanged.getProgress(),
+												statChanged.getAsps()));
 												
 									}
 									else
@@ -585,8 +582,7 @@ public class NodeManager
 								}
 								else
 								{
-									log.error("SimStatNoti for node " + nodeInfo.getUid() + " not valid in state "
-											+ protocolState.toString());
+									log.error("SimStatNoti for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 								
 							break;
@@ -600,13 +596,11 @@ public class NodeManager
 									// TODO
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(removeSimAck.getSimId());
 									
-									JComputeEventBus.post(
-											new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.RemovedSim));
+									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.RemovedSim));
 								}
 								else
 								{
-									log.error(
-											"RemSimAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
+									log.error("RemSimAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 							break;
 							case NCP.NodeStatsReply:
@@ -616,14 +610,12 @@ public class NodeManager
 									
 									log.debug("Recieved NodeStatsReply");
 									
-									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply.getSequenceNum(),
-											nodeStatsReply.getNodeStats()));
-											
+									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply.getSequenceNum(), nodeStatsReply.getNodeStats()));
+									
 								}
 								else
 								{
-									log.error("NodeStatsReply for node " + nodeInfo.getUid() + " not valid in state "
-											+ protocolState.toString());
+									log.error("NodeStatsReply for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 							break;
 							case NCP.SimStats:
@@ -638,9 +630,8 @@ public class NodeManager
 									// find and remove mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.remove(simId);
 									
-									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(),
-											mapping.getFileNameSuffix());
-											
+									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(), mapping.getFileNameSuffix());
+									
 									activeSimsLock.acquireUninterruptibly();
 									
 									// Remote Sim is auto-removed when
@@ -653,9 +644,10 @@ public class NodeManager
 									// simulation
 									SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
 									
-									JComputeEventBus.post(new SimulationStateChangedEvent(mapping.getLocalSimId(),
-											finalStateChanged.getState(), finalStateChanged.getRunTime(), finalStateChanged.getStepCount(),
-											finalStateChanged.getEndEvent(), statsReply.getStatExporter()));
+									// Forward an encapsulated simstate event
+									JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged.getState(),
+											finalStateChanged.getRunTime(), finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(), statsReply.getStatExporter())));
+											
 								}
 								else
 								{
