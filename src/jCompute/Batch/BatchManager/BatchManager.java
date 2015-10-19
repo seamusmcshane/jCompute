@@ -7,7 +7,7 @@ import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
 import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
 import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
 import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
-import jCompute.Cluster.Controller.ControlNode;
+import jCompute.Cluster.Controller.ControlNode.ControlNode;
 import jCompute.Cluster.Controller.Request.ControlNodeItemRequest;
 import jCompute.Cluster.Controller.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
 import jCompute.Cluster.Controller.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;

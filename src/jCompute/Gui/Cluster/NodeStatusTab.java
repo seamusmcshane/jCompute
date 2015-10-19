@@ -10,11 +10,11 @@ import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.NodeManager.NodeManagerState;
-import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
-import jCompute.Cluster.Controller.Event.NodeAdded;
-import jCompute.Cluster.Controller.Event.NodeRemoved;
-import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
+import jCompute.Cluster.Controller.ControlNode.Event.NodeAdded;
+import jCompute.Cluster.Controller.ControlNode.Event.NodeRemoved;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
+import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 import jCompute.Gui.Cluster.TableRowItems.NodeConnectionLogRowItem;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;

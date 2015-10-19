@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.Event.StatusChanged;
+import jCompute.Cluster.Controller.ControlNode.Event.StatusChanged;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Cluster.TableRowItems.SimulationListRowItem;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;

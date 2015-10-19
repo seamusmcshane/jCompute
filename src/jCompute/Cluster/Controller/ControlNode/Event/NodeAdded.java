@@ -1,19 +1,19 @@
-package jCompute.Cluster.Controller.Event;
+package jCompute.Cluster.Controller.ControlNode.Event;
 
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 
-public class NodeRemoved
+public class NodeAdded
 {
 	private NodeInfo nodeConfig;
-
-	public NodeRemoved(NodeInfo nodeConfig)
+	
+	public NodeAdded(NodeInfo nodeConfig)
 	{
 		this.nodeConfig = nodeConfig;
 	}
-
+	
 	public NodeInfo getNodeConfiguration()
 	{
 		return nodeConfig;
 	}
-
+	
 }

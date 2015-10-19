@@ -1,8 +1,8 @@
 package jCompute.Gui.Component.TableCell;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.NodeManager.NodeManagerState;
-import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChangeRequest;
+import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 import jCompute.Gui.Component.Swing.TablePanel;
 
 import java.awt.Color;

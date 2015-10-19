@@ -1,6 +1,6 @@
-package jCompute.Cluster.Controller.Event;
+package jCompute.Cluster.Controller.NodeManager.Event;
 
-import jCompute.Cluster.Controller.NodeManager.NodeManagerState;
+import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 
 public class NodeManagerStateChange
 {

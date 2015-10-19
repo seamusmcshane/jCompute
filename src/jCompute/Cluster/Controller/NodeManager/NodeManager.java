@@ -1,10 +1,10 @@
-package jCompute.Cluster.Controller;
+package jCompute.Cluster.Controller.NodeManager;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.Event.NodeManagerStateChange;
-import jCompute.Cluster.Controller.Event.NodeManagerStateChangeRequest;
-import jCompute.Cluster.Controller.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChangeRequest;
+import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.Request.NodeItemRequest;
 import jCompute.Cluster.Controller.Request.NodeItemRequest.NodeItemRequestOperation;
 import jCompute.Cluster.Controller.Request.NodeItemRequest.NodeItemRequestResult;
