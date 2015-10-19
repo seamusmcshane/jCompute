@@ -1,4 +1,4 @@
-package jCompute.Cluster.Controller.Request;
+package jCompute.Cluster.Controller.NodeManager.Request;
 
 import jCompute.Cluster.Controller.Mapping.RemoteSimulationMapping;
 

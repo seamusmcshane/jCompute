@@ -1,4 +1,4 @@
-package jCompute.Cluster.Controller.Request;
+package jCompute.Cluster.Controller.ControlNode.Request;
 
 import jCompute.Batch.BatchItem;
 
