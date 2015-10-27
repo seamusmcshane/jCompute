@@ -43,8 +43,6 @@ import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -61,8 +59,6 @@ import java.awt.Insets;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
 {
-	private static Logger log;
-	
 	private static JFrame gui;
 	private static JMenuBar menuBar;
 	private static JMenu mnFile;
@@ -95,11 +91,12 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	private int subDiv = 1;
 	
+	private static final float zoomScale = 4f;
+	private static final float shiftSurface = 0.375f;
+	
 	public SurfacePlotterUtil()
 	{
 		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
-		
-		log = LoggerFactory.getLogger(SurfacePlotterUtil.class);
 		
 		lookandFeel();
 		
@@ -111,7 +108,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		
 		float scaledMulti = ((0 + multi) * ratio);
 		
-		float width = 800 * scaledMulti;
+		float width = 900 * scaledMulti;
 		float height = 300 * scaledMulti;
 		
 		gui.setMinimumSize(new Dimension((int) width, (int) height));
@@ -163,7 +160,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				chartAvg.getView().setViewPositionMode(ViewPositionMode.TOP);
 				chartStdDev.getView().setViewPositionMode(ViewPositionMode.TOP);
-				
 			}
 		});
 		panel_2.add(btnTop, BorderLayout.NORTH);
@@ -201,7 +197,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				chartAvg.getView().setViewPositionMode(ViewPositionMode.FREE);
 				chartStdDev.getView().setViewPositionMode(ViewPositionMode.FREE);
-				
 			}
 		});
 		panel_2.add(btnISO, BorderLayout.CENTER);
@@ -217,7 +212,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				
 				chartAvg.getView().setViewPoint(current);
 				chartStdDev.getView().setViewPoint(current);
-				
 			}
 		});
 		panel_2.add(btnRight, BorderLayout.EAST);
@@ -248,7 +242,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					}
 					else
 					{
-						log.info(drawable.getClass().getName());
+						log(drawable.getClass().getName());
 					}
 				}
 				
@@ -297,14 +291,12 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
-			
 			@Override
 			public void run()
 			{
 				new SurfacePlotterUtil();
 			}
 		});
-		
 	}
 	
 	public void addAvgChart()
@@ -312,8 +304,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range avgXRange = new Range(mapper.getXMin(), mapper.getXMax());
 		Range avgYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
-		Shape surfaceAvg = Builder.buildOrthonormal(
-				new OrthonormalGrid(avgXRange, mapper.getXSteps() * subDiv, avgYRange, mapper.getYSteps() * subDiv), mapper.getAvg());
+		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, mapper.getXSteps() * subDiv, avgYRange, mapper.getYSteps() * subDiv), mapper.getAvg());
 		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(), new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
@@ -341,6 +332,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		gbcAvg.gridy = 0;
 		chartContainerPanel.add((Component) chartAvg.getCanvas(), gbcAvg);
 		
+		chartAvg.getView().zoomZ(zoomScale, false);
+		chartAvg.getView().shift(shiftSurface, true);
 	}
 	
 	public void removeCharts()
@@ -364,7 +357,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				else
 				{
-					log.info(drawable.getClass().getName());
+					log(drawable.getClass().getName());
 				}
 			}
 			
@@ -398,7 +391,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				else
 				{
-					log.info(drawable.getClass().getName());
+					log(drawable.getClass().getName());
 				}
 			}
 			
@@ -419,11 +412,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range stdDevXRange = new Range(mapper.getXMin(), mapper.getXMax());
 		Range stdDevYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
-		Shape surfaceStdDev = Builder.buildOrthonormal(
-				new OrthonormalGrid(stdDevXRange, mapper.getXSteps() * subDiv, stdDevYRange, mapper.getYSteps() * subDiv),
-				mapper.getStdDev());
-		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRBG(), surfaceStdDev.getBounds().getZmin(),
-				surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 1f)));
+		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, mapper.getXSteps() * subDiv, stdDevYRange, mapper.getYSteps() * subDiv), mapper.getStdDev());
+		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRBG(), surfaceStdDev.getBounds().getZmin(), surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 1f)));
 		surfaceStdDev.setFaceDisplayed(true);
 		surfaceStdDev.setWireframeDisplayed(wireframeEnabled);
 		surfaceStdDev.setWireframeColor(Color.BLACK);
@@ -432,6 +422,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		chartStdDev.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
 		chartStdDev.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
 		chartStdDev.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
+		
 		chartStdDev.getScene().getGraph().add(surfaceStdDev);
 		
 		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
@@ -449,6 +440,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		gbcStdev.gridy = 0;
 		chartContainerPanel.add((Component) chartStdDev.getCanvas(), gbcStdev);
 		
+		chartStdDev.getView().zoomZ(zoomScale, false);
+		chartStdDev.getView().shift(shiftSurface, true);
 	}
 	
 	@Override
@@ -458,7 +451,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		{
 			final JFileChooser filechooser = new JFileChooser(new File(openCD));
 			
-			log.info("Open Dialog");
+			log("Open Dialog");
 			
 			int val = filechooser.showOpenDialog(filechooser);
 			
@@ -470,7 +463,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					{
 						removeCharts();
 						
-						log.info("New File Choosen");
+						log("New File Choosen");
 						
 						String file = filechooser.getSelectedFile().getAbsolutePath();
 						
@@ -478,12 +471,12 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						
 						gui.setTitle(filechooser.getSelectedFile().getName());
 						
-						log.info(file);
+						log(file);
 						
-						log.info("Creating Mapper");
+						log("Creating Mapper");
 						
 						String ext = FileUtil.getFileNameExtension(file);
-						log.info("File ext : " + ext);
+						log("File ext : " + ext);
 						
 						switch(ext)
 						{
@@ -499,14 +492,14 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 								
 							break;
 							default:
-								log.info("Unsupported LogType " + ext);
+								log("Unsupported LogType " + ext);
 							break;
 						}
 						
-						log.info("Average Chart");
+						log("Average Chart");
 						addAvgChart();
 						
-						log.info("Standard Deviation Chart");
+						log("Standard Deviation Chart");
 						addStdDevChart();
 						
 						// chart = new Chart(factory, Quality.Fastest);
@@ -590,9 +583,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					avgImg = avgOp.filter(avgImg, null);
 					stddevImg = stddevOp.filter(stddevImg, null);
 					
-					BufferedImage exportImage = new BufferedImage(avgImg.getWidth() + stddevImg.getWidth(), avgImg.getHeight(),
-							BufferedImage.TYPE_INT_ARGB);
-							
+					BufferedImage exportImage = new BufferedImage(avgImg.getWidth() + stddevImg.getWidth(), avgImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
+					
 					exportImage.getGraphics().drawImage(avgImg, 0, 0, null);
 					exportImage.getGraphics().drawImage(stddevImg, avgImg.getWidth(), 0, null);
 					
@@ -711,6 +703,11 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		{
 			e1.printStackTrace();
 		}
+	}
+	
+	private void log(String text)
+	{
+		System.out.println(text);
 	}
 	
 }
