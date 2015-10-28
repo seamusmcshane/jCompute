@@ -82,6 +82,8 @@
 								<xs:element name="EnergyConsumptionRate" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
 								<xs:element name="ReproductionAndSurvivalDivisor" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
 								<xs:element name="ReproductionCost" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+								<xs:element name="ContinuousMaxMoves" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+								<xs:element name="RestMaxMoves" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 								<xs:element name="RoamMaxMoves" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 								<xs:element name="LearnToMoveMax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 							</xs:sequence>
