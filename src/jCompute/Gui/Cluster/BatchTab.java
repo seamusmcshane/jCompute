@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,6 +48,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.eventbus.Subscribe;
 
 import javax.swing.JToolBar;
@@ -196,12 +198,14 @@ public class BatchTab extends JPanel
 				{
 					log.info("New Batch Choosen");
 					
-					File[] files = filechooser.getSelectedFiles();
+					File[] selectedFiles = filechooser.getSelectedFiles();
 					
-					openBatchProgressMonitorTask = new OpenBatchFileTask(openBatchProgressMonitor, files);
+					// Sort Files Alpha Numerically by FileName
+					Arrays.sort(selectedFiles, new AlphanumFileNameComparator());
+					
+					openBatchProgressMonitorTask = new OpenBatchFileTask(openBatchProgressMonitor, selectedFiles);
 					
 					openBatchProgressMonitorTask.start();
-					
 				}
 			}
 		});
@@ -391,9 +395,8 @@ public class BatchTab extends JPanel
 		batchQueuedTable = new TablePanel(BatchQueueRowItem.class, batchQueueIndexColumn, "Queued", true, true);
 		
 		// Batch State
-		batchQueuedTable.addColumRenderer(
-				new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")), statusColumn);
-				
+		batchQueuedTable.addColumRenderer(new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")), statusColumn);
+		
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), progressColumn);
 		
@@ -675,8 +678,7 @@ public class BatchTab extends JPanel
 	
 	private void moveLast()
 	{
-		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0
-				|| queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount() - 1)
+		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0 || queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount() - 1)
 		{
 			// invalid row selected
 			return;
@@ -696,8 +698,7 @@ public class BatchTab extends JPanel
 	
 	private void moveBackward()
 	{
-		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0
-				|| queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount() - 1)
+		if(queuedSelectedBatchRowIndex < 0 || batchQueuedTable.getRowsCount() == 0 || queuedSelectedBatchRowIndex == batchQueuedTable.getRowsCount() - 1)
 		{
 			// invalid row selected
 			return;
@@ -789,9 +790,8 @@ public class BatchTab extends JPanel
 		// remove row
 		batchQueuedTable.removeRow(batch.getBatchId());
 		
-		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(),
-				jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
-				
+		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(), jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
+		
 		queuedSelectedBatchRowIndex = -1;
 		
 		if(queuedOrCompleted == 1)
