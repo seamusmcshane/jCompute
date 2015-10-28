@@ -4,8 +4,8 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
-		<ItemSamples>1000</ItemSamples>
+		<BaseScenarioFileName>64-quick.scenario</BaseScenarioFileName>
+		<ItemSamples>64</ItemSamples>
 	</Config>
 	<Log>
 		<InfoLog>true</InfoLog>
@@ -17,8 +17,8 @@
 		<CompressionLevel>2</CompressionLevel>
 		<BatchStatsExportDir>stats</BatchStatsExportDir>
 		<BatchGroupDir>Benchmark</BatchGroupDir>
-		<BatchSubGroupDirName>1000Item</BatchSubGroupDirName>
-	</Stats>	
+		<BatchSubGroupDirName>64Quick</BatchSubGroupDirName>
+	</Stats>
 	<Parameters>
 		<Parameter>
 			<Type>Group</Type>

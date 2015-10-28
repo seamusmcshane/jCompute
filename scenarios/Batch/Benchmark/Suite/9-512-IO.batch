@@ -4,7 +4,7 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BaseScenarioFileName>scenario.scenario</BaseScenarioFileName>
+		<BaseScenarioFileName>512-IO.scenario</BaseScenarioFileName>
 		<ItemSamples>512</ItemSamples>
 	</Config>
 	<Log>
