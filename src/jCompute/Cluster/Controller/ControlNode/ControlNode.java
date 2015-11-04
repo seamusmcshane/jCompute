@@ -3,9 +3,9 @@ package jCompute.Cluster.Controller.ControlNode;
 import jCompute.JComputeEventBus;
 import jCompute.Batch.BatchItem;
 import jCompute.Cluster.Controller.ControlNode.Event.ControlNodeItemStateEvent;
-import jCompute.Cluster.Controller.ControlNode.Event.NodeAdded;
-import jCompute.Cluster.Controller.ControlNode.Event.NodeRemoved;
+import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent;
 import jCompute.Cluster.Controller.ControlNode.Event.StatusChanged;
+import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent.NodeEventType;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
@@ -178,7 +178,7 @@ public class ControlNode
 						}
 						log.info("------------------------------------");
 						
-						JComputeEventBus.post(new NodeAdded(node.getNodeConfig()));
+						JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTED, node.getNodeConfig()));
 					}
 					else if(node.getReadyStateTimeOutValue() == NCP.ReadyStateTimeOut)
 					{
@@ -213,7 +213,7 @@ public class ControlNode
 						}
 						
 						// InActive Node Removed
-						JComputeEventBus.post(new NodeRemoved(node.getNodeConfig()));
+						JComputeEventBus.post(new NodeEvent(NodeEventType.DISCONNECTED, node.getNodeConfig()));
 						
 						log.debug("Node " + node.getUid() + " no longer Active");
 						node.destroy("Node no longer active");
@@ -357,7 +357,11 @@ public class ControlNode
 								{
 									// Add to NodeManager list of connecting
 									// node
-									connectingNodes.add(new NodeManager(++connectionNumber, nodeSocket));
+									NodeManager nm = new NodeManager(++connectionNumber, nodeSocket);
+									
+									connectingNodes.add(nm);
+									
+									JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTING, nm.getNodeConfig()));
 								}
 								
 							}

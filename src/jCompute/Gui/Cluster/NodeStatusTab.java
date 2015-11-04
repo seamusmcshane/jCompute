@@ -10,8 +10,8 @@ import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.ControlNode.Event.NodeAdded;
-import jCompute.Cluster.Controller.ControlNode.Event.NodeRemoved;
+import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent;
+import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent.NodeEventType;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
@@ -83,8 +83,9 @@ public class NodeStatusTab extends JPanel
 		clusterConnectedNodesTablePanel.setColumWidth(9, 120);
 		clusterConnectedNodesTablePanel.setColumWidth(stateColumn, 75);
 		
-		clusterConnectedNodesTablePanel.addColumRenderer(new NodeControlButtonRenderer(clusterConnectedNodesTablePanel, stateColumn,
-				IconManager.getIcon("startSimIcon"), IconManager.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
+		clusterConnectedNodesTablePanel.addColumRenderer(
+				new NodeControlButtonRenderer(clusterConnectedNodesTablePanel, stateColumn, IconManager.getIcon("startSimIcon"), IconManager.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")),
+				stateColumn);
 				
 		clusterConnectedNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
 		
@@ -95,7 +96,7 @@ public class NodeStatusTab extends JPanel
 		clusterNodesLogTablePanel.setColumWidth(0, 50);
 		clusterNodesLogTablePanel.setColumWidth(1, 50);
 		clusterNodesLogTablePanel.setColumWidth(2, 90);
-		clusterNodesLogTablePanel.setColumWidth(3, 75);
+		clusterNodesLogTablePanel.setColumWidth(3, 90);
 		
 		graphsJPanelContainer = new JPanel();
 		
@@ -159,52 +160,60 @@ public class NodeStatusTab extends JPanel
 	}
 	
 	@Subscribe
-	public void ControlNodeEvent(NodeAdded e)
+	public void ControlNodeEvent(NodeEvent e)
 	{
+		NodeEventType eventType = e.getEventType();
+		
 		int nid = e.getNodeConfiguration().getUid();
 		String nodeId = "Node " + e.getNodeConfiguration().getUid();
 		
-		// Assuming Starting State
-		clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
-		
-		clusterSimProChart.addStat(nodeId, nid);
-		clusterNodeActiveSims.addStat(nodeId, nid);
-		clusterNodeStatsPending.addStat(nodeId, nid);
-		clusterNodeUtilChar.addStat(nodeId, nid);
-		clusterNodeMemUsedPerChar.addStat(nodeId, nid);
-		clusterNodeTXChar.addStat(nodeId, nid);
-		clusterNodeRXChar.addStat(nodeId, nid);
-		
-		clusterNodesLogTablePanel
-				.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), "Added",
+		switch(eventType)
+		{
+			case CONNECTING:
+				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
 						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
+			break;
+			case CONNECTED:
+				
+				// Assuming Starting State
+				clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+				
+				clusterSimProChart.addStat(nodeId, nid);
+				clusterNodeActiveSims.addStat(nodeId, nid);
+				clusterNodeStatsPending.addStat(nodeId, nid);
+				clusterNodeUtilChar.addStat(nodeId, nid);
+				clusterNodeMemUsedPerChar.addStat(nodeId, nid);
+				clusterNodeTXChar.addStat(nodeId, nid);
+				clusterNodeRXChar.addStat(nodeId, nid);
+				
+				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
+						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
+			break;
+			case DISCONNECTED:
+				
+				clusterConnectedNodesTablePanel.removeRow(nid);
+				
+				clusterNodeUtilChar.removeStat(nodeId);
+				clusterNodeMemUsedPerChar.removeStat(nodeId);
+				clusterSimProChart.removeStat(nodeId);
+				clusterNodeActiveSims.removeStat(nodeId);
+				clusterNodeStatsPending.removeStat(nodeId);
+				clusterNodeTXChar.removeStat(nodeId);
+				clusterNodeRXChar.removeStat(nodeId);
+				
+				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
+						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
+			break;
+			default:
+			
+			break;
+		}
 	}
 	
 	@Subscribe
 	public void NodeManagerStateChange(NodeManagerStateChange e)
 	{
 		clusterConnectedNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
-	}
-	
-	@Subscribe
-	public void ControlNodeEvent(NodeRemoved e)
-	{
-		int nid = e.getNodeConfiguration().getUid();
-		String nodeId = "Node " + e.getNodeConfiguration().getUid();
-		
-		clusterConnectedNodesTablePanel.removeRow(nid);
-		
-		clusterNodeUtilChar.removeStat(nodeId);
-		clusterNodeMemUsedPerChar.removeStat(nodeId);
-		clusterSimProChart.removeStat(nodeId);
-		clusterNodeActiveSims.removeStat(nodeId);
-		clusterNodeStatsPending.removeStat(nodeId);
-		clusterNodeTXChar.removeStat(nodeId);
-		clusterNodeRXChar.removeStat(nodeId);
-		
-		clusterNodesLogTablePanel
-				.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), "Removed",
-						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
 	}
 	
 	@Subscribe
