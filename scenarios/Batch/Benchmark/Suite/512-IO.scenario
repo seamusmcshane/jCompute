@@ -7,7 +7,7 @@
 	<EndEvents>
 		<Event>
 			<Name>StepCount</Name>
-			<Value>1000</Value>
+			<Value>2500</Value>
 		</Event>
 		<Event>
 			<Name>AllPreyLTE</Name>
@@ -79,10 +79,10 @@
 			<Size>3.5</Size>
 			<Speed>1.00</Speed>
 			<ViewRange>10</ViewRange>
-			<MovementCost>0.033</MovementCost>
+			<MovementCost>0.025</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
 			<DigestiveEfficiency>0.5</DigestiveEfficiency>
-			<HungerThreshold>50</HungerThreshold>
+			<HungerThreshold>80</HungerThreshold>
 			<EnergyConsumptionRate>100</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.55</ReproductionCost>
@@ -99,11 +99,11 @@
 			<Size>3.5</Size>
 			<Speed>0.90</Speed>
 			<ViewRange>10</ViewRange>
-			<MovementCost>0.033</MovementCost>
+			<MovementCost>0.025</MovementCost>
 			<StartingEnergy>25</StartingEnergy>
-			<DigestiveEfficiency>0.4</DigestiveEfficiency>
-			<HungerThreshold>50</HungerThreshold>
-			<EnergyConsumptionRate>10</EnergyConsumptionRate>
+			<DigestiveEfficiency>0.5</DigestiveEfficiency>
+			<HungerThreshold>80</HungerThreshold>
+			<EnergyConsumptionRate>25</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.50</ReproductionCost>
 		</SimpleAgent>
@@ -112,10 +112,10 @@
 		<GenericPlant>
 				<Type>0</Type>
 				<InitialNumbers>600</InitialNumbers>
-				<StartingEnergy>50</StartingEnergy>
-				<PlantRegeratonRate>2</PlantRegeratonRate>
+				<StartingEnergy>20</StartingEnergy>
+				<PlantRegeratonRate>1</PlantRegeratonRate>
 				<PlantRegenerationNSteps>1</PlantRegenerationNSteps>
-				<EnergyAbsorptionRate>8</EnergyAbsorptionRate>
+				<EnergyAbsorptionRate>5</EnergyAbsorptionRate>
 				<ReproductionAndSurvivalDivisor>0.25</ReproductionAndSurvivalDivisor>
 		</GenericPlant>
 	</Plants>
