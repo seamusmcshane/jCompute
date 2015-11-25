@@ -46,5 +46,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.0-bin/fftw-linux-x86_64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-io/commons-io-2.4/commons-io-2.4.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/AlphanumComparator/AlphanumComparator.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-math/commons-math3-3.5/commons-math3-3.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

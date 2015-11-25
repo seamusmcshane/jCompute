@@ -4,11 +4,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
+
 public class JCMath
 {
 	public static float distance(float[] from, float[] to)
 	{
-		return (float) Math.sqrt(distanceSquared(from, to));
+		return (float) FastMath.sqrt(distanceSquared(from, to));
 	}
 	
 	public static float distanceSquared(float[] from, float[] to)
@@ -18,7 +21,7 @@ public class JCMath
 	
 	public static double distance(double[] from, double[] to)
 	{
-		return Math.sqrt(distanceSquared(from, to));
+		return FastMath.sqrt(distanceSquared(from, to));
 	}
 	
 	public static double distanceSquared(double[] from, double[] to)
@@ -28,7 +31,7 @@ public class JCMath
 	
 	public static double distance(double fromX, double fromY, double toX, double toY)
 	{
-		return Math.sqrt(distanceSquared(fromX, fromY, toX, toY));
+		return FastMath.sqrt(distanceSquared(fromX, fromY, toX, toY));
 	}
 	
 	public static double distanceSquared(double fromX, double fromY, double toX, double toY)
@@ -38,7 +41,7 @@ public class JCMath
 	
 	public static float distance(float fromX, float fromY, float toX, float toY)
 	{
-		return (float) Math.sqrt(distanceSquared(fromX, fromY, toX, toY));
+		return (float) FastMath.sqrt(distanceSquared(fromX, fromY, toX, toY));
 	}
 	
 	public static float distanceSquared(float fromX, float fromY, float toX, float toY)
@@ -129,7 +132,7 @@ public class JCMath
 	 */
 	public static float calculateAdjustedEuclideanVectorDirection(float[] from, float[] to, float adjustmentAngle)
 	{
-		float direction = (float) Math.toDegrees(Math.atan2(to[0] - from[0], from[1] - to[1]));
+		float direction = (float) FastMath.toDegrees(FastMath.atan2(to[0] - from[0], from[1] - to[1]));
 		
 		direction = direction + adjustmentAngle;
 		
@@ -140,7 +143,7 @@ public class JCMath
 		
 		return direction % 360;
 	}
-	
+
 	/**
 	 * Adds an angle to another angle, ensuring the result wraps correctly - in the range (0-360).
 	 * @param angle
