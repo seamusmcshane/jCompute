@@ -168,7 +168,7 @@ public class AxisGrid
 		this.drawMinMax = displayed;
 	}
 	
-	private void generateGrids(int xInterval,int yIntervals,int zIntervals)
+	private void generateGrids(int xInterval, int yIntervals, int zIntervals)
 	{
 		// Account for a scaled Height in wall position
 		float wallHeightOffset = gridSize - (gridSize * heightScale);
@@ -200,33 +200,30 @@ public class AxisGrid
 		floor = new LineGrid(xInterval, gridSize, gridColorBlack, trans);
 	}
 	
-	private void generateGridsAndTicks(int xIntervals,int yIntervals, int zIntervals)
+	private void generateGridsAndTicks(int xIntervals, int yIntervals, int zIntervals)
 	{
-		generateGrids(xIntervals,yIntervals,zIntervals);
+		generateGrids(xIntervals, yIntervals, zIntervals);
 		generateMinMaxLines();
 		
 		// North Floor Axis Ticks + Labels
 		Vector3 floorNorthTrans = new Vector3(gridSize / 2, -gridSize / 2, -gridSize / 2 + trans);
 		floorNorthTicks = generateTicks(gridSize, standardTickLength, yIntervals);
 		floorNorthTicks.getModelInstance().transform.trn(floorNorthTrans);
-		floorNorthTickLabels = generateTickLabels(axisRanges[XAXIS][MIN], axisRanges[XAXIS][MAX], gridSize, standardTickLength,
-				tickLabelPad, yIntervals, floorNorthTrans);
-				
+		floorNorthTickLabels = generateTickLabels(axisRanges[XAXIS][MIN], axisRanges[XAXIS][MAX], gridSize, standardTickLength, tickLabelPad, yIntervals, floorNorthTrans);
+		
 		// South Floor Axis Ticks + Labels
 		Vector3 floorSouthTrans = new Vector3(-gridSize / 2 - standardTickLength, -gridSize / 2, -gridSize / 2 + trans);
 		floorSouthTicks = generateTicks(gridSize, standardTickLength, yIntervals);
 		floorSouthTicks.getModelInstance().transform.trn(floorSouthTrans);
-		floorSouthTickLabels = generateTickLabels(axisRanges[XAXIS][MIN], axisRanges[XAXIS][MAX], gridSize, -standardTickLength,
-				tickLabelPad, yIntervals, floorSouthTrans);
-				
+		floorSouthTickLabels = generateTickLabels(axisRanges[XAXIS][MIN], axisRanges[XAXIS][MAX], gridSize, -standardTickLength, tickLabelPad, yIntervals, floorSouthTrans);
+		
 		// East Floor Axis Ticks + Labels
 		Vector3 floorEastTrans = new Vector3(gridSize / 2, -gridSize / 2 - standardTickLength, -gridSize / 2 + trans);
 		floorEastTicks = generateTicks(gridSize, standardTickLength, xIntervals);
 		floorEastTicks.getModelInstance().transform.trn(floorEastTrans);
 		floorEastTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
-		floorEastTickLabels = generateTickLabels(axisRanges[YAXIS][MIN], axisRanges[YAXIS][MAX], gridSize, -standardTickLength,
-				tickLabelPad, xIntervals, floorEastTrans);
-				
+		floorEastTickLabels = generateTickLabels(axisRanges[YAXIS][MIN], axisRanges[YAXIS][MAX], gridSize, -standardTickLength, tickLabelPad, xIntervals, floorEastTrans);
+		
 		// Flip Coords (rotation 90 around z) - Corrects for standardTickLength
 		// offset
 		for(Decal decal : floorEastTickLabels)
@@ -244,9 +241,8 @@ public class AxisGrid
 		floorWestTicks = generateTicks(gridSize, standardTickLength, xIntervals);
 		floorWestTicks.getModelInstance().transform.trn(floorWestTrans);
 		floorWestTicks.getModelInstance().transform.rotate(0, 0, 1, 90f);
-		floorWestTickLabels = generateTickLabels(axisRanges[YAXIS][MIN], axisRanges[YAXIS][MAX], gridSize, -standardTickLength,
-				tickLabelPad, xIntervals, floorEastTrans);
-				
+		floorWestTickLabels = generateTickLabels(axisRanges[YAXIS][MIN], axisRanges[YAXIS][MAX], gridSize, -standardTickLength, tickLabelPad, xIntervals, floorEastTrans);
+		
 		// Flip Coords (rotation 270 around z)
 		for(Decal decal : floorWestTickLabels)
 		{
@@ -264,9 +260,8 @@ public class AxisGrid
 		wallNorthEastTicks.getModelInstance().transform.trn(wallNorthEastTrans);
 		wallNorthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 225f);
 		wallNorthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		wallNorthEastTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, standardTickLength,
-				tickLabelPad, zIntervals, wallNorthEastTrans);
-				
+		wallNorthEastTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, standardTickLength, tickLabelPad, zIntervals, wallNorthEastTrans);
+		
 		// Flip Coords (Rotate around Y+Translated on z)
 		for(Decal decal : wallNorthEastTickLabels)
 		{
@@ -284,9 +279,8 @@ public class AxisGrid
 		wallNorthWestTicks.getModelInstance().transform.trn(wallNorthWestTrans);
 		wallNorthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 45f);
 		wallNorthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
-		wallNorthWestTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, standardTickLength,
-				tickLabelPad, zIntervals, wallNorthWestTrans);
-				
+		wallNorthWestTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, standardTickLength, tickLabelPad, zIntervals, wallNorthWestTrans);
+		
 		// Flip Coords (Rotate around Y+Translated on z)
 		for(Decal decal : wallNorthWestTickLabels)
 		{
@@ -305,9 +299,8 @@ public class AxisGrid
 		wallSouthEastTicks.getModelInstance().transform.rotate(0, 0, 1, 135f);
 		wallSouthEastTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
 		
-		wallSouthEastTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, -standardTickLength,
-				tickLabelPad, zIntervals, wallSouthEastTrans);
-				
+		wallSouthEastTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, -standardTickLength, tickLabelPad, zIntervals, wallSouthEastTrans);
+		
 		// Flip Coords (Rotate around Y+Translated on z)
 		for(Decal decal : wallSouthEastTickLabels)
 		{
@@ -326,9 +319,8 @@ public class AxisGrid
 		wallSouthWestTicks.getModelInstance().transform.rotate(0, 0, 1, 315f);
 		wallSouthWestTicks.getModelInstance().transform.rotate(1, 0, 0, 90f);
 		
-		wallSouthWestTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, -standardTickLength,
-				tickLabelPad, zIntervals, wallSouthWestTrans);
-				
+		wallSouthWestTickLabels = generateTickLabels(axisRanges[ZAXIS][MIN], axisRanges[ZAXIS][MAX], gridSize, -standardTickLength, tickLabelPad, zIntervals, wallSouthWestTrans);
+		
 		// Flip Coords (Rotate around Y+Translated on z)
 		for(Decal decal : wallSouthWestTickLabels)
 		{
@@ -340,8 +332,7 @@ public class AxisGrid
 		}
 	}
 	
-	public Decal[] generateTickLabels(float valMin, float valMax, float gridSize, float tickLength, float pad, int intervals,
-			Vector3 translate)
+	public Decal[] generateTickLabels(float valMin, float valMax, float gridSize, float tickLength, float pad, int intervals, Vector3 translate)
 	{
 		int numDecals = intervals + 1;
 		
@@ -355,7 +346,7 @@ public class AxisGrid
 		}
 		
 		float valStep = (float) ((valMax - valMin) / intervals);
-
+		
 		float posInteval = gridSize / intervals;
 		
 		System.out.println("Tick Step " + valStep);
@@ -371,10 +362,26 @@ public class AxisGrid
 			
 			if(intValues)
 			{
-				sval = String.valueOf((int)dval);
+				sval = String.valueOf((int) dval);
 			}
 			else
 			{
+				// Correct usable numbers.
+				if(dval == Float.NaN)
+				{
+					dval = 0.0f;
+				}
+				
+				if(dval == Float.NEGATIVE_INFINITY)
+				{
+					dval = -Float.MAX_VALUE;
+				}
+				
+				if(dval == Float.POSITIVE_INFINITY)
+				{
+					dval = Float.MAX_VALUE;
+				}
+				
 				// Round the floats
 				sval = String.valueOf(JCMath.round(dval, 4));
 			}
@@ -431,7 +438,7 @@ public class AxisGrid
 		return vModel;
 	}
 	
-	public void setTickIntervals(int xIntervals,int yIntervals, int zIntervals)
+	public void setTickIntervals(int xIntervals, int yIntervals, int zIntervals)
 	{
 		this.xIntervals = xIntervals;
 		this.yIntervals = yIntervals;
@@ -536,17 +543,15 @@ public class AxisGrid
 		floorMinMaxRect.setVertices(new float[]
 		{
 			// MinX
-			xMax - overlay, yMin, overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMax - overlay, yMax,
-			overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3],
+			xMax - overlay, yMin, overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMax - overlay, yMax, overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2],
+			colors[XAXIS][3],
 			// MaxX
-			xMin + overlay, yMin, overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMin + overlay, yMax,
-			overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3],
+			xMin + overlay, yMin, overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMin + overlay, yMax, overlay, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2],
+			colors[XAXIS][3],
 			// MinY
-			xMin, yMin, overlay, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], xMax, yMin, overlay,
-			colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3],
+			xMin, yMin, overlay, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], xMax, yMin, overlay, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3],
 			// MaxY
-			xMin, yMax, overlay, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], xMax, yMax, overlay,
-			colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3]
+			xMin, yMax, overlay, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], xMax, yMax, overlay, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3]
 		}, GL20.GL_LINES);
 		
 		northMinMaxRect = new VertexModel(false);
@@ -554,17 +559,17 @@ public class AxisGrid
 		northMinMaxRect.setVertices(new float[]
 		{
 			// MinY
-			scaleHalf - overlay, yMin, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], scaleHalf - overlay,
-			yMin, zMax, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3],
+			scaleHalf - overlay, yMin, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], scaleHalf - overlay, yMin, zMax, colors[YAXIS][0], colors[YAXIS][1],
+			colors[YAXIS][2], colors[YAXIS][3],
 			// MaxY
-			scaleHalf - overlay, yMax, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], scaleHalf - overlay,
-			yMax, zMax, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3],
+			scaleHalf - overlay, yMax, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], scaleHalf - overlay, yMax, zMax, colors[YAXIS][0], colors[YAXIS][1],
+			colors[YAXIS][2], colors[YAXIS][3],
 			// MinZ
-			scaleHalf - overlay, yMin, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], scaleHalf - overlay,
-			yMax, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3],
+			scaleHalf - overlay, yMin, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], scaleHalf - overlay, yMax, zMin, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3],
 			// MaxY
-			scaleHalf - overlay, yMin, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], scaleHalf - overlay,
-			yMax, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3],
+			scaleHalf - overlay, yMin, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], scaleHalf - overlay, yMax, zMax, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3],
 			
 		}, GL20.GL_LINES);
 		
@@ -573,17 +578,17 @@ public class AxisGrid
 		southMinMaxRect.setVertices(new float[]
 		{
 			// MinY
-			-scaleHalf + overlay, yMin, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], -scaleHalf + overlay,
-			yMin, zMax, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3],
+			-scaleHalf + overlay, yMin, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], -scaleHalf + overlay, yMin, zMax, colors[YAXIS][0], colors[YAXIS][1],
+			colors[YAXIS][2], colors[YAXIS][3],
 			// MaxY
-			-scaleHalf + overlay, yMax, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], -scaleHalf + overlay,
-			yMax, zMax, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3],
+			-scaleHalf + overlay, yMax, zMin, colors[YAXIS][0], colors[YAXIS][1], colors[YAXIS][2], colors[YAXIS][3], -scaleHalf + overlay, yMax, zMax, colors[YAXIS][0], colors[YAXIS][1],
+			colors[YAXIS][2], colors[YAXIS][3],
 			// MinZ
-			-scaleHalf + overlay, yMin, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], -scaleHalf + overlay,
-			yMax, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3],
+			-scaleHalf + overlay, yMin, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], -scaleHalf + overlay, yMax, zMin, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3],
 			// MaxY
-			-scaleHalf + overlay, yMin, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], -scaleHalf + overlay,
-			yMax, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3],
+			-scaleHalf + overlay, yMin, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], -scaleHalf + overlay, yMax, zMax, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3],
 			
 		}, GL20.GL_LINES);
 		
@@ -592,17 +597,17 @@ public class AxisGrid
 		eastMinMaxRect.setVertices(new float[]
 		{
 			// MinX
-			xMin, -scaleHalf + overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMin,
-			-scaleHalf + overlay, zMax, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3],
+			xMin, -scaleHalf + overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMin, -scaleHalf + overlay, zMax, colors[XAXIS][0], colors[XAXIS][1],
+			colors[XAXIS][2], colors[XAXIS][3],
 			// MaxX
-			xMax, -scaleHalf + overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMax,
-			-scaleHalf + overlay, zMax, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3],
+			xMax, -scaleHalf + overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMax, -scaleHalf + overlay, zMax, colors[XAXIS][0], colors[XAXIS][1],
+			colors[XAXIS][2], colors[XAXIS][3],
 			// MinZ
-			xMin, -scaleHalf + overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax,
-			-scaleHalf + overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3],
+			xMin, -scaleHalf + overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax, -scaleHalf + overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3],
 			// MaxX
-			xMin, -scaleHalf + overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax,
-			-scaleHalf + overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3]
+			xMin, -scaleHalf + overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax, -scaleHalf + overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3]
 			
 		}, GL20.GL_LINES);
 		
@@ -611,17 +616,17 @@ public class AxisGrid
 		westMinMaxRect.setVertices(new float[]
 		{
 			// MinX
-			xMin, scaleHalf - overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMin,
-			scaleHalf - overlay, zMax, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3],
+			xMin, scaleHalf - overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMin, scaleHalf - overlay, zMax, colors[XAXIS][0], colors[XAXIS][1],
+			colors[XAXIS][2], colors[XAXIS][3],
 			// MaxX
-			xMax, scaleHalf - overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMax,
-			scaleHalf - overlay, zMax, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3],
+			xMax, scaleHalf - overlay, zMin, colors[XAXIS][0], colors[XAXIS][1], colors[XAXIS][2], colors[XAXIS][3], xMax, scaleHalf - overlay, zMax, colors[XAXIS][0], colors[XAXIS][1],
+			colors[XAXIS][2], colors[XAXIS][3],
 			// MinZ
-			xMin, scaleHalf - overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax,
-			scaleHalf - overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3],
+			xMin, scaleHalf - overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax, scaleHalf - overlay, zMin, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3],
 			// MaxX
-			xMin, scaleHalf - overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax,
-			scaleHalf - overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3]
+			xMin, scaleHalf - overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1], colors[ZAXIS][2], colors[ZAXIS][3], xMax, scaleHalf - overlay, zMax, colors[ZAXIS][0], colors[ZAXIS][1],
+			colors[ZAXIS][2], colors[ZAXIS][3]
 			
 		}, GL20.GL_LINES);
 	}
@@ -635,7 +640,7 @@ public class AxisGrid
 	{
 		if(!generated)
 		{
-			generateGridsAndTicks(xIntervals,yIntervals,zIntervals);
+			generateGridsAndTicks(xIntervals, yIntervals, zIntervals);
 			generated = true;
 		}
 		
@@ -841,11 +846,40 @@ public class AxisGrid
 	{
 		// Invert Min/Max
 		axisRanges[XAXIS][MIN] = minMax[XAXIS][0];
+		if(axisRanges[XAXIS][MIN] == Float.NEGATIVE_INFINITY)
+		{
+			axisRanges[XAXIS][MIN] = -Float.MAX_VALUE;
+		}
+		
 		axisRanges[XAXIS][MAX] = minMax[XAXIS][1];
+		if(axisRanges[XAXIS][MAX] == Float.POSITIVE_INFINITY)
+		{
+			axisRanges[XAXIS][MAX] = Float.MAX_VALUE;
+		}
+		
 		axisRanges[YAXIS][MIN] = minMax[YAXIS][0];
+		if(axisRanges[YAXIS][MIN] == Float.NEGATIVE_INFINITY)
+		{
+			axisRanges[YAXIS][MIN] = -Float.MAX_VALUE;
+		}
+		
 		axisRanges[YAXIS][MAX] = minMax[YAXIS][1];
+		if(axisRanges[YAXIS][MAX] == Float.POSITIVE_INFINITY)
+		{
+			axisRanges[YAXIS][MAX] = Float.MAX_VALUE;
+		}
+		
 		axisRanges[ZAXIS][MIN] = minMax[ZAXIS][0];
+		if(axisRanges[ZAXIS][MIN] == Float.NEGATIVE_INFINITY)
+		{
+			axisRanges[ZAXIS][MIN] = -Float.MAX_VALUE;
+		}
+		
 		axisRanges[ZAXIS][MAX] = minMax[ZAXIS][1];
+		if(axisRanges[ZAXIS][MAX] == Float.POSITIVE_INFINITY)
+		{
+			axisRanges[ZAXIS][MAX] = Float.MAX_VALUE;
+		}
 	}
 	
 	public void setFirstLast(float[][] firstLast)
