@@ -86,6 +86,7 @@
 								<xs:element name="RestMaxMoves" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 								<xs:element name="RoamMaxMoves" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 								<xs:element name="LearnToMoveMax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+								<xs:element name="SelfishBehaviour" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element> 	

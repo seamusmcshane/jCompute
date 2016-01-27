@@ -106,6 +106,7 @@
 			<EnergyConsumptionRate>100</EnergyConsumptionRate>
 			<ReproductionAndSurvivalDivisor>0.50</ReproductionAndSurvivalDivisor>
 			<ReproductionCost>0.50</ReproductionCost>
+			<SelfishBehaviour>true</SelfishBehaviour>
 		</SimpleAgent>
 	</Agents>
 	<Plants>
