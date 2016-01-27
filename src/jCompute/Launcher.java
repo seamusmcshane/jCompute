@@ -113,8 +113,11 @@ public class Launcher
 			case 0:
 			default:
 				// Standard
+
+				// Async Logging
+				System.setProperty("Log4jContextSelector","org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
-				System.out.println("Info level console Logging, with errors logged to file.");
+				System.out.println("AsyncLogging + Info level console Logging, with errors logged to file.");
 			break;
 		}
 		
