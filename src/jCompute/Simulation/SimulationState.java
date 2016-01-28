@@ -4,64 +4,64 @@ public class SimulationState
 {
 	/** Sim ref for call back */
 	private Simulation sim;
-
+	
 	/** Simulation Running State */
 	private SimState state = SimState.NEW;
-
+	
 	public SimulationState(Simulation sim)
 	{
 		this.sim = sim;
 	}
-
+	
 	public void newState()
 	{
 		state = SimState.NEW;
 	}
-
-	public void runState(SimulationStats stats)
+	
+	public void runState()
 	{
 		state = SimState.RUNNING;
-
-		simCallBack(stats, "None");
+		
+		simCallBack("None");
 	}
-
-	public void pauseState(SimulationStats stats)
+	
+	public void pauseState()
 	{
 		state = SimState.PAUSED;
-
-		simCallBack(stats, "None");
-
+		
+		simCallBack("None");
+		
 	}
-
-	public void finishState(SimulationStats simStats,String endEvent)
+	
+	public void finishState(String endEvent)
 	{
 		state = SimState.FINISHED;
-
-		simCallBack(simStats,endEvent);
+		
+		simCallBack(endEvent);
 	}
-
-	private void simCallBack(SimulationStats simStats, String endEvent)
+	
+	private void simCallBack(String endEvent)
 	{
-		sim.stateChanged(state,simStats,endEvent);
+		sim.stateChanged(state, endEvent);
 	}
-
+	
 	/** State Enum */
 	public enum SimState
 	{
 		NEW("New"), RUNNING("Running"), PAUSED("Paused"), FINISHED("Finished");
-
+		
 		private final String name;
-
+		
 		private SimState(String name)
 		{
 			this.name = name;
 		}
-
+		
 		public String toString()
 		{
 			return name;
 		}
-
+		
 		public static SimState fromInt(int v)
 		{
 			SimState state = null;
@@ -87,16 +87,15 @@ public class SimulationState
 			return state;
 		}
 	};
-
+	
 	/** Interface for call back */
 	public interface stateChangedInf
 	{
-		public void stateChanged(SimState state,SimulationStats stats, String endEvent);
+		public void stateChanged(SimState state, String endEvent);
 	}
-
+	
 	/**
 	 * Only safe to use inside simulation class.
-	 * 
 	 * @return
 	 */
 	public SimState getState()

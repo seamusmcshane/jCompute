@@ -7,7 +7,7 @@ import jCompute.Stats.StatManager;
 public interface SimulationScenarioManagerInf
 {
 	public void cleanUp();
-
+	
 	public void doSimulationUpdate();
 	
 	public StatManager getStatmanger();
@@ -15,14 +15,14 @@ public interface SimulationScenarioManagerInf
 	public int getUniverseSize();
 	
 	public boolean hasEndEventOccurred();
-
+	
 	public String getEndEvent();
-
-	public void setScenarioStepCountEndEvent(SimulationStats simState);
+	
+	public void setScenarioStepCountEndEvent(Simulation simulation);
 	
 	public ScenarioInf getScenario();
 	
 	public String getInfo();
-
+	
 	public ViewRendererInf getRenderer();
 }

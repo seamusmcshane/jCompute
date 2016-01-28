@@ -8,7 +8,6 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.SimulationState.stateChangedInf;
-import jCompute.Simulation.SimulationStats.statChangedInf;
 import jCompute.Stats.StatManager;
 
 import java.util.concurrent.Semaphore;
@@ -24,43 +23,68 @@ import org.slf4j.LoggerFactory;
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
-public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
+public class Simulation implements stateChangedInf, ViewTarget
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(Simulation.class);
 	
-	/* Simulation State */
-	private SimulationState simState;
-		
-	private SimulationStats simStats;
+	/* Simulation Id */
+	private int simId = -1;
 	
-	// Inter-step delay Calculations
+	/*
+	 * ***************************************************************************************************
+	 * Simulation State
+	 ****************************************************************************************************/
+	private SimulationState simState;
+	
+	/*
+	 * ***************************************************************************************************
+	 * Simulation Performance Indicators
+	 ****************************************************************************************************/
+	// private SimulationStats simStats;
+	private long stepStartTime = 0;
+	private long stepEndTime = 0;
+	private long totalStepsTime = 0; // Total Simulation run-time is the time taken per step for each step
+	private int progress = -1;
+	/* Simulation Step Counter */
+	private int simulationSteps;
+	/* Special Value used to calculate progress */
+	private int endStepNum = -1;
+	
+	/*
+	 * ***************************************************************************************************
+	 * Simulation Stat Events
+	 ****************************************************************************************************/
+	private int eventFreq = 2500;
+	private long prevEventTimeMillis = Long.MAX_VALUE;
+	
+	/*
+	 * ***************************************************************************************************
+	 * Inter-step delay Calculations
+	 ****************************************************************************************************/
 	private long stepTimeNow;
 	private long stepTimeDiff;
 	private long stepTimeTotal;
 	private long stepTimePrev;
-
+	
 	/* The Simulation manager */
-	private SimulationScenarioManagerInf simManager;
-
+	private SimulationScenarioManagerInf simulationScenarioManager;
+	
 	/* The default simulation update rate */
 	private int tReqSps = 15;
-
+	
 	/* Sim Start/Pause Control */
 	private Semaphore pause;
-
+	
 	/* Simulation Update Thread */
 	private Thread asyncUpdateThread;
 	
 	/* asyncUpdateThread exit condition */
 	private boolean running = true;
 	private boolean exited = false;
-
+	
 	/* Busy wait inter-step delay toggle */
 	private boolean realtime = true;
-	
-	/* Simulation Id */
-	private int simId = -1;
 	
 	public Simulation(int simId)
 	{
@@ -68,41 +92,53 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 		
 		pause = new Semaphore(0, true); // Starts Paused
 		
-		simState = new SimulationState(this);	
-
-		simStats = new SimulationStats(this);	
-
+		simState = new SimulationState(this);
+		
+		clearStats();
+		
 		setupThreads();
-
+		
 		createSimScenario(null);
 	}
-
+	
+	private void clearStats()
+	{
+		// Clear Stats
+		simulationSteps = 0;
+		prevEventTimeMillis = System.currentTimeMillis();
+		stepStartTime = 0;
+		stepEndTime = 0;
+		totalStepsTime = 0;
+		progress = -1;
+		endStepNum = -1;
+	}
+	
 	/**
 	 * Method createSim.
 	 */
 	public void createSimScenario(ScenarioInf scenario)
 	{
-		if(scenario!=null)
+		if(scenario != null)
 		{
 			log.info("Assigning Sim Manager");
 			
-			simManager = scenario.getSimulationScenarioManager();
+			simulationScenarioManager = scenario.getSimulationScenarioManager();
 			
 			// This is a special external end event based on the simulation step count.
-			simManager.setScenarioStepCountEndEvent(simStats);
+			simulationScenarioManager.setScenarioStepCountEndEvent(this);
 			
 			log.info("Scenario Type : " + scenario.getScenarioType());
 		}
 		
-		simStats.clearSimulationStats();
-		simState.newState();		
+		clearStats();
+		simState.newState();
 	}
-
+	
 	/**
 	 * This method initiates the thread shutdown sequence in the Simulation Manager
 	 */
 	public void destroySim()
-	{		
+	{
 		// Exit the Async Thread
 		running = false;
 		
@@ -116,14 +152,14 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 			Thread.yield();
 		}
 		log.info("Destroyed");
-
-		if(simManager!=null)
+		
+		if(simulationScenarioManager != null)
 		{
 			/* Initiate clean up */
-			simManager.cleanUp();
+			simulationScenarioManager.cleanUp();
 			
 			/* Set it to null so the garbage collector can get to work */
-			simManager=null;
+			simulationScenarioManager = null;
 		}
 	}
 	
@@ -139,7 +175,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 				
 				int reqSps = 0;
 				
-				while (running)
+				while(running)
 				{
 					
 					// The pause semaphore (We do not pause half way through a step)
@@ -147,21 +183,22 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 					
 					if(running)
 					{
-						simStats.setStepStartTime();
-				
+						// Start time for the average step rate
+						stepStartTime = System.currentTimeMillis();
+						
 						// record step start time for inter-step delay
 						timeTotal();
-				
+						
 						// This single method hides the rest of the sim
-						simManager.doSimulationUpdate();
-				
+						simulationScenarioManager.doSimulationUpdate();
+						
 						// Only do interstep wait if ask to run in real-time @ a specific step rate, otherwise do not wait thus run as fast as possible
 						if(realtime)
 						{
 							reqSps = tReqSps;
 							
-							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step 
-							while (timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
+							// Calculate how much we need to wait (in nanoseconds, based on the time taken so far) before proceeding to the next step
+							while(timeTotal() < (1000000000 / reqSps)) // Approximation of what the inter-step delay should be
 							{
 								// Inter-Step Busy wait delay (66ms~ for 15 steps per second)
 								// This will only wait if the step performance level is being exceeded
@@ -172,16 +209,24 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 						}
 						// resets the value calculated in timeTotal()
 						resetTotalTime();
-				
-						simStats.setStepEndTime();
+						
+						// End time for the average step
+						stepEndTime = System.currentTimeMillis();
+						
+						// Runtime (+step runtimes)
+						totalStepsTime += stepEndTime - stepStartTime;
 						
 						// Increment the Step counter
-						simStats.incrementSimulationSteps();
-								
+						simulationSteps++;
+						
+						// Do Stat Event
+						sendSimulationStatUpdateEvent();
+						// sim.statChanged(avgStepRateTotalTime, simulationSteps, progress, getAverageStepRate());
+						
 						// Check for an End Event
-						if(simManager.hasEndEventOccurred())
+						if(simulationScenarioManager.hasEndEventOccurred())
 						{
-							simState.finishState(simStats,simManager.getEndEvent());
+							simState.finishState(simulationScenarioManager.getEndEvent());
 							
 							// Effectively a dead lock under any other circumstance.
 							pause.acquireUninterruptibly();
@@ -189,40 +234,57 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 					}
 					
 					// Allow the simulation to be paused again
-					pause.release();	
+					pause.release();
 				}
-				
 				
 				exited = true;
 			}
 		}, "Simulation Update Thread"
-
+		
 		);
-
+		
 		asyncUpdateThread.start();
 	}
-
+	
+	private void sendSimulationStatUpdateEvent()
+	{
+		long currentEventTimeMillis = System.currentTimeMillis();
+		long timeElapsed = currentEventTimeMillis - prevEventTimeMillis;
+		
+		if(timeElapsed < eventFreq && simulationSteps != endStepNum)
+		{
+			return;
+		}
+		
+		prevEventTimeMillis = currentEventTimeMillis;
+		
+		progress = (int) ((float) (simulationSteps + 1) / (float) endStepNum * 100f);
+		
+		JComputeEventBus.post(new SimulationStatChangedEvent(simId, totalStepsTime, simulationSteps, progress, getAverageStepRate()));
+	}
+	
 	/**
 	 * Calculates the total taken between repeated call to this method - used for inter-step time wait
-	 * @return long */
+	 * @return long
+	 */
 	private long timeTotal()
 	{
 		stepTimeNow = System.nanoTime();		 // Current Time
-
+		
 		stepTimeDiff = stepTimeNow - stepTimePrev; // Time Between this call and the last call
-
+		
 		stepTimeTotal += stepTimeDiff;			 // Total the time between calls
-
+		
 		stepTimePrev = stepTimeNow;				 // Set the current time as the previous to the next call
-
+		
 		return stepTimeTotal;					 // Return the current total
 	}
-
+	
 	private void resetTotalTime()
 	{
 		stepTimeTotal = 0;
 	}
-
+	
 	/**
 	 * Called by the start button
 	 */
@@ -230,14 +292,24 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	{
 		unPauseSim();
 	}
-
+	
+	private int getAverageStepRate()
+	{
+		if(simulationSteps < 100)
+		{
+			return 0;
+		}
+		
+		return (int) ((float) simulationSteps / ((float) totalStepsTime / 1000f));
+	}
+	
 	/**
-	 *  Toggle Pause/UnPause
-	 *  If Simulation is paused, this will unpause it.
-	 *  If Simulation is running this will pause it.
-	 *  If Simulation is CON this method does nothing.
-	 *  This method will log an error if called when a Simulation is finished.
-	 */	
+	 * Toggle Pause/UnPause
+	 * If Simulation is paused, this will unpause it.
+	 * If Simulation is running this will pause it.
+	 * If Simulation is CON this method does nothing.
+	 * This method will log an error if called when a Simulation is finished.
+	 */
 	public SimState togglePause()
 	{
 		SimState state = simState.getState();
@@ -252,7 +324,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 				unPauseSim();
 			break;
 			case NEW:
-				// This is OK, some methods can call this method during all states, we don't change the pause state during CON.
+			// This is OK, some methods can call this method during all states, we don't change the pause state during CON.
 			break;
 			case FINISHED:
 				// This is a usage error - cannot toggle pause when finished.
@@ -262,7 +334,7 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 				// This is an error - this switch statement updated.
 				log.error("Attempt to toggle pause in unknown state " + state.toString());
 		}
-
+		
 		// Return the CON sim state
 		return simState.getState();
 	}
@@ -272,39 +344,40 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	 */
 	public void unPauseSim()
 	{
-		simState.runState(simStats);
-				
-		pause.release();					// Release the pause semaphore		
+		simState.runState();
+		
+		pause.release();					// Release the pause semaphore
 	}
-
+	
 	/**
 	 * Pauses the Sim
 	 */
 	public void pauseSim()
 	{
 		pause.acquireUninterruptibly();		// Pause the sim
-
-		simState.pauseState(simStats);		
+		
+		simState.pauseState();
 	}
-
+	
 	/**
 	 * Method reqSimUpdateRate.
-	 * @param steps int
+	 * @param steps
+	 *            int
 	 */
 	public void setReqStepRate(int steps)
-	{		
-		if (steps > 0)
+	{
+		if(steps > 0)
 		{
 			tReqSps = steps;
-			realtime=true;	
+			realtime = true;
 		}
 		else
 		{
-			realtime=false;
+			realtime = false;
 			tReqSps = 0;
 		}
 	}
-		
+	
 	/*
 	 * Call Backs from state + stat objects
 	 * (non-Javadoc)
@@ -312,22 +385,16 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	 */
 	
 	@Override
-	public void stateChanged(SimState state,SimulationStats simStats, String endEvent)
+	public void stateChanged(SimState state, String endEvent)
 	{
 		log.debug("StateChanged " + simId + " " + state.toString());
 		
-		JComputeEventBus.post(new SimulationStateChangedEvent(simId,state,simStats.getTotalTime(),simStats.getSimulationSteps(),endEvent,null));
+		JComputeEventBus.post(new SimulationStateChangedEvent(simId, state, totalStepsTime, simulationSteps, endEvent, null));
 	}
-
-	@Override
-	public void statChanged(long time, int stepNo, int progress, int asps)
-	{
-		JComputeEventBus.post(new SimulationStatChangedEvent(simId,time, stepNo, progress,  asps));
-	}
-
+	
 	public long getTotalTime()
 	{
-		return simStats.getTotalTime();
+		return totalStepsTime;
 	}
 	
 	public SimState getState()
@@ -339,17 +406,17 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	{
 		return tReqSps;
 	}
-
+	
 	public long getTotalSteps()
 	{
-		return simStats.getSimulationSteps();
+		return simulationSteps;
 	}
 	
 	public String getScenarioText()
 	{
-		if(simManager!=null)
+		if(simulationScenarioManager != null)
 		{
-			return simManager.getScenario().getScenarioText();
+			return simulationScenarioManager.getScenario().getScenarioText();
 		}
 		return "No Scenario Text Loaded";
 	}
@@ -358,22 +425,32 @@ public class Simulation implements stateChangedInf, statChangedInf, ViewTarget
 	{
 		String simInfo = "Simulation : " + simId;
 		
-		if(simManager!=null)
+		if(simulationScenarioManager != null)
 		{
-			simInfo = simInfo + " " + simManager.getInfo();
+			simInfo = simInfo + " " + simulationScenarioManager.getInfo();
 		}
 		
-		return simInfo ;
+		return simInfo;
 	}
-
+	
 	public StatManager getStatmanger()
 	{
-		return simManager.getStatmanger();
+		return simulationScenarioManager.getStatmanger();
 	}
-
+	
 	@Override
 	public ViewRendererInf getRenderer()
 	{
-		return simManager.getRenderer();
+		return simulationScenarioManager.getRenderer();
+	}
+	
+	public void setEndStep(int endStep)
+	{
+		this.endStepNum = endStep;
+	}
+	
+	public int getSimulationSteps()
+	{
+		return simulationSteps;
 	}
 }

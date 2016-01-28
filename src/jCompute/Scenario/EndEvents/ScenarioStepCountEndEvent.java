@@ -1,33 +1,33 @@
 package jCompute.Scenario.EndEvents;
 
-import jCompute.Simulation.SimulationStats;
+import jCompute.Simulation.Simulation;
 
 public class ScenarioStepCountEndEvent implements ScenarioEndEventInf
 {
 	private String name = "StepCountEndEvent";
-	private SimulationStats stat;
+	private Simulation simulation;
 	private int triggerValue;
 	
-	public ScenarioStepCountEndEvent(SimulationStats stat,int triggerValue)
+	public ScenarioStepCountEndEvent(Simulation simulation, int triggerValue)
 	{
-		this.stat = stat;
+		this.simulation = simulation;
 		this.triggerValue = triggerValue;
 		
-		stat.setEndStep(triggerValue);
+		simulation.setEndStep(triggerValue);
 	}
-
+	
 	@Override
 	public boolean checkEvent()
-	{		
-		return (stat.getSimulationSteps() == triggerValue);
+	{
+		return(simulation.getSimulationSteps() == triggerValue);
 	}
-
+	
 	@Override
 	public String getName()
 	{
 		return name;
 	}
-
+	
 	@Override
 	public int getValue()
 	{

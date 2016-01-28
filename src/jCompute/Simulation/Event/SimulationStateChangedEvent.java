@@ -12,8 +12,7 @@ public class SimulationStateChangedEvent
 	private long stepCount;
 	private StatExporter exporter;
 	
-	public SimulationStateChangedEvent(int simId, SimState state, long runTime, long stepCount, String endEvent,
-			StatExporter exporter)
+	public SimulationStateChangedEvent(int simId, SimState state, long runTime, long stepCount, String endEvent, StatExporter exporter)
 	{
 		this.simId = simId;
 		this.state = state;
