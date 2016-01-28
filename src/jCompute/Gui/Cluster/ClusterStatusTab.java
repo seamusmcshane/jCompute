@@ -1,7 +1,6 @@
 package jCompute.Gui.Cluster;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
@@ -9,13 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.ControlNode.Event.StatusChanged;
-import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Cluster.TableRowItems.SimulationListRowItem;
-import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.TablePanel;
-import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
-import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
@@ -37,57 +31,18 @@ public class ClusterStatusTab extends JPanel
 	private TablePanel activeSimulationsListTable;
 	private TablePanel finishedSimulationsListTable;
 	
-	// Right
-	private SimpleTabPanel clusterInfoTabPanel;
-	private TablePanel clusterStatusTablePanel;
-	
-	private int rightPanelsMinWidth;
-	
 	public ClusterStatusTab(int rightPanelsMinWidth)
 	{
-		// Min Width of rightPanel
-		this.rightPanelsMinWidth = rightPanelsMinWidth;
-		
 		this.setLayout(new BorderLayout());
 		
 		simulationListsContainer = new JPanel(new GridLayout(2, 0, 0, 0));
 		
 		createSimulationsLists();
 		
-		createClusterInfoTabPanel();
-		
 		this.add(simulationListsContainer, BorderLayout.CENTER);
-		this.add(clusterInfoTabPanel, BorderLayout.EAST);
 		
 		// Register on the event bus
 		JComputeEventBus.register(this);
-	}
-	
-	public void createClusterInfoTabPanel()
-	{
-		// Tab Panel
-		clusterInfoTabPanel = new SimpleTabPanel();
-		clusterInfoTabPanel.setMinimumSize(new Dimension(rightPanelsMinWidth, 150));
-		clusterInfoTabPanel.setPreferredSize(new Dimension(rightPanelsMinWidth, 150));
-		
-		// Info Tab
-		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
-		clusterStatusTablePanel.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
-		clusterStatusTablePanel.addColumRenderer(new HeaderRowRenderer(clusterStatusTablePanel.getJTable()), 0);
-		
-		clusterStatusTablePanel.setColumWidth(0, 125);
-		
-		clusterInfoTabPanel.addTab(clusterStatusTablePanel, "Info");
-		
-		// Populate Fields
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Port", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Connecting Nodes", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Active Nodes", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Max Active Sims", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Added Sims", ""));
 	}
 	
 	public void createSimulationsLists()
@@ -187,14 +142,4 @@ public class ClusterStatusTab extends JPanel
 		}
 	}
 	
-	@Subscribe
-	public void ControlNodeEvent(StatusChanged e)
-	{
-		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address", e.getAddress()));
-		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port", e.getPort()));
-		clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes", e.getConnectingNodes()));
-		clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes", e.getActiveNodes()));
-		clusterStatusTablePanel.updateRow("Max Active Sims", new SimpleInfoRowItem("Max Active Sims", e.getMaxActiveSims()));
-		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims", e.getAddedSims()));
-	}
 }
