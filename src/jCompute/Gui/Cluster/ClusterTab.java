@@ -45,10 +45,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NodeStatusTab extends JPanel
+public class ClusterTab extends JPanel
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(NodeStatusTab.class);
+	private static Logger log = LoggerFactory.getLogger(ClusterTab.class);
 	private static final long serialVersionUID = 5930193868612200324L;
 	
 	private final int MEGABYTE = 1048576;
@@ -85,7 +85,7 @@ public class NodeStatusTab extends JPanel
 	private GlobalStatChartPanel clusterNodeRXChar;
 	private final int legendMaxNodes = 6;
 	
-	public NodeStatusTab(int rightPanelsMinWidth)
+	public ClusterTab(int rightPanelsMinWidth)
 	{
 		setLayout(new GridLayout(0, 2, 0, 0));
 		
@@ -118,8 +118,6 @@ public class NodeStatusTab extends JPanel
 		// Progress Column uses a progress bar for display
 		finishedSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
 		simulationListsContainer.add(finishedSimulationsListTable);
-		
-		
 		
 		// Connected Nodes Tab
 		clusterConnectedNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false, true);
@@ -156,13 +154,12 @@ public class NodeStatusTab extends JPanel
 		 * Right
 		 ****************************************************/
 		
-		// Cluster Info 
+		// Cluster Info
 		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
 		clusterStatusTablePanel.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 		clusterStatusTablePanel.addColumRenderer(new HeaderRowRenderer(clusterStatusTablePanel.getJTable()), 0);
 		clusterStatusTablePanel.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterStatusTablePanel.setPreferredSize(new Dimension(600, CHART_HEIGHT));
-		
 		
 		// Populate Fields
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address", ""));
@@ -176,8 +173,14 @@ public class NodeStatusTab extends JPanel
 		
 		graphsJPanelContainer = new JPanel();
 		GridBagLayout gbl_graphsJPanelContainer = new GridBagLayout();
-		gbl_graphsJPanelContainer.rowWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-		gbl_graphsJPanelContainer.columnWeights = new double[]{1.0};
+		gbl_graphsJPanelContainer.rowWeights = new double[]
+		{
+			1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+		};
+		gbl_graphsJPanelContainer.columnWeights = new double[]
+		{
+			1.0
+		};
 		graphsJPanelContainer.setLayout(gbl_graphsJPanelContainer);
 		
 		graphScrollPane = new JScrollPane(graphsJPanelContainer);
@@ -213,57 +216,56 @@ public class NodeStatusTab extends JPanel
 		clusterNodeRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		
 		// Cluster Info
 		GridBagConstraints gbConstraints0 = new GridBagConstraints();
 		gbConstraints0.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints0.gridx = 0;
 		gbConstraints0.gridy = 0;
-		graphsJPanelContainer.add(clusterStatusTablePanel,gbConstraints0);
+		graphsJPanelContainer.add(clusterStatusTablePanel, gbConstraints0);
 		
 		// Processing
 		GridBagConstraints gbConstraints1 = new GridBagConstraints();
 		gbConstraints1.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints1.gridx = 0;
 		gbConstraints1.gridy = 1;
-		graphsJPanelContainer.add(clusterNodeActiveSims,gbConstraints1);
-
+		graphsJPanelContainer.add(clusterNodeActiveSims, gbConstraints1);
+		
 		GridBagConstraints gbConstraints2 = new GridBagConstraints();
 		gbConstraints2.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints2.gridx = 0;
 		gbConstraints2.gridy = 2;
-		graphsJPanelContainer.add(clusterNodeStatsPending,gbConstraints2);
-
+		graphsJPanelContainer.add(clusterNodeStatsPending, gbConstraints2);
+		
 		GridBagConstraints gbConstraints3 = new GridBagConstraints();
 		gbConstraints3.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints3.gridx = 0;
 		gbConstraints3.gridy = 3;
-		graphsJPanelContainer.add(clusterSimProChart,gbConstraints3);
+		graphsJPanelContainer.add(clusterSimProChart, gbConstraints3);
 		
 		// Node OS/JVM
 		GridBagConstraints gbConstraints4 = new GridBagConstraints();
 		gbConstraints4.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints4.gridx = 0;
 		gbConstraints4.gridy = 4;
-		graphsJPanelContainer.add(clusterNodeUtilChar,gbConstraints4);
+		graphsJPanelContainer.add(clusterNodeUtilChar, gbConstraints4);
 		
 		GridBagConstraints gbConstraints5 = new GridBagConstraints();
 		gbConstraints5.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints5.gridx = 0;
 		gbConstraints5.gridy = 5;
-		graphsJPanelContainer.add(clusterNodeMemUsedPerChar,gbConstraints5);
-
+		graphsJPanelContainer.add(clusterNodeMemUsedPerChar, gbConstraints5);
+		
 		GridBagConstraints gbConstraints6 = new GridBagConstraints();
 		gbConstraints6.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints6.gridx = 0;
 		gbConstraints6.gridy = 6;
-		graphsJPanelContainer.add(clusterNodeTXChar,gbConstraints6);
-
+		graphsJPanelContainer.add(clusterNodeTXChar, gbConstraints6);
+		
 		GridBagConstraints gbConstraints7 = new GridBagConstraints();
 		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints7.gridx = 0;
 		gbConstraints7.gridy = 7;
-		graphsJPanelContainer.add(clusterNodeRXChar,gbConstraints7);
+		graphsJPanelContainer.add(clusterNodeRXChar, gbConstraints7);
 		
 		ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon16");
 		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, clusterIcon, "Activity"));

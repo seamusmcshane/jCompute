@@ -52,12 +52,11 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	// GUI Tabs
 	private SimpleTabPanel guiTabs;
 	private BatchTab batchTab;
-	private NodeStatusTab nodeStatusTab;
-
-	/* Icons */ 
+	private ClusterTab clusterTab;
+	
+	/* Icons */
 	ImageIcon batchTabIcon = IconManager.getIcon("list");
-	ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon");
-	ImageIcon nodesIcon = IconManager.getIcon("Nodes32");
+	ImageIcon clusterIcon = IconManager.getIcon("Nodes32");
 	
 	public ClusterGUI(final boolean buttonText, boolean allowMulti)
 	{
@@ -115,11 +114,11 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		
 		batchTab = new BatchTab(rightPanelsMinWidth, buttonText);
 		
-		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth,batchTabIcon,"Batches"));
-
-		nodeStatusTab = new NodeStatusTab(rightPanelsMinWidth);
+		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, batchTabIcon, "Batches"));
 		
-		guiTabs.addTab(nodeStatusTab, new SimpleTabTabTitle(tabWidth,nodesIcon,"Nodes"));
+		clusterTab = new ClusterTab(rightPanelsMinWidth);
+		
+		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, clusterIcon, "Cluster"));
 	}
 	
 	public void createMenuBar()
@@ -144,13 +143,13 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	@Override
 	public void windowActivated(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowClosed(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
@@ -163,31 +162,31 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	@Override
 	public void windowDeactivated(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowDeiconified(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowIconified(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void windowOpened(WindowEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
 	public void itemStateChanged(ItemEvent arg0)
 	{
-		
+	
 	}
 	
 	@Override
