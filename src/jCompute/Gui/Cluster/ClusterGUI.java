@@ -52,7 +52,6 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	// GUI Tabs
 	private SimpleTabPanel guiTabs;
 	private BatchTab batchTab;
-	private ClusterStatusTab clusterStatusTab;
 	private NodeStatusTab nodeStatusTab;
 
 	/* Icons */ 
@@ -118,10 +117,6 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		
 		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth,batchTabIcon,"Batches"));
 
-		clusterStatusTab = new ClusterStatusTab(rightPanelsMinWidth);
-		
-		guiTabs.addTab(clusterStatusTab, new SimpleTabTabTitle(tabWidth,clusterIcon,"Cluster"));
-		
 		nodeStatusTab = new NodeStatusTab(rightPanelsMinWidth);
 		
 		guiTabs.addTab(nodeStatusTab, new SimpleTabTabTitle(tabWidth,nodesIcon,"Nodes"));
