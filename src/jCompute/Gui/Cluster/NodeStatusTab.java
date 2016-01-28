@@ -1,6 +1,8 @@
 package jCompute.Gui.Cluster;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -11,17 +13,21 @@ import com.google.common.eventbus.Subscribe;
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent;
+import jCompute.Cluster.Controller.ControlNode.Event.StatusChanged;
 import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent.NodeEventType;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
 import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 import jCompute.Gui.Cluster.TableRowItems.NodeConnectionLogRowItem;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
+import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.ColorLabelRenderer;
+import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
+import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
 
 import java.awt.GridLayout;
@@ -47,6 +53,7 @@ public class NodeStatusTab extends JPanel
 	private AtomicInteger eventIds;
 	
 	// Right
+	private TablePanel clusterStatusTablePanel;
 	private JScrollPane graphScrollPane;
 	private JPanel graphsJPanelContainer;
 	
@@ -98,9 +105,34 @@ public class NodeStatusTab extends JPanel
 		clusterNodesLogTablePanel.setColumWidth(2, 90);
 		clusterNodesLogTablePanel.setColumWidth(3, 90);
 		
-		graphsJPanelContainer = new JPanel();
+		/*
+		 * ****************************************************
+		 * Right
+		 ****************************************************/
 		
-		graphsJPanelContainer.setLayout(new GridLayout(7, 1, 0, 0));
+		// Cluster Info 
+		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
+		clusterStatusTablePanel.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
+		clusterStatusTablePanel.addColumRenderer(new HeaderRowRenderer(clusterStatusTablePanel.getJTable()), 0);
+		clusterStatusTablePanel.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterStatusTablePanel.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		
+		// Populate Fields
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Port", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Connecting Nodes", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Active Nodes", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Max Active Sims", ""));
+		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Added Sims", ""));
+		
+		graphsJPanelContainer = new JPanel();
+		GridBagLayout gbl_graphsJPanelContainer = new GridBagLayout();
+		gbl_graphsJPanelContainer.rowWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+		gbl_graphsJPanelContainer.columnWeights = new double[]{1.0};
+		graphsJPanelContainer.setLayout(gbl_graphsJPanelContainer);
 		
 		graphScrollPane = new JScrollPane(graphsJPanelContainer);
 		
@@ -135,16 +167,57 @@ public class NodeStatusTab extends JPanel
 		clusterNodeRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
+		
+		// Cluster Info
+		GridBagConstraints gbConstraints0 = new GridBagConstraints();
+		gbConstraints0.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints0.gridx = 0;
+		gbConstraints0.gridy = 0;
+		graphsJPanelContainer.add(clusterStatusTablePanel,gbConstraints0);
+		
 		// Processing
-		graphsJPanelContainer.add(clusterNodeActiveSims);
-		graphsJPanelContainer.add(clusterNodeStatsPending);
-		graphsJPanelContainer.add(clusterSimProChart);
+		GridBagConstraints gbConstraints1 = new GridBagConstraints();
+		gbConstraints1.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints1.gridx = 0;
+		gbConstraints1.gridy = 1;
+		graphsJPanelContainer.add(clusterNodeActiveSims,gbConstraints1);
+
+		GridBagConstraints gbConstraints2 = new GridBagConstraints();
+		gbConstraints2.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints2.gridx = 0;
+		gbConstraints2.gridy = 2;
+		graphsJPanelContainer.add(clusterNodeStatsPending,gbConstraints2);
+
+		GridBagConstraints gbConstraints3 = new GridBagConstraints();
+		gbConstraints3.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints3.gridx = 0;
+		gbConstraints3.gridy = 3;
+		graphsJPanelContainer.add(clusterSimProChart,gbConstraints3);
 		
 		// Node OS/JVM
-		graphsJPanelContainer.add(clusterNodeUtilChar);
-		graphsJPanelContainer.add(clusterNodeMemUsedPerChar);
-		graphsJPanelContainer.add(clusterNodeTXChar);
-		graphsJPanelContainer.add(clusterNodeRXChar);
+		GridBagConstraints gbConstraints4 = new GridBagConstraints();
+		gbConstraints4.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints4.gridx = 0;
+		gbConstraints4.gridy = 4;
+		graphsJPanelContainer.add(clusterNodeUtilChar,gbConstraints4);
+		
+		GridBagConstraints gbConstraints5 = new GridBagConstraints();
+		gbConstraints5.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints5.gridx = 0;
+		gbConstraints5.gridy = 5;
+		graphsJPanelContainer.add(clusterNodeMemUsedPerChar,gbConstraints5);
+
+		GridBagConstraints gbConstraints6 = new GridBagConstraints();
+		gbConstraints6.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints6.gridx = 0;
+		gbConstraints6.gridy = 6;
+		graphsJPanelContainer.add(clusterNodeTXChar,gbConstraints6);
+
+		GridBagConstraints gbConstraints7 = new GridBagConstraints();
+		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints7.gridx = 0;
+		gbConstraints7.gridy = 7;
+		graphsJPanelContainer.add(clusterNodeRXChar,gbConstraints7);
 		
 		ImageIcon nodesIcon = IconManager.getIcon("Nodes16");
 		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, nodesIcon, "Connected Nodes"));
@@ -208,6 +281,17 @@ public class NodeStatusTab extends JPanel
 			
 			break;
 		}
+	}
+	
+	@Subscribe
+	public void ControlNodeEvent(StatusChanged e)
+	{
+		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address", e.getAddress()));
+		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port", e.getPort()));
+		clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes", e.getConnectingNodes()));
+		clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes", e.getActiveNodes()));
+		clusterStatusTablePanel.updateRow("Max Active Sims", new SimpleInfoRowItem("Max Active Sims", e.getMaxActiveSims()));
+		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims", e.getAddedSims()));
 	}
 	
 	@Subscribe
