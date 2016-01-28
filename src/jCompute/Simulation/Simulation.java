@@ -110,7 +110,6 @@ public class Simulation implements stateChangedInf, ViewTarget
 		stepEndTime = 0;
 		totalStepsTime = 0;
 		progress = -1;
-		endStepNum = -1;
 	}
 	
 	/**
