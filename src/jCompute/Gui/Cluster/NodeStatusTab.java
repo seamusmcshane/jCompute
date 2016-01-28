@@ -8,6 +8,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
@@ -21,6 +24,7 @@ import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 import jCompute.Gui.Cluster.TableRowItems.NodeConnectionLogRowItem;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
+import jCompute.Gui.Cluster.TableRowItems.SimulationListRowItem;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
@@ -29,6 +33,12 @@ import jCompute.Gui.Component.TableCell.ColorLabelRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
+import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
+import jCompute.Simulation.Event.SimulationStatChangedEvent;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
+import jCompute.Simulation.SimulationState.SimState;
+import jCompute.SimulationManager.Event.SimulationsManagerEvent;
+import jCompute.SimulationManager.Event.SimulationsManagerEventType;
 
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
@@ -37,6 +47,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NodeStatusTab extends JPanel
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(NodeStatusTab.class);
 	private static final long serialVersionUID = 5930193868612200324L;
 	
 	private final int MEGABYTE = 1048576;
@@ -47,6 +59,10 @@ public class NodeStatusTab extends JPanel
 	private int stateColumn = 10;
 	
 	// Tabs
+	private JPanel simulationListsContainer;
+	private TablePanel activeSimulationsListTable;
+	private TablePanel finishedSimulationsListTable;
+	
 	private TablePanel clusterConnectedNodesTablePanel;
 	private TablePanel clusterNodesLogTablePanel;
 	
@@ -74,6 +90,36 @@ public class NodeStatusTab extends JPanel
 		setLayout(new GridLayout(0, 2, 0, 0));
 		
 		tabPanel = new SimpleTabPanel();
+		
+		// Cluster Activity
+		simulationListsContainer = new JPanel(new GridLayout(2, 0, 0, 0));
+		
+		activeSimulationsListTable = new TablePanel(SimulationListRowItem.class, 0, "Active Simulations", true, false);
+		
+		activeSimulationsListTable.setColumWidth(0, 80);
+		activeSimulationsListTable.setColumWidth(1, 70);
+		activeSimulationsListTable.setColumWidth(2, 80);
+		// activeSimulationsListTable.setColumWidth(3, 65);
+		activeSimulationsListTable.setColumWidth(4, 80);
+		activeSimulationsListTable.setColumWidth(5, 110);
+		// Progress Column uses a progress bar for display
+		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
+		
+		simulationListsContainer.add(activeSimulationsListTable);
+		
+		finishedSimulationsListTable = new TablePanel(SimulationListRowItem.class, 0, "Finished Simulations", true, false);
+		
+		finishedSimulationsListTable.setColumWidth(0, 80);
+		finishedSimulationsListTable.setColumWidth(1, 70);
+		finishedSimulationsListTable.setColumWidth(2, 80);
+		// activeSimulationsListTable.setColumWidth(3, 65);
+		finishedSimulationsListTable.setColumWidth(4, 80);
+		finishedSimulationsListTable.setColumWidth(5, 110);
+		// Progress Column uses a progress bar for display
+		finishedSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
+		simulationListsContainer.add(finishedSimulationsListTable);
+		
+		
 		
 		// Connected Nodes Tab
 		clusterConnectedNodesTablePanel = new TablePanel(NodeInfoRowItem.class, 0, true, false, true);
@@ -219,6 +265,9 @@ public class NodeStatusTab extends JPanel
 		gbConstraints7.gridy = 7;
 		graphsJPanelContainer.add(clusterNodeRXChar,gbConstraints7);
 		
+		ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon16");
+		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, clusterIcon, "Activity"));
+		
 		ImageIcon nodesIcon = IconManager.getIcon("Nodes16");
 		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, nodesIcon, "Connected Nodes"));
 		
@@ -231,6 +280,12 @@ public class NodeStatusTab extends JPanel
 		// Register on the event bus
 		JComputeEventBus.register(this);
 	}
+	
+	/*
+	 * ************************************************************************************************************************************************************
+	 * Event Bus Subscribers
+	 * ************************************************************************************************************************************************************
+	 */
 	
 	@Subscribe
 	public void ControlNodeEvent(NodeEvent e)
@@ -312,5 +367,68 @@ public class NodeStatusTab extends JPanel
 		clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
 		clusterNodeTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / MEGABYTE));
 		clusterNodeRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / MEGABYTE));
+	}
+	
+	/**
+	 * SimulationsManagerEvent handler method
+	 * @param e
+	 * @return
+	 */
+	@Subscribe
+	public void SimulationsManagerEvent(SimulationsManagerEvent e)
+	{
+		SimulationsManagerEventType type = e.getEventType();
+		int simId = e.getSimId();
+		
+		if(type == SimulationsManagerEventType.AddedSim)
+		{
+			log.debug("Add Row for " + "Simulation " + simId);
+			
+			// Add the row
+			activeSimulationsListTable.addRow(new SimulationListRowItem(simId));
+		}
+		else if(type == SimulationsManagerEventType.RemovedSim)
+		{
+			log.debug("Removing Row for " + "Simulation " + simId);
+			
+			// Remove the Row
+			finishedSimulationsListTable.removeRow(simId);
+		}
+		else
+		{
+			log.error("Unhandled SimulationManagerEvent in Batch GUI");
+		}
+	}
+	
+	@Subscribe
+	public void SimulationStatChanged(SimulationStatChangedEvent e)
+	{
+		activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+		{
+			2, 3, 4, 5
+		}, new Object[]
+		{
+			e.getStepNo(), e.getProgress(), e.getAsps(), e.getTime()
+		});
+	}
+	
+	@Subscribe
+	public void SimulationStateChanged(SimulationStateChangedEvent e)
+	{
+		if(e.getState() == SimState.FINISHED)
+		{
+			activeSimulationsListTable.removeRow(e.getSimId());
+			finishedSimulationsListTable.addRow(new SimulationListRowItem(e.getSimId(), e.getState(), (int) e.getStepCount(), 100, 0, e.getRunTime()));
+		}
+		else
+		{
+			activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+			{
+				1
+			}, new Object[]
+			{
+				e.getState()
+			});
+		}
 	}
 }
