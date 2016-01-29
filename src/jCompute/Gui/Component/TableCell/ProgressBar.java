@@ -16,26 +16,32 @@ public class ProgressBar extends JComponent
 {
 	private static final long serialVersionUID = -5090932584537058142L;
 	
+	private final int pad = 4;
+	
 	private int progress;
 	private Color fg;
 	private Color bg;
-	private Color bar;
+	private Color barFill;
+	private Color barOutline;
 	
 	public ProgressBar()
 	{
 		progress = 0;
 		
 		fg = Color.black;
-		bar = Color.LIGHT_GRAY;
+		barFill = new Color(170, 230, 255, 128);
+		barOutline = barFill.darker();
 		bg = Color.LIGHT_GRAY;
 	}
 	
-	public ProgressBar(Color fg, Color bg, Color bar)
+	public ProgressBar(Color fg, Color bg, Color barFill)
 	{
 		progress = 0;
 		
 		this.fg = fg;
 		this.bg = bg;
+		this.barFill = barFill;
+		barOutline = barFill.darker();
 	}
 	
 	public ProgressBar(int value)
@@ -76,15 +82,21 @@ public class ProgressBar extends JComponent
 		Graphics2D g2 = (Graphics2D) g1;
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		
-		// Draw bar
+		// Selection Bar
 		Rectangle clip = g2.getClipBounds();
 		g2.setColor(bg);
 		g2.fillRect(clip.x, clip.y, clip.width, clip.height);
 		
+		// Progress Bar
 		float barWidth = ((float) progress / 100);
 		
-		g2.setColor(bar);
-		g2.fillRect(clip.x, clip.y, (int) (clip.width * barWidth), clip.height);
+		// Fill
+		g2.setColor(barFill);
+		g2.fillRect(clip.x + pad, clip.y + pad, (int) ((clip.width - pad) * barWidth) - pad, clip.height - (pad * 2));
+		
+		// Outline
+		g2.setColor(barOutline);
+		g2.drawRect(clip.x + pad, clip.y + pad, (int) ((clip.width - pad) * barWidth) - pad, clip.height - (pad * 2));
 		
 		FontMetrics fontMetric = g2.getFontMetrics(g2.getFont());
 		Rectangle2D textSize = fontMetric.getStringBounds(progressToString(), g2);
