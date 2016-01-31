@@ -26,7 +26,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/gluegen-rt.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/jogl-all.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/guava/guava-18.0.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/guava/guava-19.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.1-javadoc.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-logging/commons-logging-1.2/commons-logging-1.2.jar"/>
