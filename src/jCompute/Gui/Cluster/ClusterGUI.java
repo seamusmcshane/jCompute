@@ -114,7 +114,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		
 		batchTab = new BatchTab(rightPanelsMinWidth, buttonText);
 		
-		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, batchTabIcon, "Batches"));
+		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, batchTabIcon, "Batch"));
 		
 		clusterTab = new ClusterTab(rightPanelsMinWidth);
 		
