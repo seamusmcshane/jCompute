@@ -96,7 +96,7 @@ public class ProgressBar extends JComponent
 		
 		// Outline
 		g2.setColor(barOutline);
-		g2.drawRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad*2)) * barWidth)-1, clip.height - (pad * 2)-1);
+		g2.drawRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad*2)))-1, clip.height - (pad * 2)-1);
 		
 		FontMetrics fontMetric = g2.getFontMetrics(g2.getFont());
 		Rectangle2D textSize = fontMetric.getStringBounds(progressToString(), g2);
