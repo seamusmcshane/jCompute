@@ -158,19 +158,22 @@ public class ClusterTab extends JPanel
 		clusterStatusTablePanel = new TablePanel(SimpleInfoRowItem.class, 0, false, false);
 		clusterStatusTablePanel.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 		clusterStatusTablePanel.addColumRenderer(new HeaderRowRenderer(clusterStatusTablePanel.getJTable()), 0);
-		clusterStatusTablePanel.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
-		clusterStatusTablePanel.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
 		// Populate Fields
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Address", ""));
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Port", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
+		// clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Connecting Nodes", ""));
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Active Nodes", ""));
-		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
+		// clusterStatusTablePanel.addRow(new SimpleInfoRowItem("", ""));
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Max Active Sims", ""));
 		clusterStatusTablePanel.addRow(new SimpleInfoRowItem("Added Sims", ""));
 		
+		clusterStatusTablePanel.setMaximumSize(new Dimension(1920,
+				(int) (clusterStatusTablePanel.getJTable().getRowHeight() * 1.5) + (clusterStatusTablePanel.getJTable().getRowCount() * clusterStatusTablePanel.getJTable().getRowHeight())));
+		clusterStatusTablePanel.setPreferredSize(new Dimension(600,
+				(int) (clusterStatusTablePanel.getJTable().getRowHeight() * 1.5) + (clusterStatusTablePanel.getJTable().getRowCount() * clusterStatusTablePanel.getJTable().getRowHeight())));
+				
 		graphsJPanelContainer = new JPanel();
 		GridBagLayout gbl_graphsJPanelContainer = new GridBagLayout();
 		gbl_graphsJPanelContainer.rowWeights = new double[]
