@@ -261,7 +261,7 @@ public class View implements ApplicationListener, ViewRendererInf
 					
 					if(fullscreen)
 					{
-						resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
+						resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 					}
 					else
 					{
@@ -297,7 +297,7 @@ public class View implements ApplicationListener, ViewRendererInf
 				
 				if(fullscreen)
 				{
-					resize(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height);
+					resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 				}
 				else
 				{

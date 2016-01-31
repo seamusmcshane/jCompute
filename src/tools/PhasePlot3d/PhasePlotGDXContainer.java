@@ -265,8 +265,8 @@ public class PhasePlotGDXContainer implements ApplicationListener
 				try
 				{
 					Display.setFullscreen(true);
-					viewport.update(Gdx.graphics.getDesktopDisplayMode().width,
-							Gdx.graphics.getDesktopDisplayMode().height);
+					viewport.update(Gdx.graphics.getDisplayMode().width,
+							Gdx.graphics.getDisplayMode().height);
 				}
 				catch(LWJGLException e)
 				{
