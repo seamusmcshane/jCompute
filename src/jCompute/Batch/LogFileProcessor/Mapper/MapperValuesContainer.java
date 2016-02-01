@@ -234,4 +234,25 @@ public class MapperValuesContainer
 		return stdDev;
 	}
 	
+	public double getMaxRate(double max)
+	{
+		double avgMaxTotal = 0;
+		
+		double total = xSteps*xSteps*max;
+		
+		for(int x = 0; x < xSteps; x++)
+		{
+			for(int y = 0; y < ySteps; y++)
+			{
+				if(avg[x][y] == max)
+				{
+					avgMaxTotal+=avg[x][y];
+				}
+				
+			}
+		}
+		
+		return avgMaxTotal/total;
+	}
+	
 }

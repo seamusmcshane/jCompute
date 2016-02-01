@@ -641,4 +641,10 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		logItems.clear();
 	}
 	
+	@Override 
+	public double getMaxRate(double max)
+	{
+		return values.getMaxRate(max);
+	}
+	
 }

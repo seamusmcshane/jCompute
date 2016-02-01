@@ -40,5 +40,5 @@ public interface BatchLogInf
 	public double getZValMax();
 	
 	public void clear();
-	
+	public double getMaxRate(double zMax);
 }

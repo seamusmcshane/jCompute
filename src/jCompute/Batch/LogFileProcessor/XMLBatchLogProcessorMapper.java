@@ -410,4 +410,10 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 	{
 		return zValMax;
 	}
+
+	@Override 
+	public double getMaxRate(double max)
+	{
+		return values.getMaxRate(max);
+	}
 }
