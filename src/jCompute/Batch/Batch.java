@@ -693,7 +693,7 @@ public class Batch implements StoredQueuePosition
 						
 						// Set the pos and val
 						tempCoord.add(pos[p]);
-						tempCoordValues.add((float)JCMath.round(value[p], 7));
+						tempCoordValues.add((float) JCMath.round(value[p], 7));
 						
 						comboPosString.append(String.valueOf(pos[p]));
 						if(p < (parameterGroups - 1))
@@ -764,9 +764,8 @@ public class Batch implements StoredQueuePosition
 		{
 			try
 			{
-				itemLog = new PrintWriter(
-						new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
-						
+				itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
+				
 				itemLog.println("[+Header]");
 				itemLog.println("Name=" + batchName);
 				itemLog.println("LogType=BatchItems");
@@ -996,8 +995,8 @@ public class Batch implements StoredQueuePosition
 					try
 					{
 						// All Item samples use same config so overwrite.
-						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator
-								+ item.getItemId() + File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
+						PrintWriter configFile = new PrintWriter(
+								new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + item.getItemId() + File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
 								
 						configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
 						configFile.flush();
@@ -1062,8 +1061,7 @@ public class Batch implements StoredQueuePosition
 				try
 				{
 					// Close Info Log
-					PrintWriter infoLog = new PrintWriter(
-							new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.log", true)));
+					PrintWriter infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.log", true)));
 					infoLog.println("BatchId=" + batchId);
 					infoLog.println("ScenarioType=" + type);
 					infoLog.println("Description=" + batchName);
@@ -1087,7 +1085,7 @@ public class Batch implements StoredQueuePosition
 					for(int i = 0; i < parameters.size(); i += 2)
 					{
 						// Skip "" ""
-						if(i > 2)
+						if(!(parameters.get(i).equals("")))
 						{
 							infoLog.println(parameters.get(i) + "=" + parameters.get(i + 1));
 						}
@@ -1119,8 +1117,7 @@ public class Batch implements StoredQueuePosition
 	}
 	
 	// Small wrapper around queue add and disk cache
-	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates,
-			ArrayList<Float> coordinatesValues)
+	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates, ArrayList<Float> coordinatesValues)
 	{
 		byte[] configBytes = null;
 		try
