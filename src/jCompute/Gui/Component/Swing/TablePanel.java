@@ -1,6 +1,7 @@
 package jCompute.Gui.Component.Swing;
 
 import jCompute.Gui.Component.RowItem;
+import jCompute.Gui.Component.TableCell.ColorConstants;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -23,11 +24,11 @@ import ca.odell.glazedlists.gui.AbstractTableComparatorChooser;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
+import javax.swing.border.EtchedBorder;
 
 public class TablePanel extends JPanel
 {
 	private static final long serialVersionUID = 7193787210494563482L;
-	private JLabel lblTitle;
 	private JTable table;
 	
 	private JScrollPane scrollPane;
@@ -68,10 +69,15 @@ public class TablePanel extends JPanel
 		this(rowClass, indexColumn, sortable, rowSelection);
 		
 		// Table Title Label
-		lblTitle = new JLabel(title);
+		JPanel titlePanel = new JPanel(new BorderLayout());
+		titlePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		titlePanel.setBackground(ColorConstants.LightBlue);
+		JLabel lblTitle = new JLabel(title);
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		this.add(lblTitle, BorderLayout.NORTH);
+		titlePanel.add(lblTitle, BorderLayout.CENTER);
+		
+		this.add(titlePanel, BorderLayout.NORTH);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -103,7 +109,7 @@ public class TablePanel extends JPanel
 				activeList = baseList;
 			}
 			table.setDoubleBuffered(false);
-
+			
 			scrollPane = new JScrollPane(table);
 			
 			if(hScroll == true)

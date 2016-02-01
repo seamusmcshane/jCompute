@@ -29,8 +29,8 @@ public class ProgressBar extends JComponent
 		progress = 0;
 		
 		fg = Color.black;
-		barFill = new Color(170, 230, 255, 128);
-		barOutline = barFill.darker();
+		barFill = ColorConstants.LightBlue;
+		barOutline = ColorConstants.LightBlue.darker();
 		bg = Color.LIGHT_GRAY;
 	}
 	
@@ -92,11 +92,11 @@ public class ProgressBar extends JComponent
 		
 		// Fill
 		g2.setColor(barFill);
-		g2.fillRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad*2)) * barWidth)-1, clip.height - (pad * 2)-1);
+		g2.fillRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad * 2)) * barWidth) - 1, clip.height - (pad * 2) - 1);
 		
 		// Outline
 		g2.setColor(barOutline);
-		g2.drawRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad*2)))-1, clip.height - (pad * 2)-1);
+		g2.drawRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad * 2))) - 1, clip.height - (pad * 2) - 1);
 		
 		FontMetrics fontMetric = g2.getFontMetrics(g2.getFont());
 		Rectangle2D textSize = fontMetric.getStringBounds(progressToString(), g2);
