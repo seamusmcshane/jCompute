@@ -38,6 +38,7 @@ import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.colors.colormaps.ColorMapRainbowNoBorder;
 import org.jzy3d.colors.colormaps.ColorMapRBG;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
@@ -98,6 +99,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	private static final float zoomScale = 4f;
 	private static final float shiftSurface = 0.375f;
+	
+	private BatchInfoLogProcessor ilp;
+	private boolean zMaxFixedScale = false;
 	
 	public SurfacePlotterUtil()
 	{
@@ -315,8 +319,17 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range avgXRange = new Range(mapper.getXMin(), mapper.getXMax());
 		Range avgYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
+		double zMin = mapper.getZmin();
+		double zMax = mapper.getZmax();
+		
+		if(zMaxFixedScale)
+		{
+			zMin = 0;
+			zMax = ilp.getMaxSteps();
+		}
+		
 		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, mapper.getXSteps() * subDiv, avgYRange, mapper.getYSteps() * subDiv), mapper.getAvg());
-		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(), new Color(1, 1, 1, 1f)));
+		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
 		surfaceAvg.setWireframeColor(Color.BLACK);
@@ -424,7 +437,16 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range stdDevYRange = new Range(mapper.getYMin(), mapper.getYMax());
 		
 		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, mapper.getXSteps() * subDiv, stdDevYRange, mapper.getYSteps() * subDiv), mapper.getStdDev());
-		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRBG(), surfaceStdDev.getBounds().getZmin(), surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1, 1f)));
+		
+		double zMin = surfaceStdDev.getBounds().getZmin();
+		double zMax = surfaceStdDev.getBounds().getZmax();
+		
+		if(zMaxFixedScale)
+		{
+			zMin = 0;
+			zMax = ilp.getMaxSteps();
+		}
+		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbowNoBorder(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		surfaceStdDev.setFaceDisplayed(true);
 		surfaceStdDev.setWireframeDisplayed(wireframeEnabled);
 		surfaceStdDev.setWireframeColor(Color.BLACK);
@@ -503,7 +525,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 								
 								batchInfo.clearTable();
 								
-								BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+								ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
 								
 								ArrayList<String> info = ilp.dump();
 								
@@ -511,6 +533,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 								{
 									batchInfo.addRow(new SimpleInfoRowItem(info.get(i), info.get(i + 1)));
 								}
+								
+								zMaxFixedScale = true;
 								
 							break;
 							default:
