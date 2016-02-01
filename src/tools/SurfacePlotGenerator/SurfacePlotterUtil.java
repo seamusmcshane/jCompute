@@ -1,8 +1,13 @@
 package tools.SurfacePlotGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
 import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
+import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
+import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
+import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.util.FileUtil;
 
 import java.awt.Component;
@@ -72,7 +77,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	private JMenuItem mntmExportImage;
 	private JPanel panel;
-	private JPanel panel_1;
+	private TablePanel batchInfo;
 	private JPanel panel_2;
 	private JButton btnTop;
 	private JButton btnLeft;
@@ -110,8 +115,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		
 		float width = 900 * scaledMulti;
 		float height = 300 * scaledMulti;
+		int tableWidth = 400;
 		
-		gui.setMinimumSize(new Dimension((int) width, (int) height));
+		gui.setMinimumSize(new Dimension((int) (width + tableWidth), (int) height));
 		
 		menuBar = new JMenuBar();
 		gui.setJMenuBar(menuBar);
@@ -135,9 +141,14 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		gui.getContentPane().add(panel, BorderLayout.EAST);
 		panel.setLayout(new BorderLayout(0, 0));
 		
-		panel_1 = new JPanel();
-		panel.add(panel_1, BorderLayout.CENTER);
-		panel_1.setLayout(new BorderLayout(0, 0));
+		batchInfo = new TablePanel(SimpleInfoRowItem.class, 0, "Batch Info", false, false);
+		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
+		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
+		
+		batchInfo.setColumWidth(0, 125);
+		batchInfo.setPreferredSize(new Dimension(tableWidth, 150));
+		
+		panel.add(batchInfo, BorderLayout.CENTER);
 		
 		panel_2 = new JPanel();
 		panel.add(panel_2, BorderLayout.NORTH);
@@ -489,6 +500,17 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 							case "log":
 								
 								mapper = new TextBatchLogProcessorMapper(file);
+								
+								batchInfo.clearTable();
+								
+								BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+								
+								ArrayList<String> info = ilp.dump();
+								
+								for(int i = 0; i < info.size(); i += 2)
+								{
+									batchInfo.addRow(new SimpleInfoRowItem(info.get(i), info.get(i + 1)));
+								}
 								
 							break;
 							default:
