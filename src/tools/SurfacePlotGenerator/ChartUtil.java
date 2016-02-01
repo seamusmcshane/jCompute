@@ -1,9 +1,11 @@
 package tools.SurfacePlotGenerator;
 
+import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
 import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
 import jCompute.util.FileUtil;
+import jCompute.util.JCMath;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -25,9 +27,8 @@ import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
-import org.jzy3d.colors.colormaps.ColorMapGrayscale;
-import org.jzy3d.colors.colormaps.ColorMapRBG;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.colors.colormaps.ColorMapRainbowNoBorder;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.Mapper;
@@ -45,6 +46,10 @@ public class ChartUtil
 	 * @param mode
 	 *            - avg /std-dev
 	 */
+	private static boolean zfixScale = false;
+	private static boolean scaleSet = false;
+	private static int maxScale = 0;
+	
 	public void ExportSurfacePlot(final int width, final int height, String sourceFile, String exportPath, String fileName)
 	{
 		String ext = FileUtil.getFileNameExtension(sourceFile);
@@ -57,13 +62,31 @@ public class ChartUtil
 			case "xml":
 				
 				mapper = new XMLBatchLogProcessorMapper(sourceFile);
-			
+				
 			break;
 			
 			case "log":
 				
 				mapper = new TextBatchLogProcessorMapper(sourceFile);
-			
+				
+				zfixScale = true;
+				
+				if(!scaleSet)
+				{
+					System.out.println("1111 " + File.separator + " " + sourceFile);
+					
+					String infoPath = sourceFile.substring(0, sourceFile.lastIndexOf(File.separator));
+					
+					System.out.println(infoPath);
+					
+					BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(infoPath + File.separator + "infoLog.log");
+					ilp.dump();
+					
+					maxScale = ilp.getMaxSteps();
+					
+					scaleSet = true;
+				}
+				
 			break;
 			default:
 				System.out.println("Unsupported LogType " + ext);
@@ -78,8 +101,7 @@ public class ChartUtil
 		mapper = null;
 	}
 	
-	private void exportChartImage(BatchLogInf mapper, final int width, final int height, String sourceFile, String exportPath,
-			String fileName, int mode)
+	private void exportChartImage(BatchLogInf mapper, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
 	{
 		int legendWidth = 160;
 		
@@ -89,13 +111,28 @@ public class ChartUtil
 		Mapper map;
 		Shape surface;
 		
+		double maxRate = 0;
+		
 		if(mode == 0)
 		{
+			double zMin = mapper.getZmin();
+			double zMax = mapper.getZmax();
+			
+			if(zfixScale)
+			{
+				zMin = 0;
+				zMax = maxScale;
+				
+				maxRate = JCMath.round(mapper.getMaxRate(zMax), 8);
+				
+				System.out.println("Max Rate : " + maxRate);
+			}
+			
 			map = mapper.getAvg();
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
 			
-			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), mapper.getZmin(), mapper.getZmax(), new Color(1, 1, 1, 1f)));
+			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		}
 		else
 		{
@@ -103,8 +140,16 @@ public class ChartUtil
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
 			
-			surface.setColorMapper(new ColorMapper(new ColorMapRBG(), surface.getBounds().getZmin(), surface.getBounds().getZmax(),
-					new Color(1, 1, 1, 1f)));
+			double zMin = surface.getBounds().getZmin();
+			double zMax = surface.getBounds().getZmax();
+			
+			if(zfixScale)
+			{
+				zMin = 0;
+				zMax = maxScale;
+			}
+			
+			surface.setColorMapper(new ColorMapper(new ColorMapRainbowNoBorder(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		}
 		
 		surface.setFaceDisplayed(true);
@@ -168,8 +213,7 @@ public class ChartUtil
 			image = op.filter(image, null);
 			
 			int titlePad = 20;
-			BufferedImage exportImage = new BufferedImage(image.getWidth() + legendWidth, image.getHeight() + titlePad,
-					BufferedImage.TYPE_INT_ARGB);
+			BufferedImage exportImage = new BufferedImage(image.getWidth() + legendWidth, image.getHeight() + titlePad, BufferedImage.TYPE_INT_ARGB);
 			
 			final int coffset = -20;
 			Graphics2D g2d = (Graphics2D) exportImage.getGraphics();
@@ -193,7 +237,7 @@ public class ChartUtil
 			
 			// Legend box
 			g2d.setStroke(new BasicStroke(1.0f));
-			g2d.drawRect(10, height / 2 - 50 + coffset, legendWidth, 100);
+			g2d.drawRect(10, height / 2 - 50 + coffset, legendWidth, 120);
 			
 			// Legend Data
 			g2d.drawString("X : " + mapper.getXAxisName(), 15, height / 2 - 25 + coffset);
@@ -211,6 +255,11 @@ public class ChartUtil
 			}
 			
 			g2d.drawString(zAxisLabel, 15, height / 2 + 25 + coffset);
+			
+			if(zfixScale && mode == 0)
+			{
+				g2d.drawString("Stability : " + String.valueOf(maxRate), 15, height / 2 + 50 + coffset);
+			}
 			
 			File outputfile = new File(exportPath + File.separator + fileName + ".png");
 			
