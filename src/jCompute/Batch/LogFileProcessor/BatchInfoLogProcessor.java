@@ -61,6 +61,7 @@ public class BatchInfoLogProcessor
 				}
 			}
 			
+			inputFile.close();
 		}
 		catch(IOException e)
 		{
@@ -154,15 +155,23 @@ public class BatchInfoLogProcessor
 		else
 		{
 			// Read Parameter (0) ....
-			if(part1.charAt(0) == '(')
+			if(part1.length() > 0)
 			{
-				parameters.add(part1);
-				parameters.add(part2);
+				if(part1.charAt(0) == '(')
+				{
+					parameters.add(part1);
+					parameters.add(part2);
+				}
+				else
+				{
+					System.out.println("Unknown BatchInfo field : " + part1 + " value " + part2);
+				}
 			}
 			else
 			{
-				System.out.println("Unknown BatchInfo field : " + part1 + " value " + part2);
+				System.out.println("BatchInfo NULL");
 			}
+
 		}
 	}
 	
