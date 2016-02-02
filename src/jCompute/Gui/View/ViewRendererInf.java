@@ -24,4 +24,5 @@ public interface ViewRendererInf
 	public void render();	
 	public boolean doInput();
 	public void setMultiplexer(InputMultiplexer inputMultiplexer);
+	public void cleanup();
 }
