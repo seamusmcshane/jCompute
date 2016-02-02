@@ -349,11 +349,11 @@ public class AxisGrid
 		
 		float posInteval = gridSize / intervals;
 		
-		System.out.println("Tick Step " + valStep);
-		System.out.println("valMin " + valMin);
-		System.out.println("valMax " + valMax);
-		System.out.println("intervals " + intervals);
-		System.out.println("intValues " + intValues);
+		// System.out.println("Tick Step " + valStep);
+		// System.out.println("valMin " + valMin);
+		// System.out.println("valMax " + valMax);
+		// System.out.println("intervals " + intervals);
+		// System.out.println("intValues " + intValues);
 		
 		float dval = valMin;
 		for(int i = 0; i < numDecals; i++)
@@ -910,6 +910,40 @@ public class AxisGrid
 	public void setGridLineWidth(float lineWidth)
 	{
 		this.gridLineWidth = lineWidth;
+	}
+	
+	public void dispose()
+	{
+		northSide.getModelInstance().model.dispose();
+		floorSouthTicks.getModelInstance().model.dispose();
+		southSide.getModelInstance().model.dispose();
+		floorNorthTicks.getModelInstance().model.dispose();
+		eastSide.getModelInstance().model.dispose();
+		westSide.getModelInstance().model.dispose();
+		floorEastTicks.getModelInstance().model.dispose();
+		
+		if(zAxisEnabled)
+		{
+			wallNorthEastTicks.getModelInstance().model.dispose();
+			wallNorthWestTicks.getModelInstance().model.dispose();
+			wallSouthEastTicks.getModelInstance().model.dispose();
+			wallSouthWestTicks.getModelInstance().model.dispose();
+		}
+		
+		// Floor Grid
+		if(floorGrid)
+		{
+			floor.getModelInstance().model.dispose();
+		}
+		
+		floorMinMaxRect.getModelInstance().model.dispose();
+		
+		northMinMaxRect.getModelInstance();
+		southMinMaxRect.getModelInstance();
+		eastMinMaxRect.getModelInstance();
+		westMinMaxRect.getModelInstance();
+		
+		decalFont.dispose();
 	}
 	
 }

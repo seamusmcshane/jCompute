@@ -413,7 +413,9 @@ public class PhasePlot
 	
 	public void dispose()
 	{
-		//ws.dispose();
+		ws.dispose();
+		bc.getModelInstance().model.dispose();
+		axisGrid.dispose();
 	}
 	
 }
