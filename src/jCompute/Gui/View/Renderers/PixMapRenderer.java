@@ -10,6 +10,10 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -45,14 +49,16 @@ public class PixMapRenderer implements ViewRendererInf
 	
 	private int[] computeBuffer;
 	
-	private long drawTimeoutLimit = 15;
+	private long drawTimeoutLimit = 7;
 	
 	private int[] drawBuffer;
 	
 	private InputProcessor inputProcessor;
 	
-	public PixMapRenderer(InputProcessor inputProcessor, Semaphore compute, Semaphore computed, int textureSize,
-			int[] computeBuffer)
+	private Texture texture;
+	private Pixmap pTemp;
+	
+	public PixMapRenderer(InputProcessor inputProcessor, Semaphore compute, Semaphore computed, int textureSize, int[] computeBuffer)
 	{
 		this.inputProcessor = inputProcessor;
 		
@@ -101,9 +107,34 @@ public class PixMapRenderer implements ViewRendererInf
 		font = new BitmapFont();
 		font.setColor(Color.WHITE);
 		
+		// Target Texture
+		pTemp = new Pixmap(textureSize, textureSize, Format.RGBA8888);
+		texture = new Texture(textureSize, textureSize, Format.RGBA8888);
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
 		updateCamera();
 		
 		needsGLInit = false;
+	}
+	
+	@Override
+	public int getTextureSize(int id)
+	{
+		return textureSize;
+	}
+	
+	@Override
+	public Texture getTexture(int id)
+	{
+		// only 1 texture
+		return texture;
+	}
+	
+	@Override
+	public Pixmap getPixmap(int id)
+	{
+		// only 1 Pixmap
+		return pTemp;
 	}
 	
 	@Override
@@ -171,7 +202,7 @@ public class PixMapRenderer implements ViewRendererInf
 			Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			
-			scaledSize = Lib2D.drawPixelMap(this, textureSize, drawBuffer, 0, 0);
+			scaledSize = Lib2D.drawPixelMap(this, 0, drawBuffer, 0, 0);
 			
 		}
 		catch(InterruptedException e)
@@ -205,6 +236,20 @@ public class PixMapRenderer implements ViewRendererInf
 	public float getTextureScale()
 	{
 		return scaledSize;
+	}
+	
+	@Override
+	public void cleanup()
+	{
+		if(!needsGLInit)
+		{
+			spriteBatch.dispose();
+			font.dispose();
+			shapeRenderer.dispose();
+			
+			texture.dispose();
+			pTemp.dispose();
+		}
 	}
 	
 }

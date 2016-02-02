@@ -23,6 +23,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -170,7 +172,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	@Override
 	public void pause()
 	{
-		
+	
 	}
 	
 	private void globalInput()
@@ -352,7 +354,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	@Override
 	public void resume()
 	{
-		
+	
 	}
 	
 	public void drawOverlayText(float x, float y, boolean centered, String text)
@@ -439,6 +441,30 @@ public class View implements ApplicationListener, ViewRendererInf
 	
 	@Override
 	public void setMultiplexer(InputMultiplexer inputMultiplexer)
+	{
+		// NA
+	}
+	
+	@Override
+	public Texture getTexture(int id)
+	{
+		return null;
+	}
+	
+	@Override
+	public Pixmap getPixmap(int num)
+	{
+		return null;
+	}
+	
+	@Override
+	public int getTextureSize(int id)
+	{
+		return 0;
+	}
+	
+	@Override
+	public void cleanup()
 	{
 		// NA
 	}

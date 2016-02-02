@@ -54,19 +54,15 @@ public class Lib2D
 	/*
 	 * PixelMap
 	 */
-	public static float drawPixelMap(ViewRendererInf ren, int textureSize, int[] buffer, float x, float y)
+	public static float drawPixelMap(ViewRendererInf ren, int id, int[] buffer, float x, float y)
 	{
 		SpriteBatch sb = ren.getSpriteBatch();
-		
-		Pixmap pTemp = new Pixmap(textureSize, textureSize, Format.RGBA8888);
-		
-		Texture tTemp = new Texture(pTemp);
-		tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		
+		Pixmap pTemp = ren.getPixmap(id);
+		Texture tTemp = ren.getTexture(id);
 		ByteBuffer pixels = pTemp.getPixels();
+		int textureSize = ren.getTextureSize(id);
 		
 		pixels.asIntBuffer().put(buffer);
-		
 		tTemp.draw(pTemp, 0, 0);
 		
 		float min = Math.min(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -79,11 +75,8 @@ public class Lib2D
 		
 		// Positions the resized texture in the centre of the display.
 		sb.draw(tTemp, x - (textureScale / 2), y - (textureScale / 2), textureScale, textureScale);
-		sb.end();
 		
-		// Dispose PixMap and Texture
-		pTemp.dispose();
-		tTemp.dispose();
+		sb.end();
 		
 		return textureScale;
 	}
