@@ -1,5 +1,6 @@
 package tools.SurfacePlotGenerator;
 
+import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
 import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
@@ -96,7 +97,9 @@ public class HeatMapUtil implements WindowListener
 						
 						case "log":
 							
-							batchLog = new TextBatchLogProcessorMapper(fullPath);
+							BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+							
+							batchLog = new TextBatchLogProcessorMapper(fullPath, ilp.getMaxSteps());
 							
 						break;
 						default:
@@ -128,7 +131,7 @@ public class HeatMapUtil implements WindowListener
 			{
 				BufferedImage image = hm.getImage();
 				
-				if(image!=null)
+				if(image != null)
 				{
 					final JFileChooser filechooser = new JFileChooser(new File(saveCD));
 					
@@ -153,7 +156,7 @@ public class HeatMapUtil implements WindowListener
 				}
 				else
 				{
-			        JOptionPane.showMessageDialog(gui, "No image to save", "Save image", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(gui, "No image to save", "Save image", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 		});

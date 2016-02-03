@@ -1,5 +1,6 @@
 package tools.SurfaceChart;
 
+import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
 import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
@@ -212,13 +213,15 @@ public class SurfaceChart implements WindowListener, ActionListener
 					case "xml":
 						
 						mapper = new XMLBatchLogProcessorMapper(file);
-					
+						
 					break;
 					
 					case "log":
 						
-						mapper = new TextBatchLogProcessorMapper(file);
-					
+						BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+						
+						mapper = new TextBatchLogProcessorMapper(file, ilp.getMaxSteps());
+						
 					break;
 					default:
 						System.out.println("Unsupported LogType " + ext);

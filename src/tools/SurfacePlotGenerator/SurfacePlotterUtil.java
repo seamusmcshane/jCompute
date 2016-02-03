@@ -521,8 +521,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 							
 							case "log":
 								
-								mapper = new TextBatchLogProcessorMapper(file);
-								
 								batchInfo.clearTable();
 								
 								ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
@@ -535,6 +533,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 								}
 								
 								zMaxFixedScale = true;
+								
+								mapper = new TextBatchLogProcessorMapper(file, ilp.getMaxSteps());
 								
 							break;
 							default:
