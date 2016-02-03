@@ -17,19 +17,18 @@ public interface BatchLogInf
 	public int getYSteps();
 	
 	public String getXAxisName();
-	
 	public String getYAxisName();
-	
 	public String getZAxisName();
 	
 	public String[] getAxisNames();
 	
 	public ITickRenderer getXTickMapper();
-	
 	public ITickRenderer getYTickMapper();
 	
 	public Mapper getStdDev();
 	public Mapper getAvg();
+	public Mapper getMax();
+	
 	public double[][] getAvgData();
 
 	public double getXValMin();
@@ -39,6 +38,7 @@ public interface BatchLogInf
 	public double getZValMin();
 	public double getZValMax();
 	
+	public double getMaxRate();
+	
 	public void clear();
-	public double getMaxRate(double zMax);
 }

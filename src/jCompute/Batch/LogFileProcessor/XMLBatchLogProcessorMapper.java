@@ -259,7 +259,7 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 			}
 		}
 		
-		values.compute();
+		values.compute(0);
 		
 		xMapper = new TickValueMapper(values.getXMax(), xValMax);
 		yMapper = new TickValueMapper(values.getYMax(), yValMax);
@@ -370,6 +370,14 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		return values.getAvgData();
 	}
 	
+	@Override
+	public MapperRemapper getMax()
+	{
+		MapperRemapper maxMap = new MapperRemapper(values, 2);
+		
+		return maxMap;
+	}
+	
 	public String[] getAxisNames()
 	{
 		return new String[]
@@ -410,10 +418,10 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 	{
 		return zValMax;
 	}
-
-	@Override 
-	public double getMaxRate(double max)
+	
+	@Override
+	public double getMaxRate()
 	{
-		return values.getMaxRate(max);
+		return values.getMaxRate();
 	}
 }

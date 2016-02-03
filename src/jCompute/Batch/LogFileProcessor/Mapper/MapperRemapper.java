@@ -45,6 +45,13 @@ public class MapperRemapper extends Mapper
 				
 				break;
 			}
+			case 2:
+			{
+				
+				value = values.getMax(ix, iy);
+				
+				break;
+			}
 		}
 		
 		return value;

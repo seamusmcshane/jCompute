@@ -16,6 +16,10 @@ public class MapperValuesContainer
 	
 	private double[][] stdDev;
 	
+	private double[][] max;
+	
+	double maxRate;
+	
 	private int xPosMin = Integer.MAX_VALUE;
 	private int xPosMax = Integer.MIN_VALUE;
 	private int yPosMin = Integer.MAX_VALUE;
@@ -51,7 +55,7 @@ public class MapperValuesContainer
 		
 	}
 	
-	public void compute()
+	public void compute(int maxVal)
 	{
 		System.out.println("Averages");
 		
@@ -101,7 +105,37 @@ public class MapperValuesContainer
 			}
 		}
 		
+		max = new double[xSteps][ySteps];
+		
+		int avgMaxTotal = 0;
+		int maxTotal = xSteps*ySteps*maxVal;
+		
+		for(int x = 0; x < xSteps; x++)
+		{
+			for(int y = 0; y < ySteps; y++)
+			{
+				if(avg[x][y] == maxVal)
+				{
+					avgMaxTotal+=avg[x][y];
+					
+					max[x][y] = maxVal;
+				}
+				else
+				{
+					max[x][y] = 0;
+				}
+				
+			}
+		}
+		
+		maxRate = (double)((double)avgMaxTotal/(double)maxTotal);
+		
 		sampleValues = null;
+	}
+	
+	public double getMax(int getX, int getY)
+	{
+		return max[getX][getY];
 	}
 	
 	public double getStandardDeviations(int getX, int getY)
@@ -234,25 +268,9 @@ public class MapperValuesContainer
 		return stdDev;
 	}
 	
-	public double getMaxRate(double max)
+	public double getMaxRate()
 	{
-		double avgMaxTotal = 0;
-		
-		double total = xSteps*xSteps*max;
-		
-		for(int x = 0; x < xSteps; x++)
-		{
-			for(int y = 0; y < ySteps; y++)
-			{
-				if(avg[x][y] == max)
-				{
-					avgMaxTotal+=avg[x][y];
-				}
-				
-			}
-		}
-		
-		return avgMaxTotal/total;
+		return maxRate;
 	}
 	
 }

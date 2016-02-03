@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class TextBatchLogProcessorMapper implements BatchLogInf
 {
 	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessorMapper.class);
-
+	
 	private File file;
 	
 	private String logName = "";
@@ -43,7 +43,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	private double zValMin = Double.MAX_VALUE;
 	private double zValMax = Double.MIN_VALUE;
 	
-	public TextBatchLogProcessorMapper(String fileName)
+	public TextBatchLogProcessorMapper(String fileName, int maxVal)
 	{
 		logItems = new ArrayList<TextBatchLogItem>();
 		
@@ -93,11 +93,11 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		{
 			e.printStackTrace();
 		}
-
-		HashMap<Integer,Integer> xUnique = new HashMap<Integer, Integer>();
-		HashMap<Integer,Integer> yUnique = new HashMap<Integer, Integer>();
 		
-		log.info("Num coords : " + logItems.get(0).getCoordsPos().length );
+		HashMap<Integer, Integer> xUnique = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> yUnique = new HashMap<Integer, Integer>();
+		
+		log.info("Num coords : " + logItems.get(0).getCoordsPos().length);
 		
 		for(TextBatchLogItem item : logItems)
 		{
@@ -131,9 +131,9 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				zValMin = item.getStepCount();
 			}
 			
-			if(item.getStepCount()  > zValMax)
+			if(item.getStepCount() > zValMax)
 			{
-				zValMax = item.getStepCount() ;
+				zValMax = item.getStepCount();
 			}
 			
 		}
@@ -149,12 +149,12 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		// System.out.println("yValMin " + yValMin);
 		// System.out.println("yValMax " + yValMax);
 		
-		log.info("Surface Size : " + xDimSize*yDimSize);
+		log.info("Surface Size : " + xDimSize * yDimSize);
 		log.info("Item Total   : " + logItems.size());
 		
 		values = new MapperValuesContainer(xDimSize, yDimSize, samples);
 		
-		int[] IIDS = new int[logItems.size()/samples];
+		int[] IIDS = new int[logItems.size() / samples];
 		int[] SIDS = new int[samples];
 		
 		int storeErrors = 0;
@@ -163,7 +163,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		{
 			// zAxis = StepCount
 			double val = item.getStepCount();
-
+			
 			if(false)
 			{
 				log.info("------------------ ");
@@ -178,7 +178,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				log.info("EndEvent  :" + item.getEndEvent());
 			}
 			int iid = item.getItemId();
-			int sid = item.getSampleId()-1;
+			int sid = item.getSampleId() - 1;
 			
 			int c0 = item.getCoordsPos()[0];
 			int c1 = item.getCoordsPos()[1];
@@ -194,7 +194,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			
 			IIDS[iid]++;
 			SIDS[sid]++;
-			// Combo Pos starts at 1, array pos at 0 -  index offset corrected here
+			// Combo Pos starts at 1, array pos at 0 - index offset corrected here
 			boolean stored = values.setSampleValue(c0, c1, val);
 			
 			if(!stored)
@@ -202,14 +202,14 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				storeErrors++;
 			}
 		}
-
+		
 		boolean itemsSamplesCorrect = true;
-		for(int i=0;i<IIDS.length;i++)
+		for(int i = 0; i < IIDS.length; i++)
 		{
-			//log.info("Unique Items " + IIDS[i]);
+			// log.info("Unique Items " + IIDS[i]);
 			if(IIDS[i] == samples)
 			{
-				log.debug("Item Samples OK : " + (i+1));
+				log.debug("Item Samples OK : " + (i + 1));
 			}
 			else
 			{
@@ -221,7 +221,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		
 		if(itemsSamplesCorrect)
 		{
-			log.info("All items have correct number of samples("+samples+").");
+			log.info("All items have correct number of samples(" + samples + ").");
 		}
 		else
 		{
@@ -229,11 +229,11 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		}
 		
 		boolean itemsSamplesNumbersCorrect = true;
-		for(int i=0;i<SIDS.length;i++)
+		for(int i = 0; i < SIDS.length; i++)
 		{
-			if(SIDS[i] == logItems.size()/samples)
+			if(SIDS[i] == logItems.size() / samples)
 			{
-				log.debug("Item Sample Numbers OK : " + (i+1));
+				log.debug("Item Sample Numbers OK : " + (i + 1));
 			}
 			else
 			{
@@ -246,7 +246,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		
 		if(itemsSamplesNumbersCorrect)
 		{
-			log.info("All sample numbers appear correct("+logItems.size()/samples+").");
+			log.info("All sample numbers appear correct(" + logItems.size() / samples + ").");
 		}
 		else
 		{
@@ -255,7 +255,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		
 		log.warn("Store Errors " + storeErrors);
 		
-		values.compute();
+		values.compute(maxVal);
 		
 		log.info("xValMax" + xValMax);
 		log.info("yValMax" + yValMax);
@@ -302,15 +302,15 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		@Override
 		public String format(double pos)
 		{
-			double val =  (multi * pos);
+			double val = (multi * pos);
 			
-			if (val % 1.0 == 0)
+			if(val % 1.0 == 0)
 			{
-			    return String.valueOf((int)(val));
+				return String.valueOf((int) (val));
 			}
 			else
 			{
-			    return String.format("%.3g%n", val);
+				return String.format("%.3g%n", val);
 			}
 		}
 	}
@@ -402,12 +402,12 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				}
 				
 				// Only set the values for the first two coordinates read (Otherwise 3,4 will overwrite them)
-				if(coord  <= maxCoords)
+				if(coord <= maxCoords)
 				{
 					item.setCoordsPos(pos);
 					item.setCoordsVals(vals);
 				}
-
+				
 			}
 			else
 			{
@@ -606,9 +606,14 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	
 	public MapperRemapper getAvg()
 	{
-		MapperRemapper stdMap = new MapperRemapper(values, 0);
+		MapperRemapper avgMap = new MapperRemapper(values, 0);
 		
-		return stdMap;
+		return avgMap;
+	}
+	
+	public double[][] getAvgData()
+	{
+		return values.getAvgData();
 	}
 	
 	public MapperRemapper getStdDev()
@@ -618,33 +623,35 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		return stdMap;
 	}
 	
-	public double[][] getAvgData()
+	@Override
+	public MapperRemapper getMax()
 	{
-		return values.getAvgData();
+		MapperRemapper maxMap = new MapperRemapper(values, 2);
+		
+		return maxMap;
 	}
-
+	
 	@Override
 	public double getZValMin()
 	{
 		return zValMin;
 	}
-
+	
 	@Override
 	public double getZValMax()
 	{
 		return zValMax;
 	}
 	
-	@Override 
+	@Override
 	public void clear()
 	{
 		logItems.clear();
 	}
 	
-	@Override 
-	public double getMaxRate(double max)
+	@Override
+	public double getMaxRate()
 	{
-		return values.getMaxRate(max);
+		return values.getMaxRate();
 	}
-	
 }
