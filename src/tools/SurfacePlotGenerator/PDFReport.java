@@ -98,6 +98,7 @@ public class PDFReport
 		
 		addReportPage(documentName, document, rowNames, colNames, fullPath, scale, "Averages");
 		addReportPage(documentName, document, rowNames, colNames, fullPath, scale, "Standard Deviations");
+		addReportPage(documentName, document, rowNames, colNames, fullPath, scale, "Max");
 		
 		try
 		{
@@ -126,9 +127,17 @@ public class PDFReport
 		
 		String imagesSuffix = "";
 		
-		if(!pageTitle.equals("Averages"))
+		if(pageTitle.equals("Averages"))
+		{
+			imagesSuffix = "-avg";
+		}
+		else if(pageTitle.equals("Standard Deviations"))
 		{
 			imagesSuffix = "-standard-deviation";
+		}
+		else 
+		{
+			imagesSuffix = "-max";
 		}
 		
 		System.out.println("Page Width : " + pageWidth);

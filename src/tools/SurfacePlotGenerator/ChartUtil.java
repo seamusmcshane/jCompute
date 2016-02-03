@@ -67,14 +67,8 @@ public class ChartUtil
 			
 			case "log":
 				
-				mapper = new TextBatchLogProcessorMapper(sourceFile);
-				
-				zfixScale = true;
-				
 				if(!scaleSet)
 				{
-					System.out.println("1111 " + File.separator + " " + sourceFile);
-					
 					String infoPath = sourceFile.substring(0, sourceFile.lastIndexOf(File.separator));
 					
 					System.out.println(infoPath);
@@ -87,14 +81,19 @@ public class ChartUtil
 					scaleSet = true;
 				}
 				
+				zfixScale = true;
+				
+				mapper = new TextBatchLogProcessorMapper(sourceFile, maxScale);
+				
 			break;
 			default:
 				System.out.println("Unsupported LogType " + ext);
 			break;
 		}
 		
-		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName, 0);
+		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName + "-avg", 0);
 		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName + "-standard-deviation", 1);
+		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName + "-max", 2);
 		
 		mapper.clear();
 		
@@ -122,10 +121,6 @@ public class ChartUtil
 			{
 				zMin = 0;
 				zMax = maxScale;
-				
-				maxRate = JCMath.round(mapper.getMaxRate(zMax), 8);
-				
-				System.out.println("Max Rate : " + maxRate);
 			}
 			
 			map = mapper.getAvg();
@@ -134,9 +129,26 @@ public class ChartUtil
 			
 			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		}
-		else
+		else if(mode == 1)
 		{
 			map = mapper.getStdDev();
+			
+			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
+			
+			double zMin = surface.getBounds().getZmin();
+			double zMax = surface.getBounds().getZmax();
+			
+			if(zfixScale)
+			{
+				zMin = 0;
+				zMax = maxScale;
+			}
+			
+			surface.setColorMapper(new ColorMapper(new ColorMapRainbowNoBorder(), zMin, zMax, new Color(1, 1, 1, 1f)));
+		}
+		else// (mode == 2)
+		{
+			map = mapper.getMax();
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
 			
@@ -249,15 +261,23 @@ public class ChartUtil
 			{
 				zAxisLabel = "Z : " + mapper.getZAxisName() + " (avg)";
 			}
-			else
+			else if(mode == 1)
 			{
 				zAxisLabel = "Z : " + mapper.getZAxisName() + " (StdDev)";
+			}
+			else
+			{
+				zAxisLabel = "Z : " + mapper.getZAxisName() + " (Max)";
 			}
 			
 			g2d.drawString(zAxisLabel, 15, height / 2 + 25 + coffset);
 			
-			if(zfixScale && mode == 0)
+			if(zfixScale)
 			{
+				maxRate = JCMath.round(mapper.getMaxRate(), 8);
+				
+				System.out.println("Max Rate : " + maxRate);
+				
 				g2d.drawString("Stability : " + String.valueOf(maxRate), 15, height / 2 + 50 + coffset);
 			}
 			
