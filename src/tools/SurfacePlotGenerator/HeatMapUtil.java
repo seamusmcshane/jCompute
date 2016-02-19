@@ -8,25 +8,18 @@ import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -34,8 +27,6 @@ import java.awt.event.ActionEvent;
 
 public class HeatMapUtil implements WindowListener
 {
-	private static int width, height;
-	
 	private static JFrame gui;
 	private static HeatMap hm;
 	
@@ -47,14 +38,13 @@ public class HeatMapUtil implements WindowListener
 	{
 		LookAndFeel.setLookandFeel("default");
 		
-		width = 800;
-		height = 800;
+		int iWidth = 1000;
+		int iHeight = 600;
+		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		gui.addWindowListener(this);
-		
-		gui.setMinimumSize(new Dimension((int) width + 15, (int) height + 35));
 		
 		gui.getContentPane().setLayout(new BorderLayout());
 		
@@ -162,9 +152,10 @@ public class HeatMapUtil implements WindowListener
 		});
 		toolBar.add(btnSave);
 		
-		hm = new HeatMap();
-		gui.getContentPane().add(hm);
+		hm = new HeatMap(iWidth, iHeight);
+		gui.getContentPane().add(hm, BorderLayout.CENTER);
 		
+		gui.pack();
 		gui.setVisible(true);
 	}
 	
