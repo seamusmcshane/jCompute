@@ -11,7 +11,7 @@ public class MapperRemapper extends Mapper
 	private MapperValuesContainer values;
 	private int target;
 	
-	private final int PALETTE_SIZE = 256;
+	private final int PALETTE_SIZE = 100;
 	private int[] palette;
 	
 	public MapperRemapper(MapperValuesContainer values, int target)
@@ -19,7 +19,7 @@ public class MapperRemapper extends Mapper
 		this.values = values;
 		this.target = target;
 		
-		palette = Palette.SpectrumPalette(false, PALETTE_SIZE);
+		palette = Palette.SpectrumPalette(false, PALETTE_SIZE,1f);
 	}
 	
 	@Override
@@ -101,5 +101,10 @@ public class MapperRemapper extends Mapper
 			}
 		}
 		
+	}
+	
+	public int[] getPalette()
+	{
+		return palette;
 	}
 }
