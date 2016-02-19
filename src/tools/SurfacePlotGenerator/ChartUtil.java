@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -168,7 +169,10 @@ public class ChartUtil
 		surface.setWireframeDisplayed(false);
 		surface.setWireframeColor(Color.BLACK);
 		
-		Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "newt");
+		// depthActivated, alphaActivated, smoothColor, smoothPoint, smoothLine, smoothPolygon, disableDepth
+		Quality chartQual = new Quality(false, true, false, true, true, false, false);
+		
+		Chart chart = AWTChartComponentFactory.chart(chartQual, "newt");
 		
 		// chart.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
 		// chart.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
@@ -229,6 +233,8 @@ public class ChartUtil
 			
 			final int coffset = -20;
 			Graphics2D g2d = (Graphics2D) exportImage.getGraphics();
+			
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			
 			// Blank Image white
 			g2d.setColor(java.awt.Color.WHITE);
