@@ -12,6 +12,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -24,6 +25,7 @@ public class HeatMap extends JPanel
 	private int heatMapWidth;
 	private int heatMapHeight;
 	private float ratio;
+	private float fontSizeScale;
 	
 	private BufferedImage chartImage;
 	
@@ -36,6 +38,10 @@ public class HeatMap extends JPanel
 		ratio = (float) heatMapWidth / (float) heatMapHeight;
 		System.out.println("ratio " + ratio);
 		
+		float fscale = heatMapWidth/1000f;
+		
+		fontSizeScale = fscale*0.75f;
+		
 		this.setPreferredSize(new Dimension(heatMapWidth, heatMapHeight));
 		this.setMinimumSize(new Dimension(heatMapWidth, heatMapHeight));
 		this.setSize(new Dimension(heatMapWidth, heatMapHeight));
@@ -47,6 +53,13 @@ public class HeatMap extends JPanel
 		chartImage = new BufferedImage(heatMapWidth, heatMapHeight, BufferedImage.TYPE_INT_ARGB);
 		
 		Graphics2D cg = chartImage.createGraphics();
+		
+		cg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		
+		Font defaultFont = new Font("Sans-Serif", Font.BOLD | Font.BOLD, 12);
+		
+		cg.setFont(defaultFont);
+		
 		cg.setColor(Color.white);
 		cg.fillRect(0, 0, heatMapWidth - 1, heatMapHeight - 1);
 		cg.setColor(Color.black);
@@ -115,15 +128,18 @@ public class HeatMap extends JPanel
 	private void addLegend(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, float ratio)
 	{
 		Font fontLatch = cg.getFont();
-		Font newFont = fontLatch.deriveFont((int) ((fontLatch.getSize() * ratio) * 1.5f));
+		Font newFont = fontLatch.deriveFont(((fontLatch.getSize() * ratio) * fontSizeScale));
 		cg.setFont(newFont);
 		FontMetrics metrics = cg.getFontMetrics(newFont);
 		int fontHeight = metrics.getHeight() + 2;
 		
 		cg.drawRect((int) (heatMapWidth * 0.05f), heatMapPlotYOffset, (int) (heatMapWidth * 0.25f), (int) (heatMapHeight * 0.4f));
 		
-		// TODO
-		// cg.drawString(str, x, y);
+		 cg.drawString("X 	: " + mapper.getXAxisName(), (int) (heatMapWidth * 0.05f)+20, heatMapPlotYOffset + (fontHeight*2));
+		 cg.drawString("Y 	: " + mapper.getYAxisName(), (int) (heatMapWidth * 0.05f)+20, heatMapPlotYOffset + (fontHeight*4));
+		 cg.drawString("Sta : " + mapper.getMaxRate(), (int) (heatMapWidth * 0.05f)+20, heatMapPlotYOffset + (fontHeight*6));
+		 
+		 cg.setFont(fontLatch);
 	}
 	
 	private void addTickAndLabels(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength, float ratio)
@@ -166,7 +182,7 @@ public class HeatMap extends JPanel
 		cg.setStroke(new BasicStroke(strokeSize));
 		
 		Font fontLatch = cg.getFont();
-		Font newFont = fontLatch.deriveFont((int) ((fontLatch.getSize() * ratio) * 1.5f));
+		Font newFont = fontLatch.deriveFont(((fontLatch.getSize() * ratio) * fontSizeScale));
 		cg.setFont(newFont);
 		FontMetrics metrics = cg.getFontMetrics(newFont);
 		int fontHeight = metrics.getHeight() + 2;
