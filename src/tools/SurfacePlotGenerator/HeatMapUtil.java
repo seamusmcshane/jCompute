@@ -8,6 +8,7 @@ import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -19,8 +20,10 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.JToolBar;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -28,9 +31,11 @@ import java.awt.event.ActionEvent;
 public class HeatMapUtil implements WindowListener
 {
 	private static JFrame gui;
+	
+	private JScrollPane sp;
 	private static HeatMap hm;
 	
-	private static String openCD = "";
+	private static String openCD = "S:\\ContinuousPredation\\FixedHungerThresholdVsInitialPopulation\\Prg3_84-90x100\\2016-02-01@1942[0] 84HungerThresholdVsInitialPopulation";
 	private static String saveCD = "";
 	private JButton btnSave;
 	
@@ -38,8 +43,10 @@ public class HeatMapUtil implements WindowListener
 	{
 		LookAndFeel.setLookandFeel("default");
 		
-		int iWidth = 1000;
-		int iHeight = 600;
+		float scale = 1f;
+		
+		int iWidth = (int) (1000*scale);
+		int iHeight = (int) (600*scale);
 		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -102,6 +109,8 @@ public class HeatMapUtil implements WindowListener
 					hm.setLog(batchLog);
 					
 					gui.setTitle(fullPath);
+					
+					gui.pack();
 					gui.repaint();
 					
 					System.out.println("Report Finished");
@@ -152,8 +161,15 @@ public class HeatMapUtil implements WindowListener
 		});
 		toolBar.add(btnSave);
 		
-		hm = new HeatMap(iWidth, iHeight);
-		gui.getContentPane().add(hm, BorderLayout.CENTER);
+		hm = new HeatMap(iWidth, iHeight,true,scale);
+		sp = new JScrollPane(hm);
+		
+		sp.setPreferredSize(new Dimension(1024, 768));
+		
+		gui.getContentPane().add(sp, BorderLayout.CENTER);
+		
+		sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		gui.pack();
 		gui.setVisible(true);
