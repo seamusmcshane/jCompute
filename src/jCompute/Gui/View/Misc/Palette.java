@@ -244,13 +244,13 @@ public class Palette
 		
 		// Intensity
 		float intensity = 1f;
-		if(waveLength >= 700f)
+		if(waveLength >= 645f)
 		{
-			intensity = 0.05f + (0.95f * (780f - waveLength) / (780f - 700f));
+			intensity = 0.01f + (0.99f * (780f - waveLength) / (780f - 645f));
 		}
 		else if(waveLength <= 420f)
 		{
-			intensity = 0.05f + (0.95f * (waveLength - 380f) / (420f - 380f));
+			intensity = 0.01f + (0.99f * (waveLength - 380f) / (420f - 380f));
 		}
 		
 		rgb[RED] = rgb[RED] * intensity;
