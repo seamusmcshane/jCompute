@@ -34,7 +34,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	
 	private MapperValuesContainer values;
 	
-	private static ArrayList<TextBatchLogItem> logItems;
+	private ArrayList<TextBatchLogItem> logItems;
 	
 	private double xValMin = Double.MAX_VALUE;
 	private double xValMax = Double.MIN_VALUE;
@@ -87,6 +87,8 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			}
 			
 			inputFile.close();
+			
+			log.info("Finished Reading log");
 			
 		}
 		catch(IOException e)
@@ -346,12 +348,8 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		// Per item Coord Count
 		int coord = 0;
 		
-		String line;
-		while(!(line = inputFile.readLine()).equals("[-Item]"))
+		for(String line; !(line = inputFile.readLine()).equals("[-Item]");)
 		{
-			String field = "";
-			String val = "";
-			
 			if(line.equals("[+Coordinate]"))
 			{
 				// Increment count of Coords
@@ -411,38 +409,31 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			}
 			else
 			{
-				field = line.substring(0, line.lastIndexOf('='));
-			}
-			
-			if(field.equals("IID"))
-			{
-				val = line.substring(line.lastIndexOf('=') + 1, line.length());
-				item.setItemId(Integer.parseInt(val));
-			}
-			else if(field.equals("SID"))
-			{
-				val = line.substring(line.lastIndexOf('=') + 1, line.length());
-				item.setSampleId(Integer.parseInt(val));
-			}
-			else if(field.equals("Hash"))
-			{
-				val = line.substring(line.lastIndexOf('=') + 1, line.length());
-				item.setHash(val);
-			}
-			else if(field.equals("RunTime"))
-			{
-				val = line.substring(line.lastIndexOf('=') + 1, line.length());
-				item.setRunTime(Integer.parseInt(val));
-			}
-			else if(field.equals("EndEvent"))
-			{
-				val = line.substring(line.lastIndexOf('=') + 1, line.length());
-				item.setEndEvent(val);
-			}
-			else if(field.equals("StepCount"))
-			{
-				val = line.substring(line.lastIndexOf('=') + 1, line.length());
-				item.setStepCount(Integer.parseInt(val));
+				int delimiterIndex = line.lastIndexOf('=');
+				String field = line.substring(0, delimiterIndex);
+				String val = line.substring(delimiterIndex + 1, line.length());
+				
+				switch(field)
+				{
+					case "IID":
+						item.setItemId(Integer.parseInt(val));
+					break;
+					case "SID":
+						item.setSampleId(Integer.parseInt(val));
+					break;
+					case "Hash":
+						item.setHash(val);
+					break;
+					case "RunTime":
+						item.setRunTime(Integer.parseInt(val));
+					break;
+					case "EndEvent":
+						item.setEndEvent(val);
+					break;
+					case "StepCount":
+						item.setStepCount(Integer.parseInt(val));
+					break;
+				}
 			}
 		}
 		
@@ -465,8 +456,9 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 			}
 			else
 			{
-				String field = line.substring(0, line.lastIndexOf('='));
-				String val = line.substring(line.lastIndexOf('=') + 1, line.length());
+				int delimiterIndex = line.lastIndexOf('=');
+				String field = line.substring(0, delimiterIndex);
+				String val = line.substring(delimiterIndex + 1, line.length());
 				
 				if(field.equals("Name"))
 				{
