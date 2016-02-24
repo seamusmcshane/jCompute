@@ -82,21 +82,25 @@ public class HeatMap extends JPanel
 		// Draw HeatMapPlot to Chart
 		// createHeatmapImage(mapper,cg,heatMapPlotXOffset,heatMapPlotYOffset,heatMapPlotWidth,heatMapPlotHeight);
 		
+		// Scales the lines
 		cg.setColor(Color.black);
 		cg.setStroke(new BasicStroke(imageScale));
 		
-		addHeatmapImage(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight, imageScale);
+		// Scales TickLens
+		int tickLen = (int)(15f*imageScale);
+				
+		addHeatmapImage(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
 		
-		addTickAndLabels(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight, 15, imageScale);
+		addTickAndLabels(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight, tickLen);
 		
-		addLegend(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight, imageScale);
+		addLegend(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
 		
-		addColorMap(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight, imageScale);
+		addColorMap(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
 		
 		cg.dispose();
 	}
 	
-	private void addHeatmapImage(BatchLogInf mapper, Graphics2D target, int x, int y, int width, int height, float imageScale)
+	private void addHeatmapImage(BatchLogInf mapper, Graphics2D target, int x, int y, int width, int height)
 	{
 		// un-scaled heatmap image 1/1
 		BufferedImage rawValues = createMapValues(mapper);
@@ -110,7 +114,7 @@ public class HeatMap extends JPanel
 		target.drawRect(x, y, width, width);
 	}
 	
-	private void addColorMap(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, float imageScale)
+	private void addColorMap(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight)
 	{
 		int x = (int) (heatMapWidth * 0.85f);
 		int y = heatMapPlotYOffset;
@@ -142,7 +146,7 @@ public class HeatMap extends JPanel
 		cg.drawRect(x - 1, y, width + 1, height + 1);
 	}
 	
-	private void addLegend(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, float imageScale)
+	private void addLegend(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight)
 	{
 		Font fontLatch = cg.getFont();
 		Font newFont = fontLatch.deriveFont(fontSizeScale);
@@ -159,7 +163,7 @@ public class HeatMap extends JPanel
 		cg.setFont(fontLatch);
 	}
 	
-	private void addTickAndLabels(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength, float imageScale)
+	private void addTickAndLabels(BatchLogInf mapper, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
 	{
 		int tickX = mapper.getXSteps() - 1;
 		int tickY = mapper.getYSteps() - 1;
