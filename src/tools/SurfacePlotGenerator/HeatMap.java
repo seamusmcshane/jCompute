@@ -26,17 +26,25 @@ public class HeatMap extends JPanel
 	private int heatMapHeight;
 	
 	private float fontSizeScale;
-	
 	private float imageScale;
 	
 	private boolean legend;
 	
 	private BufferedImage chartImage;
 	
-	public HeatMap(int heatMapWidth, int heatMapHeight, boolean legend, float scale)
+	public HeatMap(int heatMapWidth, boolean legend, float scale)
 	{
 		this.heatMapWidth = heatMapWidth;
-		this.heatMapHeight = heatMapHeight;
+		
+		if(legend)
+		{
+			this.heatMapHeight = (int) (heatMapWidth * 0.6);
+		}
+		else
+		{
+			this.heatMapHeight = this.heatMapWidth;
+		}
+		
 		this.legend = legend;
 		this.imageScale = scale;
 		
@@ -66,36 +74,49 @@ public class HeatMap extends JPanel
 		cg.drawRect(0, 0, heatMapWidth - 1, heatMapHeight - 1);
 		
 		// HeatMapPlot Scaling
-		float heatMapPlotImageSizeScale = 0.4f;
-		float heatMapPlotXOffsetScale = 0.4f;
-		float heatMapPlotYOffsetScale = 0.50f;
+		float heatMapPlotImageSizeScale;
+		
+		// HeatMapPlot Scaling
+		float heatMapPlotXOffsetScale;
+		
+		if(legend)
+		{
+			heatMapPlotImageSizeScale = 0.4f;
+			heatMapPlotXOffsetScale = 0.4f;
+		}
+		else
+		{
+			heatMapPlotImageSizeScale = 0.8f;
+			heatMapPlotXOffsetScale = 0.1f;
+		}
 		
 		// Base Ratio
 		float ratio = (float) heatMapWidth / (float) heatMapHeight;
 		System.out.println("ratio " + ratio);
-		
-		int heatMapPlotWidth = (int) (heatMapWidth * heatMapPlotImageSizeScale);
-		int heatMapPlotHeight = (int) ((heatMapHeight * heatMapPlotImageSizeScale) * ratio);
-		int heatMapPlotXOffset = (int) (heatMapWidth * heatMapPlotXOffsetScale);
-		int heatMapPlotYOffset = (int) ((heatMapHeight * (heatMapPlotYOffsetScale)) - (heatMapPlotHeight / 2));
-		
-		// Draw HeatMapPlot to Chart
-		// createHeatmapImage(mapper,cg,heatMapPlotXOffset,heatMapPlotYOffset,heatMapPlotWidth,heatMapPlotHeight);
 		
 		// Scales the lines
 		cg.setColor(Color.black);
 		cg.setStroke(new BasicStroke(imageScale));
 		
 		// Scales TickLens
-		int tickLen = (int)(15f*imageScale);
-				
+		int tickLen = (int) (20 * imageScale);
+		
+		int heatMapPlotWidth = (int) (heatMapWidth * heatMapPlotImageSizeScale);
+		int heatMapPlotHeight = (int) ((heatMapHeight * heatMapPlotImageSizeScale) * ratio);
+		int heatMapPlotXOffset = (int) (heatMapWidth * heatMapPlotXOffsetScale);
+		// int heatMapPlotYOffset = (int) ((heatMapHeight * (heatMapPlotYOffsetScale)) - (heatMapPlotHeight * heatMapPlotYOffsetScale));
+		int heatMapPlotYOffset = (int) ((heatMapHeight / 2 - ((tickLen + heatMapPlotHeight) * 0.5f)));
+		
+		// Draw HeatMapPlot to Chart
 		addHeatmapImage(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
 		
 		addTickAndLabels(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight, tickLen);
 		
-		addLegend(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
-		
-		addColorMap(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
+		if(legend)
+		{
+			addLegend(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
+			addColorMap(mapper, cg, heatMapPlotXOffset, heatMapPlotYOffset, heatMapPlotWidth, heatMapPlotHeight);
+		}
 		
 		cg.dispose();
 	}
@@ -154,11 +175,11 @@ public class HeatMap extends JPanel
 		FontMetrics metrics = cg.getFontMetrics(newFont);
 		int fontHeight = metrics.getHeight() + 2;
 		
-		cg.drawRect((int) (heatMapWidth * 0.05f), heatMapPlotYOffset, (int) (heatMapWidth * 0.25f), (int) (heatMapHeight * 0.4f));
-		
 		cg.drawString("X 		: " + mapper.getXAxisName(), (int) (heatMapWidth * 0.05f) + 20, heatMapPlotYOffset + (fontHeight * 2));
 		cg.drawString("Y 		: " + mapper.getYAxisName(), (int) (heatMapWidth * 0.05f) + 20, heatMapPlotYOffset + (fontHeight * 4));
 		cg.drawString("SRate : " + mapper.getMaxRate(), (int) (heatMapWidth * 0.05f) + 20, heatMapPlotYOffset + (fontHeight * 6));
+		
+		cg.drawRect((int) (heatMapWidth * 0.05f), heatMapPlotYOffset, (int) (heatMapWidth * 0.25f), (fontHeight * 8) - fontHeight / 2);
 		
 		cg.setFont(fontLatch);
 	}
@@ -167,7 +188,6 @@ public class HeatMap extends JPanel
 	{
 		int tickX = mapper.getXSteps() - 1;
 		int tickY = mapper.getYSteps() - 1;
-		int tickLen = (int) (tickLength * imageScale);
 		
 		int maxTicks = 10;
 		
@@ -205,7 +225,7 @@ public class HeatMap extends JPanel
 		FontMetrics metrics = cg.getFontMetrics(newFont);
 		int fontHeight = metrics.getHeight() + 2;
 		
-		float labelPad = (float) tickLen / 2f;
+		float labelPad = (float) tickLength / 2f;
 		
 		boolean intValues = false;
 		
@@ -236,7 +256,7 @@ public class HeatMap extends JPanel
 		{
 			float lineX = heatMapPlotXOffset + xOffset;
 			float lineY = heatMapPlotHeight + heatMapPlotYOffset;
-			float lineHeight = lineY + tickLen;
+			float lineHeight = lineY + tickLength;
 			
 			cg.drawLine((int) lineX, (int) lineY, (int) lineX, (int) lineHeight);
 			
@@ -289,7 +309,7 @@ public class HeatMap extends JPanel
 		{
 			float lineX = heatMapPlotXOffset;
 			float lineY = heatMapPlotHeight - yOffset + heatMapPlotYOffset;
-			float lineWidth = heatMapPlotXOffset - tickLen;
+			float lineWidth = heatMapPlotXOffset - tickLength;
 			
 			cg.drawLine((int) lineX, (int) lineY, (int) lineWidth, (int) lineY);
 			

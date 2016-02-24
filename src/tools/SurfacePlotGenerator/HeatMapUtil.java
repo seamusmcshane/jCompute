@@ -35,18 +35,19 @@ public class HeatMapUtil implements WindowListener
 	private JScrollPane sp;
 	private static HeatMap hm;
 	
-	private static String openCD = "S:\\ContinuousPredation\\FixedHungerThresholdVsInitialPopulation\\Prg3_84-90x100\\2016-02-01@1942[0] 84HungerThresholdVsInitialPopulation";
+	private static String openCD = "C:\\Users\\Seamie\\Desktop\\PHD\\WorkSpace\\jCompute\\stats\\Prg3_84-90x100\\2016-02-01@1942[0] 84HungerThresholdVsInitialPopulation";
 	private static String saveCD = "";
 	private JButton btnSave;
 	
 	public HeatMapUtil()
 	{
+		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+
 		LookAndFeel.setLookandFeel("default");
 		
 		float scale = 1f;
 		
 		int iWidth = (int) (1000*scale);
-		int iHeight = (int) (600*scale);
 		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -72,48 +73,7 @@ public class HeatMapUtil implements WindowListener
 				
 				if(val == JFileChooser.APPROVE_OPTION)
 				{
-					String fullPath = filechooser.getSelectedFile().getPath();
-					System.out.println("Path : " + fullPath);
-					
-					// Level 0
-					String documentName = filechooser.getSelectedFile().getName();
-					System.out.println("Document Name will be : " + documentName);
-					
-					BatchLogInf batchLog = null;
-					
-					String ext = FileUtil.getFileNameExtension(documentName);
-					System.out.println("File ext : " + ext);
-					
-					switch(ext)
-					{
-						case "xml":
-							
-							batchLog = new XMLBatchLogProcessorMapper(fullPath);
-							
-						break;
-						
-						case "log":
-							
-							BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
-							
-							batchLog = new TextBatchLogProcessorMapper(fullPath, ilp.getMaxSteps());
-							
-						break;
-						default:
-							System.out.println("Unsupported LogType " + ext);
-						break;
-					}
-					
-					openCD = fullPath;
-					
-					hm.setLog(batchLog);
-					
-					gui.setTitle(fullPath);
-					
-					gui.pack();
-					gui.repaint();
-					
-					System.out.println("Report Finished");
+					loadLogfile(filechooser.getSelectedFile().getPath(),filechooser.getCurrentDirectory().toString(),filechooser.getSelectedFile().getName());
 				}
 				else
 				{
@@ -161,7 +121,7 @@ public class HeatMapUtil implements WindowListener
 		});
 		toolBar.add(btnSave);
 		
-		hm = new HeatMap(iWidth, iHeight,true,scale);
+		hm = new HeatMap(iWidth, true,scale);
 		sp = new JScrollPane(hm);
 		
 		sp.setPreferredSize(new Dimension(1024, 768));
@@ -173,6 +133,50 @@ public class HeatMapUtil implements WindowListener
 		
 		gui.pack();
 		gui.setVisible(true);
+	}
+	
+	private static void loadLogfile(String fullPath, String currentDirectory, String documentName)
+	{
+		System.out.println("Path : " + fullPath);
+		
+		// Level 0
+		System.out.println("Document Name will be : " + documentName);
+		
+		BatchLogInf batchLog = null;
+		
+		String ext = FileUtil.getFileNameExtension(documentName);
+		System.out.println("File ext : " + ext);
+		
+		switch(ext)
+		{
+			case "xml":
+				
+				batchLog = new XMLBatchLogProcessorMapper(fullPath);
+				
+			break;
+			
+			case "log":
+				
+				BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(currentDirectory + File.separator + "infoLog.log");
+				
+				batchLog = new TextBatchLogProcessorMapper(fullPath, ilp.getMaxSteps());
+				
+			break;
+			default:
+				System.out.println("Unsupported LogType " + ext);
+			break;
+		}
+		
+		openCD = fullPath;
+		
+		hm.setLog(batchLog);
+		
+		gui.setTitle(fullPath);
+		
+		gui.pack();
+		gui.repaint();
+		
+		System.out.println("Report Finished");
 	}
 	
 	public static void main(String args[])
