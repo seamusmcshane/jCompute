@@ -63,8 +63,6 @@ public class Palette
 			int green = (int) (rgb[GREEN] * RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE] * RGBCOLORDEPTH);
 			
-			System.out.println("RGB : " + red + " " + green + " " + blue);
-			
 			// ARGB
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
 		}
@@ -103,8 +101,6 @@ public class Palette
 			int green = (int) (rgb[GREEN] * RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE] * RGBCOLORDEPTH);
 			
-			System.out.println("RGB : " + red + " " + green + " " + blue);
-			
 			// ARGB
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
 		}
@@ -117,8 +113,6 @@ public class Palette
 			int red = (int) (rgb[RED] * RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN] * RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE] * RGBCOLORDEPTH);
-			
-			System.out.println("RGB : " + red + " " + green + " " + blue);
 			
 			// ARGB
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
