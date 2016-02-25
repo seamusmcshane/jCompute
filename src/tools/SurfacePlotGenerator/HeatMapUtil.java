@@ -42,12 +42,13 @@ public class HeatMapUtil implements WindowListener
 	public HeatMapUtil()
 	{
 		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
-
+		
 		LookAndFeel.setLookandFeel("default");
 		
-		float scale = 1f;
+		boolean legend = true;
+		int scale = 10;
 		
-		int iWidth = (int) (1000*scale);
+		int iWidth = 1000 * scale;
 		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -73,7 +74,7 @@ public class HeatMapUtil implements WindowListener
 				
 				if(val == JFileChooser.APPROVE_OPTION)
 				{
-					loadLogfile(filechooser.getSelectedFile().getPath(),filechooser.getCurrentDirectory().toString(),filechooser.getSelectedFile().getName());
+					loadLogfile(filechooser.getSelectedFile().getPath(), filechooser.getCurrentDirectory().toString(), filechooser.getSelectedFile().getName());
 				}
 				else
 				{
@@ -121,7 +122,7 @@ public class HeatMapUtil implements WindowListener
 		});
 		toolBar.add(btnSave);
 		
-		hm = new HeatMap(iWidth, true,scale);
+		hm = new HeatMap(iWidth, legend, scale);
 		sp = new JScrollPane(hm);
 		
 		sp.setPreferredSize(new Dimension(1024, 768));
