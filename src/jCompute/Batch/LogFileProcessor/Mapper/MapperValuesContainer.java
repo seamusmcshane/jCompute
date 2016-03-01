@@ -63,7 +63,7 @@ public class MapperValuesContainer
 		
 		avg = new double[xSteps * ySteps];
 		
-		IntStream.range(0, ySteps).forEach(y -> IntStream.range(0, xSteps).forEach(x ->
+		IntStream.range(0, ySteps).parallel().forEach(y -> IntStream.range(0, xSteps).parallel().forEach(x ->
 		{
 			double total = 0;
 			
@@ -84,7 +84,7 @@ public class MapperValuesContainer
 		System.out.println("Standard Deviations");
 		stdDev = new double[xSteps * ySteps];
 		
-		IntStream.range(0, ySteps).forEach(y -> IntStream.range(0, xSteps).forEach(x ->
+		IntStream.range(0, ySteps).parallel().forEach(y -> IntStream.range(0, xSteps).parallel().forEach(x ->
 		{
 			double total = 0;
 			for(int i = 0; i < samples; i++)
