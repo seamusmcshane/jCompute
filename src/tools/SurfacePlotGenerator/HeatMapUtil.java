@@ -46,7 +46,7 @@ public class HeatMapUtil implements WindowListener
 		LookAndFeel.setLookandFeel("default");
 		
 		boolean legend = true;
-		int scale = 10;
+		int scale = 1;
 		
 		int iWidth = 1000 * scale;
 		
