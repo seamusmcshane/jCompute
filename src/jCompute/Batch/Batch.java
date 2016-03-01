@@ -1,5 +1,6 @@
 package jCompute.Batch;
 
+import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapperV2;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ScenarioInf;
@@ -100,6 +101,10 @@ public class Batch implements StoredQueuePosition
 	// Item log writer
 	private final int BW_BUFFER_SIZE = 1024 * 1000;
 	private PrintWriter itemLog;
+	
+	// Item log version
+	private final int ITEM_LOG_VERSION = 2;
+	
 	private boolean itemLogEnabled;
 	
 	// Used for combination and for saving axis names
@@ -764,22 +769,22 @@ public class Batch implements StoredQueuePosition
 		{
 			try
 			{
-				itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
 				
-				itemLog.println("[+Header]");
-				itemLog.println("Name=" + batchName);
-				itemLog.println("LogType=BatchItems");
-				itemLog.println("Samples=" + itemSamples);
-				itemLog.println("[+AxisLabels]");
-				for(int c = 1; c < numCordinates + 1; c++)
+				switch(ITEM_LOG_VERSION)
 				{
-					itemLog.println("id=" + c);
-					itemLog.println("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
+					case 1:
+					{
+						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
+					}
+					break;
+					case 2:
+					{
+						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true), BW_BUFFER_SIZE));
+					}
+					break;
 				}
 				
-				itemLog.println("[-AxisLabels]");
-				itemLog.println("[-Header]");
-				itemLog.println("[+Items]");
+				writeItemLogHeader(ITEM_LOG_VERSION, numCordinates);
 				
 			}
 			catch(IOException e)
@@ -929,23 +934,7 @@ public class Batch implements StoredQueuePosition
 		
 		if(itemLogEnabled)
 		{
-			itemLog.println("[+Item]");
-			itemLog.println("IID=" + item.getItemId());
-			itemLog.println("SID=" + item.getSampleId());
-			ArrayList<Integer> coords = item.getCoordinates();
-			ArrayList<Float> coordsValues = item.getCoordinatesValues();
-			for(int c = 0; c < coords.size(); c++)
-			{
-				itemLog.println("[+Coordinate]");
-				itemLog.println("Pos=" + coords.get(c));
-				itemLog.println("Value=" + coordsValues.get(c));
-				itemLog.println("[-Coordinate]");
-			}
-			itemLog.println("Hash=" + item.getItemHash());
-			itemLog.println("RunTime=" + item.getComputeTime());
-			itemLog.println("EndEvent=" + item.getEndEvent());
-			itemLog.println("StepCount=" + item.getStepCount());
-			itemLog.println("[-Item]");
+			writeItemLogItem(ITEM_LOG_VERSION, item);
 		}
 		
 		// Only Save configs if stats are enabled
@@ -1041,14 +1030,17 @@ public class Batch implements StoredQueuePosition
 			
 			if(itemLogEnabled)
 			{
+				switch(ITEM_LOG_VERSION)
+				{
+					case 1:
+					{
+						// Close the Items Section in v1 log
+						itemLog.println("[-Items]");
+					}
+					break;
+				}
+				
 				// Close Batch Log
-				/*
-				 * itemLog.println("</Items>");
-				 * itemLog.println("</Log>");
-				 */
-				
-				itemLog.println("[-Items]");
-				
 				itemLog.flush();
 				itemLog.close();
 			}
@@ -1613,4 +1605,146 @@ public class Batch implements StoredQueuePosition
 	{
 		return failed;
 	}
+	
+	private void writeItemLogItem(int version, BatchItem item)
+	{
+		switch(version)
+		{
+			case 1:
+			{
+				itemLog.println("[+Item]");
+				itemLog.println("IID=" + item.getItemId());
+				itemLog.println("SID=" + item.getSampleId());
+				ArrayList<Integer> coords = item.getCoordinates();
+				ArrayList<Float> coordsValues = item.getCoordinatesValues();
+				for(int c = 0; c < coords.size(); c++)
+				{
+					itemLog.println("[+Coordinate]");
+					itemLog.println("Pos=" + coords.get(c));
+					itemLog.println("Value=" + coordsValues.get(c));
+					itemLog.println("[-Coordinate]");
+				}
+				itemLog.println("Hash=" + item.getItemHash());
+				itemLog.println("RunTime=" + item.getComputeTime());
+				itemLog.println("EndEvent=" + item.getEndEvent());
+				itemLog.println("StepCount=" + item.getStepCount());
+				itemLog.println("[-Item]");
+			}
+			break;
+			case 2:
+			{
+				StringBuilder itemLine = new StringBuilder();
+				
+				// Item Id
+				itemLine.append("IID=");
+				itemLine.append(item.getItemId());
+				itemLine.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// Sample Id
+				itemLine.append("SID=");
+				itemLine.append(item.getSampleId());
+				itemLine.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// Surface Coords and Values
+				ArrayList<Integer> coords = item.getCoordinates();
+				ArrayList<Float> coordsValues = item.getCoordinatesValues();
+				
+				itemLine.append("Num=" + coords.size());
+				// ; done in loop - loop then exits skipping an ending ;
+				for(int c = 0; c < coords.size(); c++)
+				{
+					itemLine.append(TextBatchLogProcessorMapperV2.SUBOPTION_DELIMITER);
+					itemLine.append("Pos=");
+					itemLine.append(coords.get(c));
+					itemLine.append(TextBatchLogProcessorMapperV2.SUBOPTION_DELIMITER);
+					
+					itemLine.append("Value=");
+					itemLine.append(coordsValues.get(c));
+				}
+				itemLine.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// Hash
+				itemLine.append("Hash=");
+				itemLine.append(item.getItemHash());
+				itemLine.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// Runtime
+				itemLine.append("RunTime=");
+				itemLine.append(item.getComputeTime());
+				itemLine.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// Endevent
+				itemLine.append("EndEvent=");
+				itemLine.append(item.getEndEvent());
+				itemLine.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// StepCount
+				itemLine.append("StepCount=");
+				itemLine.append(item.getStepCount());
+				
+				// No ending ,
+				itemLog.println(itemLine);
+			}
+			break;
+		}
+		
+	}
+	
+	private void writeItemLogHeader(int version, int numCordinates)
+	{
+		switch(version)
+		{
+			case 1:
+			{
+				itemLog.println("[+Header]");
+				itemLog.println("Name=" + batchName);
+				itemLog.println("LogType=BatchItems");
+				itemLog.println("Samples=" + itemSamples);
+				itemLog.println("[+AxisLabels]");
+				for(int c = 1; c < numCordinates + 1; c++)
+				{
+					itemLog.println("id=" + c);
+					itemLog.println("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
+				}
+				
+				itemLog.println("[-AxisLabels]");
+				itemLog.println("[-Header]");
+				itemLog.println("[+Items]");
+			}
+			break;
+			case 2:
+				StringBuilder header = new StringBuilder();
+				
+				// Name
+				header.append("Name=");
+				header.append(batchName);
+				header.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// Type
+				header.append("LogType=BatchItems");
+				header.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				header.append("Samples=");
+				header.append(itemSamples);
+				header.append(TextBatchLogProcessorMapperV2.OPTION_DELIMITER);
+				
+				// AxisLabels
+				header.append("AxisLabels=");
+				header.append("Num=" + numCordinates);
+				// ; done in loop - loop then exits skipping an ending ;
+				for(int c = 1; c < numCordinates + 1; c++)
+				{
+					header.append(TextBatchLogProcessorMapperV2.SUBOPTION_DELIMITER);
+					header.append("id=" + c);
+					header.append(TextBatchLogProcessorMapperV2.SUBOPTION_DELIMITER);
+					header.append("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
+				}
+				// No ending ,
+				itemLog.println(header.toString());
+				
+			break;
+		}
+		
+	}
+	
 }
