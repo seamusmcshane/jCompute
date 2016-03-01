@@ -2,6 +2,8 @@ package jCompute.Batch.LogFileProcessor;
 
 import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
+import jCompute.Datastruct.knn.benchmark.TimerObj;
+import jCompute.util.Text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,10 +53,15 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		
 		try
 		{
+			TimerObj to = new TimerObj();
+
 			BufferedReader inputFile = new BufferedReader(new FileReader(file));
 			
 			boolean readingItems = false;
 			boolean finished = false;
+			
+			to.startTimer();
+			
 			while(!finished)
 			{
 				if(readingItems)
@@ -86,9 +93,11 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 				}
 			}
 			
+			to.stopTimer();
+			
 			inputFile.close();
 			
-			log.info("Finished Reading log");
+			log.info("Finished Reading log " + Text.longTimeToDHMSM(to.getTimeTaken()));
 			
 		}
 		catch(IOException e)
