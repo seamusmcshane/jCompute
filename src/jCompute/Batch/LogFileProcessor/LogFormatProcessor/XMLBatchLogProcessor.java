@@ -1,9 +1,7 @@
-package jCompute.Batch.LogFileProcessor;
-
-import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
-import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
+package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -12,7 +10,11 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 
-public class XMLBatchLogProcessorMapper implements BatchLogInf
+import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
+import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
+
+public class XMLBatchLogProcessor implements BatchLogInf
 {
 	private MapperValuesContainer values;
 	
@@ -37,7 +39,7 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 	private double valMin = Double.MAX_VALUE;
 	private double valMax = Double.MIN_VALUE;
 	
-	public XMLBatchLogProcessorMapper(String fileName)
+	public XMLBatchLogProcessor(String fileName) throws IOException
 	{
 		file = new File(fileName);
 		logFile = new XMLConfiguration();
@@ -46,25 +48,23 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		try
 		{
 			logFile.load(file);
+			
+			readItems();
 		}
 		catch(ConfigurationException e)
 		{
-			System.out.print("Error");
-			e.printStackTrace();
+			Throwable throwable = new Throwable(e.getMessage(), e.getCause());
+			
+			throwable.setStackTrace(e.getStackTrace());
+			
+			throw new IOException(throwable);
 		}
-		
-		readItems();
 	}
 	
-	public void clear()
-	{
-		logFile.clear();
-	}
-	
-	private void debugOut(String text)
-	{
-		// System.out.println(text);
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Format Processing Methods
+	 *****************************************************************************************************/
 	
 	private void readItems()
 	{
@@ -72,7 +72,7 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		
 		int itemTotal = logFile.configurationsAt("Items.Item").size();
 		
-		debugOut("ItemTotal : " + itemTotal);
+		System.out.println("ItemTotal : " + itemTotal);
 		
 		xAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 0 + ").Name", "X");
 		yAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 1 + ").Name", "Y");
@@ -81,15 +81,15 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		
 		int matrixDim = (int) Math.sqrt((itemTotal) / samplesPerItem) + 1;
 		
-		debugOut("Samples Per Item : " + samplesPerItem);
+		System.out.println("Samples Per Item : " + samplesPerItem);
 		
-		debugOut(matrixDim + "*" + matrixDim);
+		System.out.println(matrixDim + "*" + matrixDim);
 		
 		System.out.println("Creating Values Container");
 		values = new MapperValuesContainer(matrixDim, matrixDim, samplesPerItem);
 		
-		debugOut(xAxisName);
-		debugOut(yAxisName);
+		System.out.println(xAxisName);
+		System.out.println(yAxisName);
 		
 		System.out.println("Reading Items Values");
 		
@@ -110,7 +110,7 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 					// Got A an Item
 					if(name.equals("Item"))
 					{
-						debugOut("Name " + item.getName());
+						System.out.println("Name " + item.getName());
 						
 						List<ConfigurationNode> itemFields = item.getChildren();
 						
@@ -144,17 +144,17 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 								coordinateXYvals = new int[coordianteFields.size()];
 								for(ConfigurationNode coordiantes : coordianteFields)
 								{
-									debugOut("Coordiantes " + coordiantes.getName());
+									System.out.println("Coordiantes " + coordiantes.getName());
 									
 									for(ConfigurationNode coordiante : coordiantes.getChildren())
 									{
-										debugOut("Field " + coordiante.getName());
+										System.out.println("Field " + coordiante.getName());
 										
 										if(coordiante.getName().equals("Pos"))
 										{
 											coordinateXY[pos] = Integer.parseInt((String) coordiante.getValue());
 											
-											debugOut("Pos " + coordiante.getValue());
+											System.out.println("Pos " + coordiante.getValue());
 											
 											pos++;
 										}
@@ -162,7 +162,7 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 										if(coordiante.getName().equals("Value"))
 										{
 											coordinateXYvals[vals] = Integer.parseInt((String) coordiante.getValue());
-											debugOut("Value " + coordiante.getValue());
+											System.out.println("Value " + coordiante.getValue());
 											
 											vals++;
 										}
@@ -189,11 +189,11 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 							
 						}
 						
-						debugOut("Item " + itemId);
-						debugOut("X/Y " + coordinateXY[0] + "//" + coordinateXY[0]);
-						debugOut("Vals " + coordinateXYvals[0] + "//" + coordinateXYvals[1]);
-						debugOut("EndEvent " + endEvent);
-						debugOut("StepCount " + stepCount);
+						System.out.println("Item " + itemId);
+						System.out.println("X/Y " + coordinateXY[0] + "//" + coordinateXY[0]);
+						System.out.println("Vals " + coordinateXYvals[0] + "//" + coordinateXYvals[1]);
+						System.out.println("EndEvent " + endEvent);
+						System.out.println("StepCount " + stepCount);
 						
 						//
 						if(coordinateXYvals[0] > xValMax)
@@ -266,44 +266,148 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		
 	}
 	
-	public ITickRenderer getXTickMapper()
+	/*
+	 * *****************************************************************************************************
+	 * Axis Ranges
+	 *****************************************************************************************************/
+	
+	@Override
+	public double getXValMin()
 	{
-		return xMapper;
+		return xValMin;
 	}
 	
-	public ITickRenderer getYTickMapper()
+	@Override
+	public double getXValMax()
 	{
-		return yMapper;
-	}
-	
-	public MapperRemapper getAvg()
-	{
-		MapperRemapper stdMap = new MapperRemapper(values, 0);
+		return xValMax;
 		
-		return stdMap;
 	}
 	
-	public MapperRemapper getStdDev()
+	@Override
+	public double getYValMin()
 	{
-		MapperRemapper stdMap = new MapperRemapper(values, 1);
-		
-		return stdMap;
+		return yValMin;
 	}
 	
+	@Override
+	public double getYValMax()
+	{
+		return xValMax;
+	}
+	
+	@Override
+	public double getZValMin()
+	{
+		return zValMin;
+	}
+	
+	@Override
+	public double getZValMax()
+	{
+		return zValMax;
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Names
+	 *****************************************************************************************************/
+	
+	@Override
+	public String[] getAxisNames()
+	{
+		return new String[]
+		{
+			xAxisName, yAxisName, zAxisName
+		};
+	}
+	
+	@Override
 	public String getXAxisName()
 	{
 		return xAxisName;
 	}
 	
+	@Override
 	public String getYAxisName()
 	{
 		return yAxisName;
 	}
 	
+	@Override
 	public String getZAxisName()
 	{
 		return zAxisName;
 	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Limits
+	 *****************************************************************************************************/
+	
+	@Override
+	public int getXMin()
+	{
+		return values.getXMin();
+	}
+	
+	@Override
+	public int getXMax()
+	{
+		return values.getXMax();
+	}
+	
+	@Override
+	public int getYMin()
+	{
+		return values.getYMin();
+	}
+	
+	@Override
+	public int getYMax()
+	{
+		return values.getYMax();
+	}
+	
+	@Override
+	public double getZmin()
+	{
+		return valMin;
+	}
+	
+	@Override
+	public double getZmax()
+	{
+		return valMax;
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Granularity
+	 *****************************************************************************************************/
+	
+	@Override
+	public int getXSteps()
+	{
+		return values.getXSteps();
+	}
+	
+	@Override
+	public int getYSteps()
+	{
+		return values.getYSteps();
+	}
+	
+	@Override
+	public int getNumSamples()
+	{
+		return values.getSamples();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Jzy3d Compatibility
+	 *****************************************************************************************************/
 	
 	private class TickValueMapper implements ITickRenderer
 	{
@@ -325,49 +429,43 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		
 	}
 	
-	public double getZmax()
+	@Override
+	public ITickRenderer getXTickMapper()
 	{
-		return valMax;
+		return xMapper;
 	}
 	
-	public double getZmin()
+	@Override
+	public ITickRenderer getYTickMapper()
 	{
-		return valMin;
+		return yMapper;
 	}
 	
-	public int getXMax()
+	/*
+	 * *****************************************************************************************************
+	 * Processed Data
+	 *****************************************************************************************************/
+	
+	@Override
+	public MapperRemapper getAvg()
 	{
-		return values.getXMax();
+		MapperRemapper stdMap = new MapperRemapper(values, 0);
+		
+		return stdMap;
 	}
 	
-	public int getXMin()
-	{
-		return values.getXMin();
-	}
-	
-	public int getYMax()
-	{
-		return values.getYMax();
-	}
-	
-	public int getYMin()
-	{
-		return values.getYMin();
-	}
-	
-	public int getXSteps()
-	{
-		return values.getXSteps();
-	}
-	
-	public int getYSteps()
-	{
-		return values.getYSteps();
-	}
-	
+	@Override
 	public double[][] getAvgData()
 	{
 		return values.getAvgData();
+	}
+	
+	@Override
+	public MapperRemapper getStdDev()
+	{
+		MapperRemapper stdMap = new MapperRemapper(values, 1);
+		
+		return stdMap;
 	}
 	
 	@Override
@@ -378,50 +476,25 @@ public class XMLBatchLogProcessorMapper implements BatchLogInf
 		return maxMap;
 	}
 	
-	public String[] getAxisNames()
-	{
-		return new String[]
-		{
-			xAxisName, yAxisName, zAxisName
-		};
-	}
-	
-	public double getXValMin()
-	{
-		return xValMin;
-	}
-	
-	public double getXValMax()
-	{
-		return xValMax;
-		
-	}
-	
-	public double getYValMin()
-	{
-		return yValMin;
-	}
-	
-	public double getYValMax()
-	{
-		return xValMax;
-	}
-	
-	@Override
-	public double getZValMin()
-	{
-		return zValMin;
-	}
-	
-	@Override
-	public double getZValMax()
-	{
-		return zValMax;
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Metrics
+	 *****************************************************************************************************/
 	
 	@Override
 	public double getMaxRate()
 	{
 		return values.getMaxRate();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Item methods
+	 *****************************************************************************************************/
+	
+	@Override
+	public void clear()
+	{
+		logFile.clear();
 	}
 }

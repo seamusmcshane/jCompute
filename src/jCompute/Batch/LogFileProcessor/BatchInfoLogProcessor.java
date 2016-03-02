@@ -37,37 +37,29 @@ public class BatchInfoLogProcessor
 	// Parameter List
 	private ArrayList<String> parameters;
 	
-	public BatchInfoLogProcessor(String fileName)
+	public BatchInfoLogProcessor(String fileName) throws IOException
 	{
 		File file = new File(fileName);
 		
 		parameters = new ArrayList<String>();
 		
-		try
+		BufferedReader inputFile = new BufferedReader(new FileReader(file));
+		
+		boolean finished = false;
+		while(!finished)
 		{
-			BufferedReader inputFile = new BufferedReader(new FileReader(file));
-			
-			boolean finished = false;
-			while(!finished)
+			String line = inputFile.readLine();
+			if(line != null)
 			{
-				String line = inputFile.readLine();
-				if(line != null)
-				{
-					parseLine(line);
-				}
-				else
-				{
-					finished = true;
-				}
+				parseLine(line);
 			}
-			
-			inputFile.close();
+			else
+			{
+				finished = true;
+			}
 		}
-		catch(IOException e)
-		{
-			System.out.println("Failed to read : " + fileName);
-			e.printStackTrace();
-		}
+		
+		inputFile.close();
 	}
 	
 	private void parseLine(String line)
@@ -171,7 +163,7 @@ public class BatchInfoLogProcessor
 			{
 				System.out.println("BatchInfo NULL");
 			}
-
+			
 		}
 	}
 	

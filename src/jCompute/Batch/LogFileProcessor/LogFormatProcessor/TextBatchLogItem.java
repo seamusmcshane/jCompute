@@ -1,4 +1,4 @@
-package jCompute.Batch.LogFileProcessor;
+package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
 public class TextBatchLogItem
 {

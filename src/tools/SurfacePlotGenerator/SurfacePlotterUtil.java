@@ -1,9 +1,7 @@
 package tools.SurfacePlotGenerator;
 
-import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
-import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
@@ -39,7 +37,6 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.colors.colormaps.ColorMapRainbowNoBorder;
-import org.jzy3d.colors.colormaps.ColorMapRBG;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
@@ -92,10 +89,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private static String saveCD = "./scenarios";
 	private static String openCD = "./stats";
 	
-	private BatchLogInf mapper;
+	private BatchLogProcessor logProcessor;
 	private JButton btnLines;
-	
-	private int subDiv = 1;
 	
 	private static final float zoomScale = 4f;
 	private static final float shiftSurface = 0.375f;
@@ -316,11 +311,11 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	public void addAvgChart()
 	{
-		Range avgXRange = new Range(mapper.getXMin(), mapper.getXMax());
-		Range avgYRange = new Range(mapper.getYMin(), mapper.getYMax());
+		Range avgXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
+		Range avgYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
 		
-		double zMin = mapper.getZmin();
-		double zMax = mapper.getZmax();
+		double zMin = logProcessor.getZmin();
+		double zMax = logProcessor.getZmax();
 		
 		if(zMaxFixedScale)
 		{
@@ -328,24 +323,24 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			zMax = ilp.getMaxSteps();
 		}
 		
-		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, mapper.getXSteps() * subDiv, avgYRange, mapper.getYSteps() * subDiv), mapper.getAvg());
+		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, logProcessor.getXSteps(), avgYRange, logProcessor.getYSteps()), logProcessor.getAvg());
 		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
 		surfaceAvg.setWireframeColor(Color.BLACK);
 		
 		chartAvg = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
-		chartAvg.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
-		chartAvg.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
-		chartAvg.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
+		chartAvg.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
+		chartAvg.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
+		chartAvg.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
 		chartAvg.getScene().getGraph().add(surfaceAvg);
 		
 		AWTColorbarLegend avgColorBar = new AWTColorbarLegend(surfaceAvg, chartAvg.getView().getAxe().getLayout());
 		surfaceAvg.setLegend(avgColorBar);
 		
 		// Tick mapping
-		chartAvg.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
-		chartAvg.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
+		chartAvg.getAxeLayout().setXTickRenderer(logProcessor.getXTickMapper());
+		chartAvg.getAxeLayout().setYTickRenderer(logProcessor.getYTickMapper());
 		
 		chartAvg.addMouseController();
 		
@@ -433,10 +428,10 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	public void addStdDevChart()
 	{
-		Range stdDevXRange = new Range(mapper.getXMin(), mapper.getXMax());
-		Range stdDevYRange = new Range(mapper.getYMin(), mapper.getYMax());
+		Range stdDevXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
+		Range stdDevYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
 		
-		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, mapper.getXSteps() * subDiv, stdDevYRange, mapper.getYSteps() * subDiv), mapper.getStdDev());
+		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, logProcessor.getXSteps(), stdDevYRange, logProcessor.getYSteps()), logProcessor.getStdDev());
 		
 		double zMin = surfaceStdDev.getBounds().getZmin();
 		double zMax = surfaceStdDev.getBounds().getZmax();
@@ -452,17 +447,17 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		surfaceStdDev.setWireframeColor(Color.BLACK);
 		
 		chartStdDev = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
-		chartStdDev.getAxeLayout().setXAxeLabel(mapper.getXAxisName());
-		chartStdDev.getAxeLayout().setYAxeLabel(mapper.getYAxisName());
-		chartStdDev.getAxeLayout().setZAxeLabel(mapper.getZAxisName());
+		chartStdDev.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
+		chartStdDev.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
+		chartStdDev.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
 		
 		chartStdDev.getScene().getGraph().add(surfaceStdDev);
 		
 		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
 		surfaceStdDev.setLegend(stdDevColorBar);
 		
-		chartStdDev.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
-		chartStdDev.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
+		chartStdDev.getAxeLayout().setXTickRenderer(logProcessor.getXTickMapper());
+		chartStdDev.getAxeLayout().setYTickRenderer(logProcessor.getYTickMapper());
 		
 		chartStdDev.addMouseController();
 		
@@ -498,79 +493,85 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						
 						log("New File Choosen");
 						
-						String file = filechooser.getSelectedFile().getAbsolutePath();
+						String filePath = filechooser.getSelectedFile().getAbsolutePath();
 						
 						openCD = filechooser.getCurrentDirectory().getAbsolutePath();
 						
 						gui.setTitle(filechooser.getSelectedFile().getName());
 						
-						log(file);
+						log(filePath);
 						
 						log("Creating Mapper");
 						
-						String ext = FileUtil.getFileNameExtension(file);
+						String ext = FileUtil.getFileNameExtension(filePath);
 						log("File ext : " + ext);
 						
-						switch(ext)
+						// Info Log
+						batchInfo.clearTable();
+						
+						int maxSteps = 0;
+						
+						try
 						{
-							case "xml":
-								
-								mapper = new XMLBatchLogProcessorMapper(file);
-								
-							break;
+							ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
 							
-							case "log":
-								
-								batchInfo.clearTable();
-								
-								ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
-								
-								ArrayList<String> info = ilp.dump();
-								
-								for(int i = 0; i < info.size(); i += 2)
-								{
-									batchInfo.addRow(new SimpleInfoRowItem(info.get(i), info.get(i + 1)));
-								}
-								
-								zMaxFixedScale = true;
-								
-								mapper = new TextBatchLogProcessorMapper(file, ilp.getMaxSteps());
-								
-							break;
-							default:
-								log("Unsupported LogType " + ext);
-							break;
+							maxSteps = ilp.getMaxSteps();
+							
+							ArrayList<String> info = ilp.dump();
+							
+							for(int i = 0; i < info.size(); i += 2)
+							{
+								batchInfo.addRow(new SimpleInfoRowItem(info.get(i), info.get(i + 1)));
+							}
+							
+							zMaxFixedScale = true;
+							
+						}
+						catch(IOException e)
+						{
+							log("Error Reading Log : " + e.getMessage() + " " + e.getCause());
+							e.printStackTrace();
 						}
 						
-						log("Average Chart");
-						addAvgChart();
-						
-						log("Standard Deviation Chart");
-						addStdDevChart();
-						
-						// chart = new Chart(factory, Quality.Fastest);
-						// MapperContourPictureGenerator avgContour = new
-						// MapperContourPictureGenerator(avgMapper, avgXRange,
-						// avgYRange);
-						// ContourAxeBox avgCab = new
-						// ContourAxeBox(chartAvg.getView().getAxe().getBoxBounds());
-						// avgCab.setContourImg(avgContour.getHeightMap(new
-						// DefaultContourColoringPolicy(new ColorMapper(new
-						// ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(),
-						// surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1,
-						// 0.95f))), (int)avgXRange.getMax(), (int)avgYRange.getMax(),
-						// (int)avgMapper.getValueMax()), avgXRange, avgYRange);
-						// chartAvg.getView().setAxe(avgCab);
-						
-						/*
-						 * GLSLProgram.DEFAULT_STRICTNESS =
-						 * Strictness.CONSOLE_NO_WARN_UNIFORM_NOT_FOUND;
-						 * IChartComponentFactory factory = new
-						 * PeelingComponentFactory(PeelingMethod.DUAL_PEELING_MODE);
-						 * GLProfile profile = GLProfile.getMaxProgrammable(true);
-						 * GLCapabilities capabilities = new GLCapabilities(profile);
-						 * capabilities.setHardwareAccelerated(true);
-						 */
+						try
+						{
+							logProcessor = new BatchLogProcessor(filePath, maxSteps);
+							
+							log("Average Chart");
+							addAvgChart();
+							
+							log("Standard Deviation Chart");
+							addStdDevChart();
+							
+							// chart = new Chart(factory, Quality.Fastest);
+							// MapperContourPictureGenerator avgContour = new
+							// MapperContourPictureGenerator(avgMapper, avgXRange,
+							// avgYRange);
+							// ContourAxeBox avgCab = new
+							// ContourAxeBox(chartAvg.getView().getAxe().getBoxBounds());
+							// avgCab.setContourImg(avgContour.getHeightMap(new
+							// DefaultContourColoringPolicy(new ColorMapper(new
+							// ColorMapRainbow(), surfaceStdDev.getBounds().getZmin(),
+							// surfaceStdDev.getBounds().getZmax(), new Color(1, 1, 1,
+							// 0.95f))), (int)avgXRange.getMax(), (int)avgYRange.getMax(),
+							// (int)avgMapper.getValueMax()), avgXRange, avgYRange);
+							// chartAvg.getView().setAxe(avgCab);
+							
+							/*
+							 * GLSLProgram.DEFAULT_STRICTNESS =
+							 * Strictness.CONSOLE_NO_WARN_UNIFORM_NOT_FOUND;
+							 * IChartComponentFactory factory = new
+							 * PeelingComponentFactory(PeelingMethod.DUAL_PEELING_MODE);
+							 * GLProfile profile = GLProfile.getMaxProgrammable(true);
+							 * GLCapabilities capabilities = new GLCapabilities(profile);
+							 * capabilities.setHardwareAccelerated(true);
+							 */
+						}
+						catch(IOException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						
 						gui.validate();
 						

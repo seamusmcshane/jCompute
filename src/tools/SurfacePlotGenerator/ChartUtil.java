@@ -1,11 +1,9 @@
 package tools.SurfacePlotGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogInf;
-import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
-import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
-import jCompute.util.FileUtil;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.util.JCMath;
+import jCompute.util.Text;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -51,62 +49,69 @@ public class ChartUtil
 	private static boolean scaleSet = false;
 	private static int maxScale = 0;
 	
-	public void ExportSurfacePlot(final int width, final int height, String sourceFile, String exportPath, String fileName)
+	public void ExportSurfacePlot(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
 	{
-		String ext = FileUtil.getFileNameExtension(sourceFile);
-		System.out.println(ext);
-		
-		BatchLogInf mapper = null;
-		
-		switch(ext)
+		BatchInfoLogProcessor ilp = null;
+		try
 		{
-			case "xml":
+			if(!scaleSet)
+			{
+				// Get the info path
+				String infoPath = sourceFilePath.substring(0, sourceFilePath.lastIndexOf(File.separator));
 				
-				mapper = new XMLBatchLogProcessorMapper(sourceFile);
+				System.out.println(infoPath);
 				
-			break;
-			
-			case "log":
+				ilp = new BatchInfoLogProcessor(infoPath + File.separator + "infoLog.log");
 				
-				if(!scaleSet)
-				{
-					String infoPath = sourceFile.substring(0, sourceFile.lastIndexOf(File.separator));
-					
-					System.out.println(infoPath);
-					
-					BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(infoPath + File.separator + "infoLog.log");
-					ilp.dump();
-					
-					maxScale = ilp.getMaxSteps();
-					
-					scaleSet = true;
-				}
+				ilp.dump();
+				
+				maxScale = ilp.getMaxSteps();
+				
+				scaleSet = true;
 				
 				zfixScale = true;
-				
-				mapper = new TextBatchLogProcessorMapper(sourceFile, maxScale);
-				
-			break;
-			default:
-				System.out.println("Unsupported LogType " + ext);
-			break;
+			}
+		}
+		catch(IOException e1)
+		{
+			String st = Text.stackTrackToString(e1.getStackTrace(), false);
+			String message = "Error Reading info log " + "\n" + e1.getMessage() + "\n" + st;
+			System.out.println(message);
 		}
 		
-		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName + "-avg", 0);
-		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName + "-standard-deviation", 1);
-		exportChartImage(mapper, width, height, sourceFile, exportPath, fileName + "-max", 2);
-		
-		mapper.clear();
-		
-		mapper = null;
+		if(ilp != null)
+		{
+			BatchLogProcessor logProcessor;
+			try
+			{
+				logProcessor = new BatchLogProcessor(sourceFilePath, ilp.getMaxSteps());
+				
+				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-avg", 0);
+				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
+				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-max", 2);
+				
+				logProcessor.clear();
+				
+				logProcessor = null;
+				
+			}
+			catch(IOException e1)
+			{
+				String st = Text.stackTrackToString(e1.getStackTrace(), true);
+				
+				String message = "Error Reading Item log " + "\n" + e1.getMessage() + "\n" + st;
+				
+				System.out.println(message);
+			}
+		}
 	}
 	
-	private void exportChartImage(BatchLogInf mapper, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
+	private void exportChartImage(BatchLogProcessor logProcessor, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
 	{
 		int legendWidth = 160;
 		
-		Range xRange = new Range(mapper.getXMin(), mapper.getXMax());
-		Range yRange = new Range(mapper.getYMin(), mapper.getYMax());
+		Range xRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
+		Range yRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
 		
 		Mapper map;
 		Shape surface;
@@ -115,8 +120,8 @@ public class ChartUtil
 		
 		if(mode == 0)
 		{
-			double zMin = mapper.getZmin();
-			double zMax = mapper.getZmax();
+			double zMin = logProcessor.getZmin();
+			double zMax = logProcessor.getZmax();
 			
 			if(zfixScale)
 			{
@@ -124,17 +129,17 @@ public class ChartUtil
 				zMax = maxScale;
 			}
 			
-			map = mapper.getAvg();
+			map = logProcessor.getAvg();
 			
-			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
+			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
 			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		}
 		else if(mode == 1)
 		{
-			map = mapper.getStdDev();
+			map = logProcessor.getStdDev();
 			
-			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
+			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
 			double zMin = surface.getBounds().getZmin();
 			double zMax = surface.getBounds().getZmax();
@@ -149,9 +154,9 @@ public class ChartUtil
 		}
 		else// (mode == 2)
 		{
-			map = mapper.getMax();
+			map = logProcessor.getMax();
 			
-			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, mapper.getXSteps(), yRange, mapper.getYSteps()), map);
+			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
 			double zMin = surface.getBounds().getZmin();
 			double zMax = surface.getBounds().getZmax();
@@ -182,8 +187,8 @@ public class ChartUtil
 		surface.setLegend(stdDevColorBar);
 		
 		// Tick mapping
-		chart.getAxeLayout().setXTickRenderer(mapper.getXTickMapper());
-		chart.getAxeLayout().setYTickRenderer(mapper.getYTickMapper());
+		chart.getAxeLayout().setXTickRenderer(logProcessor.getXTickMapper());
+		chart.getAxeLayout().setYTickRenderer(logProcessor.getYTickMapper());
 		
 		chart.getView().setViewPositionMode(ViewPositionMode.TOP);
 		
@@ -258,29 +263,29 @@ public class ChartUtil
 			g2d.drawRect(10, height / 2 - 50 + coffset, legendWidth, 120);
 			
 			// Legend Data
-			g2d.drawString("X : " + mapper.getXAxisName(), 15, height / 2 - 25 + coffset);
-			g2d.drawString("Y : " + mapper.getYAxisName(), 15, height / 2 + coffset);
+			g2d.drawString("X : " + logProcessor.getXAxisName(), 15, height / 2 - 25 + coffset);
+			g2d.drawString("Y : " + logProcessor.getYAxisName(), 15, height / 2 + coffset);
 			
 			String zAxisLabel;
 			
 			if(mode == 0)
 			{
-				zAxisLabel = "Z : " + mapper.getZAxisName() + " (avg)";
+				zAxisLabel = "Z : " + logProcessor.getZAxisName() + " (avg)";
 			}
 			else if(mode == 1)
 			{
-				zAxisLabel = "Z : " + mapper.getZAxisName() + " (StdDev)";
+				zAxisLabel = "Z : " + logProcessor.getZAxisName() + " (StdDev)";
 			}
 			else
 			{
-				zAxisLabel = "Z : " + mapper.getZAxisName() + " (Max)";
+				zAxisLabel = "Z : " + logProcessor.getZAxisName() + " (Max)";
 			}
 			
 			g2d.drawString(zAxisLabel, 15, height / 2 + 25 + coffset);
 			
 			if(zfixScale)
 			{
-				maxRate = JCMath.round(mapper.getMaxRate(), 8);
+				maxRate = JCMath.round(logProcessor.getMaxRate(), 8);
 				
 				System.out.println("Max Rate : " + maxRate);
 				

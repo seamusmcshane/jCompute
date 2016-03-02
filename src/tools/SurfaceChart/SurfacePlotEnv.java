@@ -1,7 +1,7 @@
 package tools.SurfaceChart;
 
 import tools.SurfaceChart.Surface.BarSurface;
-import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.Gui.View.Input.OrbitalCameraInputController;
 import jCompute.Gui.View.Misc.Palette;
 
@@ -89,7 +89,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		 * cam.far = 102420f;
 		 */
 		
-		palette = Palette.SpectrumPalette(true, 100,1f);
+		palette = Palette.SpectrumPalette(true, 100, 1f);
 		
 		// Surface
 		barSurface = new BarSurface(cam, palette);
@@ -110,31 +110,31 @@ public class SurfacePlotEnv implements ApplicationListener
 		Gdx.input.setInputProcessor(camController);
 	}
 	
-	public void setData(BatchLogInf mapper)
+	public void setData(BatchLogProcessor logProcessor)
 	{
-		int xSteps = mapper.getXSteps();
-		float xMin = (float) mapper.getXValMin();
-		float xMax = (float) mapper.getXValMax();
+		int xSteps = logProcessor.getXSteps();
+		float xMin = (float) logProcessor.getXValMin();
+		float xMax = (float) logProcessor.getXValMax();
 		
-		int ySteps = mapper.getYSteps();
-		float yMin = (float) mapper.getYValMin();
-		float yMax = (float) mapper.getYValMax();
+		int ySteps = logProcessor.getYSteps();
+		float yMin = (float) logProcessor.getYValMin();
+		float yMax = (float) logProcessor.getYValMax();
 		
-		float zMin = (float) mapper.getZValMin();
-		float zMax = (float) mapper.getZValMax();
+		float zMin = (float) logProcessor.getZValMin();
+		float zMax = (float) logProcessor.getZValMax();
 		
 		colorMap = new ColorMap(zMin, zMax, palette);
 		
 		tr = colorMap.getTextureRegion();
 		
-		double[][] data = mapper.getAvgData();
-		String[] names = mapper.getAxisNames();
+		double[][] data = logProcessor.getAvgData();
+		String[] names = logProcessor.getAxisNames();
 		
 		System.out.println("xRange " + xMin + " " + xMax);
 		System.out.println("yRange " + yMin + " " + yMax);
 		System.out.println("zRange " + zMin + " " + zMax);
 		
-		barSurface.setData(xSteps,xMin, xMax, ySteps,yMin, yMax, zMin, zMax, data, names);
+		barSurface.setData(xSteps, xMin, xMax, ySteps, yMin, yMax, zMin, zMax, data, names);
 	}
 	
 	@Override
@@ -214,18 +214,18 @@ public class SurfacePlotEnv implements ApplicationListener
 	@Override
 	public void resize(int width, int height)
 	{
-		
+	
 	}
 	
 	@Override
 	public void pause()
 	{
-		
+	
 	}
 	
 	@Override
 	public void resume()
 	{
-		
+	
 	}
 }

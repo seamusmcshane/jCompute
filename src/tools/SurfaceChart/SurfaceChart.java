@@ -1,11 +1,10 @@
 package tools.SurfaceChart;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogInf;
-import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
-import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
+import jCompute.util.Text;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -30,6 +29,7 @@ import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 
 public class SurfaceChart implements WindowListener, ActionListener
 {
@@ -203,36 +203,43 @@ public class SurfaceChart implements WindowListener, ActionListener
 				System.out.println(file);
 				
 				System.out.println("Creating Mapper");
-				BatchLogInf mapper = null;
-				
 				String ext = FileUtil.getFileNameExtension(file);
 				System.out.println(ext);
 				
-				switch(ext)
+				BatchInfoLogProcessor ilp = null;
+				try
 				{
-					case "xml":
-						
-						mapper = new XMLBatchLogProcessorMapper(file);
-						
-					break;
+					ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+				}
+				catch(IOException e1)
+				{
+					String st = Text.stackTrackToString(e1.getStackTrace(), true);
+					String message = "Error Reading info log " + "<br>" + e1.getMessage() + "<br>" + st;
 					
-					case "log":
-						
-						BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
-						
-						mapper = new TextBatchLogProcessorMapper(file, ilp.getMaxSteps());
-						
-					break;
-					default:
-						System.out.println("Unsupported LogType " + ext);
-					break;
+					JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
 				}
 				
-				glEnv.setData(mapper);
-				
-				gui.validate();
-				
+				if(ilp != null)
+				{
+					BatchLogProcessor logProcessor;
+					try
+					{
+						logProcessor = new BatchLogProcessor(file, ilp.getMaxSteps());
+						
+						glEnv.setData(logProcessor);
+					}
+					catch(IOException e1)
+					{
+						String st = Text.stackTrackToString(e1.getStackTrace(), true);
+						
+						String message = "Error Reading Item log " + "<br>" + e1.getMessage() + "<br>" + st;
+						
+						JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
+					}
+				}
 			}
+			
+			gui.validate();
 		}
 	}
 }

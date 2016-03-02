@@ -1,11 +1,9 @@
 package tools.SurfacePlotGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogInf;
-import jCompute.Batch.LogFileProcessor.TextBatchLogProcessorMapper;
-import jCompute.Batch.LogFileProcessor.XMLBatchLogProcessorMapper;
-import jCompute.util.FileUtil;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.util.LookAndFeel;
+import jCompute.util.Text;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -140,44 +138,47 @@ public class HeatMapUtil implements WindowListener
 	{
 		System.out.println("Path : " + fullPath);
 		
-		// Level 0
-		System.out.println("Document Name will be : " + documentName);
-		
-		BatchLogInf batchLog = null;
-		
-		String ext = FileUtil.getFileNameExtension(documentName);
-		System.out.println("File ext : " + ext);
-		
-		switch(ext)
+		BatchInfoLogProcessor ilp = null;
+		try
 		{
-			case "xml":
-				
-				batchLog = new XMLBatchLogProcessorMapper(fullPath);
-				
-			break;
+			ilp = new BatchInfoLogProcessor(currentDirectory + File.separator + "infoLog.log");
+		}
+		catch(IOException e1)
+		{
+			String st = Text.stackTrackToString(e1.getStackTrace(), true);
+			String message = "Error Reading info log " + "<br>" + e1.getMessage() + "<br>" + st;
 			
-			case "log":
-				
-				BatchInfoLogProcessor ilp = new BatchInfoLogProcessor(currentDirectory + File.separator + "infoLog.log");
-				
-				batchLog = new TextBatchLogProcessorMapper(fullPath, ilp.getMaxSteps());
-				
-			break;
-			default:
-				System.out.println("Unsupported LogType " + ext);
-			break;
+			JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
 		}
 		
-		openCD = fullPath;
-		
-		hm.setLog(batchLog);
-		
-		gui.setTitle(fullPath);
+		if(ilp != null)
+		{
+			BatchLogProcessor logProcessor;
+			try
+			{
+				logProcessor = new BatchLogProcessor(fullPath, ilp.getMaxSteps());
+				
+				openCD = fullPath;
+				
+				hm.setLog(logProcessor);
+				
+				gui.setTitle(fullPath);
+				
+				System.out.println("Report Finished");
+			}
+			catch(IOException e1)
+			{
+				String st = Text.stackTrackToString(e1.getStackTrace(), true);
+				
+				String message = "Error Reading Item log " + "<br>" + e1.getMessage() + "<br>" + st;
+				
+				JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
+			}
+		}
 		
 		gui.pack();
 		gui.repaint();
 		
-		System.out.println("Report Finished");
 	}
 	
 	public static void main(String args[])

@@ -1,6 +1,5 @@
-package jCompute.Batch.LogFileProcessor;
+package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,18 +9,18 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
 import jCompute.Datastruct.knn.benchmark.TimerObj;
 
-import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
-
-public class TextBatchLogProcessorMapperV2 implements BatchLogInf
+public class TextBatchLogProcessorV2 implements BatchLogInf
 {
-	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessorMapper.class);
+	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessor.class);
 	
 	public static final int HEADER_LINE_OPTS = 4;
 	public static final int MAX_LINE_OPTS = 7;
@@ -29,8 +28,6 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 	public static final char OPTION_DELIMITER = ',';
 	public static final char SUBOPTION_DELIMITER = ';';
 	public static final char FIELD_DELIMITER = '=';
-	
-	private File file;
 	
 	private String logName = "";
 	private String logType = "";
@@ -55,41 +52,33 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 	private double zValMin = Double.MAX_VALUE;
 	private double zValMax = Double.MIN_VALUE;
 	
-	public TextBatchLogProcessorMapperV2(String filePath, int maxVal)
+	public TextBatchLogProcessorV2(String filePath, int maxVal) throws IOException
 	{
 		Path path = Paths.get(filePath);
 		
 		TimerObj to = new TimerObj();
 		
-		try
+		logItems = new ArrayList<TextBatchLogItem>();
+		
+		Stream<String> headerLines = Files.lines(path);
+		Optional<String> oHeader = headerLines.findFirst();
+		String header = oHeader.get();
+		readHeaderLine(header);
+		headerLines.close();
+		
+		Stream<String> itemLines = Files.readAllLines(path).parallelStream().skip(1L).parallel();
+		
+		to.startTimer();
+		
+		itemLines.forEach(s ->
 		{
-			logItems = new ArrayList<TextBatchLogItem>();
-			
-			Stream<String> headerLines = Files.lines(path);
-			Optional<String> oHeader = headerLines.findFirst();
-			String header = oHeader.get();
-			readHeaderLine(header);
-			headerLines.close();
-			
-			Stream<String> itemLines = Files.readAllLines(path).parallelStream().skip(1L).parallel();
-			
-			to.startTimer();
-			
-			itemLines.forEach(s ->
-			{
-				readItemLine(s);
-				// System.out.println(s);
-			});
-			
-			to.stopTimer();
-			
-			itemLines.close();
-		}
-		catch(IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			readItemLine(s);
+			// System.out.println(s);
+		});
+		
+		to.stopTimer();
+		
+		itemLines.close();
 		
 		HashMap<Integer, Integer> xUnique = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> yUnique = new HashMap<Integer, Integer>();
@@ -255,101 +244,14 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		yMapper = new TickValueMapper(values.getYMax(), yValMax);
 	}
 	
-	public double getXValMin()
-	{
-		return xValMin;
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Format Processing Methods
+	 *****************************************************************************************************/
 	
-	public double getXValMax()
-	{
-		return xValMax;
-		
-	}
-	
-	public double getYValMin()
-	{
-		return yValMin;
-	}
-	
-	public double getYValMax()
-	{
-		return yValMax;
-	}
-	
-	private void readItemLine(String itemLine)
-	{
-		TextBatchLogItem item = new TextBatchLogItem();
-		
-		String[] options = lineToOptions(itemLine, 0, MAX_LINE_OPTS, OPTION_DELIMITER);
-		
-		for(int i = 0; i < options.length; i++)
-		{
-			String[] kvp = getOptionKVPair(options[i]);
-			
-			String field = kvp[0];
-			String value = kvp[1];
-			
-			switch(field)
-			{
-				case "IID":
-					item.setItemId(Integer.parseInt(value));
-				break;
-				case "SID":
-					item.setSampleId(Integer.parseInt(value));
-				break;
-				case "Coordinates":
-				{
-					System.out.println("VaLS " + value);
-					
-					// num=int;
-					int nS = value.indexOf(FIELD_DELIMITER) + 1;
-					int nE = value.indexOf(SUBOPTION_DELIMITER);
-					String sNum = value.substring(nS, nE);
-					int num = Integer.parseInt(sNum);
-					System.out.println("Num " + num);
-					
-					System.out.println("TEST");
-					
-					String[] coordOptions = lineToOptions(value, nE + 1, num * 2, SUBOPTION_DELIMITER);
-					
-					int[] pos = new int[num];
-					double[] vals = new double[num];
-					
-					// Pos + Vals
-					for(int c = 0; c < coordOptions.length; c += 2)
-					{
-						String[] cPkvp = getOptionKVPair(coordOptions[c]);
-						String[] cVkvp = getOptionKVPair(coordOptions[c + 1]);
-						pos[c / 2] = Integer.parseInt(cPkvp[1]);
-						vals[(c + 1) / 2] = Double.valueOf(cVkvp[1]);
-					}
-					
-					item.setCoordsPos(pos);
-					item.setCoordsVals(vals);
-				}
-				break;
-				case "Hash":
-					item.setHash(value);
-				break;
-				case "RunTime":
-					item.setRunTime(Integer.parseInt(value));
-				break;
-				case "EndEvent":
-					item.setEndEvent(value);
-				break;
-				case "StepCount":
-					item.setStepCount(Integer.parseInt(value));
-				break;
-			}
-			
-		}
-		
-		synchronized(logItems)
-		{
-			logItems.add(item);
-		}
-	}
-	
+	/*
+	 * Process the log header
+	 */
 	private void readHeaderLine(String header)
 	{
 		String[] options = lineToOptions(header, 0, HEADER_LINE_OPTS, OPTION_DELIMITER);
@@ -427,19 +329,86 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		}
 	}
 	
-	private String[] getOptionKVPair(String option)
+	/*
+	 * Reads an item line and adds it to the log items list.
+	 */
+	private void readItemLine(String itemLine)
 	{
-		int fS = 0;
-		int fE = option.indexOf(FIELD_DELIMITER);
+		TextBatchLogItem item = new TextBatchLogItem();
 		
-		String[] kvp = new String[2];
+		String[] options = lineToOptions(itemLine, 0, MAX_LINE_OPTS, OPTION_DELIMITER);
 		
-		kvp[0] = option.substring(fS, fE);
-		kvp[1] = option.substring(fE + 1, option.length());
+		for(int i = 0; i < options.length; i++)
+		{
+			String[] kvp = getOptionKVPair(options[i]);
+			
+			String field = kvp[0];
+			String value = kvp[1];
+			
+			switch(field)
+			{
+				case "IID":
+					item.setItemId(Integer.parseInt(value));
+				break;
+				case "SID":
+					item.setSampleId(Integer.parseInt(value));
+				break;
+				case "Coordinates":
+				{
+					System.out.println("VaLS " + value);
+					
+					// num=int;
+					int nS = value.indexOf(FIELD_DELIMITER) + 1;
+					int nE = value.indexOf(SUBOPTION_DELIMITER);
+					String sNum = value.substring(nS, nE);
+					int num = Integer.parseInt(sNum);
+					System.out.println("Num " + num);
+					
+					System.out.println("TEST");
+					
+					String[] coordOptions = lineToOptions(value, nE + 1, num * 2, SUBOPTION_DELIMITER);
+					
+					int[] pos = new int[num];
+					double[] vals = new double[num];
+					
+					// Pos + Vals
+					for(int c = 0; c < coordOptions.length; c += 2)
+					{
+						String[] cPkvp = getOptionKVPair(coordOptions[c]);
+						String[] cVkvp = getOptionKVPair(coordOptions[c + 1]);
+						pos[c / 2] = Integer.parseInt(cPkvp[1]);
+						vals[(c + 1) / 2] = Double.valueOf(cVkvp[1]);
+					}
+					
+					item.setCoordsPos(pos);
+					item.setCoordsVals(vals);
+				}
+				break;
+				case "Hash":
+					item.setHash(value);
+				break;
+				case "RunTime":
+					item.setRunTime(Integer.parseInt(value));
+				break;
+				case "EndEvent":
+					item.setEndEvent(value);
+				break;
+				case "StepCount":
+					item.setStepCount(Integer.parseInt(value));
+				break;
+			}
+			
+		}
 		
-		return kvp;
+		synchronized(logItems)
+		{
+			logItems.add(item);
+		}
 	}
 	
+	/*
+	 * Split a line into an array of options
+	 */
 	private String[] lineToOptions(String line, int start, int maxOptions, char delimiter)
 	{
 		String[] options = new String[maxOptions];
@@ -462,6 +431,165 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		return options;
 	}
 	
+	/*
+	 * Split an option (Field=Value) into a key value pair;
+	 */
+	private String[] getOptionKVPair(String option)
+	{
+		int fS = 0;
+		int fE = option.indexOf(FIELD_DELIMITER);
+		
+		String[] kvp = new String[2];
+		
+		kvp[0] = option.substring(fS, fE);
+		kvp[1] = option.substring(fE + 1, option.length());
+		
+		return kvp;
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Ranges
+	 *****************************************************************************************************/
+	
+	@Override
+	public double getXValMin()
+	{
+		return xValMin;
+	}
+	
+	@Override
+	public double getXValMax()
+	{
+		return xValMax;
+		
+	}
+	
+	@Override
+	public double getYValMin()
+	{
+		return yValMin;
+	}
+	
+	@Override
+	public double getYValMax()
+	{
+		return yValMax;
+	}
+	
+	@Override
+	public double getZValMin()
+	{
+		return zValMin;
+	}
+	
+	@Override
+	public double getZValMax()
+	{
+		return zValMax;
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Names
+	 *****************************************************************************************************/
+	
+	@Override
+	public String[] getAxisNames()
+	{
+		return new String[]
+		{
+			xAxisName, yAxisName, zAxisName
+		};
+	}
+	
+	@Override
+	public String getXAxisName()
+	{
+		return xAxisName;
+	}
+	
+	@Override
+	public String getYAxisName()
+	{
+		return yAxisName;
+	}
+	
+	@Override
+	public String getZAxisName()
+	{
+		return zAxisName;
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Limits
+	 *****************************************************************************************************/
+	
+	@Override
+	public int getXMax()
+	{
+		return values.getXMax();
+	}
+	
+	@Override
+	public int getXMin()
+	{
+		return values.getXMin();
+	}
+	
+	@Override
+	public int getYMin()
+	{
+		return values.getYMin();
+	}
+	
+	@Override
+	public int getYMax()
+	{
+		return values.getYMax();
+	}
+	
+	@Override
+	public double getZmax()
+	{
+		return values.getZMax();
+	}
+	
+	@Override
+	public double getZmin()
+	{
+		return values.getZMin();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Granularity
+	 *****************************************************************************************************/
+	
+	@Override
+	public int getXSteps()
+	{
+		return values.getXSteps();
+	}
+	
+	@Override
+	public int getYSteps()
+	{
+		return values.getYSteps();
+	}
+	
+	@Override
+	public int getNumSamples()
+	{
+		return values.getSamples();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Jzy3d Compatibility
+	 *****************************************************************************************************/
+	
 	private class TickValueMapper implements ITickRenderer
 	{
 		double multi = 0;
@@ -470,7 +598,7 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		{
 			super();
 			
-			multi = valueMax / (double) coordMax;
+			multi = valueMax / coordMax;
 		}
 		
 		@Override
@@ -489,84 +617,24 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		}
 	}
 	
-	public String[] getAxisNames()
-	{
-		return new String[]
-		{
-			xAxisName, yAxisName, zAxisName
-		};
-	}
-	
-	public String getXAxisName()
-	{
-		return xAxisName;
-	}
-	
-	public String getYAxisName()
-	{
-		return yAxisName;
-	}
-	
-	public String getZAxisName()
-	{
-		return zAxisName;
-	}
-	
-	public double getZmax()
-	{
-		return values.getZMax();
-	}
-	
-	public double getZmin()
-	{
-		return values.getZMin();
-	}
-	
-	public int getXMax()
-	{
-		return values.getXMax();
-	}
-	
-	public int getXMin()
-	{
-		return values.getXMin();
-	}
-	
-	public int getYMax()
-	{
-		return values.getYMax();
-	}
-	
-	public int getYMin()
-	{
-		return values.getYMin();
-	}
-	
-	public int getXSteps()
-	{
-		return values.getXSteps();
-	}
-	
-	public int getYSteps()
-	{
-		return values.getYSteps();
-	}
-	
-	public int getSamples()
-	{
-		return values.getSamples();
-	}
-	
+	@Override
 	public ITickRenderer getXTickMapper()
 	{
 		return xMapper;
 	}
 	
+	@Override
 	public ITickRenderer getYTickMapper()
 	{
 		return yMapper;
 	}
 	
+	/*
+	 * *****************************************************************************************************
+	 * Processed Data
+	 *****************************************************************************************************/
+	
+	@Override
 	public MapperRemapper getAvg()
 	{
 		MapperRemapper avgMap = new MapperRemapper(values, 0);
@@ -574,11 +642,13 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		return avgMap;
 	}
 	
+	@Override
 	public double[][] getAvgData()
 	{
 		return values.getAvgData();
 	}
 	
+	@Override
 	public MapperRemapper getStdDev()
 	{
 		MapperRemapper stdMap = new MapperRemapper(values, 1);
@@ -594,27 +664,25 @@ public class TextBatchLogProcessorMapperV2 implements BatchLogInf
 		return maxMap;
 	}
 	
-	@Override
-	public double getZValMin()
-	{
-		return zValMin;
-	}
-	
-	@Override
-	public double getZValMax()
-	{
-		return zValMax;
-	}
-	
-	@Override
-	public void clear()
-	{
-		logItems.clear();
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Metrics
+	 *****************************************************************************************************/
 	
 	@Override
 	public double getMaxRate()
 	{
 		return values.getMaxRate();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Item methods
+	 *****************************************************************************************************/
+	
+	@Override
+	public void clear()
+	{
+		logItems.clear();
 	}
 }

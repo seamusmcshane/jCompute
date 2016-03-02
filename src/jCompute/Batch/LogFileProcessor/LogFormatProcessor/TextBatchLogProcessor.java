@@ -1,9 +1,4 @@
-package jCompute.Batch.LogFileProcessor;
-
-import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
-import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
-import jCompute.Datastruct.knn.benchmark.TimerObj;
-import jCompute.util.Text;
+package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,9 +11,15 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TextBatchLogProcessorMapper implements BatchLogInf
+import jCompute.Batch.LogFileProcessor.BatchLogInf;
+import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
+import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
+import jCompute.Datastruct.knn.benchmark.TimerObj;
+import jCompute.util.Text;
+
+public class TextBatchLogProcessor implements BatchLogInf
 {
-	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessorMapper.class);
+	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessor.class);
 	
 	private File file;
 	
@@ -45,7 +46,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 	private double zValMin = Double.MAX_VALUE;
 	private double zValMax = Double.MIN_VALUE;
 	
-	public TextBatchLogProcessorMapper(String fileName, int maxVal)
+	public TextBatchLogProcessor(String fileName, int maxVal)
 	{
 		logItems = new ArrayList<TextBatchLogItem>();
 		
@@ -54,7 +55,7 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		try
 		{
 			TimerObj to = new TimerObj();
-
+			
 			BufferedReader inputFile = new BufferedReader(new FileReader(file));
 			
 			boolean readingItems = false;
@@ -278,53 +279,10 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		yMapper = new TickValueMapper(values.getYMax(), yValMax);
 	}
 	
-	public double getXValMin()
-	{
-		return xValMin;
-	}
-	
-	public double getXValMax()
-	{
-		return xValMax;
-		
-	}
-	
-	public double getYValMin()
-	{
-		return yValMin;
-	}
-	
-	public double getYValMax()
-	{
-		return yValMax;
-	}
-	
-	private class TickValueMapper implements ITickRenderer
-	{
-		double multi = 0;
-		
-		public TickValueMapper(int coordMax, double valueMax)
-		{
-			super();
-			
-			multi = valueMax / (double) coordMax;
-		}
-		
-		@Override
-		public String format(double pos)
-		{
-			double val = (multi * pos);
-			
-			if(val % 1.0 == 0)
-			{
-				return String.valueOf((int) (val));
-			}
-			else
-			{
-				return String.format("%.3g%n", val);
-			}
-		}
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Format Processing Methods
+	 *****************************************************************************************************/
 	
 	private void readItems(BufferedReader inputFile) throws IOException
 	{
@@ -527,6 +485,54 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		zAxisName = "StepCount";
 	}
 	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Ranges
+	 *****************************************************************************************************/
+	
+	@Override
+	public double getXValMin()
+	{
+		return xValMin;
+	}
+	
+	@Override
+	public double getXValMax()
+	{
+		return xValMax;
+		
+	}
+	
+	@Override
+	public double getYValMin()
+	{
+		return yValMin;
+	}
+	
+	@Override
+	public double getYValMax()
+	{
+		return yValMax;
+	}
+	
+	@Override
+	public double getZValMin()
+	{
+		return zValMin;
+	}
+	
+	@Override
+	public double getZValMax()
+	{
+		return zValMax;
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Names
+	 *****************************************************************************************************/
+	
+	@Override
 	public String[] getAxisNames()
 	{
 		return new String[]
@@ -535,76 +541,138 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		};
 	}
 	
+	@Override
 	public String getXAxisName()
 	{
 		return xAxisName;
 	}
 	
+	@Override
 	public String getYAxisName()
 	{
 		return yAxisName;
 	}
 	
+	@Override
 	public String getZAxisName()
 	{
 		return zAxisName;
 	}
 	
-	public double getZmax()
-	{
-		return values.getZMax();
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Axis Limits
+	 *****************************************************************************************************/
 	
-	public double getZmin()
-	{
-		return values.getZMin();
-	}
-	
+	@Override
 	public int getXMax()
 	{
 		return values.getXMax();
 	}
 	
+	@Override
 	public int getXMin()
 	{
 		return values.getXMin();
 	}
 	
+	@Override
 	public int getYMax()
 	{
 		return values.getYMax();
 	}
 	
+	@Override
 	public int getYMin()
 	{
 		return values.getYMin();
 	}
 	
+	@Override
+	public double getZmin()
+	{
+		return values.getZMin();
+	}
+	
+	@Override
+	public double getZmax()
+	{
+		return values.getZMax();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Axis Granularity
+	 *****************************************************************************************************/
+	
+	@Override
 	public int getXSteps()
 	{
 		return values.getXSteps();
 	}
 	
+	@Override
 	public int getYSteps()
 	{
 		return values.getYSteps();
 	}
 	
-	public int getSamples()
+	@Override
+	public int getNumSamples()
 	{
 		return values.getSamples();
 	}
 	
+	/*
+	 * *****************************************************************************************************
+	 * Jzy3d Compatibility
+	 *****************************************************************************************************/
+	
+	private class TickValueMapper implements ITickRenderer
+	{
+		double multi = 0;
+		
+		public TickValueMapper(int coordMax, double valueMax)
+		{
+			super();
+			
+			multi = valueMax / coordMax;
+		}
+		
+		@Override
+		public String format(double pos)
+		{
+			double val = (multi * pos);
+			
+			if(val % 1.0 == 0)
+			{
+				return String.valueOf((int) (val));
+			}
+			else
+			{
+				return String.format("%.3g%n", val);
+			}
+		}
+	}
+	
+	@Override
 	public ITickRenderer getXTickMapper()
 	{
 		return xMapper;
 	}
 	
+	@Override
 	public ITickRenderer getYTickMapper()
 	{
 		return yMapper;
 	}
 	
+	/*
+	 * *****************************************************************************************************
+	 * Processed Data
+	 *****************************************************************************************************/
+	
+	@Override
 	public MapperRemapper getAvg()
 	{
 		MapperRemapper avgMap = new MapperRemapper(values, 0);
@@ -612,11 +680,13 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		return avgMap;
 	}
 	
+	@Override
 	public double[][] getAvgData()
 	{
 		return values.getAvgData();
 	}
 	
+	@Override
 	public MapperRemapper getStdDev()
 	{
 		MapperRemapper stdMap = new MapperRemapper(values, 1);
@@ -632,27 +702,25 @@ public class TextBatchLogProcessorMapper implements BatchLogInf
 		return maxMap;
 	}
 	
-	@Override
-	public double getZValMin()
-	{
-		return zValMin;
-	}
-	
-	@Override
-	public double getZValMax()
-	{
-		return zValMax;
-	}
-	
-	@Override
-	public void clear()
-	{
-		logItems.clear();
-	}
+	/*
+	 * *****************************************************************************************************
+	 * Metrics
+	 *****************************************************************************************************/
 	
 	@Override
 	public double getMaxRate()
 	{
 		return values.getMaxRate();
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Item methods
+	 *****************************************************************************************************/
+	
+	@Override
+	public void clear()
+	{
+		logItems.clear();
 	}
 }
