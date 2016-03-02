@@ -196,7 +196,7 @@ public class MapperValuesContainer
 			}
 		}
 		
-		log.error("NO Space for X : " + x + " Y : " + y + " V : " + value);
+		log.error("MapperValuesContainer NO Space for X : " + x + " Y : " + y + " V : " + value);
 		
 		return false;
 	}
