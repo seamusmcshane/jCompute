@@ -549,7 +549,7 @@ public class Palette
 		{
 			// Adjust vals
 			hval = ((float) i * hStep) + hBase;
-			iVal = ((float) i+1 * lStep); // +1
+			iVal = ((float) i * lStep)+1; // +1
 			
 			float[] lab = CIERGB.labCHtoLAB(iVal, lUpper - iVal, hval);
 			
