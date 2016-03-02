@@ -76,6 +76,12 @@ public class CIERGB
 	 */
 	public static float[] XYZtoRGB(float[] xyz)
 	{
+		// No luminosity
+		if(xyz[1]<=0)
+		{
+			xyz[0]=xyz[1]=xyz[2]=0;
+		}
+		
 		float r = 3.2406255f * xyz[0] + (-1.537208f) * xyz[1] + (-0.4986286f) * xyz[2];
 		float g = (-0.9689307f) * xyz[0] + 1.8757561f * xyz[1] + 0.0415175f * xyz[2];
 		float b = 0.0557101f * xyz[0] + (-0.2040211f) * xyz[1] + 1.0569959f * xyz[2];
