@@ -80,6 +80,14 @@ public class MapperRemapper extends Mapper
 				
 				break;
 			}
+			case 2:
+			{
+				value = values.getMax((int) x, (int) y);
+				
+				max = values.getZMax();
+				
+				break;
+			}
 		}
 		
 		double one = ((double) PALETTE_SIZE - 1) / max;
