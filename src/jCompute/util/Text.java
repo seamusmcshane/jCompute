@@ -102,7 +102,7 @@ public class Text
 		return text;
 	}
 	
-	public static String stackTrackToString(StackTraceElement[] elements, boolean html)
+	public static String stackTraceToString(StackTraceElement[] elements, boolean html)
 	{
 		String lineEnd;
 		
