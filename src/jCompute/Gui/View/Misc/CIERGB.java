@@ -77,9 +77,9 @@ public class CIERGB
 	public static float[] XYZtoRGB(float[] xyz)
 	{
 		// No luminosity
-		if(xyz[1]<=0)
+		if(xyz[1] <= 0)
 		{
-			xyz[0]=xyz[1]=xyz[2]=0;
+			xyz[0] = xyz[1] = xyz[2] = 0;
 		}
 		
 		float r = 3.2406255f * xyz[0] + (-1.537208f) * xyz[1] + (-0.4986286f) * xyz[2];
@@ -183,9 +183,9 @@ public class CIERGB
 	
 	public static double addSRGB(double val)
 	{
-		if(val <= 0.0031308f)
+		if(val <= 0.0031308)
 		{
-			val = val * 12.92f;
+			val = val * 12.92;
 		}
 		else
 		{
@@ -200,7 +200,7 @@ public class CIERGB
 		
 		if(val <= 0.04045)
 		{
-			val = val / 12.92f;
+			val = val / 12.92;
 		}
 		else
 		{
@@ -321,7 +321,7 @@ public class CIERGB
 			l, (float) (Math.cos(Math.toRadians(h)) * c), (float) (Math.sin(Math.toRadians(h)) * c)
 		};
 	}
-
+	
 	public static float[] labCHtoLAB(float[] lch)
 	{
 		return new float[]
@@ -329,7 +329,7 @@ public class CIERGB
 			lch[0], (float) (Math.cos(Math.toRadians(lch[2])) * lch[1]), (float) (Math.sin(Math.toRadians(lch[2])) * lch[1])
 		};
 	}
-
+	
 	static float[] labtoLabCH(float l, float a, float b)
 	{
 		float[] lch = new float[3];

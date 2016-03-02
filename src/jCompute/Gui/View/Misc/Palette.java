@@ -419,30 +419,14 @@ public class Palette
 			int green = (palette[i] >> 8) & 0xFF;
 			int blue = (palette[i] & 0xFF);
 			
-			red = toSRGB(red);
-			green = toSRGB(green);
-			blue = toSRGB(blue);
+			red = (int) (CIERGB.addSRGB((double) red / 255.0) * 255.0);
+			green = (int) (CIERGB.addSRGB((double) green / 255.0) * 255.0);
+			blue = (int) (CIERGB.addSRGB((double) blue / 255.0) * 255.0);
 			
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
 		}
 		
 		return palette;
-	}
-	
-	private static int toSRGB(int cval)
-	{
-		float fval = cval / 255f;
-		
-		if(fval <= 0.0031308f)
-		{
-			fval = fval * 12.92f;
-		}
-		else
-		{
-			fval = (float) (Math.pow(1.055f * fval, 1f / 2.4f) - 0.055f);
-		}
-		
-		return (int) (fval * 255f);
 	}
 	
 	private static int[] applyGamma(int[] palette, int paletteSize, float gamma)
@@ -549,15 +533,15 @@ public class Palette
 		{
 			// Adjust vals
 			hval = ((float) i * hStep) + hBase;
-			iVal = ((float) i * lStep)+1; // +1
+			iVal = ((float) i * lStep) + 1; // +1
 			
 			float[] lab = CIERGB.labCHtoLAB(iVal, lUpper - iVal, hval);
 			
-			//System.out.println("hval : " + hval);
-			//System.out.println("iVal : " + iVal);
-			//System.out.println("L : " + lab[0]);
-			//System.out.println("C : " + lab[1]);
-			//System.out.println("H : " + lab[2]);
+			// System.out.println("hval : " + hval);
+			// System.out.println("iVal : " + iVal);
+			// System.out.println("L : " + lab[0]);
+			// System.out.println("C : " + lab[1]);
+			// System.out.println("H : " + lab[2]);
 			
 			float[] rgb = CIERGB.XYZtoRGB(CIERGB.lab1976ToXYZ(lab));
 			
