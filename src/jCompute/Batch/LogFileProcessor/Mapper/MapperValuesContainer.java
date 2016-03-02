@@ -55,11 +55,11 @@ public class MapperValuesContainer
 	
 	public void compute(int maxVal)
 	{
-		System.out.println("Averages");
+		log.info("Averages");
 		
-		System.out.println("X Steps : " + xSteps);
-		System.out.println("Y Steps : " + ySteps);
-		System.out.println("Samples : " + samples);
+		log.info("X Steps : " + xSteps);
+		log.info("Y Steps : " + ySteps);
+		log.info("Samples : " + samples);
 		
 		avg = new double[xSteps * ySteps];
 		
@@ -81,7 +81,7 @@ public class MapperValuesContainer
 			
 		}));
 		
-		System.out.println("Standard Deviations");
+		log.info("Standard Deviations");
 		stdDev = new double[xSteps * ySteps];
 		
 		IntStream.range(0, ySteps).parallel().forEach(y -> IntStream.range(0, xSteps).parallel().forEach(x ->
@@ -117,7 +117,7 @@ public class MapperValuesContainer
 			}
 		});
 		
-		System.out.println("Max Total");
+		log.info("Max Total");
 		int avgMaxTotal = 0;
 		for(int y = 0; y < ySteps; y++)
 		{
@@ -126,7 +126,7 @@ public class MapperValuesContainer
 		
 		maxRate = (double) ((double) avgMaxTotal / (double) maxTotal);
 		
-		System.out.println("Max Rate : " + maxRate);
+		log.info("Max Rate : " + maxRate);
 		
 		sampleValues = null;
 	}

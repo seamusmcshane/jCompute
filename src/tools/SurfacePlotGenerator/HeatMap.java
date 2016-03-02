@@ -92,7 +92,7 @@ public class HeatMap extends JPanel
 		
 		// Base Ratio
 		double ratio = (double) heatMapWidth / (double) heatMapHeight;
-		System.out.println("ratio " + ratio);
+		//System.out.println("ratio " + ratio);
 		
 		// Scales the lines
 		cg.setColor(Color.black);
@@ -145,12 +145,12 @@ public class HeatMap extends JPanel
 		
 		int[] palette = reMapper.getPalette();
 		int paletteSize = palette.length;
-		System.out.println("paletteSize " + paletteSize);
+		//System.out.println("paletteSize " + paletteSize);
 		
 		double pIncr = ((double) paletteSize / (double) height);
-		System.out.println("paletteSize " + paletteSize);
-		System.out.println("height " + height);
-		System.out.println("pIncr " + pIncr);
+		//System.out.println("paletteSize " + paletteSize);
+		//System.out.println("height " + height);
+		//System.out.println("pIncr " + pIncr);
 		
 		double pVal = 0;
 		for(int i = height; i > 0; i--)
@@ -161,7 +161,7 @@ public class HeatMap extends JPanel
 			
 			pVal += pIncr;
 			
-			System.out.println("pVal " + pVal);
+			//System.out.println("pVal " + pVal);
 		}
 		
 		cg.setColor(Color.BLACK);
@@ -492,7 +492,7 @@ public class HeatMap extends JPanel
 		int maxSteps = Math.max(logProcessor.getXSteps(), logProcessor.getYSteps());
 		double stepsRatio = (double) logProcessor.getXSteps() / (double) logProcessor.getYSteps();
 		
-		System.out.println("stepsRatio " + stepsRatio);
+		//System.out.println("stepsRatio " + stepsRatio);
 		
 		BufferedImage rawValues = new BufferedImage(logProcessor.getXSteps(), logProcessor.getYSteps(), BufferedImage.TYPE_INT_RGB);
 		

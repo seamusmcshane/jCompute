@@ -163,8 +163,6 @@ public class HeatMapUtil implements WindowListener
 				hm.setLog(logProcessor);
 				
 				gui.setTitle(fullPath);
-				
-				System.out.println("Report Finished");
 			}
 			catch(IOException e1)
 			{
@@ -178,7 +176,6 @@ public class HeatMapUtil implements WindowListener
 		
 		gui.pack();
 		gui.repaint();
-		
 	}
 	
 	public static void main(String args[])

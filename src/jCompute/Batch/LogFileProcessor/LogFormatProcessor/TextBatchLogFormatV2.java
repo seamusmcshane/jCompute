@@ -147,8 +147,6 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 					int[] axisId = new int[num];
 					String[] axisName = new String[num];
 					
-					System.out.print(field + " ");
-					
 					// Pos + Vals
 					for(int c = 0; c < axisInfo.length; c += 2)
 					{
@@ -157,8 +155,6 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 						
 						axisId[c / 2] = Integer.parseInt(axIdkvp[1]);
 						axisName[(c + 1) / 2] = axLakvp[1];
-						
-						System.out.print(axisId[c / 2] + " " + axisName[(c + 1) / 2] + " ");
 					}
 					
 					// Hardcoded order
