@@ -14,7 +14,7 @@ import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
 
-public class XMLBatchLogProcessor implements BatchLogInf
+public class XMLBatchLogFormat implements BatchLogInf
 {
 	private MapperValuesContainer values;
 	
@@ -39,7 +39,7 @@ public class XMLBatchLogProcessor implements BatchLogInf
 	private double valMin = Double.MAX_VALUE;
 	private double valMax = Double.MIN_VALUE;
 	
-	public XMLBatchLogProcessor(String fileName) throws IOException
+	public XMLBatchLogFormat(String fileName) throws IOException
 	{
 		file = new File(fileName);
 		logFile = new XMLConfiguration();

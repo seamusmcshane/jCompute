@@ -1,13 +1,11 @@
 package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.slf4j.Logger;
@@ -17,17 +15,13 @@ import jCompute.Batch.LogFileProcessor.BatchLogInf;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
 import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
 import jCompute.Datastruct.knn.benchmark.TimerObj;
+import jCompute.util.Text;
 
-public class TextBatchLogProcessorV2 implements BatchLogInf
+public class TextBatchLogFormat implements BatchLogInf
 {
-	private static Logger log = LoggerFactory.getLogger(TextBatchLogProcessor.class);
+	private static Logger log = LoggerFactory.getLogger(TextBatchLogFormat.class);
 	
-	public static final int HEADER_LINE_OPTS = 4;
-	public static final int MAX_LINE_OPTS = 7;
-	
-	public static final char OPTION_DELIMITER = ',';
-	public static final char SUBOPTION_DELIMITER = ';';
-	public static final char FIELD_DELIMITER = '=';
+	private File file;
 	
 	private String logName = "";
 	private String logType = "";
@@ -52,33 +46,65 @@ public class TextBatchLogProcessorV2 implements BatchLogInf
 	private double zValMin = Double.MAX_VALUE;
 	private double zValMax = Double.MIN_VALUE;
 	
-	public TextBatchLogProcessorV2(String filePath, int maxVal) throws IOException
+	public TextBatchLogFormat(String fileName, int maxVal)
 	{
-		Path path = Paths.get(filePath);
-		
-		TimerObj to = new TimerObj();
-		
 		logItems = new ArrayList<TextBatchLogItem>();
 		
-		Stream<String> headerLines = Files.lines(path);
-		Optional<String> oHeader = headerLines.findFirst();
-		String header = oHeader.get();
-		readHeaderLine(header);
-		headerLines.close();
+		file = new File(fileName);
 		
-		Stream<String> itemLines = Files.readAllLines(path).parallelStream().skip(1L).parallel();
-		
-		to.startTimer();
-		
-		itemLines.forEach(s ->
+		try
 		{
-			readItemLine(s);
-			// System.out.println(s);
-		});
-		
-		to.stopTimer();
-		
-		itemLines.close();
+			TimerObj to = new TimerObj();
+			
+			BufferedReader inputFile = new BufferedReader(new FileReader(file));
+			
+			boolean readingItems = false;
+			boolean finished = false;
+			
+			to.startTimer();
+			
+			while(!finished)
+			{
+				if(readingItems)
+				{
+					// Items
+					log.info("finished");
+					
+					if(inputFile.readLine().equals("[+Items]"))
+					{
+						readItems(inputFile);
+					}
+					
+					finished = true;
+				}
+				else
+				{
+					if(inputFile.readLine().equals("[+Header]"))
+					{
+						// Header
+						readHeader(inputFile);
+						
+						readingItems = true;
+					}
+					else
+					{
+						finished = true;
+						log.info("Could not find log file");
+					}
+				}
+			}
+			
+			to.stopTimer();
+			
+			inputFile.close();
+			
+			log.info("Finished Reading log " + Text.longTimeToDHMSM(to.getTimeTaken()));
+			
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 		
 		HashMap<Integer, Integer> xUnique = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> yUnique = new HashMap<Integer, Integer>();
@@ -169,6 +195,15 @@ public class TextBatchLogProcessorV2 implements BatchLogInf
 			int c0 = item.getCoordsPos()[0];
 			int c1 = item.getCoordsPos()[1];
 			
+			boolean oldLog = false;
+			
+			if(oldLog)
+			{
+				iid = iid - 1;
+				c0 = c0 - 1;
+				c1 = c1 - 1;
+			}
+			
 			IIDS[iid]++;
 			SIDS[sid]++;
 			// Combo Pos starts at 1, array pos at 0 - index offset corrected here
@@ -249,202 +284,205 @@ public class TextBatchLogProcessorV2 implements BatchLogInf
 	 * Format Processing Methods
 	 *****************************************************************************************************/
 	
-	/*
-	 * Process the log header
-	 */
-	private void readHeaderLine(String header)
+	private void readItems(BufferedReader inputFile) throws IOException
 	{
-		String[] options = lineToOptions(header, 0, HEADER_LINE_OPTS, OPTION_DELIMITER);
+		boolean finished = false;
 		
-		System.out.println("Header");
-		for(int i = 0; i < options.length; i++)
+		while(!finished)
 		{
-			String[] kvp = getOptionKVPair(options[i]);
-			
-			String field = kvp[0];
-			String value = kvp[1];
-			
-			switch(field)
+			String line = inputFile.readLine();
+			if(line.equals("[-Items]"))
 			{
-				case "Name":
+				finished = true;
+			}
+			else
+			{
+				if(line.equals("[+Item]"))
 				{
-					System.out.println(field + " : " + value);
-					logName = value;
-					log.info("LogName :" + logName);
+					readItem(inputFile);
 				}
-				break;
-				case "LogType":
-				{
-					System.out.println(field + " : " + value);
-					this.logType = value;
-					log.info("LogType :" + logType);
-				}
-				break;
-				case "Samples":
-				{
-					System.out.println(field + " : " + value);
-					this.samples = Integer.parseInt(value);
-					log.info("Samples :" + samples);
-				}
-				break;
-				case "AxisLabels":
-				{
-					// num=int;
-					int nS = value.indexOf(FIELD_DELIMITER) + 1;
-					int nE = value.indexOf(SUBOPTION_DELIMITER);
-					String sNum = value.substring(nS, nE);
-					int num = Integer.parseInt(sNum);
-					String[] axisInfo = lineToOptions(value, nE + 1, num * 2, SUBOPTION_DELIMITER);
-					
-					int[] axisId = new int[num];
-					String[] axisName = new String[num];
-					
-					System.out.print(field + " ");
-					
-					// Pos + Vals
-					for(int c = 0; c < axisInfo.length; c += 2)
-					{
-						String[] axIdkvp = getOptionKVPair(axisInfo[c]);
-						String[] axLakvp = getOptionKVPair(axisInfo[c + 1]);
-						
-						axisId[c / 2] = Integer.parseInt(axIdkvp[1]);
-						axisName[(c + 1) / 2] = axLakvp[1];
-						
-						System.out.print(axisId[c / 2] + " " + axisName[(c + 1) / 2] + " ");
-					}
-					System.out.println();
-					
-					// Hardcoded order
-					xAxisName = axisName[0];
-					
-					log.info("xAxis " + axisId[0] + " :" + axisName);
-					
-					yAxisName = axisName[1];
-					
-					log.info("yAxis " + axisId[1] + " :" + axisName);
-					
-				}
-				break;
 			}
 		}
 	}
 	
-	/*
-	 * Reads an item line and adds it to the log items list.
-	 */
-	private void readItemLine(String itemLine)
+	private void readItem(BufferedReader inputFile) throws IOException
 	{
 		TextBatchLogItem item = new TextBatchLogItem();
 		
-		String[] options = lineToOptions(itemLine, 0, MAX_LINE_OPTS, OPTION_DELIMITER);
+		// Max Coords to set as item pos/values
+		int maxCoords = 2;
 		
-		for(int i = 0; i < options.length; i++)
+		// Per item Coord Count
+		int coord = 0;
+		
+		for(String line; !(line = inputFile.readLine()).equals("[-Item]");)
 		{
-			String[] kvp = getOptionKVPair(options[i]);
-			
-			String field = kvp[0];
-			String value = kvp[1];
-			
-			switch(field)
+			if(line.equals("[+Coordinate]"))
 			{
-				case "IID":
-					item.setItemId(Integer.parseInt(value));
-				break;
-				case "SID":
-					item.setSampleId(Integer.parseInt(value));
-				break;
-				case "Coordinates":
+				// Increment count of Coords
+				coord++;
+				
+				int pos[] = new int[2];
+				double vals[] = new double[2];
+				
+				// Read POS 0
+				String cline = inputFile.readLine();
+				String cpos1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
+				pos[0] = Integer.parseInt(cpos1);
+				
+				// Read VAL 0
+				cline = inputFile.readLine();
+				String cval1 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
+				vals[0] = Double.parseDouble(cval1);
+				
+				while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 				{
-					System.out.println("VaLS " + value);
+					log.info("Coordinate contains unexpect data");
+				}
+				
+				cline = inputFile.readLine();
+				if(cline.equals("[+Coordinate]"))
+				{
+					// Increment count of Coords
+					coord++;
 					
-					// num=int;
-					int nS = value.indexOf(FIELD_DELIMITER) + 1;
-					int nE = value.indexOf(SUBOPTION_DELIMITER);
-					String sNum = value.substring(nS, nE);
-					int num = Integer.parseInt(sNum);
-					System.out.println("Num " + num);
+					// Read POS 1
+					cline = inputFile.readLine();
+					String cpos2 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
+					pos[1] = Integer.parseInt(cpos2);
 					
-					System.out.println("TEST");
+					// Read VAL 0
+					cline = inputFile.readLine();
+					String cval2 = cline.substring(cline.lastIndexOf('=') + 1, cline.length());
+					vals[1] = Double.parseDouble(cval2);
 					
-					String[] coordOptions = lineToOptions(value, nE + 1, num * 2, SUBOPTION_DELIMITER);
-					
-					int[] pos = new int[num];
-					double[] vals = new double[num];
-					
-					// Pos + Vals
-					for(int c = 0; c < coordOptions.length; c += 2)
+					while(!(cline = inputFile.readLine()).equals("[-Coordinate]"))
 					{
-						String[] cPkvp = getOptionKVPair(coordOptions[c]);
-						String[] cVkvp = getOptionKVPair(coordOptions[c + 1]);
-						pos[c / 2] = Integer.parseInt(cPkvp[1]);
-						vals[(c + 1) / 2] = Double.valueOf(cVkvp[1]);
+						log.info("Coordinate contains unexpect data");
 					}
-					
+				}
+				else
+				{
+					log.info("Error Parsing Coordinates");
+				}
+				
+				// Only set the values for the first two coordinates read (Otherwise 3,4 will overwrite them)
+				if(coord <= maxCoords)
+				{
 					item.setCoordsPos(pos);
 					item.setCoordsVals(vals);
 				}
-				break;
-				case "Hash":
-					item.setHash(value);
-				break;
-				case "RunTime":
-					item.setRunTime(Integer.parseInt(value));
-				break;
-				case "EndEvent":
-					item.setEndEvent(value);
-				break;
-				case "StepCount":
-					item.setStepCount(Integer.parseInt(value));
-				break;
+				
 			}
-			
-		}
-		
-		synchronized(logItems)
-		{
-			logItems.add(item);
-		}
-	}
-	
-	/*
-	 * Split a line into an array of options
-	 */
-	private String[] lineToOptions(String line, int start, int maxOptions, char delimiter)
-	{
-		String[] options = new String[maxOptions];
-		
-		int cS = start;
-		int cE = line.indexOf(delimiter, cS);
-		for(int o = 0; o < maxOptions; o++)
-		{
-			options[o] = line.substring(cS, cE);
-			
-			cS = cE + 1;
-			cE = line.indexOf(delimiter, cS);
-			
-			if(cE == -1)
+			else
 			{
-				cE = line.length();
+				int delimiterIndex = line.lastIndexOf('=');
+				String field = line.substring(0, delimiterIndex);
+				String val = line.substring(delimiterIndex + 1, line.length());
+				
+				switch(field)
+				{
+					case "IID":
+						item.setItemId(Integer.parseInt(val));
+					break;
+					case "SID":
+						item.setSampleId(Integer.parseInt(val));
+					break;
+					case "Hash":
+						item.setHash(val);
+					break;
+					case "RunTime":
+						item.setRunTime(Integer.parseInt(val));
+					break;
+					case "EndEvent":
+						item.setEndEvent(val);
+					break;
+					case "StepCount":
+						item.setStepCount(Integer.parseInt(val));
+					break;
+				}
 			}
 		}
 		
-		return options;
+		log.debug("Coord : " + coord);
+		
+		// Reset the coord counted (per item)
+		coord = 0;
+		logItems.add(item);
 	}
 	
-	/*
-	 * Split an option (Field=Value) into a key value pair;
-	 */
-	private String[] getOptionKVPair(String option)
+	private void readHeader(BufferedReader inputFile) throws IOException
 	{
-		int fS = 0;
-		int fE = option.indexOf(FIELD_DELIMITER);
+		String line = "";
+		while(!(line = inputFile.readLine()).equals("[-Header]"))
+		{
+			
+			if(line.equals("[+AxisLabels]"))
+			{
+				readAxisLabels(inputFile);
+			}
+			else
+			{
+				int delimiterIndex = line.lastIndexOf('=');
+				String field = line.substring(0, delimiterIndex);
+				String val = line.substring(delimiterIndex + 1, line.length());
+				
+				if(field.equals("Name"))
+				{
+					this.logName = val;
+					log.info("LogName :" + logName);
+				}
+				else if(field.equals("LogType"))
+				{
+					this.logType = val;
+					log.info("LogType :" + logType);
+					
+				}
+				else if(field.equals("Samples"))
+				{
+					this.samples = Integer.parseInt(val);
+					log.info("Samples :" + samples);
+				}
+			}
+			
+		}
+	}
+	
+	private void readAxisLabels(BufferedReader inputFile) throws IOException
+	{
+		int axisCount = 0;
+		boolean finished = false;
+		while(!finished)
+		{
+			String id = inputFile.readLine();
+			
+			if(id.equals("[-AxisLabels]"))
+			{
+				finished = true;
+			}
+			else
+			{
+				String axis = inputFile.readLine();
+				String axisName = axis.substring(axis.lastIndexOf('=') + 1, axis.length());
+				
+				// X / Y Axis for SurfacePlots
+				if(axisCount == 0)
+				{
+					xAxisName = axisName;
+				}
+				else if(axisCount == 1)
+				{
+					yAxisName = axisName;
+				}
+				
+				log.info("Axis " + id + " :" + axisName);
+				
+				axisCount++;
+			}
+		}
 		
-		String[] kvp = new String[2];
-		
-		kvp[0] = option.substring(fS, fE);
-		kvp[1] = option.substring(fE + 1, option.length());
-		
-		return kvp;
+		// Choose Plot Source
+		zAxisName = "StepCount";
 	}
 	
 	/*
@@ -539,27 +577,27 @@ public class TextBatchLogProcessorV2 implements BatchLogInf
 	}
 	
 	@Override
-	public int getYMin()
-	{
-		return values.getYMin();
-	}
-	
-	@Override
 	public int getYMax()
 	{
 		return values.getYMax();
 	}
 	
 	@Override
-	public double getZmax()
+	public int getYMin()
 	{
-		return values.getZMax();
+		return values.getYMin();
 	}
 	
 	@Override
 	public double getZmin()
 	{
 		return values.getZMin();
+	}
+	
+	@Override
+	public double getZmax()
+	{
+		return values.getZMax();
 	}
 	
 	/*

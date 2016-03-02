@@ -7,9 +7,9 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogProcessor;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogProcessorV2;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.XMLBatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormat;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.XMLBatchLogFormat;
 import jCompute.util.FileUtil;
 
 public class BatchLogProcessor implements BatchLogInf
@@ -30,17 +30,17 @@ public class BatchLogProcessor implements BatchLogInf
 		{
 			case "xml":
 			{
-				realBatchLogProcessor = new XMLBatchLogProcessor(filePath);
+				realBatchLogProcessor = new XMLBatchLogFormat(filePath);
 			}
 			break;
 			case "log":
 			{
-				realBatchLogProcessor = new TextBatchLogProcessor(filePath, maxVal);
+				realBatchLogProcessor = new TextBatchLogFormat(filePath, maxVal);
 			}
 			break;
 			case "v2log":
 			{
-				realBatchLogProcessor = new TextBatchLogProcessorV2(filePath, maxVal);
+				realBatchLogProcessor = new TextBatchLogFormatV2(filePath, maxVal);
 			}
 			break;
 			default:
@@ -49,6 +49,9 @@ public class BatchLogProcessor implements BatchLogInf
 			}
 			break;
 		}
+		
+		
+		
 	}
 	
 	@Override
