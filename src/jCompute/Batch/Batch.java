@@ -1649,6 +1649,7 @@ public class Batch implements StoredQueuePosition
 				ArrayList<Integer> coords = item.getCoordinates();
 				ArrayList<Float> coordsValues = item.getCoordinatesValues();
 				
+				itemLine.append("Coordinates=");
 				itemLine.append("Num=" + coords.size());
 				// ; done in loop - loop then exits skipping an ending ;
 				for(int c = 0; c < coords.size(); c++)
