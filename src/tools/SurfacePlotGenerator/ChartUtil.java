@@ -90,8 +90,6 @@ public class ChartUtil
 				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
 				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-max", 2);
 				
-				logProcessor.clear();
-				
 				logProcessor = null;
 				
 			}
