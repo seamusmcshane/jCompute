@@ -536,17 +536,21 @@ public class Palette
 		float hBase = 270f;
 		float hUpper = 0;
 		
-		float hStep = (hUpper - hBase) / (float) (paletteSize - 1);
+		float hStep = (hUpper - hBase) / (float) (paletteSize);
 		
 		float lUpper = 100f;
-		float lStep = lUpper / (float) (paletteSize - 1);
+		float lStep = lUpper / (float) (paletteSize);
 		
 		float hval = hBase;
-		float iVal = 0;
+		float iVal = 1;
 		
 		// ARGB
 		for(int i = 0; i < paletteSize; i++)
 		{
+			// Adjust vals
+			hval = ((float) i * hStep) + hBase;
+			iVal = ((float) i+1 * lStep); // +1
+			
 			float[] lab = CIERGB.labCHtoLAB(iVal, lUpper - iVal, hval);
 			
 			//System.out.println("hval : " + hval);
@@ -567,10 +571,6 @@ public class Palette
 			
 			// ARGB
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
-			
-			// Adjust vals
-			hval = ((float) i * hStep) + hBase;
-			iVal = ((float) i * lStep);
 		}
 		
 		applySRGB(palette, paletteSize);
