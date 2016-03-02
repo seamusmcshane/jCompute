@@ -144,7 +144,8 @@ public class HeatMap extends JPanel
 		int y = heatMapPlotYOffset;
 		
 		int[] palette = reMapper.getPalette();
-		int paletteSize = palette.length - 1;
+		int paletteSize = palette.length;
+		System.out.println("paletteSize " + paletteSize);
 		
 		double pIncr = ((double) paletteSize / (double) height);
 		System.out.println("paletteSize " + paletteSize);
@@ -152,15 +153,15 @@ public class HeatMap extends JPanel
 		System.out.println("pIncr " + pIncr);
 		
 		double pVal = 0;
-		for(int i = height - 1; i >= 0; i--)
+		for(int i = height; i > 0; i--)
 		{
-			cg.setColor(new Color(palette[(int) (pVal)]));
-			// cg.fillRect(x, y - 1 + i, width - 1, 2);
+			cg.setColor(new Color(palette[(int) (Math.floor(pVal))]));
 			
-			cg.drawLine(x + 1, y + 1 + i, x - 1 + width, y + 1 + i);
+			cg.drawLine(x + 1, y + i, (x + width) - 1, y + i);
+			
 			pVal += pIncr;
 			
-			// System.out.println("pVal " + pVal);
+			System.out.println("pVal " + pVal);
 		}
 		
 		cg.setColor(Color.BLACK);
@@ -229,11 +230,6 @@ public class HeatMap extends JPanel
 			else
 			{
 				// Correct usable numbers.
-				if(yDval == Double.NaN)
-				{
-					yDval = 0.0;
-				}
-				
 				if(yDval == Double.NEGATIVE_INFINITY)
 				{
 					yDval = -Double.MAX_VALUE;
@@ -297,8 +293,8 @@ public class HeatMap extends JPanel
 	
 	private void addPlotTickAndLabels(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
 	{
-		int tickX = logProcessor.getXSteps() - 1;
-		int tickY = logProcessor.getYSteps() - 1;
+		int tickX = logProcessor.getXSteps();
+		int tickY = logProcessor.getYSteps();
 		
 		int maxTicks = 10;
 		
@@ -343,13 +339,13 @@ public class HeatMap extends JPanel
 		// Vals
 		double xValMin = (double) logProcessor.getXValMin();
 		double xValMax = (double) logProcessor.getXValMax();
-		NiceTickScaler xTickScaler = new NiceTickScaler(logProcessor.getXValMin(), logProcessor.getXValMax());
-		xTickScaler.setMaxTicks(tickY);
+		NiceTickScaler xTickScaler = new NiceTickScaler(xValMin, xValMax);
+		xTickScaler.setMaxTicks(tickX);
 		double xValStep = xTickScaler.getTickSpacing();
 		
 		double yValMin = (double) logProcessor.getYValMin();
 		double yValMax = (double) logProcessor.getYValMax();
-		NiceTickScaler yTickScaler = new NiceTickScaler(logProcessor.getYValMin(), logProcessor.getYValMax());
+		NiceTickScaler yTickScaler = new NiceTickScaler(yValMin, yValMax);
 		yTickScaler.setMaxTicks(tickY);
 		double yValStep = yTickScaler.getTickSpacing();
 		
@@ -359,12 +355,10 @@ public class HeatMap extends JPanel
 			intValues = true;
 		}
 		
-		System.out.println("Equal " + (xValMin == (int) xValMin));
+		double xDval = xValMin;
+		double yDval = yValMin;
 		
-		double xDval = xTickScaler.getNiceMin();
-		double yDval = yTickScaler.getNiceMin();
-		
-		for(int x = 0; x < tickX + 1; x++)
+		for(int x = 0; x < (tickX + 1); x++)
 		{
 			double lineX = heatMapPlotXOffset + (xIncr * x);
 			double lineY = heatMapPlotHeight + heatMapPlotYOffset;
@@ -381,11 +375,6 @@ public class HeatMap extends JPanel
 			else
 			{
 				// Correct usable numbers.
-				if(xDval == Double.NaN)
-				{
-					xDval = 0.0;
-				}
-				
 				if(xDval == Double.NEGATIVE_INFINITY)
 				{
 					xDval = -Double.MAX_VALUE;
@@ -418,7 +407,7 @@ public class HeatMap extends JPanel
 		double xAnx = (cX) - (xAxisNameWidth);
 		cg.drawString(logProcessor.getXAxisName(), (float) xAnx, (float) ((heatMapPlotHeight + heatMapPlotYOffset + tickLength + fontHeight + labelPad) + labelPad + (fontHeight / 2)));
 		
-		for(int y = 0; y < tickY + 1; y++)
+		for(int y = 0; y < (tickY + 1); y++)
 		{
 			double lineX = heatMapPlotXOffset;
 			double lineY = (heatMapPlotHeight + heatMapPlotYOffset) - (yIncr * y);
