@@ -145,7 +145,7 @@ public class HeatMapUtil implements WindowListener
 		}
 		catch(IOException e1)
 		{
-			String st = Text.stackTrackToString(e1.getStackTrace(), true);
+			String st = Text.stackTraceToString(e1.getStackTrace(), true);
 			String message = "Error Reading info log " + "<br>" + e1.getMessage() + "<br>" + st;
 			
 			JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
@@ -168,7 +168,7 @@ public class HeatMapUtil implements WindowListener
 			}
 			catch(IOException e1)
 			{
-				String st = Text.stackTrackToString(e1.getStackTrace(), true);
+				String st = Text.stackTraceToString(e1.getStackTrace(), true);
 				
 				String message = "Error Reading Item log " + "<br>" + e1.getMessage() + "<br>" + st;
 				

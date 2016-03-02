@@ -74,7 +74,7 @@ public class ChartUtil
 		}
 		catch(IOException e1)
 		{
-			String st = Text.stackTrackToString(e1.getStackTrace(), false);
+			String st = Text.stackTraceToString(e1.getStackTrace(), false);
 			String message = "Error Reading info log " + "\n" + e1.getMessage() + "\n" + st;
 			System.out.println(message);
 		}
@@ -95,7 +95,7 @@ public class ChartUtil
 			}
 			catch(IOException e1)
 			{
-				String st = Text.stackTrackToString(e1.getStackTrace(), true);
+				String st = Text.stackTraceToString(e1.getStackTrace(), true);
 				
 				String message = "Error Reading Item log " + "\n" + e1.getMessage() + "\n" + st;
 				
