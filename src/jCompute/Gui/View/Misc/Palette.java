@@ -2,6 +2,8 @@ package jCompute.Gui.View.Misc;
 
 import java.awt.Color;
 
+import jCompute.util.JCMath;
+
 public class Palette
 {
 	private static final int RED = 0;
@@ -13,6 +15,81 @@ public class Palette
 	
 	private static float SPECTURM_RANGE_MIN = 380;
 	private static float SPECTURM_RANGE_MAX = 779.999f;
+	
+	public static int[] GeneratePaletteFromRGBColors(float[][] floatRGB, int paletteSize, float gamma)
+	{
+		System.out.println("floatRGB " + floatRGB.length);
+		System.out.println("floatRGB[] " + floatRGB[0].length);
+		
+		float[][] xyz = new float[floatRGB.length][3];
+		for(int i = 0; i < floatRGB.length; i++)
+		{
+			xyz[i] = CIERGB.RGBFloatToXYZ(floatRGB[i][0], floatRGB[i][1], floatRGB[i][2]);
+		}
+		
+		float[][] lab = new float[floatRGB.length][3];
+		for(int i = 0; i < floatRGB.length; i++)
+		{
+			lab[i] = CIERGB.xyzToLAB1976(xyz[i]);
+		}
+		
+		float stepSize = (float) paletteSize / (float) (floatRGB.length - 1);
+		float modStepSize = (float) Math.ceil(stepSize);
+		
+		System.out.println("stepSize " + stepSize);
+		System.out.println("modStepSize " + modStepSize);
+		
+		int[] palette = new int[paletteSize];
+		
+		// palette[0] = floatArrtoPackedInt(CIERGB.XYZtoRGB(CIERGB.lab1976ToXYZ(lab[0])));
+		
+		float pP = 0;
+		int pS = -1;
+		int pE = 0;
+		
+		for(int p = 0; p < paletteSize; p++)
+		{
+			float labFloatInterpolated[] = new float[3];
+			
+			pP = ((float) p / (float) modStepSize) % 1;
+			
+			if(p % modStepSize == 0)
+			{
+				pS += 1;
+				pE += 1;
+			}
+			
+			System.out.println("p " + p);
+			System.out.println("pS " + pS);
+			System.out.println("pE " + pE);
+			System.out.println("pP " + pP);
+			
+			labFloatInterpolated[0] = interpolate(lab[pS][0], lab[pE][0], pP);
+			labFloatInterpolated[1] = interpolate(lab[pS][1], lab[pE][1], pP);
+			labFloatInterpolated[2] = interpolate(lab[pS][2], lab[pE][2], pP);
+			
+			palette[p] = floatArrtoPackedInt(CIERGB.XYZtoRGB(CIERGB.lab1976ToXYZ(labFloatInterpolated)));
+			
+			// pP = (((p % stepSize) / (float) paletteSize) * stepSize);
+			// pP = ((float) (p*(paletteSize/modStepSize)) / (float) paletteSize) % 1;
+		}
+		
+		return palette;
+	}
+	
+	private static int floatArrtoPackedInt(float[] value)
+	{
+		int red = (int) (value[0] * 255f);
+		int green = (int) (value[1] * 255f);
+		int blue = (int) (value[2] * 255f);
+		
+		return (255 << 24) | (red << 16) | (green << 8) | blue;
+	}
+	
+	private static float interpolate(float start, float end, float percentage)
+	{
+		return (end * percentage) + (start * (1 - percentage));
+	}
 	
 	public static int[] HUEPalette(boolean rgba, int paletteSize, float gamma)
 	{
@@ -59,6 +136,12 @@ public class Palette
 		{
 			float[] rgb = waveLengthToRGB(min + (i * step));
 			
+			rgb = CIERGB.XYZtoRGB(CIERGB.capLumenanceXYZ(CIERGB.RGBFloatToXYZ(rgb[0], rgb[1], rgb[2]), 0.8f));
+			
+			rgb[0] = CIERGB.lStar(rgb[0]);
+			rgb[1] = CIERGB.lStar(rgb[1]);
+			rgb[2] = CIERGB.lStar(rgb[2]);
+			
 			int red = (int) (rgb[RED] * RGBCOLORDEPTH);
 			int green = (int) (rgb[GREEN] * RGBCOLORDEPTH);
 			int blue = (int) (rgb[BLUE] * RGBCOLORDEPTH);
@@ -67,9 +150,9 @@ public class Palette
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
 		}
 		
-		applySRGB(palette, paletteSize);
+		// applySRGB(palette, paletteSize);
 		
-		applyGamma(palette, paletteSize, gamma);
+		// applyGamma(palette, paletteSize, 2.2f);
 		
 		if(rgba)
 		{
@@ -364,6 +447,11 @@ public class Palette
 	
 	private static int[] applyGamma(int[] palette, int paletteSize, float gamma)
 	{
+		if(gamma == 1)
+		{
+			return palette;
+		}
+		
 		float newGamma = 1f / gamma;
 		
 		for(int i = 0; i < paletteSize; i++)
@@ -382,4 +470,122 @@ public class Palette
 		return palette;
 	}
 	
+	public static int[] CIESpectrumPalette(boolean rgba, int paletteSize, float gamma)
+	{
+		return CIESpectrumPalette(rgba, paletteSize, gamma, 450, 700);
+	}
+	
+	public static int[] CIESpectrumPalette(boolean rgba, int paletteSize, float gamma, float specMin, float specMax)
+	{
+		int palette[] = new int[paletteSize];
+		
+		float min = specMin;
+		float range = specMax - min;
+		
+		float step = ((float) range / (float) paletteSize);
+		
+		// ARGB
+		for(int i = 0; i < paletteSize; i++)
+		{
+			float[] rgb = CIERGB.WavelengthToSRGB(min + ((float) i * (float) step));
+			
+			rgb = CIERGB.XYZtoRGB(CIERGB.scaleLumenanceXYZ(CIERGB.RGBFloatToXYZ(rgb[0], rgb[1], rgb[2]), 0.9f));
+			
+			rgb[0] = CIERGB.lStar(rgb[0]);
+			rgb[1] = CIERGB.lStar(rgb[1]);
+			rgb[2] = CIERGB.lStar(rgb[2]);
+			
+			int red = (int) (rgb[RED] * RGBCOLORDEPTH);
+			int green = (int) (rgb[GREEN] * RGBCOLORDEPTH);
+			int blue = (int) (rgb[BLUE] * RGBCOLORDEPTH);
+			
+			// ARGB
+			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
+		}
+		
+		// applySRGB(palette, paletteSize);
+		
+		// applyGamma(palette, paletteSize, gamma);
+		
+		if(rgba)
+		{
+			for(int i = 0; i < paletteSize; i++)
+			{
+				int val = palette[i];
+				palette[i] = (val << 8) | ((val >> 24) & 0xFF);
+			}
+		}
+		
+		return palette;
+	}
+	
+	public static String RGBtoString(float[] rgb)
+	{
+		return new String(rgb[0] + "," + rgb[1] + "," + rgb[2]);
+	}
+	
+	public static String RGBtoString(double[] rgb)
+	{
+		return new String(rgb[0] + "," + rgb[1] + "," + rgb[2]);
+	}
+	
+	public static int[] LabSpecturmPalette(boolean rgba, int paletteSize, float gamma)
+	{
+		int palette[] = new int[paletteSize];
+		
+		float hBase = 270f;
+		float hUpper = 0;
+		
+		float hStep = (hUpper - hBase) / (float) (paletteSize - 1);
+		
+		float lUpper = 100f;
+		float lStep = lUpper / (float) (paletteSize - 1);
+		
+		float hval = hBase;
+		float iVal = 0;
+		
+		// ARGB
+		for(int i = 0; i < paletteSize; i++)
+		{
+			float[] lab = CIERGB.labCHtoLAB(iVal, lUpper - iVal, hval);
+			
+			//System.out.println("hval : " + hval);
+			//System.out.println("iVal : " + iVal);
+			//System.out.println("L : " + lab[0]);
+			//System.out.println("C : " + lab[1]);
+			//System.out.println("H : " + lab[2]);
+			
+			float[] rgb = CIERGB.XYZtoRGB(CIERGB.lab1976ToXYZ(lab));
+			
+			// rgb[0] = CIERGB.lStar(rgb[0] );
+			// rgb[1] = CIERGB.lStar(rgb[1] );
+			// rgb[2] = CIERGB.lStar(rgb[2] );
+			
+			int red = (int) (rgb[RED] * RGBCOLORDEPTH);
+			int green = (int) (rgb[GREEN] * RGBCOLORDEPTH);
+			int blue = (int) (rgb[BLUE] * RGBCOLORDEPTH);
+			
+			// ARGB
+			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
+			
+			// Adjust vals
+			hval = ((float) i * hStep) + hBase;
+			iVal = ((float) i * lStep);
+		}
+		
+		applySRGB(palette, paletteSize);
+		
+		// applyGamma(palette, paletteSize, gamma);
+		
+		if(rgba)
+		{
+			for(int i = 0; i < paletteSize; i++)
+			{
+				int val = palette[i];
+				palette[i] = (val << 8) | ((val >> 24) & 0xFF);
+			}
+		}
+		
+		return palette;
+	}
 }

@@ -19,7 +19,7 @@ public class MapperRemapper extends Mapper
 		this.values = values;
 		this.target = target;
 		
-		palette = Palette.SpectrumPalette(false, PALETTE_SIZE,1f);
+		palette = Palette.LabSpecturmPalette(false, PALETTE_SIZE, 1f);
 	}
 	
 	@Override
