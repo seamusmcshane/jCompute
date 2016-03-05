@@ -79,7 +79,7 @@ public class View implements ApplicationListener, ViewRendererInf
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "View";
-		cfg.samples = 2;
+		cfg.samples = 0;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
 		
