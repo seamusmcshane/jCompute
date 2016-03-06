@@ -13,7 +13,10 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +48,10 @@ public class Launcher
 	// Defaults ( option string, default value, option description
 	private static CommandLineArg defaultsList[] =
 	{
-		new CommandLineArg("mcs", "8", "Max Concurrent Simulations (Int)"),
-		new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
+		new CommandLineArg("mcs", "8", "Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
 		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
-		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
-		new CommandLineArg("desc", "not set", "Node Description"), new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"),
-		new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address")
+		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"), new CommandLineArg("desc", "not set", "Node Description"),
+		new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address")
 	};
 	
 	public static void main(String args[])
@@ -100,24 +101,31 @@ public class Launcher
 		
 		switch(loglevel)
 		{
-			case 2:
+			case 3:
 				// Debug
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-debug.xml");
 				System.out.println("Debug Logging Level");
 			break;
-			case 1:
+			case 2:
 				// Standard
 				System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
 				System.out.println("Info level Logging to file and errors logged to file.");
 			break;
-			case 0:
-			default:
+			case 1:
 				// Standard
-
+				
 				// Async Logging
-				System.setProperty("Log4jContextSelector","org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+				System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
 				System.out.println("AsyncLogging + Info level console Logging, with errors logged to file.");
+			break;
+			case 0:
+			default:
+				
+				LoggerConfig loggerConfig = ((LoggerContext) LogManager.getContext()).getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+				loggerConfig.setLevel(Level.OFF);
+				((LoggerContext) LogManager.getContext()).updateLoggers();
+				
 			break;
 		}
 		
@@ -268,8 +276,7 @@ public class Launcher
 			}
 			else
 			{
-				if(opt.equalsIgnoreCase("--help") || opt.equals("-help") || opt.equals("help") || opt.equals("\\help")
-						|| opt.equals("/help"))
+				if(opt.equalsIgnoreCase("--help") || opt.equals("-help") || opt.equals("help") || opt.equals("\\help") || opt.equals("/help"))
 				{
 					displayHelp();
 				}
@@ -304,8 +311,7 @@ public class Launcher
 		
 		for(CommandLineArg defaultItem : defaultsList)
 		{
-			System.out.println(String.format("%10s", defaultItem.getName()) + "\t"
-					+ String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ") + "\t"
+			System.out.println(String.format("%10s", defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ") + "\t"
 					+ String.format("%10s", defaultItem.getDescription()));
 		}
 		
