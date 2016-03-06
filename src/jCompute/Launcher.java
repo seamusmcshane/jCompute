@@ -54,7 +54,7 @@ public class Launcher
 		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
 		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"), new CommandLineArg("desc", "not set", "Node Description"),
 		new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address"),
-		new CommandLineArg("SocketTX", "4096", "SocketTX Buffer Size (int)"), new CommandLineArg("SocketRX", "4096", "SocketRX Buffer Size (int)"),
+		new CommandLineArg("SocketTX", "65536", "SocketTX Buffer Size (int)"), new CommandLineArg("SocketRX", "65536", "SocketRX Buffer Size (int)"),
 		new CommandLineArg("TcpNoDelay", "1", "Configure TcpNoDelay (0/1)")
 	};
 	
