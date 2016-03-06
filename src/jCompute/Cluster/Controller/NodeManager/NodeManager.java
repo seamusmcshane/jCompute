@@ -593,7 +593,6 @@ public class NodeManager
 									
 									log.info("Recieved RemSimAck : " + removeSimAck.getSimId());
 									
-									// TODO
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(removeSimAck.getSimId());
 									
 									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.RemovedSim));

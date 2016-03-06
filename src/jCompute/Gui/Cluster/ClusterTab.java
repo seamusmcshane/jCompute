@@ -81,8 +81,10 @@ public class ClusterTab extends JPanel
 	// Node OS/JVM
 	private GlobalStatChartPanel clusterNodeUtilChar;
 	private GlobalStatChartPanel clusterNodeMemUsedPerChar;
-	private GlobalStatChartPanel clusterNodeTXChar;
-	private GlobalStatChartPanel clusterNodeRXChar;
+	private GlobalStatChartPanel clusterNodeBytesTXChar;
+	private GlobalStatChartPanel clusterNodeBytesRXChar;
+	private GlobalStatChartPanel clusterNodeTXSChar;
+	private GlobalStatChartPanel clusterNodeRXSChar;
 	private final int legendMaxNodes = 6;
 	
 	public ClusterTab(int rightPanelsMinWidth)
@@ -211,13 +213,21 @@ public class ClusterTab extends JPanel
 		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeTXChar = new GlobalStatChartPanel("Network TX", "Nodes", true, false, 60, true, legendMaxNodes);
-		clusterNodeTXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
-		clusterNodeTXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		clusterNodeBytesTXChar = new GlobalStatChartPanel("Network Bytes TX", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeBytesTXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeBytesTXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeRXChar = new GlobalStatChartPanel("Network RX", "Nodes", true, false, 60, true, legendMaxNodes);
-		clusterNodeRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
-		clusterNodeRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		clusterNodeTXSChar = new GlobalStatChartPanel("Network TXS", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeTXSChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeTXSChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		clusterNodeBytesRXChar = new GlobalStatChartPanel("Network Bytes RX", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeBytesRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeBytesRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		
+		clusterNodeRXSChar = new GlobalStatChartPanel("Network RXS", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeRXSChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeRXSChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
 		// Cluster Info
 		GridBagConstraints gbConstraints0 = new GridBagConstraints();
@@ -262,13 +272,25 @@ public class ClusterTab extends JPanel
 		gbConstraints6.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints6.gridx = 0;
 		gbConstraints6.gridy = 6;
-		graphsJPanelContainer.add(clusterNodeTXChar, gbConstraints6);
+		graphsJPanelContainer.add(clusterNodeBytesTXChar, gbConstraints6);
 		
 		GridBagConstraints gbConstraints7 = new GridBagConstraints();
 		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints7.gridx = 0;
 		gbConstraints7.gridy = 7;
-		graphsJPanelContainer.add(clusterNodeRXChar, gbConstraints7);
+		graphsJPanelContainer.add(clusterNodeBytesRXChar, gbConstraints7);
+		
+		GridBagConstraints gbConstraints8 = new GridBagConstraints();
+		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints7.gridx = 0;
+		gbConstraints7.gridy = 8;
+		graphsJPanelContainer.add(clusterNodeTXSChar, gbConstraints8);
+		
+		GridBagConstraints gbConstraints9 = new GridBagConstraints();
+		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints7.gridx = 0;
+		gbConstraints7.gridy = 9;
+		graphsJPanelContainer.add(clusterNodeRXSChar, gbConstraints9);
 		
 		ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon16");
 		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, clusterIcon, "Activity"));
@@ -316,8 +338,10 @@ public class ClusterTab extends JPanel
 				clusterNodeStatsPending.addStat(nodeId, nid);
 				clusterNodeUtilChar.addStat(nodeId, nid);
 				clusterNodeMemUsedPerChar.addStat(nodeId, nid);
-				clusterNodeTXChar.addStat(nodeId, nid);
-				clusterNodeRXChar.addStat(nodeId, nid);
+				clusterNodeBytesTXChar.addStat(nodeId, nid);
+				clusterNodeBytesRXChar.addStat(nodeId, nid);
+				clusterNodeTXSChar.addStat(nodeId, nid);
+				clusterNodeRXSChar.addStat(nodeId, nid);
 				
 				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
 						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
@@ -331,8 +355,10 @@ public class ClusterTab extends JPanel
 				clusterSimProChart.removeStat(nodeId);
 				clusterNodeActiveSims.removeStat(nodeId);
 				clusterNodeStatsPending.removeStat(nodeId);
-				clusterNodeTXChar.removeStat(nodeId);
-				clusterNodeRXChar.removeStat(nodeId);
+				clusterNodeBytesTXChar.removeStat(nodeId);
+				clusterNodeBytesRXChar.removeStat(nodeId);
+				clusterNodeTXSChar.removeStat(nodeId);
+				clusterNodeRXSChar.removeStat(nodeId);
 				
 				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
 						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
@@ -370,8 +396,10 @@ public class ClusterTab extends JPanel
 		clusterNodeStatsPending.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getStatisticsPendingFetch());
 		clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
 		clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
-		clusterNodeTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / MEGABYTE));
-		clusterNodeRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / MEGABYTE));
+		clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / MEGABYTE));
+		clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / MEGABYTE));
+		clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
+		clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
 	}
 	
 	/**

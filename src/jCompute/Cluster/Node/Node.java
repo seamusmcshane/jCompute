@@ -78,8 +78,11 @@ public class Node
 	private Timer nodeStatsUpdateTimer;
 	private NodeAveragedStats nodeAveragedStats;
 	private long simulationsProcessed;
+	
 	private long bytesTX;
+	private long txS;
 	private long bytesRX;
+	private long rxS;
 	
 	/* RegLoop */
 	boolean regLoopExit = false;
@@ -365,6 +368,8 @@ public class Node
 		simulationsProcessed = 0;
 		bytesTX = 0;
 		bytesRX = 0;
+		txS = 0;
+		rxS = 0;
 		
 		log.info("Connecting to : " + address + "@" + NCP.StandardServerPort);
 		
@@ -598,10 +603,19 @@ public class Node
 					// Averaged Stats
 					nodeAveragedStats.populateStatSample(nodeStatsSample);
 					
-					// Instant Stats
+					// Since NodeStatsRequest
 					nodeStatsSample.setSimulationsProcessed(simulationsProcessed);
 					nodeStatsSample.setBytesTX(bytesTX);
 					nodeStatsSample.setBytesRX(bytesRX);
+					nodeStatsSample.setTXS(txS);
+					nodeStatsSample.setRXS(rxS);
+					
+					// Reset Stats
+					simulationsProcessed = 0;
+					bytesTX = 0;
+					bytesRX = 0;
+					txS = 0;
+					rxS = 0;
 					
 					NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStatsSample);
 					
@@ -742,6 +756,7 @@ public class Node
 		
 		if(needsFlush)
 		{
+			txS++;
 			commandOutput.flush();
 		}
 	}
@@ -767,6 +782,8 @@ public class Node
 			data = ByteBuffer.wrap(backingArray);
 			
 			bytesRX += backingArray.length;
+			
+			rxS++;
 			
 		}
 		

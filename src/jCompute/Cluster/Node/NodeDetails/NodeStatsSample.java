@@ -11,7 +11,9 @@ public class NodeStatsSample
 	// Instant
 	private long simulationsProcessed;
 	private long bytesTX;
+	private long txS;
 	private long bytesRX;
+	private long rxS;
 	
 	public void setBytesTX(long bytesTX)
 	{
@@ -94,4 +96,23 @@ public class NodeStatsSample
 		bytesRX = 0;
 	}
 	
+	public void setTXS(long txS)
+	{
+		this.txS = txS;
+	}
+	
+	public long getTXS()
+	{
+		return txS;
+	}
+	
+	public void setRXS(long rxS)
+	{
+		this.rxS = rxS;
+	}
+	
+	public long getRXS()
+	{
+		return rxS;
+	}
 }
