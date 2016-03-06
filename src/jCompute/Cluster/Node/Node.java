@@ -65,6 +65,9 @@ public class Node
 	
 	/* Node Socket */
 	private Socket socket;
+	private int socketTX;
+	private int socketRX;
+	private boolean tcpNoDelay;
 	
 	// ProtocolState
 	private ProtocolState protocolState;
@@ -97,9 +100,17 @@ public class Node
 	
 	private final int NODE_TX_FREQUENCY = 10;
 	
-	public Node(final String address, String desc, final SimulationsManager simsManager)
+	public Node(final String address, String desc, final SimulationsManager simsManager, int socketTX, int socketRX, boolean tcpNoDelay)
 	{
 		log.info("Created Node");
+		
+		this.socketTX = socketTX;
+		this.socketRX = socketRX;
+		this.tcpNoDelay = tcpNoDelay;
+		
+		log.info("TCP TX Buffer : " + this.socketTX);
+		log.info("TCP RX Buffer : " + this.socketRX);
+		log.info("TCP No Delay : " + this.tcpNoDelay);
 		
 		simulationsProcessed = 0;
 		this.simsManager = simsManager;
@@ -135,8 +146,7 @@ public class Node
 			@Override
 			public void run()
 			{
-				nodeAveragedStats.update(OSInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(),
-						JVMInfo.getUsedJVMMemoryPercentage());
+				nodeAveragedStats.update(OSInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), JVMInfo.getUsedJVMMemoryPercentage());
 			}
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
@@ -360,6 +370,12 @@ public class Node
 		
 		// clientSocket = new Socket(address, port);
 		socket = new Socket();
+		
+		// Set Socket opts
+		socket.setReceiveBufferSize(socketRX);
+		socket.setSendBufferSize(socketTX);
+		socket.setTcpNoDelay(tcpNoDelay);
+		
 		socket.connect(new InetSocketAddress(address, NCP.StandardServerPort), 1000);
 		
 		// Link up Output Stream
@@ -551,7 +567,7 @@ public class Node
 					
 					log.info("Request " + requestId + " Add Sim - Result " + simId);
 					
-					txDataEnqueue(new AddSimReply(requestId,simId).toBytes());
+					txDataEnqueue(new AddSimReply(requestId, simId).toBytes());
 					
 					// If the sim was added sucessfully then start it
 					if(simId > 0)
@@ -616,8 +632,7 @@ public class Node
 						// sim/sim-finished/remove sim)
 						statCache.remove(simId);
 						
-						log.warn("Got Stat request for active simulation " + simId
-								+ " - removing simulation/stats - NOT sending SimStats!!!");
+						log.warn("Got Stat request for active simulation " + simId + " - removing simulation/stats - NOT sending SimStats!!!");
 					}
 					else
 					{
@@ -654,8 +669,7 @@ public class Node
 					}
 					else
 					{
-						log.warn("Refusing NodeOrderlyShutdown due to active sims " + activeSims + " & stats outstanding "
-								+ statsOutStanding);
+						log.warn("Refusing NodeOrderlyShutdown due to active sims " + activeSims + " & stats outstanding " + statsOutStanding);
 					}
 					
 				break;

@@ -34,9 +34,6 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(ClusterGUI.class);
 	
-	// Batch Manager
-	private BatchManager batchManager;
-	
 	// Main Frame
 	private JFrame guiFrame;
 	
@@ -58,7 +55,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	ImageIcon batchTabIcon = IconManager.getIcon("list");
 	ImageIcon clusterIcon = IconManager.getIcon("Nodes32");
 	
-	public ClusterGUI(final boolean buttonText, boolean allowMulti)
+	public ClusterGUI(final boolean buttonText, BatchManager batchManager)
 	{
 		try
 		{
@@ -76,6 +73,11 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 					guiFrame.setVisible(true);
 					
 					log.info("Created GUI");
+					
+					batchTab.setBatchManager(batchManager);
+					
+					// GUI is ready, now start BatchManager
+					batchManager.start();
 				}
 			});
 		}
@@ -83,10 +85,6 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		{
 			e.printStackTrace();
 		}
-		
-		batchManager = new BatchManager(allowMulti);
-		
-		batchTab.setBatchManager(batchManager);
 	}
 	
 	private void createFrame()

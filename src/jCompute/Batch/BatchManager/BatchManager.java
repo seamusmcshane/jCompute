@@ -64,9 +64,9 @@ public class BatchManager
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
 	
-	public BatchManager(boolean allowMulti)
+	public BatchManager(ControlNode controlNode)
 	{
-		this.controlNode = new ControlNode(allowMulti);
+		this.controlNode = controlNode;
 		
 		fifoQueue = new ManagedBypassableQueue();
 		
@@ -75,7 +75,10 @@ public class BatchManager
 		
 		activeItems = new ArrayList<BatchItem>(16);
 		completeItems = new ArrayList<CompletedItemsNode>();
-		
+	}
+	
+	public void start()
+	{
 		// Register on the event bus
 		JComputeEventBus.register(this);
 		
@@ -107,6 +110,8 @@ public class BatchManager
 			
 		}, 0, 10000);
 		
+		// BatchManager is ready, now start control node
+		controlNode.start();
 	}
 	
 	public boolean addBatch(String filePath)

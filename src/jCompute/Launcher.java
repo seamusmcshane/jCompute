@@ -1,5 +1,7 @@
 package jCompute;
 
+import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Cluster.Controller.ControlNode.ControlNode;
 import jCompute.Cluster.Node.Node;
 import jCompute.Gui.Cluster.ClusterGUI;
 import jCompute.Gui.Interactive.StandardGUI;
@@ -51,7 +53,9 @@ public class Launcher
 		new CommandLineArg("mcs", "8", "Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
 		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
 		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"), new CommandLineArg("desc", "not set", "Node Description"),
-		new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address")
+		new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address"),
+		new CommandLineArg("SocketTX", "4096", "SocketTX Buffer Size (int)"), new CommandLineArg("SocketRX", "4096", "SocketRX Buffer Size (int)"),
+		new CommandLineArg("TcpNoDelay", "1", "Configure TcpNoDelay (0/1)")
 	};
 	
 	public static void main(String args[])
@@ -178,6 +182,12 @@ public class Launcher
 		/* Init the Event bus in Async Mode */
 		JComputeEventBus.initAsync();
 		
+		int socketTX = Integer.parseInt(opts.get("SocketTX").getValue());
+		int socketRX = Integer.parseInt(opts.get("SocketRX").getValue());
+		
+		int tcpNoDelayInt = Integer.parseInt(opts.get("TcpNoDelay").getValue());
+		boolean tcpNoDelay = tcpNoDelayInt == 1 ? true : false;
+		
 		switch(mode)
 		{
 			case 0:
@@ -198,7 +208,9 @@ public class Launcher
 					allowMulti = true;
 				}
 				
-				clusterGUI = new ClusterGUI(buttonText, allowMulti);
+				BatchManager batchManager = new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay));
+				
+				clusterGUI = new ClusterGUI(buttonText, batchManager);
 				
 			break;
 			case 2:
@@ -213,7 +225,7 @@ public class Launcher
 					@Override
 					public void run()
 					{
-						node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
+						node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())), socketTX, socketRX, tcpNoDelay);
 						
 						node.start();
 						

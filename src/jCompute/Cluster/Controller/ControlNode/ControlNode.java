@@ -62,6 +62,9 @@ public class ControlNode
 	/* Connecting Nodes List */
 	private LinkedList<NodeManager> connectingNodes;
 	private boolean allowMulti;
+	private int socketTX;
+	private int socketRX;
+	private boolean tcpNoDelay;
 	
 	private Timer ncpTimer;
 	private int ncpTimerSpeed = 1;
@@ -82,13 +85,20 @@ public class ControlNode
 	
 	private int timerCount;
 	
-	public ControlNode(boolean allowMulti)
+	public ControlNode(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay)
+	
 	{
 		log.info("Starting ControlNode");
 		
 		this.allowMulti = allowMulti;
+		this.socketTX = socketTX;
+		this.socketRX = socketRX;
+		this.tcpNoDelay = tcpNoDelay;
 		
-		log.info("Allow multiple nodes to connect from same address : " + allowMulti);
+		log.info("Allow multiple nodes to connect from same address : " + this.allowMulti);
+		log.info("TCP TX Buffer : " + this.socketTX);
+		log.info("TCP RX Buffer : " + this.socketRX);
+		log.info("TCP No Delay : " + this.tcpNoDelay);
 		
 		// Local to remote simulation map
 		localSimulationMap = new HashMap<Integer, RemoteSimulationMapping>();
@@ -99,7 +109,10 @@ public class ControlNode
 		// List of simulation nodes.
 		activeNodes = new LinkedList<NodeManager>();
 		connectingNodes = new LinkedList<NodeManager>();
-		
+	}
+	
+	public void start()
+	{
 		// Register on the event bus
 		JComputeEventBus.register(this);
 		
@@ -299,6 +312,9 @@ public class ControlNode
 		{
 			listenSocket = new ServerSocket();
 			
+			// Listening RX must be done before address bind
+			listenSocket.setReceiveBufferSize(socketRX);
+			
 			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCP.StandardServerPort));
 			
 			Thread thread = new Thread(new Runnable()
@@ -316,7 +332,9 @@ public class ControlNode
 						{
 							Socket nodeSocket = listenSocket.accept();
 							
-							nodeSocket.setSendBufferSize(32768);
+							// Set Socket opts
+							nodeSocket.setSendBufferSize(socketTX);
+							nodeSocket.setTcpNoDelay(tcpNoDelay);
 							
 							log.info("New Connection from : " + nodeSocket.getRemoteSocketAddress());
 							
