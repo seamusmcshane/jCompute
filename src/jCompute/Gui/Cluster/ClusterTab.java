@@ -212,19 +212,19 @@ public class ClusterTab extends JPanel
 		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeBytesTXChar = new GlobalStatChartPanel("Network kBytes TX", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeBytesTXChar = new GlobalStatChartPanel("Network (Avg)kBytes Tx", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeBytesTXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeBytesTXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeTXSChar = new GlobalStatChartPanel("Network TXS", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeTXSChar = new GlobalStatChartPanel("Network TXs", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeTXSChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeTXSChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeBytesRXChar = new GlobalStatChartPanel("Network kBytes RX", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeBytesRXChar = new GlobalStatChartPanel("Network (Avg)kBytes Rx", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeBytesRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeBytesRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeRXSChar = new GlobalStatChartPanel("Network RXS", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeRXSChar = new GlobalStatChartPanel("Network RXs", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeRXSChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeRXSChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
@@ -395,8 +395,11 @@ public class ClusterTab extends JPanel
 		clusterNodeStatsPending.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getStatisticsPendingFetch());
 		clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
 		clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
-		clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / 1000L));
-		clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / 1000L));
+		
+		// To Avg KiloBytes per second from bytes per 60 seconds
+		clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / 1000L / 60L));
+		clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / 1000L / 60L));
+		
 		clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
 		clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
 	}
