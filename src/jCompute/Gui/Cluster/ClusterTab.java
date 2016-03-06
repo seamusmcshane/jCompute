@@ -281,15 +281,15 @@ public class ClusterTab extends JPanel
 		graphsJPanelContainer.add(clusterNodeBytesRXChar, gbConstraints7);
 		
 		GridBagConstraints gbConstraints8 = new GridBagConstraints();
-		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
-		gbConstraints7.gridx = 0;
-		gbConstraints7.gridy = 8;
+		gbConstraints8.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints8.gridx = 0;
+		gbConstraints8.gridy = 8;
 		graphsJPanelContainer.add(clusterNodeTXSChar, gbConstraints8);
 		
 		GridBagConstraints gbConstraints9 = new GridBagConstraints();
-		gbConstraints7.fill = GridBagConstraints.HORIZONTAL;
-		gbConstraints7.gridx = 0;
-		gbConstraints7.gridy = 9;
+		gbConstraints9.fill = GridBagConstraints.HORIZONTAL;
+		gbConstraints9.gridx = 0;
+		gbConstraints9.gridy = 9;
 		graphsJPanelContainer.add(clusterNodeRXSChar, gbConstraints9);
 		
 		ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon16");
