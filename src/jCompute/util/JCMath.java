@@ -52,14 +52,14 @@ public class JCMath
 	public static double round(double value, int places)
 	{
 		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		bd = bd.setScale(places, RoundingMode.HALF_EVEN);
 		return bd.doubleValue();
 	}
 	
 	public static float round(float value, int places)
 	{
 		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		bd = bd.setScale(places, RoundingMode.HALF_EVEN);
 		return bd.floatValue();
 	}
 	
@@ -143,7 +143,7 @@ public class JCMath
 		
 		return direction % 360;
 	}
-
+	
 	/**
 	 * Adds an angle to another angle, ensuring the result wraps correctly - in the range (0-360).
 	 * @param angle
