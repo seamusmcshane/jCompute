@@ -28,7 +28,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	public static final char SUBOPTION_DELIMITER = ';';
 	public static final char FIELD_DELIMITER = '=';
 	
-	private final String logFormat = "TextBatchLogFormat";
+	private final String logFormat = "TextBatchLogFormatV2";
 	
 	private String logFileName;
 	private String logType;
@@ -41,13 +41,9 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	private ArrayList<TextBatchLogItem> logItems;
 	private Semaphore semaphore = new Semaphore(1, false);
 	
-	private long processingTime;
-	
-	public TextBatchLogFormatV2(String filePath, int maxVal) throws IOException
+	public TextBatchLogFormatV2(String filePath) throws IOException
 	{
 		Path path = Paths.get(filePath);
-		
-		TimerObj to = new TimerObj();
 		
 		logItems = new ArrayList<TextBatchLogItem>();
 		
@@ -57,8 +53,6 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 		String header = oHeader.get();
 		readHeaderLine(header);
 		headerLines.close();
-		
-		to.startTimer();
 		
 		// Create a pool with threads matching processors
 		ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
@@ -86,11 +80,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 		// Free up the threads in the pool
 		forkJoinPool.shutdown();
 		
-		to.stopTimer();
-		
 		itemLines.close();
-		
-		processingTime = to.getTimeTaken();
 		
 		// Choose Plot Source
 		zAxisName = "StepCount";
@@ -345,14 +335,5 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	public ArrayList<TextBatchLogItem> getLogItems()
 	{
 		return logItems;
-	}
-	
-	/*
-	 * *****************************************************************************************************
-	 * Processing Metric
-	 *****************************************************************************************************/
-	public long getProcessingTime()
-	{
-		return processingTime;
 	}
 }
