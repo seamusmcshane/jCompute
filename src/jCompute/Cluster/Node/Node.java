@@ -42,6 +42,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class Node
 	private DataOutputStream commandOutput;
 	private DataInputStream commandInput;
 	
-	/* Node Socket */
+	/* Node Socket + SocketOpts */
 	private Socket socket;
 	private int socketTX;
 	private int socketRX;
@@ -77,12 +78,13 @@ public class Node
 	
 	private Timer nodeStatsUpdateTimer;
 	private NodeAveragedStats nodeAveragedStats;
-	private long simulationsProcessed;
 	
-	private long bytesTX;
-	private long txS;
-	private long bytesRX;
-	private long rxS;
+	// Counters
+	private LongAdder simulationsProcessed;
+	private LongAdder bytesTX;
+	private LongAdder txS;
+	private LongAdder bytesRX;
+	private LongAdder rxS;
 	
 	/* RegLoop */
 	boolean regLoopExit = false;
@@ -115,7 +117,6 @@ public class Node
 		log.info("TCP RX Buffer : " + this.socketRX);
 		log.info("TCP No Delay : " + this.tcpNoDelay);
 		
-		simulationsProcessed = 0;
 		this.simsManager = simsManager;
 		
 		/* Our Configuration */
@@ -365,11 +366,11 @@ public class Node
 		nodeAveragedStats.reset();
 		
 		// Reset Instant statistics on reconnection.
-		simulationsProcessed = 0;
-		bytesTX = 0;
-		bytesRX = 0;
-		txS = 0;
-		rxS = 0;
+		simulationsProcessed = new LongAdder();
+		bytesTX = new LongAdder();
+		bytesRX = new LongAdder();
+		txS = new LongAdder();
+		rxS = new LongAdder();
 		
 		log.info("Connecting to : " + address + "@" + NCP.StandardServerPort);
 		
@@ -603,19 +604,12 @@ public class Node
 					// Averaged Stats
 					nodeAveragedStats.populateStatSample(nodeStatsSample);
 					
-					// Since NodeStatsRequest
-					nodeStatsSample.setSimulationsProcessed(simulationsProcessed);
-					nodeStatsSample.setBytesTX(bytesTX);
-					nodeStatsSample.setBytesRX(bytesRX);
-					nodeStatsSample.setTXS(txS);
-					nodeStatsSample.setRXS(rxS);
-					
-					// Reset Stats
-					simulationsProcessed = 0;
-					bytesTX = 0;
-					bytesRX = 0;
-					txS = 0;
-					rxS = 0;
+					// Get sum since last NodeStatsRequest then Reset Stats
+					nodeStatsSample.setSimulationsProcessed(simulationsProcessed.sumThenReset());
+					nodeStatsSample.setBytesTX(bytesTX.sumThenReset());
+					nodeStatsSample.setBytesRX(bytesRX.sumThenReset());
+					nodeStatsSample.setTXS(txS.sumThenReset());
+					nodeStatsSample.setRXS(rxS.sumThenReset());
 					
 					NodeStatsReply NodeStatsReply = new NodeStatsReply(sequenceNum, nodeStatsSample);
 					
@@ -749,14 +743,15 @@ public class Node
 			itr.remove();
 			
 			commandOutput.write(bytes);
-			bytesTX += bytes.length;
+			
+			bytesTX.add(bytes.length);
 			log.debug(bytes.length + " Bytes Sent");
 			needsFlush = true;
 		}
 		
 		if(needsFlush)
 		{
-			txS++;
+			txS.increment();
 			commandOutput.flush();
 		}
 	}
@@ -781,10 +776,9 @@ public class Node
 			// Wrap the backingArray
 			data = ByteBuffer.wrap(backingArray);
 			
-			bytesRX += backingArray.length;
+			bytesRX.add(backingArray.length);
 			
-			rxS++;
-			
+			rxS.increment();
 		}
 		
 		return data;
@@ -811,7 +805,7 @@ public class Node
 			simsManager.removeSimulation(simId);
 			log.info("Removed Finished Simulation");
 			
-			simulationsProcessed++;
+			simulationsProcessed.increment();
 		}
 		
 		txDataEnqueue(new SimulationStateChanged(e).toBytes());

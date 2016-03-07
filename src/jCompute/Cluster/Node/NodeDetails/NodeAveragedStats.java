@@ -41,12 +41,27 @@ public class NodeAveragedStats
 		double statisticsPendingFetchTotal = 0;
 		double jvmMemoryUsedPercentageTotal = 0;
 		
-		// Create the Averages
+		/*
+		 * Create the Averages.
+		 * Note Loops Separated for prefetech/cache reasons
+		 */
 		for(int i = 0; i < history; i++)
 		{
 			cpuUsageTotal += cpuUsage[i];
+		}
+		
+		for(int i = 0; i < history; i++)
+		{
 			simulationsActiveTotal += simulationsActive[i];
+		}
+		
+		for(int i = 0; i < history; i++)
+		{
 			statisticsPendingFetchTotal += statisticsPendingFetch[i];
+		}
+		
+		for(int i = 0; i < history; i++)
+		{
 			jvmMemoryUsedPercentageTotal += jvmMemoryUsedPercentage[i];
 		}
 		
@@ -55,11 +70,10 @@ public class NodeAveragedStats
 		statisticsPendingFetchAvg = statisticsPendingFetchTotal / history;
 		jvmMemoryUsedPercentageAvg = jvmMemoryUsedPercentageTotal / history;
 		
-		sample.setCpuUsage((int)Math.round(cpuUsageAvg));
-		sample.setSimulationsActive((int)Math.round(simulationsActiveAvg));
-		sample.setStatisticsPendingFetch((int)Math.round(statisticsPendingFetchAvg));
-		sample.setJvmMemoryUsedPercentage((int)Math.round(jvmMemoryUsedPercentageAvg));
-
+		sample.setCpuUsage((int) Math.round(cpuUsageAvg));
+		sample.setSimulationsActive((int) Math.round(simulationsActiveAvg));
+		sample.setStatisticsPendingFetch((int) Math.round(statisticsPendingFetchAvg));
+		sample.setJvmMemoryUsedPercentage((int) Math.round(jvmMemoryUsedPercentageAvg));
 	}
 	
 	public synchronized void reset()
