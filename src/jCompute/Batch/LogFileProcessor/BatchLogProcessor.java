@@ -203,6 +203,18 @@ public class BatchLogProcessor implements BatchLogInf
 		return zValRangeMax - zValRangeMin;
 	}
 	
+	@Override
+	public double getZValRangeMin()
+	{
+		return zValRangeMin;
+	}
+	
+	@Override
+	public double getZValRangeMax()
+	{
+		return zValRangeMax;
+	}
+	
 	/*
 	 * *****************************************************************************************************
 	 * Axis Names

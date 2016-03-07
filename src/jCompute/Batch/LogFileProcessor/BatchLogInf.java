@@ -26,6 +26,10 @@ public interface BatchLogInf
 	
 	public double getZValRange();
 	
+	public double getZValRangeMin();
+	
+	public double getZValRangeMax();
+	
 	/*
 	 * *****************************************************************************************************
 	 * Axis Names
