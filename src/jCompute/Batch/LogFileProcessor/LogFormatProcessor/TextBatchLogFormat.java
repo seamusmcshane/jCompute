@@ -29,7 +29,7 @@ public class TextBatchLogFormat implements LogFormatInf
 	
 	private long processingTime;
 	
-	public TextBatchLogFormat(String fileName, int maxVal) throws IOException
+	public TextBatchLogFormat(String fileName) throws IOException
 	{
 		logItems = new ArrayList<TextBatchLogItem>();
 		
@@ -44,17 +44,20 @@ public class TextBatchLogFormat implements LogFormatInf
 		
 		to.startTimer();
 		
+		log.info("Reading Header");
+		
 		while(!finished)
 		{
 			if(readingItems)
 			{
-				// Items
-				log.info("finished");
 				
 				if(inputFile.readLine().equals("[+Items]"))
 				{
 					readItems(inputFile);
 				}
+				
+				// Items
+				log.info("Finished Reading Items");
 				
 				finished = true;
 			}
@@ -66,11 +69,22 @@ public class TextBatchLogFormat implements LogFormatInf
 					readHeader(inputFile);
 					
 					readingItems = true;
+					
+					log.info("Reading Items");
 				}
 				else
 				{
 					finished = true;
-					log.info("Could not find log file");
+					
+					String message = "File is not a batch item log file.";
+					
+					log.error(message);
+					
+					Throwable throwable = new Throwable(message);
+					
+					throwable.setStackTrace(Thread.currentThread().getStackTrace());
+					
+					throw new IOException(throwable);
 				}
 			}
 		}
