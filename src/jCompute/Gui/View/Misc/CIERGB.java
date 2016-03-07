@@ -212,7 +212,7 @@ public class CIERGB
 	
 	public static float[] lab1976ToXYZ(float[] lab)
 	{
-		float[] refWhite = d50xyz;
+		float[] refWhite = d65xyz;
 		
 		// X = 0.9642, Y = 1, Z = 0.8249
 		double fy = (lab[0] + 16.0) / 116.0;
