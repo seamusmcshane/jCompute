@@ -2,71 +2,22 @@ package jCompute.Gui.View.Misc;
 
 public class CIERGB
 {
-	private static final float[] d50xyz =
+	public static final float[] d50xyz =
 	{
 		0.9642f, 1.0f, 0.8249f
 	};
 	
-	private static final float[] iccxyz = d50xyz;
+	public static final float[] iccxyz = d50xyz;
 	
-	private static final float[] d65xyz =
+	public static final float[] d65xyz =
 	{
 		0.9505f, 1.0f, 1.089f
 	};
 	
-	private static final float[] eexyz =
+	public static final float[] eexyz =
 	{
 		1.0f, 1.0f, 1.0f
 	};
-	
-	/**
-	 * Simple Analytic Approximations to the CIE XYZ Color Matching Functions
-	 * http://jcgt.org/published/0002/02/01/
-	 * @param wavelen
-	 * @return
-	 */
-	public static float XYZMultiLobeFit1931X(double wavelen)
-	{
-		double dParam1 = (wavelen - 442.0) * ((wavelen < 442.0) ? 0.0624 : 0.0374);
-		double dParam2 = (wavelen - 599.8) * ((wavelen < 599.8) ? 0.0264 : 0.0323);
-		double dParam3 = (wavelen - 501.1) * ((wavelen < 501.1) ? 0.0490 : 0.0382);
-		return (float) (0.362 * Math.exp(-0.5 * dParam1 * dParam1) + 1.056 * Math.exp(-0.5 * dParam2 * dParam2) - 0.065 * Math.exp(-0.5 * dParam3 * dParam3));
-	}
-	
-	/**
-	 * Simple Analytic Approximations to the CIE XYZ Color Matching Functions
-	 * http://jcgt.org/published/0002/02/01/
-	 * @param wavelen
-	 * @return
-	 */
-	public static float XYZMultiLobeFit1931Y(double wavelen)
-	{
-		double dParam1 = (wavelen - 568.8) * ((wavelen < 568.8) ? 0.0213 : 0.0247);
-		double dParam2 = (wavelen - 530.9) * ((wavelen < 530.9) ? 0.0613 : 0.0322);
-		
-		return (float) (0.821f * Math.exp(-0.5f * dParam1 * dParam1) + 0.286 * Math.exp(-0.5 * dParam2 * dParam2));
-	}
-	
-	/**
-	 * Simple Analytic Approximations to the CIE XYZ Color Matching Functions
-	 * http://jcgt.org/published/0002/02/01/
-	 * @param wavelen
-	 * @return
-	 */
-	public static float XYZMultiLobeFit1931Z(double wavelen)
-	{
-		double dParam1 = (wavelen - 437.0) * ((wavelen < 437.0) ? 0.0845f : 0.0278);
-		double dParam2 = (wavelen - 459.0) * ((wavelen < 459.0) ? 0.0385f : 0.0725);
-		return (float) (1.217 * Math.exp(-0.5 * dParam1 * dParam1) + 0.681 * Math.exp(-0.5 * dParam2 * dParam2));
-	}
-	
-	public static float[] XYZMultiLobeFit1931XYZ(float wavelen)
-	{
-		return new float[]
-		{
-			XYZMultiLobeFit1931X(wavelen), XYZMultiLobeFit1931Y(wavelen), XYZMultiLobeFit1931Z(wavelen)
-		};
-	}
 	
 	/**
 	 * How to interpret the sRGB color space (specified in IEC 61966-2-1) for ICC profiles
@@ -159,11 +110,6 @@ public class CIERGB
 		return xyz[1];
 	}
 	
-	public static float[] WavelengthToSRGB(float waveLength)
-	{
-		return XYZtoRGB(XYZMultiLobeFit1931XYZ(waveLength));
-	}
-	
 	public static float[] RGBInttoXYZ(int red, int green, int blue)
 	{
 		return RGBFloatToXYZ((float) red / 255f, (float) green / 255f, (float) blue / 255f);
@@ -191,6 +137,19 @@ public class CIERGB
 		{
 			val = Math.pow(1.055 * val, 1.0 / 2.4) - 0.055;
 		}
+		
+		return val;
+	}
+	
+	public static int addSRGB(int val)
+	{
+		int red = (val >> 16) & 0xFF;
+		int green = (val >> 8) & 0xFF;
+		int blue = (val & 0xFF);
+		red = (int) (addSRGB((double) red / 255.0) * 255.0);
+		green = (int) (addSRGB((double) green / 255.0) * 255.0);
+		blue = (int) (addSRGB((double) blue / 255.0) * 255.0);
+		val = (255 << 24) | (red << 16) | (green << 8) | blue;
 		
 		return val;
 	}
