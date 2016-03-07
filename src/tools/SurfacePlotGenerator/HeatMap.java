@@ -1,8 +1,10 @@
 package tools.SurfacePlotGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
-import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
+import jCompute.Datastruct.knn.benchmark.TimerObj;
+import jCompute.Gui.View.Misc.Palette;
 import jCompute.util.JCMath;
+import jCompute.util.Text;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,15 +15,27 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
+import java.util.stream.IntStream;
 
 import javax.swing.JPanel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HeatMap extends JPanel
 {
-	private MapperRemapper reMapper;
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(HeatMap.class);
+	
+	private TimerObj to = new TimerObj();
+	
 	private int heatMapWidth;
 	private int heatMapHeight;
 	
@@ -31,6 +45,12 @@ public class HeatMap extends JPanel
 	private boolean legend;
 	
 	private BufferedImage chartImage;
+	private ColorModel linearRGB;
+	
+	private final int PALETTE_SIZE = 100;
+	private int[] palette;
+	
+	private long totalTime;
 	
 	public HeatMap(int heatMapWidth, boolean legend, int scale)
 	{
@@ -53,12 +73,18 @@ public class HeatMap extends JPanel
 		this.setPreferredSize(new Dimension(heatMapWidth, heatMapHeight));
 		this.setMinimumSize(new Dimension(heatMapWidth, heatMapHeight));
 		this.setSize(new Dimension(heatMapWidth, heatMapHeight));
+		
+		palette = Palette.paletteFromPaletteName("LabSpecturmPalette", false, PALETTE_SIZE, true);
 	}
 	
 	public void setLog(BatchLogProcessor logProcessor)
 	{
+		// Linear RGB ColorModel
+		linearRGB = new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000, false, DataBuffer.TYPE_INT);
+		
 		// Chart Image
-		chartImage = new BufferedImage(heatMapWidth, heatMapHeight, BufferedImage.TYPE_INT_ARGB);
+		chartImage = new BufferedImage(linearRGB, linearRGB.createCompatibleWritableRaster(heatMapWidth, heatMapHeight), false, null);
+		
 		Graphics2D cg = chartImage.createGraphics();
 		
 		// Default Font
@@ -92,7 +118,7 @@ public class HeatMap extends JPanel
 		
 		// Base Ratio
 		double ratio = (double) heatMapWidth / (double) heatMapHeight;
-		//System.out.println("ratio " + ratio);
+		// System.out.println("ratio " + ratio);
 		
 		// Scales the lines
 		cg.setColor(Color.black);
@@ -126,11 +152,11 @@ public class HeatMap extends JPanel
 	
 	private void addHeatmapImage(BatchLogProcessor logProcessor, Graphics2D target, int x, int y, int width, int height)
 	{
-		// un-scaled heatmap image 1/1
-		BufferedImage rawValues = createMapValues(logProcessor);
+		// Unscaled heatmap image 1/1
+		BufferedImage rawValuesImage = createRawValuesImage(logProcessor);
 		
-		// scaled
-		BufferedImage heatMapPlotImage = heapMapPlotImage(rawValues, width, height);
+		// Scaled
+		BufferedImage heatMapPlotImage = createScaledHeapMapPlotImage(rawValuesImage, width, height);
 		
 		target.drawImage(heatMapPlotImage, x + 1, y + 1, width - 1, height - 1, null);
 		
@@ -140,17 +166,18 @@ public class HeatMap extends JPanel
 	
 	private void addColorMap(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int width, int height)
 	{
+		to.startTimer();
+		
 		int x = (int) (heatMapWidth * 0.83);
 		int y = heatMapPlotYOffset;
 		
-		int[] palette = reMapper.getPalette();
 		int paletteSize = palette.length;
-		//System.out.println("paletteSize " + paletteSize);
+		// System.out.println("paletteSize " + paletteSize);
 		
 		double pIncr = ((double) paletteSize / (double) height);
-		//System.out.println("paletteSize " + paletteSize);
-		//System.out.println("height " + height);
-		//System.out.println("pIncr " + pIncr);
+		// System.out.println("paletteSize " + paletteSize);
+		// System.out.println("height " + height);
+		// System.out.println("pIncr " + pIncr);
 		
 		double pVal = 0;
 		for(int i = height; i > 0; i--)
@@ -161,15 +188,23 @@ public class HeatMap extends JPanel
 			
 			pVal += pIncr;
 			
-			//System.out.println("pVal " + pVal);
+			// System.out.println("pVal " + pVal);
 		}
 		
 		cg.setColor(Color.BLACK);
 		cg.drawRect(x, y, width, height);
+		
+		to.stopTimer();
+		
+		log.info("ColorMap : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
 	}
 	
 	private void addColorMapTickAndLabels(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
 	{
+		to.startTimer();
+		
 		int width = (int) (heatMapWidth * 0.05);
 		int x = (int) (heatMapWidth * 0.83) + width;
 		
@@ -180,40 +215,54 @@ public class HeatMap extends JPanel
 		int fontHeight = metrics.getHeight() + 2;
 		double labelPad = (double) tickLength / 2;
 		
-		int tickY = 100000;
+		// zTicks
+		int zSteps = (int) logProcessor.getZValRangeMax();
+		int tickZ = zSteps / 1000;
+		
 		int maxTicks = 10;
 		
-		if(tickY > maxTicks)
+		if(tickZ > maxTicks)
 		{
 			for(int i = maxTicks; i > 0; i--)
 			{
-				if(tickY % i == 0)
+				if(tickZ % i == 0)
 				{
-					tickY = i;
+					tickZ = i;
 					break;
 				}
 			}
 		}
+		// System.out.println("TickZ " + tickZ);
 		
-		double yIncr = (double) (heatMapPlotHeight) / (double) tickY;
+		double yIncr = (double) heatMapPlotHeight / (double) tickZ;
+		// System.out.println("yIncr " + yIncr);
 		
-		double yValMin = (double) logProcessor.getZValMin();
-		double yValMax = (double) logProcessor.getZValMax();
+		// Vals
+		double zValMin = logProcessor.getZValRangeMin();
+		double zValMax = logProcessor.getZValRangeMax();
+		// System.out.println("zValMin " + zValMin);
+		// System.out.println("zValMax " + zValMax);
+		
+		double zTickStepInc = zSteps / tickZ;
+		// System.out.println("zTickStepInc " + zTickStepInc);
+		
+		double zStepValInc = JCMath.round(((zValMax - zValMin) / (double) (zSteps - 1)), 0);
+		// System.out.println("zStepValInc " + zStepValInc);
+		
+		double zValStep = zTickStepInc * zStepValInc;
+		// System.out.println("zValStep " + zValStep);
+		
+		double zDval = zValMin;
 		
 		boolean intValues = false;
 		
-		if(yValMin == (int) yValMin && yValMax == (int) yValMax)
+		// Integer Detection
+		if((zValMin == (int) zValMin) && (zValMax == (int) zValMax))
 		{
 			intValues = true;
 		}
 		
-		NiceTickScaler tickScaler = new NiceTickScaler(logProcessor.getZValMin(), logProcessor.getZValMax());
-		tickScaler.setMaxTicks(tickY);
-		
-		double yValStep = tickScaler.getTickSpacing();
-		
-		double yDval = tickScaler.getNiceMin();
-		for(int y = 0; y < tickY + 1; y++)
+		for(int y = 0; y < tickZ + 1; y++)
 		{
 			double lineX = x;
 			double lineY = (heatMapPlotHeight + heatMapPlotYOffset) - (yIncr * y);
@@ -225,23 +274,23 @@ public class HeatMap extends JPanel
 			
 			if(intValues)
 			{
-				sval = String.valueOf((int) yDval);
+				sval = String.valueOf((int) zDval);
 			}
 			else
 			{
 				// Correct usable numbers.
-				if(yDval == Double.NEGATIVE_INFINITY)
+				if(zDval == Double.NEGATIVE_INFINITY)
 				{
-					yDval = -Double.MAX_VALUE;
+					zDval = -Double.MAX_VALUE;
 				}
 				
-				if(yDval == Double.POSITIVE_INFINITY)
+				if(zDval == Double.POSITIVE_INFINITY)
 				{
-					yDval = Double.MAX_VALUE;
+					zDval = Double.MAX_VALUE;
 				}
 				
 				// Round the doubles
-				sval = String.valueOf(JCMath.round(yDval, 4));
+				sval = String.valueOf(JCMath.round(zDval, 4));
 			}
 			
 			int sWidth = metrics.stringWidth(sval) / 2;
@@ -252,7 +301,7 @@ public class HeatMap extends JPanel
 			// Draw String
 			cg.drawString(sval, (float) sX, (float) sY);
 			
-			yDval += yValStep;
+			zDval += zValStep;
 		}
 		
 		// Value Label
@@ -261,10 +310,18 @@ public class HeatMap extends JPanel
 		int cx = (int) ((heatMapWidth * 0.85) + (width * 0.5));
 		double zAnx = (cx) - (zAxisNameWidth);
 		cg.drawString(logProcessor.getZAxisName(), (float) zAnx, (float) (heatMapPlotYOffset - (fontHeight * 0.5)));
+		
+		to.stopTimer();
+		
+		log.info("ColorMap Ticks And Labels : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
 	}
 	
 	private void addLegend(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight)
 	{
+		to.startTimer();
+		
 		Font fontLatch = cg.getFont();
 		Font newFont = fontLatch.deriveFont(fontSizeScale);
 		cg.setFont(newFont);
@@ -289,12 +346,32 @@ public class HeatMap extends JPanel
 		cg.drawRect((int) (heatMapWidth * 0.05), heatMapPlotYOffset, (int) max + (pad * 2), (int) ((fontHeight * (2 * (legend.length + 1)))) - fontHeight / 2);
 		
 		cg.setFont(fontLatch);
+		
+		to.stopTimer();
+		
+		log.info("Legend : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
 	}
 	
 	private void addPlotTickAndLabels(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
 	{
+		to.startTimer();
+		
+		// FONT
+		cg.setColor(Color.black);
+		Font fontLatch = cg.getFont();
+		Font newFont = fontLatch.deriveFont(fontSizeScale);
+		cg.setFont(newFont);
+		FontMetrics metrics = cg.getFontMetrics(newFont);
+		int fontHeight = metrics.getHeight() + 2;
+		
+		double labelPad = (double) tickLength / 2;
+		
+		// xTicks
+		
+		int xSteps = logProcessor.getXSteps();
 		int tickX = logProcessor.getXSteps();
-		int tickY = logProcessor.getYSteps();
 		
 		int maxTicks = 10;
 		
@@ -309,45 +386,26 @@ public class HeatMap extends JPanel
 				}
 			}
 		}
-		
-		if(tickY > maxTicks)
-		{
-			for(int i = maxTicks; i > 0; i--)
-			{
-				if(tickY % i == 0)
-				{
-					tickY = i;
-					break;
-				}
-			}
-		}
+		// System.out.println("TickX " + tickX);
 		
 		double xIncr = (double) heatMapPlotWidth / (double) tickX;
-		double yIncr = (double) (heatMapPlotHeight) / (double) tickY;
-		
-		cg.setColor(Color.black);
-		Font fontLatch = cg.getFont();
-		Font newFont = fontLatch.deriveFont(fontSizeScale);
-		cg.setFont(newFont);
-		FontMetrics metrics = cg.getFontMetrics(newFont);
-		int fontHeight = metrics.getHeight() + 2;
-		
-		double labelPad = (double) tickLength / 2;
-		
-		boolean intValues = false;
 		
 		// Vals
-		double xValMin = (double) logProcessor.getXValMin();
-		double xValMax = (double) logProcessor.getXValMax();
-		NiceTickScaler xTickScaler = new NiceTickScaler(xValMin, xValMax);
-		xTickScaler.setMaxTicks(tickX);
-		double xValStep = xTickScaler.getTickSpacing();
+		double xValMin = logProcessor.getXValMin();
+		double xValMax = logProcessor.getXValMax();
+		// System.out.println("xValMin " + xValMin);
+		// System.out.println("xValMax " + xValMax);
 		
-		double yValMin = (double) logProcessor.getYValMin();
-		double yValMax = (double) logProcessor.getYValMax();
-		NiceTickScaler yTickScaler = new NiceTickScaler(yValMin, yValMax);
-		yTickScaler.setMaxTicks(tickY);
-		double yValStep = yTickScaler.getTickSpacing();
+		double xTickStepInc = xSteps / tickX;
+		// System.out.println("xTickStepInc " + xTickStepInc);
+		
+		double xStepValInc = (xValMax - xValMin) / (double) (xSteps - 1);
+		// System.out.println("xStepValInc " + xStepValInc);
+		
+		double xValStep = xTickStepInc * xStepValInc;
+		// System.out.println("xValStep " + xValStep);
+		
+		boolean intValues = false;
 		
 		// Integer Detection
 		if((xValMin == (int) xValMin) && (xValMax == (int) xValMax))
@@ -356,7 +414,6 @@ public class HeatMap extends JPanel
 		}
 		
 		double xDval = xValMin;
-		double yDval = yValMin;
 		
 		for(int x = 0; x < (tickX + 1); x++)
 		{
@@ -406,6 +463,43 @@ public class HeatMap extends JPanel
 		int cX = (int) ((heatMapPlotXOffset) + (heatMapPlotWidth * 0.5));
 		double xAnx = (cX) - (xAxisNameWidth);
 		cg.drawString(logProcessor.getXAxisName(), (float) xAnx, (float) ((heatMapPlotHeight + heatMapPlotYOffset + tickLength + fontHeight + labelPad) + labelPad + (fontHeight / 2)));
+		
+		// Y Ticks
+		
+		int ySteps = logProcessor.getYSteps();
+		int tickY = logProcessor.getYSteps();
+		
+		if(tickY > maxTicks)
+		{
+			for(int i = maxTicks; i > 0; i--)
+			{
+				if(tickY % i == 0)
+				{
+					tickY = i;
+					break;
+				}
+			}
+		}
+		
+		// System.out.println("TickY " + tickY);
+		
+		double yIncr = (double) heatMapPlotHeight / (double) tickY;
+		
+		double yValMin = logProcessor.getYValMin();
+		double yValMax = logProcessor.getYValMax();
+		// System.out.println("yValMin " + yValMin);
+		// System.out.println("yValMax " + yValMax);
+		
+		double yTickStepInc = ySteps / tickY;
+		// System.out.println("yTickStepInc " + yTickStepInc);
+		
+		double yStepValInc = (yValMax - yValMin) / (double) (ySteps - 1);
+		// System.out.println("yStepValInc " + yStepValInc);
+		
+		double yValStep = yTickStepInc * yStepValInc;
+		// System.out.println("yValStep " + yValStep);
+		
+		double yDval = yValMin;
 		
 		for(int y = 0; y < (tickY + 1); y++)
 		{
@@ -473,40 +567,96 @@ public class HeatMap extends JPanel
 		
 		// Reset Font
 		cg.setFont(fontLatch);
+		
+		to.stopTimer();
+		
+		log.info("PlotArea Ticks And Labels : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
 	}
 	
-	private BufferedImage heapMapPlotImage(BufferedImage rawValues, int width, int height)
+	private BufferedImage createScaledHeapMapPlotImage(BufferedImage rawValuesImage, int width, int height)
 	{
+		to.startTimer();
+		
 		// Resize
-		Image tmp = rawValues.getScaledInstance(width, height, Image.SCALE_FAST);
-		BufferedImage heatMapPlot = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Image tmp = rawValuesImage.getScaledInstance(width, height, Image.SCALE_FAST);
+		
+		BufferedImage heatMapPlot = new BufferedImage(linearRGB, linearRGB.createCompatibleWritableRaster(width, height), false, null);
+		// BufferedImage heatMapPlot = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = heatMapPlot.createGraphics();
 		g2d.drawImage(tmp, 0, 0, null);
 		g2d.dispose();
 		
+		to.stopTimer();
+		
+		log.info("Created Scaled Image : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
+		
 		return heatMapPlot;
 	}
 	
-	private BufferedImage createMapValues(BatchLogProcessor logProcessor)
+	private BufferedImage createRawValuesImage(BatchLogProcessor logProcessor)
 	{
-		int maxSteps = Math.max(logProcessor.getXSteps(), logProcessor.getYSteps());
-		double stepsRatio = (double) logProcessor.getXSteps() / (double) logProcessor.getYSteps();
+		to.startTimer();
 		
-		//System.out.println("stepsRatio " + stepsRatio);
+		double[] values = logProcessor.getAvgDataFlat();
 		
-		BufferedImage rawValues = new BufferedImage(logProcessor.getXSteps(), logProcessor.getYSteps(), BufferedImage.TYPE_INT_RGB);
+		int xSteps = logProcessor.getXSteps();
+		int ySteps = logProcessor.getYSteps();
+		double range = logProcessor.getZValRange();
+		double rangeMin = logProcessor.getZValMin();
 		
-		reMapper = (MapperRemapper) logProcessor.getAvg();
+		// Note swap x/y depending on transpose
+		BufferedImage rawValues = new BufferedImage(linearRGB, linearRGB.createCompatibleWritableRaster(xSteps, ySteps), false, null);
 		
-		reMapper.populateImage(rawValues);
+		// BufferedImage rawValues = new BufferedImage(xSteps, ySteps, BufferedImage.TYPE_INT_RGB);
 		
-		// Flip
-		AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
-		tx.translate(0, -rawValues.getHeight(null));
-		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-		rawValues = op.filter(rawValues, null);
+		int[] pixelData = ((DataBufferInt) rawValues.getRaster().getDataBuffer()).getData();
+		
+		// Untransposed pixel data
+		int[] pixelDataUT = new int[pixelData.length];
+		
+		// Untransposed pixel data
+		// Each pixel parallel processed
+		IntStream.range(0, ySteps).forEach(y -> IntStream.range(0, xSteps).forEach(x ->
+		{
+			int offset = x * ySteps + y;
+			pixelDataUT[offset] = dataValueToIntRGBA(values[offset], rangeMin, range, palette);
+		}));
+		
+		// copy data and transpose to real array
+		IntStream.range(0, ySteps).forEach(y -> IntStream.range(0, xSteps).forEach(x ->
+		{
+			// Rotate Right 90 + Flip 180
+			// int rowOffset = x * ySteps + y;
+			// int colOffset = y * xSteps + x;
+			
+			// Rotate Left 90
+			int rowOffset = (x * ySteps - y) + (ySteps - 1);
+			int colOffset = y * xSteps + x;
+			
+			// Rotate Right 90
+			// int rowOffset = x * ySteps + y;
+			// int colOffset = (y * xSteps - x) + (xSteps-1);
+			pixelData[colOffset] = pixelDataUT[rowOffset];
+		}));
+		
+		to.stopTimer();
+		
+		log.info("Created Unscaled Image : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
 		
 		return rawValues;
+	}
+	
+	private int dataValueToIntRGBA(double value, double dataRangeMin, double dataRange, int[] palette)
+	{
+		double per = (value - dataRangeMin) / dataRange;
+		
+		return palette[(int) ((palette.length - 1) * per)];
 	}
 	
 	private void paintValues(Graphics g, int x, int y)
@@ -529,5 +679,10 @@ public class HeatMap extends JPanel
 	public BufferedImage getImage()
 	{
 		return chartImage;
+	}
+	
+	public long getTimeTaken()
+	{
+		return totalTime;
 	}
 }
