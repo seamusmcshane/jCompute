@@ -19,7 +19,7 @@ public class Bar
 	private float barDepth;
 	private float yTrans;
 	
-	private float barMax = 100f;
+	private float barMax = 200f;
 	private float height;
 	private float scaleReset;
 	

@@ -89,7 +89,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		 * cam.far = 102420f;
 		 */
 		
-		palette = Palette.SpectrumPalette(true, 100, 1f);
+		palette = Palette.LabSpecturmPalette(true, 100, true);
 		
 		// Surface
 		barSurface = new BarSurface(cam, palette);
@@ -127,7 +127,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		
 		tr = colorMap.getTextureRegion();
 		
-		double[][] data = logProcessor.getAvgData();
+		double[][] data = logProcessor.getAvgData2d();
 		String[] names = logProcessor.getAxisNames();
 		
 		System.out.println("xRange " + xMin + " " + xMax);

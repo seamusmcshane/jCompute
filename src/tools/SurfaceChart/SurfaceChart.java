@@ -2,6 +2,7 @@ package tools.SurfaceChart;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Gui.Component.Swing.MessageBox;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
@@ -14,7 +15,6 @@ import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -25,6 +25,7 @@ import org.lwjgl.opengl.Display;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -57,7 +58,7 @@ public class SurfaceChart implements WindowListener, ActionListener
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
 		cfg.title = "Bar Surface";
-		cfg.samples = 16;
+		cfg.samples = 4;
 		cfg.vSyncEnabled = true;
 		cfg.useGL30 = false;
 		
@@ -213,29 +214,27 @@ public class SurfaceChart implements WindowListener, ActionListener
 				}
 				catch(IOException e1)
 				{
-					String st = Text.stackTraceToString(e1.getStackTrace(), true);
-					String message = "Error Reading info log " + "<br>" + e1.getMessage() + "<br>" + st;
+					String st = Text.stackTraceToString(e1.getStackTrace(), false);
+					String message = "Error Reading info log " + "\n" + e1.getMessage() + "\n" + st;
 					
-					JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
+					MessageBox.popup(message, gui);
 				}
 				
-				if(ilp != null)
+				BatchLogProcessor logProcessor;
+				try
 				{
-					BatchLogProcessor logProcessor;
-					try
-					{
-						logProcessor = new BatchLogProcessor(file, ilp.getMaxSteps());
-						
-						glEnv.setData(logProcessor);
-					}
-					catch(IOException e1)
-					{
-						String st = Text.stackTraceToString(e1.getStackTrace(), true);
-						
-						String message = "Error Reading Item log " + "<br>" + e1.getMessage() + "<br>" + st;
-						
-						JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
-					}
+					// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
+					logProcessor = (ilp != null) ? new BatchLogProcessor(file, 0, ilp.getMaxSteps()) : new BatchLogProcessor(file);
+					
+					glEnv.setData(logProcessor);
+				}
+				catch(IOException e1)
+				{
+					String st = Text.stackTraceToString(e1.getStackTrace(), true);
+					
+					String message = "Error Reading Item log " + "\n" + e1.getMessage() + "\n" + st;
+					
+					MessageBox.popup(message, gui);
 				}
 			}
 			
