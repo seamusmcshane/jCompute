@@ -2,6 +2,7 @@ package tools.SurfacePlotGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Gui.Component.Swing.MessageBox;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
 
@@ -20,6 +21,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JButton;
@@ -28,18 +33,23 @@ import java.awt.event.ActionEvent;
 
 public class HeatMapUtil implements WindowListener
 {
+	// SL4J Logger
+	private static Logger log;
+	
 	private static JFrame gui;
 	
 	private JScrollPane sp;
 	private static HeatMap hm;
 	
-	private static String openCD = "C:\\Users\\Seamie\\Desktop\\PHD\\WorkSpace\\jCompute\\stats\\Prg3_84-90x100\\2016-02-01@1942[0] 84HungerThresholdVsInitialPopulation";
+	private static String openCD = "C:\\Users\\Seamie\\Desktop\\PHD\\WorkSpace\\jCompute\\stats\\Prg3_80-100\\2016-03-02@1059[0] 84HungerThresholdVsInitialPopulation";
 	private static String saveCD = "";
 	private JButton btnSave;
 	
 	public HeatMapUtil()
 	{
 		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+		
+		log = LoggerFactory.getLogger(HeatMapUtil.class);
 		
 		LookAndFeel.setLookandFeel("default");
 		
@@ -68,7 +78,7 @@ public class HeatMapUtil implements WindowListener
 				filechooser.setDialogTitle("Choose Directory");
 				filechooser.setMultiSelectionEnabled(false);
 				filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				int val = filechooser.showOpenDialog(filechooser);
+				int val = filechooser.showOpenDialog(gui);
 				
 				if(val == JFileChooser.APPROVE_OPTION)
 				{
@@ -76,7 +86,7 @@ public class HeatMapUtil implements WindowListener
 				}
 				else
 				{
-					System.out.println("Report Cancelled");
+					log.info("Report Cancelled");
 				}
 			}
 		});
@@ -108,7 +118,7 @@ public class HeatMapUtil implements WindowListener
 						}
 						catch(IOException ioe)
 						{
-							System.out.println("Failed to write image");
+							log.error("Failed to write image");
 						}
 					}
 				}
@@ -132,11 +142,13 @@ public class HeatMapUtil implements WindowListener
 		
 		gui.pack();
 		gui.setVisible(true);
+		
+		btnOpen.doClick();
 	}
 	
-	private static void loadLogfile(String fullPath, String currentDirectory, String documentName)
+	private void loadLogfile(String fullPath, String currentDirectory, String documentName)
 	{
-		System.out.println("Path : " + fullPath);
+		log.info("Path : " + fullPath);
 		
 		BatchInfoLogProcessor ilp = null;
 		try
@@ -145,37 +157,51 @@ public class HeatMapUtil implements WindowListener
 		}
 		catch(IOException e1)
 		{
-			String st = Text.stackTraceToString(e1.getStackTrace(), true);
-			String message = "Error Reading info log " + "<br>" + e1.getMessage() + "<br>" + st;
-			
-			JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
+			String message = "Error Reading info log\n" + e1.getMessage();
+			if(!MessageBox.popup(message, gui))
+			{
+				log.error(message);
+			}
 		}
 		
-		if(ilp != null)
+		BatchLogProcessor logProcessor;
+		try
 		{
-			BatchLogProcessor logProcessor;
-			try
+			// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
+			logProcessor = (ilp != null) ? new BatchLogProcessor(fullPath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(fullPath);
+			
+			long timeTaken = logProcessor.getTimeTaken();
+			
+			openCD = fullPath;
+			
+			hm.setLog(logProcessor);
+			
+			timeTaken += hm.getTimeTaken();
+			
+			log.info("Total Time : " + Text.longTimeToDHMSM(timeTaken));
+			
+			SwingUtilities.invokeLater(new Runnable()
 			{
-				logProcessor = new BatchLogProcessor(fullPath, ilp.getMaxSteps());
-				
-				openCD = fullPath;
-				
-				hm.setLog(logProcessor);
-				
-				gui.setTitle(fullPath);
-			}
-			catch(IOException e1)
+				@Override
+				public void run()
+				{
+					gui.setTitle(fullPath);
+					gui.pack();
+					gui.repaint();
+				}
+			});
+		}
+		catch(IOException e1)
+		{
+			String st = Text.stackTraceToString(e1.getStackTrace(), false);
+			
+			String message = "Error Reading Item log " + "\n" + e1.getMessage() + "\n" + st;
+			
+			if(!MessageBox.popup(message, gui))
 			{
-				String st = Text.stackTraceToString(e1.getStackTrace(), true);
-				
-				String message = "Error Reading Item log " + "<br>" + e1.getMessage() + "<br>" + st;
-				
-				JOptionPane.showMessageDialog(gui, "<html>" + message + "</html>");
+				log.error(message);
 			}
 		}
-		
-		gui.pack();
-		gui.repaint();
 	}
 	
 	public static void main(String args[])
@@ -217,21 +243,18 @@ public class HeatMapUtil implements WindowListener
 				}
 			}
 		});
-		
 	}
 	
 	@Override
 	public void windowActivated(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
 	public void windowClosed(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
@@ -244,7 +267,6 @@ public class HeatMapUtil implements WindowListener
 	public void windowDeactivated(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
@@ -258,13 +280,11 @@ public class HeatMapUtil implements WindowListener
 	public void windowIconified(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
 	public void windowOpened(WindowEvent arg0)
 	{
 		// TODO Auto-generated method stub
-		
 	}
 }
