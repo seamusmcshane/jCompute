@@ -4,6 +4,7 @@ import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
+import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -33,6 +34,7 @@ import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.Mapper;
 import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
@@ -79,28 +81,24 @@ public class ChartUtil
 			System.out.println(message);
 		}
 		
-		if(ilp != null)
+		try
 		{
-			BatchLogProcessor logProcessor;
-			try
-			{
-				logProcessor = new BatchLogProcessor(sourceFilePath, ilp.getMaxSteps());
-				
-				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-avg", 0);
-				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
-				exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-max", 2);
-				
-				logProcessor = null;
-				
-			}
-			catch(IOException e1)
-			{
-				String st = Text.stackTraceToString(e1.getStackTrace(), true);
-				
-				String message = "Error Reading Item log " + "\n" + e1.getMessage() + "\n" + st;
-				
-				System.out.println(message);
-			}
+			// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
+			BatchLogProcessor logProcessor = (ilp != null) ? new BatchLogProcessor(sourceFilePath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(sourceFilePath);
+			
+			exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-avg", 0);
+			exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
+			exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-max", 2);
+			
+			logProcessor = null;
+		}
+		catch(IOException e1)
+		{
+			String st = Text.stackTraceToString(e1.getStackTrace(), true);
+			
+			String message = "Error Reading Item log " + "\n" + e1.getMessage() + "\n" + st;
+			
+			System.out.println(message);
 		}
 	}
 	
@@ -127,7 +125,7 @@ public class ChartUtil
 				zMax = maxScale;
 			}
 			
-			map = logProcessor.getAvg();
+			map = SurfaceChartHelper.getAvg(logProcessor.getLogFormatValuesContainer());
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
@@ -135,7 +133,7 @@ public class ChartUtil
 		}
 		else if(mode == 1)
 		{
-			map = logProcessor.getStdDev();
+			map = SurfaceChartHelper.getStdDev(logProcessor.getLogFormatValuesContainer());
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
@@ -152,7 +150,7 @@ public class ChartUtil
 		}
 		else// (mode == 2)
 		{
-			map = logProcessor.getMax();
+			map = SurfaceChartHelper.getMax(logProcessor.getLogFormatValuesContainer());
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
@@ -185,8 +183,11 @@ public class ChartUtil
 		surface.setLegend(stdDevColorBar);
 		
 		// Tick mapping
-		chart.getAxeLayout().setXTickRenderer(logProcessor.getXTickMapper());
-		chart.getAxeLayout().setYTickRenderer(logProcessor.getYTickMapper());
+		ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
+		ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
+		
+		chart.getAxeLayout().setXTickRenderer(xTicks);
+		chart.getAxeLayout().setYTickRenderer(yTicks);
 		
 		chart.getView().setViewPositionMode(ViewPositionMode.TOP);
 		

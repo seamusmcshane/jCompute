@@ -31,7 +31,7 @@ public class PDFReport
 	private final static int imageWidth = 600;
 	private final static int imageHeight = 400;
 	
-	private final static String itemLog = "ItemLog.log";
+	private final static String itemLog = "ItemLog.v2log";
 	
 	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(8, new SimpleNamedThreadFactory("Image Exporter"));
 	

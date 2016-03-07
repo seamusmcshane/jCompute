@@ -7,6 +7,7 @@ import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.util.FileUtil;
+import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -40,9 +41,11 @@ import org.jzy3d.colors.colormaps.ColorMapRainbowNoBorder;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
 import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.Mapper;
 import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.AbstractDrawable;
 import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
@@ -323,7 +326,9 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			zMax = ilp.getMaxSteps();
 		}
 		
-		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, logProcessor.getXSteps(), avgYRange, logProcessor.getYSteps()), logProcessor.getAvg());
+		Mapper mapper = SurfaceChartHelper.getAvg(logProcessor.getLogFormatValuesContainer());
+		
+		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, logProcessor.getXSteps(), avgYRange, logProcessor.getYSteps()), mapper);
 		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
@@ -339,8 +344,11 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		surfaceAvg.setLegend(avgColorBar);
 		
 		// Tick mapping
-		chartAvg.getAxeLayout().setXTickRenderer(logProcessor.getXTickMapper());
-		chartAvg.getAxeLayout().setYTickRenderer(logProcessor.getYTickMapper());
+		ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
+		ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
+		
+		chartAvg.getAxeLayout().setXTickRenderer(xTicks);
+		chartAvg.getAxeLayout().setYTickRenderer(yTicks);
 		
 		chartAvg.addMouseController();
 		
@@ -353,6 +361,57 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		
 		chartAvg.getView().zoomZ(zoomScale, false);
 		chartAvg.getView().shift(shiftSurface, true);
+	}
+	
+	public void addStdDevChart()
+	{
+		Range stdDevXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
+		Range stdDevYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
+		
+		Mapper mapper = SurfaceChartHelper.getStdDev(logProcessor.getLogFormatValuesContainer());
+		
+		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, logProcessor.getXSteps(), stdDevYRange, logProcessor.getYSteps()), mapper);
+		
+		double zMin = surfaceStdDev.getBounds().getZmin();
+		double zMax = surfaceStdDev.getBounds().getZmax();
+		
+		if(zMaxFixedScale)
+		{
+			zMin = 0;
+			zMax = ilp.getMaxSteps();
+		}
+		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbowNoBorder(), zMin, zMax, new Color(1, 1, 1, 1f)));
+		surfaceStdDev.setFaceDisplayed(true);
+		surfaceStdDev.setWireframeDisplayed(wireframeEnabled);
+		surfaceStdDev.setWireframeColor(Color.BLACK);
+		
+		chartStdDev = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
+		chartStdDev.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
+		chartStdDev.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
+		chartStdDev.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
+		
+		chartStdDev.getScene().getGraph().add(surfaceStdDev);
+		
+		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
+		surfaceStdDev.setLegend(stdDevColorBar);
+		
+		ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
+		ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
+		
+		chartStdDev.getAxeLayout().setXTickRenderer(xTicks);
+		chartStdDev.getAxeLayout().setYTickRenderer(yTicks);
+		
+		chartStdDev.addMouseController();
+		
+		GridBagConstraints gbcStdev = new GridBagConstraints();
+		gbcStdev.insets = new Insets(0, 0, 5, 0);
+		gbcStdev.fill = GridBagConstraints.BOTH;
+		gbcStdev.gridx = 1;
+		gbcStdev.gridy = 0;
+		chartContainerPanel.add((Component) chartStdDev.getCanvas(), gbcStdev);
+		
+		chartStdDev.getView().zoomZ(zoomScale, false);
+		chartStdDev.getView().shift(shiftSurface, true);
 	}
 	
 	public void removeCharts()
@@ -426,52 +485,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		}
 	}
 	
-	public void addStdDevChart()
-	{
-		Range stdDevXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
-		Range stdDevYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
-		
-		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, logProcessor.getXSteps(), stdDevYRange, logProcessor.getYSteps()), logProcessor.getStdDev());
-		
-		double zMin = surfaceStdDev.getBounds().getZmin();
-		double zMax = surfaceStdDev.getBounds().getZmax();
-		
-		if(zMaxFixedScale)
-		{
-			zMin = 0;
-			zMax = ilp.getMaxSteps();
-		}
-		surfaceStdDev.setColorMapper(new ColorMapper(new ColorMapRainbowNoBorder(), zMin, zMax, new Color(1, 1, 1, 1f)));
-		surfaceStdDev.setFaceDisplayed(true);
-		surfaceStdDev.setWireframeDisplayed(wireframeEnabled);
-		surfaceStdDev.setWireframeColor(Color.BLACK);
-		
-		chartStdDev = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
-		chartStdDev.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
-		chartStdDev.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
-		chartStdDev.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
-		
-		chartStdDev.getScene().getGraph().add(surfaceStdDev);
-		
-		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
-		surfaceStdDev.setLegend(stdDevColorBar);
-		
-		chartStdDev.getAxeLayout().setXTickRenderer(logProcessor.getXTickMapper());
-		chartStdDev.getAxeLayout().setYTickRenderer(logProcessor.getYTickMapper());
-		
-		chartStdDev.addMouseController();
-		
-		GridBagConstraints gbcStdev = new GridBagConstraints();
-		gbcStdev.insets = new Insets(0, 0, 5, 0);
-		gbcStdev.fill = GridBagConstraints.BOTH;
-		gbcStdev.gridx = 1;
-		gbcStdev.gridy = 0;
-		chartContainerPanel.add((Component) chartStdDev.getCanvas(), gbcStdev);
-		
-		chartStdDev.getView().zoomZ(zoomScale, false);
-		chartStdDev.getView().shift(shiftSurface, true);
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -535,7 +548,8 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						
 						try
 						{
-							logProcessor = new BatchLogProcessor(filePath, maxSteps);
+							// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
+							logProcessor = (ilp != null) ? new BatchLogProcessor(filePath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(filePath);
 							
 							log("Average Chart");
 							addAvgChart();

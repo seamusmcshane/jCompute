@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatInf;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContainer;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogItem;
-import jCompute.Batch.LogFileProcessor.Mapper.MapperRemapper;
-import jCompute.Batch.LogFileProcessor.Mapper.MapperValuesContainer;
+import jCompute.Datastruct.knn.benchmark.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
@@ -21,6 +20,8 @@ public class BatchLogProcessor implements BatchLogInf
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchLogProcessor.class);
+	
+	private TimerObj to = new TimerObj();
 	
 	/*
 	 * *****************************************************************************************************
@@ -33,18 +34,15 @@ public class BatchLogProcessor implements BatchLogInf
 	private double zValMin = Double.MAX_VALUE;
 	private double zValMax = Double.MIN_VALUE;
 	
+	// Data/zValRange
+	private double zValRangeMin = Double.MAX_VALUE;
+	private double zValRangeMax = Double.MIN_VALUE;
+	
 	/*
 	 * *****************************************************************************************************
 	 * Data Values
 	 *****************************************************************************************************/
-	private MapperValuesContainer values;
-	
-	/*
-	 * *****************************************************************************************************
-	 * Jzy3d Compatibility
-	 *****************************************************************************************************/
-	private TickValueMapper xMapper;
-	private TickValueMapper yMapper;
+	private LogFormatValuesContainer values;
 	
 	/*
 	 * *****************************************************************************************************
@@ -61,9 +59,30 @@ public class BatchLogProcessor implements BatchLogInf
 	
 	private int samples;
 	
-	public BatchLogProcessor(String filePath, int maxVal) throws IOException
+	private long totalTime;
+	
+	public BatchLogProcessor(String filePath) throws IOException
+	{
+		this(filePath, 0, 0, false);
+	}
+	
+	public BatchLogProcessor(String filePath, int rangeMin, int rangeMax) throws IOException
+	{
+		this(filePath, rangeMin, rangeMax, true);
+	}
+	
+	public BatchLogProcessor(String filePath, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
 	{
 		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+		
+		LogFormatInf logFormatProcessor = detectAndProcessLogFile(filePath);
+		
+		processLogItems(logFormatProcessor.getLogItems(), rangeMin, rangeMax, useRangeLimits);
+	}
+	
+	private LogFormatInf detectAndProcessLogFile(String filePath) throws IOException
+	{
+		to.startTimer();
 		
 		String fileExtension = FileUtil.getFileNameExtension(filePath);
 		log.info("File Extension : " + fileExtension);
@@ -74,12 +93,12 @@ public class BatchLogProcessor implements BatchLogInf
 		{
 			case "log":
 			{
-				logFormatProcessor = new TextBatchLogFormat(filePath, maxVal);
+				logFormatProcessor = new TextBatchLogFormat(filePath);
 			}
 			break;
 			case "v2log":
 			{
-				logFormatProcessor = new TextBatchLogFormatV2(filePath, maxVal);
+				logFormatProcessor = new TextBatchLogFormatV2(filePath);
 			}
 			break;
 			case "xml":
@@ -115,9 +134,13 @@ public class BatchLogProcessor implements BatchLogInf
 		logFormat = logFormatProcessor.getLogFormat();
 		logFormat = logFormatProcessor.getLogFormat();
 		
-		log.info("Finished Processing log" + Text.longTimeToDHMSM(logFormatProcessor.getProcessingTime()));
+		to.stopTimer();
 		
-		processLogItems(logFormatProcessor.getLogItems(), maxVal);
+		log.info("Time Processing " + logFormatProcessor.getLogFormat() + " : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
+		
+		return logFormatProcessor;
 	}
 	
 	/*
@@ -139,6 +162,12 @@ public class BatchLogProcessor implements BatchLogInf
 	}
 	
 	@Override
+	public double getXValRange()
+	{
+		return xValMax - xValMin;
+	}
+	
+	@Override
 	public double getYValMin()
 	{
 		return yValMin;
@@ -151,6 +180,12 @@ public class BatchLogProcessor implements BatchLogInf
 	}
 	
 	@Override
+	public double getYValRange()
+	{
+		return yValMax - yValMin;
+	}
+	
+	@Override
 	public double getZValMin()
 	{
 		return zValMin;
@@ -160,6 +195,12 @@ public class BatchLogProcessor implements BatchLogInf
 	public double getZValMax()
 	{
 		return zValMax;
+	}
+	
+	@Override
+	public double getZValRange()
+	{
+		return zValRangeMax - zValRangeMin;
 	}
 	
 	/*
@@ -260,81 +301,24 @@ public class BatchLogProcessor implements BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
-	 * Jzy3d Compatibility
-	 *****************************************************************************************************/
-	
-	private class TickValueMapper implements ITickRenderer
-	{
-		double multi = 0;
-		
-		public TickValueMapper(int coordMax, double valueMax)
-		{
-			super();
-			
-			multi = valueMax / coordMax;
-		}
-		
-		@Override
-		public String format(double pos)
-		{
-			double val = (multi * pos);
-			
-			if(val % 1.0 == 0)
-			{
-				return String.valueOf((int) (val));
-			}
-			else
-			{
-				return String.format("%.3g%n", val);
-			}
-		}
-	}
-	
-	@Override
-	public ITickRenderer getXTickMapper()
-	{
-		return xMapper;
-	}
-	
-	@Override
-	public ITickRenderer getYTickMapper()
-	{
-		return yMapper;
-	}
-	
-	/*
-	 * *****************************************************************************************************
 	 * Processed Data
 	 *****************************************************************************************************/
 	
-	@Override
-	public MapperRemapper getAvg()
+	public double[] getAvgDataFlat()
 	{
-		MapperRemapper avgMap = new MapperRemapper(values, 0);
-		
-		return avgMap;
+		return values.getAvgDataFlat();
 	}
 	
 	@Override
-	public double[][] getAvgData()
+	public double[][] getAvgData2d()
 	{
-		return values.getAvgData();
+		return values.getAvgData2d();
 	}
 	
 	@Override
-	public MapperRemapper getStdDev()
+	public LogFormatValuesContainer getLogFormatValuesContainer()
 	{
-		MapperRemapper stdMap = new MapperRemapper(values, 1);
-		
-		return stdMap;
-	}
-	
-	@Override
-	public MapperRemapper getMax()
-	{
-		MapperRemapper maxMap = new MapperRemapper(values, 2);
-		
-		return maxMap;
+		return values;
 	}
 	
 	/*
@@ -354,15 +338,17 @@ public class BatchLogProcessor implements BatchLogInf
 	 *****************************************************************************************************/
 	
 	/*
-	 * Validate ITems
+	 * Validate Items
 	 */
 	
-	public void processLogItems(ArrayList<TextBatchLogItem> logItems, int maxValue)
+	public void processLogItems(ArrayList<TextBatchLogItem> logItems, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
 	{
+		to.startTimer();
+		
 		HashMap<Integer, Integer> xUnique = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> yUnique = new HashMap<Integer, Integer>();
 		
-		log.info("Num coords : " + logItems.get(0).getCoordsPos().length);
+		log.debug("Num coords : " + logItems.get(0).getCoordsPos().length);
 		
 		for(TextBatchLogItem item : logItems)
 		{
@@ -400,24 +386,23 @@ public class BatchLogProcessor implements BatchLogInf
 			{
 				zValMax = item.getStepCount();
 			}
-			
 		}
 		
 		int xDimSize = xUnique.size();
 		int yDimSize = yUnique.size();
 		
-		log.info("X Dim : " + xDimSize);
-		log.info("Y Dim : " + yDimSize);
+		log.debug("X Dim : " + xDimSize);
+		log.debug("Y Dim : " + yDimSize);
 		
-		// System.out.println("xValMin " + xValMin);
-		// System.out.println("xValMax " + xValMax);
-		// System.out.println("yValMin " + yValMin);
-		// System.out.println("yValMax " + yValMax);
+		log.debug("xValMin " + xValMin);
+		log.debug("xValMax " + xValMax);
+		log.debug("yValMin " + yValMin);
+		log.debug("yValMax " + yValMax);
 		
-		log.info("Surface Size : " + xDimSize * yDimSize);
-		log.info("Item Total   : " + logItems.size());
+		log.debug("Surface Size : " + xDimSize * yDimSize);
+		log.debug("Item Total   : " + logItems.size());
 		
-		values = new MapperValuesContainer(xDimSize, yDimSize, samples);
+		values = new LogFormatValuesContainer(xDimSize, yDimSize, samples);
 		
 		int[] IIDS = new int[logItems.size() / samples];
 		int[] SIDS = new int[samples];
@@ -480,7 +465,7 @@ public class BatchLogProcessor implements BatchLogInf
 			{
 				itemsSamplesCorrect = false;
 				
-				log.warn("Item " + i + " Not correct : " + IIDS[i] + " " + samples);
+				log.error("Item " + i + " Not correct : " + IIDS[i] + " " + samples);
 			}
 		}
 		
@@ -490,7 +475,7 @@ public class BatchLogProcessor implements BatchLogInf
 		}
 		else
 		{
-			log.warn("Some items do not have the correct number of samples. ");
+			log.error("Some items do not have the correct number of samples. ");
 		}
 		
 		boolean itemsSamplesNumbersCorrect = true;
@@ -504,7 +489,7 @@ public class BatchLogProcessor implements BatchLogInf
 			{
 				itemsSamplesNumbersCorrect = false;
 				
-				log.warn("Item " + i + " Not correct : " + SIDS[i] + " " + samples);
+				log.error("Item " + i + " Not correct : " + SIDS[i] + " " + samples);
 			}
 			
 		}
@@ -515,20 +500,48 @@ public class BatchLogProcessor implements BatchLogInf
 		}
 		else
 		{
-			log.warn("Sample numbers do not appear correct.");
+			log.error("Sample numbers do not appear correct.");
 		}
 		
 		log.warn("Store Errors " + storeErrors);
 		
-		values.compute(maxValue);
+		if(useRangeLimits)
+		{
+			zValRangeMin = rangeMin;
+			zValRangeMax = rangeMax;
+		}
+		else
+		{
+			zValRangeMin = zValMin;
+			zValRangeMax = zValMax;
+		}
 		
-		log.info("xValMax" + xValMax);
-		log.info("yValMax" + yValMax);
+		values.compute(zValRangeMax);
 		
-		log.info("xMax" + values.getXMax());
-		log.info("yMax" + values.getYMax());
+		log.debug("xValMin" + xValMin);
+		log.debug("xValMax" + xValMax);
 		
-		xMapper = new TickValueMapper(values.getXMax(), xValMax);
-		yMapper = new TickValueMapper(values.getYMax(), yValMax);
+		log.debug("yValMin" + yValMin);
+		log.debug("yValMax" + yValMax);
+		
+		log.debug("zValMin" + zValMin);
+		log.debug("zValMax" + zValMax);
+		
+		log.debug("xMax" + values.getXMax());
+		log.debug("yMax" + values.getYMax());
+		log.debug("zMax" + values.getZMax());
+		
+		to.stopTimer();
+		
+		log.info("Processed Items : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		
+		totalTime += to.getTimeTaken();
 	}
+	
+	@Override
+	public long getTimeTaken()
+	{
+		return totalTime;
+	}
+	
 }

@@ -1,7 +1,6 @@
 package jCompute.Batch.LogFileProcessor;
 
-import org.jzy3d.plot3d.builder.Mapper;
-import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContainer;
 
 public interface BatchLogInf
 {
@@ -13,13 +12,19 @@ public interface BatchLogInf
 	
 	public double getXValMax();
 	
+	public double getXValRange();
+	
 	public double getYValMin();
 	
 	public double getYValMax();
 	
+	public double getYValRange();
+	
 	public double getZValMin();
 	
 	public double getZValMax();
+	
+	public double getZValRange();
 	
 	/*
 	 * *****************************************************************************************************
@@ -61,27 +66,23 @@ public interface BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
-	 * Jzy3d Compatibility
-	 *****************************************************************************************************/
-	public ITickRenderer getXTickMapper();
-	
-	public ITickRenderer getYTickMapper();
-	
-	/*
-	 * *****************************************************************************************************
 	 * Processed Data
 	 *****************************************************************************************************/
-	public Mapper getAvg();
+	public double[] getAvgDataFlat();
 	
-	public double[][] getAvgData();
+	public double[][] getAvgData2d();
 	
-	public Mapper getStdDev();
-	
-	public Mapper getMax();
+	public LogFormatValuesContainer getLogFormatValuesContainer();
 	
 	/*
 	 * *****************************************************************************************************
 	 * Metrics
 	 *****************************************************************************************************/
 	public double getMaxRate();
+	
+	/*
+	 * *****************************************************************************************************
+	 * Internal Log Processing Time
+	 *****************************************************************************************************/
+	public long getTimeTaken();
 }

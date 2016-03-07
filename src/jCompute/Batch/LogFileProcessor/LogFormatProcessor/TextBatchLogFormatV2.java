@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jCompute.Datastruct.knn.benchmark.TimerObj;
-
 public class TextBatchLogFormatV2 implements LogFormatInf
 {
 	private static Logger log = LoggerFactory.getLogger(TextBatchLogFormatV2.class);
