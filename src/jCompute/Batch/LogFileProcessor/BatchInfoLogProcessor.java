@@ -169,7 +169,7 @@ public class BatchInfoLogProcessor
 	
 	public ArrayList<String> dump()
 	{
-		ArrayList<String> info = new ArrayList();
+		ArrayList<String> info = new ArrayList<String>();
 		
 		info.add("Batch Id");
 		info.add(String.valueOf(getBatchId()));
