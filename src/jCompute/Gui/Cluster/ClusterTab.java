@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -316,92 +317,121 @@ public class ClusterTab extends JPanel
 	@Subscribe
 	public void ControlNodeEvent(NodeEvent e)
 	{
-		NodeEventType eventType = e.getEventType();
-		
-		int nid = e.getNodeConfiguration().getUid();
-		String nodeId = "Node " + e.getNodeConfiguration().getUid();
-		
-		switch(eventType)
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			case CONNECTING:
-				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
-						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
-			break;
-			case CONNECTED:
+			@Override
+			public void run()
+			{
+				NodeEventType eventType = e.getEventType();
 				
-				// Assuming Starting State
-				clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+				int nid = e.getNodeConfiguration().getUid();
+				String nodeId = "Node " + e.getNodeConfiguration().getUid();
 				
-				clusterSimProChart.addStat(nodeId, nid);
-				clusterNodeActiveSims.addStat(nodeId, nid);
-				clusterNodeStatsPending.addStat(nodeId, nid);
-				clusterNodeUtilChar.addStat(nodeId, nid);
-				clusterNodeMemUsedPerChar.addStat(nodeId, nid);
-				clusterNodeBytesTXChar.addStat(nodeId, nid);
-				clusterNodeBytesRXChar.addStat(nodeId, nid);
-				clusterNodeTXSChar.addStat(nodeId, nid);
-				clusterNodeRXSChar.addStat(nodeId, nid);
-				
-				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
-						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
-			break;
-			case DISCONNECTED:
-				
-				clusterConnectedNodesTablePanel.removeRow(nid);
-				
-				clusterNodeUtilChar.removeStat(nodeId);
-				clusterNodeMemUsedPerChar.removeStat(nodeId);
-				clusterSimProChart.removeStat(nodeId);
-				clusterNodeActiveSims.removeStat(nodeId);
-				clusterNodeStatsPending.removeStat(nodeId);
-				clusterNodeBytesTXChar.removeStat(nodeId);
-				clusterNodeBytesRXChar.removeStat(nodeId);
-				clusterNodeTXSChar.removeStat(nodeId);
-				clusterNodeRXSChar.removeStat(nodeId);
-				
-				clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
-						new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
-			break;
-			default:
-			
-			break;
-		}
+				switch(eventType)
+				{
+					case CONNECTING:
+						clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
+								new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
+					break;
+					case CONNECTED:
+						
+						// Assuming Starting State
+						clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+						
+						clusterSimProChart.addStat(nodeId, nid);
+						clusterNodeActiveSims.addStat(nodeId, nid);
+						clusterNodeStatsPending.addStat(nodeId, nid);
+						clusterNodeUtilChar.addStat(nodeId, nid);
+						clusterNodeMemUsedPerChar.addStat(nodeId, nid);
+						clusterNodeBytesTXChar.addStat(nodeId, nid);
+						clusterNodeBytesRXChar.addStat(nodeId, nid);
+						clusterNodeTXSChar.addStat(nodeId, nid);
+						clusterNodeRXSChar.addStat(nodeId, nid);
+						
+						clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
+								new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
+					break;
+					case DISCONNECTED:
+						
+						clusterConnectedNodesTablePanel.removeRow(nid);
+						
+						clusterNodeUtilChar.removeStat(nodeId);
+						clusterNodeMemUsedPerChar.removeStat(nodeId);
+						clusterSimProChart.removeStat(nodeId);
+						clusterNodeActiveSims.removeStat(nodeId);
+						clusterNodeStatsPending.removeStat(nodeId);
+						clusterNodeBytesTXChar.removeStat(nodeId);
+						clusterNodeBytesRXChar.removeStat(nodeId);
+						clusterNodeTXSChar.removeStat(nodeId);
+						clusterNodeRXSChar.removeStat(nodeId);
+						
+						clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(), eventType.name(),
+								new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
+					break;
+					default:
+					
+					break;
+				}
+			}
+		});
+		
 	}
 	
 	@Subscribe
 	public void ControlNodeEvent(StatusChanged e)
 	{
-		clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address", e.getAddress()));
-		clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port", e.getPort()));
-		clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes", e.getConnectingNodes()));
-		clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes", e.getActiveNodes()));
-		clusterStatusTablePanel.updateRow("Max Active Sims", new SimpleInfoRowItem("Max Active Sims", e.getMaxActiveSims()));
-		clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims", e.getAddedSims()));
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				clusterStatusTablePanel.updateRow("Address", new SimpleInfoRowItem("Address", e.getAddress()));
+				clusterStatusTablePanel.updateRow("Port", new SimpleInfoRowItem("Port", e.getPort()));
+				clusterStatusTablePanel.updateRow("Connecting Nodes", new SimpleInfoRowItem("Connecting Nodes", e.getConnectingNodes()));
+				clusterStatusTablePanel.updateRow("Active Nodes", new SimpleInfoRowItem("Active Nodes", e.getActiveNodes()));
+				clusterStatusTablePanel.updateRow("Max Active Sims", new SimpleInfoRowItem("Max Active Sims", e.getMaxActiveSims()));
+				clusterStatusTablePanel.updateRow("Added Sims", new SimpleInfoRowItem("Added Sims", e.getAddedSims()));
+			}
+		});
 	}
 	
 	@Subscribe
 	public void NodeManagerStateChange(NodeManagerStateChange e)
 	{
-		clusterConnectedNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				clusterConnectedNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
+			}
+		});
 	}
 	
 	@Subscribe
 	public void NodeStatsUpdateEvent(NodeStatsUpdate e)
 	{
-		String nodeId = "Node " + e.getNodeId();
-		
-		clusterSimProChart.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsProcessed());
-		clusterNodeActiveSims.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsActive());
-		clusterNodeStatsPending.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getStatisticsPendingFetch());
-		clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
-		clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
-		
-		// To Avg KiloBytes per second from bytes per 60 seconds
-		clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / 1000L / 60L));
-		clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / 1000L / 60L));
-		
-		clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
-		clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				String nodeId = "Node " + e.getNodeId();
+				
+				clusterSimProChart.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsProcessed());
+				clusterNodeActiveSims.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsActive());
+				clusterNodeStatsPending.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getStatisticsPendingFetch());
+				clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
+				clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
+				
+				// To Avg KiloBytes per second from bytes per 60 seconds
+				clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / 1000L / 60L));
+				clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / 1000L / 60L));
+				
+				clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
+				clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
+			}
+		});
 	}
 	
 	/**
@@ -412,58 +442,79 @@ public class ClusterTab extends JPanel
 	@Subscribe
 	public void SimulationsManagerEvent(SimulationsManagerEvent e)
 	{
-		SimulationsManagerEventType type = e.getEventType();
-		int simId = e.getSimId();
-		
-		if(type == SimulationsManagerEventType.AddedSim)
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			log.debug("Add Row for " + "Simulation " + simId);
-			
-			// Add the row
-			activeSimulationsListTable.addRow(new SimulationListRowItem(simId));
-		}
-		else if(type == SimulationsManagerEventType.RemovedSim)
-		{
-			log.debug("Removing Row for " + "Simulation " + simId);
-			
-			// Remove the Row
-			finishedSimulationsListTable.removeRow(simId);
-		}
-		else
-		{
-			log.error("Unhandled SimulationManagerEvent in Batch GUI");
-		}
+			@Override
+			public void run()
+			{
+				SimulationsManagerEventType type = e.getEventType();
+				int simId = e.getSimId();
+				
+				if(type == SimulationsManagerEventType.AddedSim)
+				{
+					log.debug("Add Row for " + "Simulation " + simId);
+					
+					// Add the row
+					activeSimulationsListTable.addRow(new SimulationListRowItem(simId));
+				}
+				else if(type == SimulationsManagerEventType.RemovedSim)
+				{
+					log.debug("Removing Row for " + "Simulation " + simId);
+					
+					// Remove the Row
+					finishedSimulationsListTable.removeRow(simId);
+				}
+				else
+				{
+					log.error("Unhandled SimulationManagerEvent in Batch GUI");
+				}
+			}
+		});
 	}
 	
 	@Subscribe
 	public void SimulationStatChanged(SimulationStatChangedEvent e)
 	{
-		activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			2, 3, 4, 5
-		}, new Object[]
-		{
-			e.getStepNo(), e.getProgress(), e.getAsps(), e.getTime()
+			@Override
+			public void run()
+			{
+				activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+				{
+					2, 3, 4, 5
+				}, new Object[]
+				{
+					e.getStepNo(), e.getProgress(), e.getAsps(), e.getTime()
+				});
+			}
 		});
 	}
 	
 	@Subscribe
 	public void SimulationStateChanged(SimulationStateChangedEvent e)
 	{
-		if(e.getState() == SimState.FINISHED)
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			activeSimulationsListTable.removeRow(e.getSimId());
-			finishedSimulationsListTable.addRow(new SimulationListRowItem(e.getSimId(), e.getState(), (int) e.getStepCount(), 100, 0, e.getRunTime()));
-		}
-		else
-		{
-			activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+			@Override
+			public void run()
 			{
-				1
-			}, new Object[]
-			{
-				e.getState()
-			});
-		}
+				if(e.getState() == SimState.FINISHED)
+				{
+					activeSimulationsListTable.removeRow(e.getSimId());
+					finishedSimulationsListTable.addRow(new SimulationListRowItem(e.getSimId(), e.getState(), (int) e.getStepCount(), 100, 0, e.getRunTime()));
+				}
+				else
+				{
+					activeSimulationsListTable.updateCells(e.getSimId(), new int[]
+					{
+						1
+					}, new Object[]
+					{
+						e.getState()
+					});
+				}
+			}
+		});
 	}
 }
