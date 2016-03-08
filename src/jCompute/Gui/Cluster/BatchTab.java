@@ -52,6 +52,7 @@ import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.eventbus.Subscribe;
 
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 public class BatchTab extends JPanel
 {
@@ -149,11 +150,17 @@ public class BatchTab extends JPanel
 				// Update if Visible
 				if(batchInfo.isVisible())
 				{
-					updateBatchInfo(queuedOrCompleted);
+					SwingUtilities.invokeLater(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							updateBatchInfo(queuedOrCompleted);
+						}
+					});
 				}
-				
 			}
-		}, 0, 5000);
+		}, 0, 1000);
 	}
 	
 	private void createToolbar(boolean buttonText)
@@ -607,7 +614,6 @@ public class BatchTab extends JPanel
 			// Clear Batch info tables
 			batchInfo.clearTable();
 		}
-		
 	}
 	
 	private void startBatch()
@@ -759,47 +765,75 @@ public class BatchTab extends JPanel
 	@Subscribe
 	public void batchQueuePositionChanged(BatchPositionEvent event)
 	{
-		Batch batch = event.getBatch();
-		batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
-		
-		log.debug("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Batch batch = event.getBatch();
+				batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
+				
+				log.debug("batchQueuePositionChanged " + batch.getBatchId() + " Pos" + batch.getPosition());
+			}
+		});
 	}
 	
 	@Subscribe
 	public void batchProgress(BatchProgressEvent event)
 	{
-		Batch batch = event.getBatch();
-		
-		batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Batch batch = event.getBatch();
+				
+				batchQueuedTable.updateRow(batch.getBatchId(), new BatchQueueRowItem(batch));
+			}
+		});
 	}
 	
 	@Subscribe
 	public void batchAdded(BatchAddedEvent event)
 	{
-		// add new row
-		batchQueuedTable.addRow(new BatchQueueRowItem(event.getBatch()));
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				// add new row
+				batchQueuedTable.addRow(new BatchQueueRowItem(event.getBatch()));
+			}
+		});
 	}
 	
 	@Subscribe
 	public void batchFinished(BatchFinishedEvent event)
 	{
-		Batch batch = event.getBatch();
-		
-		log.info("Batch Finished " + batch.getBatchId());
-		
-		// remove row
-		batchQueuedTable.removeRow(batch.getBatchId());
-		
-		batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(), jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
-		
-		queuedSelectedBatchRowIndex = -1;
-		
-		if(queuedOrCompleted == 1)
+		SwingUtilities.invokeLater(new Runnable()
 		{
-			queuedOrCompleted = 0;
-		}
-		
-		batchQueuedTable.clearSelection();
+			@Override
+			public void run()
+			{
+				Batch batch = event.getBatch();
+				
+				log.info("Batch Finished " + batch.getBatchId());
+				
+				// remove row
+				batchQueuedTable.removeRow(batch.getBatchId());
+				
+				batchCompletedTable.addRow(new BatchCompletedRowItem(batch.getBatchId(), batch.getFileName(), jCompute.util.Text.longTimeToDHMS(batch.getRunTime()), batch.getFinished()));
+				
+				queuedSelectedBatchRowIndex = -1;
+				
+				if(queuedOrCompleted == 1)
+				{
+					queuedOrCompleted = 0;
+				}
+				
+				batchQueuedTable.clearSelection();
+			}
+		});
 	}
 	
 	private class OpenBatchFileTask extends SwingWorker<Void, Void>
@@ -856,7 +890,7 @@ public class BatchTab extends JPanel
 				
 				progress += progressInc;
 				
-				openBatchProgressMonitor.setProgress(Math.min(progress, 100));
+				updateProgressMonitor(Math.min(progress, 100));
 			}
 			
 			if(error > 0)
@@ -864,14 +898,26 @@ public class BatchTab extends JPanel
 				JOptionPane.showMessageDialog(self, errorMessage.toString());
 			}
 			
-			openBatchProgressMonitor.setProgress(100);
+			updateProgressMonitor(100);
 			
 			return null;
 		}
 		
+		private void updateProgressMonitor(int progress)
+		{
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					openBatchProgressMonitor.setProgress(progress);
+				}
+			});
+		}
+		
 		public void start()
 		{
-			openBatchProgressMonitor.setProgress(0);
+			updateProgressMonitor(0);
 			this.execute();
 		}
 		
