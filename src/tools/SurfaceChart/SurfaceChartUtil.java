@@ -6,6 +6,7 @@ import jCompute.Gui.Component.Swing.MessageBox;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
+import tools.Common.LibGDXGLPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -32,7 +33,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 
-public class SurfaceChart implements WindowListener, ActionListener
+public class SurfaceChartUtil implements WindowListener, ActionListener
 {
 	private static String openCD = "./stats";
 	
@@ -44,8 +45,9 @@ public class SurfaceChart implements WindowListener, ActionListener
 	private int height = 450;
 	
 	private SurfacePlotEnv glEnv;
+	private LibGDXGLPanel libGDXGLPanel;
 	
-	public SurfaceChart()
+	public SurfaceChartUtil()
 	{
 		LookAndFeel.setLookandFeel("default");
 		
@@ -55,19 +57,11 @@ public class SurfaceChart implements WindowListener, ActionListener
 		
 		LwjglApplicationConfiguration.disableAudio = true;
 		
-		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
-		
-		cfg.title = "Bar Surface";
-		cfg.samples = 4;
-		cfg.vSyncEnabled = true;
-		cfg.useGL30 = false;
-		
 		glEnv = new SurfacePlotEnv(width, height);
 		
-		LwjglCanvas canvas = new LwjglCanvas(glEnv, cfg);
+		libGDXGLPanel = new LibGDXGLPanel(glEnv, 0, false, "Surface Chart");
 		
-		gui.getContentPane().add(canvas.getCanvas(), BorderLayout.CENTER);
-		canvas.getGraphics().setVSync(true);
+		gui.getContentPane().add(libGDXGLPanel, BorderLayout.CENTER);
 		
 		gui.pack();
 		gui.setVisible(true);
@@ -93,7 +87,7 @@ public class SurfaceChart implements WindowListener, ActionListener
 			@Override
 			public void run()
 			{
-				new SurfaceChart();
+				new SurfaceChartUtil();
 			}
 		});
 		
