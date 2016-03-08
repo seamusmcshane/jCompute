@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn.benchmark;
+package jCompute.Timing;
 
 public class TimerObj
 {

@@ -8,7 +8,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import jCompute.Datastruct.knn.benchmark.TimerObj;
+import jCompute.Timing.TimerObj;
 import jCompute.util.Text;
 
 public class TestMD5

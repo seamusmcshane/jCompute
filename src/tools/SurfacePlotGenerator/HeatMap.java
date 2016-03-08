@@ -1,8 +1,8 @@
 package tools.SurfacePlotGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
-import jCompute.Datastruct.knn.benchmark.TimerObj;
 import jCompute.Gui.View.Misc.Palette;
+import jCompute.Timing.TimerObj;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
 

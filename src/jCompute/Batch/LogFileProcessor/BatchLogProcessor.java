@@ -12,7 +12,7 @@ import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContain
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogItem;
-import jCompute.Datastruct.knn.benchmark.TimerObj;
+import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 

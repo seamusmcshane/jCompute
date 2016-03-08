@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.Datastruct.knn.ThirdGenKDWrapperDouble;
 import jCompute.Datastruct.knn.ThirdGenKDWrapperFloat;
+import jCompute.Timing.TimerObj;
 
 public class NodeWeightingBenchmark
 {
