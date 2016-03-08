@@ -1,4 +1,4 @@
-package tools.SurfacePlotGenerator;
+package tools.ReportGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;

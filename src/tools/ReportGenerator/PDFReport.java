@@ -1,4 +1,4 @@
-package tools.SurfacePlotGenerator;
+package tools.ReportGenerator;
 
 import jCompute.Thread.SimpleNamedThreadFactory;
 import jCompute.util.FileUtil;
