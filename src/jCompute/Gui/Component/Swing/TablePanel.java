@@ -108,7 +108,7 @@ public class TablePanel extends JPanel
 				table = new JTable(GlazedListsSwing.eventTableModelWithThreadProxyList(baseList, tf));
 				activeList = baseList;
 			}
-			table.setDoubleBuffered(false);
+			table.setDoubleBuffered(true);
 			
 			scrollPane = new JScrollPane(table);
 			
