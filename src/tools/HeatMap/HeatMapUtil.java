@@ -1,4 +1,4 @@
-package tools.SurfacePlotGenerator;
+package tools.HeatMap;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
