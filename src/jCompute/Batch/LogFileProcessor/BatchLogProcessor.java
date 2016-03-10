@@ -145,6 +145,15 @@ public class BatchLogProcessor implements BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
+	 * LogFile Info
+	 *****************************************************************************************************/
+	public String getLogFileName()
+	{
+		return logFileName;
+	}
+	
+	/*
+	 * *****************************************************************************************************
 	 * Axis Ranges
 	 *****************************************************************************************************/
 	
@@ -335,13 +344,65 @@ public class BatchLogProcessor implements BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
-	 * Metrics
+	 * Processed Data Metrics
 	 *****************************************************************************************************/
 	
 	@Override
-	public double getMaxRate()
+	public double getDataMetricMinVal(Source metricSource)
 	{
-		return values.getMaxRate();
+		switch(metricSource)
+		{
+			case AVG:
+			{
+				return values.getZMin();
+			}
+			case STD_DEV:
+			{
+				return values.getZMin();
+			}
+			case MAX:
+			{
+				return values.getZMin();
+			}
+			default:
+				return Double.NaN;
+		}
+	}
+	
+	@Override
+	public double getDataMetricMaxVal(Source metricSource)
+	{
+		switch(metricSource)
+		{
+			case AVG:
+			{
+				return values.getZMax();
+			}
+			case STD_DEV:
+			{
+				return values.getZMax();
+			}
+			case MAX:
+			{
+				return values.getZMax();
+			}
+			default:
+				return Double.NaN;
+		}
+	}
+	
+	@Override
+	public double getComputedMetric(ComputedMetric computedMetric)
+	{
+		switch(computedMetric)
+		{
+			case MAX_RATE:
+			{
+				return values.getMaxRate();
+			}
+			default:
+				return Double.NaN;
+		}
 	}
 	
 	/*

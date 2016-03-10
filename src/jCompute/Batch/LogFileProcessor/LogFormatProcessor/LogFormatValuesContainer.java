@@ -9,6 +9,9 @@ import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jCompute.Timing.TimerObj;
+import jCompute.util.JCMath;
+
 public class LogFormatValuesContainer
 {
 	private static Logger log = LoggerFactory.getLogger(LogFormatValuesContainer.class);
@@ -123,6 +126,14 @@ public class LogFormatValuesContainer
 		{
 			throw new IOException(e);
 		}
+		
+		int avgmin = JCMath.findMinValueIndex(avg);
+		int avgmax = JCMath.findMaxValueIndex(avg);
+		
+		System.out.println("MinI AVG " + avgmin);
+		System.out.println("MaxI AVG " + avgmax);
+		System.out.println("Min AVG " + avg[avgmin]);
+		System.out.println("Max AVG " + avg[avgmax]);
 		
 		log.info("Computing Standard Deviations");
 		stdDev = new double[xSteps * ySteps];

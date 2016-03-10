@@ -45,6 +45,8 @@ public class HeatMapUtil implements WindowListener
 	private static String saveCD = "";
 	private JButton btnSave;
 	
+	private static String openedLogName;
+	
 	public HeatMapUtil()
 	{
 		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
@@ -106,7 +108,8 @@ public class HeatMapUtil implements WindowListener
 					filechooser.setDialogTitle("Choose Directory");
 					filechooser.setMultiSelectionEnabled(false);
 					filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					int val = filechooser.showSaveDialog(filechooser);
+					filechooser.setSelectedFile(new File(openedLogName+".png"));
+					int val = filechooser.showSaveDialog(gui);
 					
 					if(val == JFileChooser.APPROVE_OPTION)
 					{
@@ -169,6 +172,8 @@ public class HeatMapUtil implements WindowListener
 		{
 			// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
 			logProcessor = (ilp != null) ? new BatchLogProcessor(fullPath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(fullPath);
+			
+			openedLogName = (ilp != null) ? ilp.getDescription() : logProcessor.getLogFileName();
 			
 			long timeTaken = logProcessor.getTimeTaken();
 			

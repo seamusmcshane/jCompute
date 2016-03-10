@@ -2,6 +2,7 @@ package tools.ReportGenerator;
 
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.BatchLogInf.ComputedMetric;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
 import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
@@ -284,7 +285,7 @@ public class ChartUtil
 			
 			if(zfixScale)
 			{
-				maxRate = JCMath.round(logProcessor.getMaxRate(), 8);
+				maxRate = JCMath.round(logProcessor.getComputedMetric(ComputedMetric.MAX_RATE), 8);
 				
 				System.out.println("Max Rate : " + maxRate);
 				

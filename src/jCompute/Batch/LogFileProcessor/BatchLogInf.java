@@ -6,6 +6,12 @@ public interface BatchLogInf
 {
 	/*
 	 * *****************************************************************************************************
+	 * LogFile Info
+	 *****************************************************************************************************/
+	public String getLogFileName();
+	
+	/*
+	 * *****************************************************************************************************
 	 * Axis Ranges
 	 *****************************************************************************************************/
 	public double getXValMin();
@@ -80,13 +86,29 @@ public interface BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
-	 * Metrics
+	 * Processed Data Metrics
 	 *****************************************************************************************************/
-	public double getMaxRate();
+	
+	public enum Source
+	{
+		AVG, STD_DEV, MAX
+	}
+	
+	public double getDataMetricMinVal(Source metricSource);
+	
+	public double getDataMetricMaxVal(Source metricSource);
+	
+	public enum ComputedMetric
+	{
+		MAX_RATE
+	}
+	
+	public double getComputedMetric(ComputedMetric metric);
 	
 	/*
 	 * *****************************************************************************************************
 	 * Internal Log Processing Time
 	 *****************************************************************************************************/
 	public long getTimeTaken();
+	
 }

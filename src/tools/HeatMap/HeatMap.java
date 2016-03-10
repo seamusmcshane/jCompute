@@ -1,5 +1,6 @@
 package tools.HeatMap;
 
+import jCompute.Batch.LogFileProcessor.BatchLogInf.ComputedMetric;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.Gui.View.Misc.Palette;
 import jCompute.Timing.TimerObj;
@@ -330,7 +331,7 @@ public class HeatMap extends JPanel
 		
 		String[] legend =
 		{
-			"X 		: " + logProcessor.getXAxisName(), "Y 		: " + logProcessor.getYAxisName(), "SRate : " + logProcessor.getMaxRate()
+			"X 		: " + logProcessor.getXAxisName(), "Y 		: " + logProcessor.getYAxisName(), "SRate : " + logProcessor.getComputedMetric(ComputedMetric.MAX_RATE), "ZMin : " + logProcessor.getZmin(), "ZMax : " + logProcessor.getZmax()
 		};
 		
 		double max = 0;

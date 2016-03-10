@@ -179,4 +179,29 @@ public class JCMath
 	{
 		return (ThreadLocalRandom.current().nextFloat() * range) - (range / 2);
 	}
+	
+	public static int findMinValueIndex(double[] values)
+	{
+		int index = 0;
+		double min = values[index];
+		for(int i = 0; i < values.length; i++)
+		{
+			index = (values[i] < min ? i : index);
+			min = values[index];
+		}
+		return index;
+	}
+	
+	public static int findMaxValueIndex(double[] values)
+	{
+		int index = 0;
+		double max = values[index];
+		for(int i = 0; i < values.length; i++)
+		{
+			index = (values[i] > max ? i : index);
+			max = values[index];
+		}
+		
+		return index;
+	}
 }
