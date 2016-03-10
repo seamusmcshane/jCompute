@@ -214,29 +214,30 @@ public class Batch implements StoredQueuePosition
 		
 		if(status)
 		{
-			ScenarioInf baseScenario = getBaseScenario(fileText);
+			// Logs + Stats
+			storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
+			
+			statsMethodSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive");
+			singleArchiveCompressionLevel = batchConfigProcessor.getIntValue("Stats", "CompressionLevel");
+			infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
+			itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
+			bosBufferSize = batchConfigProcessor.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
+			
+			log.info("Store Stats " + storeStats);
+			log.info("Single Archive " + statsMethodSingleArchive);
+			log.info("BufferSize " + bosBufferSize);
+			log.info("Compression Level " + singleArchiveCompressionLevel);
+			log.info("InfoLog " + infoLogEnabled);
+			log.info("ItemLog " + itemLogEnabled);
+			
+			ScenarioInf baseScenario = processAndCheckBaseScenarioFile(fileText);
 			
 			if(baseScenario != null)
 			{
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
-				
 				type = baseScenario.getScenarioType();
+				
 				log.debug(type);
-				
-				// Logs + Stats
-				storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
-				statsMethodSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive");
-				singleArchiveCompressionLevel = batchConfigProcessor.getIntValue("Stats", "CompressionLevel");
-				infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
-				itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
-				bosBufferSize = batchConfigProcessor.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
-				
-				log.info("Store Stats " + storeStats);
-				log.info("Single Archive " + statsMethodSingleArchive);
-				log.info("BufferSize " + bosBufferSize);
-				log.info("Compression Level " + singleArchiveCompressionLevel);
-				log.info("InfoLog " + infoLogEnabled);
-				log.info("ItemLog " + itemLogEnabled);
 			}
 			else
 			{
@@ -278,9 +279,12 @@ public class Batch implements StoredQueuePosition
 			{
 				log.info("Generating Items for Batch " + batchId);
 				
-				log.info("Created an Item DiskCache for Batch " + batchId);
 				// Create DiskCache
-				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
+				// itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
+				
+				itemDiskCache = new DiskCache(batchStatsExportDir);
+				
+				log.info("Created an Item DiskCache for Batch " + batchId);
 				
 				// Get a count of the parameter groups.
 				int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
@@ -712,7 +716,7 @@ public class Batch implements StoredQueuePosition
 					log.debug(comboPosString.toString());
 					log.debug(itemName.toString());
 					
-					addBatchItem(itemSamples, c, itemName.toString(), temp.getScenarioXMLText(), tempCoord, tempCoordValues);
+					addBatchItem(itemSamples, c, itemName.toString(), temp.getText(), tempCoord, tempCoordValues);
 					
 					generationProgress = ((double) c / (double) combinations) * 100.0;
 					
@@ -848,21 +852,65 @@ public class Batch implements StoredQueuePosition
 		return batchStatsExportDir;
 	}
 	
-	private ScenarioInf getBaseScenario(String fileText)
+	private ScenarioInf processAndCheckBaseScenarioFile(String fileText)
 	{
+		log.info("Processing BaseScenarioFile");
+		
+		boolean status = true;
+		
+		// Null returned if any problems occur
 		ScenarioInf scenario = null;
 		
+		// Store the base fileName
 		baseScenarioFileName = batchConfigProcessor.getStringValue("Config", "BaseScenarioFileName");
 		
+		// Assumes the file is in the same dir as the batch file
 		String baseScenaroFilePath = basePath + File.separator + baseScenarioFileName;
 		
 		log.debug("Base Scenario File : " + baseScenaroFilePath);
 		
-		baseScenarioText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
+		// Attempt to load the text into a string
+		String tempText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
 		
-		if(baseScenarioText != null)
+		// No null if the text from the file has been loaded
+		if(tempText != null)
 		{
-			scenario = ScenarioManager.getScenario(baseScenarioText);
+			// Use a ConfigurationInterpreter to prevent a BatchStats/ItemStats mismatch which could cause a stats req for stats that do not exist
+			ConfigurationInterpreter tempIntrp = new ConfigurationInterpreter();
+			
+			// Is the base scenario currently a valid scenario file
+			if(tempIntrp.loadConfig(tempText))
+			{
+				// Check if Batch stats are disabled globally
+				if(!storeStats)
+				{
+					// If so remove the Statistics section from XML config (disabling them on each item)
+					tempIntrp.removeSection("Statistics");
+				}
+				else
+				{
+					// Check if the base scenario has no stats enabled but batch has requested stats to be saved - Error condition we cannot guess scenario stats
+					if(!tempIntrp.hasSection("Statistics"))
+					{
+						status = false;
+						
+						log.error("The batch has statistics enabled but the base scenario does not.");
+					}
+				}
+				
+			}
+			
+			if(status)
+			{
+				// Store the scenario text
+				baseScenarioText = tempIntrp.getText();
+			}
+			
+			// Finally create a real Scenario a the final test
+			if(baseScenarioText != null)
+			{
+				scenario = ScenarioManager.getScenario(baseScenarioText);
+			}
 		}
 		
 		return scenario;
@@ -1126,7 +1174,7 @@ public class Batch implements StoredQueuePosition
 		// SID/SampleId is 1 base/ 1=first sample
 		for(int sid = 1; sid < samples + 1; sid++)
 		{
-			queuedItems.add(new BatchItem(sid, id, batchId, name, itemHash, coordinates, coordinatesValues));
+			queuedItems.add(new BatchItem(sid, id, batchId, name, itemHash, coordinates, coordinatesValues, storeStats));
 		}
 		
 		batchItems = batchItems + (1 * samples);
