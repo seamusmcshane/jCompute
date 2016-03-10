@@ -4,20 +4,20 @@
 		<Type>Batch</Type>
 	</Header>
 	<Config>
-		<BaseScenarioFileName>scenarios/512-IO.scenario</BaseScenarioFileName>
-		<ItemSamples>512</ItemSamples>
+		<BaseScenarioFileName>scenarios/4096-Net.scenario</BaseScenarioFileName>
+		<ItemSamples>4096</ItemSamples>
 	</Config>
 	<Log>
 		<InfoLog>true</InfoLog>
 		<ItemLog>true</ItemLog>
 	</Log>
 	<Stats>
-		<Store>true</Store>
+		<Store>false</Store>
 		<SingleArchive>true</SingleArchive>
 		<CompressionLevel>2</CompressionLevel>
 		<BatchStatsExportDir>stats</BatchStatsExportDir>
 		<BatchGroupDir>Benchmark</BatchGroupDir>
-		<BatchSubGroupDirName>512_IO</BatchSubGroupDirName>
+		<BatchSubGroupDirName>4096_Net</BatchSubGroupDirName>
 	</Stats>	
 	<Parameters>
 		<Parameter>
