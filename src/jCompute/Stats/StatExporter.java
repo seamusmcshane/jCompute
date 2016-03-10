@@ -125,8 +125,7 @@ public class StatExporter
 			}
 			catch(IOException e)
 			{
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Compress Data to Zip Failed!!?",
-						JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Compress Data to Zip Failed!!?", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 	}
@@ -411,8 +410,7 @@ public class StatExporter
 		}
 		catch(IOException e)
 		{
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + archiveName + ".zip",
-					JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + archiveName + ".zip", JOptionPane.INFORMATION_MESSAGE);
 		}
 		
 	}
@@ -442,8 +440,7 @@ public class StatExporter
 		}
 		catch(IOException e)
 		{
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName,
-					JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
 		}
 		
 	}
@@ -486,8 +483,7 @@ public class StatExporter
 			// indexes quicker later.
 			for(int statIndex = 0; statIndex < statCount; statIndex++)
 			{
-				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory()
-						.toArray(new StatSample[historyLength]);
+				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
 			}
 			
 			int history = 0;
@@ -571,8 +567,7 @@ public class StatExporter
 		// line after each history
 		for(int statIndex = 0; statIndex < statCount; statIndex++)
 		{
-			data.append("\t\t<" + xmlString(statList.get(statIndex)) + ">"
-					+ statHistorys[statIndex][history].getSample() + "</" + xmlString(statList.get(statIndex)) + ">\n");
+			data.append("\t\t<" + xmlString(statList.get(statIndex)) + ">" + statHistorys[statIndex][history].getSample() + "</" + xmlString(statList.get(statIndex)) + ">\n");
 		}
 		
 		// End Step
@@ -697,12 +692,16 @@ public class StatExporter
 		
 	}
 	
+	public int getSize()
+	{
+		return(fileNames == null ? 0 : fileNames.length);
+	}
+	
 	public enum ExportFormat
 	{
-		CSV("Comma Separated Values", "csv"), XML("Extensible Markup Language", "xml"), ARFF(
-				"Attribute-Relation File Format", "arff"), ZXML("Extensible Markup Language in a Zip Archive", "xml"), ZCSV(
-				"Comma Separated Values in a Zip Archive", "csv");
-		
+		CSV("Comma Separated Values", "csv"), XML("Extensible Markup Language", "xml"), ARFF("Attribute-Relation File Format", "arff"), ZXML("Extensible Markup Language in a Zip Archive",
+				"xml"), ZCSV("Comma Separated Values in a Zip Archive", "csv");
+				
 		private final String description;
 		private final String extension;
 		
