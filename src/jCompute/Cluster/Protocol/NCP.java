@@ -25,7 +25,7 @@ public class NCP
 	};
 	
 	// Protocol version - prevent mismatched nodes
-	public static final int NCP_PROTOCOL_VERSION = 3;
+	public static final int NCP_PROTOCOL_VERSION = 4;
 	
 	public static final int HEADER_SIZE = 8; // Type + Len Fields (int)
 	
