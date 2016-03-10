@@ -799,8 +799,17 @@ public class Node
 			
 			StatExporter exporter = simsManager.getStatExporter(simId, "", ExportFormat.CSV);
 			
-			log.info("Stored Stats for Simulation " + simId);
-			statCache.put(simId, exporter);
+			// Check for simulations with no stats enabled
+			
+			if(exporter.getSize() > 0)
+			{
+				log.info("Stored Stats for Simulation " + simId);
+				statCache.put(simId, exporter);
+			}
+			else
+			{
+				log.info("No Stats enabled for Simulation " + simId);
+			}
 			
 			simsManager.removeSimulation(simId);
 			log.info("Removed Finished Simulation");
