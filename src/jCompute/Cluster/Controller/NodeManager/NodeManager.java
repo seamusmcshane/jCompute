@@ -31,6 +31,7 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
+import jCompute.Stats.StatExporter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -528,12 +529,17 @@ public class NodeManager
 										// Track the final state
 										mapping.setFinalStateChanged(stateChanged);
 										
-										// Send a stats request
-										txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
-										
-										// The finished state is not posted yet
-										// - stats have to be fetched first
-										
+										// The finished state is not posted yet stats have to be fetched first
+										if(mapping.getBatchItem().hasStatsEnabled())
+										{
+											// Send a stats request
+											txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
+										}
+										else
+										{
+											// Simulation Finished - there are no stats
+											processFinishedSimulation(mapping, null);
+										}
 									}
 									else
 									{
@@ -626,27 +632,12 @@ public class NodeManager
 									// Needed for the mapping lookup
 									int simId = data.getInt();
 									
-									// find and remove mapping
-									RemoteSimulationMapping mapping = remoteSimulationMap.remove(simId);
+									// find the mapping
+									RemoteSimulationMapping mapping = remoteSimulationMap.get(simId);
 									
 									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(), mapping.getFileNameSuffix());
 									
-									activeSimsLock.acquireUninterruptibly();
-									
-									// Remote Sim is auto-removed when
-									// finished
-									activeSims--;
-									
-									activeSimsLock.release();
-									
-									// Post the event as if from a local
-									// simulation
-									SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
-									
-									// Forward an encapsulated simstate event
-									JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged.getState(),
-											finalStateChanged.getRunTime(), finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(), statsReply.getStatExporter())));
-											
+									processFinishedSimulation(mapping, statsReply.getStatExporter());
 								}
 								else
 								{
@@ -692,6 +683,37 @@ public class NodeManager
 		// Start Processing
 		cmdRecieveThread.start();
 		
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Internal Methods
+	 *****************************************************************************************************/	
+	/*
+	 * Process finished simulation
+	 */
+	private void processFinishedSimulation(RemoteSimulationMapping mapping, StatExporter exporter)
+	{
+		int simId = mapping.getRemoteSimId();
+		
+		// Remove mapping...
+		remoteSimulationMap.remove(simId);
+		
+		activeSimsLock.acquireUninterruptibly();
+		
+		// Remote Sim is auto-removed when
+		// finished
+		activeSims--;
+		
+		activeSimsLock.release();
+		
+		// Post the event as if from a local
+		// simulation
+		SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
+		
+		// Forward an encapsulated simstate event
+		JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged.getState(), finalStateChanged.getRunTime(),
+				finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(), exporter)));
 	}
 	
 	/*
