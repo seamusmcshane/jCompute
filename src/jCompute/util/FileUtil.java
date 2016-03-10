@@ -12,8 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.swing.filechooser.FileFilter;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -47,7 +45,14 @@ public class FileUtil
 	{
 		File file = new File(path);
 		
-		return file.listFiles();
+		return file.listFiles(new java.io.FileFilter()
+		{
+			@Override
+			public boolean accept(File pathname)
+			{
+				return pathname.isFile();
+			}
+		});
 	}
 	
 	public static String[] getDirectoriesInDir(String path)
@@ -93,9 +98,9 @@ public class FileUtil
 		}
 	}
 	
-	public static FileFilter batchFileFilter()
+	public static javax.swing.filechooser.FileFilter batchFileFilter()
 	{
-		return new FileFilter()
+		return new javax.swing.filechooser.FileFilter()
 		{
 			public boolean accept(File f)
 			{
@@ -189,9 +194,9 @@ public class FileUtil
 		return FilenameUtils.getExtension(path);
 	}
 	
-	public static FileFilter scenarioFileFilter()
+	public static javax.swing.filechooser.FileFilter scenarioFileFilter()
 	{
-		return new FileFilter()
+		return new javax.swing.filechooser.FileFilter()
 		{
 			public boolean accept(File f)
 			{
