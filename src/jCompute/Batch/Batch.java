@@ -457,12 +457,13 @@ public class Batch implements StoredQueuePosition
 				
 				// Create and populate Results Zip archive with Directories
 				String zipFileName = batchStatsExportDir + File.separator + "results.zip";
-				log.info("Zip Archive : " + zipFileName);
 				
 				if(storeStats)
 				{
 					if(statsMethodSingleArchive)
 					{
+						log.info("Zip Archive : " + zipFileName);
+						
 						try
 						{
 							BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFileName), bosBufferSize);
@@ -889,15 +890,24 @@ public class Batch implements StoredQueuePosition
 				}
 				else
 				{
-					// Check if the base scenario has no stats enabled but batch has requested stats to be saved - Error condition we cannot guess scenario stats
+					// Check if the base scenario has a statistics section
 					if(!tempIntrp.hasSection("Statistics"))
 					{
 						status = false;
 						
 						log.error("The batch has statistics enabled but the base scenario does not.");
 					}
+					else
+					{
+						// We have a statistics section but are there any stats and is one enabled!
+						if(!tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true))
+						{
+							status = false;
+							
+							log.error("The batch has statistics enabled but there are none enabled in the base scenario");
+						}
+					}
 				}
-				
 			}
 			
 			if(status)
