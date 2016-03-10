@@ -27,6 +27,7 @@ import jCompute.Gui.Cluster.TableRowItems.BatchCompletedRowItem;
 import jCompute.Gui.Cluster.TableRowItems.BatchQueueRowItem;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
+import jCompute.Gui.Component.Swing.OpenBatchFileTask;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
@@ -42,7 +43,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.SwingWorker;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -210,7 +210,7 @@ public class BatchTab extends JPanel
 					// Sort Files Alpha Numerically by FileName
 					Arrays.sort(selectedFiles, new AlphanumFileNameComparator());
 					
-					openBatchProgressMonitorTask = new OpenBatchFileTask(openBatchProgressMonitor, selectedFiles);
+					openBatchProgressMonitorTask = new OpenBatchFileTask(self, openBatchProgressMonitor, batchManager, selectedFiles);
 					
 					openBatchProgressMonitorTask.start();
 				}
@@ -834,99 +834,6 @@ public class BatchTab extends JPanel
 				batchQueuedTable.clearSelection();
 			}
 		});
-	}
-	
-	private class OpenBatchFileTask extends SwingWorker<Void, Void>
-	{
-		private JComputeProgressMonitor openBatchProgressMonitor;
-		private File[] files;
-		
-		private float progressInc;
-		private int loaded = 0;
-		private int error = 0;
-		
-		public OpenBatchFileTask(JComputeProgressMonitor openBatchProgressMonitor, File[] files)
-		{
-			this.openBatchProgressMonitor = openBatchProgressMonitor;
-			this.files = files;
-			
-			log.info("Requested that " + files.length + " Batch Files be loaded");
-			
-			progressInc = 100f / (float) files.length;
-		}
-		
-		@Override
-		public Void doInBackground()
-		{
-			int progress = 0;
-			setProgress(progress);
-			
-			StringBuilder errorMessage = new StringBuilder();
-			
-			for(File file : files)
-			{
-				String batchFile = file.getAbsolutePath();
-				
-				log.info("Batch File : " + batchFile);
-				
-				if(!batchManager.addBatch(batchFile))
-				{
-					log.error("Error Creating Batch from : " + batchFile);
-					
-					if(error == 0)
-					{
-						errorMessage.append("Error Creating Batch(s) from - \n");
-						
-					}
-					
-					errorMessage.append(error + " " + batchFile + "\n");
-					
-					error++;
-				}
-				else
-				{
-					loaded++;
-				}
-				
-				progress += progressInc;
-				
-				updateProgressMonitor(Math.min(progress, 100));
-			}
-			
-			if(error > 0)
-			{
-				JOptionPane.showMessageDialog(self, errorMessage.toString());
-			}
-			
-			updateProgressMonitor(100);
-			
-			return null;
-		}
-		
-		private void updateProgressMonitor(int progress)
-		{
-			SwingUtilities.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					openBatchProgressMonitor.setProgress(progress);
-				}
-			});
-		}
-		
-		public void start()
-		{
-			updateProgressMonitor(0);
-			this.execute();
-		}
-		
-		@Override
-		public void done()
-		{
-			log.info(loaded + " Batch Files were loaded");
-			log.info(error + " Batch Files were NOT loaded!");
-		}
 	}
 	
 	// Batch Manager
