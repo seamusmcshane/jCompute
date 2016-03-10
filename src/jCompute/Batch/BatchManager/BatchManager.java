@@ -140,6 +140,8 @@ public class BatchManager
 		}
 		else
 		{
+			batchId--;
+			
 			batchManagerLock.release();
 			
 			added = false;
