@@ -34,7 +34,7 @@
 			<Path>Agents.SimpleAgent</Path>
 			<GroupName>Prey</GroupName>
 			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>200</Intial>
+			<Intial>600</Intial>
 			<Increment>0</Increment>
 			<Combinations>1</Combinations>
 		</Parameter>
