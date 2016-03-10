@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -385,6 +386,31 @@ public class ConfigurationInterpreter
 		latchNeedsUpdated = true;
 		
 		configurationFile.clearTree(string);
+	}
+	
+	/*
+	 * *****************************************************************************************************
+	 * Conformity Methods
+	 *****************************************************************************************************/
+	
+	
+	// Check that at least one element equals the value.
+	// Will return false if the value is not found or the path and or field does not exist.
+	public boolean atLeastOneElementEqualValue(String path, String field, boolean value)
+	{
+		boolean status = false;
+		
+		List<HierarchicalConfiguration> servers = configurationFile.configurationsAt(path);
+		for(HierarchicalConfiguration server : servers)
+		{
+			if(server.getBoolean(field, false))
+			{
+				status = true;
+				break;
+			}
+		}
+		
+		return status;
 	}
 	
 	/*
