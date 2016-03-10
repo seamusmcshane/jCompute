@@ -5,6 +5,7 @@ import java.awt.Dialog.ModalExclusionType;
 
 import javax.swing.JFrame;
 
+import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.io.Files;
 
 import jCompute.Batch.BatchManager.BatchManager;
@@ -12,6 +13,7 @@ import jCompute.util.FileUtil;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JLabel;
 import java.awt.event.ActionEvent;
@@ -53,6 +55,9 @@ public class BenchmarkWindow extends JFrame
 		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		
 		File[] files = FileUtil.getFilesInDir(path);
+		
+		// Sort Files Alpha Numerically by FileName
+		Arrays.sort(files, new AlphanumFileNameComparator());
 		
 		fileCount = files.length;
 		
