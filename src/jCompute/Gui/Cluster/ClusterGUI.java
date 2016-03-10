@@ -3,14 +3,13 @@ package jCompute.Gui.Cluster;
 import jCompute.IconManager;
 import jCompute.Batch.BatchManager.BatchManager;
 import jCompute.Gui.Component.Swing.AboutWindow;
+import jCompute.Gui.Component.Swing.BenchmarkWindow;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -29,7 +28,7 @@ import javax.swing.JMenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClusterGUI implements ActionListener, ItemListener, WindowListener
+public class ClusterGUI implements WindowListener
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(ClusterGUI.class);
@@ -42,6 +41,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	private JMenuItem mntmQuit;
 	
 	private JMenu mnHelp;
+	private JMenuItem mntmBenchmnark;
 	private JMenuItem mntmAbout;
 	
 	private int rightPanelsMinWidth = 400;
@@ -63,7 +63,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 			{
 				public void run()
 				{
-					createFrame();
+					createFrame(batchManager);
 					
 					createAndAddTabs(buttonText);
 					
@@ -87,7 +87,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		}
 	}
 	
-	private void createFrame()
+	private void createFrame(BatchManager batchManager)
 	{
 		// Frame
 		guiFrame = new JFrame("Cluster Interface");
@@ -99,7 +99,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		guiFrame.addWindowListener(this);
 		
 		// Menu Bar
-		createMenuBar();
+		createMenuBar(batchManager);
 		guiFrame.setJMenuBar(menuBar);
 		
 	}
@@ -119,7 +119,7 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, clusterIcon, "Cluster"));
 	}
 	
-	public void createMenuBar()
+	public void createMenuBar(BatchManager batchManager)
 	{
 		menuBar = new JMenuBar();
 		
@@ -128,14 +128,42 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 		
 		mntmQuit = new JMenuItem("Quit");
 		mnFileMenu.add(mntmQuit);
-		mntmQuit.addActionListener(this);
+		mntmQuit.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				doProgramExit();
+			}
+		});
 		
 		mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
+		mntmBenchmnark = new JMenuItem("Benchmark");
+		mnHelp.add(mntmBenchmnark);
+		mntmBenchmnark.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				BenchmarkWindow test = new BenchmarkWindow(batchManager);
+				test.pack();
+				test.setLocationRelativeTo(guiFrame);
+				test.setVisible(true);
+			}
+		});
+		
 		mntmAbout = new JMenuItem("About");
 		mnHelp.add(mntmAbout);
-		mntmAbout.addActionListener(this);
+		mntmAbout.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				AboutWindow jvmInfo = new AboutWindow();
+				jvmInfo.setLocationRelativeTo(guiFrame);
+				jvmInfo.pack();
+				jvmInfo.setVisible(true);
+			}
+		});
 	}
 	
 	@Override
@@ -179,28 +207,6 @@ public class ClusterGUI implements ActionListener, ItemListener, WindowListener
 	public void windowOpened(WindowEvent arg0)
 	{
 	
-	}
-	
-	@Override
-	public void itemStateChanged(ItemEvent arg0)
-	{
-	
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		if(e.getSource() == mntmQuit)
-		{
-			doProgramExit();
-		}
-		else if(e.getSource() == mntmAbout)
-		{
-			AboutWindow jvmInfo = new AboutWindow();
-			jvmInfo.setLocationRelativeTo(guiFrame);
-			jvmInfo.pack();
-			jvmInfo.setVisible(true);
-		}
 	}
 	
 	/* Ensure the user wants to exit then exit the program */
