@@ -100,8 +100,6 @@ public class BenchmarkWindow extends JFrame
 							
 							if(name.equals(fileName))
 							{
-								System.out.println("Adding : " + path + File.separator + file.getName());
-								
 								fileList[f] = file;
 							}
 						}
@@ -212,7 +210,7 @@ public class BenchmarkWindow extends JFrame
 		
 		addPadPanel(container);
 		
-		JButton buttton = new JButton("add");
+		JButton buttton = new JButton("Add");
 		buttton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -220,7 +218,6 @@ public class BenchmarkWindow extends JFrame
 				int size = (int) comboBox.getSelectedItem();
 				for(int i = 1; i <= size; i++)
 				{
-					System.out.println(name);
 					list.add(name);
 				}
 				
