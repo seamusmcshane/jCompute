@@ -25,8 +25,10 @@ public class BatchItem
 	// Times
 	private long computeTime;
 	
-	public BatchItem(int sampleId, int itemId, int batchId, String name, String hash, ArrayList<Integer> coordinates,
-			ArrayList<Float> coordinatesValues)
+	// Statistics
+	private boolean statsEnabled;
+	
+	public BatchItem(int sampleId, int itemId, int batchId, String name, String hash, ArrayList<Integer> coordinates, ArrayList<Float> coordinatesValues, boolean statsEnabled)
 	{
 		this.sampleId = sampleId;
 		this.itemId = itemId;
@@ -35,6 +37,7 @@ public class BatchItem
 		this.itemHash = hash;
 		this.coordinates = coordinates;
 		this.coordinatesValues = coordinatesValues;
+		this.statsEnabled = statsEnabled;
 	}
 	
 	public ArrayList<Integer> getCoordinates()
@@ -102,5 +105,10 @@ public class BatchItem
 	public long getStepCount()
 	{
 		return stepCount;
+	}
+	
+	public boolean hasStatsEnabled()
+	{
+		return statsEnabled;
 	}
 }
