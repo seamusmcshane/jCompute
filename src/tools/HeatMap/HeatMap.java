@@ -2,6 +2,7 @@ package tools.HeatMap;
 
 import jCompute.Batch.LogFileProcessor.BatchLogInf.ComputedMetric;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Gui.View.Misc.Palette;
 import jCompute.Timing.TimerObj;
 import jCompute.util.JCMath;
@@ -602,7 +603,7 @@ public class HeatMap extends JPanel
 	{
 		to.startTimer();
 		
-		double[] values = logProcessor.getAvgDataFlat();
+		double[] values = logProcessor.getDataMetricArray(Type.AVERAGE);
 		
 		int xSteps = logProcessor.getXSteps();
 		int ySteps = logProcessor.getYSteps();
