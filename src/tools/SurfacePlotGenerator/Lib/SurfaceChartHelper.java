@@ -2,29 +2,24 @@ package tools.SurfacePlotGenerator.Lib;
 
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContainer;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 
 public class SurfaceChartHelper
 {
-	public static MapperRemapper getAvg(LogFormatValuesContainer values)
+	public static SurfaceMapper getAvg(BatchLogProcessor logProcessor)
 	{
-		MapperRemapper avgMap = new MapperRemapper(values, 0);
-		
-		return avgMap;
+		return new SurfaceMapper(logProcessor.getDataMetric2dArray(Type.AVERAGE));
 	}
 	
-	public static MapperRemapper getStdDev(LogFormatValuesContainer values)
+	public static SurfaceMapper getStdDev(BatchLogProcessor logProcessor)
 	{
-		MapperRemapper stdMap = new MapperRemapper(values, 1);
-		
-		return stdMap;
+		return new SurfaceMapper(logProcessor.getDataMetric2dArray(Type.STANDARD_DEVIATION));
 	}
 	
-	public static MapperRemapper getMax(LogFormatValuesContainer values)
+	public static SurfaceMapper getMax(BatchLogProcessor logProcessor)
 	{
-		MapperRemapper maxMap = new MapperRemapper(values, 2);
-		
-		return maxMap;
+		return new SurfaceMapper(logProcessor.getDataMetric2dArray(Type.MAX));
 	}
 	
 	public static ITickRenderer getTickMapper(int coordMax, double valueMax)

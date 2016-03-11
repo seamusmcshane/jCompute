@@ -126,7 +126,7 @@ public class ChartUtil
 				zMax = maxScale;
 			}
 			
-			map = SurfaceChartHelper.getAvg(logProcessor.getLogFormatValuesContainer());
+			map = SurfaceChartHelper.getAvg(logProcessor);
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
@@ -134,7 +134,7 @@ public class ChartUtil
 		}
 		else if(mode == 1)
 		{
-			map = SurfaceChartHelper.getStdDev(logProcessor.getLogFormatValuesContainer());
+			map = SurfaceChartHelper.getStdDev(logProcessor);
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			
@@ -151,7 +151,7 @@ public class ChartUtil
 		}
 		else// (mode == 2)
 		{
-			map = SurfaceChartHelper.getMax(logProcessor.getLogFormatValuesContainer());
+			map = SurfaceChartHelper.getMax(logProcessor);
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
 			

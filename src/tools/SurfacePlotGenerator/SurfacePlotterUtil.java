@@ -326,7 +326,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			zMax = ilp.getMaxSteps();
 		}
 		
-		Mapper mapper = SurfaceChartHelper.getAvg(logProcessor.getLogFormatValuesContainer());
+		Mapper mapper = SurfaceChartHelper.getAvg(logProcessor);
 		
 		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, logProcessor.getXSteps(), avgYRange, logProcessor.getYSteps()), mapper);
 		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
@@ -368,7 +368,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		Range stdDevXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
 		Range stdDevYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
 		
-		Mapper mapper = SurfaceChartHelper.getStdDev(logProcessor.getLogFormatValuesContainer());
+		Mapper mapper = SurfaceChartHelper.getStdDev(logProcessor);
 		
 		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, logProcessor.getXSteps(), stdDevYRange, logProcessor.getYSteps()), mapper);
 		
