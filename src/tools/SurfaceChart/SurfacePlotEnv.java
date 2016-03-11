@@ -2,6 +2,7 @@ package tools.SurfaceChart;
 
 import tools.SurfaceChart.Surface.BarSurface;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Gui.View.Input.OrbitalCameraInputController;
 import jCompute.Gui.View.Misc.Palette;
 
@@ -127,7 +128,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		
 		tr = colorMap.getTextureRegion();
 		
-		double[][] data = logProcessor.getAvgData2d();
+		double[][] data = logProcessor.getDataMetric2dArray(Type.AVERAGE);
 		String[] names = logProcessor.getAxisNames();
 		
 		System.out.println("xRange " + xMin + " " + xMax);
