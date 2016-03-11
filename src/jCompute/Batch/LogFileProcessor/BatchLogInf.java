@@ -1,6 +1,6 @@
 package jCompute.Batch.LogFileProcessor;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContainer;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 
 public interface BatchLogInf
 {
@@ -76,27 +76,16 @@ public interface BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
-	 * Processed Data
-	 *****************************************************************************************************/
-	public double[] getAvgDataFlat();
-	
-	public double[][] getAvgData2d();
-	
-	public LogFormatValuesContainer getLogFormatValuesContainer();
-	
-	/*
-	 * *****************************************************************************************************
 	 * Processed Data Metrics
 	 *****************************************************************************************************/
 	
-	public enum Source
-	{
-		AVG, STD_DEV, MAX
-	}
+	public double[] getDataMetricArray(Type metricSource);
 	
-	public double getDataMetricMinVal(Source metricSource);
+	public double[][] getDataMetric2dArray(Type metricSource);
 	
-	public double getDataMetricMaxVal(Source metricSource);
+	public double getDataMetricMinVal(Type metricSource);
+	
+	public double getDataMetricMaxVal(Type metricSource);
 	
 	public enum ComputedMetric
 	{

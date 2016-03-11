@@ -12,6 +12,7 @@ import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContain
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogItem;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
@@ -322,73 +323,44 @@ public class BatchLogProcessor implements BatchLogInf
 	
 	/*
 	 * *****************************************************************************************************
-	 * Processed Data
-	 *****************************************************************************************************/
-	
-	public double[] getAvgDataFlat()
-	{
-		return values.getAvgDataFlat();
-	}
-	
-	@Override
-	public double[][] getAvgData2d()
-	{
-		return values.getAvgData2d();
-	}
-	
-	@Override
-	public LogFormatValuesContainer getLogFormatValuesContainer()
-	{
-		return values;
-	}
-	
-	/*
-	 * *****************************************************************************************************
 	 * Processed Data Metrics
 	 *****************************************************************************************************/
 	
-	@Override
-	public double getDataMetricMinVal(Source metricSource)
+	public double[][] getDataMetric2dArray(Type metricSource)
 	{
-		switch(metricSource)
+		int xSteps = values.getXSteps();
+		int ySteps = values.getYSteps();
+		
+		double[] data1d = getDataMetricArray(metricSource);
+		
+		// 1d to 2d
+		double[][] data2d = new double[xSteps][xSteps];
+		for(int y = 0; y < ySteps; y++)
 		{
-			case AVG:
+			for(int x = 0; x < xSteps; x++)
 			{
-				return values.getZMin();
+				data2d[x][y] = data1d[x * ySteps + y];
 			}
-			case STD_DEV:
-			{
-				return values.getZMin();
-			}
-			case MAX:
-			{
-				return values.getZMin();
-			}
-			default:
-				return Double.NaN;
 		}
+		
+		return data2d;
+	}
+	
+	public double[] getDataMetricArray(Type metricSource)
+	{
+		return values.getMetricArray(metricSource);
 	}
 	
 	@Override
-	public double getDataMetricMaxVal(Source metricSource)
+	public double getDataMetricMinVal(Type metricSource)
 	{
-		switch(metricSource)
-		{
-			case AVG:
-			{
-				return values.getZMax();
-			}
-			case STD_DEV:
-			{
-				return values.getZMax();
-			}
-			case MAX:
-			{
-				return values.getZMax();
-			}
-			default:
-				return Double.NaN;
-		}
+		return values.getDataMetricMin(metricSource);
+	}
+	
+	@Override
+	public double getDataMetricMaxVal(Type metricSource)
+	{
+		return values.getDataMetricMax(metricSource);
 	}
 	
 	@Override
