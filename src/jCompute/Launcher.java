@@ -103,12 +103,12 @@ public class Launcher
 		{
 			case 2:
 				// Debug
-				System.setProperty("log4j.configurationFile", "log/config/log4j2-debug.xml");
+				System.setProperty("log4j.configurationFile", "log-config/config/log4j2-debug.xml");
 				System.out.println("Debug Logging Level");
 			break;
 			case 1:
 				// Standard
-				System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
+				System.setProperty("log4j.configurationFile", "log-config/log4j2.xml");
 				System.out.println("Info level Logging to file and errors logged to file.");
 			break;
 			default:
@@ -116,7 +116,7 @@ public class Launcher
 				
 				// Async Logging
 				System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-				System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+				System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
 				System.out.println("AsyncLogging + Info level console Logging, with errors logged to file.");
 			break;
 		}
