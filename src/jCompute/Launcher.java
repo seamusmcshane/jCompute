@@ -15,10 +15,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,31 +101,23 @@ public class Launcher
 		
 		switch(loglevel)
 		{
-			case 3:
+			case 2:
 				// Debug
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-debug.xml");
 				System.out.println("Debug Logging Level");
 			break;
-			case 2:
+			case 1:
 				// Standard
 				System.setProperty("log4j.configurationFile", "log/config/log4j2.xml");
 				System.out.println("Info level Logging to file and errors logged to file.");
 			break;
-			case 1:
+			default:
 				// Standard
 				
 				// Async Logging
 				System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
 				System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
 				System.out.println("AsyncLogging + Info level console Logging, with errors logged to file.");
-			break;
-			case 0:
-			default:
-				
-				LoggerConfig loggerConfig = ((LoggerContext) LogManager.getContext()).getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-				loggerConfig.setLevel(Level.OFF);
-				((LoggerContext) LogManager.getContext()).updateLoggers();
-				
 			break;
 		}
 		
@@ -146,7 +134,7 @@ public class Launcher
 			Class.forName("org.apache.logging.log4j.core.LoggerContext");
 			
 			// Update the loggers with the correct log filenames
-			((org.apache.logging.log4j.core.LoggerContext) LogManager.getContext()).reconfigure();
+			org.apache.logging.log4j.core.LoggerContext.getContext().reconfigure();
 		}
 		catch(ClassNotFoundException e)
 		{
