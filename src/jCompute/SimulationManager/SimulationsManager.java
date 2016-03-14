@@ -91,7 +91,7 @@ public class SimulationsManager implements SimulationsManagerInf
 				
 				simulationsManagerLock.release();
 				
-				log.error("Tried Adding Sim but failed");
+				log.error("Add sim failed - unable to get scenario.");
 				
 				return -1;
 			}
