@@ -23,7 +23,7 @@ public class ScenarioManager
 		
 		spm = PluginManagerFactory.createPluginManager();
 		
-		spm.addPluginsFrom(new File("scenarios/").toURI());
+		spm.addPluginsFrom(new File("plugins/scenarios").toURI());
 		
 		listScenarioPlugins();
 	}
