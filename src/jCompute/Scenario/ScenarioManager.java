@@ -41,6 +41,26 @@ public class ScenarioManager
 		log.info("Total Scenarios : " + scenarios.size());
 	}
 	
+	public static boolean hasScenario(String targetType)
+	{
+		boolean status = false;
+		// Get all the scenario plugins
+		Collection<ScenarioInf> scenarios = new PluginManagerUtil(spm).getPlugins(ScenarioInf.class);
+		
+		// Look for a scenario with a type matching targetType
+		for(ScenarioInf currentScenario : scenarios)
+		{
+			if(currentScenario.getScenarioType().equals(targetType))
+			{
+				// Found target
+				status = true;
+				break;
+			}
+		}
+		
+		return status;
+	}
+	
 	public static ScenarioInf getScenario(String configText)
 	{
 		// Load the config text

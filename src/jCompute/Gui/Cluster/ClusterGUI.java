@@ -6,6 +6,7 @@ import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.BenchmarkWindow;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
+import jCompute.Scenario.ScenarioManager;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -139,18 +140,28 @@ public class ClusterGUI implements WindowListener
 		mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
-		mntmBenchmnark = new JMenuItem("Benchmark");
-		mnHelp.add(mntmBenchmnark);
-		mntmBenchmnark.addActionListener(new ActionListener()
+		
+		if(ScenarioManager.hasScenario("SAPPv2"))
 		{
-			public void actionPerformed(ActionEvent e)
+			mntmBenchmnark = new JMenuItem("Benchmark");
+			mnHelp.add(mntmBenchmnark);
+			mntmBenchmnark.addActionListener(new ActionListener()
 			{
-				BenchmarkWindow test = new BenchmarkWindow(batchManager);
-				test.pack();
-				test.setLocationRelativeTo(guiFrame);
-				test.setVisible(true);
-			}
-		});
+				public void actionPerformed(ActionEvent e)
+				{
+					BenchmarkWindow test = new BenchmarkWindow(batchManager);
+					test.pack();
+					test.setLocationRelativeTo(guiFrame);
+					test.setVisible(true);
+				}
+			});
+			
+			log.info("SAPPv2 found benchmark enabled");
+		}
+		else
+		{
+			log.warn("SAPPv2 not found benchmark disabled");
+		}
 		
 		mntmAbout = new JMenuItem("About");
 		mnHelp.add(mntmAbout);
