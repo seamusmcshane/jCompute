@@ -1,7 +1,5 @@
 package jCompute.Scenario;
 
-import jCompute.Stats.StatGroupSetting;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -30,6 +28,8 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jCompute.Stats.StatGroupSetting;
 
 /**
  * XML Configuration File Interpreter.
@@ -133,7 +133,7 @@ public class ConfigurationInterpreter
 	
 	public String getScenarioType()
 	{
-		return configurationFile.getString("Header.Type", "Scenario Type Not Set!!!");
+		return configurationFile.getString("Header.Type", ScenarioInf.INVALID);
 	}
 	
 	/*
@@ -392,7 +392,6 @@ public class ConfigurationInterpreter
 	 * *****************************************************************************************************
 	 * Conformity Methods
 	 *****************************************************************************************************/
-	
 	
 	// Check that at least one element equals the value.
 	// Will return false if the value is not found or the path and or field does not exist.

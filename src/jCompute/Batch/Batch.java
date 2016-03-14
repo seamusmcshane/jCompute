@@ -914,7 +914,7 @@ public class Batch implements StoredQueuePosition
 				baseScenarioText = tempIntrp.getText();
 			}
 			
-			// Finally create a real Scenario a the final test
+			// Finally create a real Scenario as the final test
 			if(baseScenarioText != null)
 			{
 				scenario = ScenarioManager.getScenario(baseScenarioText);
