@@ -12,6 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
@@ -30,6 +33,9 @@ import java.lang.reflect.InvocationTargetException;
 
 public class StandardGUI implements ActionListener, WindowListener
 {
+	// SL4J Logger
+	private static Logger log = LoggerFactory.getLogger(StandardGUI.class);
+	
 	// Main Frame
 	private JFrame guiFrame;
 
@@ -80,14 +86,13 @@ public class StandardGUI implements ActionListener, WindowListener
 					guiFrame.setVisible(true);
 					guiFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 
-					System.out.println("Created GUI");
-
+					log.info("Created Standard GUI");
 				}
 			});
 		}
 		catch(InvocationTargetException | InterruptedException e)
 		{
-			System.out.println("Failed to Create GUI");
+			log.error("Failed to Create GUI");
 		}
 		
 	}
@@ -192,7 +197,7 @@ public class StandardGUI implements ActionListener, WindowListener
 				}
 				else
 				{
-					System.out.println("Unknown Event Source :" + e.getSource().getClass().getName());
+					log.error("Unknown Event Source :" + e.getSource().getClass().getName());
 				}
 			}
 		});

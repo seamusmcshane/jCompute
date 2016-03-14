@@ -25,8 +25,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
 {
+	private static Logger log = LoggerFactory.getLogger(GUITabManager.class);
+	
 	private static final long serialVersionUID = 1L;
 	
 	/** Max Tabs == Max Simulations */
@@ -115,7 +120,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 						{
 							if(simulationTabs[i] == getSelectedComponent())
 							{
-								System.out.println("Simulation Tab Selected - Sim Id : " + simulationTabs[i].getSimulationId());
+								log.info("Simulation Tab Selected - Sim Id : " + simulationTabs[i].getSimulationId());
 								
 								simsManager.setActiveSim(simulationTabs[i].getSimulationId());
 								
@@ -152,7 +157,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	{
 		int tabSimId = -1;
 			
-		System.out.println(simId);
+		log.info(Integer.toString(simId));
 		
 		// Check incase the tab is already added
 		for(int i=0;i<maxTabs;i++)
@@ -382,7 +387,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	
 	private void chooseExport()
 	{
-		System.out.println("Choose Export Directory");
+		log.info("Choose Export Directory");
 
 		String exportDirectory = "";
 		ExportFormat exportFormat = null;
@@ -421,7 +426,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		}
 		else
 		{
-			System.out.println("Export Cancelled");
+			log.info("Export Cancelled");
 			
 			exportDirectory = "CANCELLED";
 		}
@@ -431,7 +436,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		{
 			int simId = ((GUISimulationTab)getSelectedComponent()).getSimulationId();
 			
-			System.out.println("Directory Choosen : " + exportDirectory);
+			log.info("Directory Choosen : " + exportDirectory);
 
 			// Get the Stat Exporter containing the stats for simId
 			StatExporter exporter = simsManager.getStatExporter(simId,"",exportFormat);
@@ -443,7 +448,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			}
 			else
 			{
-				System.out.println("Error Stat Export was null");
+				log.error("Stat Export was null");
 			}
 
 		}

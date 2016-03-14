@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -33,6 +35,8 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 public class View implements ApplicationListener, ViewRendererInf
 {
+	private static Logger log = LoggerFactory.getLogger(View.class);
+
 	/** Swing base panel */
 	private JPanel basePanel;
 	
@@ -73,8 +77,6 @@ public class View implements ApplicationListener, ViewRendererInf
 	
 	public View()
 	{
-		System.out.println("Created View");
-		
 		LwjglApplicationConfiguration.disableAudio = true;
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		
@@ -92,6 +94,8 @@ public class View implements ApplicationListener, ViewRendererInf
 		glCanvas = new LwjglCanvas(this, cfg);
 		
 		basePanel.add(glCanvas.getCanvas(), BorderLayout.CENTER);
+		
+		log.info("Created View");
 	}
 	
 	public void stopDisplay()
@@ -99,7 +103,7 @@ public class View implements ApplicationListener, ViewRendererInf
 		glCanvas.getInput().setInputProcessor(null);
 		glCanvas.stop();
 		
-		System.out.println("Stop View");
+		log.info("Stop View");
 	}
 	
 	public void exitDisplay()
@@ -108,7 +112,7 @@ public class View implements ApplicationListener, ViewRendererInf
 		glCanvas.stop();
 		Display.destroy();
 		
-		System.out.println("Exited View");
+		log.info("Exited View");
 	}
 	
 	public JComponent getCanvas()
