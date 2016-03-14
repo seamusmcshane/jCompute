@@ -20,7 +20,9 @@ public class SimpleTabTabTitle extends JPanel
 		
 		this.setOpaque(false);
 		
-		setPreferredSize(new Dimension(tabWidth,icon.getIconHeight()));
+		int height = icon!=null ? icon.getIconHeight() : 16;
+		
+		setPreferredSize(new Dimension(tabWidth,height));
 		
 		add(new JLabel(icon), BorderLayout.WEST);
 		
