@@ -3,6 +3,7 @@ package tools.ReportGenerator;
 import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogInf.ComputedMetric;
+import jCompute.util.FileUtil;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
 import sun.misc.Cleaner;
@@ -24,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -48,9 +51,77 @@ import com.jogamp.opengl.util.texture.TextureData;
 
 public class SurfacePlotImageExporter
 {
+	// Image Width/Height
+	private int imageWidth;
+	private int imageHeight;
+	
+	// Row/Column Names
+	private ArrayList<String> rowNames;
+	private ArrayList<String> colNames;
+	
+	// Cells
+	private Map<String, String> cells;
+	
+	// Working Path
+	private String fullPath;
+	
+	// LogFile Name
+	private String itemLog;
+	
+	// Auto detected and Set
 	private boolean zfixScale = false;
 	private boolean scaleSet = false;
 	private int maxScale = 0;
+	
+	public SurfacePlotImageExporter(int imageWidth, int imageHeight, ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, String itemLog)
+	{
+		this.imageWidth = imageWidth;
+		this.imageHeight = imageHeight;
+		
+		this.rowNames = rowNames;
+		this.colNames = colNames;
+		this.cells = cells;
+		
+		this.fullPath = fullPath;
+		this.itemLog = itemLog;
+	}
+	
+	/**
+	 * @param rowNames
+	 * @param colNames
+	 * @param cells
+	 * @param fullPath
+	 * @param itemLog
+	 */
+	public void export()
+	{
+		for(String row : rowNames)
+		{
+			for(String col : colNames)
+			{
+				String path = fullPath + File.separator + row + File.separator + col;
+				System.out.println("Path : " + path);
+				
+				String imagesPath = fullPath + File.separator + "images";
+				String exportPath = imagesPath + File.separator + row;
+				
+				String logDir = cells.get(row + col);
+				String imageName = logDir.substring(logDir.lastIndexOf(']') + 2, logDir.length());
+				String logPath = logDir + File.separator + itemLog;
+				System.out.println("logDir : " + logDir);
+				
+				System.out.println("imagesPath : " + imagesPath);
+				System.out.println("exportPath : " + exportPath);
+				System.out.println("logPath : " + logPath);
+				System.out.println("imageName : " + imageName);
+				
+				FileUtil.createDirIfNotExist(imagesPath);
+				FileUtil.createDirIfNotExist(exportPath);
+				
+				exportChartImages(imageWidth, imageHeight, logPath, exportPath, imageName);
+			}
+		}
+	}
 	
 	/**
 	 * @param width
@@ -59,7 +130,7 @@ public class SurfacePlotImageExporter
 	 * @param exportPath
 	 * @param fileName
 	 */
-	public void export(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
+	private void exportChartImages(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
 	{
 		BatchInfoLogProcessor ilp = null;
 		try
@@ -110,6 +181,7 @@ public class SurfacePlotImageExporter
 	
 	private void exportImage(BatchLogProcessor logProcessor, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
 	{
+		// TODO HardCoded
 		int legendWidth = 160;
 		
 		Range xRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
@@ -122,6 +194,8 @@ public class SurfacePlotImageExporter
 		
 		if(mode == 0)
 		{
+			// Average Plot
+			
 			double zMin = logProcessor.getZmin();
 			double zMax = logProcessor.getZmax();
 			
@@ -139,6 +213,8 @@ public class SurfacePlotImageExporter
 		}
 		else if(mode == 1)
 		{
+			// Standard Dev Plot
+			
 			map = SurfaceChartHelper.getStdDev(logProcessor);
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);
@@ -156,6 +232,8 @@ public class SurfacePlotImageExporter
 		}
 		else// (mode == 2)
 		{
+			// Max Surface Plot
+			
 			map = SurfaceChartHelper.getMax(logProcessor);
 			
 			surface = Builder.buildOrthonormal(new OrthonormalGrid(xRange, logProcessor.getXSteps(), yRange, logProcessor.getYSteps()), map);

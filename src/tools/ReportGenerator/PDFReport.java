@@ -1,22 +1,12 @@
 package tools.ReportGenerator;
 
-import jCompute.Thread.SimpleNamedThreadFactory;
-import jCompute.util.FileUtil;
-import jCompute.util.LookAndFeel;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
 
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -27,99 +17,59 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 
-import com.DaveKoelle.AlphanumComparator;
-
 public class PDFReport
 {
-	private final static int imageWidth = 600;
-	private final static int imageHeight = 400;
+	// Report Name
+	private String reportFileName;
 	
-	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(8, new SimpleNamedThreadFactory("Image Exporter"));
+	// Row/Column Names
+	private ArrayList<String> rowNames;
+	private ArrayList<String> colNames;
 	
-	private final static ArrayList<String> rowNames = new ArrayList<String>();
-	private final static ArrayList<String> colNames = new ArrayList<String>();
-	private final static Map<String, String> cells = new HashMap<String, String>();
+	// Cells
+	private Map<String, String> cells;
 	
-	public static void main(String args[])
+	private String fullPath;
+	private float scale;
+	
+	private int imageWidth;
+	private int imageHeight;
+	
+	public PDFReport(String reportFileName, ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, float scale, int imageWidth, int imageHeight)
 	{
-		LookAndFeel.setLookandFeel("default");
+		super();
+		this.reportFileName = reportFileName;
+		this.rowNames = rowNames;
+		this.colNames = colNames;
+		this.cells = cells;
 		
-		final JFileChooser filechooser = new JFileChooser(new File("\\\\Nanoserv\\results\\"));
+		this.fullPath = fullPath;
+		this.scale = scale;
 		
-		filechooser.setDialogTitle("Choose Directory");
-		filechooser.setMultiSelectionEnabled(false);
-		filechooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		int val = filechooser.showOpenDialog(filechooser);
-		
-		float scale = 1f;
-		
-		String itemLogName = "ItemLog";
-		
-		if(val == JFileChooser.APPROVE_OPTION)
-		{
-			String fullPath = filechooser.getSelectedFile().getPath();
-			System.out.println("Path : " + fullPath);
-			
-			// Level 0
-			String documentName = filechooser.getSelectedFile().getName();
-			System.out.println("Document Name will be : " + documentName);
-			
-			String itemLogNameWithExt = generateMap(rowNames, colNames, cells, fullPath, itemLogName);
-			
-			System.out.println("LogFile detected as : " + itemLogNameWithExt);
-			
-			Collections.sort(rowNames, new AlphanumComparator());
-			Collections.sort(colNames, new AlphanumComparator());
-			
-			generateImages(rowNames, colNames, cells, fullPath, itemLogNameWithExt);
-			
-			try
-			{
-				imageExporter.shutdown();
-				
-				// We should never timeout but we do need to wait.
-				imageExporter.awaitTermination(365, TimeUnit.DAYS);
-				System.out.println("Images Finished");
-			}
-			catch(InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			
-			generateReport(documentName, rowNames, colNames, fullPath, scale);
-			
-			System.out.println("Report Finished");
-		}
-		else
-		{
-			System.out.println("Report Cancelled");
-		}
-		
-		System.exit(0);
-		
+		this.imageWidth = imageWidth;
+		this.imageHeight = imageHeight;
 	}
 	
-	private static void generateReport(String documentName, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale)
+	public void generate()
 	{
 		PDDocument document = new PDDocument();
 		
-		addReportPage(documentName, document, rowNames, colNames, fullPath, scale, "Averages");
-		addReportPage(documentName, document, rowNames, colNames, fullPath, scale, "Standard Deviations");
-		addReportPage(documentName, document, rowNames, colNames, fullPath, scale, "Max");
+		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Averages");
+		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Standard Deviations");
+		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Max");
 		
 		try
 		{
-			document.save(fullPath + File.separator + documentName + ".pdf");
+			document.save(fullPath + File.separator + reportFileName + ".pdf");
 			document.close();
 		}
 		catch(IOException | COSVisitorException e)
 		{
 			e.printStackTrace();
 		}
-		
 	}
 	
-	private static void addReportPage(String documentName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale, String pageTitle)
+	private void addReportPage(String reportFileName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale, String pageTitle)
 	{
 		int documentTitleSize = 32;
 		int pageTitleSize = 18;
@@ -214,15 +164,15 @@ public class PDFReport
 			cos.beginText();
 			
 			cos.setFont(PDType1Font.HELVETICA_BOLD, documentTitleSize);
-			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2, pageBox.getHeight() - documentTitleSize);
-			cos.drawString(documentName);
+			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (reportFileName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2, pageBox.getHeight() - documentTitleSize);
+			cos.drawString(reportFileName);
 			
 			cos.endText();
 			
 			cos.beginText();
 			
 			cos.setFont(PDType1Font.HELVETICA_BOLD, pageTitleSize);
-			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2, pageBox.getHeight() - documentTitleSize - pageTitleSize);
+			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (reportFileName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2, pageBox.getHeight() - documentTitleSize - pageTitleSize);
 			cos.drawString(pageTitle);
 			
 			cos.endText();
@@ -236,7 +186,7 @@ public class PDFReport
 		
 	}
 	
-	private static void addImage(PDDocument doc, PDPage page, PDPageContentStream cs, String file, float x, float y, float scale) throws IOException
+	private void addImage(PDDocument doc, PDPage page, PDPageContentStream cs, String file, float x, float y, float scale) throws IOException
 	{
 		BufferedImage awtImage = ImageIO.read(new File(file));
 		
@@ -248,188 +198,11 @@ public class PDFReport
 		cs.drawXObject(ximage, x, -y + page.getMediaBox().getHeight() - height, width, height);
 	}
 	
-	private static void addRectangle(PDDocument doc, PDPage page, PDPageContentStream cs, float x, float y, float width, float height, float lineWidth) throws IOException
+	private void addRectangle(PDDocument doc, PDPage page, PDPageContentStream cs, float x, float y, float width, float height, float lineWidth) throws IOException
 	{
 		cs.setLineWidth(lineWidth);
 		cs.addRect(x, -y + page.getMediaBox().getHeight() - height, width, height);
 		cs.closeAndStroke();
 	}
 	
-	/**
-	 * Transverse the path and generate images for the itemLogs found
-	 * @param colNames
-	 * @param rowNames
-	 * @param fullPath
-	 * @param filename
-	 *            minus ext
-	 */
-	private static String generateMap(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, String filename)
-	{
-		boolean extDetected = false;
-		
-		String itemLogWithExt = null;
-		
-		// Level 1
-		String level1dirs[] = FileUtil.getDirectoriesInDir(fullPath);
-		
-		if(FileUtil.dirContainsFileNamedMinusExt(fullPath + File.separator, filename))
-		{
-			// A single directory
-			System.out.println("Single Dir");
-		}
-		else
-		{
-			// Detect special cases
-			boolean doColumns = true;
-			boolean doRows = true;
-			
-			for(String level1dir : level1dirs)
-			{
-				if(!level1dir.equals("images"))
-				{
-					String level1Path = fullPath + File.separator + level1dir;
-					System.out.println("l1 Dir : " + level1dir);
-					
-					// Row Name
-					String rowName;
-					
-					if(FileUtil.dirContainsFileNamedMinusExt(level1Path, filename))
-					{
-						if(!extDetected)
-						{
-							itemLogWithExt = FileUtil.getFileWithExtInDirMatchingName(level1Path, filename);
-							
-							extDetected = true;
-						}
-						
-						// A directory with 1 level of groups
-						System.out.println("Group Dir");
-						
-						rowName = fullPath.substring(fullPath.lastIndexOf(File.separator) + 1, fullPath.length());
-						
-						if(doRows)
-						{
-							doRows = false;
-							rowNames.add(rowName);
-							System.out.println("Row Name : " + rowName);
-						}
-						
-						String colName = level1dir;
-						colNames.add(colName);
-						System.out.println("Column Name : " + colName);
-						
-						String index = rowName + colName;
-						
-						// Add Cell Index - item log locations
-						cells.put(index, level1Path);
-						
-						System.out.println("Added Cell " + cells.size());
-						
-					}
-					else
-					{
-						// Row Name
-						rowName = level1dir;
-						rowNames.add(rowName);
-						System.out.println("Row Name : " + rowName);
-						
-						// A directory with 2 levels of groups
-						String level2dirs[] = FileUtil.getDirectoriesInDir(level1Path);
-						
-						if(doColumns)
-						{
-							doColumns = false;
-							// Detect Column Names - Assumes all sub directories
-							// match the first directories layout.
-							String columnDir = level2dirs[0];
-							
-							String columPath = fullPath + File.separator + level1dir + File.separator + columnDir;
-							
-							String columDirs[] = FileUtil.getDirectoriesInDir(level1Path);
-							
-							for(String dir : columDirs)
-							{
-								String colName = dir.substring(dir.lastIndexOf(']') + 2, dir.length());
-								
-								colNames.add(colName);
-								
-								System.out.println("Column Name : " + colName);
-							}
-							
-						}
-						// Now Index Cells
-						for(String level2dir : level2dirs)
-						{
-							String level2Path = fullPath + File.separator + level1dir + File.separator + level2dir;
-							
-							if(FileUtil.dirContainsFileNamedMinusExt(level2Path, filename))
-							{
-								if(!extDetected)
-								{
-									itemLogWithExt = FileUtil.getFileWithExtInDirMatchingName(level2Path, filename);
-									
-									extDetected = true;
-								}
-								
-								System.out.println("L2 Dir : " + level2dir);
-								
-								String colName = level2dir.substring(level2dir.lastIndexOf(']') + 2, level2dir.length());
-								
-								String index = rowName + colName;
-								
-								// Add Cell Index - item log locations
-								cells.put(index, level2Path);
-								
-								System.out.println("Added Cell " + cells.size());
-							}
-							
-						}
-						
-					}
-				}
-				
-			}
-			
-		}
-		
-		return itemLogWithExt;
-	}
-	
-	/**
-	 * Transverse the path and generate images for the itemLogs found
-	 * @param colNames
-	 * @param rowNames
-	 * @param fullPath
-	 * @param itemLog
-	 */
-	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, String itemLog)
-	{
-		SurfacePlotImageExporter chartUtil = new SurfacePlotImageExporter();
-		for(String row : rowNames)
-		{
-			for(String col : colNames)
-			{
-				String path = fullPath + File.separator + row + File.separator + col;
-				System.out.println("Path : " + path);
-				
-				String imagesPath = fullPath + File.separator + "images";
-				String exportPath = imagesPath + File.separator + row;
-				
-				String logDir = cells.get(row + col);
-				String imageName = logDir.substring(logDir.lastIndexOf(']') + 2, logDir.length());
-				String logPath = logDir + File.separator + itemLog;
-				System.out.println("logDir : " + logDir);
-				
-				System.out.println("imagesPath : " + imagesPath);
-				System.out.println("exportPath : " + exportPath);
-				System.out.println("logPath : " + logPath);
-				System.out.println("imageName : " + imageName);
-				
-				FileUtil.createDirIfNotExist(imagesPath);
-				FileUtil.createDirIfNotExist(exportPath);
-				
-				chartUtil.export(imageWidth, imageHeight, logPath, exportPath, imageName);
-			}
-		}
-	}
 }
