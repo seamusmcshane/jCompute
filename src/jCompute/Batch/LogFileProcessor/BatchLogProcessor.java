@@ -12,6 +12,7 @@ import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContain
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogItem;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.XMLBatchLogFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
@@ -104,14 +105,9 @@ public class BatchLogProcessor implements BatchLogInf
 			break;
 			case "xml":
 			{
-				Throwable throwable = new Throwable("XML log format is no longer supported");
-				
-				throwable.setStackTrace(Thread.currentThread().getStackTrace());
-				
-				log.error("XML log format is no longer supported " + fileExtension);
-				
-				throw new IOException(throwable);
+				logFormatProcessor = new XMLBatchLogFormat(filePath);
 			}
+			break;
 			default:
 			{
 				Throwable throwable = new Throwable("Unsupported Log Format");
