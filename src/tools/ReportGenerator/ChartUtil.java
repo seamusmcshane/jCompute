@@ -48,16 +48,17 @@ import com.jogamp.opengl.util.texture.TextureData;
 
 public class ChartUtil
 {
-	/**
-	 * @param file
-	 *            - item log
-	 * @param mode
-	 *            - avg /std-dev
-	 */
-	private static boolean zfixScale = false;
-	private static boolean scaleSet = false;
-	private static int maxScale = 0;
+	private boolean zfixScale = false;
+	private boolean scaleSet = false;
+	private int maxScale = 0;
 	
+	/**
+	 * @param width
+	 * @param height
+	 * @param sourceFilePath
+	 * @param exportPath
+	 * @param fileName
+	 */
 	public void ExportSurfacePlot(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
 	{
 		BatchInfoLogProcessor ilp = null;
