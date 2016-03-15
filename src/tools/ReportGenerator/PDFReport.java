@@ -404,7 +404,7 @@ public class PDFReport
 	 */
 	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, String itemLog)
 	{
-		ChartUtil chartUtil = new ChartUtil();
+		SurfacePlotImageExporter chartUtil = new SurfacePlotImageExporter();
 		for(String row : rowNames)
 		{
 			for(String col : colNames)
@@ -428,37 +428,8 @@ public class PDFReport
 				FileUtil.createDirIfNotExist(imagesPath);
 				FileUtil.createDirIfNotExist(exportPath);
 				
-				chartUtil.ExportSurfacePlot(imageWidth, imageHeight, logPath, exportPath, imageName);
+				chartUtil.export(imageWidth, imageHeight, logPath, exportPath, imageName);
 			}
 		}
-		
 	}
-	
-	public static class ImageExporter implements Runnable
-	{
-		private int width;
-		private int height;
-		private String sourceLog;
-		private String exportPath;
-		private String imageName;
-		
-		public ImageExporter(int width, int height, String sourceLog, String exportPath, String imageName)
-		{
-			super();
-			this.width = width;
-			this.height = height;
-			this.sourceLog = sourceLog;
-			this.exportPath = exportPath;
-			this.imageName = imageName;
-		}
-		
-		@Override
-		public void run()
-		{
-			ChartUtil chartUtil = new ChartUtil();
-			chartUtil.ExportSurfacePlot(width, height, sourceLog, exportPath, imageName);
-		}
-		
-	}
-	
 }

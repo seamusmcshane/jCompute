@@ -46,7 +46,7 @@ import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
 import com.jogamp.opengl.util.texture.TextureData;
 
-public class ChartUtil
+public class SurfacePlotImageExporter
 {
 	private boolean zfixScale = false;
 	private boolean scaleSet = false;
@@ -59,7 +59,7 @@ public class ChartUtil
 	 * @param exportPath
 	 * @param fileName
 	 */
-	public void ExportSurfacePlot(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
+	public void export(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
 	{
 		BatchInfoLogProcessor ilp = null;
 		try
@@ -92,9 +92,9 @@ public class ChartUtil
 			// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
 			BatchLogProcessor logProcessor = (ilp != null) ? new BatchLogProcessor(sourceFilePath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(sourceFilePath);
 			
-			exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-avg", 0);
-			exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
-			exportChartImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-max", 2);
+			exportImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-avg", 0);
+			exportImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
+			exportImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-max", 2);
 			
 			logProcessor = null;
 		}
@@ -108,7 +108,7 @@ public class ChartUtil
 		}
 	}
 	
-	private void exportChartImage(BatchLogProcessor logProcessor, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
+	private void exportImage(BatchLogProcessor logProcessor, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
 	{
 		int legendWidth = 160;
 		
