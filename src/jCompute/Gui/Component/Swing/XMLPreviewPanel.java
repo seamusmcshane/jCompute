@@ -30,8 +30,8 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 	public XMLPreviewPanel()
 	{
 		this.setLayout(new BorderLayout());
-		this.setMinimumSize(new Dimension(400, 300));
-		this.setPreferredSize(new Dimension(400, 300));
+		this.setMinimumSize(new Dimension(500, 300));
+		this.setPreferredSize(new Dimension(500, 300));
 
 		scenarioEditor = new RSyntaxTextArea();
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);

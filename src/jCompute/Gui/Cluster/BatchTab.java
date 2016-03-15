@@ -184,11 +184,11 @@ public class BatchTab extends JPanel
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				JFileChooser filechooser = new JFileChooser(new File("./scenarios"));
+				JFileChooser filechooser = new JFileChooser(new File("./Batch"));
 				
 				filechooser.setFileFilter(FileUtil.batchFileFilter());
 				
-				filechooser.setPreferredSize(new Dimension(800, 600));
+				filechooser.setPreferredSize(new Dimension(1000, 600));
 				filechooser.setMultiSelectionEnabled(true);
 				
 				XMLPreviewPanel xmlPreview = new XMLPreviewPanel();
@@ -199,7 +199,7 @@ public class BatchTab extends JPanel
 				
 				log.info("Batch Open Dialog");
 				
-				int val = filechooser.showOpenDialog(filechooser);
+				int val = filechooser.showOpenDialog(self);
 				
 				if(val == JFileChooser.APPROVE_OPTION)
 				{
