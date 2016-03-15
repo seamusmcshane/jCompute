@@ -27,6 +27,38 @@ public class Text
 	}
 	
 	/**
+	 * Converts a string in D:H:M:Sec to a long in Second
+	 * @param time
+	 */
+	public static long stringTimeDHMStoLongMilli(String time)
+	{
+		long longTime = 0;
+		
+		// String offsets
+		int endIndex = time.indexOf(':');
+		int startIndex = 0;
+		
+		int day_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (86400);
+		
+		startIndex = endIndex + 1;
+		endIndex = time.indexOf(':', startIndex);
+		int hour_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (3600);;
+		
+		startIndex = endIndex + 1;
+		endIndex = time.indexOf(':', startIndex);
+		int min_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (60);
+		
+		startIndex = endIndex + 1;
+		endIndex = time.length();
+		int seconds = Integer.parseInt(time.substring(startIndex, endIndex));
+		
+		// Seconds to millsecond
+		longTime = (day_seconds + hour_seconds + min_seconds + seconds) * 1000;
+		
+		return longTime;
+	}
+	
+	/**
 	 * Converts the longtime to D/H/M/Sec/Mili
 	 * @param time
 	 */
