@@ -49,7 +49,7 @@ public class HeatMapUtil implements WindowListener
 	
 	public HeatMapUtil()
 	{
-		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+		System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
 		
 		log = LoggerFactory.getLogger(HeatMapUtil.class);
 		
