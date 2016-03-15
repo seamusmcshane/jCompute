@@ -22,7 +22,7 @@
 		<xs:element name="Coordinates" minOccurs="1" maxOccurs="1">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element name="Coordinate"  type="Coordinate"  minOccurs="1" maxOccurs="unbounded"/>			
+					<xs:element name="Coordinate"  type="Coordinate"  minOccurs="2" maxOccurs="unbounded"/>			
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -45,7 +45,7 @@
 							<xs:element name="AxisLabels" minOccurs="1" maxOccurs="1">
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element name="AxisLabel"  type="AxisLabel"  minOccurs="1" maxOccurs="1"/>
+										<xs:element name="AxisLabel"  type="AxisLabel"  minOccurs="2" maxOccurs="unbounded"/>
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>

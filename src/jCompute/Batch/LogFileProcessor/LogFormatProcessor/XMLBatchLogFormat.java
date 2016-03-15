@@ -155,8 +155,8 @@ public class XMLBatchLogFormat implements LogFormatInf
 					// Per item Coord Count
 					int coord = 0;
 					
-					int pos[] = new int[2];
-					double vals[] = new double[2];
+					int pos[] = new int[maxCoords];
+					double vals[] = new double[maxCoords];
 					
 					// Coordinates are a list of Coordinate(s)
 					for(ConfigurationNode coordinate : coordList)
@@ -193,7 +193,7 @@ public class XMLBatchLogFormat implements LogFormatInf
 						
 						coord++;
 						
-						if(coord > maxCoords)
+						if(coord == maxCoords)
 						{
 							break;
 						}
