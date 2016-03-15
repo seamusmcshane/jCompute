@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -26,12 +27,12 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 
+import com.DaveKoelle.AlphanumComparator;
+
 public class PDFReport
 {
 	private final static int imageWidth = 600;
 	private final static int imageHeight = 400;
-	
-	private final static String itemLog = "ItemLog.v2log";
 	
 	private final static ExecutorService imageExporter = Executors.newFixedThreadPool(8, new SimpleNamedThreadFactory("Image Exporter"));
 	
@@ -52,6 +53,8 @@ public class PDFReport
 		
 		float scale = 1f;
 		
+		String itemLogName = "ItemLog";
+		
 		if(val == JFileChooser.APPROVE_OPTION)
 		{
 			String fullPath = filechooser.getSelectedFile().getPath();
@@ -61,9 +64,14 @@ public class PDFReport
 			String documentName = filechooser.getSelectedFile().getName();
 			System.out.println("Document Name will be : " + documentName);
 			
-			generateMap(rowNames, colNames, cells, fullPath, itemLog);
+			String itemLogNameWithExt = generateMap(rowNames, colNames, cells, fullPath, itemLogName);
 			
-			generateImages(rowNames, colNames, cells, fullPath, itemLog);
+			System.out.println("LogFile detected as : " + itemLogNameWithExt);
+			
+			Collections.sort(rowNames, new AlphanumComparator());
+			Collections.sort(colNames, new AlphanumComparator());
+			
+			generateImages(rowNames, colNames, cells, fullPath, itemLogNameWithExt);
 			
 			try
 			{
@@ -91,8 +99,7 @@ public class PDFReport
 		
 	}
 	
-	private static void generateReport(String documentName, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath,
-			float scale)
+	private static void generateReport(String documentName, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale)
 	{
 		PDDocument document = new PDDocument();
 		
@@ -112,8 +119,7 @@ public class PDFReport
 		
 	}
 	
-	private static void addReportPage(String documentName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames,
-			String fullPath, float scale, String pageTitle)
+	private static void addReportPage(String documentName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale, String pageTitle)
 	{
 		int documentTitleSize = 32;
 		int pageTitleSize = 18;
@@ -135,7 +141,7 @@ public class PDFReport
 		{
 			imagesSuffix = "-standard-deviation";
 		}
-		else 
+		else
 		{
 			imagesSuffix = "-max";
 		}
@@ -208,8 +214,7 @@ public class PDFReport
 			cos.beginText();
 			
 			cos.setFont(PDType1Font.HELVETICA_BOLD, documentTitleSize);
-			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2,
-					pageBox.getHeight() - documentTitleSize);
+			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2, pageBox.getHeight() - documentTitleSize);
 			cos.drawString(documentName);
 			
 			cos.endText();
@@ -217,8 +222,7 @@ public class PDFReport
 			cos.beginText();
 			
 			cos.setFont(PDType1Font.HELVETICA_BOLD, pageTitleSize);
-			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2,
-					pageBox.getHeight() - documentTitleSize - pageTitleSize);
+			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (documentName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2, pageBox.getHeight() - documentTitleSize - pageTitleSize);
 			cos.drawString(pageTitle);
 			
 			cos.endText();
@@ -232,8 +236,7 @@ public class PDFReport
 		
 	}
 	
-	private static void addImage(PDDocument doc, PDPage page, PDPageContentStream cs, String file, float x, float y, float scale)
-			throws IOException
+	private static void addImage(PDDocument doc, PDPage page, PDPageContentStream cs, String file, float x, float y, float scale) throws IOException
 	{
 		BufferedImage awtImage = ImageIO.read(new File(file));
 		
@@ -245,8 +248,7 @@ public class PDFReport
 		cs.drawXObject(ximage, x, -y + page.getMediaBox().getHeight() - height, width, height);
 	}
 	
-	private static void addRectangle(PDDocument doc, PDPage page, PDPageContentStream cs, float x, float y, float width, float height,
-			float lineWidth) throws IOException
+	private static void addRectangle(PDDocument doc, PDPage page, PDPageContentStream cs, float x, float y, float width, float height, float lineWidth) throws IOException
 	{
 		cs.setLineWidth(lineWidth);
 		cs.addRect(x, -y + page.getMediaBox().getHeight() - height, width, height);
@@ -258,19 +260,22 @@ public class PDFReport
 	 * @param colNames
 	 * @param rowNames
 	 * @param fullPath
-	 * @param itemLog
+	 * @param filename
+	 *            minus ext
 	 */
-	private static void generateMap(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath,
-			String itemLog)
+	private static String generateMap(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, String filename)
 	{
+		boolean extDetected = false;
+		
+		String itemLogWithExt = null;
+		
 		// Level 1
 		String level1dirs[] = FileUtil.getDirectoriesInDir(fullPath);
 		
-		if(FileUtil.dirContainsFileNamed(fullPath + File.separator, itemLog))
+		if(FileUtil.dirContainsFileNamedMinusExt(fullPath + File.separator, filename))
 		{
 			// A single directory
 			System.out.println("Single Dir");
-			
 		}
 		else
 		{
@@ -288,8 +293,15 @@ public class PDFReport
 					// Row Name
 					String rowName;
 					
-					if(FileUtil.dirContainsFileNamed(level1Path, itemLog))
+					if(FileUtil.dirContainsFileNamedMinusExt(level1Path, filename))
 					{
+						if(!extDetected)
+						{
+							itemLogWithExt = FileUtil.getFileWithExtInDirMatchingName(level1Path, filename);
+							
+							extDetected = true;
+						}
+						
 						// A directory with 1 level of groups
 						System.out.println("Group Dir");
 						
@@ -350,8 +362,15 @@ public class PDFReport
 						{
 							String level2Path = fullPath + File.separator + level1dir + File.separator + level2dir;
 							
-							if(FileUtil.dirContainsFileNamed(level2Path, itemLog))
+							if(FileUtil.dirContainsFileNamedMinusExt(level2Path, filename))
 							{
+								if(!extDetected)
+								{
+									itemLogWithExt = FileUtil.getFileWithExtInDirMatchingName(level2Path, filename);
+									
+									extDetected = true;
+								}
+								
 								System.out.println("L2 Dir : " + level2dir);
 								
 								String colName = level2dir.substring(level2dir.lastIndexOf(']') + 2, level2dir.length());
@@ -372,6 +391,8 @@ public class PDFReport
 			}
 			
 		}
+		
+		return itemLogWithExt;
 	}
 	
 	/**
@@ -381,8 +402,7 @@ public class PDFReport
 	 * @param fullPath
 	 * @param itemLog
 	 */
-	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath,
-			String itemLog)
+	private static void generateImages(ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells, String fullPath, String itemLog)
 	{
 		ChartUtil chartUtil = new ChartUtil();
 		for(String row : rowNames)
