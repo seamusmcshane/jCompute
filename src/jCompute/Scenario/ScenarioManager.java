@@ -24,8 +24,6 @@ public class ScenarioManager
 	
 	public static void init()
 	{
-		// File[] plugins = FileUtil.getFilesInDir();
-		
 		log.info("Loading scenario plugins...");
 		
 		URL[] urls = null;
