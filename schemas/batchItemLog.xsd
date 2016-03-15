@@ -36,11 +36,11 @@
 	<xs:element name="Log">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="Header">
+				<xs:element name="Header" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="Name" type="xs:string"/>
-							<xs:element name="LogType" type="xs:string"/>
+							<xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+							<xs:element name="LogType" type="xs:string" minOccurs="1" maxOccurs="1"/>
 							<xs:element name="SamplesPerItem" type="xs:integer" minOccurs="1" maxOccurs="1"/>
 							<xs:element name="AxisLabels" minOccurs="1" maxOccurs="1">
 								<xs:complexType>
