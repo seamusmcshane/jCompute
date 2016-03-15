@@ -5,6 +5,7 @@ import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.Batch.LogFileProcessor.BatchLogInf.ComputedMetric;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
+import sun.misc.Cleaner;
 import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
 
 import java.awt.BasicStroke;
@@ -18,8 +19,11 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -39,6 +43,8 @@ import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
+
+import com.jogamp.opengl.util.texture.TextureData;
 
 public class ChartUtil
 {
@@ -200,30 +206,52 @@ public class ChartUtil
 		
 		System.out.println("Frame");
 		
-		// Hash the input vars so this method is some what reentrant.
-		String tfileName = String.valueOf(sourceFile.hashCode() + mode + exportPath.hashCode() + fileName.hashCode()) + ".png";
+		// Get the image on screen as a texture
+		TextureData data = chart.screenshot();
 		
-		File temp = new File(System.getProperty("java.io.tmpdir") + tfileName);
+		int tWidth = data.getWidth();
+		int tHeight = data.getHeight();
 		
-		try
-		{
-			chart.screenshot(temp);
-			frame.remove((Component) chart.getCanvas());
-			chart.dispose();
-			chart = null;
-			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-		}
-		catch(IOException e1)
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		// Get the underlying bytebuffer
+		ByteBuffer buffer = (ByteBuffer) data.getBuffer();
+		
+		// Exit the gui
+		frame.remove((Component) chart.getCanvas());
+		chart.dispose();
+		chart = null;
+		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 		
 		try
 		{
+			BufferedImage image = new BufferedImage(tWidth, tHeight, BufferedImage.TYPE_INT_RGB);
 			
-			BufferedImage image = ImageIO.read(temp);
-			temp.delete();
+			int[] pixelData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+			
+			byte[] bytes = new byte[buffer.remaining()];
+			buffer.get(bytes);
+			
+			int size = bytes.length;
+			
+			int p = 0;
+			for(int b = 0; b < size; b += 3)
+			{
+				// Bytes are unsigned
+				int red = bytes[b] & 0xff;
+				int green = bytes[b + 1] & 0xff;
+				int blue = bytes[b + 2] & 0xff;
+				
+				pixelData[p] = (0xff << 24) | (red << 16) | (green << 8) | blue;
+				
+				p++;
+			}
+			
+			// We want to Free the buffer memory now
+			Field cleanerField = buffer.getClass().getDeclaredField("cleaner");
+			cleanerField.setAccessible(true);
+			Cleaner cleaner = (Cleaner) cleanerField.get(buffer);
+			cleaner.clean();
+			
+			buffer = null;
 			
 			AffineTransform stx = AffineTransform.getScaleInstance(1, -1);
 			stx.translate(0, -image.getHeight(null));
@@ -298,7 +326,7 @@ public class ChartUtil
 			ImageIO.write(exportImage, "png", outputfile);
 			
 		}
-		catch(IOException e)
+		catch(IOException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
