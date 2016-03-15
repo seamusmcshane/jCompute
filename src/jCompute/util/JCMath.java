@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.util.FastMath;
-import org.apache.commons.math3.util.Precision;
 
 public class JCMath
 {
