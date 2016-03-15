@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -53,6 +54,20 @@ public class FileUtil
 				return pathname.isFile();
 			}
 		});
+	}
+	
+	public static URL[] getFilesInDirAsURLS(String path) throws MalformedURLException
+	{
+		File[] files = getFilesInDir(path);
+		
+		URL[] urls = new URL[files.length];
+		
+		for(int f = 0; f < files.length; f++)
+		{
+			urls[f] = files[f].toURI().toURL();
+		}
+		
+		return urls;
 	}
 	
 	public static String[] getDirectoriesInDir(String path)
