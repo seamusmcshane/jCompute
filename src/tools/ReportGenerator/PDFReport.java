@@ -429,9 +429,6 @@ public class PDFReport
 				FileUtil.createDirIfNotExist(exportPath);
 				
 				chartUtil.ExportSurfacePlot(imageWidth, imageHeight, logPath, exportPath, imageName);
-				// imageExporter.submit(new ImageExporter(imageWidth,
-				// imageHeight, logPath, exportPath, imageName));
-				
 			}
 		}
 		
