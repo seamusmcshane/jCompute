@@ -103,6 +103,52 @@ public class FileUtil
 		return false;
 	}
 	
+	public static boolean dirContainsFileNamedMinusExt(String path, String fileNameNoExt)
+	{
+		File files[] = FileUtil.getFilesInDir(path);
+		
+		if(files != null)
+		{
+			for(File file : files)
+			{
+				String fileFound = file.getName();
+				fileFound = fileFound.substring(0, fileFound.lastIndexOf('.'));
+				
+				if(fileFound.equals(fileNameNoExt))
+				{
+					System.out.println(fileNameNoExt + " Found : " + file.getAbsolutePath());
+					
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public static String getFileWithExtInDirMatchingName(String path, String name)
+	{
+		File files[] = FileUtil.getFilesInDir(path);
+		
+		if(files != null)
+		{
+			for(File file : files)
+			{
+				String fileFound = file.getName();
+				String fileFoundNoExt = fileFound.substring(0, fileFound.lastIndexOf('.'));
+				
+				if(fileFoundNoExt.equals(name))
+				{
+					System.out.println(name + " Found : " + file.getAbsolutePath());
+					
+					return fileFound;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	public static void createDirIfNotExist(String dir)
 	{
 		File directory = new File(dir);
