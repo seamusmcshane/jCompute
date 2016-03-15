@@ -5,9 +5,7 @@ import jCompute.Stats.StatGroupSetting;
 
 import java.util.List;
 
-import net.xeoh.plugins.base.Plugin;
-
-public interface ScenarioInf extends Plugin
+public interface ScenarioInf
 {
 	public void loadConfig(ConfigurationInterpreter interpreter);
 	

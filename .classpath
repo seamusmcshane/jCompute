@@ -18,7 +18,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/knn-benchmark.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi_2014_09_25/aparapi.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="S:/PHD/ComputeOverlay/aparapi/aparapi_2014_09_25"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/Seamie/Desktop/PHD/ComputeOverlay/aparapi/aparapi_2014_09_25"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
@@ -34,7 +34,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-api-2.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-core-2.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-slf4j-impl-2.5.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jspf/jspf-1.0.2.bin/dist/jspf.core-1.0.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/fontbox-1.8.10.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/jempbox-1.8.10.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/pdfbox-1.8.10.jar"/>
