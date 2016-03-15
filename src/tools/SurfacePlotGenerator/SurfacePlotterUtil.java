@@ -103,7 +103,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	
 	public SurfacePlotterUtil()
 	{
-		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
+		System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
 		
 		lookandFeel();
 		
@@ -543,7 +543,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						catch(IOException e)
 						{
 							log("Error Reading Log : " + e.getMessage() + " " + e.getCause());
-							e.printStackTrace();
 						}
 						
 						try
