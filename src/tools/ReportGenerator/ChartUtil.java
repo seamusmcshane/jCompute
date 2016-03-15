@@ -77,9 +77,7 @@ public class ChartUtil
 		}
 		catch(IOException e1)
 		{
-			String st = Text.stackTraceToString(e1.getStackTrace(), false);
-			String message = "Error Reading info log " + "\n" + e1.getMessage() + "\n" + st;
-			System.out.println(message);
+			System.out.println("Info log not found skipping... this disables zfixScale");
 		}
 		
 		try
