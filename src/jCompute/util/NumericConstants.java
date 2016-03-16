@@ -52,8 +52,8 @@ public final class NumericConstants
 	
 	public enum JDEC
 	{
-		KILOBYTE(0, 1, "KiloByte", "KB"), MEGABYTE(1, 1, "MegaByte", "MB"), GIGABYTE(2, 1, "GigaByte", "GB"), TERABYTE(3, 1, "TeraByte", "TB"),
-		KILOBIT(0, 8, "KiloBit", "Kb"), MEGABIT(1, 8, "MegaBit", "Mb"), GIGABIT(2, 8, "GigaBit", "Gb"), TERABIT(3, 8, "TeraBit", "Tb");
+		BYTE(0, 1, "Byte", "B"), KILOBYTE(1, 1, "KiloByte", "KB"), MEGABYTE(2, 1, "MegaByte", "MB"), GIGABYTE(3, 1, "GigaByte", "GB"),
+		BIT(0, 8, "Bit", "b"), KILOBIT(1, 8, "KiloBit", "Kb"), MEGABIT(2, 8, "MegaBit", "Mb"), GIGABIT(3, 8, "GigaBit", "Gb");
 		
 		public final String prefix;
 		public final String symbol;
