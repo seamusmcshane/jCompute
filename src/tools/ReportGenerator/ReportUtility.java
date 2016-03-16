@@ -1,6 +1,7 @@
 package tools.ReportGenerator;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,7 +64,15 @@ public class ReportUtility
 			
 			PDFReport pdfReport = new PDFReport(documentName, rowNames, colNames, cells, fullPath, scale, imageWidth, imageHeight);
 			
-			pdfReport.generate();
+			try
+			{
+				pdfReport.generate();
+			}
+			catch(IOException e)
+			{
+				System.out.println("PDF Report Error");
+				e.printStackTrace();
+			}
 			
 			System.out.println("Report Finished");
 		}
@@ -97,6 +106,28 @@ public class ReportUtility
 		{
 			// A single directory
 			System.out.println("Single Dir");
+			
+			if(!extDetected)
+			{
+				itemLogWithExt = FileUtil.getFileWithExtInDirMatchingName(fullPath, filename);
+				
+				extDetected = true;
+			}
+			
+			String rowName = fullPath.substring(fullPath.lastIndexOf(']') + 1, fullPath.length());
+			rowNames.add(rowName);
+			System.out.println("Row Name : " + rowName);
+			
+			String colName = rowName;
+			colNames.add(colName);
+			System.out.println("Column Name : " + colName);
+			
+			String index = rowName + colName;
+			
+			// Add Cell Index - item log locations
+			cells.put(index, fullPath);
+			
+			System.out.println("Added Cell " + cells.size());
 		}
 		else
 		{
