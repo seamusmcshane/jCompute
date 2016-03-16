@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
@@ -50,26 +51,27 @@ public class PDFReport
 		this.imageHeight = imageHeight;
 	}
 	
-	public void generate()
+	public void generate() throws IOException
 	{
-		PDDocument document = new PDDocument();
-		
-		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Averages");
-		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Standard Deviations");
-		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Max");
-		
 		try
 		{
+			PDDocument document = new PDDocument();
+			
+			addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Averages");
+			addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Standard Deviations");
+			addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Max");
+			
 			document.save(fullPath + File.separator + reportFileName + ".pdf");
+			
 			document.close();
 		}
-		catch(IOException | COSVisitorException e)
+		catch(COSVisitorException e)
 		{
-			e.printStackTrace();
+			throw new IOException(e);
 		}
 	}
 	
-	private void addReportPage(String reportFileName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale, String pageTitle)
+	private void addReportPage(String reportFileName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale, String pageTitle) throws IOException
 	{
 		int documentTitleSize = 32;
 		int pageTitleSize = 18;
@@ -107,14 +109,7 @@ public class PDFReport
 		
 		PDPageContentStream cos = null;
 		
-		try
-		{
-			cos = new PDPageContentStream(doc, page);
-		}
-		catch(IOException e1)
-		{
-			e1.printStackTrace();
-		}
+		cos = new PDPageContentStream(doc, page);
 		
 		int rowY = 0;
 		for(String row : rowNames)
@@ -140,50 +135,63 @@ public class PDFReport
 				
 				System.out.println(imagePath);
 				
-				try
-				{
-					addImage(doc, page, cos, imagePath, imageWidth * colX + xMargin, imageHeight * rowY + yMargin + titleHeight, scale);
-					cos.beginText();
-					cos.setFont(PDType1Font.HELVETICA, 12);
-					cos.moveTextPositionByAmount(10 + xMargin, pageBox.getHeight() - ((imageHeight * rowY) + 24 + yMargin + titleHeight));
-					cos.drawString(row);
-					cos.endText();
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
+				addImage(doc, page, cos, imagePath, imageWidth * colX + xMargin, imageHeight * rowY + yMargin + titleHeight, scale);
+				addRectangle(doc, page, cos, imageWidth * colX + xMargin, imageHeight * rowY + yMargin + titleHeight, imageWidth * scale, imageHeight * scale, 2f * scale);
+				
+				cos.beginText();
+				cos.setFont(PDType1Font.HELVETICA, 12);
+				cos.moveTextPositionByAmount(10 + xMargin, pageBox.getHeight() - ((imageHeight * rowY) + 24 + yMargin + titleHeight));
+				cos.drawString(row);
+				cos.endText();
 				
 				colX++;
 			}
 			rowY++;
 		}
 		
-		try
-		{
-			cos.beginText();
-			
-			cos.setFont(PDType1Font.HELVETICA_BOLD, documentTitleSize);
-			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (reportFileName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(24)) / 2, pageBox.getHeight() - documentTitleSize);
-			cos.drawString(reportFileName);
-			
-			cos.endText();
-			
-			cos.beginText();
-			
-			cos.setFont(PDType1Font.HELVETICA_BOLD, pageTitleSize);
-			cos.moveTextPositionByAmount(pageBox.getWidth() / 2 - (reportFileName.length() * PDType1Font.HELVETICA_BOLD.getFontWidth(18)) / 2, pageBox.getHeight() - documentTitleSize - pageTitleSize);
-			cos.drawString(pageTitle);
-			
-			cos.endText();
-			
-			cos.close();
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		float[] pos = addText(0, 0, reportFileName, doc, page, cos, PDType1Font.HELVETICA_BOLD, documentTitleSize);
 		
+		addText(0, pos[1], pageTitle, doc, page, cos, PDType1Font.HELVETICA_BOLD, pageTitleSize);
+		
+		cos.close();
+		
+	}
+	
+	/**
+	 * Add text to a page and returns the width/height which can be used for offset calculation.
+	 * @param xOffset
+	 * @param yOffset
+	 * @param text
+	 * @param doc
+	 * @param page
+	 * @param cs
+	 * @param font
+	 * @param size
+	 * @return
+	 * @throws IOException
+	 */
+	private float[] addText(float xOffset, float yOffset, String text, PDDocument doc, PDPage page, PDPageContentStream cs, PDFont font, float size) throws IOException
+	{
+		cs.beginText();
+		
+		cs.setFont(font, size);
+		
+		float center = page.getTrimBox().getWidth() / 2;
+		float stringWidth = ((font.getStringWidth(text) / 1000f) * size) / 2;
+		float fontHeight = (font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000f) * size;
+		
+		System.out.println("center " + center);
+		System.out.println("String " + stringWidth);
+		
+		cs.moveTextPositionByAmount((center - stringWidth) + xOffset, (page.getTrimBox().getHeight() - fontHeight) - yOffset);
+		cs.drawString(text);
+		
+		cs.endText();
+		
+		return new float[]
+		{
+			stringWidth, fontHeight
+		};
 	}
 	
 	private void addImage(PDDocument doc, PDPage page, PDPageContentStream cs, String file, float x, float y, float scale) throws IOException
