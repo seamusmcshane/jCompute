@@ -89,6 +89,11 @@ public class Text
 		return stime;
 	}
 	
+	public static String timeNow()
+	{
+		return Calendar.getInstance().getTime().toString();
+	}
+	
 	/**
 	 * Reads in a text file and converts it to a string.
 	 * @param fileName
