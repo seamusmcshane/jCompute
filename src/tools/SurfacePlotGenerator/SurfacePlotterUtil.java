@@ -65,16 +65,16 @@ import java.awt.Insets;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
 {
-	private static JFrame gui;
-	private static JMenuBar menuBar;
-	private static JMenu mnFile;
-	private static JMenuItem mntmOpen;
-	private static JMenuItem mntmExit;
+	private JFrame gui;
+	private JMenuBar menuBar;
+	private JMenu mnFile;
+	private JMenuItem mntmOpen;
+	private JMenuItem mntmExit;
 	
-	private static Chart chartAvg;
+	private Chart chartAvg;
 	
-	private static Chart chartStdDev;
-	private static boolean wireframeEnabled = true;
+	private Chart chartStdDev;
+	private boolean wireframeEnabled = true;
 	
 	private JMenuItem mntmExportImage;
 	private JPanel panel;
@@ -89,17 +89,20 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private Coord3d defaultPos = new Coord3d(0.75f, 0.75f, 0);
 	private JPanel chartContainerPanel;
 	
-	private static String saveCD = "./scenarios";
-	private static String openCD = "./stats";
+	private String saveCD = "./scenarios";
+	private String openCD = "./stats";
 	
 	private BatchLogProcessor logProcessor;
 	private JButton btnLines;
 	
-	private static final float zoomScale = 4f;
-	private static final float shiftSurface = 0.375f;
+	private final float zoomScale = 4f;
+	private final float shiftSurface = 0.375f;
 	
 	private BatchInfoLogProcessor ilp;
 	private boolean zMaxFixedScale = false;
+	
+	// depthActivated, alphaActivated, smoothColor, smoothPoint, smoothLine, smoothPolygon, disableDepth
+	private final Quality QUALITY = new Quality(false, true, false, true, true, false, false);
 	
 	public SurfacePlotterUtil()
 	{
@@ -334,7 +337,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
 		surfaceAvg.setWireframeColor(Color.BLACK);
 		
-		chartAvg = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
+		chartAvg = AWTChartComponentFactory.chart(QUALITY, "awt");
 		chartAvg.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
 		chartAvg.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
 		chartAvg.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
@@ -385,7 +388,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		surfaceStdDev.setWireframeDisplayed(wireframeEnabled);
 		surfaceStdDev.setWireframeColor(Color.BLACK);
 		
-		chartStdDev = AWTChartComponentFactory.chart(Quality.Intermediate, "awt");
+		chartStdDev = AWTChartComponentFactory.chart(QUALITY, "awt");
 		chartStdDev.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
 		chartStdDev.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
 		chartStdDev.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
