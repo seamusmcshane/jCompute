@@ -24,7 +24,7 @@ public final class OSInfo
 		SYSTEM_ARCH = mx.getArch();
 		HW_THREADS = mx.getAvailableProcessors();
 		
-		PHYSICAL_MEMORY_SIZE = (int) (mx.getTotalPhysicalMemorySize() / NumericConstants.JDEC.MEGABYTE.byteValue);
+		PHYSICAL_MEMORY_SIZE = (int) (mx.getTotalPhysicalMemorySize() / NumericConstants.BinaryPrefix.JDEC_MEGABYTE.byteValue);
 	}
 	
 	/*

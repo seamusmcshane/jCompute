@@ -60,17 +60,17 @@ public final class JVMInfo
 	
 	public int getMaxMemory()
 	{
-		return (int) (Runtime.getRuntime().maxMemory() / NumericConstants.JDEC.MEGABYTE.byteValue);
+		return (int) (Runtime.getRuntime().maxMemory() / NumericConstants.BinaryPrefix.JDEC_MEGABYTE.byteValue);
 	}
 	
 	public int getTotalJVMMemory()
 	{
-		return (int) (runtime.totalMemory() / NumericConstants.JDEC.MEGABYTE.byteValue);
+		return (int) (runtime.totalMemory() / NumericConstants.BinaryPrefix.JDEC_MEGABYTE.byteValue);
 	}
 	
 	public int getUsedJVMMemory()
 	{
-		return (int) ((runtime.totalMemory() - runtime.freeMemory()) / NumericConstants.JDEC.MEGABYTE.byteValue);
+		return (int) ((runtime.totalMemory() - runtime.freeMemory()) / NumericConstants.BinaryPrefix.JDEC_MEGABYTE.byteValue);
 	}
 	
 	public int getUsedJVMMemoryPercentage()
@@ -84,7 +84,7 @@ public final class JVMInfo
 	{
 		long used = runtime.totalMemory() - runtime.freeMemory();
 		
-		return (int) ((runtime.maxMemory() - used) / NumericConstants.JDEC.MEGABYTE.byteValue);
+		return (int) ((runtime.maxMemory() - used) / NumericConstants.BinaryPrefix.JDEC_MEGABYTE.byteValue);
 	}
 	
 	public int getFreeJVMMemoryPercentage()
