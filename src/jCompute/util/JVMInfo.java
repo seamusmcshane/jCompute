@@ -1,60 +1,107 @@
 package jCompute.util;
 
-public class JVMInfo
+public final class JVMInfo
 {
-	private static Runtime runtime = Runtime.getRuntime();
+	private static JVMInfo instance;
 	
-	private static final int MEGABYTE = 1048576;
+	private final Runtime runtime;
 	
-	public static int getMaxMemory()
+	// Non runtime changing JVM info
+	private final String JVM_NAME;
+	private final String JVM_VER;
+	
+	// The max memory the JVM will ever try to use
+	private final long MAX_MEMORY;
+	
+	private JVMInfo()
 	{
-		return (int) (Runtime.getRuntime().maxMemory() / MEGABYTE);
+		runtime = Runtime.getRuntime();
+		
+		JVM_NAME = System.getProperty("java.vm.name");
+		JVM_VER = System.getProperty("java.version");
+		
+		MAX_MEMORY = Runtime.getRuntime().maxMemory();
 	}
 	
-	public static int getTotalJVMMemory()
+	/*
+	 * ***************************************************************************************************
+	 * Instance
+	 *****************************************************************************************************/
+	
+	public synchronized static JVMInfo getInstance()
 	{
-		return (int) (runtime.totalMemory() / MEGABYTE);
+		if(instance == null)
+		{
+			instance = new JVMInfo();
+		}
+		
+		return instance;
 	}
 	
-	public static int getUsedJVMMemory()
+	/*
+	 * ***************************************************************************************************
+	 * Static Information
+	 *****************************************************************************************************/
+	
+	public String getJVMName()
 	{
-		return (int) ((runtime.totalMemory() - runtime.freeMemory()) / MEGABYTE);
+		return JVM_NAME;
 	}
 	
-	public static int getUsedJVMMemoryPercentage()
+	public String getJVMVersion()
+	{
+		return JVM_VER;
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Real-Time Statistics
+	 *****************************************************************************************************/
+	
+	public int getMaxMemory()
+	{
+		return (int) (Runtime.getRuntime().maxMemory() / NumericConstants.JDEC.MEGABYTE.byteValue);
+	}
+	
+	public int getTotalJVMMemory()
+	{
+		return (int) (runtime.totalMemory() / NumericConstants.JDEC.MEGABYTE.byteValue);
+	}
+	
+	public int getUsedJVMMemory()
+	{
+		return (int) ((runtime.totalMemory() - runtime.freeMemory()) / NumericConstants.JDEC.MEGABYTE.byteValue);
+	}
+	
+	public int getUsedJVMMemoryPercentage()
 	{
 		long used = runtime.totalMemory() - runtime.freeMemory();
 		
-		return Math.round((((float) used / (float) Runtime.getRuntime().maxMemory()) * 100));
+		return Math.round((used / MAX_MEMORY) * 100L);
 	}
 	
-	public static long getFreeJVMMemory()
+	public long getFreeJVMMemory()
 	{
 		long used = runtime.totalMemory() - runtime.freeMemory();
 		
-		return (int) ((runtime.maxMemory() - used) / MEGABYTE);
+		return (int) ((runtime.maxMemory() - used) / NumericConstants.JDEC.MEGABYTE.byteValue);
 	}
 	
-	public static int getFreeJVMMemoryPercentage()
+	public int getFreeJVMMemoryPercentage()
 	{
 		long used = runtime.totalMemory() - runtime.freeMemory();
 		
 		long jvmused = runtime.maxMemory() - used;
 		
-		return Math.round((((float) jvmused / (float) Runtime.getRuntime().maxMemory()) * 100));
+		return Math.round((jvmused / MAX_MEMORY) * 100);
 	}
 	
-	public static String getJVMVersion()
-	{
-		return System.getProperty("java.version");
-	}
+	/*
+	 * ***************************************************************************************************
+	 * Helper Method
+	 *****************************************************************************************************/
 	
-	public static String getJVMName()
-	{
-		return System.getProperty("java.vm.name");
-	}
-	
-	public static String getJVMInfoString()
+	public String getJVMInfoString()
 	{
 		StringBuilder builder = new StringBuilder();
 		

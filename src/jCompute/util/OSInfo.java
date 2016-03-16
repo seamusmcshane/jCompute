@@ -4,34 +4,78 @@ import java.lang.management.ManagementFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
-public class OSInfo
+public final class OSInfo
 {
-	private static OperatingSystemMXBean mx = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-	private static final int MEGABYTE = 1048576;
+	private static OSInfo instance;
 	
-	public static String getOSName()
+	private final OperatingSystemMXBean mx;
+	
+	private final int PHYSICAL_MEMORY_SIZE;
+	
+	private final String OS_NAME;
+	private final String SYSTEM_ARCH;
+	private final int HW_THREADS;
+	
+	private OSInfo()
 	{
-		return mx.getName();
+		mx = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+		
+		OS_NAME = mx.getName();
+		SYSTEM_ARCH = mx.getArch();
+		HW_THREADS = mx.getAvailableProcessors();
+		
+		PHYSICAL_MEMORY_SIZE = (int) (mx.getTotalPhysicalMemorySize() / NumericConstants.JDEC.MEGABYTE.byteValue);
 	}
 	
-	public static String getSystemArch()
+	/*
+	 * ***************************************************************************************************
+	 * Instance
+	 *****************************************************************************************************/
+	
+	public synchronized static OSInfo getInstance()
 	{
-		return mx.getArch();
+		if(instance == null)
+		{
+			instance = new OSInfo();
+		}
+		
+		return instance;
 	}
 	
-	public static int getHWThreads()
+	/*
+	 * ***************************************************************************************************
+	 * Static Information
+	 *****************************************************************************************************/
+	
+	public String getOSName()
 	{
-		return mx.getAvailableProcessors();
+		return OS_NAME;
 	}
 	
-	public static int getSystemCpuUsage()
+	public String getSystemArch()
+	{
+		return SYSTEM_ARCH;
+	}
+	
+	public int getHWThreads()
+	{
+		return HW_THREADS;
+	}
+	
+	public int getSystemPhysicalMemorySize()
+	{
+		return PHYSICAL_MEMORY_SIZE;
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Real-Time Statistics
+	 *****************************************************************************************************/
+	
+	public int getSystemCpuUsage()
 	{
 		// Converted to 100% and . removed
 		return (int) (mx.getSystemCpuLoad() * 100);
 	}
 	
-	public static int getSystemTotalMemory()
-	{
-		return (int) (mx.getTotalPhysicalMemorySize() / MEGABYTE);
-	}
 }
