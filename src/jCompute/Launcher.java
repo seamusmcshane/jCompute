@@ -145,7 +145,9 @@ public class Launcher
 		// be after l4j2 conf.
 		log = LoggerFactory.getLogger(Launcher.class);
 		
-		log.info(JVMInfo.getJVMInfoString());
+		JVMInfo jvmInfo = JVMInfo.getInstance();
+		
+		log.info(jvmInfo.getJVMInfoString());
 		
 		log.info("Standard Log " + standardLog);
 		log.info("Error Log    " + errorLog);

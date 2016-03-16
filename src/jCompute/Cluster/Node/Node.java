@@ -102,6 +102,8 @@ public class Node
 	
 	/* Node Info */
 	private NodeInfo nodeInfo;
+	private JVMInfo jvmInfo;
+	private OSInfo osInfo;
 	
 	private final int NODE_TX_FREQUENCY = 10;
 	
@@ -119,17 +121,21 @@ public class Node
 		
 		this.simsManager = simsManager;
 		
+		// Info Helpers
+		jvmInfo = JVMInfo.getInstance();
+		osInfo = OSInfo.getInstance();
+		
 		/* Our Configuration */
 		nodeInfo = new NodeInfo();
 		
 		nodeInfo.setAddress(address);
 		nodeInfo.setDescription(desc);
 		
-		nodeInfo.setOperatingSystem(OSInfo.getOSName());
-		nodeInfo.setMaxJVMMemory(JVMInfo.getMaxMemory());
-		nodeInfo.setSystemArch(OSInfo.getSystemArch());
-		nodeInfo.setHWThreads(OSInfo.getHWThreads());
-		nodeInfo.setTotalOSMemory(OSInfo.getSystemTotalMemory());
+		nodeInfo.setOperatingSystem(osInfo.getOSName());
+		nodeInfo.setMaxJVMMemory(jvmInfo.getMaxMemory());
+		nodeInfo.setSystemArch(osInfo.getSystemArch());
+		nodeInfo.setHWThreads(osInfo.getHWThreads());
+		nodeInfo.setTotalOSMemory(osInfo.getSystemPhysicalMemorySize());
 	}
 	
 	public void start()
@@ -150,7 +156,7 @@ public class Node
 			@Override
 			public void run()
 			{
-				nodeAveragedStats.update(OSInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), JVMInfo.getUsedJVMMemoryPercentage());
+				nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), jvmInfo.getUsedJVMMemoryPercentage());
 			}
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
