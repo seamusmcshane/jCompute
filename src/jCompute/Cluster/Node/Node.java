@@ -25,6 +25,7 @@ import jCompute.SimulationManager.SimulationsManager;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.JVMInfo;
+import jCompute.util.NumericConstants;
 import jCompute.util.OSInfo;
 
 import java.io.BufferedInputStream;
@@ -37,10 +38,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -57,8 +57,9 @@ public class Node
 	// Simulation Manager
 	private SimulationsManager simsManager;
 	
-	// TX Message Queue
-	private LinkedTransferQueue<byte[]> txQueue;
+	// TX Message List
+	private ArrayList<byte[]> txPendingList;
+	private int pendingByteCount;
 	
 	// Command Output Stream
 	private DataOutputStream commandOutput;
@@ -105,7 +106,7 @@ public class Node
 	private JVMInfo jvmInfo;
 	private OSInfo osInfo;
 	
-	private final int NODE_TX_FREQUENCY = 10;
+	private final int NODE_TX_FREQUENCY = 100;
 	
 	public Node(final String address, String desc, final SimulationsManager simsManager, int socketTX, int socketRX, boolean tcpNoDelay)
 	{
@@ -138,6 +139,12 @@ public class Node
 		nodeInfo.setTotalOSMemory(osInfo.getSystemPhysicalMemorySize());
 	}
 	
+	/*
+	 * ***************************************************************************************************
+	 * Local Control Methods
+	 *****************************************************************************************************/
+	
+	// Starts the node
 	public void start()
 	{
 		log.info("Starting Node");
@@ -156,14 +163,17 @@ public class Node
 			@Override
 			public void run()
 			{
-				nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), jvmInfo.getUsedJVMMemoryPercentage());
+				nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), jvmInfo
+				.getUsedJVMMemoryPercentage());
 			}
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
 		
 		// TX Message Queue
-		txQueue = new LinkedTransferQueue<byte[]>();
-		log.info("Created TX Queue");
+		txPendingList = new ArrayList<byte[]>();
+		pendingByteCount = 0;
+		
+		log.info("Created TX Pending List");
 		
 		// We are in the connecting state
 		protocolState = ProtocolState.CON;
@@ -172,7 +182,6 @@ public class Node
 		ncpReadyStateTimer = new Timer("NCP Timer");
 		ncpReadyStateTimer.schedule(new TimerTask()
 		{
-			
 			@Override
 			public void run()
 			{
@@ -191,7 +200,7 @@ public class Node
 				{
 					try
 					{
-						txData();
+						txPendingData();
 						Thread.sleep(NODE_TX_FREQUENCY);
 					}
 					catch(InterruptedException e)
@@ -227,15 +236,22 @@ public class Node
 						switch(protocolState)
 						{
 							case CON:
+							{
 								connect(nodeInfo.getAddress());
+							}
 							break;
 							case REG:
+							{
 								register();
+							}
 							break;
 							case RDY:
+							{
 								process();
+							}
 							break;
 							case DIS:
+							{
 								// Reconnect if not shutting down
 								if(!shutdown)
 								{
@@ -262,17 +278,19 @@ public class Node
 									log.info("Recreated Node Stat Cache");
 									
 									// Clear TX Message Queue
-									txQueue = new LinkedTransferQueue<byte[]>();
-									log.info("Cleared TX Queue");
+									clearPendingTXList();
 									
 									protocolState = ProtocolState.CON;
 								}
+							}
 							break;
 							default:
+							{
 								// Not Possible unless a new state is not
 								// handled correctly.
 								log.error("protocolState : " + protocolState + " NOT VALID");
 								protocolState = ProtocolState.DIS;
+							}
 							break;
 						}
 						
@@ -336,75 +354,36 @@ public class Node
 		}
 	}
 	
-	private void doShutdownCleanUp()
+	/*
+	 * ***************************************************************************************************
+	 * NCP
+	 *****************************************************************************************************/
+	
+	// Ready State Timer
+	private void doNCPTick()
 	{
-		// Clean up any previous socket
-		if(socket != null)
+		if(protocolState != ProtocolState.RDY)
 		{
-			// Close Connection
-			if(!socket.isClosed())
-			{
-				try
-				{
-					socket.close();
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
+			ncpTimerCount += ncpTimerVal;
+			
+			log.info("NCP TimeOut@" + ncpTimerCount);
 		}
 		
-		ncpReadyStateTimer.cancel();
-		
-		shutdown = true;
+		if(ncpTimerCount == NCP.ReadyStateTimeOut)
+		{
+			log.info("Ready State Timeout");
+			
+			if(nodeWeightingBenchmark.running())
+			{
+				log.info("Cancelling Weighting benchmark");
+				nodeWeightingBenchmark.cancel();
+			}
+			
+			protocolState = ProtocolState.DIS;
+		}
 	}
 	
-	private boolean connect(String address) throws IOException, SocketTimeoutException
-	{
-		// Reset the timer
-		ncpTimerCount = 0;
-		
-		// Connecting to Server
-		socket = null;
-		
-		// Reset Averaged statistics on reconnection.
-		nodeAveragedStats.reset();
-		
-		// Reset Instant statistics on reconnection.
-		simulationsProcessed = new LongAdder();
-		bytesTX = new LongAdder();
-		bytesRX = new LongAdder();
-		txS = new LongAdder();
-		rxS = new LongAdder();
-		
-		log.info("Connecting to : " + address + "@" + NCP.StandardServerPort);
-		
-		// clientSocket = new Socket(address, port);
-		socket = new Socket();
-		
-		// Set Socket opts
-		socket.setReceiveBufferSize(socketRX);
-		socket.setSendBufferSize(socketTX);
-		socket.setTcpNoDelay(tcpNoDelay);
-		
-		socket.connect(new InetSocketAddress(address, NCP.StandardServerPort), 1000);
-		
-		// Link up Output Stream
-		commandOutput = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-		
-		// Link up Input Stream
-		commandInput = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-		
-		// Enter the reg state
-		protocolState = ProtocolState.REG;
-		
-		log.info("Connected to : " + socket.getRemoteSocketAddress());
-		log.info("We are : " + socket.getLocalSocketAddress());
-		
-		return true;
-	}
-	
+	// Handles NCP registration
 	private void register()
 	{
 		regLoopExit = false;
@@ -538,7 +517,7 @@ public class Node
 		}
 	}
 	
-	// RX/TX on Command socket
+	// NCP Ready State Processing
 	private void process()
 	{
 		boolean processing = true;
@@ -589,17 +568,6 @@ public class Node
 					
 				}
 				break;
-				/*
-				 * case NCP.RemSimReq:
-				 * {
-				 * RemoveSimReq removeSimReq = new RemoveSimReq(data);
-				 * int simId = removeSimReq.getSimid();
-				 * simsManager.removeSimulation(simId);
-				 * log.info("RemoveSimReq " + simId);
-				 * sendMessage(new RemoveSimAck(simId).toBytes());
-				 * }
-				 * break;
-				 */
 				case NCP.NodeStatsRequest:
 				{
 					// Read here
@@ -657,14 +625,15 @@ public class Node
 						// NCP.SimStats
 						byte[] tempB = statsReply.toBytes();
 						
-						log.info("Sending SimStats " + statsReq.getSimId() + " Size " + (int) Math.ceil(tempB.length / 1024) + "kB");
+						log.info("SimStats Created " + statsReq.getSimId() + " File Size " + (tempB.length
+						/ NumericConstants.BinaryPrefix.JDEC_KILOBYTE.byteValue) + NumericConstants.BinaryPrefix.JDEC_KILOBYTE.prefix + "(s)");
 						
 						txDataEnqueue(tempB);
 					}
 				}
 				break;
 				case NCP.NodeOrderlyShutdown:
-					
+				{
 					log.info("Recieved NodeOrderlyShutdown");
 					
 					int activeSims = simsManager.getActiveSims();
@@ -685,7 +654,7 @@ public class Node
 					{
 						log.warn("Refusing NodeOrderlyShutdown due to active sims " + activeSims + " & stats outstanding " + statsOutStanding);
 					}
-					
+				}
 				break;
 				// Default / Invalid
 				case NCP.INVALID:
@@ -707,64 +676,145 @@ public class Node
 		}
 	}
 	
-	private void doNCPTick()
+	/*
+	 * ***************************************************************************************************
+	 * Socket Control
+	 *****************************************************************************************************/
+	
+	// Performs a socket connection attempt
+	private boolean connect(String address) throws IOException, SocketTimeoutException
 	{
-		if(protocolState != ProtocolState.RDY)
-		{
-			ncpTimerCount += ncpTimerVal;
-			
-			log.info("NCP TimeOut@" + ncpTimerCount);
-		}
+		// Reset the timer
+		ncpTimerCount = 0;
 		
-		if(ncpTimerCount == NCP.ReadyStateTimeOut)
+		// Connecting to Server
+		socket = null;
+		
+		// Reset Averaged statistics on reconnection.
+		nodeAveragedStats.reset();
+		
+		// Reset Instant statistics on reconnection.
+		simulationsProcessed = new LongAdder();
+		bytesTX = new LongAdder();
+		bytesRX = new LongAdder();
+		txS = new LongAdder();
+		rxS = new LongAdder();
+		
+		log.info("Connecting to : " + address + "@" + NCP.StandardServerPort);
+		
+		// clientSocket = new Socket(address, port);
+		socket = new Socket();
+		
+		// Set Socket opts
+		socket.setReceiveBufferSize(socketRX);
+		socket.setSendBufferSize(socketTX);
+		socket.setTcpNoDelay(tcpNoDelay);
+		
+		socket.connect(new InetSocketAddress(address, NCP.StandardServerPort), 1000);
+		
+		// Link up Output Stream
+		commandOutput = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+		
+		// Link up Input Stream
+		commandInput = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+		
+		// Enter the reg state
+		protocolState = ProtocolState.REG;
+		
+		log.info("Connected to : " + socket.getRemoteSocketAddress());
+		log.info("We are : " + socket.getLocalSocketAddress());
+		
+		return true;
+	}
+	
+	// Performs A socket Shutdown
+	private void doShutdownCleanUp()
+	{
+		// Clean up any previous socket
+		if(socket != null)
 		{
-			log.info("Ready State Timeout");
-			
-			if(nodeWeightingBenchmark.running())
+			// Close Connection
+			if(!socket.isClosed())
 			{
-				log.info("Cancelling Weighting benchmark");
-				nodeWeightingBenchmark.cancel();
+				try
+				{
+					socket.close();
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
-			
-			protocolState = ProtocolState.DIS;
 		}
+		
+		ncpReadyStateTimer.cancel();
+		
+		shutdown = true;
 	}
 	
 	/*
-	 * Enqueue Messages to be sent
-	 */
-	private void txDataEnqueue(byte[] bytes)
+	 * ***************************************************************************************************
+	 * TX Transfer
+	 *****************************************************************************************************/
+	
+	// Enqueue Messages to be sent
+	private synchronized void txDataEnqueue(byte[] bytes)
 	{
-		txQueue.add(bytes);
+		txPendingList.add(bytes);
+		
+		// Byte count pending
+		pendingByteCount += bytes.length;
 	}
 	
-	private void txData() throws IOException
+	// Clears All Pending Messages
+	private synchronized void clearPendingTXList()
 	{
-		boolean needsFlush = false;
-		Iterator<byte[]> itr = txQueue.iterator();
+		// TX Message List
+		txPendingList.clear();
 		
-		while(itr.hasNext())
+		pendingByteCount = 0;
+		
+		log.info("Cleared Pending TX List");
+	}
+	
+	// Send Pending Messages
+	private synchronized void txPendingData() throws IOException
+	{
+		if(pendingByteCount == 0)
 		{
-			byte[] bytes = itr.next();
-			itr.remove();
-			
-			commandOutput.write(bytes);
-			
-			bytesTX.add(bytes.length);
-			log.debug(bytes.length + " Bytes Sent");
-			needsFlush = true;
+			return;
 		}
 		
-		if(needsFlush)
+		// The backing array.
+		byte[] concatenated = new byte[pendingByteCount];
+		
+		// Create a byte buffer to concatenate the data.
+		ByteBuffer databuffer = ByteBuffer.wrap(concatenated);
+		
+		for(byte[] bytes : txPendingList)
 		{
-			txS.increment();
-			commandOutput.flush();
+			databuffer.put(bytes);
 		}
+		
+		// Data Cleared
+		txPendingList.clear();
+		
+		// Count reset
+		pendingByteCount = 0;
+		
+		// Send the concatenated data in bulk
+		commandOutput.write(concatenated);
+		
+		// Flush the data
+		commandOutput.flush();
 	}
 	
 	/*
-	 * Reads n bytes from the socket and returns them in a byte buffer.
-	 */
+	 * ***************************************************************************************************
+	 * RX Transfer
+	 *****************************************************************************************************/
+	
+	// Reads n bytes from the socket and returns them in a byte buffer.
 	private ByteBuffer readBytesToByteBuffer(int len) throws IOException
 	{
 		byte[] backingArray = null;
@@ -789,6 +839,11 @@ public class Node
 		
 		return data;
 	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Event Subscribers
+	 *****************************************************************************************************/
 	
 	@Subscribe
 	public void SimulationStatChangedEvent(SimulationStatChangedEvent e)
