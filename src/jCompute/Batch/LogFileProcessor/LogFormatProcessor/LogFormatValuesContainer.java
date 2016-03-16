@@ -75,15 +75,24 @@ public class LogFormatValuesContainer
 		log.info("Computing Averages");
 		surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.asInt()] = new Average(sampleValues, xSteps, ySteps, samples);
 		
+		log.info("Averages Min : " + surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.asInt()].getMin());
+		log.info("Averages Max : " + surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.asInt()].getMax());
+		
 		// Standard Dev
 		log.info("Computing Standard Deviations");
 		surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()] = new StandardDeviation(sampleValues, surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.ordinal()].getResult(), xSteps, ySteps,
 				samples);
 				
+		log.info("Standard Deviations Min : " + surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()].getMin());
+		log.info("Standard Deviations Max : " + surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()].getMax());
+		
 		// Max
-		log.info("Computing Avg Max Total");
+		log.info("Computing Avg Max Total Surface");
 		surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()] = new Max(surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.asInt()].getResult(), xSteps, ySteps, rangeMax);
 		double maxTotal = new SumTotal(surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()].getResult()).getResult();
+		
+		log.info("Avg Max Total Surface Min : " + surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()].getMin());
+		log.info("Avg Max Total Surface Max : " + surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()].getMax());
 		
 		// Max possible area total
 		double maxPossible = (double) (xSteps * ySteps) * rangeMax;
