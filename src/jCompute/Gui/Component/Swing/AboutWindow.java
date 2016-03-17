@@ -162,7 +162,7 @@ public class AboutWindow extends JFrame
 					
 					gridPanel.changeValText(runTimeIndex, Text.longTimeToDHMS(jComputeInfo.getRuntime()));
 				}
-			}, 0, 5000);
+			}, 0, 1000);
 		}
 		catch(IOException e)
 		{
