@@ -75,9 +75,9 @@ public final class JVMInfo
 	
 	public int getUsedJVMMemoryPercentage()
 	{
-		long used = runtime.totalMemory() - runtime.freeMemory();
+		float used = runtime.totalMemory() - runtime.freeMemory();
 		
-		return Math.round((used / MAX_MEMORY) * 100L);
+		return Math.round((used / MAX_MEMORY) * 100);
 	}
 	
 	public long getFreeJVMMemory()
@@ -89,9 +89,9 @@ public final class JVMInfo
 	
 	public int getFreeJVMMemoryPercentage()
 	{
-		long used = runtime.totalMemory() - runtime.freeMemory();
+		float used = runtime.totalMemory() - runtime.freeMemory();
 		
-		long jvmused = runtime.maxMemory() - used;
+		float jvmused = runtime.maxMemory() - used;
 		
 		return Math.round((jvmused / MAX_MEMORY) * 100);
 	}
@@ -117,6 +117,15 @@ public final class JVMInfo
 		builder.append('|');
 		builder.append("Used Mem:");
 		builder.append(getUsedJVMMemory());
+		builder.append('(');
+		builder.append(getUsedJVMMemoryPercentage());
+		builder.append(')');
+		builder.append('|');
+		builder.append("Free Mem:");
+		builder.append(getFreeJVMMemory());
+		builder.append('(');
+		builder.append(getFreeJVMMemoryPercentage());
+		builder.append(')');
 		builder.append(')');
 		
 		return builder.toString();
