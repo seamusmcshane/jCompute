@@ -1,10 +1,29 @@
 package jCompute.Gui.Component;
 
-public interface RowItem
+public abstract class RowItem<T> implements Comparable<T>
 {
-	public String[] getFieldList();
-	public String[] getFieldNames();
-	public boolean[] getEditableCells();
-	public Object getFieldValue(int field);
-	public void setFieldValue(int field,Object value);
+	public String[] getFieldList()
+	{
+		return null;
+	}
+
+	public String[] getFieldNames()
+	{
+		return null;
+	}
+
+	public boolean[] getEditableCells()
+	{
+		return null;
+	}
+
+	public Object getFieldValue(int field)
+	{
+		return null;
+	}
+
+	public void setFieldValue(int field, Object value)
+	{
+
+	}
 }

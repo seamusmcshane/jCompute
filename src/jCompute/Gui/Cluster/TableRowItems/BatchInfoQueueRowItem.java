@@ -2,20 +2,20 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class BatchInfoQueueRowItem implements RowItem, Comparable
+public class BatchInfoQueueRowItem extends RowItem<BatchInfoQueueRowItem>
 {
 	private int item;
 	private int batch;
 	private String name;
-	
+
 	public BatchInfoQueueRowItem()
 	{
 		super();
-		this.item = -1;
-		this.batch = -1;
-		this.name = "NULL";
+		item = -1;
+		batch = -1;
+		name = "NULL";
 	}
-	
+
 	public BatchInfoQueueRowItem(int item, int batch, String name)
 	{
 		super();
@@ -23,17 +23,25 @@ public class BatchInfoQueueRowItem implements RowItem, Comparable
 		this.batch = batch;
 		this.name = name;
 	}
-	
+
+	@Override
 	public String[] getFieldList()
 	{
-		return new String[]{"item", "batch", "name"};
+		return new String[]
+		{
+			"item", "batch", "name"
+		};
 	}
-	
+
+	@Override
 	public String[] getFieldNames()
 	{
-		return new String[]{"Item", "Batch", "Name"};
+		return new String[]
+		{
+			"Item", "Batch", "Name"
+		};
 	}
-	
+
 	@Override
 	public boolean[] getEditableCells()
 	{
@@ -42,7 +50,7 @@ public class BatchInfoQueueRowItem implements RowItem, Comparable
 			false, false, false
 		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -55,10 +63,10 @@ public class BatchInfoQueueRowItem implements RowItem, Comparable
 			case 2:
 				return name;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void setFieldValue(int field, Object value)
 	{
@@ -105,22 +113,21 @@ public class BatchInfoQueueRowItem implements RowItem, Comparable
 	{
 		this.name = name;
 	}
-	
+
 	@Override
-	public int compareTo(Object rowObject)
+	public int compareTo(BatchInfoQueueRowItem otherRow)
 	{
-		BatchInfoQueueRowItem otherRow = (BatchInfoQueueRowItem)rowObject;
 		int value = 0;
-		
-		if(this.item > otherRow.getItem())
+
+		if(item > otherRow.getItem())
 		{
 			value = 1;
 		}
-		else if(this.item < otherRow.getItem())
+		else if(item < otherRow.getItem())
 		{
 			value = -1;
 		}
-		
+
 		return value;
 	}
 }

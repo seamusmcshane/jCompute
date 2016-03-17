@@ -2,35 +2,42 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class SimpleInfoRowItem implements RowItem, Comparable
+public class SimpleInfoRowItem extends RowItem<SimpleInfoRowItem>
 {
 	private String parameter;
 	private String value;
-	
+
 	public SimpleInfoRowItem()
 	{
-		this.parameter = "NULL";
-		this.value = "NULL";
+		parameter = "NULL";
+		value = "NULL";
 	}
-	
+
 	public SimpleInfoRowItem(String parameter, String value)
 	{
 		super();
 		this.parameter = parameter;
 		this.value = value;
 	}
-	
 
+	@Override
 	public String[] getFieldList()
 	{
-		return new String[]{"parameter", "value"};
+		return new String[]
+		{
+			"parameter", "value"
+		};
 	}
-	
+
+	@Override
 	public String[] getFieldNames()
 	{
-		return new String[]{"Parameter", "Value"};
+		return new String[]
+		{
+			"Parameter", "Value"
+		};
 	}
-	
+
 	@Override
 	public boolean[] getEditableCells()
 	{
@@ -39,7 +46,7 @@ public class SimpleInfoRowItem implements RowItem, Comparable
 			false, false
 		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -50,10 +57,10 @@ public class SimpleInfoRowItem implements RowItem, Comparable
 			case 1:
 				return value;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void setFieldValue(int field, Object value)
 	{
@@ -67,7 +74,7 @@ public class SimpleInfoRowItem implements RowItem, Comparable
 			break;
 		}
 	}
-	
+
 	public String getParameter()
 	{
 		return parameter;
@@ -89,8 +96,8 @@ public class SimpleInfoRowItem implements RowItem, Comparable
 	}
 
 	@Override
-	public int compareTo(Object o)
+	public int compareTo(SimpleInfoRowItem o)
 	{
 		return 0;
-	}	
+	}
 }

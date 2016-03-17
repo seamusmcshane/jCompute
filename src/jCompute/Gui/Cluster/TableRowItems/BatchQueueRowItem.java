@@ -3,7 +3,7 @@ package jCompute.Gui.Cluster.TableRowItems;
 import jCompute.Batch.Batch;
 import jCompute.Gui.Component.RowItem;
 
-public class BatchQueueRowItem implements RowItem, Comparable
+public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 {
 	private int position;
 	private int batch;
@@ -14,46 +14,48 @@ public class BatchQueueRowItem implements RowItem, Comparable
 
 	public BatchQueueRowItem()
 	{
-		this.position = -1;
-		this.batch = -1;
-		this.name = "NULL";
-		this.status = false;
-		this.progress = -1;
-		this.estimatedFinish = "Never";
+		position = -1;
+		batch = -1;
+		name = "NULL";
+		status = false;
+		progress = -1;
+		estimatedFinish = "Never";
 	}
 
 	public BatchQueueRowItem(Batch batch)
 	{
-		this.position = batch.getPosition();
+		position = batch.getPosition();
 		this.batch = batch.getBatchId();
-		this.name = batch.getFileName();
-		this.status = batch.getStatus();
-		this.progress = batch.getProgress();
+		name = batch.getFileName();
+		status = batch.getStatus();
+		progress = batch.getProgress();
 
 		if(batch.getCompleted() > 0)
 		{
-			this.estimatedFinish = jCompute.util.Text.timeNowPlus(batch.getETT());
+			estimatedFinish = jCompute.util.Text.timeNowPlus(batch.getETT());
 		}
 		else
 		{
-			this.estimatedFinish = jCompute.util.Text.timeNowPlus(-1);
+			estimatedFinish = jCompute.util.Text.timeNowPlus(-1);
 		}
 
 	}
 
+	@Override
 	public String[] getFieldList()
 	{
 		return new String[]
 		{
-				"position", "batch", "name", "status", "progress", "estimatedFinish"
+			"position", "batch", "name", "status", "progress", "estimatedFinish"
 		};
 	}
 
+	@Override
 	public String[] getFieldNames()
 	{
 		return new String[]
 		{
-				"Position", "Batch", "Name", "Status", "Progress", "Est Finish"
+			"Position", "Batch", "Name", "Status", "Progress", "Est Finish"
 		};
 	}
 
@@ -65,7 +67,7 @@ public class BatchQueueRowItem implements RowItem, Comparable
 			false, false, false, false, false, false, false
 		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -175,17 +177,16 @@ public class BatchQueueRowItem implements RowItem, Comparable
 	}
 
 	@Override
-	public int compareTo(Object rowObject)
+	public int compareTo(BatchQueueRowItem otherRow)
 	{
-		BatchQueueRowItem otherRow = (BatchQueueRowItem) rowObject;
 		int value = 0;
 
 		// Otherwise we sort by the position in the queue
-		if(this.position < otherRow.getPosition())
+		if(position < otherRow.getPosition())
 		{
 			value = -1;
 		}
-		else if(this.position > otherRow.getPosition())
+		else if(position > otherRow.getPosition())
 		{
 			value = 1;
 		}

@@ -2,22 +2,22 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class BatchCompletedRowItem implements RowItem, Comparable
+public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 {
 	private int batch;
 	private String name;
 	private String runTime;
 	private String finished;
-	
+
 	public BatchCompletedRowItem()
 	{
 		super();
-		this.batch = -1;
-		this.name = "NULL";
-		this.runTime = "NEVER";
-		this.finished = "NEVER";
+		batch = -1;
+		name = "NULL";
+		runTime = "NEVER";
+		finished = "NEVER";
 	}
-	
+
 	public BatchCompletedRowItem(int batch, String name, String runTime, String finished)
 	{
 		super();
@@ -27,16 +27,24 @@ public class BatchCompletedRowItem implements RowItem, Comparable
 		this.finished = finished;
 	}
 
+	@Override
 	public String[] getFieldList()
 	{
-		return new String[]{"batch", "name", "runTime", "finished"};
+		return new String[]
+		{
+			"batch", "name", "runTime", "finished"
+		};
 	}
-	
+
+	@Override
 	public String[] getFieldNames()
 	{
-		return new String[]{"Batch", "Name", "RunTime", "Finished"};
+		return new String[]
+		{
+			"Batch", "Name", "RunTime", "Finished"
+		};
 	}
-	
+
 	@Override
 	public boolean[] getEditableCells()
 	{
@@ -45,7 +53,7 @@ public class BatchCompletedRowItem implements RowItem, Comparable
 			false, false, false, false
 		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -60,10 +68,10 @@ public class BatchCompletedRowItem implements RowItem, Comparable
 			case 3:
 				return finished;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void setFieldValue(int field, Object value)
 	{
@@ -79,11 +87,11 @@ public class BatchCompletedRowItem implements RowItem, Comparable
 				runTime = (String) value;
 			break;
 			case 3:
-				finished = (String)value;
+				finished = (String) value;
 			break;
 		}
 	}
-	
+
 	public int getBatch()
 	{
 		return batch;
@@ -125,21 +133,20 @@ public class BatchCompletedRowItem implements RowItem, Comparable
 	}
 
 	@Override
-	public int compareTo(Object rowObject)
+	public int compareTo(BatchCompletedRowItem rowObject)
 	{
-		BatchCompletedRowItem otherRow = (BatchCompletedRowItem)rowObject;
+		BatchCompletedRowItem otherRow = rowObject;
 		int value = 0;
-		
-		if(this.batch > otherRow.getBatch())
+
+		if(batch > otherRow.getBatch())
 		{
 			value = 1;
 		}
-		else if(this.batch < otherRow.getBatch())
+		else if(batch < otherRow.getBatch())
 		{
 			value = -1;
 		}
-		
+
 		return value;
 	}
-
 }

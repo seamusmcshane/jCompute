@@ -2,23 +2,23 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class NodeConnectionLogRowItem implements RowItem, Comparable
+public class NodeConnectionLogRowItem extends RowItem<NodeConnectionLogRowItem>
 {
 	private int eid;
 	private int uid;
 	private String address;
 	private String event;
 	private String time;
-	
+
 	public NodeConnectionLogRowItem()
 	{
-		this.eid = -1;
-		this.uid = -1;
-		this.address = "";
-		this.event = "";
-		this.time = "";
+		eid = -1;
+		uid = -1;
+		address = "";
+		event = "";
+		time = "";
 	}
-	
+
 	public NodeConnectionLogRowItem(int eid, int uid, String address, String event, String time)
 	{
 		this.eid = eid;
@@ -27,7 +27,8 @@ public class NodeConnectionLogRowItem implements RowItem, Comparable
 		this.event = event;
 		this.time = time;
 	}
-	
+
+	@Override
 	public String[] getFieldList()
 	{
 		return new String[]
@@ -35,7 +36,8 @@ public class NodeConnectionLogRowItem implements RowItem, Comparable
 			"eid", "uid", "address", "event", "time"
 		};
 	}
-	
+
+	@Override
 	public String[] getFieldNames()
 	{
 		return new String[]
@@ -43,7 +45,7 @@ public class NodeConnectionLogRowItem implements RowItem, Comparable
 			"Eid", "Uid", "Address", "Event", "Time"
 		};
 	}
-	
+
 	@Override
 	public boolean[] getEditableCells()
 	{
@@ -52,7 +54,7 @@ public class NodeConnectionLogRowItem implements RowItem, Comparable
 			false, false, false, false, false
 		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -69,10 +71,10 @@ public class NodeConnectionLogRowItem implements RowItem, Comparable
 			case 4:
 				return time;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void setFieldValue(int field, Object value)
 	{
@@ -95,74 +97,72 @@ public class NodeConnectionLogRowItem implements RowItem, Comparable
 			break;
 		}
 	}
-	
+
 	public int getEid()
 	{
 		return eid;
 	}
-	
+
 	public int getUid()
 	{
 		return uid;
 	}
-	
+
 	public String getAddress()
 	{
 		return address;
 	}
-	
+
 	public String getEvent()
 	{
 		return event;
 	}
-	
+
 	public String getTime()
 	{
 		return time;
 	}
-	
+
 	public void setEid(int eid)
 	{
 		this.eid = eid;
 	}
-	
+
 	public void setUid(int uid)
 	{
 		this.uid = uid;
 	}
-	
+
 	public void setAddress(String address)
 	{
 		this.address = address;
 	}
-	
+
 	public void setEvent(String event)
 	{
 		this.event = event;
 	}
-	
+
 	public void setTime(String time)
 	{
 		this.time = time;
 	}
-	
+
 	@Override
-	public int compareTo(Object rowObject)
+	public int compareTo(NodeConnectionLogRowItem otherRow)
 	{
-		NodeConnectionLogRowItem otherRow = (NodeConnectionLogRowItem) rowObject;
-		
 		int value = 0;
-		
-		if(this.eid < otherRow.getEid())
+
+		if(eid < otherRow.getEid())
 		{
 			value = -1;
 		}
-		else if(this.eid > otherRow.getEid())
+		else if(eid > otherRow.getEid())
 		{
 			value = 1;
 		}
-		
+
 		return value;
 	}
-	
+
 }

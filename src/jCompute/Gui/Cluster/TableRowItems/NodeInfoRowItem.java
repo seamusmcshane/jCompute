@@ -3,7 +3,7 @@ package jCompute.Gui.Cluster.TableRowItems;
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Gui.Component.RowItem;
 
-public class NodeInfoRowItem implements RowItem, Comparable
+public class NodeInfoRowItem extends RowItem<NodeInfoRowItem>
 {
 	private int uid;
 	private long weighting;
@@ -16,32 +16,33 @@ public class NodeInfoRowItem implements RowItem, Comparable
 	private int maxJVMMemory;
 	private String desc;
 	private int nodeState;
-	
+
 	public NodeInfoRowItem()
 	{
-		this.uid = -1;
-		this.weighting = Long.MAX_VALUE;
-		this.address = "Invalid";
-		this.maxSims = 0;
-		this.desc = "";
-		this.nodeState = -1;
+		uid = -1;
+		weighting = Long.MAX_VALUE;
+		address = "Invalid";
+		maxSims = 0;
+		desc = "";
+		nodeState = -1;
 	}
-	
+
 	public NodeInfoRowItem(NodeInfo node, int nodeState)
 	{
-		this.uid = node.getUid();
-		this.weighting = node.getWeighting();
-		this.address = node.getAddress();
-		this.maxSims = node.getMaxSims();
-		this.hwThreads = node.getHWThreads();
-		this.os = node.getOperatingSystem();
-		this.arch = node.getSystemArch();
-		this.totalOSMem = node.getTotalOSMemory();
-		this.maxJVMMemory = node.getMaxJVMMemory();
-		this.desc = node.getDescription();
+		uid = node.getUid();
+		weighting = node.getWeighting();
+		address = node.getAddress();
+		maxSims = node.getMaxSims();
+		hwThreads = node.getHWThreads();
+		os = node.getOperatingSystem();
+		arch = node.getSystemArch();
+		totalOSMem = node.getTotalOSMemory();
+		maxJVMMemory = node.getMaxJVMMemory();
+		desc = node.getDescription();
 		this.nodeState = nodeState;
 	}
-	
+
+	@Override
 	public String[] getFieldList()
 	{
 		return new String[]
@@ -49,7 +50,8 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			"uid", "weighting", "address", "maxSims", "hwThreads", "os", "arch", "totalOSMem", "maxJVMMemory", "desc", "nodeState"
 		};
 	}
-	
+
+	@Override
 	public String[] getFieldNames()
 	{
 		return new String[]
@@ -57,7 +59,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory", "Description", "Node State"
 		};
 	}
-	
+
 	@Override
 	public boolean[] getEditableCells()
 	{
@@ -66,7 +68,7 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			false, false, false, false, false, false, false, false, false, false, true
 		};
 	}
-	
+
 	@Override
 	public Object getFieldValue(int field)
 	{
@@ -95,10 +97,10 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			case 10:
 				return nodeState;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void setFieldValue(int field, Object value)
 	{
@@ -139,85 +141,83 @@ public class NodeInfoRowItem implements RowItem, Comparable
 			break;
 		}
 	}
-	
+
 	public int getUid()
 	{
 		return uid;
 	}
-	
+
 	public Long getWeighting()
 	{
 		return weighting;
 	}
-	
+
 	public String getAddress()
 	{
 		return address;
 	}
-	
+
 	public int getMaxSims()
 	{
 		return maxSims;
 	}
-	
+
 	public int getHwThreads()
 	{
 		return hwThreads;
 	}
-	
+
 	public String getOs()
 	{
 		return os;
 	}
-	
+
 	public String getArch()
 	{
 		return arch;
 	}
-	
+
 	public int getTotalOSMem()
 	{
 		return totalOSMem;
 	}
-	
+
 	public int getMaxJVMMemory()
 	{
 		return maxJVMMemory;
 	}
-	
+
 	public String getDesc()
 	{
 		return desc;
 	}
-	
+
 	public void setNodeState(int nodeState)
 	{
 		this.nodeState = nodeState;
 	}
-	
+
 	public int getNodeState()
 	{
 		return nodeState;
 	}
-	
+
 	@Override
-	public int compareTo(Object rowObject)
+	public int compareTo(NodeInfoRowItem otherRow)
 	{
-		NodeInfoRowItem otherRow = (NodeInfoRowItem) rowObject;
-		
 		int value = 0;
-		
+
 		// Otherwise we sort by the position in the queue
-		if(this.weighting < otherRow.getWeighting())
+		if(weighting < otherRow.getWeighting())
 		{
 			value = -1;
 		}
-		else if(this.weighting > otherRow.getWeighting())
+		else if(weighting > otherRow.getWeighting())
 		{
 			value = 1;
 		}
-		
+
 		return value;
 	}
-	
+
 }
