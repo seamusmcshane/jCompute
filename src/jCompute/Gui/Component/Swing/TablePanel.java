@@ -1,8 +1,5 @@
 package jCompute.Gui.Component.Swing;
 
-import jCompute.Gui.Component.RowItem;
-import jCompute.Gui.Component.TableCell.ColorConstants;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -14,6 +11,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -24,7 +22,8 @@ import ca.odell.glazedlists.gui.AbstractTableComparatorChooser;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
-import javax.swing.border.EtchedBorder;
+import jCompute.Gui.Component.RowItem;
+import jCompute.Gui.Component.TableCell.ColorConstants;
 
 public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> extends JPanel
 {
@@ -48,7 +47,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 		setLayout(new BorderLayout(0, 0));
 
-		this.setBorder(null);
+		setBorder(null);
 
 		setUpTable(sortable, rowSelection, hScroll);
 	}

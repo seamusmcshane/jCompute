@@ -1,16 +1,11 @@
 package tools.SurfacePlotGenerator;
 
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
-import jCompute.Gui.Component.Swing.TablePanel;
-import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
-import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
-import jCompute.util.FileUtil;
-import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
-
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -24,13 +19,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
@@ -50,18 +51,14 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-
-import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JButton;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
+import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
+import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
+import jCompute.util.FileUtil;
+import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
 {
@@ -70,171 +67,176 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private JMenu mnFile;
 	private JMenuItem mntmOpen;
 	private JMenuItem mntmExit;
-	
+
 	private Chart chartAvg;
-	
+
 	private Chart chartStdDev;
 	private boolean wireframeEnabled = true;
-	
+
 	private JMenuItem mntmExportImage;
 	private JPanel panel;
-	private TablePanel batchInfo;
+	private TablePanel<String, SimpleInfoRowItem> batchInfo;
 	private JPanel panel_2;
 	private JButton btnTop;
 	private JButton btnLeft;
 	private JButton btnISO;
 	private JButton btnRight;
-	
+
 	private float rotateTick = (float) (Math.PI * (45f / 2f));
 	private Coord3d defaultPos = new Coord3d(0.75f, 0.75f, 0);
 	private JPanel chartContainerPanel;
-	
+
 	private String saveCD = "./scenarios";
 	private String openCD = "./stats";
-	
+
 	private BatchLogProcessor logProcessor;
 	private JButton btnLines;
-	
+
 	private final float zoomScale = 4f;
 	private final float shiftSurface = 0.375f;
-	
+
 	private BatchInfoLogProcessor ilp;
 	private boolean zMaxFixedScale = false;
-	
+
 	// depthActivated, alphaActivated, smoothColor, smoothPoint, smoothLine, smoothPolygon, disableDepth
 	private final Quality QUALITY = new Quality(false, true, false, true, true, false, false);
-	
+
 	public SurfacePlotterUtil()
 	{
 		System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
-		
+
 		lookandFeel();
-		
+
 		gui = new JFrame();
-		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		
+		gui.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
 		float ratio = 1f;
 		float multi = 1f;
-		
+
 		float scaledMulti = ((0 + multi) * ratio);
-		
+
 		float width = 900 * scaledMulti;
 		float height = 300 * scaledMulti;
 		int tableWidth = 400;
-		
+
 		gui.setMinimumSize(new Dimension((int) (width + tableWidth), (int) height));
-		
+
 		menuBar = new JMenuBar();
 		gui.setJMenuBar(menuBar);
-		
+
 		mnFile = new JMenu("File");
 		menuBar.add(mnFile);
-		
+
 		mntmOpen = new JMenuItem("Open");
 		mnFile.add(mntmOpen);
 		mntmOpen.addActionListener(this);
-		
+
 		mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(this);
-		
+
 		mntmExportImage = new JMenuItem("Export Image");
 		mntmExportImage.addActionListener(this);
 		mnFile.add(mntmExportImage);
 		mnFile.add(mntmExit);
-		
+
 		panel = new JPanel();
 		gui.getContentPane().add(panel, BorderLayout.EAST);
 		panel.setLayout(new BorderLayout(0, 0));
-		
-		batchInfo = new TablePanel(SimpleInfoRowItem.class, 0, "Batch Info", false, false);
+
+		batchInfo = new TablePanel<String, SimpleInfoRowItem>(SimpleInfoRowItem.class, "Batch Info", false, false);
 		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
-		
+
 		batchInfo.setColumWidth(0, 125);
 		batchInfo.setPreferredSize(new Dimension(tableWidth, 150));
-		
+
 		panel.add(batchInfo, BorderLayout.CENTER);
-		
+
 		panel_2 = new JPanel();
 		panel.add(panel_2, BorderLayout.NORTH);
 		panel_2.setLayout(new BorderLayout(0, 0));
-		
+
 		btnTop = new JButton("Top");
 		btnTop.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Coord3d coord = new Coord3d(0, 2f, 0);
-				
+
 				chartAvg.getView().setViewPoint(coord);
 				chartAvg.getAxeLayout().setZAxeLabelDisplayed(false);
 				chartAvg.getAxeLayout().setZTickLabelDisplayed(false);
-				
+
 				chartStdDev.getView().setViewPoint(coord);
 				chartStdDev.getAxeLayout().setZAxeLabelDisplayed(false);
 				chartStdDev.getAxeLayout().setZTickLabelDisplayed(false);
-				
+
 				chartAvg.getView().setViewPositionMode(ViewPositionMode.TOP);
 				chartStdDev.getView().setViewPositionMode(ViewPositionMode.TOP);
 			}
 		});
 		panel_2.add(btnTop, BorderLayout.NORTH);
-		
+
 		btnLeft = new JButton("Left");
 		btnLeft.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Coord3d current = chartAvg.getView().getViewPoint();
-				
+
 				current.x = current.x - rotateTick;
-				
+
 				chartAvg.getView().setViewPoint(current);
-				
+
 				chartStdDev.getView().setViewPoint(current);
 			}
 		});
 		panel_2.add(btnLeft, BorderLayout.WEST);
-		
+
 		btnISO = new JButton("Iso");
 		btnISO.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Coord3d coord = new Coord3d(defaultPos.x, defaultPos.y, defaultPos.z);
-				
+
 				chartAvg.getView().setViewPoint(coord);
 				chartAvg.getAxeLayout().setZAxeLabelDisplayed(true);
 				chartAvg.getAxeLayout().setZTickLabelDisplayed(true);
-				
+
 				chartStdDev.getView().setViewPoint(coord);
 				chartStdDev.getAxeLayout().setZAxeLabelDisplayed(true);
 				chartStdDev.getAxeLayout().setZTickLabelDisplayed(true);
-				
+
 				chartAvg.getView().setViewPositionMode(ViewPositionMode.FREE);
 				chartStdDev.getView().setViewPositionMode(ViewPositionMode.FREE);
 			}
 		});
 		panel_2.add(btnISO, BorderLayout.CENTER);
-		
+
 		btnRight = new JButton("Right");
 		btnRight.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Coord3d current = chartAvg.getView().getViewPoint();
-				
+
 				current.x = current.x + rotateTick;
-				
+
 				chartAvg.getView().setViewPoint(current);
 				chartStdDev.getView().setViewPoint(current);
 			}
 		});
 		panel_2.add(btnRight, BorderLayout.EAST);
-		
+
 		btnLines = new JButton("Lines");
 		btnLines.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
 				if(wireframeEnabled == true)
@@ -245,15 +247,15 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				{
 					wireframeEnabled = true;
 				}
-				
+
 				List<AbstractDrawable> drawables = chartAvg.getScene().getGraph().getAll();
-				
+
 				for(AbstractDrawable drawable : drawables)
 				{
 					if(drawable.getClass().getName().equals("org.jzy3d.plot3d.primitives.Shape"))
 					{
 						Shape shape = (Shape) drawable;
-						
+
 						shape.setWireframeDisplayed(wireframeEnabled);
 					}
 					else
@@ -261,23 +263,23 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						log(drawable.getClass().getName());
 					}
 				}
-				
+
 				drawables = chartStdDev.getScene().getGraph().getAll();
-				
+
 				for(AbstractDrawable drawable : drawables)
 				{
 					if(drawable.getClass().getName().equals("org.jzy3d.plot3d.primitives.Shape"))
 					{
 						Shape shape = (Shape) drawable;
-						
+
 						shape.setWireframeDisplayed(wireframeEnabled);
 					}
 				}
-				
+
 			}
 		});
 		panel_2.add(btnLines, BorderLayout.SOUTH);
-		
+
 		chartContainerPanel = new JPanel();
 		gui.getContentPane().add(chartContainerPanel, BorderLayout.CENTER);
 		GridBagLayout gbl_chartContainerPanel = new GridBagLayout();
@@ -298,15 +300,16 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			1.0
 		};
 		chartContainerPanel.setLayout(gbl_chartContainerPanel);
-		
+
 		gui.addWindowListener(this);
 		gui.setVisible(true);
 	}
-	
+
 	public static void main(String args[])
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			public void run()
 			{
@@ -314,70 +317,71 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			}
 		});
 	}
-	
+
 	public void addAvgChart()
 	{
 		Range avgXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
 		Range avgYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
-		
+
 		double zMin = logProcessor.getZmin();
 		double zMax = logProcessor.getZmax();
-		
+
 		if(zMaxFixedScale)
 		{
 			zMin = 0;
 			zMax = ilp.getMaxSteps();
 		}
-		
+
 		Mapper mapper = SurfaceChartHelper.getAvg(logProcessor);
-		
+
 		Shape surfaceAvg = Builder.buildOrthonormal(new OrthonormalGrid(avgXRange, logProcessor.getXSteps(), avgYRange, logProcessor.getYSteps()), mapper);
 		surfaceAvg.setColorMapper(new ColorMapper(new ColorMapRainbow(), zMin, zMax, new Color(1, 1, 1, 1f)));
 		surfaceAvg.setFaceDisplayed(true);
 		surfaceAvg.setWireframeDisplayed(wireframeEnabled);
 		surfaceAvg.setWireframeColor(Color.BLACK);
-		
+
 		chartAvg = AWTChartComponentFactory.chart(QUALITY, "awt");
 		chartAvg.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
 		chartAvg.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
 		chartAvg.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
 		chartAvg.getScene().getGraph().add(surfaceAvg);
-		
+
 		AWTColorbarLegend avgColorBar = new AWTColorbarLegend(surfaceAvg, chartAvg.getView().getAxe().getLayout());
 		surfaceAvg.setLegend(avgColorBar);
-		
+
 		// Tick mapping
 		ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
 		ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
-		
+
 		chartAvg.getAxeLayout().setXTickRenderer(xTicks);
 		chartAvg.getAxeLayout().setYTickRenderer(yTicks);
-		
+
 		chartAvg.addMouseController();
-		
+
 		GridBagConstraints gbcAvg = new GridBagConstraints();
 		gbcAvg.fill = GridBagConstraints.BOTH;
 		gbcAvg.insets = new Insets(0, 0, 5, 0);
 		gbcAvg.gridx = 0;
 		gbcAvg.gridy = 0;
 		chartContainerPanel.add((Component) chartAvg.getCanvas(), gbcAvg);
-		
+
 		chartAvg.getView().zoomZ(zoomScale, false);
 		chartAvg.getView().shift(shiftSurface, true);
 	}
-	
+
 	public void addStdDevChart()
 	{
 		Range stdDevXRange = new Range(logProcessor.getXMin(), logProcessor.getXMax());
 		Range stdDevYRange = new Range(logProcessor.getYMin(), logProcessor.getYMax());
-		
+
 		Mapper mapper = SurfaceChartHelper.getStdDev(logProcessor);
-		
-		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, logProcessor.getXSteps(), stdDevYRange, logProcessor.getYSteps()), mapper);
-		
+
+		Shape surfaceStdDev = Builder.buildOrthonormal(new OrthonormalGrid(stdDevXRange, logProcessor.getXSteps(), stdDevYRange, logProcessor.getYSteps()),
+		mapper);
+
 		double zMin = surfaceStdDev.getBounds().getZmin();
 		double zMax = surfaceStdDev.getBounds().getZmax();
-		
+
 		if(zMaxFixedScale)
 		{
 			zMin = 0;
@@ -387,53 +391,53 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		surfaceStdDev.setFaceDisplayed(true);
 		surfaceStdDev.setWireframeDisplayed(wireframeEnabled);
 		surfaceStdDev.setWireframeColor(Color.BLACK);
-		
+
 		chartStdDev = AWTChartComponentFactory.chart(QUALITY, "awt");
 		chartStdDev.getAxeLayout().setXAxeLabel(logProcessor.getXAxisName());
 		chartStdDev.getAxeLayout().setYAxeLabel(logProcessor.getYAxisName());
 		chartStdDev.getAxeLayout().setZAxeLabel(logProcessor.getZAxisName());
-		
+
 		chartStdDev.getScene().getGraph().add(surfaceStdDev);
-		
+
 		AWTColorbarLegend stdDevColorBar = new AWTColorbarLegend(surfaceStdDev, chartStdDev.getView().getAxe().getLayout());
 		surfaceStdDev.setLegend(stdDevColorBar);
-		
+
 		ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
 		ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
-		
+
 		chartStdDev.getAxeLayout().setXTickRenderer(xTicks);
 		chartStdDev.getAxeLayout().setYTickRenderer(yTicks);
-		
+
 		chartStdDev.addMouseController();
-		
+
 		GridBagConstraints gbcStdev = new GridBagConstraints();
 		gbcStdev.insets = new Insets(0, 0, 5, 0);
 		gbcStdev.fill = GridBagConstraints.BOTH;
 		gbcStdev.gridx = 1;
 		gbcStdev.gridy = 0;
 		chartContainerPanel.add((Component) chartStdDev.getCanvas(), gbcStdev);
-		
+
 		chartStdDev.getView().zoomZ(zoomScale, false);
 		chartStdDev.getView().shift(shiftSurface, true);
 	}
-	
+
 	public void removeCharts()
 	{
 		if(chartStdDev != null)
 		{
 			chartContainerPanel.remove((Component) chartStdDev.getCanvas());
 			chartStdDev.pauseAnimator();
-			
+
 			List<AbstractDrawable> drawables = chartStdDev.getScene().getGraph().getAll();
-			
+
 			List<Shape> shapes = new ArrayList<Shape>();
-			
+
 			for(AbstractDrawable drawable : drawables)
 			{
 				if(drawable.getClass().getName().equals("org.jzy3d.plot3d.primitives.Shape"))
 				{
 					Shape shape = (Shape) drawable;
-					
+
 					shapes.add(shape);
 				}
 				else
@@ -441,33 +445,33 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					log(drawable.getClass().getName());
 				}
 			}
-			
+
 			for(AbstractDrawable shape : shapes)
 			{
 				chartStdDev.getScene().getGraph().remove(shape);
-				
+
 				shape.dispose();
 			}
-			
+
 			chartStdDev.dispose();
 			chartStdDev = null;
 		}
-		
+
 		if(chartAvg != null)
 		{
 			chartContainerPanel.remove((Component) chartAvg.getCanvas());
 			chartAvg.pauseAnimator();
-			
+
 			List<AbstractDrawable> drawables = chartAvg.getScene().getGraph().getAll();
-			
+
 			List<Shape> shapes = new ArrayList<Shape>();
-			
+
 			for(AbstractDrawable drawable : drawables)
 			{
 				if(drawable.getClass().getName().equals("org.jzy3d.plot3d.primitives.Shape"))
 				{
 					Shape shape = (Shape) drawable;
-					
+
 					shapes.add(shape);
 				}
 				else
@@ -475,90 +479,87 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					log(drawable.getClass().getName());
 				}
 			}
-			
+
 			for(AbstractDrawable shape : shapes)
 			{
 				chartAvg.getScene().getGraph().remove(shape);
-				
+
 				shape.dispose();
 			}
-			
+
 			chartAvg.dispose();
 			chartAvg = null;
 		}
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource() == mntmOpen)
 		{
 			final JFileChooser filechooser = new JFileChooser(new File(openCD));
-			
+
 			log("Open Dialog");
-			
+
 			int val = filechooser.showOpenDialog(filechooser);
-			
+
 			if(val == JFileChooser.APPROVE_OPTION)
 			{
 				SwingUtilities.invokeLater(new Runnable()
 				{
+					@Override
 					public void run()
 					{
 						removeCharts();
-						
+
 						log("New File Choosen");
-						
+
 						String filePath = filechooser.getSelectedFile().getAbsolutePath();
-						
+
 						openCD = filechooser.getCurrentDirectory().getAbsolutePath();
-						
+
 						gui.setTitle(filechooser.getSelectedFile().getName());
-						
+
 						log(filePath);
-						
+
 						log("Creating Mapper");
-						
+
 						String ext = FileUtil.getFileNameExtension(filePath);
 						log("File ext : " + ext);
-						
+
 						// Info Log
 						batchInfo.clearTable();
-						
-						int maxSteps = 0;
-						
+
 						try
 						{
 							ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
-							
-							maxSteps = ilp.getMaxSteps();
-							
+
 							ArrayList<String> info = ilp.dump();
-							
+
 							for(int i = 0; i < info.size(); i += 2)
 							{
 								batchInfo.addRow(new SimpleInfoRowItem(info.get(i), info.get(i + 1)));
 							}
-							
+
 							zMaxFixedScale = true;
-							
+
 						}
 						catch(IOException e)
 						{
 							log("Error Reading Log : " + e.getMessage() + " " + e.getCause());
 						}
-						
+
 						try
 						{
 							// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
 							logProcessor = (ilp != null) ? new BatchLogProcessor(filePath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(filePath);
-							
+
 							log("Average Chart");
 							addAvgChart();
-							
+
 							log("Standard Deviation Chart");
 							addStdDevChart();
-							
+
 							// chart = new Chart(factory, Quality.Fastest);
 							// MapperContourPictureGenerator avgContour = new
 							// MapperContourPictureGenerator(avgMapper, avgXRange,
@@ -572,7 +573,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 							// 0.95f))), (int)avgXRange.getMax(), (int)avgYRange.getMax(),
 							// (int)avgMapper.getValueMax()), avgXRange, avgYRange);
 							// chartAvg.getView().setAxe(avgCab);
-							
+
 							/*
 							 * GLSLProgram.DEFAULT_STRICTNESS =
 							 * Strictness.CONSOLE_NO_WARN_UNIFORM_NOT_FOUND;
@@ -588,11 +589,11 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						
+
 						gui.validate();
-						
+
 						Coord3d coord = new Coord3d(defaultPos.x, defaultPos.y, defaultPos.z);
-						
+
 						chartAvg.getView().setViewPoint(coord);
 						chartStdDev.getView().setViewPoint(coord);
 					}
@@ -603,22 +604,22 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		{
 			doProgramExit();
 		}
-		
+
 		if(e.getSource() == mntmExportImage)
 		{
-			
+
 			final JFileChooser filechooser = new JFileChooser(new File(saveCD));
-			
+
 			int val = filechooser.showSaveDialog(filechooser);
-			
+
 			if(val == JFileChooser.APPROVE_OPTION)
 			{
 				File file = filechooser.getSelectedFile();
-				
+
 				saveCD = filechooser.getCurrentDirectory().getAbsolutePath();
-				
+
 				String fileName = file.getAbsolutePath().toString();
-				
+
 				try
 				{
 					// Export chart textures
@@ -626,71 +627,72 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					chartAvg.screenshot(avgTempFile);
 					File stdDevTempFile = new File(System.getProperty("java.io.tmpdir") + "stddev.png");
 					chartStdDev.screenshot(stdDevTempFile);
-					
+
 					// Read Textures
 					BufferedImage avgImg = ImageIO.read(avgTempFile);
 					avgTempFile.delete();
-					
+
 					BufferedImage stddevImg = ImageIO.read(stdDevTempFile);
 					stdDevTempFile.delete();
-					
+
 					// Flip vertical
 					AffineTransform stx = AffineTransform.getScaleInstance(1, -1);
 					stx.translate(0, -avgImg.getHeight(null));
 					AffineTransformOp avgOp = new AffineTransformOp(stx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					
+
 					AffineTransform dtx = AffineTransform.getScaleInstance(1, -1);
 					dtx.translate(0, -stddevImg.getHeight(null));
 					AffineTransformOp stddevOp = new AffineTransformOp(dtx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					
+
 					avgImg = avgOp.filter(avgImg, null);
 					stddevImg = stddevOp.filter(stddevImg, null);
-					
+
 					BufferedImage exportImage = new BufferedImage(avgImg.getWidth() + stddevImg.getWidth(), avgImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
-					
+
 					exportImage.getGraphics().drawImage(avgImg, 0, 0, null);
 					exportImage.getGraphics().drawImage(stddevImg, avgImg.getWidth(), 0, null);
-					
+
 					if(fileName.indexOf(".") > 0)
 					{
 						fileName = fileName.substring(0, fileName.lastIndexOf("."));
 					}
-					
+
 					// Save the screenshot
 					File outputfile = new File(fileName + ".png");
 					ImageIO.write(exportImage, "png", outputfile);
-					
+
 				}
 				catch(IOException e1)
 				{
 					e1.printStackTrace();
 				}
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	/* Ensure the user wants to exit then exit the program */
 	private void doProgramExit()
 	{
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				String message;
 				message = "Do you want to quit?";
-				
+
 				JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-				
+
 				// Center Dialog on the GUI
 				JDialog dialog = pane.createDialog(gui, "Close Application");
-				
+
 				dialog.pack();
 				dialog.setVisible(true);
-				
+
 				int value = ((Integer) pane.getValue()).intValue();
-				
+
 				if(value == JOptionPane.YES_OPTION)
 				{
 					// Do EXIT
@@ -698,51 +700,51 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 			}
 		});
-		
+
 	}
-	
+
 	@Override
 	public void windowActivated(WindowEvent arg0)
 	{
-	
+
 	}
-	
+
 	@Override
 	public void windowClosed(WindowEvent arg0)
 	{
-	
+
 	}
-	
+
 	@Override
 	public void windowClosing(WindowEvent arg0)
 	{
 		doProgramExit();
 	}
-	
+
 	@Override
 	public void windowDeactivated(WindowEvent arg0)
 	{
-	
+
 	}
-	
+
 	@Override
 	public void windowDeiconified(WindowEvent arg0)
 	{
-	
+
 	}
-	
+
 	@Override
 	public void windowIconified(WindowEvent arg0)
 	{
-	
+
 	}
-	
+
 	@Override
 	public void windowOpened(WindowEvent arg0)
 	{
-	
+
 	}
-	
+
 	/* Use the java provided system look and feel */
 	private void lookandFeel()
 	{
@@ -767,10 +769,10 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			e1.printStackTrace();
 		}
 	}
-	
+
 	private void log(String text)
 	{
 		System.out.println(text);
 	}
-	
+
 }

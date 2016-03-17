@@ -59,16 +59,16 @@ public class ClusterTab extends JPanel
 
 	// Tabs
 	private JPanel simulationListsContainer;
-	private TablePanel<SimulationListRowItem> activeSimulationsListTable;
-	private TablePanel<SimulationListRowItem> finishedSimulationsListTable;
+	private TablePanel<Integer, SimulationListRowItem> activeSimulationsListTable;
+	private TablePanel<Integer, SimulationListRowItem> finishedSimulationsListTable;
 
-	private TablePanel<NodeInfoRowItem> clusterConnectedNodesTablePanel;
-	private TablePanel<NodeConnectionLogRowItem> clusterNodesLogTablePanel;
+	private TablePanel<Integer, NodeInfoRowItem> clusterConnectedNodesTablePanel;
+	private TablePanel<Integer, NodeConnectionLogRowItem> clusterNodesLogTablePanel;
 
 	private AtomicInteger eventIds;
 
 	// Right
-	private TablePanel<SimpleInfoRowItem> clusterStatusTablePanel;
+	private TablePanel<String, SimpleInfoRowItem> clusterStatusTablePanel;
 	private JScrollPane graphScrollPane;
 	private JPanel graphsJPanelContainer;
 
@@ -95,7 +95,7 @@ public class ClusterTab extends JPanel
 		// Cluster Activity
 		simulationListsContainer = new JPanel(new GridLayout(2, 0, 0, 0));
 
-		activeSimulationsListTable = new TablePanel<SimulationListRowItem>(SimulationListRowItem.class, 0, "Active Simulations", true, false);
+		activeSimulationsListTable = new TablePanel<Integer, SimulationListRowItem>(SimulationListRowItem.class, "Active Simulations", true, false);
 
 		activeSimulationsListTable.setColumWidth(0, 80);
 		activeSimulationsListTable.setColumWidth(1, 70);
@@ -108,7 +108,7 @@ public class ClusterTab extends JPanel
 
 		simulationListsContainer.add(activeSimulationsListTable);
 
-		finishedSimulationsListTable = new TablePanel<SimulationListRowItem>(SimulationListRowItem.class, 0, "Finished Simulations", true, false);
+		finishedSimulationsListTable = new TablePanel<Integer, SimulationListRowItem>(SimulationListRowItem.class, "Finished Simulations", true, false);
 
 		finishedSimulationsListTable.setColumWidth(0, 80);
 		finishedSimulationsListTable.setColumWidth(1, 70);
@@ -121,7 +121,7 @@ public class ClusterTab extends JPanel
 		simulationListsContainer.add(finishedSimulationsListTable);
 
 		// Connected Nodes Tab
-		clusterConnectedNodesTablePanel = new TablePanel<NodeInfoRowItem>(NodeInfoRowItem.class, 0, true, false, true);
+		clusterConnectedNodesTablePanel = new TablePanel<Integer, NodeInfoRowItem>(NodeInfoRowItem.class, true, false, true);
 
 		clusterConnectedNodesTablePanel.setColumWidth(0, 50);
 		clusterConnectedNodesTablePanel.setColumWidth(1, 65);
@@ -140,7 +140,7 @@ public class ClusterTab extends JPanel
 
 		clusterConnectedNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
 
-		clusterNodesLogTablePanel = new TablePanel<NodeConnectionLogRowItem>(NodeConnectionLogRowItem.class, 0, true, false, false);
+		clusterNodesLogTablePanel = new TablePanel<Integer, NodeConnectionLogRowItem>(NodeConnectionLogRowItem.class, true, false, false);
 		clusterNodesLogTablePanel.addColumRenderer(new ColorLabelRenderer(), 1);
 		eventIds = new AtomicInteger();
 
@@ -155,7 +155,7 @@ public class ClusterTab extends JPanel
 		 ****************************************************/
 
 		// Cluster Info
-		clusterStatusTablePanel = new TablePanel<SimpleInfoRowItem>(SimpleInfoRowItem.class, 0, false, false);
+		clusterStatusTablePanel = new TablePanel<String, SimpleInfoRowItem>(SimpleInfoRowItem.class, false, false);
 		clusterStatusTablePanel.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
 		clusterStatusTablePanel.addColumRenderer(new HeaderRowRenderer(clusterStatusTablePanel.getJTable()), 0);
 

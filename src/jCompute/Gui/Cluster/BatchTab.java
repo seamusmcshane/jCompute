@@ -63,8 +63,8 @@ public class BatchTab extends JPanel
 
 	// Left Split
 	private JPanel batchQueuedAndCompletePanel;
-	private TablePanel<BatchQueueRowItem> batchQueuedTable;
-	private TablePanel<BatchCompletedRowItem> batchCompletedTable;
+	private TablePanel<Integer, BatchQueueRowItem> batchQueuedTable;
+	private TablePanel<Integer, BatchCompletedRowItem> batchCompletedTable;
 
 	// BatchInfo selection
 	private int queuedSelectedBatchRowIndex = -1;
@@ -73,7 +73,7 @@ public class BatchTab extends JPanel
 	private int queuedOrCompleted = 0;
 
 	// Right Split
-	private TablePanel<SimpleInfoRowItem> batchInfo;
+	private TablePanel<String, SimpleInfoRowItem> batchInfo;
 	private int rightPanelsMinWidth;
 
 	// Toolbar
@@ -97,7 +97,6 @@ public class BatchTab extends JPanel
 	private int statusColumn = 3;
 	private int progressColumn = 4;
 	private int estimatedFinishColumn = 5;
-	private int batchQueueIndexColumn = idColumn;
 
 	private int numericColumnWidth = 60;
 	private int iconColumnWidth = 50;
@@ -371,7 +370,7 @@ public class BatchTab extends JPanel
 
 	private void createBatchInfoPanel()
 	{
-		batchInfo = new TablePanel<SimpleInfoRowItem>(SimpleInfoRowItem.class, 0, "Batch Info", false, false);
+		batchInfo = new TablePanel<String, SimpleInfoRowItem>(SimpleInfoRowItem.class, "Batch Info", false, false);
 		batchInfo.setColumWidth(0, 125);
 		batchInfo.setMinimumSize(new Dimension(rightPanelsMinWidth, 150));
 		batchInfo.setPreferredSize(new Dimension(rightPanelsMinWidth, 150));
@@ -406,7 +405,7 @@ public class BatchTab extends JPanel
 		};
 		batchQueuedAndCompletePanel.setLayout(gbl_batchQueuedCompletePanel);
 
-		batchQueuedTable = new TablePanel<BatchQueueRowItem>(BatchQueueRowItem.class, batchQueueIndexColumn, "Queued", true, true);
+		batchQueuedTable = new TablePanel<Integer, BatchQueueRowItem>(BatchQueueRowItem.class, "Queued", true, true);
 
 		// Batch State
 		batchQueuedTable.addColumRenderer(new BooleanIconRenderer(IconManager.getIcon("startSimIcon"), IconManager.getIcon("pausedSimIcon")), statusColumn);
@@ -437,7 +436,7 @@ public class BatchTab extends JPanel
 		batchQueuedAndCompletePanel.add(batchQueuedTable, gbc_batchQueuedTable);
 
 		// Bottom Completed Batches
-		batchCompletedTable = new TablePanel<BatchCompletedRowItem>(BatchCompletedRowItem.class, 0, "Completed", true, true);
+		batchCompletedTable = new TablePanel<Integer, BatchCompletedRowItem>(BatchCompletedRowItem.class, "Completed", true, true);
 
 		GridBagConstraints gbc_batchCompleteTable = new GridBagConstraints();
 		gbc_batchCompleteTable.gridx = 0;

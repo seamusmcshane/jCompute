@@ -835,7 +835,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private void registerListeners()
 	{
 		log.info("Register Listeners");
-
+		
 		this.addTabStatusListener(title);
 	}
 	
@@ -1277,17 +1277,11 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private class TabButton extends JPanel implements TabStatusChangedListenerInf
 	{
 		private static final long serialVersionUID = -6875371823998852810L;
-		private GUITabManager tabManager;
-		private GUISimulationTab tab;
 		private JLabel title;
 		JButton closeButton;
 		
 		public TabButton(final GUITabManager tabManager, final GUISimulationTab tab)
 		{
-			this.tabManager = tabManager;
-			
-			this.tab = tab;
-			
 			this.setLayout(new FlowLayout(FlowLayout.CENTER, 1, 2));
 			
 			this.setOpaque(false);
