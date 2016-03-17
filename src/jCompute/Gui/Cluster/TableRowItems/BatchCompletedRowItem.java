@@ -2,9 +2,9 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
+public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem, Integer>
 {
-	private int batch;
+	private int batchId;
 	private String name;
 	private String runTime;
 	private String finished;
@@ -12,16 +12,16 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 	public BatchCompletedRowItem()
 	{
 		super();
-		batch = -1;
+		batchId = -1;
 		name = "NULL";
 		runTime = "NEVER";
 		finished = "NEVER";
 	}
 
-	public BatchCompletedRowItem(int batch, String name, String runTime, String finished)
+	public BatchCompletedRowItem(int batchId, String name, String runTime, String finished)
 	{
 		super();
-		this.batch = batch;
+		this.batchId = batchId;
 		this.name = name;
 		this.runTime = runTime;
 		this.finished = finished;
@@ -32,7 +32,7 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 	{
 		return new String[]
 		{
-			"batch", "name", "runTime", "finished"
+			"batchId", "name", "runTime", "finished"
 		};
 	}
 
@@ -41,7 +41,7 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 	{
 		return new String[]
 		{
-			"Batch", "Name", "RunTime", "Finished"
+			"Batch Id", "Name", "RunTime", "Finished"
 		};
 	}
 
@@ -60,7 +60,7 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 		switch(field)
 		{
 			case 0:
-				return batch;
+				return batchId;
 			case 1:
 				return name;
 			case 2:
@@ -78,7 +78,7 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 		switch(field)
 		{
 			case 0:
-				batch = (int) value;
+				batchId = (int) value;
 			break;
 			case 1:
 				name = (String) value;
@@ -92,14 +92,14 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 		}
 	}
 
-	public int getBatch()
+	public int getBatchId()
 	{
-		return batch;
+		return batchId;
 	}
 
-	public void setBatch(int batch)
+	public void setBatchId(int batchId)
 	{
-		this.batch = batch;
+		this.batchId = batchId;
 	}
 
 	public String getName()
@@ -136,17 +136,25 @@ public class BatchCompletedRowItem extends RowItem<BatchCompletedRowItem>
 	public int compareTo(BatchCompletedRowItem rowObject)
 	{
 		BatchCompletedRowItem otherRow = rowObject;
-		int value = 0;
 
-		if(batch > otherRow.getBatch())
+		if(batchId > otherRow.getBatchId())
 		{
-			value = 1;
+			return 1;
 		}
-		else if(batch < otherRow.getBatch())
+		else if(batchId < otherRow.getBatchId())
 		{
-			value = -1;
+			return -1;
 		}
+		else
+		{
+			// Equal
+			return 0;
+		}
+	}
 
-		return value;
+	@Override
+	public boolean keyEquals(Integer value)
+	{
+		return(batchId == value);
 	}
 }

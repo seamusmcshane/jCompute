@@ -3,7 +3,7 @@ package jCompute.Gui.Cluster.TableRowItems;
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
 import jCompute.Gui.Component.RowItem;
 
-public class NodeInfoRowItem extends RowItem<NodeInfoRowItem>
+public class NodeInfoRowItem extends RowItem<NodeInfoRowItem, Integer>
 {
 	private int uid;
 	private long weighting;
@@ -220,4 +220,9 @@ public class NodeInfoRowItem extends RowItem<NodeInfoRowItem>
 		return value;
 	}
 
+	@Override
+	public boolean keyEquals(Integer value)
+	{
+		return(uid == value);
+	}
 }

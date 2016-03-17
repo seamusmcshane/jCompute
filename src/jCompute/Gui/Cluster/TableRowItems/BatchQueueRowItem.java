@@ -3,10 +3,10 @@ package jCompute.Gui.Cluster.TableRowItems;
 import jCompute.Batch.Batch;
 import jCompute.Gui.Component.RowItem;
 
-public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
+public class BatchQueueRowItem extends RowItem<BatchQueueRowItem, Integer>
 {
 	private int position;
-	private int batch;
+	private int batchId;
 	private String name;
 	private boolean status;
 	private int progress;
@@ -15,7 +15,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 	public BatchQueueRowItem()
 	{
 		position = -1;
-		batch = -1;
+		batchId = -1;
 		name = "NULL";
 		status = false;
 		progress = -1;
@@ -25,7 +25,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 	public BatchQueueRowItem(Batch batch)
 	{
 		position = batch.getPosition();
-		this.batch = batch.getBatchId();
+		batchId = batch.getBatchId();
 		name = batch.getFileName();
 		status = batch.getStatus();
 		progress = batch.getProgress();
@@ -46,7 +46,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 	{
 		return new String[]
 		{
-			"position", "batch", "name", "status", "progress", "estimatedFinish"
+			"position", "batchId", "name", "status", "progress", "estimatedFinish"
 		};
 	}
 
@@ -55,7 +55,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 	{
 		return new String[]
 		{
-			"Position", "Batch", "Name", "Status", "Progress", "Est Finish"
+			"Position", "BatchId", "Name", "Status", "Progress", "Est Finish"
 		};
 	}
 
@@ -76,7 +76,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 			case 0:
 				return position;
 			case 1:
-				return batch;
+				return batchId;
 			case 2:
 				return name;
 			case 3:
@@ -99,7 +99,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 				position = (int) value;
 			break;
 			case 1:
-				batch = (int) value;
+				batchId = (int) value;
 			break;
 			case 2:
 				name = (String) value;
@@ -126,14 +126,14 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 		this.position = position;
 	}
 
-	public long getBatch()
+	public long getBatchId()
 	{
-		return batch;
+		return batchId;
 	}
 
-	public void setBatch(int batch)
+	public void setBatchId(int batchId)
 	{
-		this.batch = batch;
+		this.batchId = batchId;
 	}
 
 	public String getName()
@@ -194,4 +194,9 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem>
 		return value;
 	}
 
+	@Override
+	public boolean keyEquals(Integer value)
+	{
+		return(batchId == value);
+	}
 }

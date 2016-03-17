@@ -2,7 +2,7 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class NodeConnectionLogRowItem extends RowItem<NodeConnectionLogRowItem>
+public class NodeConnectionLogRowItem extends RowItem<NodeConnectionLogRowItem, Integer>
 {
 	private int eid;
 	private int uid;
@@ -165,4 +165,9 @@ public class NodeConnectionLogRowItem extends RowItem<NodeConnectionLogRowItem>
 		return value;
 	}
 
+	@Override
+	public boolean keyEquals(Integer value)
+	{
+		return(eid == value);
+	}
 }

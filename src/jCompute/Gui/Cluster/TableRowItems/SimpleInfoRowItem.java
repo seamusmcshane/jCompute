@@ -2,7 +2,7 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 
-public class SimpleInfoRowItem extends RowItem<SimpleInfoRowItem>
+public class SimpleInfoRowItem extends RowItem<SimpleInfoRowItem, String>
 {
 	private String parameter;
 	private String value;
@@ -99,5 +99,11 @@ public class SimpleInfoRowItem extends RowItem<SimpleInfoRowItem>
 	public int compareTo(SimpleInfoRowItem o)
 	{
 		return 0;
+	}
+
+	@Override
+	public boolean keyEquals(String value)
+	{
+		return parameter.equals(value);
 	}
 }

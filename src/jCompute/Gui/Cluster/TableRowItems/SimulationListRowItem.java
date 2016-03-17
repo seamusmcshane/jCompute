@@ -4,7 +4,7 @@ import jCompute.Gui.Component.RowItem;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.util.Text;
 
-public class SimulationListRowItem extends RowItem<SimulationListRowItem>
+public class SimulationListRowItem extends RowItem<SimulationListRowItem, Integer>
 {
 	private int simId;
 	private SimState state;
@@ -198,4 +198,9 @@ public class SimulationListRowItem extends RowItem<SimulationListRowItem>
 		return value;
 	}
 
+	@Override
+	public boolean keyEquals(Integer value)
+	{
+		return(simId == value);
+	}
 }
