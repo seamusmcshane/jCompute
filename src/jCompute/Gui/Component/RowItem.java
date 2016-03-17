@@ -1,29 +1,14 @@
 package jCompute.Gui.Component;
 
-public abstract class RowItem<T> implements Comparable<T>
+public abstract class RowItem<RowType, IndexType> implements Comparable<RowType>, RowKeyInf<IndexType>
 {
-	public String[] getFieldList()
-	{
-		return null;
-	}
+	public abstract String[] getFieldList();
 
-	public String[] getFieldNames()
-	{
-		return null;
-	}
+	public abstract String[] getFieldNames();
 
-	public boolean[] getEditableCells()
-	{
-		return null;
-	}
+	public abstract boolean[] getEditableCells();
 
-	public Object getFieldValue(int field)
-	{
-		return null;
-	}
+	public abstract Object getFieldValue(int field);
 
-	public void setFieldValue(int field, Object value)
-	{
-
-	}
+	public abstract void setFieldValue(int field, Object value);
 }
