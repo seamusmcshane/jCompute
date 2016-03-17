@@ -7,9 +7,13 @@ import jCompute.Gui.Cluster.ClusterGUI;
 import jCompute.Gui.Interactive.StandardGUI;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.SimulationManager.SimulationsManager;
+import jCompute.util.JComputeInfo;
 import jCompute.util.JVMInfo;
 import jCompute.util.LookAndFeel;
+import jCompute.util.OSInfo;
+import jCompute.util.Text;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -23,83 +27,267 @@ public class Launcher
 	// SL4J Logger
 	private static Logger log;
 	
-	@SuppressWarnings("unused")
-	private static IconManager iconManager;
-	
-	// Standard GUI
-	@SuppressWarnings("unused")
-	private static StandardGUI standardGUI;
-	
-	// Cluster GUI
-	@SuppressWarnings("unused")
-	private static ClusterGUI clusterGUI;
-	
-	// Remote Node
-	private static Node node;
-	
-	// Command Line HashMap
-	private static HashMap<String, CommandLineArg> opts;
-	
-	// Command Line HasMap - Defaults for faster look up
-	private static HashMap<String, CommandLineArg> optDefaults;
-	
 	// Defaults ( option string, default value, option description
-	private static CommandLineArg defaultsList[] =
+	private static final CommandLineArg defaultsList[] =
 	{
-		new CommandLineArg("mcs", "8", "Max Concurrent Simulations (Int)"), new CommandLineArg("mode", "0", "Standard/Batch GUI/Node (0/1,2)"),
-		new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1", "Button Text (0/1)"),
-		new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"), new CommandLineArg("desc", "not set", "Node Description"),
-		new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address"),
-		new CommandLineArg("SocketTX", "65536", "SocketTX Buffer Size (int)"), new CommandLineArg("SocketRX", "65536", "SocketRX Buffer Size (int)"),
-		new CommandLineArg("TcpNoDelay", "1", "Configure TcpNoDelay (0/1)")
+		new CommandLineArg("mcs", Integer.toString(Runtime.getRuntime().availableProcessors()), "Max Concurrent Simulations (Int)"), new CommandLineArg("mode",
+		"0", "Standard/Batch GUI/Node (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1",
+		"Button Text (0/1)"), new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0", "Log Level(0/1/2)"),
+		new CommandLineArg("desc", null, "Node Description"), new CommandLineArg("jLook", "default", "Set JavaUI Look and Feel"), new CommandLineArg(
+		"allowMulti", "false", "Allow multiple connections from same address"), new CommandLineArg("SocketTX", "65536", "SocketTX Buffer Size (int)"),
+		new CommandLineArg("SocketRX", "65536", "SocketRX Buffer Size (int)"), new CommandLineArg("TcpNoDelay", "1", "Configure TcpNoDelay (0/1)"),
+		new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)")
 	};
 	
 	public static void main(String args[])
 	{
-		indexDefaults();
+		// Set the main threads name
+		Thread.currentThread().setName("Launcher");
 		
-		parseCommandLine(args);
+		// Convert the defaults list into hash map
+		HashMap<String, CommandLineArg> optionsMap = new HashMap<String, CommandLineArg>();
+		for(CommandLineArg cmdLineDefault : defaultsList)
+		{
+			// Any options on the command line will overwrite these later.
+			optionsMap.put(cmdLineDefault.getName(), cmdLineDefault);
+		}
 		
-		implementOpts();
+		// Check if the args exist
+		if(args.length > 0)
+		{
+			// We expect the arguments as one comma delimited string of key value pairs (eg key1=value1,key2=value2,key3=value3) with no spaces - thus only read arg[0]
+			parseCommandLineOption(args[0], optionsMap);
+		}
+		else
+		{
+			System.out.println("No Command Line Args using defaults.");
+		}
 		
-		displayValues();
+		attemptToLaunchUsingOptionChoices(optionsMap);
+		
+		displayValues(optionsMap);
 	}
 	
-	private static void implementOpts()
+	/*
+	 * ***************************************************************************************************
+	 * Launch Method
+	 *****************************************************************************************************/
+	
+	private static void attemptToLaunchUsingOptionChoices(HashMap<String, CommandLineArg> options)
 	{
-		int loglevel = Integer.parseInt(opts.get("loglevel").getValue());
-		
-		int mode = Integer.parseInt(opts.get("mode").getValue());
+		int mode = Integer.parseInt(options.get("mode").getValue());
+		CommandLineArg desc = options.get("desc");
 		
 		String hostAddress = "";
+		final String nodeDescription;
 		
+		// This would probably fail if there was no TCP/IP available
 		try
 		{
 			hostAddress = InetAddress.getLocalHost().getHostName();
 		}
 		catch(UnknownHostException e)
 		{
+			log.error("Could not resolve the address of the local host");
+			
 			e.printStackTrace();
+			
+			System.exit(-1);
 		}
 		
-		StringBuilder logPrefix = new StringBuilder();
+		// If there is no description - set the description to the hostname
+		if(desc.getValue() == null)
+		{
+			nodeDescription = hostAddress;
+			
+			// Update map with the new description
+			options.put(desc.getName(), new CommandLineArg(desc.getName(), nodeDescription, desc.getDescription()));
+		}
+		else
+		{
+			nodeDescription = desc.getValue();
+		}
+		
+		int loglevel = Integer.parseInt(options.get("loglevel").getValue());
+		
+		setUpLogging(loglevel, mode, hostAddress);
+		
+		logRunningEnvironment();
+		
+		String iTheme = options.get("iTheme").getValue();
+		IconManager.init(iTheme);
+		
+		ScenarioManager.init();
+		
+		int bText = Integer.valueOf(options.get("bText").getValue());
+		boolean buttonText = true;
+		
+		if(bText == 0)
+		{
+			buttonText = false;
+		}
+		
+		/* Init the Event bus in Async Mode */
+		JComputeEventBus.initAsync();
+		
+		int socketTX = Integer.parseInt(options.get("SocketTX").getValue());
+		int socketRX = Integer.parseInt(options.get("SocketRX").getValue());
+		int txFreq = Integer.parseInt(options.get("TxFreq").getValue());
+		
+		int tcpNoDelayInt = Integer.parseInt(options.get("TcpNoDelay").getValue());
+		boolean tcpNoDelay = tcpNoDelayInt == 1 ? true : false;
 		
 		switch(mode)
 		{
 			case 0:
-				logPrefix.append("StandardGUI_");
+				LookAndFeel.setLookandFeel(options.get("jLook").getValue());
+				log.info("Requested Standard GUI");
+				
+				/* Standard GUI with Local Simulation Manager */
+				@SuppressWarnings("unused")
+				StandardGUI standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())));
+				
 			break;
 			case 1:
-				logPrefix.append("ClusterGUI_");
-				logPrefix.append(hostAddress);
+				LookAndFeel.setLookandFeel(options.get("jLook").getValue());
+				
+				String allowMultiValue = options.get("allowMulti").getValue();
+				boolean allowMulti = false;
+				
+				if(allowMultiValue.equalsIgnoreCase("true"))
+				{
+					allowMulti = true;
+				}
+				
+				// Batch Manager with Control Node
+				BatchManager batchManager = new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq));
+				
+				// Cluster GUI
+				@SuppressWarnings("unused")
+				ClusterGUI clusterGUI = new ClusterGUI(buttonText, batchManager);
+				
+			break;
+			case 2:
+				
+				final String address = options.get("addr").getValue();
+				
+				log.info("Creating Node : " + address + " (" + nodeDescription + ")");
+				
+				// Launcher thread so we don't block Launcher and allow it to exit the same way as the GUI modes.
+				Thread nodeLauncher = new Thread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Remote Node
+						Node node = new Node(address, nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())), socketTX,
+						socketRX, tcpNoDelay, txFreq);
+						
+						node.start();
+						
+						log.info("Node Exited");
+						
+						System.exit(0);
+					}
+				});
+				nodeLauncher.setName("Node");
+				nodeLauncher.start();
+				
+			break;
+			default:
+				
+				displayHelp();
+				
+			break;
+		}
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Command Line Parser
+	 *****************************************************************************************************/
+	
+	// Get all the command line args and puts then in the map
+	private static void parseCommandLineOption(String cmdline, HashMap<String, CommandLineArg> destMap)
+	{
+		System.out.println("Command line was : " + cmdline);
+		
+		// All the Command line with values
+		String argument[] = cmdline.split(",");
+		
+		// Parse each argument in turn
+		for(String arg : argument)
+		{
+			// Split the key=values up
+			String argKV[] = arg.split("=");
+			
+			// Check the KV is the correct length and KV[0] (argument name) is a valid argument
+			// by looking it up in the hashmap (which has the arguments with values set to defaults)
+			CommandLineArg cmdlineArg = destMap.get(argKV[0]);
+			
+			if(argKV.length == 2 && (cmdlineArg != null))
+			{
+				// Get the description or we will wipe it.
+				String description = cmdlineArg.getDescription();
+				
+				// Overwrite the current values with the command line values (and correct description)
+				destMap.put(argKV[0], new CommandLineArg(argKV[0], argKV[1], description));
+			}
+			else
+			{
+				// Check if the user needs help :)
+				switch(argKV[0])
+				{
+					case "--help":
+					case "-help":
+					case "help":
+					case "\\help":
+					case "/help":
+						displayHelp();
+					break;
+					default:
+						System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
+						
+						System.out.println("Invalid Option : " + argKV[0]);
+						
+						System.exit(0);
+					break;
+				}
+			}
+		}
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Console Output and Logging
+	 *****************************************************************************************************/
+	
+	// Setup the logger
+	private static void setUpLogging(int logLevel, int mode, String hostAddress)
+	{
+		StringBuilder logPrefix = new StringBuilder();
+		
+		// Detect the mode and add the log file prefix - Mode_hostname
+		switch(mode)
+		{
+			case 0:
+				logPrefix.append("Standard");
+			break;
+			case 1:
+				logPrefix.append("Cluster_");
+				logPrefix.append(hostAddress + "_");
 			break;
 			case 2:
 				logPrefix.append("Node_");
-				logPrefix.append(hostAddress);
+				logPrefix.append(hostAddress + "_");
 			break;
 		}
 		
-		switch(loglevel)
+		// Append a date stamp to the log name
+		logPrefix.append(Text.longTimeToDateSafeString(System.currentTimeMillis()));
+		
+		// detect the log level and uses the correct configuration
+		switch(logLevel)
 		{
 			case 2:
 				// Debug
@@ -121,10 +309,10 @@ public class Launcher
 			break;
 		}
 		
+		// Set the log level filenames using the logPrefix and append with the correct level suffix
 		String errorLog = logPrefix.toString() + "_error";
 		String standardLog = logPrefix.toString() + "_standard";
 		String debugLog = logPrefix.toString() + "_debug";
-		
 		System.setProperty("ERROR_LOG_FILENAME", errorLog);
 		System.setProperty("STANDARD_LOG_FILENAME", standardLog);
 		System.setProperty("DEBUG_LOG_FILENAME", debugLog);
@@ -141,162 +329,66 @@ public class Launcher
 			System.out.println("Skipping log4j reconfigure - classes not loaded.");
 		}
 		
-		// Configure the launcher logger - as it is the first class it needs to
-		// be after l4j2 conf.
+		// Configure the launcher logger - as it is the first class it needs to be after l4j2 conf.
 		log = LoggerFactory.getLogger(Launcher.class);
 		
-		JVMInfo jvmInfo = JVMInfo.getInstance();
-		
-		log.info(jvmInfo.getJVMInfoString());
-		
+		// Display the log file name - record in info log
 		log.info("Standard Log " + standardLog);
 		log.info("Error Log    " + errorLog);
 		log.info("Debug Log    " + debugLog);
+	}
+	
+	// Output the running environment
+	private static void logRunningEnvironment()
+	{
+		// JVM Info
+		JVMInfo jvmInfo = JVMInfo.getInstance();
+		log.info(jvmInfo.getJVMInfoString());
+		
+		// JComputeInfo - reads a properties file.
+		try
+		{
+			JComputeInfo jcInfo = JComputeInfo.getInstance();
+			log.info(jcInfo.getLaunched());
+			log.info("Build            : " + jcInfo.getBuildDate());
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		// OS Info
+		OSInfo osInfo = OSInfo.getInstance();
+		
+		log.info("Operating System : " + osInfo.getOSName());
+		log.info("Architecture     : " + osInfo.getSystemArch());
+		log.info("Hardware Threads : " + Integer.toString(osInfo.getHWThreads()));
+		log.info("Physical Memory  : " + Integer.toString(osInfo.getSystemPhysicalMemorySize()));
 		
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		log.info("Temp dir provided by OS : " + tmpDir);
-		
-		String iTheme = opts.get("iTheme").getValue();
-		IconManager.init(iTheme);
-		
-		ScenarioManager.init();
-		
-		int bText = Integer.valueOf(opts.get("bText").getValue());
-		boolean buttonText = true;
-		
-		if(bText == 0)
-		{
-			buttonText = false;
-		}
-		
-		/* Init the Event bus in Async Mode */
-		JComputeEventBus.initAsync();
-		
-		int socketTX = Integer.parseInt(opts.get("SocketTX").getValue());
-		int socketRX = Integer.parseInt(opts.get("SocketRX").getValue());
-		
-		int tcpNoDelayInt = Integer.parseInt(opts.get("TcpNoDelay").getValue());
-		boolean tcpNoDelay = tcpNoDelayInt == 1 ? true : false;
-		
-		switch(mode)
-		{
-			case 0:
-				LookAndFeel.setLookandFeel(opts.get("jLook").getValue());
-				log.info("Requested Standard GUI");
-				/* Local Simulation Manager */
-				standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())));
-				
-			break;
-			case 1:
-				LookAndFeel.setLookandFeel(opts.get("jLook").getValue());
-				
-				String allowMultiValue = opts.get("allowMulti").getValue();
-				boolean allowMulti = false;
-				
-				if(allowMultiValue.equalsIgnoreCase("true"))
-				{
-					allowMulti = true;
-				}
-				
-				BatchManager batchManager = new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay));
-				
-				clusterGUI = new ClusterGUI(buttonText, batchManager);
-				
-			break;
-			case 2:
-				
-				final String address = opts.get("addr").getValue();
-				final String desc = opts.get("desc").getValue();
-				
-				log.info("Creating Node : " + address + " (" + desc + ")");
-				
-				Thread nodeLauncher = new Thread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						node = new Node(address, desc, new SimulationsManager(Integer.parseInt(opts.get("mcs").getValue())), socketTX, socketRX, tcpNoDelay);
-						
-						node.start();
-						
-						log.info("Node Exited");
-						
-						System.exit(0);
-					}
-				});
-				nodeLauncher.setName("Node");
-				nodeLauncher.start();
-				
-			break;
-			default:
-				
-				displayHelp();
-				
-			break;
-			
-		}
-		
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static void parseCommandLine(String args[])
+	// Output all the values the program launched with - only called if command line successfully parsed
+	private static void displayValues(HashMap<String, CommandLineArg> options)
 	{
-		// Clone the defaults, we will used these values if the args arnt passed
-		opts = (HashMap<String, CommandLineArg>) optDefaults.clone();
+		Set<String> index = options.keySet();
 		
-		if(args.length > 0)
+		log.info("Launch Values");
+		for(String name : index)
 		{
-			getOptions(args[0]);
-		}
-		else
-		{
-			System.out.println("No Command Line Args using defaults.");
+			CommandLineArg option = options.get(name);
+			
+			log.info(String.format("%10s", name) + " = " + String.format("%-10s", option.getValue()) + " (" + option.getDescription() + ")");
 		}
 	}
 	
-	// Get all the command line args and puts then in the map
-	private static void getOptions(String cmdline)
-	{
-		System.out.println("Command line was : " + cmdline);
-		
-		String options[] = cmdline.split(",");
-		
-		for(String opt : options)
-		{
-			// System.out.println(opt);
-			
-			String kv[] = opt.split("=");
-			
-			// KV correct length and KV[0] is a valid arg
-			if(kv.length == 2 && optDefaults.containsKey(kv[0]))
-			{
-				// Get the description or we will wipe it.
-				String description = opts.get(kv[0]).getDescription();
-				
-				// Name/value with name as index in map
-				opts.put(kv[0], new CommandLineArg(kv[0], kv[1], description));
-			}
-			else
-			{
-				if(opt.equalsIgnoreCase("--help") || opt.equals("-help") || opt.equals("help") || opt.equals("\\help") || opt.equals("/help"))
-				{
-					displayHelp();
-				}
-				else
-				{
-					System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
-					
-					System.out.println("Invalid Option : " + opt);
-					
-					System.exit(0);
-				}
-			}
-		}
-	}
-	
-	/**
+	/*
+	 * ***************************************************************************************************
 	 * Help Interface
-	 */
+	 *****************************************************************************************************/
+	
+	// Logger not used
 	private static void displayHelp()
 	{
 		System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
@@ -313,32 +405,10 @@ public class Launcher
 		
 		for(CommandLineArg defaultItem : defaultsList)
 		{
-			System.out.println(String.format("%10s", defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ") + "\t"
-					+ String.format("%10s", defaultItem.getDescription()));
+			System.out.println(String.format("%10s", defaultItem.getName()) + "\t" + String.format("%1$s %2$s %3$s", "     ", defaultItem.getValue(), "     ")
+			+ "\t" + String.format("%10s", defaultItem.getDescription()));
 		}
 		
 		System.exit(0);
-	}
-	
-	private static void displayValues()
-	{
-		Set<String> index = opts.keySet();
-		
-		log.info("Launch Values");
-		for(String name : index)
-		{
-			
-			log.info(String.format("%10s", name) + " = " + opts.get(name).getValue());
-		}
-	}
-	
-	private static void indexDefaults()
-	{
-		optDefaults = new HashMap<String, CommandLineArg>();
-		
-		for(CommandLineArg cmdLineDefault : defaultsList)
-		{
-			optDefaults.put(cmdLineDefault.getName(), cmdLineDefault);
-		}
 	}
 }
