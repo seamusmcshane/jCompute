@@ -89,6 +89,15 @@ public class Text
 		return stime;
 	}
 	
+	public static String longTimeToDate(long milliseconds)
+	{
+		Calendar time = Calendar.getInstance();
+		
+		time.setTimeInMillis(milliseconds);
+		
+		return time.getTime().toString();
+	}
+	
 	public static String timeNow()
 	{
 		return Calendar.getInstance().getTime().toString();

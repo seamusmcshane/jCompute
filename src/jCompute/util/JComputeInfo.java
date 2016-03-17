@@ -2,6 +2,7 @@ package jCompute.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -13,8 +14,7 @@ public final class JComputeInfo
 	
 	private static JComputeInfo instance;
 	
-	// Needs to be static so value is set when JVM start.
-	private static final long LAUNCH_TIME = System.currentTimeMillis();
+	private final long LAUNCH_TIME;
 	
 	private final String BUILD_DATE;
 	private final String LAUNCH_DATE_TIME;
@@ -30,10 +30,13 @@ public final class JComputeInfo
 			Properties prop = new Properties();
 			prop.load(input);
 			
+			// The time at which the program/jvm was launched.
+			LAUNCH_TIME = ManagementFactory.getRuntimeMXBean().getStartTime();
+			
 			// The Build date of the jCompute Framework
 			BUILD_DATE = prop.getProperty("BuildDateTime");
 			
-			LAUNCH_DATE_TIME = Text.timeNow();
+			LAUNCH_DATE_TIME = Text.longTimeToDate(LAUNCH_TIME);
 			
 			// Close file stream
 			input.close();
