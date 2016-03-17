@@ -57,7 +57,7 @@ public class Node
 	// Simulation Manager
 	private SimulationsManager simsManager;
 	
-	// TX Message List
+	// TX Pending Message List
 	private ArrayList<byte[]> txPendingList;
 	private int pendingByteCount;
 	
@@ -169,11 +169,11 @@ public class Node
 		}, 0, 1000);
 		log.info("Node Stats Update Timer Started");
 		
-		// TX Message Queue
+		// TX Pending Message List
 		txPendingList = new ArrayList<byte[]>();
 		pendingByteCount = 0;
 		
-		log.info("Created TX Pending List");
+		log.info("Created TX Pending Message List");
 		
 		// We are in the connecting state
 		protocolState = ProtocolState.CON;
@@ -277,7 +277,7 @@ public class Node
 									statCache = new NodeProcessedItemStatCache();
 									log.info("Recreated Node Stat Cache");
 									
-									// Clear TX Message Queue
+									// Clear Pending Messages
 									clearPendingTXList();
 									
 									protocolState = ProtocolState.CON;

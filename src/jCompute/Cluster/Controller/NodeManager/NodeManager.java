@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
@@ -89,10 +88,11 @@ public class NodeManager
 	
 	private NodeManagerState nodeState;
 	
-	private final int NODEMANAGER_TX_FREQUENCY = 10;
+	private final int NODEMANAGER_TX_FREQUENCY = 100;
 	
-	// TX Message Queue
-	private LinkedTransferQueue<byte[]> txQueue;
+	// TX Message List
+	private ArrayList<byte[]> txPendingList;
+	private int pendingByteCount;
 	
 	/*
 	 * Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (REMOTE)
@@ -140,9 +140,9 @@ public class NodeManager
 		// Cmd Input Stream
 		cmdInput = new DataInputStream(new BufferedInputStream(cmdSocket.getInputStream()));
 		
-		// TX Message Queue
-		txQueue = new LinkedTransferQueue<byte[]>();
-		log.info("Created TX Queue");
+		// TX Pending Message List
+		txPendingList = new ArrayList<byte[]>();
+		pendingByteCount = 0;
 		
 		protocolState = ProtocolState.CON;
 		
@@ -187,7 +187,7 @@ public class NodeManager
 				{
 					try
 					{
-						txData();
+						txPendingData();
 						
 						Thread.sleep(NODEMANAGER_TX_FREQUENCY);
 					}
@@ -544,8 +544,8 @@ public class NodeManager
 									else
 									{
 										// Forward an encapsulated simstate event
-										JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), stateChanged.getState(), stateChanged.getRunTime(),
-												stateChanged.getStepCount(), stateChanged.getEndEvent(), null)));
+										JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(),
+										stateChanged.getState(), stateChanged.getRunTime(), stateChanged.getStepCount(), stateChanged.getEndEvent(), null)));
 									}
 									
 								}
@@ -576,9 +576,9 @@ public class NodeManager
 										// Post the event as if from a local simulation
 										// This is unsafe but fast as this event can and WILL arrive before add/remove/finished events.
 										// Listeners as such need to deal with null lookups.
-										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(), statChanged.getTime(), statChanged.getStepNo(), statChanged.getProgress(),
-												statChanged.getAsps()));
-												
+										JComputeEventBus.post(new SimulationStatChangedEvent(mapping.getLocalSimId(), statChanged.getTime(), statChanged
+										.getStepNo(), statChanged.getProgress(), statChanged.getAsps()));
+										
 									}
 									else
 									{
@@ -615,7 +615,8 @@ public class NodeManager
 									
 									log.debug("Recieved NodeStatsReply");
 									
-									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply.getSequenceNum(), nodeStatsReply.getNodeStats()));
+									JComputeEventBus.post(new NodeStatsUpdate(nodeInfo.getUid(), nodeStatsReply.getSequenceNum(), nodeStatsReply
+									.getNodeStats()));
 									
 								}
 								else
@@ -635,7 +636,8 @@ public class NodeManager
 									// find the mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(simId);
 									
-									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(), mapping.getFileNameSuffix());
+									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(), mapping
+									.getFileNameSuffix());
 									
 									processFinishedSimulation(mapping, statsReply.getStatExporter());
 								}
@@ -688,7 +690,7 @@ public class NodeManager
 	/*
 	 * *****************************************************************************************************
 	 * Internal Methods
-	 *****************************************************************************************************/	
+	 *****************************************************************************************************/
 	/*
 	 * Process finished simulation
 	 */
@@ -712,37 +714,65 @@ public class NodeManager
 		SimulationStateChanged finalStateChanged = mapping.getFinalStateChanged();
 		
 		// Forward an encapsulated simstate event
-		JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged.getState(), finalStateChanged.getRunTime(),
-				finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(), exporter)));
+		JComputeEventBus.post(new NodeManagerItemStateEvent(new SimulationStateChangedEvent(mapping.getLocalSimId(), finalStateChanged.getState(),
+		finalStateChanged.getRunTime(), finalStateChanged.getStepCount(), finalStateChanged.getEndEvent(), exporter)));
 	}
 	
 	/*
-	 * Enqueue Messages to be sent
-	 */
-	private void txDataEnqueue(byte[] bytes)
+	 * ***************************************************************************************************
+	 * TX Transfer
+	 *****************************************************************************************************/
+	
+	// Enqueue Messages to be sent
+	private synchronized void txDataEnqueue(byte[] bytes)
 	{
-		txQueue.add(bytes);
+		txPendingList.add(bytes);
+		
+		// Byte count pending
+		pendingByteCount += bytes.length;
 	}
 	
-	private void txData() throws IOException
+	// Clears All Pending Messages
+	private synchronized void clearPendingTXList()
 	{
-		boolean needsFlush = false;
-		Iterator<byte[]> itr = txQueue.iterator();
+		// TX Message List
+		txPendingList.clear();
 		
-		while(itr.hasNext())
+		pendingByteCount = 0;
+		
+		log.info("Cleared Pending TX List");
+	}
+	
+	// Send Pending Messages
+	private synchronized void txPendingData() throws IOException
+	{
+		if(pendingByteCount == 0)
 		{
-			byte[] bytes = itr.next();
-			itr.remove();
-			
-			commandOutput.write(bytes);
-			log.debug(bytes.length + " Bytes Sent");
-			needsFlush = true;
+			return;
 		}
 		
-		if(needsFlush)
+		// The backing array.
+		byte[] concatenated = new byte[pendingByteCount];
+		
+		// Create a byte buffer to concatenate the data.
+		ByteBuffer databuffer = ByteBuffer.wrap(concatenated);
+		
+		for(byte[] bytes : txPendingList)
 		{
-			commandOutput.flush();
+			databuffer.put(bytes);
 		}
+		
+		// Data Cleared
+		txPendingList.clear();
+		
+		// Count reset
+		pendingByteCount = 0;
+		
+		// Send the concatenated data in bulk
+		commandOutput.write(concatenated);
+		
+		// Flush the data
+		commandOutput.flush();
 	}
 	
 	/**
@@ -771,7 +801,7 @@ public class NodeManager
 			case NCP.ProtocolVersionMismatch:
 				
 				return "Protocol Version Mismatch - Local " + NCP.NCP_PROTOCOL_VERSION + " Remote " + value;
-				
+			
 			default:
 				
 				return "RegNack : Unknown Reason " + reason + " value " + value;
@@ -938,30 +968,6 @@ public class NodeManager
 	}
 	
 	/**
-	 * Removes a simulation.
-	 * @param remoteSimId
-	 */
-	/*
-	 * public void removeSim(int remoteSimId)
-	 * {
-	 * nodeLock.acquireUninterruptibly();
-	 * // NA - Finished Simulation are auto-removed when stats are fetched,
-	 * // calling this will remove the mapping.
-	 * // - we assume calling this method means you do not want stats or the
-	 * // simulation.
-	 * RemoteSimulationMapping mapping =
-	 * remoteSimulationMap.remove(remoteSimId);
-	 * // Stats have already been received if the mapping is null
-	 * if(mapping != null)
-	 * {
-	 * // Send a stats request
-	 * txDataEnqueue(new SimulationStatsRequest(mapping).toBytes());
-	 * }
-	 * nodeLock.release();
-	 * }
-	 */
-	
-	/**
 	 * Check for valid orderly state transitions.
 	 * Direct changes to SHUTDOWN state are handled programmatically as error
 	 * conditions.
@@ -1048,8 +1054,7 @@ public class NodeManager
 	/*
 	 * ************************************************************************************************************************************************************
 	 * Event Bus Subscribers
-	 * ************************************************************************************************************************************************************
-	 */
+	 **************************************************************************************************************************************************************/
 	
 	@Subscribe
 	public void NodeManagerStateChangeRequest(NodeManagerStateChangeRequest e)
