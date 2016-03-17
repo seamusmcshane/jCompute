@@ -40,9 +40,11 @@ public class ZipArchiveTest
 		BufferedOutputStream bos = null;
 		try
 		{
-			System.out.println("Max Heap Memory (MB)" + JVMInfo.getMaxMemory());
-			System.out.println("Current Heap Memory (MB)" + JVMInfo.getTotalJVMMemory());
-			System.out.println("Used Heap Memory (MB)" + JVMInfo.getUsedJVMMemory());
+			JVMInfo jvmInfo = JVMInfo.getInstance();
+			
+			System.out.println("Max Heap Memory (MB)" + jvmInfo.getMaxMemory());
+			System.out.println("Current Heap Memory (MB)" + jvmInfo.getTotalJVMMemory());
+			System.out.println("Used Heap Memory (MB)" + jvmInfo.getUsedJVMMemory());
 			
 			FileOutputStream fo = new FileOutputStream("test.zip");
 			FileDescriptor fd = fo.getFD();
@@ -60,8 +62,7 @@ public class ZipArchiveTest
 			
 			System.out.println("Adding Files : " + num_files);
 			
-			System.out.println("%" + "\t\t\t\t" + "Files" + "\t\t\t\t\t\t" + "Bytes Compressed (MB)" + "\t\t\t"
-					+ "Heap Mem Used (MB)");
+			System.out.println("%" + "\t\t\t\t" + "Files" + "\t\t\t\t\t\t" + "Bytes Compressed (MB)" + "\t\t\t" + "Heap Mem Used (MB)");
 			for(int f = 0; f < num_files; f++)
 			{
 				// Entry start
@@ -85,9 +86,8 @@ public class ZipArchiveTest
 				
 				if(f % item_realated_entries == 0 && (f != 0))
 				{
-					System.out.println(((float) f / num_files) + "\t\t\t\t" + f + "\t\t\t\t\t\t" + total_bytes / 1024
-							/ 1024 + "\t\t\t\t\t" + JVMInfo.getUsedJVMMemory() + " :: "
-							+ JVMInfo.getUsedJVMMemoryPercentage() + " / " + JVMInfo.getFreeJVMMemoryPercentage());
+					System.out.println(((float) f / num_files) + "\t\t\t\t" + f + "\t\t\t\t\t\t" + total_bytes / 1024 / 1024 + "\t\t\t\t\t" + jvmInfo.getUsedJVMMemory() + " :: "
+							+ jvmInfo.getUsedJVMMemoryPercentage() + " / " + jvmInfo.getFreeJVMMemoryPercentage());
 				}
 				
 			}
