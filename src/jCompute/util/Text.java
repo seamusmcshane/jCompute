@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Text
@@ -89,13 +90,25 @@ public class Text
 		return stime;
 	}
 	
-	public static String longTimeToDate(long milliseconds)
+	public static String longTimeToDateString(long milliseconds)
 	{
 		Calendar time = Calendar.getInstance();
 		
 		time.setTimeInMillis(milliseconds);
 		
 		return time.getTime().toString();
+	}
+	
+	public static String longTimeToDateSafeString(long milliseconds)
+	{
+		Calendar calendar = Calendar.getInstance();
+		
+		calendar.setTimeInMillis(milliseconds);
+		
+		String date = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		String time = new SimpleDateFormat("HHmm").format(calendar.getTime());
+		
+		return FileUtil.stringAsValidFileName(date + "_" + time);
 	}
 	
 	public static String timeNow()

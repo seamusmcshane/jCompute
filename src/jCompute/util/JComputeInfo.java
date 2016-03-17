@@ -36,7 +36,7 @@ public final class JComputeInfo
 			// The Build date of the jCompute Framework
 			BUILD_DATE = prop.getProperty("BuildDateTime");
 			
-			LAUNCH_DATE_TIME = Text.longTimeToDate(LAUNCH_TIME);
+			LAUNCH_DATE_TIME = Text.longTimeToDateString(LAUNCH_TIME);
 			
 			// Close file stream
 			input.close();

@@ -5,9 +5,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPInputStream;
@@ -90,7 +92,6 @@ public class FileUtil
 		{
 			for(File file : files)
 			{
-				
 				if(file.getName().equals(fileName))
 				{
 					System.out.println(fileName + " Found : " + file.getAbsolutePath());
@@ -272,4 +273,16 @@ public class FileUtil
 		};
 	}
 	
+	public static String stringAsValidFileName(String text)
+	{
+		try
+		{
+			return URLEncoder.encode(text, "UTF-8");
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			// Unlikely to ever happen unless the JVM is broke - UTF-8 is a standard java charset.
+			return "CharSetEncoderNotFound";
+		}
+	}
 }
