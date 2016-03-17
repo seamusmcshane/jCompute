@@ -143,9 +143,8 @@ public class Launcher
 				LookAndFeel.setLookandFeel(options.get("jLook").getValue());
 				log.info("Requested Standard GUI");
 				
-				/* Standard GUI with Local Simulation Manager */
-				@SuppressWarnings("unused")
-				StandardGUI standardGUI = new StandardGUI(new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())));
+				// Standard GUI
+				createStandardGUI(Integer.parseInt(options.get("mcs").getValue()));
 				
 			break;
 			case 1:
@@ -159,12 +158,8 @@ public class Launcher
 					allowMulti = true;
 				}
 				
-				// Batch Manager with Control Node
-				BatchManager batchManager = new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq));
-				
-				// Cluster GUI
-				@SuppressWarnings("unused")
-				ClusterGUI clusterGUI = new ClusterGUI(buttonText, batchManager);
+				// Cluster GUI + Batch Manager with Control Node
+				createClusterGUI(buttonText, new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq)));
 				
 			break;
 			case 2:
@@ -200,6 +195,24 @@ public class Launcher
 				
 			break;
 		}
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Tiny methods for creating the GUI's to avoid limit the scope of warning suppression
+	 *****************************************************************************************************/
+	
+	@SuppressWarnings("unused")
+	private static void createStandardGUI(int mcs)
+	{
+		/* Standard GUI with Local Simulation Manager */
+		new StandardGUI(new SimulationsManager(mcs));
+	}
+	
+	@SuppressWarnings("unused")
+	private static void createClusterGUI(boolean buttonText, BatchManager batchManager)
+	{
+		new ClusterGUI(buttonText, batchManager);
 	}
 	
 	/*
