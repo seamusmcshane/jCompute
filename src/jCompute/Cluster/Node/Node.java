@@ -106,9 +106,9 @@ public class Node
 	private JVMInfo jvmInfo;
 	private OSInfo osInfo;
 	
-	private final int NODE_TX_FREQUENCY = 10;
+	private final int TX_FREQUENCY;
 	
-	public Node(final String address, String desc, final SimulationsManager simsManager, int socketTX, int socketRX, boolean tcpNoDelay)
+	public Node(final String address, String desc, final SimulationsManager simsManager, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq)
 	{
 		log.info("Created Node");
 		
@@ -116,9 +116,12 @@ public class Node
 		this.socketRX = socketRX;
 		this.tcpNoDelay = tcpNoDelay;
 		
+		this.TX_FREQUENCY = txFreq;
+		
 		log.info("TCP TX Buffer : " + this.socketTX);
 		log.info("TCP RX Buffer : " + this.socketRX);
 		log.info("TCP No Delay : " + this.tcpNoDelay);
+		log.info("TX Freq : " + this.TX_FREQUENCY);
 		
 		this.simsManager = simsManager;
 		
@@ -201,7 +204,7 @@ public class Node
 					try
 					{
 						txPendingData();
-						Thread.sleep(NODE_TX_FREQUENCY);
+						Thread.sleep(TX_FREQUENCY);
 					}
 					catch(InterruptedException e)
 					{

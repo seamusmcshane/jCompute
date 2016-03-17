@@ -61,10 +61,12 @@ public class ControlNode
 	
 	/* Connecting Nodes List */
 	private LinkedList<NodeManager> connectingNodes;
-	private boolean allowMulti;
-	private int socketTX;
-	private int socketRX;
-	private boolean tcpNoDelay;
+	
+	private final boolean allowMulti;
+	private final int socketTX;
+	private final int socketRX;
+	private final boolean tcpNoDelay;
+	private final int txFreq;
 	
 	private Timer ncpTimer;
 	private int ncpTimerSpeed = 1;
@@ -85,7 +87,7 @@ public class ControlNode
 	
 	private int timerCount;
 	
-	public ControlNode(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay)
+	public ControlNode(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq)
 	
 	{
 		log.info("Starting ControlNode");
@@ -94,11 +96,13 @@ public class ControlNode
 		this.socketTX = socketTX;
 		this.socketRX = socketRX;
 		this.tcpNoDelay = tcpNoDelay;
+		this.txFreq = txFreq;
 		
 		log.info("Allow multiple nodes to connect from same address : " + this.allowMulti);
 		log.info("TCP TX Buffer : " + this.socketTX);
 		log.info("TCP RX Buffer : " + this.socketRX);
 		log.info("TCP No Delay : " + this.tcpNoDelay);
+		log.info("TX Freq : " + this.txFreq);
 		
 		// Local to remote simulation map
 		localSimulationMap = new HashMap<Integer, RemoteSimulationMapping>();
@@ -253,9 +257,9 @@ public class ControlNode
 				
 				controlNodeLock.release();
 				
-				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String.valueOf(listenSocket.getLocalPort()), String.valueOf(connectingNodes.size()),
-						String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulationNum)));
-						
+				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String.valueOf(listenSocket.getLocalPort()), String
+				.valueOf(connectingNodes.size()), String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulationNum)));
+				
 				timerCount += ncpTimerSpeed;
 			}
 		}, 0, ncpTimerSpeed * 1000);
@@ -375,7 +379,7 @@ public class ControlNode
 								{
 									// Add to NodeManager list of connecting
 									// node
-									NodeManager nm = new NodeManager(++connectionNumber, nodeSocket);
+									NodeManager nm = new NodeManager(++connectionNumber, nodeSocket, txFreq);
 									
 									connectingNodes.add(nm);
 									
@@ -577,9 +581,9 @@ public class ControlNode
 		{
 			case SUCESSFUL:
 				
-				log.debug("NodeItemRequestProcessed " + result.toString() + " Operation " + operation.toString() + " Simulation on Node " + mapping.getNodeUid() + " Local SimId "
-						+ mapping.getLocalSimId() + " Remote SimId " + mapping.getRemoteSimId());
-						
+				log.debug("NodeItemRequestProcessed " + result.toString() + " Operation " + operation.toString() + " Simulation on Node " + mapping.getNodeUid()
+				+ " Local SimId " + mapping.getLocalSimId() + " Remote SimId " + mapping.getRemoteSimId());
+				
 				switch(operation)
 				{
 					case ADD:
@@ -587,10 +591,12 @@ public class ControlNode
 						// number
 						localSimulationMap.put(mapping.getLocalSimId(), mapping);
 						
-						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.ADD, ControlNodeItemRequestResult.SUCESSFUL));
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.ADD,
+						ControlNodeItemRequestResult.SUCESSFUL));
 					break;
 					case REMOVE:
-						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.REMOVE, ControlNodeItemRequestResult.SUCESSFUL));
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.REMOVE,
+						ControlNodeItemRequestResult.SUCESSFUL));
 					break;
 					default:
 						log.error("Unhandled Operation " + operation.toString() + " " + this.getClass() + " NodeItemRequestProcessed");
@@ -605,10 +611,12 @@ public class ControlNode
 				switch(operation)
 				{
 					case ADD:
-						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.ADD, ControlNodeItemRequestResult.FAILED));
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.ADD,
+						ControlNodeItemRequestResult.FAILED));
 					break;
 					case REMOVE:
-						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.REMOVE, ControlNodeItemRequestResult.FAILED));
+						JComputeEventBus.post(new ControlNodeItemRequest(mapping.getBatchItem(), ControlNodeItemRequestOperation.REMOVE,
+						ControlNodeItemRequestResult.FAILED));
 					break;
 					default:
 						log.error("Unhandled Operation " + operation.toString() + " " + this.getClass() + " NodeItemRequestProcessed");

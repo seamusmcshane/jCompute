@@ -88,7 +88,7 @@ public class NodeManager
 	
 	private NodeManagerState nodeState;
 	
-	private final int NODEMANAGER_TX_FREQUENCY = 10;
+	private final int TX_FREQUENCY;
 	
 	// TX Message List
 	private ArrayList<byte[]> txPendingList;
@@ -111,7 +111,7 @@ public class NodeManager
 	private final int WARM_UP_ITERATIONS = 10000;
 	private final int NUM_RUNS = 6;
 	
-	public NodeManager(int uid, Socket cmdSocket) throws IOException
+	public NodeManager(int uid, Socket cmdSocket, int txFreq) throws IOException
 	{
 		nodeState = NodeManagerState.STARTING;
 		
@@ -143,6 +143,8 @@ public class NodeManager
 		// TX Pending Message List
 		txPendingList = new ArrayList<byte[]>();
 		pendingByteCount = 0;
+		
+		this.TX_FREQUENCY = txFreq;
 		
 		protocolState = ProtocolState.CON;
 		
@@ -189,7 +191,7 @@ public class NodeManager
 					{
 						txPendingData();
 						
-						Thread.sleep(NODEMANAGER_TX_FREQUENCY);
+						Thread.sleep(TX_FREQUENCY);
 					}
 					catch(InterruptedException e)
 					{
