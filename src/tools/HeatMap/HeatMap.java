@@ -1,6 +1,6 @@
 package tools.HeatMap;
 
-import jCompute.Batch.LogFileProcessor.BatchLogInf.ComputedMetric;
+import jCompute.Batch.LogFileProcessor.BatchLogProcessorInf.ComputedMetric;
 import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Gui.View.Misc.Palette;

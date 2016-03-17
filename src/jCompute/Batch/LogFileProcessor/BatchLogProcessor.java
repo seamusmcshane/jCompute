@@ -18,7 +18,7 @@ import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
-public class BatchLogProcessor implements BatchLogInf
+public class BatchLogProcessor implements BatchLogProcessorInf
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(BatchLogProcessor.class);

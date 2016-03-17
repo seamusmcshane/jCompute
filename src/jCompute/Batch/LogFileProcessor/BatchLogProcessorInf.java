@@ -2,7 +2,7 @@ package jCompute.Batch.LogFileProcessor;
 
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 
-public interface BatchLogInf
+public interface BatchLogProcessorInf
 {
 	/*
 	 * *****************************************************************************************************
