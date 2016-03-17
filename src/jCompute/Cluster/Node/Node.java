@@ -106,7 +106,7 @@ public class Node
 	private JVMInfo jvmInfo;
 	private OSInfo osInfo;
 	
-	private final int NODE_TX_FREQUENCY = 100;
+	private final int NODE_TX_FREQUENCY = 10;
 	
 	public Node(final String address, String desc, final SimulationsManager simsManager, int socketTX, int socketRX, boolean tcpNoDelay)
 	{

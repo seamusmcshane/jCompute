@@ -88,7 +88,7 @@ public class NodeManager
 	
 	private NodeManagerState nodeState;
 	
-	private final int NODEMANAGER_TX_FREQUENCY = 100;
+	private final int NODEMANAGER_TX_FREQUENCY = 10;
 	
 	// TX Message List
 	private ArrayList<byte[]> txPendingList;
