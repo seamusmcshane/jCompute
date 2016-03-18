@@ -1,17 +1,5 @@
 package jCompute.Batch;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
-import jCompute.Datastruct.List.Interface.StoredQueuePosition;
-import jCompute.Datastruct.cache.DiskCache;
-import jCompute.Scenario.ScenarioInf;
-import jCompute.Scenario.ScenarioManager;
-import jCompute.Scenario.ConfigurationInterpreter;
-import jCompute.Stats.StatExporter;
-import jCompute.Stats.StatExporter.ExportFormat;
-import jCompute.util.FileUtil;
-import jCompute.util.JCMath;
-import jCompute.util.Text;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,15 +22,27 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
+import jCompute.Datastruct.List.Interface.StoredQueuePosition;
+import jCompute.Datastruct.cache.DiskCache;
+import jCompute.Scenario.ConfigurationInterpreter;
+import jCompute.Scenario.ScenarioInf;
+import jCompute.Scenario.ScenarioManager;
+import jCompute.Stats.StatExporter;
+import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.util.FileUtil;
+import jCompute.util.JCMath;
+import jCompute.util.Text;
+
 public class Batch implements StoredQueuePosition
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(Batch.class);
-	
+
 	// Do this batch need initialised.
 	private boolean needsInit = true;
 	private boolean initialising = false;
-	
+
 	// Batch Attributes
 	private int position;
 	private int batchId;
@@ -51,147 +50,202 @@ public class Batch implements StoredQueuePosition
 	private String baseScenarioFileName;
 	private String batchFileName;
 	private ArrayList<String> parameters;
-	
+
 	// Item Generation
 	private boolean needGenerated = true;
 	private double generationProgress = 0;
-	
+
 	// Set if this batch's items can be processed (stop/start)
-	private boolean status = true;
+	private boolean status = false;
 	private String type;
-	
+
 	// Items Management
 	private int itemsRequested = 0;
 	private int itemsReturned = 0;
 	private int batchItems = 0;
-	
+
 	// Number of repeats of each item (can be used for averages)
 	private int itemSamples;
-	
+
 	// Maximum steps for simulations in this batch
 	private int maxSteps = 0;
-	
+
 	// For human readable date/time info
 	private String addedDateTime = "";
-	
+
 	// Log - total time calc
 	private long startTime;
 	private String startDateTime = "Not Started";
 	private String endDateTime = "Not Finished";
-	
+
 	// Items processing times and eta calculation
 	private long cpuTotalTimes;
 	private long ioTotalTimes;
 	private long lastCompletedItemTime;
-	
+
 	// Enable / Disable writing the generated statistic files to disk
 	private boolean storeStats;
-	
+
 	// Write stats to a single archive or directories with sub archives
 	private final int BOS_DEFAULT_BUFFER_SIZE = 512;
 	private int bosBufferSize;
 	private boolean statsMethodSingleArchive;
 	private int singleArchiveCompressionLevel;
 	private final ExportFormat statExportFormat = ExportFormat.CSV;
-	
+
 	// The export dir for stats
 	private String batchStatsExportDir = "";
 	private ZipOutputStream resultsZipOut;
-	
+
 	// Item log writer
 	private final int BW_BUFFER_SIZE = 1024 * 1000;
 	private PrintWriter itemLog;
-	
+
 	// Item log version
 	private final int ITEM_LOG_VERSION = 2;
-	
+
 	private boolean itemLogEnabled;
-	
+
 	// Used for combination and for saving axis names
 	private String parameterName[];
 	private String groupName[];
-	
+
 	// Simple Batch Log
 	private boolean infoLogEnabled;
-	
+
 	// Our Queue of Items yet to be processed
 	private LinkedList<BatchItem> queuedItems;
-	
+
 	// The active Items currently being processed.
 	private ArrayList<BatchItem> activeItems;
 	private int active;
-	
+
 	// Completed items count
 	private int completed = 0;
-	
+
 	// Batch Finished Status
 	private boolean finished;
 	private boolean failed;
-	
+
 	// Get Batch Info Cache (Non Changing Data / All Final Info )
 	private ArrayList<String> infoCache;
-	
+
 	// The Batch Configuration Text
 	private String batchConfigText;
-	
+
 	// The Configuration Processor
 	private ConfigurationInterpreter batchConfigProcessor;
-	
-	// The base scenario
-	private String basePath;
-	
+
+	// The base directory path
+	private String baseDirectoryPath;
+
 	// Base scenario text
 	private String baseScenarioText;
-	
+
 	// Disk Cache for Items
 	private DiskCache itemDiskCache;
-	
+
 	// To protect our shared variables/data structures
 	private Semaphore batchLock = new Semaphore(1, false);
-	
+
 	public Batch(int batchId)
 	{
 		this.batchId = batchId;
-		
+
 		// Processing Times
 		cpuTotalTimes = 0;
 		ioTotalTimes = 0;
-		
+
 		addedDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-		
+
 		// Item management data structures
 		queuedItems = new LinkedList<BatchItem>();
 		activeItems = new ArrayList<BatchItem>();
-		
+
 		// Active Items
 		active = 0;
-		
+
 		finished = false;
 		failed = false;
 	}
-	
+
 	public boolean loadConfig(String filePath)
 	{
-		boolean status = true;
-		log.info("New Batch based on : " + filePath);
-		this.batchFileName = getFileName(filePath);
-		log.debug("File : " + batchFileName);
-		
-		batchName = batchFileName.replaceAll("\\s*\\b.batch\\b\\s*", "");
-		
-		basePath = getPath(filePath);
-		log.debug("Base Path : " + basePath);
-		
-		batchConfigText = jCompute.util.Text.textFileToString(filePath);
-		
-		if(batchConfigText != null)
+		// Path String
+		if(filePath == null)
 		{
-			status = processBatchConfig(batchConfigText);
+			log.error("No file path");
+
+			return false;
 		}
-		
+
+		log.info("New Batch based on : " + filePath);
+
+		batchFileName = FileUtil.getFileName(filePath);
+
+		// Failed to read a file name
+		if(batchFileName == null)
+		{
+			log.error("Failed to find file");
+
+			return false;
+		}
+
+		log.info("File : " + batchFileName);
+
+		// Get the ext index.
+		int extStartIndex = batchFileName.lastIndexOf('.');
+
+		// No ext? 0=first char,-1 = no .
+		if(extStartIndex <= 0)
+		{
+			log.error("Cannot detect a file extension");
+
+			return false;
+		}
+
+		try
+		{
+			// Use the value before the ext as the batch name
+			batchName = batchFileName.substring(0, extStartIndex);
+		}
+		catch(IndexOutOfBoundsException e)
+		{
+			log.error("Cannot set batch name");
+
+			e.printStackTrace();
+
+			return false;
+		}
+
+		baseDirectoryPath = FileUtil.getPath(filePath);
+
+		// Could fail if there is no parent.
+		if(baseDirectoryPath == null)
+		{
+			log.error("Failed to set base directory path - could not find parent of file");
+
+			return false;
+		}
+
+		log.info("Base Path : " + baseDirectoryPath);
+
+		batchConfigText = jCompute.util.Text.textFileToString(filePath);
+
+		// Null if there was an error reading the batch file in
+		if(batchConfigText == null)
+		{
+			log.error("Failed to read file into memory");
+
+			return false;
+		}
+
+		// Last check - set the batch status to the outcome, if ok the batch will be enabled.
+		status = processBatchConfig(batchConfigText);
+
 		return status;
 	}
-	
+
 	/**
 	 * Processes and Validates the batch config text
 	 * @param fileText
@@ -201,42 +255,42 @@ public class Batch implements StoredQueuePosition
 	private boolean processBatchConfig(String fileText)
 	{
 		boolean status = true;
-		
+
 		batchLock.acquireUninterruptibly();
-		
+
 		log.info("Processing BatchFile");
-		
+
 		batchConfigProcessor = new ConfigurationInterpreter();
-		
+
 		batchConfigProcessor.loadConfig(batchConfigText);
-		
+
 		status = checkBatchFile();
-		
+
 		if(status)
 		{
 			// Logs + Stats
 			storeStats = batchConfigProcessor.getBooleanValue("Stats", "Store");
-			
+
 			statsMethodSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive");
 			singleArchiveCompressionLevel = batchConfigProcessor.getIntValue("Stats", "CompressionLevel");
 			infoLogEnabled = batchConfigProcessor.getBooleanValue("Log", "InfoLog");
 			itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
 			bosBufferSize = batchConfigProcessor.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
-			
+
 			log.info("Store Stats " + storeStats);
 			log.info("Single Archive " + statsMethodSingleArchive);
 			log.info("BufferSize " + bosBufferSize);
 			log.info("Compression Level " + singleArchiveCompressionLevel);
 			log.info("InfoLog " + infoLogEnabled);
 			log.info("ItemLog " + itemLogEnabled);
-			
+
 			ScenarioInf baseScenario = processAndCheckBaseScenarioFile(fileText);
-			
+
 			if(baseScenario != null)
 			{
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
 				type = baseScenario.getScenarioType();
-				
+
 				log.debug(type);
 			}
 			else
@@ -244,80 +298,81 @@ public class Batch implements StoredQueuePosition
 				status = false;
 			}
 		}
-		
+
 		batchLock.release();
-		
+
 		return status;
 	}
-	
+
 	public boolean needsInit()
 	{
 		return needsInit;
 	}
-	
+
 	public void init()
 	{
 		if(initialising)
 		{
 			return;
 		}
-		
+
 		initialising = true;
-		
+
 		// Init batch
 		createBatchStatExportDir();
-		
+
 		generateItems();
 	}
-	
+
 	private void generateItems()
 	{
 		// This avoids a GUI lockup during item generation
 		Thread backgroundGenerate = new Thread(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				log.info("Generating Items for Batch " + batchId);
-				
+
 				// Create DiskCache
 				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
-				
+
 				log.info("Created an Item DiskCache for Batch " + batchId);
-				
+
 				// Get a count of the parameter groups.
 				int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
-				
+
 				// Array to hold the parameter type (group/single)
 				String parameterType[] = new String[parameterGroups];
-				
+
 				// Array to hold the path to group/parameter
 				String path[] = new String[parameterGroups];
-				
+
 				// Array to hold the unique identifier for the group.
 				groupName = new String[parameterGroups];
-				
+
 				// Array to hold the parameter name that will be changed.
 				parameterName = new String[parameterGroups];
-				
+
 				// Base values of each parameter
 				double baseValue[] = new double[parameterGroups];
-				
+
 				// Increment values of each parameter
 				double increment[] = new double[parameterGroups];
-				
+
 				// steps for each parameter
 				int step[] = new int[parameterGroups];
-				
+
 				// Floating point equality ranges
 				// Get the number of decimal places
 				// Get 10^places
 				// divide 1 by 10^places to get
 				// n places .1 above the the significant value to test for
 				double[] errormargin = new double[parameterGroups];
-				
+
 				// Batch Info Parameters list
 				parameters = new ArrayList<String>();
-				
+
 				// Iterate over the detected parameters and read values
 				String section = "";
 				for(int p = 0; p < parameterGroups; p++)
@@ -325,13 +380,13 @@ public class Batch implements StoredQueuePosition
 					// Generate the parameter path in the xml array (0),(1) etc
 					log.debug("Parameter Group : " + p);
 					section = "Parameters.Parameter(" + p + ")";
-					
+
 					// Get the type (group/single)
 					parameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
-					
+
 					// Populate the path to this parameter.
 					path[p] = batchConfigProcessor.getStringValue(section, "Path");
-					
+
 					// Store the group name if this parameter changes one in a
 					// group.
 					groupName[p] = "";
@@ -339,23 +394,23 @@ public class Batch implements StoredQueuePosition
 					{
 						groupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
 					}
-					
+
 					// Store the name of the paramter to change
 					parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
-					
+
 					// Base value
 					baseValue[p] = batchConfigProcessor.getDoubleValue(section, "Intial");
-					
+
 					// Increment value
 					increment[p] = batchConfigProcessor.getDoubleValue(section, "Increment");
-					
+
 					// Steps for each values
 					step[p] = batchConfigProcessor.getIntValue(section, "Combinations");
-					
+
 					// Find the number of decimal places
 					int places = JCMath.getNumberOfDecimalPlaces(increment[p]);
 					boolean incRounded = false;
-					
+
 					// if A decimal value - calculate the error margin to use
 					// for floating point equality tests
 					// else for integer values epsilon is 0
@@ -366,15 +421,15 @@ public class Batch implements StoredQueuePosition
 						if(places > 14)
 						{
 							places = 14;
-							
+
 							double prev = increment[p];
-							
+
 							increment[p] = JCMath.round(increment[p], places);
-							
+
 							log.warn("increment " + p + " rounded " + prev + " to " + increment[p]);
 							incRounded = true;
 						}
-						
+
 						// + 1 places to set the range for the unit after the
 						// number of decimals places
 						errormargin[p] = 1.0 / (Math.pow(10, (places + 1)));
@@ -383,10 +438,10 @@ public class Batch implements StoredQueuePosition
 					{
 						errormargin[p] = 0;
 					}
-					
+
 					// Optimise slightly the concatenations
 					String pNumString = "(" + p + ") ";
-					
+
 					// Used in batch info.
 					parameters.add("");
 					parameters.add("");
@@ -408,7 +463,7 @@ public class Batch implements StoredQueuePosition
 					parameters.add(String.valueOf(errormargin[p]));
 					parameters.add(pNumString + "Increment Rounded");
 					parameters.add(String.valueOf(incRounded));
-					
+
 					// Logging
 					log.info(pNumString + "ParameterType : " + parameterType[p]);
 					log.info(pNumString + "Path : " + path[p]);
@@ -420,14 +475,14 @@ public class Batch implements StoredQueuePosition
 					log.info(pNumString + "Error Margin : " + errormargin[p]);
 					log.info(pNumString + "Increment Rounded : " + String.valueOf(incRounded));
 				}
-				
+
 				// Calculate Total Combinations
 				int combinations = 1;
 				for(int s = 0; s < step.length; s++)
 				{
 					combinations *= step[s];
 				}
-				
+
 				// When to increment values in the combos
 				int incrementMods[] = new int[parameterGroups];
 				int div = combinations;
@@ -438,65 +493,65 @@ public class Batch implements StoredQueuePosition
 					incrementMods[p] = div;
 					log.info("p " + p + " increments every " + incrementMods[p]);
 				}
-				
+
 				// Roll over value of the max combination for each parameter
 				double maxValue[] = new double[parameterGroups];
 				for(int p = 0; p < parameterGroups; p++)
 				{
 					maxValue[p] = baseValue[p] + (increment[p] * (step[p] - 1));
 				}
-				
+
 				// Init combo initial starting bases
 				double value[] = new double[parameterGroups];
 				for(int p = 0; p < parameterGroups; p++)
 				{
 					value[p] = baseValue[p];
 				}
-				
+
 				// Create and populate Results Zip archive with Directories
 				String zipFileName = batchStatsExportDir + File.separator + "results.zip";
-				
+
 				if(storeStats)
 				{
 					if(statsMethodSingleArchive)
 					{
 						log.info("Zip Archive : " + zipFileName);
-						
+
 						try
 						{
 							BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFileName), bosBufferSize);
-							
+
 							resultsZipOut = new ZipOutputStream(bos);
-							
+
 							if(singleArchiveCompressionLevel > 9)
 							{
 								singleArchiveCompressionLevel = 9;
 							}
-							
+
 							if(singleArchiveCompressionLevel < 0)
 							{
 								singleArchiveCompressionLevel = 0;
 							}
-							
+
 							resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
 							resultsZipOut.setLevel(singleArchiveCompressionLevel);
 						}
 						catch(FileNotFoundException e1)
 						{
 							log.error("Could not create create  " + zipFileName);
-							
+
 							e1.printStackTrace();
 						}
 					}
 				}
-				
+
 				// Combo x,y,z... parameter spatial grid position
 				int pos[] = new int[parameterGroups];
-				
+
 				// The temp scenario used to generate the xml.
 				ConfigurationInterpreter temp;
 				generationProgress = 0;
-				
+
 				for(int c = 0; c < combinations; c++)
 				{
 					if(storeStats)
@@ -510,19 +565,19 @@ public class Batch implements StoredQueuePosition
 								// Create Item Directories
 								resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/"));
 								resultsZipOut.closeEntry();
-								
-								for(int sid = 1; sid < itemSamples + 1; sid++)
+
+								for(int sid = 1; sid < (itemSamples + 1); sid++)
 								{
 									// Create Sample Directories
 									resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/" + Integer.toString(sid) + "/"));
 									resultsZipOut.closeEntry();
 								}
-								
+
 							}
 							catch(IOException e)
 							{
 								log.error("Could not create create directory " + c + " in " + zipFileName);
-								
+
 								e.printStackTrace();
 							}
 						}
@@ -530,43 +585,43 @@ public class Batch implements StoredQueuePosition
 						{
 							// Create the item export dir
 							FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + c);
-							
-							for(int sid = 1; sid < itemSamples + 1; sid++)
+
+							for(int sid = 1; sid < (itemSamples + 1); sid++)
 							{
 								String fullExportPath = batchStatsExportDir + File.separator + c + File.separator + sid;
-								
+
 								// Create the item sample full export path dir
 								FileUtil.createDirIfNotExist(fullExportPath);
 							}
 						}
 					}
-					
+
 					// Create a copy of the base scenario
 					temp = new ConfigurationInterpreter();
 					temp.loadConfig(baseScenarioText);
-					
+
 					StringBuilder itemName = new StringBuilder();
-					
+
 					// Start of log line + itemName
 					itemName.append("Combo " + c);
-					
+
 					StringBuilder comboPosString = new StringBuilder();
-					
+
 					// DebugLogger.output(temp.getScenarioXMLText());
 					comboPosString.append("ComboPos(");
 					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
 					ArrayList<Float> tempCoordValues = new ArrayList<Float>();
-					
+
 					for(int p = 0; p < parameterGroups; p++)
 					{
 						// Increment this parameter? (avoid increment the first
 						// combo c>0)
-						if((c) % incrementMods[p] == 0 && c > 0)
+						if(((c % incrementMods[p]) == 0) && (c > 0))
 						{
 							pos[p] = (pos[p] + 1) % step[p];
-							
+
 							value[p] = (value[p] + increment[p]);
-							
+
 							// Has a roll over occurred ( > with in a calculated
 							// epsilon (floating point equalities))
 							if(value[p] > (maxValue[p] + errormargin[p]))
@@ -574,22 +629,22 @@ public class Batch implements StoredQueuePosition
 								value[p] = baseValue[p];
 							}
 						}
-						
+
 						// This is a group parameter
 						if(parameterType[p].equalsIgnoreCase("Group"))
 						{
 							// Log line middle
 							itemName.append(" " + path[p] + "." + groupName[p] + "." + parameterName[p] + " " + value[p]);
-							
+
 							int groups = temp.getSubListSize(path[p]);
-							
+
 							// Find the correct group that matches the name
 							for(int sg = 0; sg < groups; sg++)
 							{
 								String groupSection = path[sg] + "(" + sg + ")";
-								
+
 								String searchGroupName = temp.getStringValue(groupSection, "Name");
-								
+
 								// Found Group
 								if(searchGroupName.equalsIgnoreCase(groupName[p]))
 								{
@@ -599,22 +654,22 @@ public class Batch implements StoredQueuePosition
 									// targetGroupName
 									// +
 									// " " + GroupName[p]);
-									
+
 									// The parameter we want
 									// DebugLogger.output(ParameterName[p]);
-									
+
 									// String target =
 									// Path[p]+"."+ParameterName[p];
 									// String target =
 									// groupSection+"."+ParameterName[p];
-									
+
 									// Current Value in XML
 									// DebugLogger.output("Current Value " +
 									// temp.getIntValue(groupSection,ParameterName[p]));
-									
+
 									// Find the datatype to change
 									String dtype = temp.findDataType(path[p] + "." + parameterName[p]);
-									
+
 									// Currently only decimal and integer are
 									// supported.
 									if(dtype.equals("boolean"))
@@ -654,24 +709,24 @@ public class Batch implements StoredQueuePosition
 									 * temp.getValueToString(target,
 									 * temp.findDataType(target)));
 									 */
-									
+
 									// Group was found and value was changed now
 									// exit
 									// search
 									break;
 								}
-								
+
 							}
-							
+
 						}
 						else
 						{
 							// Log line middle
 							itemName.append(" " + path[p] + "." + parameterName[p] + " " + value[p]);
-							
+
 							// Fine the datatype for this parameter
 							String dtype = temp.findDataType(path[p] + "." + parameterName[p]);
-							
+
 							// Currently only decimal and integer are used.
 							if(dtype.equals("boolean"))
 							{
@@ -696,29 +751,29 @@ public class Batch implements StoredQueuePosition
 								// added to the XML standards schema.
 								log.error("Unknown XML DTYPE : " + dtype);
 							}
-							
+
 						}
-						
+
 						// Set the pos and val
 						tempCoord.add(pos[p]);
 						tempCoordValues.add((float) JCMath.round(value[p], 7));
-						
+
 						comboPosString.append(String.valueOf(pos[p]));
 						if(p < (parameterGroups - 1))
 						{
 							comboPosString.append('x');
 						}
-						
+
 					}
 					// Log line end
 					comboPosString.append(")");
 					log.debug(comboPosString.toString());
 					log.debug(itemName.toString());
-					
+
 					addBatchItem(itemSamples, c, itemName.toString(), temp.getText(), tempCoord, tempCoordValues);
-					
+
 					generationProgress = ((double) c / (double) combinations) * 100.0;
-					
+
 					// Avoid div by zero on <10 combinations
 					if(combinations > 10)
 					{
@@ -728,67 +783,69 @@ public class Batch implements StoredQueuePosition
 							log.info((int) generationProgress + "%");
 						}
 					}
-					
+
 					// END COMBO
 				}
-				
+
 				generationProgress = 100;
 				log.info((int) generationProgress + "%");
-				
+
 				// All the items need to get processed, but the ett is
 				// influenced by
 				// the
 				// order (randomise it in an attempt to reduce influence)
 				Collections.shuffle(queuedItems);
-				
+
 				needGenerated = false;
-				
+
 				log.info("Generated Items Batch " + batchId);
-				
+
 				needsInit = false;
 			}
-			
+
 		});
 		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
 		backgroundGenerate.start();
 	}
-	
+
 	private boolean checkBatchFile()
 	{
 		boolean status = true;
-		
+
 		if(!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch"))
 		{
 			status = false;
 			log.error("Invalid Batch File");
 		}
-		
+
 		return status;
 	}
-	
+
 	private void startBatchLog(int numCordinates)
 	{
 		if(itemLogEnabled)
 		{
 			try
 			{
-				
+
 				switch(ITEM_LOG_VERSION)
 				{
 					case 1:
 					{
-						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
+						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true),
+						BW_BUFFER_SIZE));
 					}
 					break;
 					case 2:
 					{
-						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true), BW_BUFFER_SIZE));
+						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true),
+						BW_BUFFER_SIZE));
 					}
 					break;
 				}
-				
+
 				writeItemLogHeader(ITEM_LOG_VERSION, numCordinates);
-				
+
 			}
 			catch(IOException e)
 			{
@@ -796,87 +853,87 @@ public class Batch implements StoredQueuePosition
 			}
 		}
 	}
-	
+
 	private void createBatchStatExportDir()
 	{
 		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
-		
+
 		log.debug(date + "+" + time);
-		
+
 		String section = "Stats";
-		
+
 		// Normally stats/
 		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
-		
+
 		// Create Stats Dir
 		FileUtil.createDirIfNotExist(baseExportDir);
-		
+
 		// Group Batches of Stats
 		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
-		
+
 		String subgroupDirName = batchConfigProcessor.getStringValue(section, "BatchSubGroupDirName");
-		
+
 		// Append Group name to export dir and create if needed
 		if(groupDirName != null)
 		{
 			baseExportDir = baseExportDir + File.separator + groupDirName;
-			
+
 			FileUtil.createDirIfNotExist(baseExportDir);
-			
+
 			// Sub Groups
 			if(subgroupDirName != null)
 			{
 				baseExportDir = baseExportDir + File.separator + subgroupDirName;
-				
+
 				FileUtil.createDirIfNotExist(baseExportDir);
 			}
-			
+
 		}
-		
+
 		// How many times to run each batchItem.
 		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
-		
+
 		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
-		
+
 		FileUtil.createDirIfNotExist(batchStatsExportDir);
-		
+
 		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
-		
+
 		baseExportDir = null;
 	}
-	
+
 	public String getBatchStatsExportDir()
 	{
 		return batchStatsExportDir;
 	}
-	
+
 	private ScenarioInf processAndCheckBaseScenarioFile(String fileText)
 	{
 		log.info("Processing BaseScenarioFile");
-		
+
 		boolean status = true;
-		
+
 		// Null returned if any problems occur
 		ScenarioInf scenario = null;
-		
+
 		// Store the base fileName
 		baseScenarioFileName = batchConfigProcessor.getStringValue("Config", "BaseScenarioFileName");
-		
+
 		// Assumes the file is in the same dir as the batch file
-		String baseScenaroFilePath = basePath + File.separator + baseScenarioFileName;
-		
+		String baseScenaroFilePath = baseDirectoryPath + File.separator + baseScenarioFileName;
+
 		log.debug("Base Scenario File : " + baseScenaroFilePath);
-		
+
 		// Attempt to load the text into a string
 		String tempText = jCompute.util.Text.textFileToString(baseScenaroFilePath);
-		
+
 		// No null if the text from the file has been loaded
 		if(tempText != null)
 		{
 			// Use a ConfigurationInterpreter to prevent a BatchStats/ItemStats mismatch which could cause a stats req for stats that do not exist
 			ConfigurationInterpreter tempIntrp = new ConfigurationInterpreter();
-			
+
 			// Is the base scenario currently a valid scenario file
 			if(tempIntrp.loadConfig(tempText))
 			{
@@ -892,7 +949,7 @@ public class Batch implements StoredQueuePosition
 					if(!tempIntrp.hasSection("Statistics"))
 					{
 						status = false;
-						
+
 						log.error("The batch has statistics enabled but the base scenario does not.");
 					}
 					else
@@ -901,102 +958,102 @@ public class Batch implements StoredQueuePosition
 						if(!tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true))
 						{
 							status = false;
-							
+
 							log.error("The batch has statistics enabled but there are none enabled in the base scenario");
 						}
 					}
 				}
 			}
-			
+
 			if(status)
 			{
 				// Store the scenario text
 				baseScenarioText = tempIntrp.getText();
 			}
-			
+
 			// Finally create a real Scenario as the final test
 			if(baseScenarioText != null)
 			{
 				scenario = ScenarioManager.getScenario(baseScenarioText);
 			}
 		}
-		
+
 		return scenario;
 	}
-	
+
 	public void returnItemToQueue(BatchItem item)
 	{
 		batchLock.acquireUninterruptibly();
-		
+
 		queuedItems.add(item);
-		
+
 		itemsReturned++;
-		
+
 		activeItems.remove(item);
-		
+
 		active = activeItems.size();
-		
+
 		batchLock.release();
-		
+
 	}
-	
+
 	public BatchItem getNext()
 	{
 		batchLock.acquireUninterruptibly();
-		
+
 		BatchItem temp = queuedItems.remove();
-		
+
 		activeItems.add(temp);
-		
+
 		active = activeItems.size();
-		
+
 		// Is this the first Item && Sample
 		if(itemsRequested == 0)
 		{
 			startBatchLog(temp.getCoordinates().size());
-			
+
 			// For run time calc
 			startTime = System.currentTimeMillis();
 			startDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 		}
-		
+
 		itemsRequested++;
-		
+
 		batchLock.release();
-		
+
 		return temp;
 	}
-	
+
 	public void setItemNotActive(BatchItem item)
 	{
 		batchLock.acquireUninterruptibly();
-		
+
 		activeItems.remove(item);
-		
+
 		batchLock.release();
 	}
-	
+
 	public void setItemComplete(BatchItem item, StatExporter exporter)
 	{
 		batchLock.acquireUninterruptibly();
-		
+
 		long ioStart = System.currentTimeMillis();
 		long ioEnd;
-		
+
 		log.debug("Setting Completed Sim " + item.getSimId() + " Item " + item.getItemId());
-		
+
 		// For estimated complete time calculation
 		cpuTotalTimes += item.getComputeTime();
-		
+
 		if(itemLogEnabled)
 		{
 			writeItemLogItem(ITEM_LOG_VERSION, item);
 		}
-		
+
 		// Only Save configs if stats are enabled
 		if(storeStats)
 		{
-			
+
 			if(statsMethodSingleArchive)
 			{
 				// Export the stats
@@ -1005,11 +1062,11 @@ public class Batch implements StoredQueuePosition
 			else
 			{
 				String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
-				
+
 				// Export the stats
 				exporter.exportAllStatsToDir(fullExportPath);
 			}
-			
+
 			// Only the first sample needs to save the item config (all
 			// identical
 			// samples)
@@ -1021,10 +1078,10 @@ public class Batch implements StoredQueuePosition
 					{
 						// FileName
 						resultsZipOut.putNextEntry(new ZipEntry(item.getItemId() + "/" + "itemconfig-" + item.getItemHash() + ".xml"));
-						
+
 						// Data
 						resultsZipOut.write(itemDiskCache.getFile(item.getItemHash()));
-						
+
 						// Entry end
 						resultsZipOut.closeEntry();
 					}
@@ -1040,9 +1097,9 @@ public class Batch implements StoredQueuePosition
 					try
 					{
 						// All Item samples use same config so overwrite.
-						PrintWriter configFile = new PrintWriter(
-								new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + item.getItemId() + File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
-								
+						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + item.getItemId()
+						+ File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
+
 						configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
 						configFile.flush();
 						configFile.close();
@@ -1052,18 +1109,18 @@ public class Batch implements StoredQueuePosition
 						log.error("Could not save item " + item.getItemId() + " config (Batch " + item.getBatchId() + ")");
 					}
 				}
-				
+
 			}
 		}
-		
+
 		completed++;
-		
+
 		ioEnd = System.currentTimeMillis();
-		
+
 		ioTotalTimes += ioEnd - ioStart;
-		
+
 		lastCompletedItemTime = System.currentTimeMillis();
-		
+
 		if(completed == batchItems)
 		{
 			if(storeStats)
@@ -1074,7 +1131,7 @@ public class Batch implements StoredQueuePosition
 					{
 						resultsZipOut.flush();
 						resultsZipOut.close();
-						
+
 						log.info("Closed Results Zip for " + "Batch " + batchId);
 					}
 					catch(IOException e)
@@ -1083,7 +1140,7 @@ public class Batch implements StoredQueuePosition
 					}
 				}
 			}
-			
+
 			if(itemLogEnabled)
 			{
 				switch(ITEM_LOG_VERSION)
@@ -1095,14 +1152,14 @@ public class Batch implements StoredQueuePosition
 					}
 					break;
 				}
-				
+
 				// Close Batch Log
 				itemLog.flush();
 				itemLog.close();
 			}
-			
+
 			endDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-			
+
 			// Write the info log
 			if(infoLogEnabled)
 			{
@@ -1124,12 +1181,12 @@ public class Batch implements StoredQueuePosition
 					infoLog.println("FinishedDateTime=" + endDateTime);
 					infoLog.println("TotalTime=" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime));
 					infoLog.println("CpuTotalTime=" + cpuTotalTimes);
-					infoLog.println("CpuAvgTime=" + cpuTotalTimes / completed);
+					infoLog.println("CpuAvgTime=" + (cpuTotalTimes / completed));
 					infoLog.println("IOTotalTime=" + ioTotalTimes);
-					infoLog.println("IOAvgTime=" + ioTotalTimes / completed);
+					infoLog.println("IOAvgTime=" + (ioTotalTimes / completed));
 					infoLog.println("ItemTotalTime=" + cpuTotalTimes + ioTotalTimes);
 					infoLog.println("ItemAvgTime=" + ((cpuTotalTimes + ioTotalTimes) / completed));
-					
+
 					for(int i = 0; i < parameters.size(); i += 2)
 					{
 						// Skip "" ""
@@ -1138,7 +1195,7 @@ public class Batch implements StoredQueuePosition
 							infoLog.println(parameters.get(i) + "=" + parameters.get(i + 1));
 						}
 					}
-					
+
 					infoLog.flush();
 					infoLog.close();
 				}
@@ -1147,23 +1204,23 @@ public class Batch implements StoredQueuePosition
 					log.error("Error writing info log");
 				}
 			}
-			
+
 			log.info("Clearing Batch " + batchId + " DiskCache");
 			itemDiskCache.clear();
-			
+
 			performBatchFinishedCompaction();
-			
+
 			finished = true;
 		}
-		
+
 		batchLock.release();
 	}
-	
+
 	public int getRemaining()
 	{
 		return queuedItems.size();
 	}
-	
+
 	// Small wrapper around queue add and disk cache
 	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates, ArrayList<Float> coordinatesValues)
 	{
@@ -1176,18 +1233,18 @@ public class Batch implements StoredQueuePosition
 		{
 			e.printStackTrace();
 		}
-		
+
 		String itemHash = itemDiskCache.addFile(configBytes);
-		
+
 		// SID/SampleId is 1 base/ 1=first sample
-		for(int sid = 1; sid < samples + 1; sid++)
+		for(int sid = 1; sid < (samples + 1); sid++)
 		{
 			queuedItems.add(new BatchItem(sid, id, batchId, name, itemHash, coordinates, coordinatesValues, storeStats));
 		}
-		
+
 		batchItems = batchItems + (1 * samples);
 	}
-	
+
 	/*
 	 * Batch Row Fields Getters
 	 */
@@ -1195,61 +1252,61 @@ public class Batch implements StoredQueuePosition
 	{
 		return batchId;
 	}
-	
+
 	public String getType()
 	{
 		return type;
 	}
-	
+
 	public String getBaseScenarioFileName()
 	{
 		return baseScenarioFileName;
 	}
-	
+
 	public int getBatchItems()
 	{
 		return batchItems;
 	}
-	
+
 	public int getProgress()
 	{
 		return (int) (((double) completed / (double) batchItems) * 100.0);
 	}
-	
+
 	public int getCompleted()
 	{
 		return completed;
 	}
-	
+
 	public int getActiveItemsCount()
 	{
 		return activeItems.size();
 	}
-	
+
 	public long getRunTime()
 	{
 		return lastCompletedItemTime - startTime;
 	}
-	
+
 	public long getETT()
 	{
-		if(active > 0 && completed > 0)
+		if((active > 0) && (completed > 0))
 		{
-			return ((cpuTotalTimes + ioTotalTimes) / completed) * (batchItems - completed) / active;
+			return ((cpuTotalTimes + ioTotalTimes) / completed) * ((batchItems - completed) / active);
 		}
-		
+
 		return 0;
 	}
-	
+
 	/*
 	 * Batch Info Getter
 	 */
 	public String[] getBatchInfo()
 	{
 		batchLock.acquireUninterruptibly();
-		
+
 		ArrayList<String> info = new ArrayList<String>();
-		
+
 		if(!finished)
 		{
 			if(!needGenerated)
@@ -1258,14 +1315,14 @@ public class Batch implements StoredQueuePosition
 				if(infoCache == null)
 				{
 					infoCache = new ArrayList<String>();
-					
+
 					infoCache.add("Id");
 					infoCache.add(String.valueOf(batchId));
 					infoCache.add("Name");
 					infoCache.add(batchName);
 					infoCache.add("Scenario Type");
 					infoCache.add(type);
-					
+
 					infoCache.add("");
 					infoCache.add("");
 					infoCache.add("Unique Items");
@@ -1276,19 +1333,22 @@ public class Batch implements StoredQueuePosition
 					infoCache.add(String.valueOf(batchItems));
 					infoCache.add("Max Steps");
 					infoCache.add(String.valueOf(maxSteps));
-					
+
 					// Add The parameters and free
 					infoCache.addAll(parameters);
-					
+
 					infoCache.add("");
 					infoCache.add("");
 					infoCache.add("Batch File");
 					infoCache.add(batchFileName);
+
 					infoCache.add("Scenario");
 					infoCache.add(baseScenarioFileName);
+					infoCache.add("Directory");
+					infoCache.add(baseDirectoryPath);
 					infoCache.add("Export Directory");
 					infoCache.add(batchStatsExportDir);
-					
+
 					infoCache.add("");
 					infoCache.add("");
 					infoCache.add("Stats Store");
@@ -1305,7 +1365,7 @@ public class Batch implements StoredQueuePosition
 					infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
 				}
 			}
-			
+
 			// Add The Cache Header
 			if(failed)
 			{
@@ -1316,7 +1376,7 @@ public class Batch implements StoredQueuePosition
 			info.add(String.valueOf(position));
 			info.add("Status");
 			info.add(status == true ? "Enabled" : "Disabled");
-			
+
 			if(!needGenerated)
 			{
 				// Add the cached values
@@ -1330,16 +1390,18 @@ public class Batch implements StoredQueuePosition
 				info.add(batchName);
 				info.add("Scenario Type");
 				info.add(type);
-				
+
 				info.add("");
 				info.add("");
 				info.add("Batch File");
 				info.add(batchFileName);
 				info.add("Scenario");
 				info.add(baseScenarioFileName);
+				info.add("Directory");
+				info.add(baseDirectoryPath);
 				info.add("Export Directory");
 				info.add(batchStatsExportDir);
-				
+
 				info.add("");
 				info.add("");
 				info.add("Stats Store");
@@ -1355,52 +1417,52 @@ public class Batch implements StoredQueuePosition
 				info.add("Item Log");
 				info.add(itemLogEnabled == true ? "Enabled" : "Disabled");
 			}
-			
+
 			info.add("");
 			info.add("");
 			info.add("Items Generated");
 			info.add(needGenerated == false ? "Yes" : "No");
 			info.add("Generation Progress");
 			info.add(String.valueOf(generationProgress));
-			
+
 			if(!needGenerated)
 			{
 				info.add("");
 				info.add("");
 				info.add("Active Items");
 				info.add(String.valueOf(getActiveItemsCount()));
-				
+
 				info.add("Items Completed");
 				info.add(String.valueOf(completed));
 				info.add("Items Requested");
 				info.add(String.valueOf(itemsRequested));
 				info.add("Items Returned");
 				info.add(String.valueOf(itemsReturned));
-				
+
 				int div = 1;
 				if(completed > 0)
 				{
 					div = completed;
 				}
-				
+
 				info.add("");
 				info.add("");
 				info.add("Items Cpu Time");
 				info.add(Text.longTimeToDHMSM(cpuTotalTimes));
 				info.add("Items Cpu Avg");
 				info.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
-				
+
 				info.add("Items IO Time");
 				info.add(Text.longTimeToDHMSM(ioTotalTimes));
 				info.add("Items IO Avg");
 				info.add(Text.longTimeToDHMSM(ioTotalTimes / div));
-				
+
 				info.add("Items Total Time");
 				info.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
 				info.add("Items Avg Time");
 				info.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
 			}
-			
+
 			info.add("");
 			info.add("");
 			info.add("Added");
@@ -1421,25 +1483,25 @@ public class Batch implements StoredQueuePosition
 		{
 			info.addAll(infoCache);
 		}
-		
+
 		batchLock.release();
-		
+
 		return info.toArray(new String[info.size()]);
 	}
-	
+
 	private void performBatchFinishedCompaction()
 	{
 		log.info("Compacting Batch Info");
-		
+
 		infoCache = new ArrayList<String>();
-		
+
 		infoCache.add("Id");
 		infoCache.add(String.valueOf(batchId));
 		infoCache.add("Name");
 		infoCache.add(batchName);
 		infoCache.add("Scenario Type");
 		infoCache.add(type);
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Unique Items");
@@ -1450,19 +1512,21 @@ public class Batch implements StoredQueuePosition
 		infoCache.add(String.valueOf(batchItems));
 		infoCache.add("Max Steps");
 		infoCache.add(String.valueOf(maxSteps));
-		
+
 		// Add The parameters
 		infoCache.addAll(parameters);
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Batch File");
 		infoCache.add(batchFileName);
 		infoCache.add("Scenario");
 		infoCache.add(baseScenarioFileName);
+		infoCache.add(baseDirectoryPath);
+		infoCache.add("Export Directory");
 		infoCache.add("Export Directory");
 		infoCache.add(batchStatsExportDir);
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Stats Store");
@@ -1477,49 +1541,49 @@ public class Batch implements StoredQueuePosition
 		infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
 		infoCache.add("Item Log");
 		infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Items Generated");
 		infoCache.add(needGenerated == false ? "Yes" : "No");
 		infoCache.add("Generation Progress");
 		infoCache.add(String.valueOf(generationProgress));
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Active Items");
 		infoCache.add(String.valueOf(getActiveItemsCount()));
-		
+
 		infoCache.add("Items Completed");
 		infoCache.add(String.valueOf(completed));
 		infoCache.add("Items Requested");
 		infoCache.add(String.valueOf(itemsRequested));
 		infoCache.add("Items Returned");
 		infoCache.add(String.valueOf(itemsReturned));
-		
+
 		int div = 1;
 		if(completed > 0)
 		{
 			div = completed;
 		}
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Items Cpu Time");
 		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes));
 		infoCache.add("Items Cpu Avg");
 		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
-		
+
 		infoCache.add("Items IO Time");
 		infoCache.add(Text.longTimeToDHMSM(ioTotalTimes));
 		infoCache.add("Items IO Avg");
 		infoCache.add(Text.longTimeToDHMSM(ioTotalTimes / div));
-		
+
 		infoCache.add("Items Total Time");
 		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
 		infoCache.add("Items Avg Time");
 		infoCache.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
-		
+
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Added");
@@ -1533,135 +1597,127 @@ public class Batch implements StoredQueuePosition
 		infoCache.add("Run Time");
 		infoCache.add(Text.longTimeToDHMS(getRunTime()));
 		infoCache.add("Run Time (s)");
-		
+
 		infoCache.add(String.valueOf(((double) getRunTime() / (double) 1000)));
-		
+
 		// Batch Attributes
 		// batchName = null;
 		// priority = null;
 		baseScenarioFileName = null;
 		baseScenarioFileName = null;
 		parameters = null;
-		
+
 		// Set if this batch's items can be processed (stop/start)
 		type = null;
-		
+
 		// For human readable date/time info
 		addedDateTime = null;
-		
+
 		// Log - total time calc
 		startDateTime = null;
 		// endDateTime = null;
-		
+
 		// The export dir for stats
 		batchStatsExportDir = null;
 		resultsZipOut = null;
-		
+
 		// Item log writer
 		itemLog = null;
-		
+
 		// Used for combination and for saving axis names
 		parameterName = null;
 		groupName = null;
-		
+
 		// Our Queue of Items yet to be processed
 		queuedItems = null;
-		
+
 		// The active Items currently being processed.
 		activeItems = null;
-		
+
 		// Get Batch Info Cache (Non Changing Data / All Final Info )
 		// infoCache =null;
-		
+
 		// The Batch Configuration Text
 		batchConfigText = null;
-		
+
 		// The Configuration Processor
 		batchConfigProcessor = null;
-		
-		// The base scenario
-		basePath = null;
-		
+
+		// The base directory
+		baseDirectoryPath = null;
+
 		// Base scenario text
 		baseScenarioText = null;
-		
+
 		// Disk Cache for Items
 		itemDiskCache = null;
-		
+
 		log.info("Batch Info Compacted");
 	}
-	
+
 	public void setStatus(boolean status)
 	{
 		this.status = status;
 	}
-	
+
 	public boolean getStatus()
 	{
 		return status;
 	}
-	
+
 	public String getFinished()
 	{
 		return endDateTime;
 	}
-	
+
+	@Override
 	public int getPosition()
 	{
 		return position;
 	}
-	
+
+	@Override
 	public void setPosition(int position)
 	{
 		this.position = position;
 	}
-	
+
 	public String getFileName()
 	{
 		return batchFileName;
 	}
-	
-	private String getFileName(String filePath)
-	{
-		return Paths.get(filePath).getFileName().toString();
-	}
-	
-	private String getPath(String filePath)
-	{
-		return Paths.get(filePath).getParent().toString();
-	}
-	
+
 	public boolean isFinished()
 	{
 		if(!needGenerated)
 		{
 			return getCompleted() == getBatchItems();
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
 	public byte[] getItemConfig(String fileHash)
 	{
 		return itemDiskCache.getFile(fileHash);
 	}
-	
+
 	public ExportFormat getStatExportFormat()
 	{
 		return statExportFormat;
 	}
-	
+
 	public void setFailed()
 	{
 		failed = true;
 	}
-	
+
 	public boolean hasFailed()
 	{
 		return failed;
 	}
-	
+
 	private void writeItemLogItem(int version, BatchItem item)
 	{
 		switch(version)
@@ -1690,21 +1746,21 @@ public class Batch implements StoredQueuePosition
 			case 2:
 			{
 				StringBuilder itemLine = new StringBuilder();
-				
+
 				// Item Id
 				itemLine.append("IID=");
 				itemLine.append(item.getItemId());
 				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// Sample Id
 				itemLine.append("SID=");
 				itemLine.append(item.getSampleId());
 				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// Surface Coords and Values
 				ArrayList<Integer> coords = item.getCoordinates();
 				ArrayList<Float> coordsValues = item.getCoordinatesValues();
-				
+
 				itemLine.append("Coordinates=");
 				itemLine.append("Num=" + coords.size());
 				// ; done in loop - loop then exits skipping an ending ;
@@ -1714,39 +1770,39 @@ public class Batch implements StoredQueuePosition
 					itemLine.append("Pos=");
 					itemLine.append(coords.get(c));
 					itemLine.append(TextBatchLogFormatV2.SUBOPTION_DELIMITER);
-					
+
 					itemLine.append("Value=");
 					itemLine.append(coordsValues.get(c));
 				}
 				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// Hash
 				itemLine.append("Hash=");
 				itemLine.append(item.getItemHash());
 				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// Runtime
 				itemLine.append("RunTime=");
 				itemLine.append(item.getComputeTime());
 				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// Endevent
 				itemLine.append("EndEvent=");
 				itemLine.append(item.getEndEvent());
 				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// StepCount
 				itemLine.append("StepCount=");
 				itemLine.append(item.getStepCount());
-				
+
 				// No ending ,
 				itemLog.println(itemLine);
 			}
 			break;
 		}
-		
+
 	}
-	
+
 	private void writeItemLogHeader(int version, int numCordinates)
 	{
 		switch(version)
@@ -1758,12 +1814,12 @@ public class Batch implements StoredQueuePosition
 				itemLog.println("LogType=BatchItems");
 				itemLog.println("Samples=" + itemSamples);
 				itemLog.println("[+AxisLabels]");
-				for(int c = 1; c < numCordinates + 1; c++)
+				for(int c = 1; c < (numCordinates + 1); c++)
 				{
 					itemLog.println("id=" + c);
 					itemLog.println("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
 				}
-				
+
 				itemLog.println("[-AxisLabels]");
 				itemLog.println("[-Header]");
 				itemLog.println("[+Items]");
@@ -1771,25 +1827,25 @@ public class Batch implements StoredQueuePosition
 			break;
 			case 2:
 				StringBuilder header = new StringBuilder();
-				
+
 				// Name
 				header.append("Name=");
 				header.append(batchName);
 				header.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// Type
 				header.append("LogType=BatchItems");
 				header.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				header.append("Samples=");
 				header.append(itemSamples);
 				header.append(TextBatchLogFormatV2.OPTION_DELIMITER);
-				
+
 				// AxisLabels
 				header.append("AxisLabels=");
 				header.append("Num=" + numCordinates);
 				// ; done in loop - loop then exits skipping an ending ;
-				for(int c = 1; c < numCordinates + 1; c++)
+				for(int c = 1; c < (numCordinates + 1); c++)
 				{
 					header.append(TextBatchLogFormatV2.SUBOPTION_DELIMITER);
 					header.append("id=" + c);
@@ -1798,10 +1854,10 @@ public class Batch implements StoredQueuePosition
 				}
 				// No ending ,
 				itemLog.println(header.toString());
-				
+
 			break;
 		}
-		
+
 	}
-	
+
 }
