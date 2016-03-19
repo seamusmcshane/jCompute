@@ -1136,9 +1136,6 @@ public class Batch implements StoredQueuePosition
 		// The active Items currently being processed.
 		activeItems = null;
 
-		// Get Batch Info Cache (Non Changing Data / All Final Info )
-		infoCache = null;
-
 		// The base directory
 		baseDirectoryPath = null;
 
