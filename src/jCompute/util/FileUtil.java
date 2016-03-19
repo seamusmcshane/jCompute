@@ -166,6 +166,7 @@ public class FileUtil
 	{
 		return new javax.swing.filechooser.FileFilter()
 		{
+			@Override
 			public boolean accept(File f)
 			{
 				return f.getName().toLowerCase().endsWith(".batch") || f.isDirectory();
@@ -262,6 +263,7 @@ public class FileUtil
 	{
 		return new javax.swing.filechooser.FileFilter()
 		{
+			@Override
 			public boolean accept(File f)
 			{
 				return f.getName().toLowerCase().endsWith(".scenario") || f.isDirectory();
@@ -310,19 +312,19 @@ public class FileUtil
 	public static String getPath(String filePath)
 	{
 		Path path = Paths.get(filePath);
-		
+
 		if(path == null)
 		{
 			return null;
 		}
-		
+
 		Path dir = path.getParent();
-		
+
 		if(dir == null)
 		{
 			return null;
 		}
-		
+
 		return dir.toString();
 	}
 }
