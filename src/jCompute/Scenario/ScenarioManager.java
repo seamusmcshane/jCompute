@@ -16,81 +16,80 @@ import jCompute.util.FileUtil;
 public class ScenarioManager
 {
 	private static final String PLUGINS_PATH = "plugins" + File.separator + "scenarios";
-	
+
 	private static ServiceLoader<ScenarioInf> loader;
-	
+
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(ScenarioManager.class);
-	
-	public static void init()
+
+	public static void loadPlugins() throws IOException
 	{
 		log.info("Loading scenario plugins...");
-		
-		URL[] urls = null;
+
 		try
 		{
-			urls = FileUtil.getFilesInDirAsURLS(PLUGINS_PATH);
-			
+			URL[] urls = FileUtil.getFilesInDirAsURLS(PLUGINS_PATH);
+
 			for(URL url : urls)
 			{
 				addUrlToClassPath(url);
 			}
+
+			URLClassLoader ucl = new URLClassLoader(urls);
+
+			loader = ServiceLoader.load(ScenarioInf.class, ucl);
+
+			listScenarioPlugins();
 		}
 		catch(IOException e)
 		{
 			log.error("Problem loading scenario plugins.");
-			
-			e.printStackTrace();
+
+			throw(e);
 		}
-		
-		URLClassLoader ucl = new URLClassLoader(urls);
-		
-		loader = ServiceLoader.load(ScenarioInf.class, ucl);
-		
-		listScenarioPlugins();
 	}
-	
+
 	public static void addUrlToClassPath(URL url) throws IOException
 	{
 		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		Class urlClassLoaderClass = URLClassLoader.class;
-		
+		Class<URLClassLoader> urlClassLoaderClass = URLClassLoader.class;
+
 		Method method;
-		
+
 		try
 		{
 			method = urlClassLoaderClass.getDeclaredMethod("addURL", new Class[]
 			{
 				URL.class
 			});
-			
+
 			// Unlock Method
 			method.setAccessible(true);
-			
+
 			// Add path
 			method.invoke(sysloader, new Object[]
 			{
 				url
 			});
-			
+
 			// Relock Method
 			method.setAccessible(false);
 		}
 		catch(NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 		{
 			String message = "Error Loading Scenario Plugin";
-			
+
 			log.error(message);
-			
+
 			Throwable throwable = new Throwable(message);
-			
+
 			throwable.setStackTrace(Thread.currentThread().getStackTrace());
-			
+
 			throw new IOException(throwable);
 		}
-		
+
 	}
-	
+
 	private static void listScenarioPlugins()
 	{
 		// Look for scenario plugin based on type
@@ -99,11 +98,11 @@ public class ScenarioManager
 			log.info("Scenario : " + currentScenario.getScenarioType());
 		}
 	}
-	
+
 	public static boolean hasScenario(String targetType)
 	{
 		boolean status = false;
-		
+
 		// Look for a scenario with a type matching targetType
 		for(ScenarioInf currentScenario : loader)
 		{
@@ -114,31 +113,31 @@ public class ScenarioManager
 				break;
 			}
 		}
-		
+
 		return status;
 	}
-	
+
 	public static ScenarioInf getScenario(String configText)
 	{
 		// Load the config text
 		ConfigurationInterpreter parser = new ConfigurationInterpreter();
 		parser.loadConfig(configText);
-		
+
 		// Get the requested scenario type
 		String type = parser.getScenarioType();
-		
+
 		// Invalid type returned
 		if(ScenarioInf.INVALID.equals(type))
 		{
 			log.error("No scenario type returned");
-			
+
 			// avoid searching scenario list for "Invalid" and return null - no scenario now
 			return null;
 		}
-		
+
 		// Our returned scenario or null
 		ScenarioInf scenario = null;
-		
+
 		// Look for scenario plugin based on type
 		for(ScenarioInf currentScenario : loader)
 		{
@@ -148,10 +147,10 @@ public class ScenarioManager
 				scenario.loadConfig(parser);
 			}
 		}
-		
-		log.info("Looking for Scenario Type " + type + " Found " + scenario != null ? scenario.getScenarioType() : null);
-		
+
+		log.info(("Looking for Scenario Type " + type + " Found " + scenario) != null ? scenario.getScenarioType() : null);
+
 		return scenario;
 	}
-	
+
 }

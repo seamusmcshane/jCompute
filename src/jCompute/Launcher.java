@@ -41,7 +41,7 @@ public class Launcher
 		new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)")
 	};
 
-	public static void main(String args[])
+	public static void main(String args[]) throws IOException
 	{
 		// Set the main threads name
 		Thread.currentThread().setName("Launcher");
@@ -75,7 +75,7 @@ public class Launcher
 	 * Launch Method
 	 *****************************************************************************************************/
 
-	private static void attemptToLaunchUsingOptionChoices(HashMap<String, CommandLineArg> options)
+	private static void attemptToLaunchUsingOptionChoices(HashMap<String, CommandLineArg> options) throws IOException
 	{
 		int mode = Integer.parseInt(options.get("mode").getValue());
 		CommandLineArg desc = options.get("desc");
@@ -119,7 +119,8 @@ public class Launcher
 		String iTheme = options.get("iTheme").getValue();
 		IconManager.init(iTheme);
 
-		ScenarioManager.init();
+		// Load plugins
+		ScenarioManager.loadPlugins();
 
 		int bText = Integer.valueOf(options.get("bText").getValue());
 		boolean buttonText = true;
