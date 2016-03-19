@@ -1,20 +1,17 @@
 package jCompute.Batch;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -22,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jCompute.Batch.ItemGenerator.ItemGenerator;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Datastruct.cache.DiskCache;
@@ -31,7 +29,6 @@ import jCompute.Scenario.ScenarioManager;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.util.FileUtil;
-import jCompute.util.JCMath;
 import jCompute.util.Text;
 
 public class Batch implements StoredQueuePosition
@@ -39,9 +36,16 @@ public class Batch implements StoredQueuePosition
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(Batch.class);
 
-	// Do this batch need initialised.
-	private boolean needsInit = true;
-	private boolean initialising = false;
+	// needInitialized records the start and end of init()
+	// Allows batch manager logic to handle a batch that needs init() or skip init() call that is already init. - get via needsInit()
+	private AtomicBoolean needInitialized = new AtomicBoolean(true);
+
+	// Initialising is for thread safety of the method init()
+	private AtomicBoolean initialising = new AtomicBoolean(false);
+
+	// Does this batch need items generated.
+	private AtomicBoolean needGenerated = new AtomicBoolean(true);
+	private double[] generationProgress = new double[1];
 
 	// Batch Attributes
 	private int position;
@@ -50,10 +54,6 @@ public class Batch implements StoredQueuePosition
 	private String baseScenarioFileName;
 	private String batchFileName;
 	private ArrayList<String> parameters;
-
-	// Item Generation
-	private boolean needGenerated = true;
-	private double generationProgress = 0;
 
 	// Set if this batch's items can be processed (stop/start)
 	private boolean status = false;
@@ -87,7 +87,7 @@ public class Batch implements StoredQueuePosition
 	private boolean storeStats;
 
 	// Write stats to a single archive or directories with sub archives
-	private final int BOS_DEFAULT_BUFFER_SIZE = 512;
+	private final int BOS_DEFAULT_BUFFER_SIZE = 8192;
 	private int bosBufferSize;
 	private boolean statsMethodSingleArchive;
 	private int singleArchiveCompressionLevel;
@@ -113,6 +113,8 @@ public class Batch implements StoredQueuePosition
 	// Simple Batch Log
 	private boolean infoLogEnabled;
 
+	private ItemGenerator itemGenerator;
+
 	// Our Queue of Items yet to be processed
 	private LinkedList<BatchItem> queuedItems;
 
@@ -131,10 +133,7 @@ public class Batch implements StoredQueuePosition
 	private ArrayList<String> infoCache;
 
 	// The Batch Configuration Text
-	private String batchConfigText;
-
-	// The Configuration Processor
-	private ConfigurationInterpreter batchConfigProcessor;
+	// private String batchConfigText;
 
 	// The base directory path
 	private String baseDirectoryPath;
@@ -230,7 +229,7 @@ public class Batch implements StoredQueuePosition
 
 		log.info("Base Path : " + baseDirectoryPath);
 
-		batchConfigText = jCompute.util.Text.textFileToString(filePath);
+		String batchConfigText = jCompute.util.Text.textFileToString(filePath);
 
 		// Null if there was an error reading the batch file in
 		if(batchConfigText == null)
@@ -252,7 +251,7 @@ public class Batch implements StoredQueuePosition
 	 * @return boolean
 	 * @throws IOException
 	 */
-	private boolean processBatchConfig(String fileText)
+	private boolean processBatchConfig(String batchConfigText)
 	{
 		boolean status = true;
 
@@ -260,11 +259,12 @@ public class Batch implements StoredQueuePosition
 
 		log.info("Processing BatchFile");
 
-		batchConfigProcessor = new ConfigurationInterpreter();
+		// The Configuration Processor
+		ConfigurationInterpreter batchConfigProcessor = new ConfigurationInterpreter();
 
 		batchConfigProcessor.loadConfig(batchConfigText);
 
-		status = checkBatchFile();
+		status = checkBatchFile(batchConfigProcessor);
 
 		if(status)
 		{
@@ -284,14 +284,18 @@ public class Batch implements StoredQueuePosition
 			log.info("InfoLog " + infoLogEnabled);
 			log.info("ItemLog " + itemLogEnabled);
 
-			ScenarioInf baseScenario = processAndCheckBaseScenarioFile(fileText);
+			ScenarioInf baseScenario = processAndCheckBaseScenarioFile(batchConfigProcessor);
 
 			if(baseScenario != null)
 			{
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
 				type = baseScenario.getScenarioType();
-
 				log.debug(type);
+
+				createDirectoriesAndItemCache(batchConfigProcessor);
+
+				// Create a generator (type HC for now)
+				itemGenerator = new SAPPItemGenerator(batchId, batchConfigProcessor, queuedItems, itemDiskCache, itemSamples);
 			}
 			else
 			{
@@ -304,611 +308,13 @@ public class Batch implements StoredQueuePosition
 		return status;
 	}
 
-	public boolean needsInit()
-	{
-		return needsInit;
-	}
-
-	public void init()
-	{
-		if(initialising)
-		{
-			return;
-		}
-
-		initialising = true;
-
-		// Init batch
-		createBatchStatExportDir();
-
-		generateItems();
-	}
-
-	private void generateItems()
-	{
-		// This avoids a GUI lockup during item generation
-		Thread backgroundGenerate = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				log.info("Generating Items for Batch " + batchId);
-
-				// Create DiskCache
-				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
-
-				log.info("Created an Item DiskCache for Batch " + batchId);
-
-				// Get a count of the parameter groups.
-				int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
-
-				// Array to hold the parameter type (group/single)
-				String parameterType[] = new String[parameterGroups];
-
-				// Array to hold the path to group/parameter
-				String path[] = new String[parameterGroups];
-
-				// Array to hold the unique identifier for the group.
-				groupName = new String[parameterGroups];
-
-				// Array to hold the parameter name that will be changed.
-				parameterName = new String[parameterGroups];
-
-				// Base values of each parameter
-				double baseValue[] = new double[parameterGroups];
-
-				// Increment values of each parameter
-				double increment[] = new double[parameterGroups];
-
-				// steps for each parameter
-				int step[] = new int[parameterGroups];
-
-				// Floating point equality ranges
-				// Get the number of decimal places
-				// Get 10^places
-				// divide 1 by 10^places to get
-				// n places .1 above the the significant value to test for
-				double[] errormargin = new double[parameterGroups];
-
-				// Batch Info Parameters list
-				parameters = new ArrayList<String>();
-
-				// Iterate over the detected parameters and read values
-				String section = "";
-				for(int p = 0; p < parameterGroups; p++)
-				{
-					// Generate the parameter path in the xml array (0),(1) etc
-					log.debug("Parameter Group : " + p);
-					section = "Parameters.Parameter(" + p + ")";
-
-					// Get the type (group/single)
-					parameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
-
-					// Populate the path to this parameter.
-					path[p] = batchConfigProcessor.getStringValue(section, "Path");
-
-					// Store the group name if this parameter changes one in a
-					// group.
-					groupName[p] = "";
-					if(parameterType[p].equalsIgnoreCase("Group"))
-					{
-						groupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
-					}
-
-					// Store the name of the paramter to change
-					parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
-
-					// Base value
-					baseValue[p] = batchConfigProcessor.getDoubleValue(section, "Intial");
-
-					// Increment value
-					increment[p] = batchConfigProcessor.getDoubleValue(section, "Increment");
-
-					// Steps for each values
-					step[p] = batchConfigProcessor.getIntValue(section, "Combinations");
-
-					// Find the number of decimal places
-					int places = JCMath.getNumberOfDecimalPlaces(increment[p]);
-					boolean incRounded = false;
-
-					// if A decimal value - calculate the error margin to use
-					// for floating point equality tests
-					// else for integer values epsilon is 0
-					if(places > 0)
-					{
-						// We cannot represent error margins for values with
-						// more than 14 decimals
-						if(places > 14)
-						{
-							places = 14;
-
-							double prev = increment[p];
-
-							increment[p] = JCMath.round(increment[p], places);
-
-							log.warn("increment " + p + " rounded " + prev + " to " + increment[p]);
-							incRounded = true;
-						}
-
-						// + 1 places to set the range for the unit after the
-						// number of decimals places
-						errormargin[p] = 1.0 / (Math.pow(10, (places + 1)));
-					}
-					else
-					{
-						errormargin[p] = 0;
-					}
-
-					// Optimise slightly the concatenations
-					String pNumString = "(" + p + ") ";
-
-					// Used in batch info.
-					parameters.add("");
-					parameters.add("");
-					parameters.add(pNumString + "ParameterType");
-					parameters.add(parameterType[p]);
-					parameters.add(pNumString + "Path");
-					parameters.add(path[p]);
-					parameters.add(pNumString + "GroupName");
-					parameters.add(groupName[p]);
-					parameters.add(pNumString + "ParameterName");
-					parameters.add(parameterName[p]);
-					parameters.add(pNumString + "Intial");
-					parameters.add(String.valueOf(baseValue[p]));
-					parameters.add(pNumString + "Increment");
-					parameters.add(String.valueOf(increment[p]));
-					parameters.add(pNumString + "Steps");
-					parameters.add(String.valueOf(step[p]));
-					parameters.add(pNumString + "Error Margin");
-					parameters.add(String.valueOf(errormargin[p]));
-					parameters.add(pNumString + "Increment Rounded");
-					parameters.add(String.valueOf(incRounded));
-
-					// Logging
-					log.info(pNumString + "ParameterType : " + parameterType[p]);
-					log.info(pNumString + "Path : " + path[p]);
-					log.info(pNumString + "GroupName : " + groupName[p]);
-					log.info(pNumString + "ParameterName : " + parameterName[p]);
-					log.info(pNumString + "Intial : " + baseValue[p]);
-					log.info(pNumString + "Increment : " + increment[p]);
-					log.info(pNumString + "Combinations : " + step[p]);
-					log.info(pNumString + "Error Margin : " + errormargin[p]);
-					log.info(pNumString + "Increment Rounded : " + String.valueOf(incRounded));
-				}
-
-				// Calculate Total Combinations
-				int combinations = 1;
-				for(int s = 0; s < step.length; s++)
-				{
-					combinations *= step[s];
-				}
-
-				// When to increment values in the combos
-				int incrementMods[] = new int[parameterGroups];
-				int div = combinations;
-				for(int p = 0; p < parameterGroups; p++)
-				{
-					div = div / step[p];
-					// Increment depending on the step div
-					incrementMods[p] = div;
-					log.info("p " + p + " increments every " + incrementMods[p]);
-				}
-
-				// Roll over value of the max combination for each parameter
-				double maxValue[] = new double[parameterGroups];
-				for(int p = 0; p < parameterGroups; p++)
-				{
-					maxValue[p] = baseValue[p] + (increment[p] * (step[p] - 1));
-				}
-
-				// Init combo initial starting bases
-				double value[] = new double[parameterGroups];
-				for(int p = 0; p < parameterGroups; p++)
-				{
-					value[p] = baseValue[p];
-				}
-
-				// Create and populate Results Zip archive with Directories
-				String zipFileName = batchStatsExportDir + File.separator + "results.zip";
-
-				if(storeStats)
-				{
-					if(statsMethodSingleArchive)
-					{
-						log.info("Zip Archive : " + zipFileName);
-
-						try
-						{
-							BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFileName), bosBufferSize);
-
-							resultsZipOut = new ZipOutputStream(bos);
-
-							if(singleArchiveCompressionLevel > 9)
-							{
-								singleArchiveCompressionLevel = 9;
-							}
-
-							if(singleArchiveCompressionLevel < 0)
-							{
-								singleArchiveCompressionLevel = 0;
-							}
-
-							resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
-							resultsZipOut.setLevel(singleArchiveCompressionLevel);
-						}
-						catch(FileNotFoundException e1)
-						{
-							log.error("Could not create create  " + zipFileName);
-
-							e1.printStackTrace();
-						}
-					}
-				}
-
-				// Combo x,y,z... parameter spatial grid position
-				int pos[] = new int[parameterGroups];
-
-				// The temp scenario used to generate the xml.
-				ConfigurationInterpreter temp;
-				generationProgress = 0;
-
-				for(int c = 0; c < combinations; c++)
-				{
-					if(storeStats)
-					{
-						if(statsMethodSingleArchive)
-						{
-							// Create Sub Directories in Zip Archive or
-							// Directory
-							try
-							{
-								// Create Item Directories
-								resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/"));
-								resultsZipOut.closeEntry();
-
-								for(int sid = 1; sid < (itemSamples + 1); sid++)
-								{
-									// Create Sample Directories
-									resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/" + Integer.toString(sid) + "/"));
-									resultsZipOut.closeEntry();
-								}
-
-							}
-							catch(IOException e)
-							{
-								log.error("Could not create create directory " + c + " in " + zipFileName);
-
-								e.printStackTrace();
-							}
-						}
-						else
-						{
-							// Create the item export dir
-							FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + c);
-
-							for(int sid = 1; sid < (itemSamples + 1); sid++)
-							{
-								String fullExportPath = batchStatsExportDir + File.separator + c + File.separator + sid;
-
-								// Create the item sample full export path dir
-								FileUtil.createDirIfNotExist(fullExportPath);
-							}
-						}
-					}
-
-					// Create a copy of the base scenario
-					temp = new ConfigurationInterpreter();
-					temp.loadConfig(baseScenarioText);
-
-					StringBuilder itemName = new StringBuilder();
-
-					// Start of log line + itemName
-					itemName.append("Combo " + c);
-
-					StringBuilder comboPosString = new StringBuilder();
-
-					// DebugLogger.output(temp.getScenarioXMLText());
-					comboPosString.append("ComboPos(");
-					ArrayList<Integer> tempCoord = new ArrayList<Integer>();
-					ArrayList<Float> tempCoordValues = new ArrayList<Float>();
-
-					for(int p = 0; p < parameterGroups; p++)
-					{
-						// Increment this parameter? (avoid increment the first
-						// combo c>0)
-						if(((c % incrementMods[p]) == 0) && (c > 0))
-						{
-							pos[p] = (pos[p] + 1) % step[p];
-
-							value[p] = (value[p] + increment[p]);
-
-							// Has a roll over occurred ( > with in a calculated
-							// epsilon (floating point equalities))
-							if(value[p] > (maxValue[p] + errormargin[p]))
-							{
-								value[p] = baseValue[p];
-							}
-						}
-
-						// This is a group parameter
-						if(parameterType[p].equalsIgnoreCase("Group"))
-						{
-							// Log line middle
-							itemName.append(" " + path[p] + "." + groupName[p] + "." + parameterName[p] + " " + value[p]);
-
-							int groups = temp.getSubListSize(path[p]);
-
-							// Find the correct group that matches the name
-							for(int sg = 0; sg < groups; sg++)
-							{
-								String groupSection = path[sg] + "(" + sg + ")";
-
-								String searchGroupName = temp.getStringValue(groupSection, "Name");
-
-								// Found Group
-								if(searchGroupName.equalsIgnoreCase(groupName[p]))
-								{
-									// Combo / targetGroupName / Current
-									// GroupName
-									// DebugLogger.output(c + " " +
-									// targetGroupName
-									// +
-									// " " + GroupName[p]);
-
-									// The parameter we want
-									// DebugLogger.output(ParameterName[p]);
-
-									// String target =
-									// Path[p]+"."+ParameterName[p];
-									// String target =
-									// groupSection+"."+ParameterName[p];
-
-									// Current Value in XML
-									// DebugLogger.output("Current Value " +
-									// temp.getIntValue(groupSection,ParameterName[p]));
-
-									// Find the datatype to change
-									String dtype = temp.findDataType(path[p] + "." + parameterName[p]);
-
-									// Currently only decimal and integer are
-									// supported.
-									if(dtype.equals("boolean"))
-									{
-										temp.changeValue(groupSection, parameterName[p], new Boolean(true));
-									}
-									else if(dtype.equals("string"))
-									{
-										temp.changeValue(groupSection, parameterName[p], " ");
-									}
-									else if(dtype.equals("decimal"))
-									{
-										temp.changeValue(groupSection, parameterName[p], value[p]);
-									}
-									else if(dtype.equals("integer"))
-									{
-										// The configuration file wants Integer
-										// values - Cast double to ints
-										temp.changeValue(groupSection, parameterName[p], (int) value[p]);
-									}
-									else
-									{
-										// This will not happen unless there is
-										// a
-										// new
-										// datatype added to the XML standards
-										// schema
-										// and we use it.
-										log.error("Unknown XML DTYPE : " + dtype);
-									}
-									/*
-									 * DebugLogger.output("New Value " +
-									 * temp.getIntValue
-									 * (groupSection,ParameterName[p]));
-									 * DebugLogger.output("Target : " + target);
-									 * DebugLogger.output("Value : " +
-									 * temp.getValueToString(target,
-									 * temp.findDataType(target)));
-									 */
-
-									// Group was found and value was changed now
-									// exit
-									// search
-									break;
-								}
-
-							}
-
-						}
-						else
-						{
-							// Log line middle
-							itemName.append(" " + path[p] + "." + parameterName[p] + " " + value[p]);
-
-							// Fine the datatype for this parameter
-							String dtype = temp.findDataType(path[p] + "." + parameterName[p]);
-
-							// Currently only decimal and integer are used.
-							if(dtype.equals("boolean"))
-							{
-								temp.changeValue(path[p], parameterName[p], new Boolean(true));
-							}
-							else if(dtype.equals("string"))
-							{
-								temp.changeValue(path[p], parameterName[p], " ");
-							}
-							else if(dtype.equals("decimal"))
-							{
-								temp.changeValue(path[p], parameterName[p], value[p]);
-							}
-							else if(dtype.equals("integer"))
-							{
-								temp.changeValue(path[p], parameterName[p], (int) value[p]);
-							}
-							else
-							{
-								// This will not happen unless there is a new
-								// datatype
-								// added to the XML standards schema.
-								log.error("Unknown XML DTYPE : " + dtype);
-							}
-
-						}
-
-						// Set the pos and val
-						tempCoord.add(pos[p]);
-						tempCoordValues.add((float) JCMath.round(value[p], 7));
-
-						comboPosString.append(String.valueOf(pos[p]));
-						if(p < (parameterGroups - 1))
-						{
-							comboPosString.append('x');
-						}
-
-					}
-					// Log line end
-					comboPosString.append(")");
-					log.debug(comboPosString.toString());
-					log.debug(itemName.toString());
-
-					addBatchItem(itemSamples, c, itemName.toString(), temp.getText(), tempCoord, tempCoordValues);
-
-					generationProgress = ((double) c / (double) combinations) * 100.0;
-
-					// Avoid div by zero on <10 combinations
-					if(combinations > 10)
-					{
-						// Every 10%
-						if((c % (combinations / 10)) == 0)
-						{
-							log.info((int) generationProgress + "%");
-						}
-					}
-
-					// END COMBO
-				}
-
-				generationProgress = 100;
-				log.info((int) generationProgress + "%");
-
-				// All the items need to get processed, but the ett is
-				// influenced by
-				// the
-				// order (randomise it in an attempt to reduce influence)
-				Collections.shuffle(queuedItems);
-
-				needGenerated = false;
-
-				log.info("Generated Items Batch " + batchId);
-
-				needsInit = false;
-			}
-
-		});
-		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
-		backgroundGenerate.start();
-	}
-
-	private boolean checkBatchFile()
-	{
-		boolean status = true;
-
-		if(!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch"))
-		{
-			status = false;
-			log.error("Invalid Batch File");
-		}
-
-		return status;
-	}
-
-	private void startBatchLog(int numCordinates)
-	{
-		if(itemLogEnabled)
-		{
-			try
-			{
-
-				switch(ITEM_LOG_VERSION)
-				{
-					case 1:
-					{
-						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true),
-						BW_BUFFER_SIZE));
-					}
-					break;
-					case 2:
-					{
-						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true),
-						BW_BUFFER_SIZE));
-					}
-					break;
-				}
-
-				writeItemLogHeader(ITEM_LOG_VERSION, numCordinates);
-
-			}
-			catch(IOException e)
-			{
-				log.error("Could not created item log file");
-			}
-		}
-	}
-
-	private void createBatchStatExportDir()
-	{
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
-		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
-
-		log.debug(date + "+" + time);
-
-		String section = "Stats";
-
-		// Normally stats/
-		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
-
-		// Create Stats Dir
-		FileUtil.createDirIfNotExist(baseExportDir);
-
-		// Group Batches of Stats
-		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
-
-		String subgroupDirName = batchConfigProcessor.getStringValue(section, "BatchSubGroupDirName");
-
-		// Append Group name to export dir and create if needed
-		if(groupDirName != null)
-		{
-			baseExportDir = baseExportDir + File.separator + groupDirName;
-
-			FileUtil.createDirIfNotExist(baseExportDir);
-
-			// Sub Groups
-			if(subgroupDirName != null)
-			{
-				baseExportDir = baseExportDir + File.separator + subgroupDirName;
-
-				FileUtil.createDirIfNotExist(baseExportDir);
-			}
-
-		}
-
-		// How many times to run each batchItem.
-		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
-
-		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
-
-		FileUtil.createDirIfNotExist(batchStatsExportDir);
-
-		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
-
-		baseExportDir = null;
-	}
-
-	public String getBatchStatsExportDir()
-	{
-		return batchStatsExportDir;
-	}
-
-	private ScenarioInf processAndCheckBaseScenarioFile(String fileText)
+	/**
+	 * Validates the Base Scenario file used for the batch items.
+	 * @param batchConfigProcessor
+	 * @param fileText
+	 * @return
+	 */
+	private ScenarioInf processAndCheckBaseScenarioFile(ConfigurationInterpreter batchConfigProcessor)
 	{
 		log.info("Processing BaseScenarioFile");
 
@@ -979,6 +385,168 @@ public class Batch implements StoredQueuePosition
 		}
 
 		return scenario;
+	}
+
+	/**
+	 * Creates directories used by the batch and the on disk item cache and sets the batch statistic/results export directory name.
+	 * @param batchConfigProcessor
+	 */
+	private void createDirectoriesAndItemCache(ConfigurationInterpreter batchConfigProcessor)
+	{
+		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
+
+		log.debug(date + "+" + time);
+
+		String section = "Stats";
+
+		// Normally stats/
+		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
+
+		// Create Stats Dir
+		FileUtil.createDirIfNotExist(baseExportDir);
+
+		// Group Batches of Stats
+		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
+
+		String subgroupDirName = batchConfigProcessor.getStringValue(section, "BatchSubGroupDirName");
+
+		// Append Group name to export dir and create if needed
+		if(groupDirName != null)
+		{
+			baseExportDir = baseExportDir + File.separator + groupDirName;
+
+			FileUtil.createDirIfNotExist(baseExportDir);
+
+			// Sub Groups
+			if(subgroupDirName != null)
+			{
+				baseExportDir = baseExportDir + File.separator + subgroupDirName;
+
+				FileUtil.createDirIfNotExist(baseExportDir);
+
+				// Create DiskCache
+				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
+
+				log.info("Created an Item DiskCache for Batch " + batchId);
+			}
+
+		}
+
+		// How many times to run each batchItem.
+		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
+
+		// Format the export directory name
+		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
+
+		FileUtil.createDirIfNotExist(batchStatsExportDir);
+
+		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
+	}
+
+	public boolean needsInit()
+	{
+		// If base does not need generated then it was already initialised
+		return needInitialized.get();
+	}
+
+	/**
+	 * This method is used for lazy initialisation of a batch.
+	 * This prevents considerable up-front processor usage when more than 1 batch is added as we then avoid generating items till the batch is scheduled.
+	 * It can safe considerable a mounts of memory and disk space where there are multiple batches queued (vs all generated when added).
+	 */
+	public void init()
+	{
+		// If already init then abort the new attempt
+		if(!initialising.compareAndSet(false, true))
+		{
+			// Initialise
+			log.error("Attempted to initialise batch when already initialised or stil initialing - batch id " + batchId);
+
+			return;
+		}
+
+		// This background thread avoids a GUI lockup during item generation means need the atomic booleans for correctness
+		Thread backgroundGenerate = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				itemGenerator.generate(generationProgress, baseScenarioText, batchStatsExportDir, storeStats, statsMethodSingleArchive,
+				singleArchiveCompressionLevel, bosBufferSize);
+
+				// All the items need to get processed, but the estimated total time (see getETT()) can be influenced by their processing order.
+				// Randomise items in an attempt to reduce influence of item difficulty increasing/decreasing with combination order.
+				Collections.shuffle(queuedItems);
+
+				log.info("Generated Items Batch " + batchId);
+
+				batchItems = itemGenerator.getGeneratedItemCount();
+				groupName = itemGenerator.getGroupNames();
+				parameterName = itemGenerator.getParameterNames();
+				parameters = itemGenerator.getParameters();
+				resultsZipOut = itemGenerator.getResultsZipOut();
+
+				// No longer needed
+				itemGenerator = null;
+
+				needInitialized.set(false);
+				needGenerated.set(false);
+			}
+		});
+		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
+		backgroundGenerate.start();
+	}
+
+	private boolean checkBatchFile(ConfigurationInterpreter batchConfigProcessor)
+	{
+		boolean status = true;
+
+		if(!batchConfigProcessor.getScenarioType().equalsIgnoreCase("Batch"))
+		{
+			status = false;
+			log.error("Invalid Batch File");
+		}
+
+		return status;
+	}
+
+	private void startBatchLog(int numCordinates)
+	{
+		if(itemLogEnabled)
+		{
+			try
+			{
+
+				switch(ITEM_LOG_VERSION)
+				{
+					case 1:
+					{
+						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true),
+						BW_BUFFER_SIZE));
+					}
+					break;
+					case 2:
+					{
+						itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true),
+						BW_BUFFER_SIZE));
+					}
+					break;
+				}
+
+				writeItemLogHeader(ITEM_LOG_VERSION, numCordinates);
+
+			}
+			catch(IOException e)
+			{
+				log.error("Could not created item log file");
+			}
+		}
+	}
+
+	public String getBatchStatsExportDir()
+	{
+		return batchStatsExportDir;
 	}
 
 	public void returnItemToQueue(BatchItem item)
@@ -1221,30 +789,6 @@ public class Batch implements StoredQueuePosition
 		return queuedItems.size();
 	}
 
-	// Small wrapper around queue add and disk cache
-	private void addBatchItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates, ArrayList<Float> coordinatesValues)
-	{
-		byte[] configBytes = null;
-		try
-		{
-			configBytes = configText.getBytes("ISO-8859-1");
-		}
-		catch(UnsupportedEncodingException e)
-		{
-			e.printStackTrace();
-		}
-
-		String itemHash = itemDiskCache.addFile(configBytes);
-
-		// SID/SampleId is 1 base/ 1=first sample
-		for(int sid = 1; sid < (samples + 1); sid++)
-		{
-			queuedItems.add(new BatchItem(sid, id, batchId, name, itemHash, coordinates, coordinatesValues, storeStats));
-		}
-
-		batchItems = batchItems + (1 * samples);
-	}
-
 	/*
 	 * Batch Row Fields Getters
 	 */
@@ -1309,7 +853,7 @@ public class Batch implements StoredQueuePosition
 
 		if(!finished)
 		{
-			if(!needGenerated)
+			if(!needGenerated.get())
 			{
 				// Cache the non changing values
 				if(infoCache == null)
@@ -1377,7 +921,7 @@ public class Batch implements StoredQueuePosition
 			info.add("Status");
 			info.add(status == true ? "Enabled" : "Disabled");
 
-			if(!needGenerated)
+			if(!needGenerated.get())
 			{
 				// Add the cached values
 				info.addAll(infoCache);
@@ -1421,11 +965,11 @@ public class Batch implements StoredQueuePosition
 			info.add("");
 			info.add("");
 			info.add("Items Generated");
-			info.add(needGenerated == false ? "Yes" : "No");
+			info.add(needGenerated.get() == false ? "Yes" : "No");
 			info.add("Generation Progress");
-			info.add(String.valueOf(generationProgress));
+			info.add(String.valueOf(generationProgress[0]));
 
-			if(!needGenerated)
+			if(!needGenerated.get())
 			{
 				info.add("");
 				info.add("");
@@ -1469,7 +1013,7 @@ public class Batch implements StoredQueuePosition
 			info.add(addedDateTime);
 			info.add("Started");
 			info.add(startDateTime);
-			if(!needGenerated)
+			if(!needGenerated.get())
 			{
 				info.add("Est Finished");
 				info.add(jCompute.util.Text.timeNowPlus(getETT()));
@@ -1545,9 +1089,9 @@ public class Batch implements StoredQueuePosition
 		infoCache.add("");
 		infoCache.add("");
 		infoCache.add("Items Generated");
-		infoCache.add(needGenerated == false ? "Yes" : "No");
+		infoCache.add(needGenerated.get() == false ? "Yes" : "No");
 		infoCache.add("Generation Progress");
-		infoCache.add(String.valueOf(generationProgress));
+		infoCache.add(String.valueOf(generationProgress[0]));
 
 		infoCache.add("");
 		infoCache.add("");
@@ -1635,13 +1179,7 @@ public class Batch implements StoredQueuePosition
 		activeItems = null;
 
 		// Get Batch Info Cache (Non Changing Data / All Final Info )
-		// infoCache =null;
-
-		// The Batch Configuration Text
-		batchConfigText = null;
-
-		// The Configuration Processor
-		batchConfigProcessor = null;
+		infoCache = null;
 
 		// The base directory
 		baseDirectoryPath = null;
@@ -1689,7 +1227,7 @@ public class Batch implements StoredQueuePosition
 
 	public boolean isFinished()
 	{
-		if(!needGenerated)
+		if(!needGenerated.get())
 		{
 			return getCompleted() == getBatchItems();
 		}
