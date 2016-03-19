@@ -561,7 +561,7 @@ public class RecursiveRegionQuadTree
 	 */
 	public float[][] getQuadTreePartitionLines()
 	{
-		ArrayList partitions = new ArrayList();
+		ArrayList<float[]> partitions = new ArrayList<float[]>();
 		
 		if(debug)
 		{
@@ -593,7 +593,7 @@ public class RecursiveRegionQuadTree
 	 * @param nodeCenter
 	 * @param size
 	 */
-	private void getQuadTreePartitionLines(ArrayList list, RegionQuadTreeNode node, float nodeCenter[], float size)
+	private void getQuadTreePartitionLines(ArrayList<float[]> list, RegionQuadTreeNode node, float nodeCenter[], float size)
 	{
 		if(node.isLeaf())
 		{
