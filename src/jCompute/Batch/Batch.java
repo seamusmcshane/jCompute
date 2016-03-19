@@ -39,7 +39,7 @@ public class Batch implements StoredQueuePosition
 	// Allows batch manager logic to handle a batch that needs init() or skip init() call that is already init. - get via needsInit()
 	private AtomicBoolean needInitialized = new AtomicBoolean(true);
 
-	// Initialising is for thread safety of the method init() and avoiding calling init() when already initialising - get via needsInit()
+	// Initialising is for thread safety of the method init() and avoiding calling init() when already initialising - get via isInit()
 	private AtomicBoolean initialising = new AtomicBoolean(false);
 
 	// Does this batch need items generated.
@@ -393,14 +393,14 @@ public class Batch implements StoredQueuePosition
 		return scenario;
 	}
 
-	public boolean needsInit()
+	public boolean isInit()
 	{
 		// We don't need init if we are initialising now.
-		if(initialising.get())
-		{
-			return false;
-		}
-			
+		return initialising.get();
+	}
+	
+	public boolean needsInit()
+	{
 		// If base does not need generated then it was already initialised
 		return needInitialized.get();
 	}
@@ -514,7 +514,7 @@ public class Batch implements StoredQueuePosition
 			}
 			catch(IOException e)
 			{
-				log.error("Could not created item log file");
+				log.error("Could not create item log file in " + batchStatsExportDir);
 			}
 		}
 	}
