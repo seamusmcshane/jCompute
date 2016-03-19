@@ -77,8 +77,6 @@ public class SAPPItemGenerator extends ItemGenerator
 
 		progress1dArray[0] = 0;
 
-		needGenerated = false;
-
 		log.info("Generating Items for Batch " + super.getBatchId());
 
 		// Get a ref the the processor
@@ -535,6 +533,8 @@ public class SAPPItemGenerator extends ItemGenerator
 		progress1dArray[0] = 100;
 		log.info((int) progress1dArray[0] + "%");
 
+		needGenerated = false;
+		
 		// TODO validate this generation.
 		
 		return true;
