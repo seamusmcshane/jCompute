@@ -39,7 +39,7 @@ public class Batch implements StoredQueuePosition
 	// Allows batch manager logic to handle a batch that needs init() or skip init() call that is already init. - get via needsInit()
 	private AtomicBoolean needInitialized = new AtomicBoolean(true);
 
-	// Initialising is for thread safety of the method init()
+	// Initialising is for thread safety of the method init() and avoiding calling init() when already initialising - get via needsInit()
 	private AtomicBoolean initialising = new AtomicBoolean(false);
 
 	// Does this batch need items generated.
@@ -395,6 +395,12 @@ public class Batch implements StoredQueuePosition
 
 	public boolean needsInit()
 	{
+		// We don't need init if we are initialising now.
+		if(initialising.get())
+		{
+			return false;
+		}
+			
 		// If base does not need generated then it was already initialised
 		return needInitialized.get();
 	}
@@ -406,11 +412,19 @@ public class Batch implements StoredQueuePosition
 	 */
 	public void init()
 	{
-		// If already init then abort the new attempt
+		// If currently initialising then abort the new attempt
 		if(!initialising.compareAndSet(false, true))
 		{
-			// Initialised/initialising?
-			log.error("Attempted to initialise batch when already initialised or stil initialising - batch id " + batchId);
+			// initialising?
+			log.error("Attempted to initialise batch while still initialising - batch id " + batchId);
+
+			return;
+		}
+		
+		if(!needInitialized.get())
+		{
+			// Initialised
+			log.error("Attempted to initialise batch when already initialised - batch id " + batchId);
 
 			return;
 		}
@@ -445,6 +459,9 @@ public class Batch implements StoredQueuePosition
 
 					needInitialized.set(false);
 					needGenerated.set(false);
+
+					// No longer initialising.
+					initialising.compareAndSet(true, false);
 				}
 				else
 				{
@@ -1188,7 +1205,6 @@ public class Batch implements StoredQueuePosition
 		}
 
 		return false;
-
 	}
 
 	public byte[] getItemConfig(String fileHash)
