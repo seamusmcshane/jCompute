@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.Batch.ItemGenerator.ItemGenerator;
-import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.util.FileUtil;
 import jCompute.util.JCMath;
@@ -26,12 +25,16 @@ public class SAPPItemGenerator extends ItemGenerator
 
 	private final String GeneratorName = "SAPPItemGenerator";
 
-	private int batchId;
-
-	private ConfigurationInterpreter batchConfigProcessor;
 	private LinkedList<BatchItem> destinationItemList;
-	private DiskCache itemDiskCache;
 	private int itemSamples;
+
+	private double[] progress1dArray;
+	private String baseScenarioText;
+
+	private boolean storeStats;
+	private boolean statsMethodSingleArchive;
+	private int singleArchiveCompressionLevel;
+	private int bosBufferSize;
 
 	// Returnable
 	private String[] groupName;
@@ -43,37 +46,46 @@ public class SAPPItemGenerator extends ItemGenerator
 	// Generation Progress
 	private boolean needGenerated;
 
-	public SAPPItemGenerator(int batchId, ConfigurationInterpreter batchConfigProcessor, LinkedList<BatchItem> destinationItemList, DiskCache itemDiskCache,
-	int itemSamples)
+	public SAPPItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor, LinkedList<BatchItem> destinationItemList,
+	int itemSamples, double[] progress1dArray, String baseScenarioText, boolean storeStats, boolean statsMethodSingleArchive, int singleArchiveCompressionLevel,
+	int bosBufferSize)
 	{
-		this.batchId = batchId;
-		this.batchConfigProcessor = batchConfigProcessor;
+		super.setBatchLazyInitStorageVariables(batchId, batchName, batchConfigProcessor);
+
 		this.destinationItemList = destinationItemList;
-		this.itemDiskCache = itemDiskCache;
 		this.itemSamples = itemSamples;
+
+		this.progress1dArray = progress1dArray;
+		this.baseScenarioText = baseScenarioText;
+		this.storeStats = storeStats;
+		this.statsMethodSingleArchive = statsMethodSingleArchive;
+		this.singleArchiveCompressionLevel = singleArchiveCompressionLevel;
+		this.bosBufferSize = bosBufferSize;
 
 		needGenerated = true;
 	}
 
 	@Override
-	public void generate(double[] progress1dArray, String baseScenarioText, String batchStatsExportDir, boolean storeStats, boolean statsMethodSingleArchive,
-	int singleArchiveCompressionLevel, int bosBufferSize)
+	public boolean subgenerator()
 	{
 		if(!needGenerated)
 		{
 			log.error(GeneratorName + " got call to generate items when items already generated");
 
-			return;
+			return false;
 		}
 
 		progress1dArray[0] = 0;
 
 		needGenerated = false;
 
-		log.info("Generating Items for Batch " + batchId);
+		log.info("Generating Items for Batch " + super.getBatchId());
+
+		// Get a ref the the processor
+		ConfigurationInterpreter processor = super.getBatchConfigProcessor();
 
 		// Get a count of the parameter groups.
-		int parameterGroups = batchConfigProcessor.getSubListSize("Parameters", "Parameter");
+		int parameterGroups = processor.getSubListSize("Parameters", "Parameter");
 
 		// Array to hold the parameter type (group/single)
 		String parameterType[] = new String[parameterGroups];
@@ -115,30 +127,30 @@ public class SAPPItemGenerator extends ItemGenerator
 			section = "Parameters.Parameter(" + p + ")";
 
 			// Get the type (group/single)
-			parameterType[p] = batchConfigProcessor.getStringValue(section, "Type");
+			parameterType[p] = processor.getStringValue(section, "Type");
 
 			// Populate the path to this parameter.
-			path[p] = batchConfigProcessor.getStringValue(section, "Path");
+			path[p] = processor.getStringValue(section, "Path");
 
 			// Store the group name if this parameter changes one in a
 			// group.
 			groupName[p] = "";
 			if(parameterType[p].equalsIgnoreCase("Group"))
 			{
-				groupName[p] = batchConfigProcessor.getStringValue(section, "GroupName");
+				groupName[p] = processor.getStringValue(section, "GroupName");
 			}
 
 			// Store the name of the paramter to change
-			parameterName[p] = batchConfigProcessor.getStringValue(section, "ParameterName");
+			parameterName[p] = processor.getStringValue(section, "ParameterName");
 
 			// Base value
-			baseValue[p] = batchConfigProcessor.getDoubleValue(section, "Intial");
+			baseValue[p] = processor.getDoubleValue(section, "Intial");
 
 			// Increment value
-			increment[p] = batchConfigProcessor.getDoubleValue(section, "Increment");
+			increment[p] = processor.getDoubleValue(section, "Increment");
 
 			// Steps for each values
-			step[p] = batchConfigProcessor.getIntValue(section, "Combinations");
+			step[p] = processor.getIntValue(section, "Combinations");
 
 			// Find the number of decimal places
 			int places = JCMath.getNumberOfDecimalPlaces(increment[p]);
@@ -241,8 +253,10 @@ public class SAPPItemGenerator extends ItemGenerator
 			value[p] = baseValue[p];
 		}
 
-		// Create if needed
+		// Super class has this path
+		String batchStatsExportDir = super.getBatchStatsExportDir();
 
+		// Create if needed
 		String zipPath = null;
 		if(storeStats && statsMethodSingleArchive)
 		{
@@ -521,8 +535,9 @@ public class SAPPItemGenerator extends ItemGenerator
 		progress1dArray[0] = 100;
 		log.info((int) progress1dArray[0] + "%");
 
-		// backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
-
+		// TODO validate this generation.
+		
+		return true;
 	}
 
 	// Small wrapper around queue add and disk cache
@@ -539,12 +554,13 @@ public class SAPPItemGenerator extends ItemGenerator
 			e.printStackTrace();
 		}
 
-		String itemHash = itemDiskCache.addFile(configBytes);
+		// Add to disk cache and get the hash
+		String itemHash = super.getItemDiskCache().addFile(configBytes);
 
 		// SID/SampleId is 1 base/ 1=first sample
 		for(int sid = 1; sid < (samples + 1); sid++)
 		{
-			destinationItemList.add(new BatchItem(sid, id, batchId, name, itemHash, coordinates, coordinatesValues, storeStats));
+			destinationItemList.add(new BatchItem(sid, id, super.getBatchId(), name, itemHash, coordinates, coordinatesValues, storeStats));
 			itemsCount++;
 		}
 

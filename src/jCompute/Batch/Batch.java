@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -132,9 +131,6 @@ public class Batch implements StoredQueuePosition
 	// Get Batch Info Cache (Non Changing Data / All Final Info )
 	private ArrayList<String> infoCache;
 
-	// The Batch Configuration Text
-	// private String batchConfigText;
-
 	// The base directory path
 	private String baseDirectoryPath;
 
@@ -229,6 +225,7 @@ public class Batch implements StoredQueuePosition
 
 		log.info("Base Path : " + baseDirectoryPath);
 
+		// The Batch Configuration Text
 		String batchConfigText = jCompute.util.Text.textFileToString(filePath);
 
 		// Null if there was an error reading the batch file in
@@ -292,10 +289,19 @@ public class Batch implements StoredQueuePosition
 				type = baseScenario.getScenarioType();
 				log.debug(type);
 
-				createDirectoriesAndItemCache(batchConfigProcessor);
+				// How many times to run each batchItem.
+				itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
 
-				// Create a generator (type HC for now)
-				itemGenerator = new SAPPItemGenerator(batchId, batchConfigProcessor, queuedItems, itemDiskCache, itemSamples);
+				if(itemSamples > 0)
+				{
+					// Create a generator (type HC for now and too many vars)
+					itemGenerator = new SAPPItemGenerator(batchId, batchName, batchConfigProcessor, queuedItems, itemSamples, generationProgress,
+					baseScenarioText, storeStats, statsMethodSingleArchive, singleArchiveCompressionLevel, bosBufferSize);
+				}
+				else
+				{
+					status = false;
+				}
 			}
 			else
 			{
@@ -387,63 +393,6 @@ public class Batch implements StoredQueuePosition
 		return scenario;
 	}
 
-	/**
-	 * Creates directories used by the batch and the on disk item cache and sets the batch statistic/results export directory name.
-	 * @param batchConfigProcessor
-	 */
-	private void createDirectoriesAndItemCache(ConfigurationInterpreter batchConfigProcessor)
-	{
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
-		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
-
-		log.debug(date + "+" + time);
-
-		String section = "Stats";
-
-		// Normally stats/
-		String baseExportDir = batchConfigProcessor.getStringValue(section, "BatchStatsExportDir");
-
-		// Create Stats Dir
-		FileUtil.createDirIfNotExist(baseExportDir);
-
-		// Group Batches of Stats
-		String groupDirName = batchConfigProcessor.getStringValue(section, "BatchGroupDir");
-
-		String subgroupDirName = batchConfigProcessor.getStringValue(section, "BatchSubGroupDirName");
-
-		// Append Group name to export dir and create if needed
-		if(groupDirName != null)
-		{
-			baseExportDir = baseExportDir + File.separator + groupDirName;
-
-			FileUtil.createDirIfNotExist(baseExportDir);
-
-			// Sub Groups
-			if(subgroupDirName != null)
-			{
-				baseExportDir = baseExportDir + File.separator + subgroupDirName;
-
-				FileUtil.createDirIfNotExist(baseExportDir);
-
-				// Create DiskCache
-				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
-
-				log.info("Created an Item DiskCache for Batch " + batchId);
-			}
-
-		}
-
-		// How many times to run each batchItem.
-		itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
-
-		// Format the export directory name
-		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
-
-		FileUtil.createDirIfNotExist(batchStatsExportDir);
-
-		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
-	}
-
 	public boolean needsInit()
 	{
 		// If base does not need generated then it was already initialised
@@ -460,8 +409,8 @@ public class Batch implements StoredQueuePosition
 		// If already init then abort the new attempt
 		if(!initialising.compareAndSet(false, true))
 		{
-			// Initialise
-			log.error("Attempted to initialise batch when already initialised or stil initialing - batch id " + batchId);
+			// Initialised/initialising?
+			log.error("Attempted to initialise batch when already initialised or stil initialising - batch id " + batchId);
 
 			return;
 		}
@@ -472,26 +421,35 @@ public class Batch implements StoredQueuePosition
 			@Override
 			public void run()
 			{
-				itemGenerator.generate(generationProgress, baseScenarioText, batchStatsExportDir, storeStats, statsMethodSingleArchive,
-				singleArchiveCompressionLevel, bosBufferSize);
+				if(itemGenerator.generate())
+				{
+					// All the items need to get processed, but the estimated total time (see getETT()) can be influenced by their processing order.
+					// Randomise items in an attempt to reduce influence of item difficulty increasing/decreasing with combination order.
+					Collections.shuffle(queuedItems);
 
-				// All the items need to get processed, but the estimated total time (see getETT()) can be influenced by their processing order.
-				// Randomise items in an attempt to reduce influence of item difficulty increasing/decreasing with combination order.
-				Collections.shuffle(queuedItems);
+					log.info("Generated Items Batch " + batchId);
 
-				log.info("Generated Items Batch " + batchId);
+					// Super Class - Lazy Inits Storage
+					itemDiskCache = itemGenerator.getItemDiskCache();
+					batchStatsExportDir = itemGenerator.getBatchStatsExportDir();
 
-				batchItems = itemGenerator.getGeneratedItemCount();
-				groupName = itemGenerator.getGroupNames();
-				parameterName = itemGenerator.getParameterNames();
-				parameters = itemGenerator.getParameters();
-				resultsZipOut = itemGenerator.getResultsZipOut();
+					// Sub Class Lazy Inits Items
+					batchItems = itemGenerator.getGeneratedItemCount();
+					groupName = itemGenerator.getGroupNames();
+					parameterName = itemGenerator.getParameterNames();
+					parameters = itemGenerator.getParameters();
+					resultsZipOut = itemGenerator.getResultsZipOut();
 
-				// No longer needed
-				itemGenerator = null;
+					// No longer needed
+					itemGenerator = null;
 
-				needInitialized.set(false);
-				needGenerated.set(false);
+					needInitialized.set(false);
+					needGenerated.set(false);
+				}
+				else
+				{
+					log.error("Item Generation Failed");
+				}
 			}
 		});
 		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
@@ -1338,7 +1296,6 @@ public class Batch implements StoredQueuePosition
 			}
 			break;
 		}
-
 	}
 
 	private void writeItemLogHeader(int version, int numCordinates)
