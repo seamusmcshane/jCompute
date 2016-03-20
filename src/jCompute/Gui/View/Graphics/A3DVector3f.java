@@ -42,6 +42,8 @@ public class A3DVector3f
 	
 	public A3DVector3f(double[] pos)
 	{
+		this.pos = new float[3];
+
 		this.pos[X_POS] = (float) pos[X_POS];
 		this.pos[Y_POS] = (float) pos[Y_POS];
 		this.pos[Z_POS] = (float) pos[Z_POS];
