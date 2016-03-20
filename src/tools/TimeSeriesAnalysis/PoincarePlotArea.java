@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class PoincarePlotArea extends JPanel
 {
+	private static final long serialVersionUID = 8642450830875810448L;
 	private float xScale;
 	private float yScale;
 

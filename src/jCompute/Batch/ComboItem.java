@@ -4,6 +4,7 @@ import jCompute.util.JCMath;
 
 public class ComboItem
 {
+	@SuppressWarnings("unused")
 	private int cid;
 	
 	private int dims;

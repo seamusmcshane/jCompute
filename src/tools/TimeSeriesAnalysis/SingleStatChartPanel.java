@@ -1,15 +1,14 @@
 package tools.TimeSeriesAnalysis;
 
-import jCompute.Stats.Groups.StatGroupListenerInf;
-import jCompute.Stats.Trace.SingleStat;
-import jCompute.Stats.Trace.StatSample;
-
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import org.jfree.chart.ChartFactory;
@@ -21,9 +20,9 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
+import jCompute.Stats.Groups.StatGroupListenerInf;
+import jCompute.Stats.Trace.SingleStat;
+import jCompute.Stats.Trace.StatSample;
 
 public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 {
@@ -51,15 +50,14 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	private double maxValue = Double.MIN_VALUE;
 	private double minValue = Double.MAX_VALUE;
 
-	private float	lineWidth = 0.3f;
+	private float lineWidth = 0.3f;
 
 	public SingleStatChartPanel()
 	{
-		this("None",true,false,0);		
+		this("None", true, false, 0);
 	}
-	
-	public SingleStatChartPanel(String statChartPanelName, boolean displayTitle,
-			boolean totalStatEnabled, int sampleWindow)
+
+	public SingleStatChartPanel(String statChartPanelName, boolean displayTitle, boolean totalStatEnabled, int sampleWindow)
 	{
 		// This panels name
 		this.statChartPanelName = statChartPanelName;
@@ -69,14 +67,14 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		if(totalStatEnabled)
 		{
-			this.totalStatName = "Total " + statChartPanelName;
+			totalStatName = "Total " + statChartPanelName;
 		}
 
 		this.sampleWindow = sampleWindow;
 
 		log.info(statChartPanelName + " Chart Panel Created");
 
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
 		if(displayTitle)
 		{
@@ -97,8 +95,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	{
 		dataset = new XYSeriesCollection();
 
-		timeSeriesChart = ChartFactory.createXYLineChart(null, null, null, dataset, PlotOrientation.VERTICAL, true,
-				false, false);
+		timeSeriesChart = ChartFactory.createXYLineChart(null, null, null, dataset, PlotOrientation.VERTICAL, true, false, false);
 
 		timeSeriesChart.getLegend().setWidth(10);
 		timeSeriesChart.getXYPlot().setBackgroundPaint(Color.white);
@@ -124,13 +121,14 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		}
 
-		timeSeriesChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Time Series",
-				TitledBorder.CENTER, TitledBorder.TOP, null, null));
+		timeSeriesChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Time Series", TitledBorder.CENTER, TitledBorder.TOP, null,
+		null));
 
 		this.add(timeSeriesChartPanel);
 
 	}
 
+	@Override
 	public String getName()
 	{
 		return statChartPanelName;
@@ -209,7 +207,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 	public void destroy()
 	{
-		this.removeAll();
+		removeAll();
 
 		seriesMap = null;
 
@@ -251,8 +249,8 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 			timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series, color);
 
-			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series,new BasicStroke(lineWidth));
-			
+			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(lineWidth));
+
 			// Add Sample Name+Trace to Index of Known SampleNames
 			seriesMap.put(name, tempS);
 
@@ -294,7 +292,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 				dataset.addSeries(tempS);
 
 				timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series, color);
-				timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series,new BasicStroke(lineWidth));
+				timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(lineWidth));
 
 				// Add Sample Name+Trace to Index of Known SampleNames
 				seriesMap.put(name, tempS);
@@ -305,20 +303,18 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 			StatSample[] timeSeries = sampleLists[sti];
 
-			int per = (int) (samples * 0.01);
-
 			tempS.setNotify(false);
 
 			for(int s = 0; s < samples; s++)
 			{
 				double value = timeSeries[s].getSample();
 				double time = timeSeries[s].getTime();
-				
+
 				if(value > maxValue)
 				{
 					maxValue = value;
 				}
-				
+
 				if(value < minValue)
 				{
 					minValue = value;
@@ -327,7 +323,6 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 				// Add the values of the sample in the trace at the samples time
 				// index
 				tempS.add(time, value);
-
 
 			}
 
@@ -367,7 +362,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 			// timeSeriesChart.getXYPlot().getRenderer().setSeriesPaint(series,
 			// color);
-			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series,new BasicStroke(lineWidth));
+			timeSeriesChart.getXYPlot().getRenderer().setSeriesStroke(series, new BasicStroke(lineWidth));
 
 			// Add Sample Name+Trace to Index of Known SampleNames
 			seriesMap.put(name, tempS);
@@ -391,21 +386,20 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			{
 				minValue = value;
 			}
-			
+
 			// Add the values of the sample in the trace at the samples time
 			// index
 			tempS.add(sampleList[i].getTime(), value);
 		}
 
 		tempS.setNotify(true);
-		
+
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
 
 	}
-	
+
 	public void populateFFTShift(String name, StatSample[] sampleList, double maxT)
 	{
-		int sti = 0;
 		int samples = sampleList.length;
 
 		XYSeries tempS = seriesMap.get(name);
@@ -441,8 +435,8 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		tempS.setNotify(false);
 
-		// fVals=fs*(-NFFT/2:NFFT/2-1)/NFFT; 
-				
+		// fVals=fs*(-NFFT/2:NFFT/2-1)/NFFT;
+
 		double maxV = Double.MIN_VALUE;
 		for(int s = 0; s < samples; s++)
 		{
@@ -451,19 +445,18 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 				maxV = sampleList[s].getSample();
 			}
 		}
-		
-		maxV = 10*Math.log10(maxV);
-		
-		int i=-(samples/2);
-		for(int s = samples/2; s >= 0; s--)
+
+		maxV = 10 * Math.log10(maxV);
+
+		for(int s = samples / 2; s >= 0; s--)
 		{
 			double value = sampleList[s].getSample();
-			
-			value = 10*Math.log10(value);
-			
-			value = value-maxV;
-			
-			//value = (Math.sqrt(2)/2) * value;
+
+			value = 10 * Math.log10(value);
+
+			value = value - maxV;
+
+			// value = (Math.sqrt(2)/2) * value;
 
 			double time = sampleList[s].getTime();
 
@@ -476,23 +469,22 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			// index
 			tempS.add(time, value);
 
-			if(s % per == 0)
+			if((s % per) == 0)
 			{
-				//System.out.println(sti + " " + s);
+				// System.out.println(sti + " " + s);
 			}
-			i++;
 		}
 
-		for(int s = samples-1; s > samples/2; s--)
+		for(int s = samples - 1; s > (samples / 2); s--)
 		{
 			double value = sampleList[s].getSample();
-			
-			value = 10*Math.log10(value);
-			
-			value = value-maxV;
-			
-			//value = (Math.sqrt(2)/2) * value;
-			
+
+			value = 10 * Math.log10(value);
+
+			value = value - maxV;
+
+			// value = (Math.sqrt(2)/2) * value;
+
 			double time = sampleList[s].getTime();
 
 			if(value > maxValue)
@@ -502,26 +494,23 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 			// Add the values of the sample in the trace at the samples time
 			// index
-			//tempS.add(time-(maxT)-1, value);
-			tempS.add(time-(maxT), value);
+			// tempS.add(time-(maxT)-1, value);
+			tempS.add(time - (maxT), value);
 
-			if(s % per == 0)
+			if((s % per) == 0)
 			{
-				//System.out.println(sti + " " + s);
+				// System.out.println(sti + " " + s);
 			}
-			i++;
 		}
-		
-		tempS.setNotify(true);
 
-		sti++;
+		tempS.setNotify(true);
 
 		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
-		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+		// timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
 
 	}
-	
+
 	public void populateFFT(String name, double[] sampleList)
 	{
 		int samples = sampleList.length;
@@ -570,22 +559,21 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			{
 				minValue = value;
 			}
-			
+
 			// Add the values of the sample in the trace at the samples time
 			// index
 			tempS.add(s, value);
 		}
 
 		tempS.setNotify(true);
-		
+
 		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
-		
+
 	}
-	
+
 	public void populateFFTShift(String name, double[] sampleList)
 	{
-		int sti = 0;
 		int samples = sampleList.length;
 
 		XYSeries tempS = seriesMap.get(name);
@@ -621,10 +609,10 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 
 		tempS.setNotify(false);
 
-		// fVals=fs*(-NFFT/2:NFFT/2-1)/NFFT; 
-		
-		int i=-(samples/2);
-		for(int s = samples/2; s >= 0; s--)
+		// fVals=fs*(-NFFT/2:NFFT/2-1)/NFFT;
+
+		int i = -(samples / 2);
+		for(int s = samples / 2; s >= 0; s--)
 		{
 			double value = sampleList[s];
 
@@ -637,14 +625,14 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			// index
 			tempS.add(i, value);
 
-			if(s % per == 0)
+			if((s % per) == 0)
 			{
-				//System.out.println(sti + " " + s);
+				// System.out.println(sti + " " + s);
 			}
 			i++;
 		}
 
-		for(int s = samples-1; s > samples/2; s--)
+		for(int s = samples - 1; s > (samples / 2); s--)
 		{
 			double value = sampleList[s];
 
@@ -657,40 +645,37 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			// index
 			tempS.add(i, value);
 
-			if(s % per == 0)
+			if((s % per) == 0)
 			{
-				//System.out.println(sti + " " + s);
+				// System.out.println(sti + " " + s);
 			}
 			i++;
 		}
-		
+
 		tempS.setNotify(true);
-
-		sti++;
 
 		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
-		//timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
-		
+		// timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+
 	}
-		
+
 	public void setAmpRangeMax(double max)
 	{
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(false);
 		timeSeriesChart.getXYPlot().getRangeAxis().setUpperBound(max);
 	}
-	
+
 	public void setAmpMaxAuto()
 	{
 		timeSeriesChart.getXYPlot().getRangeAxis().setAutoRange(true);
 	}
-	
-	
+
 	public void setFreqMaxAuto()
 	{
 		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(true);
 	}
-	
+
 	public void setFreqRangeMax(double max)
 	{
 		timeSeriesChart.getXYPlot().getDomainAxis().setAutoRange(false);
@@ -701,5 +686,5 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	{
 		this.lineWidth = lineWidth;
 	}
-	
+
 }

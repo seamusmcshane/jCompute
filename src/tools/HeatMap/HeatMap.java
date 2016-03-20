@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 
 public class HeatMap extends JPanel
 {
+	private static final long serialVersionUID = 6954044353596181009L;
+
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(HeatMap.class);
 	
@@ -658,8 +660,6 @@ public class HeatMap extends JPanel
 	
 	private void paintValues(Graphics g, int x, int y)
 	{
-		Graphics2D g2d = (Graphics2D) g;
-		
 		if(chartImage != null)
 		{
 			g.drawImage(chartImage, 0, 0, chartImage.getWidth(), chartImage.getHeight(), null);

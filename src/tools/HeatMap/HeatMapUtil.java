@@ -213,6 +213,7 @@ public class HeatMapUtil implements WindowListener
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			public void run()
 			{

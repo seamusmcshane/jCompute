@@ -120,10 +120,6 @@ public class AxisGrid
 	// Has the axis grid been populated with values
 	boolean generated = false;
 	
-	private float[] gridColorRed =
-	{
-		1, 0, 0, 1
-	};
 	private float[] gridColorBlack =
 	{
 		0, 0, 0, 1

@@ -15,11 +15,9 @@ public class JComputeProgressMonitor
 	private JFrame frame;
 	private JProgressBar progressBar;
 	private int max;
-	private Component comp;
 	
 	public JComputeProgressMonitor(Component comp, String title, int min,int max)
 	{
-		this.comp = comp;
 		this.max = max;
 		
 		frame = new JFrame(title);

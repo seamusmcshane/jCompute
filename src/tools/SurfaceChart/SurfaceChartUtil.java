@@ -83,6 +83,7 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			public void run()
 			{

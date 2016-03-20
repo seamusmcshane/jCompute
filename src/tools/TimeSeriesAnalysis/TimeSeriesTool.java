@@ -102,6 +102,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			public void run()
 			{
