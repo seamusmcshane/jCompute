@@ -74,6 +74,8 @@ public class ScenarioManager
 
 			// Relock Method
 			method.setAccessible(false);
+			
+			sysloader.close();
 		}
 		catch(NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 		{
@@ -85,6 +87,8 @@ public class ScenarioManager
 
 			throwable.setStackTrace(Thread.currentThread().getStackTrace());
 
+			sysloader.close();
+			
 			throw new IOException(throwable);
 		}
 
