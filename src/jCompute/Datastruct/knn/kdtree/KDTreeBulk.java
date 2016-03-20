@@ -30,7 +30,7 @@ public class KDTreeBulk
 		int pivot = RSelectPiviot(list);
 		
 		// Root Node
-		rootnode = new KDNode<KNNPosInf>(0,list.get(pivot).getKNNPos(),(KNNPosInf)list.get(pivot));
+		rootnode = new KDNode<KNNPosInf>(0,list.get(pivot).getKNNPos(),list.get(pivot));
 		
 		// Left
 		rootnode.setLeftChild(split(depth+1,rootnode, list.subList(0, pivot)));
@@ -51,7 +51,7 @@ public class KDTreeBulk
 		
 		int pivot = RSelectPiviot(list);
 
-		KDNode<KNNPosInf> node = new KDNode<KNNPosInf>(0,list.get(pivot).getKNNPos(),(KNNPosInf)list.get(pivot));
+		KDNode<KNNPosInf> node = new KDNode<KNNPosInf>(0,list.get(pivot).getKNNPos(),list.get(pivot));
 
 		if(parent.isValueGreater(k, node.getPos())) // Larger
 		{

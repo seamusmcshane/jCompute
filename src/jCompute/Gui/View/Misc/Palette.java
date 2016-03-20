@@ -110,7 +110,7 @@ public class Palette
 		float min = specMin;
 		float range = specMax - min;
 		
-		float step = ((float) range / (float) paletteSize);
+		float step = (range / paletteSize);
 		
 		// ARGB
 		for(int i = 0; i < paletteSize; i++)
@@ -151,7 +151,7 @@ public class Palette
 		float min = 450;
 		float range = 730 - min;
 		
-		float step = ((float) range / (float) paletteSize * 2);
+		float step = (range / paletteSize * 2);
 		
 		// ARGB
 		for(int i = 0; i <= paletteSize / 2; i++)
@@ -341,16 +341,16 @@ public class Palette
 		float hUpper = -90f;
 		
 		float hRange = (hUpper - hBase);
-		float hStep = hRange / (float) (paletteSize);
+		float hStep = hRange / (paletteSize);
 		
 		float lUpper = 100f;
-		float lStep = lUpper / (float) (paletteSize);
+		float lStep = lUpper / (paletteSize);
 		
 		float hval = hBase;
 		float iVal = 0.1f;
 		
 		float cUpper = 100f;
-		float cStep = cUpper / (float) (paletteSize);
+		float cStep = cUpper / (paletteSize);
 		float cVal = 0;
 		
 		// ARGB
@@ -386,9 +386,9 @@ public class Palette
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
 			
 			// Adjust vals
-			hval = ((float) i * hStep) + hBase;
-			iVal = ((float) i * lStep) + 1; // +1
-			cVal = ((float) i * cStep) + 1; // +1
+			hval = (i * hStep) + hBase;
+			iVal = (i * lStep) + 1; // +1
+			cVal = (i * cStep) + 1; // +1
 		}
 		
 		if(rgba)
@@ -408,7 +408,7 @@ public class Palette
 		int palette[] = new int[paletteSize];
 		
 		float lUpper = 100f;
-		float lStep = lUpper / (float) (paletteSize);
+		float lStep = lUpper / (paletteSize);
 		
 		float iVal = 0.1f;
 		
@@ -434,7 +434,7 @@ public class Palette
 			palette[i] = (255 << 24) | (red << 16) | (green << 8) | blue;
 			
 			// Adjust vals
-			iVal = ((float) i * lStep) + 1; // +1
+			iVal = (i * lStep) + 1; // +1
 		}
 		
 		if(rgba)
@@ -485,7 +485,7 @@ public class Palette
 		{
 			float labFloatInterpolated[] = new float[3];
 			
-			pP = ((float) p / (float) modStepSize) % 1;
+			pP = (p / modStepSize) % 1;
 			
 			if(p % modStepSize == 0)
 			{

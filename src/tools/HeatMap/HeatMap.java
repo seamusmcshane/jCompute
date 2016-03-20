@@ -62,7 +62,7 @@ public class HeatMap extends JPanel
 		
 		if(legend)
 		{
-			this.heatMapHeight = (int) ((double) heatMapWidth * 0.6);
+			this.heatMapHeight = (int) (heatMapWidth * 0.6);
 		}
 		else
 		{
@@ -72,7 +72,7 @@ public class HeatMap extends JPanel
 		this.legend = legend;
 		this.imageScale = scale;
 		
-		fontSizeScale = 14f * (float) scale;
+		fontSizeScale = 14f * scale;
 		
 		this.setPreferredSize(new Dimension(heatMapWidth, heatMapHeight));
 		this.setMinimumSize(new Dimension(heatMapWidth, heatMapHeight));
@@ -129,7 +129,7 @@ public class HeatMap extends JPanel
 		cg.setStroke(new BasicStroke(imageScale));
 		
 		// Scales TickLens
-		int tickLen = (int) (20 * imageScale);
+		int tickLen = 20 * imageScale;
 		
 		int heatMapPlotWidth = (int) (heatMapWidth * heatMapPlotImageSizeScale);
 		int heatMapPlotHeight = (int) ((heatMapHeight * heatMapPlotImageSizeScale) * ratio);
@@ -250,7 +250,7 @@ public class HeatMap extends JPanel
 		double zTickStepInc = zSteps / tickZ;
 		// System.out.println("zTickStepInc " + zTickStepInc);
 		
-		double zStepValInc = JCMath.round(((zValMax - zValMin) / (double) (zSteps - 1)), 0);
+		double zStepValInc = JCMath.round(((zValMax - zValMin) / (zSteps - 1)), 0);
 		// System.out.println("zStepValInc " + zStepValInc);
 		
 		double zValStep = zTickStepInc * zStepValInc;
@@ -338,16 +338,16 @@ public class HeatMap extends JPanel
 		};
 		
 		double max = 0;
-		int pad = (int) (20 * imageScale);
+		int pad = 20 * imageScale;
 		
 		for(int s = 0; s < legend.length; s++)
 		{
 			max = Math.max(max, metrics.stringWidth(legend[s]));
 			
-			cg.drawString(legend[s], (int) (heatMapWidth * 0.05) + pad, (int) (heatMapPlotYOffset + (fontHeight * (2 * (s + 1)))));
+			cg.drawString(legend[s], (int) (heatMapWidth * 0.05) + pad, heatMapPlotYOffset + (fontHeight * (2 * (s + 1))));
 		}
 		
-		cg.drawRect((int) (heatMapWidth * 0.05), heatMapPlotYOffset, (int) max + (pad * 2), (int) ((fontHeight * (2 * (legend.length + 1)))) - fontHeight / 2);
+		cg.drawRect((int) (heatMapWidth * 0.05), heatMapPlotYOffset, (int) max + (pad * 2), ((fontHeight * (2 * (legend.length + 1)))) - fontHeight / 2);
 		
 		cg.setFont(fontLatch);
 		
@@ -403,7 +403,7 @@ public class HeatMap extends JPanel
 		double xTickStepInc = xSteps / tickX;
 		// System.out.println("xTickStepInc " + xTickStepInc);
 		
-		double xStepValInc = (xValMax - xValMin) / (double) (xSteps - 1);
+		double xStepValInc = (xValMax - xValMin) / (xSteps - 1);
 		// System.out.println("xStepValInc " + xStepValInc);
 		
 		double xValStep = xTickStepInc * xStepValInc;
@@ -497,7 +497,7 @@ public class HeatMap extends JPanel
 		double yTickStepInc = ySteps / tickY;
 		// System.out.println("yTickStepInc " + yTickStepInc);
 		
-		double yStepValInc = (yValMax - yValMin) / (double) (ySteps - 1);
+		double yStepValInc = (yValMax - yValMin) / (ySteps - 1);
 		// System.out.println("yStepValInc " + yStepValInc);
 		
 		double yValStep = yTickStepInc * yStepValInc;

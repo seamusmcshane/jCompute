@@ -34,7 +34,7 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 		
 		log.info("Requested that " + files.length + " Batch Files be loaded");
 		
-		progressInc = 100f / (float) files.length;
+		progressInc = 100f / files.length;
 	}
 	
 	@Override

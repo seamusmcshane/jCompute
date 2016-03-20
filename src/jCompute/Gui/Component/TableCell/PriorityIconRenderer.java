@@ -22,7 +22,7 @@ public class PriorityIconRenderer  extends DefaultTableCellRenderer
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		String priority = (String)value.toString();
+		String priority = value.toString();
 		
 		this.setHorizontalAlignment(JLabel.CENTER);		
 		

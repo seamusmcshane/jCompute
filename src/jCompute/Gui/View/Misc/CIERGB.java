@@ -112,7 +112,7 @@ public class CIERGB
 	
 	public static float[] RGBInttoXYZ(int red, int green, int blue)
 	{
-		return RGBFloatToXYZ((float) red / 255f, (float) green / 255f, (float) blue / 255f);
+		return RGBFloatToXYZ(red / 255f, green / 255f, blue / 255f);
 	}
 	
 	public static float[] RGBFloatToXYZ(double red, double green, double blue)
@@ -146,9 +146,9 @@ public class CIERGB
 		int red = (val >> 16) & 0xFF;
 		int green = (val >> 8) & 0xFF;
 		int blue = (val & 0xFF);
-		red = (int) (addSRGB((double) red / 255.0) * 255.0);
-		green = (int) (addSRGB((double) green / 255.0) * 255.0);
-		blue = (int) (addSRGB((double) blue / 255.0) * 255.0);
+		red = (int) (addSRGB(red / 255.0) * 255.0);
+		green = (int) (addSRGB(green / 255.0) * 255.0);
+		blue = (int) (addSRGB(blue / 255.0) * 255.0);
 		val = (255 << 24) | (red << 16) | (green << 8) | blue;
 		
 		return val;

@@ -138,11 +138,11 @@ public class RecurrencePlot extends JPanel
 
 		for(int y = 0; y < bitmapSize; y++)
 		{
-			int by = (int) ((double) y * scale);
+			int by = (int) (y * scale);
 
 			for(int x = 0; x < bitmapSize; x++)
 			{
-				int bx = (int) ((double) x * scale);
+				int bx = (int) (x * scale);
 
 				redBitmap[x + (y * bitmapSize)] = 0;
 				greenBitmap[x + (y * bitmapSize)] = 0;
@@ -227,9 +227,9 @@ public class RecurrencePlot extends JPanel
 			brMax = Math.max(brMax, blueBitmap[i]);
 		}
 
-		float rcscale = 1f / (float) rrMax;
-		float gcscale = 1f / (float) grMax;
-		float bcscale = 1f / (float) brMax;
+		float rcscale = 1f / rrMax;
+		float gcscale = 1f / grMax;
+		float bcscale = 1f / brMax;
 
 		System.out.println("Color Scale " + rcscale);
 		System.out.println("Color Scale " + gcscale);
@@ -298,8 +298,8 @@ public class RecurrencePlot extends JPanel
 	 */
 	private static BufferedImage scaleAndFlip(BufferedImage inImage, int imageType, float scale)
 	{
-		int width = (int) ((float) inImage.getWidth() * scale);
-		int height = (int) ((float) inImage.getHeight() * scale);
+		int width = (int) (inImage.getWidth() * scale);
+		int height = (int) (inImage.getHeight() * scale);
 
 		BufferedImage scaledImage = new BufferedImage(width, height, imageType);
 

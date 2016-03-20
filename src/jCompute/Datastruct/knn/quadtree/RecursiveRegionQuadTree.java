@@ -579,7 +579,7 @@ public class RecursiveRegionQuadTree
 
 		for(int i = 0; i < partNum; i++)
 		{
-			partsArray[i] = (float[]) partitions.get(i);
+			partsArray[i] = partitions.get(i);
 		}
 
 		return partsArray;

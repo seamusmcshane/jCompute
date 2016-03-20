@@ -300,7 +300,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 			return 0;
 		}
 		
-		return (int) ((float) simulationSteps / ((float) totalStepsTime / 1000f));
+		return (int) (simulationSteps / (totalStepsTime / 1000f));
 	}
 	
 	/**

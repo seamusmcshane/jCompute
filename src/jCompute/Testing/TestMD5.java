@@ -123,13 +123,13 @@ public class TestMD5
 			
 			for (int i = 0; i < threads; i++) 
 			{
-				if(((HashWorker)worker[i]).found())
+				if(worker[i].found())
 				{
 					timeCount.stopTimer();
 					System.out.println("Time : " + Text.longTimeToDHMSM(timeCount.getTimeTaken()));
 
-					byte[] hash = ((HashWorker)worker[i]).getMD5();
-					byte[] string = ((HashWorker)worker[i]).getCycleHash();
+					byte[] hash = worker[i].getMD5();
+					byte[] string = worker[i].getCycleHash();
 
 					System.out.print("Password Found : " +"("+string.length+")"+ new String(string) + " MD5 " + getHashString(hash) + " ");
 					for(int c=0;c<string.length;c++)

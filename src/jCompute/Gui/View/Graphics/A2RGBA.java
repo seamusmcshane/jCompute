@@ -22,10 +22,10 @@ public class A2RGBA
 	{
 		super();
 		// Int 255 to 1 float
-		this.red = 1f/255f*(float)color.getRed();
-		this.green = 1f/255f*(float)color.getGreen();
-		this.blue =	1f/255f*(float) color.getBlue();
-		this.alpha = 1f/255f*(float)color.getAlpha();
+		this.red = 1f/255f*color.getRed();
+		this.green = 1f/255f*color.getGreen();
+		this.blue =	1f/255f*color.getBlue();
+		this.alpha = 1f/255f*color.getAlpha();
 	}
 	
 	public float getRed()

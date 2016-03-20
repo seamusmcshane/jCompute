@@ -71,7 +71,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 	{
 		int numPoints = lines + 1;
 				
-		float multi = 360f / (float) lines;
+		float multi = 360f / lines;
 		
 		float[] points = new float[numPoints * 3];
 		
@@ -103,7 +103,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		
 		float halfRadius = radius/2;
 		
-		float multi = 360f / (float) lines;
+		float multi = 360f / lines;
 		
 		float[] points = new float[numPoints * 3];
 		

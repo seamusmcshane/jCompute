@@ -95,7 +95,7 @@ public class LogFormatValuesContainer
 		log.info("Avg Max Total Surface Max : " + surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()].getMax());
 		
 		// Max possible area total
-		double maxPossible = (double) (xSteps * ySteps) * rangeMax;
+		double maxPossible = xSteps * ySteps * rangeMax;
 		
 		// Ratio of Max surface to possible surface
 		maxRate = maxTotal / maxPossible;

@@ -44,7 +44,7 @@ public class ColorMap
 		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
 		
 		int indent = 60;
-		int margin = (int) ((float) 128 * 0.2f);
+		int margin = (int) (128 * 0.2f);
 		int startPad = margin;
 		int endPad = margin * 2;
 		
@@ -58,7 +58,7 @@ public class ColorMap
 		{
 			pval = (int) (((float) h / height) * (pallete.length - 1));
 			pixmap.setColor(pallete[pval]);
-			pixmap.drawLine(indent + margin, (int) (margin + h), (width - margin), (int) (margin + h));
+			pixmap.drawLine(indent + margin, margin + h, (width - margin), margin + h);
 		}
 		
 		// Line Border Color bar

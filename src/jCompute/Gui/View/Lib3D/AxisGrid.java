@@ -341,7 +341,7 @@ public class AxisGrid
 			intValues = true;
 		}
 		
-		float valStep = (float) ((valMax - valMin) / intervals);
+		float valStep = (valMax - valMin) / intervals;
 		
 		float posInteval = gridSize / intervals;
 		

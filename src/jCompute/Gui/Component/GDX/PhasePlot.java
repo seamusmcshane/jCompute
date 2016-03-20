@@ -112,32 +112,32 @@ public class PhasePlot
 				
 				if(x > xMax)
 				{
-					xMax = (float) x;
+					xMax = x;
 				}
 				
 				if(x < xMin)
 				{
-					xMin = (float) x;
+					xMin = x;
 				}
 				
 				if(y > yMax)
 				{
-					yMax = (float) y;
+					yMax = y;
 				}
 				
 				if(y < yMin)
 				{
-					yMin = (float) y;
+					yMin = y;
 				}
 				
 				if(z > zMax)
 				{
-					zMax = (float) z;
+					zMax = z;
 				}
 				
 				if(z < zMin)
 				{
-					zMin = (float) z;
+					zMin = z;
 				}
 				
 			}
@@ -203,36 +203,36 @@ public class PhasePlot
 			
 			if(x > xMax)
 			{
-				xMax = (float) x;
+				xMax = x;
 			}
 			
 			if(x < xMin)
 			{
-				xMin = (float) x;
+				xMin = x;
 			}
 			
 			points[point + 1] = y;
 			
 			if(y > yMax)
 			{
-				yMax = (float) y;
+				yMax = y;
 			}
 			
 			if(y < yMin)
 			{
-				yMin = (float) y;
+				yMin = y;
 			}
 			
 			points[point + 2] = z;
 			
 			if(z > zMax)
 			{
-				zMax = (float) z;
+				zMax = z;
 			}
 			
 			if(z < zMin)
 			{
-				zMin = (float) z;
+				zMin = z;
 			}
 			
 			point += 3;

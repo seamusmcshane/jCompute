@@ -52,7 +52,7 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 		
 		gui = new JFrame();
 		gui.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		gui.setMinimumSize(new Dimension((int) width, (int) height));
+		gui.setMinimumSize(new Dimension(width, height));
 		
 		LwjglApplicationConfiguration.disableAudio = true;
 		
