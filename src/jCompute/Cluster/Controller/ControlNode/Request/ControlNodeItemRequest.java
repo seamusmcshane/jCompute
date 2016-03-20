@@ -66,7 +66,7 @@ public class ControlNodeItemRequest
 			
 			return state;
 		}
-	};
+	}
 	
 	/** Operation Enum */
 	public enum ControlNodeItemRequestOperation
@@ -104,6 +104,6 @@ public class ControlNodeItemRequest
 			
 			return op;
 		}
-	};
+	}
 	
 }

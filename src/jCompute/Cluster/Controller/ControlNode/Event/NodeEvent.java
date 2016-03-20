@@ -62,5 +62,5 @@ public class NodeEvent
 			
 			return state;
 		}
-	};
+	}
 }

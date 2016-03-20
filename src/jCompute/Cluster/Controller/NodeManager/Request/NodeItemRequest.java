@@ -70,7 +70,7 @@ public class NodeItemRequest
 			
 			return state;
 		}
-	};
+	}
 	
 	/** Operation Enum */
 	public enum NodeItemRequestOperation
@@ -108,5 +108,5 @@ public class NodeItemRequest
 			
 			return op;
 		}
-	};
+	}
 }

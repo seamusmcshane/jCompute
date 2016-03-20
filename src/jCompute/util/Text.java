@@ -43,7 +43,7 @@ public class Text
 		
 		startIndex = endIndex + 1;
 		endIndex = time.indexOf(':', startIndex);
-		int hour_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (3600);;
+		int hour_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (3600);
 		
 		startIndex = endIndex + 1;
 		endIndex = time.indexOf(':', startIndex);

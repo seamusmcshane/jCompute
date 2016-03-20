@@ -1116,6 +1116,6 @@ public class NodeManager
 			
 			return state;
 		}
-	};
+	}
 	
 }

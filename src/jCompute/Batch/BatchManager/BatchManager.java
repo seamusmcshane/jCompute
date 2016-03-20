@@ -136,7 +136,7 @@ public class BatchManager
 
 			JComputeEventBus.post(new BatchAddedEvent(tempBatch));
 
-			log.info("Added Batch : " + batchId);;
+			log.info("Added Batch : " + batchId);
 		}
 		else
 		{

@@ -67,7 +67,7 @@ public class BatchInfoLogProcessor
 		// System.out.println("Line " + line);
 		
 		String part1 = line.substring(0, line.lastIndexOf('='));
-		String part2 = line.substring(line.lastIndexOf('=') + 1, line.length());;
+		String part2 = line.substring(line.lastIndexOf('=') + 1, line.length());
 		
 		// System.out.println("part1 " + part1);
 		// System.out.println("part2 " + part2);

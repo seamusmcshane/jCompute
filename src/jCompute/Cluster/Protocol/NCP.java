@@ -23,7 +23,7 @@ public class NCP
 	    {
 	       return name;
 	    }
-	};
+	}
 	
 	// Protocol version - prevent mismatched nodes
 	public static final int NCP_PROTOCOL_VERSION = 4;

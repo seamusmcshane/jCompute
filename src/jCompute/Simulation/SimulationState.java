@@ -87,7 +87,7 @@ public class SimulationState
 			
 			return state;
 		}
-	};
+	}
 	
 	/** Interface for call back */
 	public interface stateChangedInf
