@@ -10,7 +10,7 @@ public class A3DVector3f
 	
 	public A3DVector3f()
 	{
-		pos = new float[3];
+		this.pos = new float[3];
 		
 		this.pos[X_POS] = 0;
 		this.pos[Y_POS] = 0;
@@ -19,7 +19,7 @@ public class A3DVector3f
 	
 	public A3DVector3f(float x, float y, float z)
 	{
-		pos = new float[3];
+		this.pos = new float[3];
 		
 		this.pos[X_POS] = x;
 		this.pos[Y_POS] = y;
@@ -33,7 +33,7 @@ public class A3DVector3f
 	
 	public A3DVector3f(float[] pos)
 	{
-		pos = new float[3];
+		this.pos = new float[3];
 		
 		this.pos[X_POS] = pos[X_POS];
 		this.pos[Y_POS] = pos[Y_POS];
