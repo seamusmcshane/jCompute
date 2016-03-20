@@ -207,6 +207,7 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			public void run()
 			{
