@@ -312,7 +312,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 	@Override
 	public void dispose()
 	{
-		phPlot.dispose();
+		//phPlot.dispose();
 	}
 	
 	@Override
