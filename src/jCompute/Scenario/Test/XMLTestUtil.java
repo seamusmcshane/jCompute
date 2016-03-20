@@ -1,4 +1,4 @@
-package jCompute.Scenario;
+package jCompute.Scenario.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,7 +10,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.configuration.XMLConfiguration;
 
-public class XMLTESTER
+import jCompute.Scenario.ConfigurationInterpreter;
+
+public class XMLTestUtil
 {
 	public static void main(String[] args)
 	{
