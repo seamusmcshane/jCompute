@@ -147,7 +147,10 @@ public class NodeManager
 		this.TX_FREQUENCY = txFreq;
 		
 		protocolState = ProtocolState.CON;
-		
+	}
+	
+	public void start()
+	{
 		JComputeEventBus.register(this);
 		
 		Thread nodeManager = new Thread(new Runnable()
@@ -209,6 +212,7 @@ public class NodeManager
 		});
 		txThread.setName("NodeManager TX");
 		txThread.start();
+		
 	}
 	
 	private boolean handleRegistration() throws IOException

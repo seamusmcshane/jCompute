@@ -377,11 +377,13 @@ public class ControlNode
 								}
 								else
 								{
-									// Add to NodeManager list of connecting
-									// node
+									// Add to NodeManager list of connecting nodes
 									NodeManager nm = new NodeManager(++connectionNumber, nodeSocket, txFreq);
 									
 									connectingNodes.add(nm);
+									
+									// Start the new NodeManager
+									nm.start();
 									
 									JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTING, nm.getNodeConfig()));
 								}
