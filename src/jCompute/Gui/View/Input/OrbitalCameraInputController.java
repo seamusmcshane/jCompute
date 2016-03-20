@@ -18,9 +18,6 @@ public class OrbitalCameraInputController implements InputProcessor
 	private int startPos[] = new int[2];
 	private int prevPos[] = new int[2];
 	
-	// FOV
-	private float prevFov;
-	
 	private boolean button0 = false;
 	private boolean button1 = false;
 	
@@ -41,8 +38,6 @@ public class OrbitalCameraInputController implements InputProcessor
 		startPos[1] = 0;
 		
 		reset();
-		
-		prevFov = cam.fieldOfView;
 	}
 	
 	public void reset()
@@ -74,8 +69,6 @@ public class OrbitalCameraInputController implements InputProcessor
 		cam.position.set(pos, pos, altitude);
 		cam.rotate(new Vector3(1, 1, 0), 90f);
 		cam.lookAt(target[0], target[1], target[2]);
-		
-		prevFov = cam.fieldOfView;
 	}
 	
 	@Override
@@ -105,7 +98,6 @@ public class OrbitalCameraInputController implements InputProcessor
 	@Override
 	public boolean scrolled(int moved)
 	{
-		boolean moveOk = true;
 		float minA = 25f;
 		float maxA = 1500f;
 		
@@ -135,11 +127,7 @@ public class OrbitalCameraInputController implements InputProcessor
 				altitude = minA;
 			}
 			
-			if(altitude <= minA || altitude >= maxA)
-			{
-				moveOk = false;
-			}
-			else
+			if(!(altitude <= minA || altitude >= maxA ))
 			{
 				camZ = altitude;
 			}
@@ -165,41 +153,7 @@ public class OrbitalCameraInputController implements InputProcessor
 					cam.fieldOfView = 1;
 				}
 			}
-			
-			prevFov = cam.fieldOfView;
 		}
-		
-		/*
-		 * if(moveOk)
-		 * {
-		 * float tdis = 0;
-		 * float angle = (float) Math.atan2(camY, camX);
-		 * if(moved<0)
-		 * {
-		 * // Rotate Y Polar Axis up
-		 * tdis=(float) Math.sqrt((camX*camX)+(camY*camY));
-		 * tdis=tdis+(stepSize);
-		 * camX = (float) (tdis*Math.cos(angle));
-		 * camY = (float) (tdis*Math.sin(angle));
-		 * if(tdis>=1000f)
-		 * {
-		 * tdis = 1000f;
-		 * }
-		 * }
-		 * else
-		 * {
-		 * // Rotate Y Polar Axis Down
-		 * tdis=(float) Math.sqrt((camX*camX)+(camY*camY));
-		 * tdis=tdis-(stepSize);
-		 * if(tdis<=100f)
-		 * {
-		 * tdis = 100f;
-		 * }
-		 * camX = (float) (tdis*Math.cos(angle));
-		 * camY = (float) (tdis*Math.sin(angle));
-		 * }
-		 * }
-		 */
 		
 		cam.position.set(camX, camY, camZ);
 		
@@ -236,17 +190,6 @@ public class OrbitalCameraInputController implements InputProcessor
 	@Override
 	public boolean touchDragged(int x, int y, int pointer)
 	{
-		
-		float camX = cam.position.x;
-		float camY = cam.position.y;
-		float camZ = cam.position.z;
-		
-		// From target
-		/*
-		 * float tdis = 0;
-		 * float angle = (float) Math.atan2(camY, camX);
-		 */
-		
 		if(button0)
 		{
 			if(x > prevPos[0])
