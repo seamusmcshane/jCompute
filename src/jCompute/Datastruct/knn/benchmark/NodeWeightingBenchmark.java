@@ -3,7 +3,6 @@ package jCompute.Datastruct.knn.benchmark;
 import java.util.ArrayList;
 
 import jCompute.Datastruct.knn.KNNPosInf;
-import jCompute.Datastruct.knn.ThirdGenKDWrapperDouble;
 import jCompute.Datastruct.knn.ThirdGenKDWrapperFloat;
 import jCompute.Timing.TimerObj;
 
@@ -64,7 +63,7 @@ public class NodeWeightingBenchmark
 
 		for(KNNPosInf object : list)
 		{
-			tree.add(object.getKNNPos(), object);
+			tree.add(object.getPos(), object);
 		}
 	}
 
@@ -73,7 +72,7 @@ public class NodeWeightingBenchmark
 		for(KNNPosInf object : list)
 		{
 			TreeBenchObject cto = (TreeBenchObject)object;
-			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object.getKNNPos());
+			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object.getPos());
 			
 			cto.setNearestObject(no);
 		}

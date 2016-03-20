@@ -42,7 +42,7 @@ public class QuadTreeTestDynamic
 	
 	public static void main(String args[])
 	{
-		//addRandom(1000);
+		addRandom(100);
 		
 		System.out.println("Initial Points " + list.size());
 		
@@ -229,7 +229,7 @@ public class QuadTreeTestDynamic
 							
 							if(checkCollisions)
 							{
-								ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(next.getKNNPos(), pointRadius*pointRadius);
+								ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(next.getPos(), pointRadius*pointRadius);
 
 								if(overlaps !=null)
 								{
@@ -274,8 +274,10 @@ public class QuadTreeTestDynamic
 								
 								ArrayList<KNNPosInf> nearestNeighbours = new ArrayList<KNNPosInf>();
 								
+								// This amplifies the performance cost of each search - such that performance changes are more apparent as object numbers increase
 								int x=0;
-								// for(int i=0;i<10000;i++)
+								int max = 0;
+								for(int i=0;i<max;i++)
 								{
 									quadTree.setNearestNeighbour(result, search, viewRange*viewRange);
 
@@ -283,7 +285,7 @@ public class QuadTreeTestDynamic
 									x+=1;
 								}
 								
-								//System.out.println("x"+x + " : "+ quadTree.getPoints());
+								System.out.println("x"+x + " : "+ quadTree.getPoints());
 								
 								// Display the Search point
 								qpanel.showSearchPointAndRange(search, viewRange);
@@ -297,7 +299,7 @@ public class QuadTreeTestDynamic
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
-									qpanel.setShow1NNResult(result.getPos().getKNNPos());
+									qpanel.setShow1NNResult(result.getPos().getPos());
 								}
 								
 								if(result.getDis() < (pointRadius*pointRadius))

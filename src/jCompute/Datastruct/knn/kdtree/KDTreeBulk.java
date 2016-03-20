@@ -1,17 +1,18 @@
 package jCompute.Datastruct.knn.kdtree;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-public class KDTreeBulk <Datatype> 
+import jCompute.Datastruct.knn.KNNPosInf;
+
+public class KDTreeBulk
 {
 	int dim;
 	
 	Random r = new Random();
 
-	KDNode<Datatype> rootnode;
+	KDNode<KNNPosInf> rootnode;
 
 	public KDTreeBulk(int dim)
 	{		
@@ -19,17 +20,17 @@ public class KDTreeBulk <Datatype>
 	}
 
 
-	public void load(ArrayList<Datatype> listIn)
+	public void load(ArrayList<KNNPosInf> listIn)
 	{
-		// Assume Datatype supports KNNNodeInf...
-		ArrayList<KNNNodeInf> list = (ArrayList<KNNNodeInf>) listIn;
+		// Assume KNNPosInf supports KNNNodeInf...
+		ArrayList<KNNPosInf> list = listIn;
 		
 		int depth = 0;
 		// Random Select Pivot
 		int pivot = RSelectPiviot(list);
 		
 		// Root Node
-		rootnode = new KDNode<Datatype>(0,list.get(pivot).getPos(),(Datatype)list.get(pivot).getObject());
+		rootnode = new KDNode<KNNPosInf>(0,list.get(pivot).getPos(),(KNNPosInf)list.get(pivot));
 		
 		// Left
 		rootnode.setLeftChild(split(depth+1,rootnode, list.subList(0, pivot)));
@@ -39,7 +40,7 @@ public class KDTreeBulk <Datatype>
 		
 	}
 	
-	private KDNode<Datatype> split(int depth,KDNode<Datatype> parent,List<KNNNodeInf> list)
+	private KDNode<KNNPosInf> split(int depth,KDNode<KNNPosInf> parent,List<KNNPosInf> list)
 	{
 		if(list.size() < 1)
 		{
@@ -50,7 +51,7 @@ public class KDTreeBulk <Datatype>
 		
 		int pivot = RSelectPiviot(list);
 
-		KDNode<Datatype> node = new KDNode<Datatype>(0,list.get(pivot).getPos(),(Datatype)list.get(pivot).getObject());
+		KDNode<KNNPosInf> node = new KDNode<KNNPosInf>(0,list.get(pivot).getPos(),(KNNPosInf)list.get(pivot));
 
 		if(parent.isValueGreater(k, node.getPos())) // Larger
 		{
@@ -87,17 +88,17 @@ public class KDTreeBulk <Datatype>
 		
 	}
 	
-	private void dumpChildern(int depth,KDNode<Datatype> parent)
+	private void dumpChildern(int depth,KDNode<KNNPosInf> parent)
 	{
 		
-		KDNode<Datatype> left = parent.getLeftChild();		
+		KDNode<KNNPosInf> left = parent.getLeftChild();		
 		
 		if(left!=null)
 		{
 			System.out.println("Depth : " + depth + " Left x" + left.getPos()[0] + " y" + left.getPos()[1]);
 		}
 		
-		KDNode<Datatype> right = parent.getRightChild();
+		KDNode<KNNPosInf> right = parent.getRightChild();
 		if(right!=null)
 		{
 			System.out.println("Depth : " + depth + " Right x" + right.getPos()[0] + " y" + right.getPos()[1]);
@@ -115,27 +116,10 @@ public class KDTreeBulk <Datatype>
 		
 	}
 	
-	private int RSelectPiviot(List<KNNNodeInf> list)
+	private int RSelectPiviot(List<KNNPosInf> list)
 	{
 		return r.nextInt(list.size());		
 	}
-	
-	/* Axis Sort Comparators */
-    static final Comparator<KDNode> X_AXIS_ORDER = new Comparator<KDNode>() 
-	{
-	    public int compare(KDNode n1, KDNode n2) 
-	    {
-	        return Double.compare(n1.getPos()[0],n2.getPos()[0]);
-	    }
-	};
-	
-    static final Comparator<KDNode> Y_AXIS_ORDER = new Comparator<KDNode>() 
-	{
-	    public int compare(KDNode n1, KDNode n2) 
-	    {
-	        return Double.compare(n1.getPos()[1],n2.getPos()[1]);
-	    }
-	};
 	
 }
 

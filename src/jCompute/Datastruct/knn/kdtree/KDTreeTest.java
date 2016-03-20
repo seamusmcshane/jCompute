@@ -26,7 +26,7 @@ public class KDTreeTest
 			list.add(new TreeBenchObject(o,pos));
 		}
 				
-		KDTreeBulk<KNNPosInf> tree = new KDTreeBulk<KNNPosInf>(2);
+		KDTreeBulk tree = new KDTreeBulk(2);
 		
 		tree.load(list);
 		

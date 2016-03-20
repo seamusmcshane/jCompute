@@ -8,7 +8,7 @@ public class KNNResult
 	public KNNResult()
 	{
 	}
-	
+
 	public KNNResult(KNNPosInf pos, float dis)
 	{
 		this.pos = pos;
@@ -34,5 +34,5 @@ public class KNNResult
 	{
 		this.dis = dis;
 	}
-	
+
 }

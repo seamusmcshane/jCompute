@@ -61,7 +61,7 @@ public class TreeBenchObject implements KNNPosInf
 		}
 		else
 		{
-			dis = JCMath.distanceSquared(pos, nearestObject.getKNNPos());
+			dis = JCMath.distanceSquared(pos, nearestObject.getPos());
 		}
 
 		/* Distance */
@@ -79,7 +79,7 @@ public class TreeBenchObject implements KNNPosInf
 		this.nearestObjectID = nearestObjectID;
 	}
 
-	public float[] getKNNPos()
+	public float[] getPos()
 	{
 		return pos;
 	}

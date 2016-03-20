@@ -14,26 +14,26 @@ import jCompute.util.JCMath;
 public class RegionQuadTreeNode
 {
 	private final boolean debug = false;
-	
+
 	public int nodeIndex;
-	
+
 	// Center of the partition
 	public float center[];
-	
+
 	// Size of the partition
 	public float size;
-	
+
 	// Level of the Node
 	public int level;
-	
+
 	// Sub Nodes
 	public RegionQuadTreeNode nodes[];
-	
+
 	// Object in partition
 	private ArrayList<KNNPosInf> objects;
-	
+
 	private int maxObjectsPerNode;
-	
+
 	public RegionQuadTreeNode(int nodeIndex, float[] center, float size, int level, int maxObjectsPerNode)
 	{
 		super();
@@ -43,7 +43,7 @@ public class RegionQuadTreeNode
 		this.level = level;
 		this.maxObjectsPerNode = maxObjectsPerNode;
 	}
-	
+
 	/**
 	 * Sets this node as empty with no subnodes.
 	 */
@@ -52,7 +52,7 @@ public class RegionQuadTreeNode
 		nodes = null;
 		objects = null;
 	}
-	
+
 	/**
 	 * Adds a point to this node.
 	 * This method does not check for if the objects will go over
@@ -65,15 +65,15 @@ public class RegionQuadTreeNode
 		{
 			objects = new ArrayList<KNNPosInf>(maxObjectsPerNode);
 		}
-		
+
 		objects.add(object);
-		
+
 		if(debug)
 		{
 			System.out.println("Node Added point ");
 		}
 	}
-	
+
 	/**
 	 * Finds the nearest neighbour to point with in maxDistance and sets the
 	 * nearest neighbour in a result object.
@@ -87,11 +87,11 @@ public class RegionQuadTreeNode
 		{
 			return;
 		}
-		
+
 		for(KNNPosInf object : objects)
 		{
-			float dis = JCMath.distanceSquared(point, object.getKNNPos());
-			
+			float dis = JCMath.distanceSquared(point, object.getPos());
+
 			if(dis < result.getDis())
 			{
 				if(debug)
@@ -99,13 +99,13 @@ public class RegionQuadTreeNode
 					System.out.println("Dis " + dis);
 					System.out.println("minDis " + result.getDis());
 				}
-				
+
 				result.setDis(dis);
 				result.setPos(object);
 			}
 		}
 	}
-	
+
 	/**
 	 * Find the nearest neighbours to point with in maxDistance and adds
 	 * them to a results array list.
@@ -119,11 +119,11 @@ public class RegionQuadTreeNode
 		{
 			return;
 		}
-		
+
 		for(KNNPosInf object : objects)
 		{
-			float dis = JCMath.distanceSquared(point, object.getKNNPos());
-			
+			float dis = JCMath.distanceSquared(point, object.getPos());
+
 			if(dis < maxDistance)
 			{
 				if(debug)
@@ -131,12 +131,12 @@ public class RegionQuadTreeNode
 					System.out.println("Dis " + dis);
 					System.out.println("maxDistance " + maxDistance);
 				}
-				
+
 				result.add(object);
 			}
 		}
 	}
-	
+
 	/**
 	 * Explicitly sets the objects in this node.
 	 * @param objects
@@ -145,7 +145,7 @@ public class RegionQuadTreeNode
 	{
 		this.objects = objects;
 	}
-	
+
 	/**
 	 * Explicitly removes the objects in this node.
 	 * @return
@@ -153,13 +153,13 @@ public class RegionQuadTreeNode
 	public ArrayList<KNNPosInf> removeObjects()
 	{
 		ArrayList<KNNPosInf> currentObjects = objects;
-		
+
 		// Clear internal reference
 		objects = null;
-		
+
 		return currentObjects;
 	}
-	
+
 	/**
 	 * Explicitly sets the sub nodes of this node.
 	 * @param nodes
@@ -168,7 +168,7 @@ public class RegionQuadTreeNode
 	{
 		this.nodes = nodes;
 	}
-	
+
 	/**
 	 * Returns a sub node.
 	 * @param num
@@ -178,7 +178,7 @@ public class RegionQuadTreeNode
 	{
 		return nodes[num];
 	}
-	
+
 	/**
 	 * If this node has no sub nodes then isLeft() returns true.
 	 * @return
@@ -187,7 +187,7 @@ public class RegionQuadTreeNode
 	{
 		return(nodes == null);
 	}
-	
+
 	/**
 	 * If there are no objects in this node then the node is empty.
 	 * @return
@@ -196,7 +196,7 @@ public class RegionQuadTreeNode
 	{
 		return(objects == null);
 	}
-	
+
 	/**
 	 * If this node is a leaf and the objects size is under the max per node
 	 * then this method returns true.
@@ -206,64 +206,64 @@ public class RegionQuadTreeNode
 	{
 		boolean isLeaf = isLeaf();
 		boolean objectsStatus = true;
-		
+
 		if(objects != null)
 		{
 			objectsStatus = (objects.size() < maxObjectsPerNode);
-			
+
 			if(debug)
 			{
 				System.out.println(objects.size() + " objectsStatus" + objectsStatus);
 			}
 		}
-		
+
 		return isLeaf && objectsStatus;
 	}
-	
+
 	/**
 	 * removes a point from this node.
 	 * @param searchPoint
 	 */
 	public void removePoint(KNNPosInf searchPoint)
 	{
-		float[] searchPos = searchPoint.getKNNPos();
-		
+		float[] searchPos = searchPoint.getPos();
+
 		if(objects != null)
 		{
 			Iterator<KNNPosInf> itr = objects.iterator();
-			
+
 			if(debug)
 			{
 				System.out.println("ITR " + objects.size());
 			}
-			
+
 			while(itr.hasNext())
 			{
 				KNNPosInf object = itr.next();
-				float[] objectPos = object.getKNNPos();
-				
+				float[] objectPos = object.getPos();
+
 				if(objectPos[0] == searchPos[0] && objectPos[1] == searchPos[1])
 				{
 					itr.remove();
-					
+
 					if(debug)
 					{
 						System.out.println("Removed");
 					}
 				}
 			}
-			
+
 			if(objects.size() == 0)
 			{
 				if(debug)
 				{
 					System.out.println("SIZE " + objects.size());
 				}
-				
+
 				objects = null;
 			}
-			
+
 		}
 	}
-	
+
 }
