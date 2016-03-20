@@ -8,9 +8,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JFrame;
 
+import jCompute.Cluster.Node.WeightingBenchmark.TreeBenchObject;
 import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.Datastruct.knn.KNNResult;
-import jCompute.Datastruct.knn.benchmark.TreeBenchObject;
 import jCompute.Datastruct.knn.quadtree.RecursiveRegionQuadTree;
 
 import java.awt.event.MouseAdapter;

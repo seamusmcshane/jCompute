@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn.benchmark;
+package jCompute.Cluster.Node.WeightingBenchmark;
 
 import jCompute.Datastruct.knn.KNNPosInf;
 import jCompute.util.JCMath;

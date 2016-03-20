@@ -1,7 +1,7 @@
 package jCompute.Datastruct.knn.kdtree;
 
+import jCompute.Cluster.Node.WeightingBenchmark.TreeBenchObject;
 import jCompute.Datastruct.knn.KNNPosInf;
-import jCompute.Datastruct.knn.benchmark.TreeBenchObject;
 
 import java.util.ArrayList;
 import java.util.Random;

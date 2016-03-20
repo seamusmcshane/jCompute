@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn.benchmark;
+package jCompute.Cluster.Node.WeightingBenchmark;
 
 public class NodeWeightingBenchmarkTest
 {
