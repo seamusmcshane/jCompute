@@ -17,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ import jCompute.Stats.Trace.SingleStat;
 import jCompute.Stats.Trace.StatSample;
 import tools.PhasePlot3d.PhasePlotterUtil;
 
-public class TimeSeriesTool implements WindowListener, ActionListener, MouseListener
+public class TimeSeriesTool implements ActionListener, MouseListener
 {
 	private JFrame gui;
 	private JPanel centerPanel;
@@ -248,6 +247,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 						};
 
 						PhaseTool phasePlot = new PhaseTool(arrayLabels, array1, array2);
+						
+						phasePlot.display();
 					}
 				}
 				if((indicies.length == 3) || (histories.length >= 3))
@@ -483,7 +484,14 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 		mntmOpen.addActionListener(this);
 		mnFile.add(mntmOpen);
 
-		gui.addWindowListener(this);
+		gui.addWindowListener(new WindowAdapter()
+		{
+	        @Override
+			public void windowClosing(WindowEvent w)
+	        {
+	    		doProgramExit();
+	        }
+		});
 
 		// Add a default sine wave signal
 		addSignalChart("Sine Wave", createSineWave(), names, histories);
@@ -627,52 +635,6 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 
 		fftListPanel.setPreferredSize(new Dimension(centerPanel.getWidth(), height * mul));
 		fftListPanel.setMinimumSize(new Dimension(centerPanel.getWidth(), height * mul));
-	}
-
-	@Override
-	public void windowActivated(WindowEvent arg0)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowClosed(WindowEvent arg0)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowClosing(WindowEvent arg0)
-	{
-		doProgramExit();
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowIconified(WindowEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowOpened(WindowEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* Ensure the user wants to exit then exit the program */
@@ -1079,7 +1041,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 			normI++;
 		}
 
-		double[] han = hanningWindow(norm);
+		// double[] han = hanningWindow(norm);
 
 		System.out.println("timePeriod " + timePeriod);
 		System.out.println("tIsSeconds " + tIsSeconds);
@@ -1088,7 +1050,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 
 		StatSample[] chartSamples = null;
 
-		double maxT = 0;
+		// double maxT = 0;
 
 		if(avgFilter)
 		{
@@ -1102,7 +1064,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 				// Change of Sample Window Size
 				sampleWindow = norm.length;
 			}
-			maxT = (norm.length / sampleWindow) * timePeriod;
+			// maxT = (norm.length / sampleWindow) * timePeriod;
 
 			// Needed keep time index during average as it removes samples
 			// altering array pos which cannot then be used for freq.
@@ -1127,7 +1089,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 		else
 		{
 
-			maxT = (norm.length / sampleWindow) * timePeriod;
+			// maxT = (norm.length / sampleWindow) * timePeriod;
 
 			StatSample[] unaveraged = new StatSample[result.capacity() / 2];
 
@@ -1164,131 +1126,6 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 
 		gui.revalidate();
 
-		fftw3.fftw_destroy_plan(plan);
-	}
-
-	// Hann / Hanning
-	public double[] hanningWindow(double[] array)
-	{
-		int normLen = array.length;
-
-		double[] han = new double[normLen];
-
-		for(int i = 0; i < normLen; i++)
-		{
-			double multiplier = 0.5 * (1 - Math.cos((2 * Math.PI * (i + 1)) / (normLen + 1)));
-			han[i] = multiplier * array[i];
-		}
-
-		return han;
-	}
-
-	private void computeFFTAndDisplayFFTW3(int num)
-	{
-		Loader.load(fftw3.class);
-
-		String name = names[num];
-
-		int len = (histories[num].length);
-
-		int resLen = len * 2;
-
-		double[] array = new double[len * 2];
-
-		double inMax = Double.MIN_VALUE;
-
-		for(int i = 0; i < len; ++i)
-		{
-			array[2 * i] = histories[num][i].getSample();
-			array[(2 * i) + 1] = 0;
-
-			if(array[2 * i] > inMax)
-			{
-				inMax = array[2 * i];
-			}
-		}
-
-		DoublePointer signal = new DoublePointer(2 * len);
-		DoublePointer result = new DoublePointer(resLen);
-
-		// fftw3.fftw_plan_with_nthreads(8);
-		// fftw3.fftw_init_threads();
-
-		fftw_plan plan = fftw3.fftw_plan_dft_1d(len, signal, result, fftw3.FFTW_FORWARD, (int) fftw3.FFTW_ESTIMATE);
-
-		signal.put(array);
-
-		fftw3.fftw_execute(plan);
-		final JFrame results = new JFrame();
-		results.getContentPane().setLayout(new BorderLayout());
-
-		SingleStatChartPanel freq = new SingleStatChartPanel(name, true, false, len);
-
-		double[] array2 = new double[result.capacity()];
-
-		result.get(array2);
-
-		// REAL + IMG = norm
-		double[] norm = new double[array2.length / 2];
-
-		//
-		int normI = 0;
-		for(int i = 0; i < array2.length; i += 2)
-		{
-			double real = array2[i];
-			double img = array2[i + 1];
-
-			double inter = ((real * real) + (img * img));
-
-			norm[normI] = Math.sqrt(inter) / sampleWindow;
-
-			normI++;
-		}
-
-		double mod = sampleWindow;
-		// double mod = 1;
-
-		System.out.println("Mod " + mod);
-
-		StatSample[] array3 = new StatSample[result.capacity() / 2];
-
-		double maxT = (array3.length / sampleWindow) * mod;
-
-		for(int i = 0; i < array3.length; i++)
-		{
-			array3[i] = new StatSample((i / sampleWindow) * mod, norm[i]);
-		}
-
-		// Avg Filter (3 - 1/4)
-
-		StatSample[] avg = new StatSample[norm.length];
-
-		for(int i = 0; i < norm.length; i++)
-		{
-			avg[i] = new StatSample((i / sampleWindow) * mod, norm[i]);
-		}
-
-		freq.populateFFT("Frequency", avgFilter(avg));
-
-		// freq.populateFFT("Frequency",array3);
-		// freq.populateFFTShift("Frequency",array3,maxT);
-		// freq.populateFFTShift("Frequency",array3,maxT);
-
-		results.getContentPane().add(freq, BorderLayout.CENTER);
-		results.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		results.setPreferredSize(new Dimension(1800, 600));
-		results.setMinimumSize(new Dimension(1800, 600));
-
-		results.addWindowListener(new WindowAdapter()
-		{
-			@Override
-			public void windowClosing(WindowEvent ev)
-			{
-				results.setVisible(false);
-				results.dispose();
-			}
-		});
-		results.setVisible(true);
 		fftw3.fftw_destroy_plan(plan);
 	}
 
