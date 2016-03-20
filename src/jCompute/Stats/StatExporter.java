@@ -451,11 +451,11 @@ public class StatExporter
 	private String createStatExportString(StatGroup statGroup)
 	{
 		StringBuilder data = new StringBuilder();
-		String name = statGroup.getName();
 		
 		if(statGroup != null)
 		{
-			
+			String name = statGroup.getName();
+
 			List<String> statList = statGroup.getStatList();
 			
 			if(format == ExportFormat.CSV || format == ExportFormat.ZCSV)
