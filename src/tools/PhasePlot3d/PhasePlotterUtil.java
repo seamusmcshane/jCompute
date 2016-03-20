@@ -428,13 +428,13 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 			}
 
 		}
-		else if((e.getSource() == rdbtnDependent) | (e.getSource() == rdbtnIndependent))
+		else if((e.getSource() == rdbtnDependent) || (e.getSource() == rdbtnIndependent))
 		{
 			glEnv.setScalingMode(rdbtnDependent.isSelected());
 			glEnv.replot();
 			glEnv.resetView();
 		}
-		else if((e.getSource() == radioButtonMinMaxEnabled) | (e.getSource() == radioButtonMinMaxDisabled))
+		else if((e.getSource() == radioButtonMinMaxEnabled) || (e.getSource() == radioButtonMinMaxDisabled))
 		{
 			glEnv.enableMinMax(radioButtonMinMaxEnabled.isSelected());
 			glEnv.replot();
