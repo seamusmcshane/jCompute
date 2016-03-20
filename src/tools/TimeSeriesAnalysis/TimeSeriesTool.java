@@ -58,12 +58,12 @@ import tools.PhasePlot3d.PhasePlotterUtil;
 
 public class TimeSeriesTool implements WindowListener, ActionListener, MouseListener
 {
-	private static JFrame gui;
-	private static JPanel centerPanel;
-	private static JPanel rightPanel;
+	private JFrame gui;
+	private JPanel centerPanel;
+	private JPanel rightPanel;
 
 	private JMenuItem mntmOpen;
-	private static SingleStatChartPanel chart;
+	private SingleStatChartPanel chart;
 	private StatSample[][] histories;
 	private String[] names;
 	private JPanel toolPanel;
@@ -75,8 +75,8 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 	private double sampleWindow = 0;
 	private double timePeriod = 1;
 	private boolean tIsSeconds = false;
-	private static JScrollPane scrollPane;
-	private static JPanel fftListPanel;
+	private JScrollPane scrollPane;
+	private JPanel fftListPanel;
 
 	private JLabel lblMaxFreq;
 	private JTextField txtMaxFreq;
@@ -568,7 +568,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 		return numSamples;
 	}
 
-	public static void addSignalChart(String name, int numSamples, String[] names, StatSample[][] histories)
+	public void addSignalChart(String name, int numSamples, String[] names, StatSample[][] histories)
 	{
 		if(chart != null)
 		{
@@ -588,7 +588,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 		centerPanel.add(chart, gbc_chart);
 	}
 
-	public static void cleanFFTListPanel()
+	public void cleanFFTListPanel()
 	{
 		if(fftListPanel != null)
 		{
@@ -599,7 +599,7 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 		gui.revalidate();
 	}
 
-	public static void addFFTPanel(int mul)
+	public void addFFTPanel(int mul)
 	{
 		cleanFFTListPanel();
 
