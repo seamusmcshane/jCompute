@@ -40,6 +40,8 @@ public class ScenarioManager
 			loader = ServiceLoader.load(ScenarioInf.class, ucl);
 
 			listScenarioPlugins();
+			
+			ucl.close();
 		}
 		catch(IOException e)
 		{
