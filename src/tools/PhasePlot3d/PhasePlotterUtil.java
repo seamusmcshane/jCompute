@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
@@ -345,43 +346,52 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 				gui.setTitle(fname);
 				System.out.println(file);
 
-				// Log Parser
-				CSVLogParser parser = new CSVLogParser(file);
-
-				// Stats
-				ArrayList<SingleStat> stats = parser.getStats();
-
-				StatSample[][] histories = new StatSample[stats.size()][];
-
-				// Keep Stat Names
-				String[] names = new String[stats.size()];
-
-				// Convert stats link list to array (for interation)
-				for(int st = 0; st < stats.size(); st++)
+				try
 				{
-					SingleStat temp = stats.get(st);
-					histories[st] = temp.getHistoryAsArray();
-					names[st] = temp.getStatName();
-				}
-				System.out.println("Got SingleStat Arrays");
+					// Log Parser
+					CSVLogParser parser = new CSVLogParser(file);
 
-				System.out.println("Converting to float arrays");
-				// Convert the SingleStat array to primitive float arrays
-				int statsLength = histories.length;
-				int samples = histories[0].length;
+					// Stats
+					ArrayList<SingleStat> stats = parser.getStats();
 
-				float[][] data = new float[stats.size()][samples];
+					StatSample[][] histories = new StatSample[stats.size()][];
 
-				for(int st = 0; st < statsLength; st++)
-				{
-					for(int sam = 0; sam < samples; sam++)
+					// Keep Stat Names
+					String[] names = new String[stats.size()];
+
+					// Convert stats link list to array (for interation)
+					for(int st = 0; st < stats.size(); st++)
 					{
-						// OpenGL uses floats
-						data[st][sam] = (float) histories[st][sam].getSample();
+						SingleStat temp = stats.get(st);
+						histories[st] = temp.getHistoryAsArray();
+						names[st] = temp.getStatName();
 					}
-				}
+					System.out.println("Got SingleStat Arrays");
 
-				loadData(data, names);
+					System.out.println("Converting to float arrays");
+					// Convert the SingleStat array to primitive float arrays
+					int statsLength = histories.length;
+					int samples = histories[0].length;
+
+					float[][] data = new float[stats.size()][samples];
+
+					for(int st = 0; st < statsLength; st++)
+					{
+						for(int sam = 0; sam < samples; sam++)
+						{
+							// OpenGL uses floats
+							data[st][sam] = (float) histories[st][sam].getSample();
+						}
+					}
+
+					loadData(data, names);
+				}
+				catch(IOException e1)
+				{
+					System.out.println("Error opening file");
+
+					e1.printStackTrace();
+				}
 			}
 		}
 		else if(((e.getSource() == plotLineWidthButton[0]) || (e.getSource() == plotLineWidthButton[1]) || (e.getSource() == plotLineWidthButton[2]) || (e

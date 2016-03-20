@@ -19,6 +19,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
@@ -708,7 +709,6 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-
 		if(e.getSource() == mntmOpen)
 		{
 			final JFileChooser filechooser = new JFileChooser(new File("./stats"));
@@ -735,33 +735,41 @@ public class TimeSeriesTool implements WindowListener, ActionListener, MouseList
 
 				System.out.println(file);
 
-				CSVLogParser parser = new CSVLogParser(file);
-
-				ArrayList<SingleStat> stats = parser.getStats();
-				int numSamples = parser.getSampleNum();
-
-				names = new String[stats.size()];
-				histories = new StatSample[stats.size()][];
-
-				System.out.println("Got Arrays");
-
-				for(int st = 0; st < stats.size(); st++)
+				try
 				{
-					SingleStat temp = stats.get(st);
-					names[st] = new String(temp.getStatName());
+					CSVLogParser parser = new CSVLogParser(file);
 
-					// Populate list items
-					historyListModel.addElement(names[st]);
+					ArrayList<SingleStat> stats = parser.getStats();
+					int numSamples = parser.getSampleNum();
 
-					histories[st] = temp.getHistoryAsArray();
+					names = new String[stats.size()];
+					histories = new StatSample[stats.size()][];
+
+					System.out.println("Got Arrays");
+
+					for(int st = 0; st < stats.size(); st++)
+					{
+						SingleStat temp = stats.get(st);
+						names[st] = new String(temp.getStatName());
+
+						// Populate list items
+						historyListModel.addElement(names[st]);
+
+						histories[st] = temp.getHistoryAsArray();
+					}
+
+					addSignalChart(fname, numSamples, names, histories);
+
+					cleanFFTListPanel();
+
+					gui.validate();
 				}
+				catch(IOException e1)
+				{
+					System.out.println("Error opening file");
 
-				addSignalChart(fname, numSamples, names, histories);
-
-				cleanFFTListPanel();
-
-				gui.validate();
-
+					e1.printStackTrace();
+				}
 			}
 		}
 		else if(e.getSource() == txtMaxFreq)
