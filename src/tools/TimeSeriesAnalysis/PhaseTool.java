@@ -3,7 +3,6 @@ package tools.TimeSeriesAnalysis;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -74,10 +73,12 @@ public class PhaseTool implements ChangeListener
 				gbc_slider.gridy = 0;
 				frame.getContentPane().add(slider, gbc_slider);
 		
-		frame.setVisible(true);
-
 		
-
+	}
+	
+	public void display()
+	{
+		frame.setVisible(true);
 	}
 
 	@Override
