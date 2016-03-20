@@ -71,6 +71,7 @@ public class StandardGUI implements ActionListener, WindowListener
 		{
 			javax.swing.SwingUtilities.invokeAndWait(new Runnable()
 			{
+				@Override
 				public void run()
 				{
 					createGUIComponents();
@@ -182,6 +183,7 @@ public class StandardGUI implements ActionListener, WindowListener
 	{
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				if(e.getSource() == mntmQuit)
@@ -219,6 +221,7 @@ public class StandardGUI implements ActionListener, WindowListener
 	{
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				// Exit the sim

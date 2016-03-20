@@ -22,6 +22,7 @@ public class EmptyCellColorRenderer extends DefaultTableCellRenderer
 		this.backgroundColor = new Color(240,240,240);
 	}
 	
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
         Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

@@ -146,6 +146,7 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 	{
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				String message;

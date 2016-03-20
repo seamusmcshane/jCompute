@@ -73,6 +73,7 @@ public class HeatMapUtil implements WindowListener
 		JButton btnOpen = new JButton("Open");
 		btnOpen.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
 				final JFileChooser filechooser = new JFileChooser(new File(openCD));
@@ -97,6 +98,7 @@ public class HeatMapUtil implements WindowListener
 		btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
 				BufferedImage image = hm.getImage();
@@ -227,6 +229,7 @@ public class HeatMapUtil implements WindowListener
 	{
 		javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				String message;

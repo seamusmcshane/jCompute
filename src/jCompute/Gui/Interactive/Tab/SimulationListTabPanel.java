@@ -84,6 +84,7 @@ public class SimulationListTabPanel extends JPanel
 	{
 		table.addMouseListener(new MouseAdapter()
 		{
+			@Override
 			public void mousePressed(MouseEvent e)
 			{
 				if(e.getButton() == 1)

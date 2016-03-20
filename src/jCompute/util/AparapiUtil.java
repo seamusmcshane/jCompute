@@ -9,6 +9,7 @@ public class AparapiUtil
 	{
 		OpenCLDevice dev = OpenCLDevice.select(new OpenCLDevice.DeviceSelector()
 		{
+			@Override
 			public OpenCLDevice select(OpenCLDevice d)
 			{
 				OpenCLDevice intel = null;
@@ -152,6 +153,7 @@ public class AparapiUtil
 	{
 		OpenCLDevice dev = OpenCLDevice.select(new OpenCLDevice.DeviceSelector()
 		{
+			@Override
 			public OpenCLDevice select(OpenCLDevice d)
 			{
 				for(OpenCLPlatform platform : d.getOpenCLPlatform().getOpenCLPlatforms())

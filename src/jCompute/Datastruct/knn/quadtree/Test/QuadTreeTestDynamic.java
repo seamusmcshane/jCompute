@@ -211,6 +211,7 @@ public class QuadTreeTestDynamic
 	{
 		new Thread()
 		{
+			@Override
 			public void run()
 			{
 				while(true)

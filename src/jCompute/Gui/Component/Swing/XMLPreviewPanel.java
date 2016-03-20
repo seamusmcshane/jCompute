@@ -69,6 +69,7 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 		this.add(scenarioEditorRTextScrollPane, BorderLayout.CENTER);
 	}
 
+	@Override
 	public void propertyChange(PropertyChangeEvent e)
 	{
 		String pname = e.getPropertyName();

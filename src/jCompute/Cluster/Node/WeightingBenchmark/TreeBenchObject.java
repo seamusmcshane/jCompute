@@ -79,6 +79,7 @@ public class TreeBenchObject implements KNNPosInf
 		this.nearestObjectID = nearestObjectID;
 	}
 
+	@Override
 	public float[] getKNNPos()
 	{
 		return pos;

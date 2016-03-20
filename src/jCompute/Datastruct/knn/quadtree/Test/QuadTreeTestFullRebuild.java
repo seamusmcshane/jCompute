@@ -136,6 +136,7 @@ public class QuadTreeTestFullRebuild
 	{
 		new Thread()
 		{
+			@Override
 			public void run()
 			{
 				while(true)

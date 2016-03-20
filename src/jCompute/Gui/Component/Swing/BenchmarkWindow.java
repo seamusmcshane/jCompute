@@ -83,6 +83,7 @@ public class BenchmarkWindow extends JFrame
 		JButton start = new JButton("Start");
 		start.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				JComputeProgressMonitor openBatchProgressMonitor = new JComputeProgressMonitor(getContentPane(), "Adding Benchmark Batches", 0, 100);
@@ -158,6 +159,7 @@ public class BenchmarkWindow extends JFrame
 		JButton buttton = new JButton("Reset");
 		buttton.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				BenchmarkWindow reset = new BenchmarkWindow(batchManager);
@@ -215,6 +217,7 @@ public class BenchmarkWindow extends JFrame
 		JButton buttton = new JButton("Add");
 		buttton.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				int size = (int) comboBox.getSelectedItem();

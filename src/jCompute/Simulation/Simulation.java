@@ -167,6 +167,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 	{
 		asyncUpdateThread = new Thread(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				Thread thisThread = Thread.currentThread();
@@ -420,6 +421,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 		return "No Scenario Text Loaded";
 	}
 	
+	@Override
 	public String getInfo()
 	{
 		String simInfo = "Simulation : " + simId;

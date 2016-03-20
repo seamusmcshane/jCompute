@@ -252,6 +252,7 @@ public class XMLBatchLogFormat implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Format
 	 *****************************************************************************************************/
+	@Override
 	public String getLogFormat()
 	{
 		return logFormat;
@@ -261,16 +262,19 @@ public class XMLBatchLogFormat implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Axis Names
 	 *****************************************************************************************************/
+	@Override
 	public String getXAxisName()
 	{
 		return xAxisName;
 	}
 	
+	@Override
 	public String getYAxisName()
 	{
 		return yAxisName;
 	}
 	
+	@Override
 	public String getZAxisName()
 	{
 		return zAxisName;
@@ -280,16 +284,19 @@ public class XMLBatchLogFormat implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Info
 	 *****************************************************************************************************/
+	@Override
 	public String getLogFileName()
 	{
 		return logFileName;
 	}
 	
+	@Override
 	public String getLogType()
 	{
 		return logType;
 	}
 	
+	@Override
 	public int getSamples()
 	{
 		return samples;
@@ -299,6 +306,7 @@ public class XMLBatchLogFormat implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Items
 	 *****************************************************************************************************/
+	@Override
 	public ArrayList<TextBatchLogItem> getLogItems()
 	{
 		return logItems;

@@ -76,6 +76,7 @@ public class QuadPanel extends JPanel
 	}
 
 	// Do the panel drawing then draw the tree
+	@Override
 	public void paintComponent(Graphics g)
 	{
 		float pointHalf = pointSize / 2;

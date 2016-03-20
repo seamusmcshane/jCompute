@@ -279,6 +279,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Format
 	 *****************************************************************************************************/
+	@Override
 	public String getLogFormat()
 	{
 		return logFormat;
@@ -311,16 +312,19 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Info
 	 *****************************************************************************************************/
+	@Override
 	public String getLogFileName()
 	{
 		return logFileName;
 	}
 	
+	@Override
 	public String getLogType()
 	{
 		return logType;
 	}
 	
+	@Override
 	public int getSamples()
 	{
 		return samples;
@@ -330,6 +334,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Items
 	 *****************************************************************************************************/
+	@Override
 	public ArrayList<TextBatchLogItem> getLogItems()
 	{
 		return logItems;

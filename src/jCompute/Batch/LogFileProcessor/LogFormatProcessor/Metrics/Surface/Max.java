@@ -39,21 +39,25 @@ public class Max implements SurfaceMetricInf
 		outputMax = output[JCMath.findMaxValueIndex(output)];
 	}
 	
+	@Override
 	public double[] getResult()
 	{
 		return output;
 	}
 	
+	@Override
 	public double getMin()
 	{
 		return outputMin;
 	}
 	
+	@Override
 	public double getMax()
 	{
 		return outputMax;
 	}
 	
+	@Override
 	public Type getType()
 	{
 		return this.type;

@@ -203,6 +203,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 	}
 	
+	@Override
 	public String getName()
 	{
 		return statChartPanelName;
