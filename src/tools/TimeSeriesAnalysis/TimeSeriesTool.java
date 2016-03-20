@@ -767,15 +767,6 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 			{
 				System.out.println("Drawing");
 
-				final int index1 = indicies == null ? indicies[0] : 0;
-				final int index2 = indicies == null ? indicies[0] : 1;
-				final int index3 = indicies == null ? indicies[0] : 2;
-
-				final String arrayLabels[] = new String[]
-				{
-					names[index1], names[index2], names[index3]
-				};
-
 				int statsLenght = 3;
 				int samples = histories[0].length;
 
