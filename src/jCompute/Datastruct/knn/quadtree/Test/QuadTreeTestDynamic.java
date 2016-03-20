@@ -229,7 +229,7 @@ public class QuadTreeTestDynamic
 							
 							if(checkCollisions)
 							{
-								ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(next.getPos(), pointRadius*pointRadius);
+								ArrayList<KNNPosInf> overlaps = quadTree.findNearestNeighbours(next.getKNNPos(), pointRadius*pointRadius);
 
 								if(overlaps !=null)
 								{
@@ -299,7 +299,7 @@ public class QuadTreeTestDynamic
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
-									qpanel.setShow1NNResult(result.getPos().getPos());
+									qpanel.setShow1NNResult(result.getPos().getKNNPos());
 								}
 								
 								if(result.getDis() < (pointRadius*pointRadius))

@@ -116,7 +116,7 @@ public class QuadPanel extends JPanel
 			for(KNNPosInf point : list)
 			{
 				g2.setColor(Color.BLACK);
-				g2.drawOval((int) (point.getPos()[0] - pointHalf), (int) (point.getPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
+				g2.drawOval((int) (point.getKNNPos()[0] - pointHalf), (int) (point.getKNNPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
 			}
 		}
 
@@ -125,7 +125,7 @@ public class QuadPanel extends JPanel
 			for(KNNPosInf point : nearestNeighbours)
 			{
 				g2.setColor(Color.RED);
-				g2.fillOval((int) (point.getPos()[0] - pointHalf), (int) (point.getPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
+				g2.fillOval((int) (point.getKNNPos()[0] - pointHalf), (int) (point.getKNNPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
 			}
 		}
 

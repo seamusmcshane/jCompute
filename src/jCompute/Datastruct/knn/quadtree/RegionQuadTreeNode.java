@@ -90,7 +90,7 @@ public class RegionQuadTreeNode
 
 		for(KNNPosInf object : objects)
 		{
-			float dis = JCMath.distanceSquared(point, object.getPos());
+			float dis = JCMath.distanceSquared(point, object.getKNNPos());
 
 			if(dis < result.getDis())
 			{
@@ -122,7 +122,7 @@ public class RegionQuadTreeNode
 
 		for(KNNPosInf object : objects)
 		{
-			float dis = JCMath.distanceSquared(point, object.getPos());
+			float dis = JCMath.distanceSquared(point, object.getKNNPos());
 
 			if(dis < maxDistance)
 			{
@@ -226,7 +226,7 @@ public class RegionQuadTreeNode
 	 */
 	public void removePoint(KNNPosInf searchPoint)
 	{
-		float[] searchPos = searchPoint.getPos();
+		float[] searchPos = searchPoint.getKNNPos();
 
 		if(objects != null)
 		{
@@ -240,7 +240,7 @@ public class RegionQuadTreeNode
 			while(itr.hasNext())
 			{
 				KNNPosInf object = itr.next();
-				float[] objectPos = object.getPos();
+				float[] objectPos = object.getKNNPos();
 
 				if(objectPos[0] == searchPos[0] && objectPos[1] == searchPos[1])
 				{

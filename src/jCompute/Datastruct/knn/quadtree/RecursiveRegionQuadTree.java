@@ -138,7 +138,7 @@ public class RecursiveRegionQuadTree
 			{
 				KNNPosInf object = objects.get(i);
 
-				float point[] = object.getPos();
+				float point[] = object.getKNNPos();
 
 				if(JCMath.SquareContainsPoint(centers[0][0], centers[0][1], halfSize, point[0], point[1]))
 				{
@@ -207,7 +207,7 @@ public class RecursiveRegionQuadTree
 
 	private void addPoint(KNNPosInf object, RegionQuadTreeNode node)
 	{
-		if(JCMath.SquareContainsPoint(node.center, node.size, object.getPos()))
+		if(JCMath.SquareContainsPoint(node.center, node.size, object.getKNNPos()))
 		{
 			if(node.isLeaf())
 			{
@@ -287,7 +287,7 @@ public class RecursiveRegionQuadTree
 					{
 						KNNPosInf tObject = objects.get(i);
 
-						float point[] = tObject.getPos();
+						float point[] = tObject.getKNNPos();
 
 						if(JCMath.SquareContainsPoint(centers[0][0], centers[0][1], halfSize, point[0], point[1]))
 						{
@@ -325,22 +325,22 @@ public class RecursiveRegionQuadTree
 				}
 
 				// recurse into sub nodes
-				if(JCMath.SquareContainsPoint(node.nodes[0].center, node.nodes[0].size, object.getPos()))
+				if(JCMath.SquareContainsPoint(node.nodes[0].center, node.nodes[0].size, object.getKNNPos()))
 				{
 					// Top Left
 					addPoint(object, node.nodes[0]);
 				}
-				else if(JCMath.SquareContainsPoint(node.nodes[1].center, node.nodes[1].size, object.getPos()))
+				else if(JCMath.SquareContainsPoint(node.nodes[1].center, node.nodes[1].size, object.getKNNPos()))
 				{
 					// Top Right
 					addPoint(object, node.nodes[1]);
 				}
-				else if(JCMath.SquareContainsPoint(node.nodes[2].center, node.nodes[2].size, object.getPos()))
+				else if(JCMath.SquareContainsPoint(node.nodes[2].center, node.nodes[2].size, object.getKNNPos()))
 				{
 					// Bottom Left
 					addPoint(object, node.nodes[2]);
 				}
-				else if(JCMath.SquareContainsPoint(node.nodes[3].center, node.nodes[3].size, object.getPos()))
+				else if(JCMath.SquareContainsPoint(node.nodes[3].center, node.nodes[3].size, object.getKNNPos()))
 				{
 					// Bottom Right
 					addPoint(object, node.nodes[3]);
@@ -494,7 +494,7 @@ public class RecursiveRegionQuadTree
 		}
 		else
 		{
-			float[] searchPos = searchPoint.getPos();
+			float[] searchPos = searchPoint.getKNNPos();
 
 			// Top Left
 			if(searchPos[0] <= node.center[0] && searchPos[1] <= node.center[1])

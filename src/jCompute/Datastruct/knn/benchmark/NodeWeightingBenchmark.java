@@ -63,7 +63,7 @@ public class NodeWeightingBenchmark
 
 		for(KNNPosInf object : list)
 		{
-			tree.add(object.getPos(), object);
+			tree.add(object.getKNNPos(), object);
 		}
 	}
 
@@ -72,7 +72,7 @@ public class NodeWeightingBenchmark
 		for(KNNPosInf object : list)
 		{
 			TreeBenchObject cto = (TreeBenchObject)object;
-			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object.getPos());
+			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object.getKNNPos());
 			
 			cto.setNearestObject(no);
 		}

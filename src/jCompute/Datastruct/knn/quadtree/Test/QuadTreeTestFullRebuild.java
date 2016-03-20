@@ -178,12 +178,12 @@ public class QuadTreeTestFullRebuild
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
-									qpanel.setShow1NNResult(result.getPos().getPos());
+									qpanel.setShow1NNResult(result.getPos().getKNNPos());
 								}
 
 								if(result.getDis() < (removeDis * removeDis))
 								{
-									System.out.println("Remove" + result.getPos().getPos()[0] + "x" + result.getPos().getPos()[1]);
+									System.out.println("Remove" + result.getPos().getKNNPos()[0] + "x" + result.getPos().getKNNPos()[1]);
 
 									// Remove from quad tree
 									// quadTree.removePoint(result.getPos());
