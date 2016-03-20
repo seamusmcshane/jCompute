@@ -191,11 +191,9 @@ public class ReportUtility
 						if(doColumns)
 						{
 							doColumns = false;
+							
 							// Detect Column Names - Assumes all sub directories
 							// match the first directories layout.
-							String columnDir = level2dirs[0];
-							
-							String columPath = fullPath + File.separator + level1dir + File.separator + columnDir;
 							
 							String columDirs[] = FileUtil.getDirectoriesInDir(level1Path);
 							
