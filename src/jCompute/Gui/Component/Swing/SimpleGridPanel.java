@@ -30,6 +30,7 @@ public class SimpleGridPanel extends JPanel
 	private int rowsAdded;
 	
 	// Prevent Calling
+	@SuppressWarnings("unused")
 	private SimpleGridPanel()
 	{
 		lblFields = null;
