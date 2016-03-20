@@ -440,24 +440,23 @@ public class ConfigurationInterpreter
 		return latchedFileText;
 	}
 	
-	// Converts the XMLConfiguration to XML formated text string
+	// Converts the XMLConfiguration to XML formated text string 
+	// ByteArrayOutputStream - close is a no op - null allows gc
+	@SuppressWarnings("resource") 
 	private String getScenarioXMLText()
 	{
-		ByteArrayOutputStream baos = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
 		try
 		{
-			baos = new ByteArrayOutputStream();
 			configurationFile.save(baos);
 		}
 		catch(ConfigurationException e)
 		{
-			baos = null;
 			log.error("Error getting scenario XML");
-		}
-		
-		if(baos == null)
-		{
+
+			baos = null;
+			
 			return "";
 		}
 		
@@ -515,6 +514,7 @@ public class ConfigurationInterpreter
 		XmlSchemaType dataType = null;
 		XmlSchemaObjectTable elements = schema.getElements();
 		
+		@SuppressWarnings("unchecked")
 		Iterator<XmlSchemaElement> itr2 = elements.getValues();
 		while(itr2.hasNext())
 		{
@@ -562,6 +562,7 @@ public class ConfigurationInterpreter
 		// Gets the list of items in the complex type sequence.
 		XmlSchemaObjectCollection soc = ((XmlSchemaSequence) ((XmlSchemaComplexType) schemaElement.getSchemaType()).getParticle()).getItems();
 		
+		@SuppressWarnings("unchecked")
 		Iterator<XmlSchemaElement> iterator = soc.getIterator();
 		while(iterator.hasNext())
 		{
@@ -587,6 +588,5 @@ public class ConfigurationInterpreter
 		}
 		
 		return dataType;
-		
 	}
 }
