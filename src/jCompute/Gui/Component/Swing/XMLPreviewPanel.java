@@ -86,7 +86,7 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 		}
 		else
 		{
-			if(source.SELECTED_FILE_CHANGED_PROPERTY.equals(pname))
+			if(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(pname))
 			{
 				file = (File) e.getNewValue();
 			}
