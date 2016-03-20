@@ -298,45 +298,48 @@ public class SAPPItemGenerator extends ItemGenerator
 
 		for(int c = 0; c < combinations; c++)
 		{
-			// Create Sub Directories in Zip Archive or Directory
-			if(storeStats && statsMethodSingleArchive)
+			// Are stats enabled
+			if(storeStats)
 			{
-
-				try
+				// Create Sub Directories Entry in Zip Archive or a disk Directory
+				if(statsMethodSingleArchive)
 				{
-					// Create Item Directories
-					resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/"));
-					resultsZipOut.closeEntry();
-
+	
+					try
+					{
+						// Create Item Directories
+						resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/"));
+						resultsZipOut.closeEntry();
+	
+						for(int sid = 1; sid < (itemSamples + 1); sid++)
+						{
+							// Create Sample Directories
+							resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/" + Integer.toString(sid) + "/"));
+							resultsZipOut.closeEntry();
+						}
+	
+					}
+					catch(IOException e)
+					{
+						log.error("Could not create create directory " + c + " in " + zipPath);
+	
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					// Create the item export dir
+					FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + c);
+	
 					for(int sid = 1; sid < (itemSamples + 1); sid++)
 					{
-						// Create Sample Directories
-						resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/" + Integer.toString(sid) + "/"));
-						resultsZipOut.closeEntry();
+						String fullExportPath = batchStatsExportDir + File.separator + c + File.separator + sid;
+	
+						// Create the item sample full export path dir
+						FileUtil.createDirIfNotExist(fullExportPath);
 					}
-
-				}
-				catch(IOException e)
-				{
-					log.error("Could not create create directory " + c + " in " + zipPath);
-
-					e.printStackTrace();
 				}
 			}
-			else
-			{
-				// Create the item export dir
-				FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + c);
-
-				for(int sid = 1; sid < (itemSamples + 1); sid++)
-				{
-					String fullExportPath = batchStatsExportDir + File.separator + c + File.separator + sid;
-
-					// Create the item sample full export path dir
-					FileUtil.createDirIfNotExist(fullExportPath);
-				}
-			}
-
 			// Create a copy of the base scenario
 			temp = new ConfigurationInterpreter();
 			temp.loadConfig(baseScenarioText);
