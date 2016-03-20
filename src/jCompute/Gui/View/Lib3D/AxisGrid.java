@@ -367,11 +367,6 @@ public class AxisGrid
 			else
 			{
 				// Correct usable numbers.
-				if(dval == Float.NaN)
-				{
-					dval = 0.0f;
-				}
-				
 				if(dval == Float.NEGATIVE_INFINITY)
 				{
 					dval = -Float.MAX_VALUE;

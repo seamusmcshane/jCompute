@@ -520,11 +520,6 @@ public class HeatMap extends JPanel
 			else
 			{
 				// Correct usable numbers.
-				if(yDval == Double.NaN)
-				{
-					yDval = 0.0;
-				}
-				
 				if(yDval == Double.NEGATIVE_INFINITY)
 				{
 					yDval = -Double.MAX_VALUE;
