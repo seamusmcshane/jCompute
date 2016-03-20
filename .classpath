@@ -9,7 +9,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx-backend-lwjgl.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx-natives.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-xmlschema/commons-xmlschema-1.4.7/XmlSchema-1.4.7.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-xmlschema/commons-xmlschema-2.2.1/xmlschema-core-2.2.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-configuration/commons-configuration-1.10/commons-configuration-1.10.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-collections/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-lang/commons-lang-2.6/commons-lang-2.6.jar"/>
