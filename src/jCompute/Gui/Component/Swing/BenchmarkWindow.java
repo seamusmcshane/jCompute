@@ -29,6 +29,8 @@ import javax.swing.SwingConstants;
 
 public class BenchmarkWindow extends JFrame
 {
+	private static final long serialVersionUID = -6582518152127005845L;
+	
 	private final String path = "benchmark";
 	private ArrayList<String> list;
 	private int fileCount;
@@ -194,7 +196,7 @@ public class BenchmarkWindow extends JFrame
 		
 		addPadPanel(container);
 		
-		JComboBox comboBox = new JComboBox();
+		JComboBox<Integer> comboBox = new JComboBox<Integer>();
 		comboBox.addItem(0);
 		comboBox.addItem(1);
 		comboBox.addItem(2);
