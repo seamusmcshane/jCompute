@@ -19,7 +19,6 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
 
 import org.lwjgl.opengl.Display;
 

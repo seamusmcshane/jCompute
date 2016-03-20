@@ -7,10 +7,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Stroke;
 
 public class PhasePlotArea extends JPanel
 {
+	private static final long serialVersionUID = -901357130097849715L;
+	
 	private float xScale;
 	private float yScale;
 
