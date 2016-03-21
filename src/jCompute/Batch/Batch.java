@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import jCompute.Batch.ItemGenerator.ItemGenerator;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextv2Format;
+import jCompute.Batch.Logger.InfoLogger;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
@@ -73,14 +74,14 @@ public class Batch implements StoredQueuePosition
 	private String addedDateTime = "";
 
 	// Log - total time calc
-	private long startTime;
+	private long startTimeMillis;
 	private String startDateTime = "Not Started";
 	private String endDateTime = "Not Finished";
 
 	// Items processing times and eta calculation
 	private long cpuTotalTimes;
 	private long ioTotalTimes;
-	private long lastCompletedItemTime;
+	private long lastCompletedItemTimeMillis;
 
 	// Enable / Disable writing the generated statistic files to disk
 	private boolean storeStats;
@@ -122,7 +123,7 @@ public class Batch implements StoredQueuePosition
 	private int active;
 
 	// Completed items count
-	private int completed = 0;
+	private int itemsCompleted = 0;
 
 	// Batch Finished Status
 	private boolean finished;
@@ -398,7 +399,7 @@ public class Batch implements StoredQueuePosition
 		// We don't need init if we are initialising now.
 		return initialising.get();
 	}
-	
+
 	public boolean needsInit()
 	{
 		// If base does not need generated then it was already initialised
@@ -420,7 +421,7 @@ public class Batch implements StoredQueuePosition
 
 			return;
 		}
-		
+
 		if(!needInitialized.get())
 		{
 			// Initialised
@@ -556,7 +557,7 @@ public class Batch implements StoredQueuePosition
 			startBatchLog(temp.getCoordinates().size());
 
 			// For run time calc
-			startTime = System.currentTimeMillis();
+			startTimeMillis = System.currentTimeMillis();
 			startDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 		}
 
@@ -656,15 +657,15 @@ public class Batch implements StoredQueuePosition
 			}
 		}
 
-		completed++;
+		itemsCompleted++;
 
 		ioEnd = System.currentTimeMillis();
 
 		ioTotalTimes += ioEnd - ioStart;
 
-		lastCompletedItemTime = System.currentTimeMillis();
+		lastCompletedItemTimeMillis = System.currentTimeMillis();
 
-		if(completed == batchItems)
+		if(itemsCompleted == batchItems)
 		{
 			if(storeStats)
 			{
@@ -708,39 +709,19 @@ public class Batch implements StoredQueuePosition
 			{
 				try
 				{
-					// Close Info Log
-					PrintWriter infoLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "InfoLog.log", true)));
-					infoLog.println("BatchId=" + batchId);
-					infoLog.println("ScenarioType=" + type);
-					infoLog.println("Description=" + batchName);
-					infoLog.println("BaseFile=" + baseScenarioFileName);
-					int uniqueItems = batchItems / itemSamples;
-					infoLog.println("Items=" + batchItems);
-					infoLog.println("ItemSamples=" + itemSamples);
-					infoLog.println("UniqueItems=" + uniqueItems);
-					infoLog.println("MaxSteps=" + maxSteps);
-					infoLog.println("AddedDateTime=" + addedDateTime);
-					infoLog.println("StartDateTime=" + startDateTime);
-					infoLog.println("FinishedDateTime=" + endDateTime);
-					infoLog.println("TotalTime=" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTime));
-					infoLog.println("CpuTotalTime=" + cpuTotalTimes);
-					infoLog.println("CpuAvgTime=" + (cpuTotalTimes / completed));
-					infoLog.println("IOTotalTime=" + ioTotalTimes);
-					infoLog.println("IOAvgTime=" + (ioTotalTimes / completed));
-					infoLog.println("ItemTotalTime=" + cpuTotalTimes + ioTotalTimes);
-					infoLog.println("ItemAvgTime=" + ((cpuTotalTimes + ioTotalTimes) / completed));
+					InfoLogger infoLogger = new InfoLogger(batchStatsExportDir);
 
-					for(int i = 0; i < parameters.size(); i += 2)
-					{
-						// Skip "" ""
-						if(!(parameters.get(i).equals("")))
-						{
-							infoLog.println(parameters.get(i) + "=" + parameters.get(i + 1));
-						}
-					}
+					infoLogger.writeGeneralInfo(batchId, batchName, type, baseScenarioFileName);
 
-					infoLog.flush();
-					infoLog.close();
+					infoLogger.writeItemInfo(batchItems, itemSamples, maxSteps);
+
+					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
+
+					infoLogger.writeItemComputeInfo(itemsCompleted, cpuTotalTimes, ioTotalTimes);
+
+					infoLogger.writeParameters(parameters);
+
+					infoLogger.close();
 				}
 				catch(IOException e)
 				{
@@ -789,12 +770,12 @@ public class Batch implements StoredQueuePosition
 
 	public int getProgress()
 	{
-		return (int) (((double) completed / (double) batchItems) * 100.0);
+		return (int) (((double) itemsCompleted / (double) batchItems) * 100.0);
 	}
 
 	public int getCompleted()
 	{
-		return completed;
+		return itemsCompleted;
 	}
 
 	public int getActiveItemsCount()
@@ -804,14 +785,14 @@ public class Batch implements StoredQueuePosition
 
 	public long getRunTime()
 	{
-		return lastCompletedItemTime - startTime;
+		return lastCompletedItemTimeMillis - startTimeMillis;
 	}
 
 	public long getETT()
 	{
-		if((active > 0) && (completed > 0))
+		if((active > 0) && (itemsCompleted > 0))
 		{
-			return ((cpuTotalTimes + ioTotalTimes) / completed) * ((batchItems - completed) / active);
+			return ((cpuTotalTimes + ioTotalTimes) / itemsCompleted) * ((batchItems - itemsCompleted) / active);
 		}
 
 		return 0;
@@ -952,16 +933,16 @@ public class Batch implements StoredQueuePosition
 				info.add(String.valueOf(getActiveItemsCount()));
 
 				info.add("Items Completed");
-				info.add(String.valueOf(completed));
+				info.add(String.valueOf(itemsCompleted));
 				info.add("Items Requested");
 				info.add(String.valueOf(itemsRequested));
 				info.add("Items Returned");
 				info.add(String.valueOf(itemsReturned));
 
 				int div = 1;
-				if(completed > 0)
+				if(itemsCompleted > 0)
 				{
-					div = completed;
+					div = itemsCompleted;
 				}
 
 				info.add("");
@@ -1074,16 +1055,16 @@ public class Batch implements StoredQueuePosition
 		infoCache.add(String.valueOf(getActiveItemsCount()));
 
 		infoCache.add("Items Completed");
-		infoCache.add(String.valueOf(completed));
+		infoCache.add(String.valueOf(itemsCompleted));
 		infoCache.add("Items Requested");
 		infoCache.add(String.valueOf(itemsRequested));
 		infoCache.add("Items Returned");
 		infoCache.add(String.valueOf(itemsReturned));
 
 		int div = 1;
-		if(completed > 0)
+		if(itemsCompleted > 0)
 		{
-			div = completed;
+			div = itemsCompleted;
 		}
 
 		infoCache.add("");
