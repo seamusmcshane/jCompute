@@ -124,7 +124,7 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 				break;
 				case "Hash":
 				{
-					item.setHash(fieldValue);
+					item.setCacheIndex(fieldValue);
 				}
 				break;
 				case "RunTime":

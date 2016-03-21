@@ -6,7 +6,7 @@ public class ItemLogItem
 	private int sampleId;
 	private int[] coordsPos;
 	private double[] coordsVals;
-	private String hash;
+	private String index;
 	private int runTime;
 	private String endEvent;
 	private int stepCount;
@@ -37,9 +37,9 @@ public class ItemLogItem
 		return coordsVals;
 	}
 	
-	public String getHash()
+	public String getCacheIndex()
 	{
-		return hash;
+		return index;
 	}
 	
 	public int getRunTime()
@@ -79,9 +79,9 @@ public class ItemLogItem
 		coordsVals[1] = vals[1];
 	}
 	
-	public void setHash(String hash)
+	public void setCacheIndex(String index)
 	{
-		this.hash = hash;
+		this.index = index;
 	}
 	
 	public void setRunTime(int runTime)

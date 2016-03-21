@@ -210,7 +210,10 @@ public class ItemLogTextv2Format implements ItemLogFormatInf
 				}
 				break;
 				case "Hash":
-					item.setHash(value);
+					item.setCacheIndex(value);
+				// Fall through
+				case "CacheIndex":
+					item.setCacheIndex(value);
 				break;
 				case "RunTime":
 					item.setRunTime(Integer.parseInt(value));

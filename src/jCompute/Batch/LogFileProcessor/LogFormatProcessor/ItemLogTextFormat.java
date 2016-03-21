@@ -295,7 +295,10 @@ public class ItemLogTextFormat implements ItemLogFormatInf
 						item.setSampleId(Integer.parseInt(val));
 					break;
 					case "Hash":
-						item.setHash(val);
+						item.setCacheIndex(val);
+					// Fall through
+					case "CacheIndex":
+						item.setCacheIndex(val);
 					break;
 					case "RunTime":
 						item.setRunTime(Integer.parseInt(val));
