@@ -1,6 +1,6 @@
 package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
-public class TextBatchLogItem
+public class ItemLogItem
 {
 	private int itemId;
 	private int sampleId;
@@ -11,7 +11,7 @@ public class TextBatchLogItem
 	private String endEvent;
 	private int stepCount;
 	
-	public TextBatchLogItem()
+	public ItemLogItem()
 	{
 		coordsPos = new int[2];
 		coordsVals = new double[2];

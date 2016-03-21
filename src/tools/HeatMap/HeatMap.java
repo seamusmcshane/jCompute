@@ -1,7 +1,7 @@
 package tools.HeatMap;
 
-import jCompute.Batch.LogFileProcessor.BatchLogProcessorInf.ComputedMetric;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessorInf.ComputedMetric;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Gui.View.Misc.Palette;
 import jCompute.Timing.TimerObj;
@@ -81,7 +81,7 @@ public class HeatMap extends JPanel
 		palette = Palette.paletteFromPaletteName("LabSpecturmPalette", false, PALETTE_SIZE, true);
 	}
 	
-	public void setLog(BatchLogProcessor logProcessor)
+	public void setLog(ItemLogProcessor logProcessor)
 	{
 		// Linear RGB ColorModel
 		linearRGB = new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000, false, DataBuffer.TYPE_INT);
@@ -154,7 +154,7 @@ public class HeatMap extends JPanel
 		cg.dispose();
 	}
 	
-	private void addHeatmapImage(BatchLogProcessor logProcessor, Graphics2D target, int x, int y, int width, int height)
+	private void addHeatmapImage(ItemLogProcessor logProcessor, Graphics2D target, int x, int y, int width, int height)
 	{
 		// Unscaled heatmap image 1/1
 		BufferedImage rawValuesImage = createRawValuesImage(logProcessor);
@@ -168,7 +168,7 @@ public class HeatMap extends JPanel
 		target.drawRect(x, y, width, height);
 	}
 	
-	private void addColorMap(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int width, int height)
+	private void addColorMap(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int width, int height)
 	{
 		to.startTimer();
 		
@@ -205,7 +205,7 @@ public class HeatMap extends JPanel
 		totalTime += to.getTimeTaken();
 	}
 	
-	private void addColorMapTickAndLabels(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
+	private void addColorMapTickAndLabels(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
 	{
 		to.startTimer();
 		
@@ -322,7 +322,7 @@ public class HeatMap extends JPanel
 		totalTime += to.getTimeTaken();
 	}
 	
-	private void addLegend(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight)
+	private void addLegend(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight)
 	{
 		to.startTimer();
 		
@@ -358,7 +358,7 @@ public class HeatMap extends JPanel
 		totalTime += to.getTimeTaken();
 	}
 	
-	private void addPlotTickAndLabels(BatchLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
+	private void addPlotTickAndLabels(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
 	{
 		to.startTimer();
 		
@@ -596,7 +596,7 @@ public class HeatMap extends JPanel
 		return heatMapPlot;
 	}
 	
-	private BufferedImage createRawValuesImage(BatchLogProcessor logProcessor)
+	private BufferedImage createRawValuesImage(ItemLogProcessor logProcessor)
 	{
 		to.startTimer();
 		

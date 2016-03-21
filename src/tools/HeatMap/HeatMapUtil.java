@@ -1,7 +1,7 @@
 package tools.HeatMap;
 
-import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Gui.Component.Swing.MessageBox;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
@@ -155,10 +155,10 @@ public class HeatMapUtil implements WindowListener
 	{
 		log.info("Path : " + fullPath);
 		
-		BatchInfoLogProcessor ilp = null;
+		InfoLogProcessor ilp = null;
 		try
 		{
-			ilp = new BatchInfoLogProcessor(currentDirectory + File.separator + "infoLog.log");
+			ilp = new InfoLogProcessor(currentDirectory + File.separator + "infoLog.log");
 		}
 		catch(IOException e1)
 		{
@@ -169,11 +169,11 @@ public class HeatMapUtil implements WindowListener
 			}
 		}
 		
-		BatchLogProcessor logProcessor;
+		ItemLogProcessor logProcessor;
 		try
 		{
 			// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
-			logProcessor = (ilp != null) ? new BatchLogProcessor(fullPath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(fullPath);
+			logProcessor = (ilp != null) ? new ItemLogProcessor(fullPath, 0, ilp.getMaxSteps()) : new ItemLogProcessor(fullPath);
 			
 			openedLogName = (ilp != null) ? ilp.getDescription() : logProcessor.getLogFileName();
 			

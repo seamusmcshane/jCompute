@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class BatchInfoLogProcessor
+public class InfoLogProcessor
 {
 	// Batch
 	private int batchId;
@@ -37,7 +37,7 @@ public class BatchInfoLogProcessor
 	// Parameter List
 	private ArrayList<String> parameters;
 	
-	public BatchInfoLogProcessor(String fileName) throws IOException
+	public InfoLogProcessor(String fileName) throws IOException
 	{
 		File file = new File(fileName);
 		

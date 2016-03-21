@@ -1,7 +1,7 @@
 package tools.SurfaceChart;
 
 import tools.SurfaceChart.Surface.BarSurface;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Gui.View.Input.OrbitalCameraInputController;
 import jCompute.Gui.View.Misc.Palette;
@@ -111,7 +111,7 @@ public class SurfacePlotEnv implements ApplicationListener
 		Gdx.input.setInputProcessor(camController);
 	}
 	
-	public void setData(BatchLogProcessor logProcessor)
+	public void setData(ItemLogProcessor logProcessor)
 	{
 		int xSteps = logProcessor.getXSteps();
 		float xMin = (float) logProcessor.getXValMin();

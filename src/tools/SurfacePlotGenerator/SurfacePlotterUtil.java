@@ -51,8 +51,8 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
-import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
@@ -89,13 +89,13 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private String saveCD = "./scenarios";
 	private String openCD = "./stats";
 
-	private BatchLogProcessor logProcessor;
+	private ItemLogProcessor logProcessor;
 	private JButton btnLines;
 
 	private final float zoomScale = 4f;
 	private final float shiftSurface = 0.375f;
 
-	private BatchInfoLogProcessor ilp;
+	private InfoLogProcessor ilp;
 	private boolean zMaxFixedScale = false;
 
 	// depthActivated, alphaActivated, smoothColor, smoothPoint, smoothLine, smoothPolygon, disableDepth
@@ -532,7 +532,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 
 						try
 						{
-							ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+							ilp = new InfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
 
 							ArrayList<String> info = ilp.dump();
 
@@ -552,7 +552,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						try
 						{
 							// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
-							logProcessor = (ilp != null) ? new BatchLogProcessor(filePath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(filePath);
+							logProcessor = (ilp != null) ? new ItemLogProcessor(filePath, 0, ilp.getMaxSteps()) : new ItemLogProcessor(filePath);
 
 							log("Average Chart");
 							addAvgChart();

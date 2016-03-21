@@ -7,21 +7,21 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatInf;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.LogFormatValuesContainer;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormat;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogItem;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.XMLBatchLogFormat;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogFormatInf;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogFormatValuesContainer;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextFormat;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextv2Format;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogItem;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogXMLFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
-public class BatchLogProcessor implements BatchLogProcessorInf
+public class ItemLogProcessor implements ItemLogProcessorInf
 {
 	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(BatchLogProcessor.class);
+	private static Logger log = LoggerFactory.getLogger(ItemLogProcessor.class);
 
 	private TimerObj to = new TimerObj();
 
@@ -44,7 +44,7 @@ public class BatchLogProcessor implements BatchLogProcessorInf
 	 * *****************************************************************************************************
 	 * Data Values
 	 *****************************************************************************************************/
-	private LogFormatValuesContainer values;
+	private ItemLogFormatValuesContainer values;
 
 	/*
 	 * *****************************************************************************************************
@@ -63,49 +63,49 @@ public class BatchLogProcessor implements BatchLogProcessorInf
 
 	private long totalTime;
 
-	public BatchLogProcessor(String filePath) throws IOException
+	public ItemLogProcessor(String filePath) throws IOException
 	{
 		this(filePath, 0, 0, false);
 	}
 
-	public BatchLogProcessor(String filePath, int rangeMin, int rangeMax) throws IOException
+	public ItemLogProcessor(String filePath, int rangeMin, int rangeMax) throws IOException
 	{
 		this(filePath, rangeMin, rangeMax, true);
 	}
 
-	public BatchLogProcessor(String filePath, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
+	public ItemLogProcessor(String filePath, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
 	{
 		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
 
-		LogFormatInf logFormatProcessor = detectAndProcessLogFile(filePath);
+		ItemLogFormatInf logFormatProcessor = detectAndProcessLogFile(filePath);
 
 		processLogItems(logFormatProcessor.getLogItems(), rangeMin, rangeMax, useRangeLimits);
 	}
 
-	private LogFormatInf detectAndProcessLogFile(String filePath) throws IOException
+	private ItemLogFormatInf detectAndProcessLogFile(String filePath) throws IOException
 	{
 		to.startTimer();
 
 		String fileExtension = FileUtil.getFileNameExtension(filePath);
 		log.info("File Extension : " + fileExtension);
 
-		LogFormatInf logFormatProcessor = null;
+		ItemLogFormatInf logFormatProcessor = null;
 
 		switch(fileExtension)
 		{
 			case "log":
 			{
-				logFormatProcessor = new TextBatchLogFormat(filePath);
+				logFormatProcessor = new ItemLogTextFormat(filePath);
 			}
 			break;
 			case "v2log":
 			{
-				logFormatProcessor = new TextBatchLogFormatV2(filePath);
+				logFormatProcessor = new ItemLogTextv2Format(filePath);
 			}
 			break;
 			case "xml":
 			{
-				logFormatProcessor = new XMLBatchLogFormat(filePath);
+				logFormatProcessor = new ItemLogXMLFormat(filePath);
 			}
 			break;
 			default:
@@ -398,7 +398,7 @@ public class BatchLogProcessor implements BatchLogProcessorInf
 	 * Validate Items
 	 */
 
-	public void processLogItems(ArrayList<TextBatchLogItem> logItems, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
+	public void processLogItems(ArrayList<ItemLogItem> logItems, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
 	{
 		to.startTimer();
 
@@ -407,7 +407,7 @@ public class BatchLogProcessor implements BatchLogProcessorInf
 
 		log.debug("Num coords : " + logItems.get(0).getCoordsPos().length);
 
-		for(TextBatchLogItem item : logItems)
+		for(ItemLogItem item : logItems)
 		{
 			int x = item.getCoordsPos()[0];
 			int y = item.getCoordsPos()[1];
@@ -459,14 +459,14 @@ public class BatchLogProcessor implements BatchLogProcessorInf
 		log.debug("Surface Size : " + (xDimSize * yDimSize));
 		log.debug("Item Total   : " + logItems.size());
 
-		values = new LogFormatValuesContainer(xDimSize, yDimSize, samples);
+		values = new ItemLogFormatValuesContainer(xDimSize, yDimSize, samples);
 
 		int[] IIDS = new int[logItems.size() / samples];
 		int[] SIDS = new int[samples];
 
 		int storeErrors = 0;
 
-		for(TextBatchLogItem item : logItems)
+		for(ItemLogItem item : logItems)
 		{
 			// zAxis = StepCount
 			double val = item.getStepCount();

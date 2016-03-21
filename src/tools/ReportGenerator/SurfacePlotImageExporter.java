@@ -1,8 +1,8 @@
 package tools.ReportGenerator;
 
-import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessorInf.ComputedMetric;
+import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessorInf.ComputedMetric;
 import jCompute.util.FileUtil;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
@@ -132,7 +132,7 @@ public class SurfacePlotImageExporter
 	 */
 	private void exportChartImages(final int width, final int height, String sourceFilePath, String exportPath, String fileName)
 	{
-		BatchInfoLogProcessor ilp = null;
+		InfoLogProcessor ilp = null;
 		try
 		{
 			if(!scaleSet)
@@ -142,7 +142,7 @@ public class SurfacePlotImageExporter
 				
 				System.out.println(infoPath);
 				
-				ilp = new BatchInfoLogProcessor(infoPath + File.separator + "infoLog.log");
+				ilp = new InfoLogProcessor(infoPath + File.separator + "infoLog.log");
 				
 				ilp.dump();
 				
@@ -161,7 +161,7 @@ public class SurfacePlotImageExporter
 		try
 		{
 			// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
-			BatchLogProcessor logProcessor = (ilp != null) ? new BatchLogProcessor(sourceFilePath, 0, ilp.getMaxSteps()) : new BatchLogProcessor(sourceFilePath);
+			ItemLogProcessor logProcessor = (ilp != null) ? new ItemLogProcessor(sourceFilePath, 0, ilp.getMaxSteps()) : new ItemLogProcessor(sourceFilePath);
 			
 			exportImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-avg", 0);
 			exportImage(logProcessor, width, height, sourceFilePath, exportPath, fileName + "-standard-deviation", 1);
@@ -179,7 +179,7 @@ public class SurfacePlotImageExporter
 		}
 	}
 	
-	private void exportImage(BatchLogProcessor logProcessor, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
+	private void exportImage(ItemLogProcessor logProcessor, final int width, final int height, String sourceFile, String exportPath, String fileName, int mode)
 	{
 		// TODO HardCoded
 		int legendWidth = 160;

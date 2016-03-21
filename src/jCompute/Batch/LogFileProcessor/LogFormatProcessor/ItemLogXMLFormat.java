@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 
 import jCompute.util.Text;
 
-public class XMLBatchLogFormat implements LogFormatInf
+public class ItemLogXMLFormat implements ItemLogFormatInf
 {
-	private static Logger log = LoggerFactory.getLogger(XMLBatchLogFormat.class);
+	private static Logger log = LoggerFactory.getLogger(ItemLogXMLFormat.class);
 	
-	private final String logFormat = "XMLBatchLogFormat";
+	private final String logFormat = "ItemLogXMLFormat";
 	
 	private String logFileName;
 	private String logType;
@@ -30,9 +30,9 @@ public class XMLBatchLogFormat implements LogFormatInf
 	private String yAxisName;
 	private String zAxisName;
 	
-	private ArrayList<TextBatchLogItem> logItems;
+	private ArrayList<ItemLogItem> logItems;
 	
-	public XMLBatchLogFormat(String fileName) throws IOException
+	public ItemLogXMLFormat(String fileName) throws IOException
 	{
 		log.info("Processing XML Log");
 		
@@ -75,7 +75,7 @@ public class XMLBatchLogFormat implements LogFormatInf
 	private void readItems(XMLConfiguration logFile)
 	{
 		// Log Items List
-		logItems = new ArrayList<TextBatchLogItem>();
+		logItems = new ArrayList<ItemLogItem>();
 		
 		log.info("Reading Items Values");
 		
@@ -98,9 +98,9 @@ public class XMLBatchLogFormat implements LogFormatInf
 		log.info("logItemsSize " + logItems.size());
 	}
 	
-	private TextBatchLogItem readItem(ConfigurationNode node)
+	private ItemLogItem readItem(ConfigurationNode node)
 	{
-		TextBatchLogItem item = new TextBatchLogItem();
+		ItemLogItem item = new ItemLogItem();
 		
 		List<ConfigurationNode> fieldList = node.getChildren();
 		
@@ -307,7 +307,7 @@ public class XMLBatchLogFormat implements LogFormatInf
 	 * Log Items
 	 *****************************************************************************************************/
 	@Override
-	public ArrayList<TextBatchLogItem> getLogItems()
+	public ArrayList<ItemLogItem> getLogItems()
 	{
 		return logItems;
 	}

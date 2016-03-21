@@ -15,9 +15,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TextBatchLogFormatV2 implements LogFormatInf
+public class ItemLogTextv2Format implements ItemLogFormatInf
 {
-	private static Logger log = LoggerFactory.getLogger(TextBatchLogFormatV2.class);
+	private static Logger log = LoggerFactory.getLogger(ItemLogTextv2Format.class);
 	
 	public static final int HEADER_LINE_OPTS = 4;
 	public static final int MAX_LINE_OPTS = 7;
@@ -26,7 +26,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	public static final char SUBOPTION_DELIMITER = ';';
 	public static final char FIELD_DELIMITER = '=';
 	
-	private final String logFormat = "TextBatchLogFormatV2";
+	private final String logFormat = "ItemLogTextv2Format";
 	
 	private String logFileName;
 	private String logType;
@@ -36,14 +36,14 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	private String yAxisName;
 	private String zAxisName;
 	
-	private ArrayList<TextBatchLogItem> logItems;
+	private ArrayList<ItemLogItem> logItems;
 	private Semaphore semaphore = new Semaphore(1, false);
 	
-	public TextBatchLogFormatV2(String filePath) throws IOException
+	public ItemLogTextv2Format(String filePath) throws IOException
 	{
 		Path path = Paths.get(filePath);
 		
-		logItems = new ArrayList<TextBatchLogItem>();
+		logItems = new ArrayList<ItemLogItem>();
 		
 		// Read the header line
 		Stream<String> headerLines = Files.lines(path);
@@ -164,7 +164,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	 */
 	private void readItemLine(String itemLine)
 	{
-		TextBatchLogItem item = new TextBatchLogItem();
+		ItemLogItem item = new ItemLogItem();
 		
 		String[] options = lineToOptions(itemLine, 0, MAX_LINE_OPTS, OPTION_DELIMITER);
 		
@@ -335,7 +335,7 @@ public class TextBatchLogFormatV2 implements LogFormatInf
 	 * Log Items
 	 *****************************************************************************************************/
 	@Override
-	public ArrayList<TextBatchLogItem> getLogItems()
+	public ArrayList<ItemLogItem> getLogItems()
 	{
 		return logItems;
 	}

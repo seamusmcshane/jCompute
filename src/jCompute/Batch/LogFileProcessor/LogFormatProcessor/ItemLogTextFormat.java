@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import jCompute.Timing.TimerObj;
 
-public class TextBatchLogFormat implements LogFormatInf
+public class ItemLogTextFormat implements ItemLogFormatInf
 {
-	private static Logger log = LoggerFactory.getLogger(TextBatchLogFormat.class);
+	private static Logger log = LoggerFactory.getLogger(ItemLogTextFormat.class);
 
-	private final String logFormat = "TextBatchLogFormat";
+	private final String logFormat = "ItemLogTextFormat";
 
 	private String logFileName;
 	private String logType;
@@ -25,13 +25,13 @@ public class TextBatchLogFormat implements LogFormatInf
 	private String yAxisName;
 	private String zAxisName;
 
-	private ArrayList<TextBatchLogItem> logItems;
+	private ArrayList<ItemLogItem> logItems;
 
 	private long processingTime;
 
-	public TextBatchLogFormat(String fileName) throws IOException
+	public ItemLogTextFormat(String fileName) throws IOException
 	{
-		logItems = new ArrayList<TextBatchLogItem>();
+		logItems = new ArrayList<ItemLogItem>();
 
 		File file = new File(fileName);
 
@@ -144,7 +144,7 @@ public class TextBatchLogFormat implements LogFormatInf
 
 	private void readItem(BufferedReader inputFile) throws IOException
 	{
-		TextBatchLogItem item = new TextBatchLogItem();
+		ItemLogItem item = new ItemLogItem();
 
 		// Max Coords to set as item pos/values
 		int maxCoords = 2;
@@ -479,7 +479,7 @@ public class TextBatchLogFormat implements LogFormatInf
 	 * Log Items
 	 *****************************************************************************************************/
 	@Override
-	public ArrayList<TextBatchLogItem> getLogItems()
+	public ArrayList<ItemLogItem> getLogItems()
 	{
 		return logItems;
 	}

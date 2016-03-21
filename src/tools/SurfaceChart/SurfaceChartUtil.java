@@ -1,7 +1,7 @@
 package tools.SurfaceChart;
 
-import jCompute.Batch.LogFileProcessor.BatchInfoLogProcessor;
-import jCompute.Batch.LogFileProcessor.BatchLogProcessor;
+import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Gui.Component.Swing.MessageBox;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
@@ -202,10 +202,10 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 				String ext = FileUtil.getFileNameExtension(file);
 				System.out.println(ext);
 				
-				BatchInfoLogProcessor ilp = null;
+				InfoLogProcessor ilp = null;
 				try
 				{
-					ilp = new BatchInfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
+					ilp = new InfoLogProcessor(filechooser.getCurrentDirectory() + File.separator + "infoLog.log");
 				}
 				catch(IOException e1)
 				{
@@ -215,11 +215,11 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 					MessageBox.popup(message, gui);
 				}
 				
-				BatchLogProcessor logProcessor;
+				ItemLogProcessor logProcessor;
 				try
 				{
 					// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
-					logProcessor = (ilp != null) ? new BatchLogProcessor(file, 0, ilp.getMaxSteps()) : new BatchLogProcessor(file);
+					logProcessor = (ilp != null) ? new ItemLogProcessor(file, 0, ilp.getMaxSteps()) : new ItemLogProcessor(file);
 					
 					glEnv.setData(logProcessor);
 				}

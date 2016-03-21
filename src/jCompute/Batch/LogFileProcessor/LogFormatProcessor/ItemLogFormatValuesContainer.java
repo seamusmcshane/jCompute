@@ -13,9 +13,9 @@ import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.Surfac
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Values.SumTotal;
 
-public class LogFormatValuesContainer
+public class ItemLogFormatValuesContainer
 {
-	private static Logger log = LoggerFactory.getLogger(LogFormatValuesContainer.class);
+	private static Logger log = LoggerFactory.getLogger(ItemLogFormatValuesContainer.class);
 	
 	private final int ySteps;
 	private final int xSteps;
@@ -37,7 +37,7 @@ public class LogFormatValuesContainer
 	
 	private SurfaceMetricInf[] surfaceMetrics;
 	
-	public LogFormatValuesContainer(int xSteps, int ySteps, int samples) throws IOException
+	public ItemLogFormatValuesContainer(int xSteps, int ySteps, int samples) throws IOException
 	{
 		this.ySteps = ySteps;
 		this.xSteps = xSteps;

@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.Batch.ItemGenerator.ItemGenerator;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.TextBatchLogFormatV2;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextv2Format;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
@@ -1259,12 +1259,12 @@ public class Batch implements StoredQueuePosition
 				// Item Id
 				itemLine.append("IID=");
 				itemLine.append(item.getItemId());
-				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Sample Id
 				itemLine.append("SID=");
 				itemLine.append(item.getSampleId());
-				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Surface Coords and Values
 				ArrayList<Integer> coords = item.getCoordinates();
@@ -1275,30 +1275,30 @@ public class Batch implements StoredQueuePosition
 				// ; done in loop - loop then exits skipping an ending ;
 				for(int c = 0; c < coords.size(); c++)
 				{
-					itemLine.append(TextBatchLogFormatV2.SUBOPTION_DELIMITER);
+					itemLine.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
 					itemLine.append("Pos=");
 					itemLine.append(coords.get(c));
-					itemLine.append(TextBatchLogFormatV2.SUBOPTION_DELIMITER);
+					itemLine.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
 
 					itemLine.append("Value=");
 					itemLine.append(coordsValues.get(c));
 				}
-				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Hash
 				itemLine.append("Hash=");
 				itemLine.append(item.getItemHash());
-				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Runtime
 				itemLine.append("RunTime=");
 				itemLine.append(item.getComputeTime());
-				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Endevent
 				itemLine.append("EndEvent=");
 				itemLine.append(item.getEndEvent());
-				itemLine.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// StepCount
 				itemLine.append("StepCount=");
@@ -1339,15 +1339,15 @@ public class Batch implements StoredQueuePosition
 				// Name
 				header.append("Name=");
 				header.append(batchName);
-				header.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				header.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Type
 				header.append("LogType=BatchItems");
-				header.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				header.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				header.append("Samples=");
 				header.append(itemSamples);
-				header.append(TextBatchLogFormatV2.OPTION_DELIMITER);
+				header.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// AxisLabels
 				header.append("AxisLabels=");
@@ -1355,9 +1355,9 @@ public class Batch implements StoredQueuePosition
 				// ; done in loop - loop then exits skipping an ending ;
 				for(int c = 1; c < (numCordinates + 1); c++)
 				{
-					header.append(TextBatchLogFormatV2.SUBOPTION_DELIMITER);
+					header.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
 					header.append("id=" + c);
-					header.append(TextBatchLogFormatV2.SUBOPTION_DELIMITER);
+					header.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
 					header.append("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
 				}
 				// No ending ,

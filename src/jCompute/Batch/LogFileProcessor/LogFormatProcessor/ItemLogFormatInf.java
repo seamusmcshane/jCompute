@@ -2,7 +2,7 @@ package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 
 import java.util.ArrayList;
 
-public interface LogFormatInf
+public interface ItemLogFormatInf
 {
 	/*
 	 * *****************************************************************************************************
@@ -34,5 +34,5 @@ public interface LogFormatInf
 	 * *****************************************************************************************************
 	 * Log Items
 	 *****************************************************************************************************/
-	public ArrayList<TextBatchLogItem> getLogItems();
+	public ArrayList<ItemLogItem> getLogItems();
 }
