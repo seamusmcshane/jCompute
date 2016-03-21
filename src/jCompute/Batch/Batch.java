@@ -275,12 +275,16 @@ public class Batch implements StoredQueuePosition
 			itemLogEnabled = batchConfigProcessor.getBooleanValue("Log", "ItemLog");
 			bosBufferSize = batchConfigProcessor.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
 
+			// How many times to run each batchItem.
+			itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
+
 			log.info("Store Stats " + storeStats);
 			log.info("Single Archive " + statsMethodSingleArchive);
 			log.info("BufferSize " + bosBufferSize);
 			log.info("Compression Level " + singleArchiveCompressionLevel);
 			log.info("InfoLog " + infoLogEnabled);
 			log.info("ItemLog " + itemLogEnabled);
+			log.info("ItemSamples " + itemSamples);
 
 			ScenarioInf baseScenario = processAndCheckBaseScenarioFile(batchConfigProcessor);
 
@@ -289,9 +293,6 @@ public class Batch implements StoredQueuePosition
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
 				type = baseScenario.getScenarioType();
 				log.debug(type);
-
-				// How many times to run each batchItem.
-				itemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples");
 
 				if(itemSamples > 0)
 				{
@@ -621,10 +622,10 @@ public class Batch implements StoredQueuePosition
 					try
 					{
 						// FileName
-						resultsZipOut.putNextEntry(new ZipEntry(item.getItemId() + "/" + "itemconfig-" + item.getItemHash() + ".xml"));
+						resultsZipOut.putNextEntry(new ZipEntry(item.getItemId() + "/" + "itemconfig-" + item.getCacheIndex() + ".xml"));
 
 						// Data
-						resultsZipOut.write(itemDiskCache.getFile(item.getItemHash()));
+						resultsZipOut.write(itemDiskCache.getData(item.getCacheIndex()));
 
 						// Entry end
 						resultsZipOut.closeEntry();
@@ -642,9 +643,9 @@ public class Batch implements StoredQueuePosition
 					{
 						// All Item samples use same config so overwrite.
 						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + item.getItemId()
-						+ File.separator + "itemconfig-" + item.getItemHash() + ".xml", true)));
+						+ File.separator + "itemconfig-" + item.getCacheIndex() + ".xml", true)));
 
-						configFile.write(new String(itemDiskCache.getFile(item.getItemHash()), "ISO-8859-1"));
+						configFile.write(new String(itemDiskCache.getData(item.getCacheIndex()), "ISO-8859-1"));
 						configFile.flush();
 						configFile.close();
 					}
@@ -1188,9 +1189,9 @@ public class Batch implements StoredQueuePosition
 		return false;
 	}
 
-	public byte[] getItemConfig(String fileHash)
+	public byte[] getItemConfig(int uniqueId) throws IOException
 	{
-		return itemDiskCache.getFile(fileHash);
+		return itemDiskCache.getData(uniqueId);
 	}
 
 	public ExportFormat getStatExportFormat()
@@ -1226,7 +1227,7 @@ public class Batch implements StoredQueuePosition
 					itemLog.println("Value=" + coordsValues.get(c));
 					itemLog.println("[-Coordinate]");
 				}
-				itemLog.println("Hash=" + item.getItemHash());
+				itemLog.println("CacheIndex=" + item.getCacheIndex());
 				itemLog.println("RunTime=" + item.getComputeTime());
 				itemLog.println("EndEvent=" + item.getEndEvent());
 				itemLog.println("StepCount=" + item.getStepCount());
@@ -1266,9 +1267,9 @@ public class Batch implements StoredQueuePosition
 				}
 				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
-				// Hash
-				itemLine.append("Hash=");
-				itemLine.append(item.getItemHash());
+				// Cache
+				itemLine.append("CacheIndex=");
+				itemLine.append(item.getCacheIndex());
 				itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
 
 				// Runtime

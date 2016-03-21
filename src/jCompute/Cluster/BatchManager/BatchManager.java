@@ -1,5 +1,19 @@
 package jCompute.Cluster.BatchManager;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.eventbus.Subscribe;
+
 import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
@@ -14,22 +28,9 @@ import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.Co
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jCompute.Datastruct.List.ManagedBypassableQueue;
 import jCompute.Datastruct.List.Interface.StoredQueuePosition;
-import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Stats.StatExporter;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.eventbus.Subscribe;
 
 public class BatchManager
 {
@@ -438,15 +439,23 @@ public class BatchManager
 
 		try
 		{
-			itemConfig = new String(batch.getItemConfig(nextItem.getItemHash()), "ISO-8859-1");
+			itemConfig = new String(batch.getItemConfig(nextItem.getCacheIndex()), "ISO-8859-1");
 		}
 		catch(UnsupportedEncodingException e)
 		{
+			// Encoding is not supported.
 			log.error(e.getMessage());
 
 			e.printStackTrace();
 
 			return false;
+		}
+		catch(IOException e)
+		{
+			// Error getting item config
+			log.error(e.getMessage());
+
+			e.printStackTrace();
 		}
 
 		// Got ItemConfig now we can add the item
