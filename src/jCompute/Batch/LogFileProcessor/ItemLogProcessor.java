@@ -18,7 +18,7 @@ import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
-public class ItemLogProcessor implements ItemLogProcessorInf
+public final class ItemLogProcessor
 {
 	// SL4J Logger
 	private static Logger log = LoggerFactory.getLogger(ItemLogProcessor.class);
@@ -145,19 +145,16 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 	 * LogFile Info
 	 *****************************************************************************************************/
 
-	@Override
 	public String getLogFileName()
 	{
 		return logFileName;
 	}
 
-	@Override
 	public String getLogType()
 	{
 		return logType;
 	}
 
-	@Override
 	public String getLogFormat()
 	{
 		return logFormat;
@@ -168,68 +165,57 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 	 * Axis Ranges
 	 *****************************************************************************************************/
 
-	@Override
 	public double getXValMin()
 	{
 		return xValMin;
 	}
 
-	@Override
 	public double getXValMax()
 	{
 		return xValMax;
 
 	}
 
-	@Override
 	public double getXValRange()
 	{
 		return xValMax - xValMin;
 	}
 
-	@Override
 	public double getYValMin()
 	{
 		return yValMin;
 	}
 
-	@Override
 	public double getYValMax()
 	{
 		return yValMax;
 	}
 
-	@Override
 	public double getYValRange()
 	{
 		return yValMax - yValMin;
 	}
 
-	@Override
 	public double getZValMin()
 	{
 		return zValMin;
 	}
 
-	@Override
 	public double getZValMax()
 	{
 		return zValMax;
 	}
 
-	@Override
 	public double getZValRange()
 	{
 		return zValRangeMax - zValRangeMin;
 	}
 
-	@Override
 	public double getZValRangeMin()
 	{
 		return zValRangeMin;
 	}
 
-	@Override
 	public double getZValRangeMax()
 	{
 		return zValRangeMax;
@@ -240,7 +226,6 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 	 * Axis Names
 	 *****************************************************************************************************/
 
-	@Override
 	public String[] getAxisNames()
 	{
 		return new String[]
@@ -249,19 +234,16 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 		};
 	}
 
-	@Override
 	public String getXAxisName()
 	{
 		return xAxisName;
 	}
 
-	@Override
 	public String getYAxisName()
 	{
 		return yAxisName;
 	}
 
-	@Override
 	public String getZAxisName()
 	{
 		return zAxisName;
@@ -272,37 +254,31 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 	 * Axis Limits
 	 *****************************************************************************************************/
 
-	@Override
 	public int getXMax()
 	{
 		return values.getXMax();
 	}
 
-	@Override
 	public int getXMin()
 	{
 		return values.getXMin();
 	}
 
-	@Override
 	public int getYMax()
 	{
 		return values.getYMax();
 	}
 
-	@Override
 	public int getYMin()
 	{
 		return values.getYMin();
 	}
 
-	@Override
 	public double getZmin()
 	{
 		return values.getZMin();
 	}
 
-	@Override
 	public double getZmax()
 	{
 		return values.getZMax();
@@ -313,19 +289,16 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 	 * Axis Granularity
 	 *****************************************************************************************************/
 
-	@Override
 	public int getXSteps()
 	{
 		return values.getXSteps();
 	}
 
-	@Override
 	public int getYSteps()
 	{
 		return values.getYSteps();
 	}
 
-	@Override
 	public int getNumSamples()
 	{
 		return values.getSamples();
@@ -336,7 +309,6 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 	 * Processed Data Metrics
 	 *****************************************************************************************************/
 
-	@Override
 	public double[][] getDataMetric2dArray(Type metricSource)
 	{
 		int xSteps = values.getXSteps();
@@ -357,25 +329,21 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 		return data2d;
 	}
 
-	@Override
 	public double[] getDataMetricArray(Type metricSource)
 	{
 		return values.getMetricArray(metricSource);
 	}
 
-	@Override
 	public double getDataMetricMinVal(Type metricSource)
 	{
 		return values.getDataMetricMin(metricSource);
 	}
 
-	@Override
 	public double getDataMetricMaxVal(Type metricSource)
 	{
 		return values.getDataMetricMax(metricSource);
 	}
 
-	@Override
 	public double getComputedMetric(ComputedMetric computedMetric)
 	{
 		switch(computedMetric)
@@ -593,10 +561,13 @@ public class ItemLogProcessor implements ItemLogProcessorInf
 		totalTime += to.getTimeTaken();
 	}
 
-	@Override
 	public long getTimeTaken()
 	{
 		return totalTime;
 	}
 
+	public enum ComputedMetric
+	{
+		MAX_RATE
+	}
 }

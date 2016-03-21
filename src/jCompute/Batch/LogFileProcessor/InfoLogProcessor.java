@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class InfoLogProcessor
+public final class InfoLogProcessor
 {
 	// Batch
 	private int batchId;

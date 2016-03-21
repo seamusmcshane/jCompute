@@ -2,7 +2,7 @@ package tools.ReportGenerator;
 
 import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
-import jCompute.Batch.LogFileProcessor.ItemLogProcessorInf.ComputedMetric;
+import jCompute.Batch.LogFileProcessor.ItemLogProcessor.ComputedMetric;
 import jCompute.util.FileUtil;
 import jCompute.util.JCMath;
 import jCompute.util.Text;
