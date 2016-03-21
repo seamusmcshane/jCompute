@@ -89,7 +89,7 @@ public class InfoLogger
 		infoLog.println("CpuAvgTime=" + (cpuTotalTimes / itemCompleted));
 		infoLog.println("IOTotalTime=" + ioTotalTimes);
 		infoLog.println("IOAvgTime=" + (ioTotalTimes / itemCompleted));
-		infoLog.println("ItemTotalTime=" + cpuTotalTimes + ioTotalTimes);
+		infoLog.println("ItemTotalTime=" + (cpuTotalTimes + ioTotalTimes));
 		infoLog.println("ItemAvgTime=" + ((cpuTotalTimes + ioTotalTimes) / itemCompleted));
 
 		itemComputeInfo = true;
