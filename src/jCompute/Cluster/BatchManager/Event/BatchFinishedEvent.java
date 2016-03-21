@@ -1,16 +1,16 @@
-package jCompute.Batch.BatchManager.Event;
+package jCompute.Cluster.BatchManager.Event;
 
 import jCompute.Batch.Batch;
 
-public class BatchProgressEvent
+public class BatchFinishedEvent
 {
 	private Batch batch;
 	
-	public BatchProgressEvent(Batch batch)
+	public BatchFinishedEvent(Batch batch)
 	{
 		this.batch = batch;
 	}
-
+	
 	public Batch getBatch()
 	{
 		return batch;

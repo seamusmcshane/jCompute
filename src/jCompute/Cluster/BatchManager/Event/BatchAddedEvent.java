@@ -1,12 +1,12 @@
-package jCompute.Batch.BatchManager.Event;
+package jCompute.Cluster.BatchManager.Event;
 
 import jCompute.Batch.Batch;
 
-public class BatchFinishedEvent
+public class BatchAddedEvent
 {
 	private Batch batch;
 	
-	public BatchFinishedEvent(Batch batch)
+	public BatchAddedEvent(Batch batch)
 	{
 		this.batch = batch;
 	}

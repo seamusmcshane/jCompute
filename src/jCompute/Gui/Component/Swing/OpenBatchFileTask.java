@@ -9,7 +9,7 @@ import javax.swing.SwingWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Cluster.BatchManager.BatchManager;
 
 public class OpenBatchFileTask extends SwingWorker<Void, Void>
 {

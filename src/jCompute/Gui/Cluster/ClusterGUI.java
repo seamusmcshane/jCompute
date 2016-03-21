@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.IconManager;
-import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Cluster.BatchManager.BatchManager;
 import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.BenchmarkWindow;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;

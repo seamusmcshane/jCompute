@@ -1,12 +1,12 @@
-package jCompute.Batch.BatchManager;
+package jCompute.Cluster.BatchManager;
 
 import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Batch.BatchItem;
-import jCompute.Batch.BatchManager.Event.BatchAddedEvent;
-import jCompute.Batch.BatchManager.Event.BatchFinishedEvent;
-import jCompute.Batch.BatchManager.Event.BatchPositionEvent;
-import jCompute.Batch.BatchManager.Event.BatchProgressEvent;
+import jCompute.Cluster.BatchManager.Event.BatchAddedEvent;
+import jCompute.Cluster.BatchManager.Event.BatchFinishedEvent;
+import jCompute.Cluster.BatchManager.Event.BatchPositionEvent;
+import jCompute.Cluster.BatchManager.Event.BatchProgressEvent;
 import jCompute.Cluster.Controller.ControlNode.ControlNode;
 import jCompute.Cluster.Controller.ControlNode.Event.ControlNodeItemStateEvent;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest;

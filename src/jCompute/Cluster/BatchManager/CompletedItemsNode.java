@@ -1,4 +1,4 @@
-package jCompute.Batch.BatchManager;
+package jCompute.Cluster.BatchManager;
 
 import jCompute.Batch.BatchItem;
 import jCompute.Stats.StatExporter;

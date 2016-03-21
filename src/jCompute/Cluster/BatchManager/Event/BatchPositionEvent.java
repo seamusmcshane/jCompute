@@ -1,4 +1,4 @@
-package jCompute.Batch.BatchManager.Event;
+package jCompute.Cluster.BatchManager.Event;
 
 import jCompute.Batch.Batch;
 

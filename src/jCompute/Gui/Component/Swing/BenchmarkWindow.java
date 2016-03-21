@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.io.Files;
 
-import jCompute.Batch.BatchManager.BatchManager;
+import jCompute.Cluster.BatchManager.BatchManager;
 import jCompute.util.FileUtil;
 
 import java.io.File;
