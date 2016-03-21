@@ -34,7 +34,7 @@ public class DiskCache implements Comparator<CacheItem>
 
 	// Mem Cache
 	private final boolean memCacheEnabled;
-	private final int MEM_CACHE_SIZE = 10;
+	private final int MEM_CACHE_SIZE = 1024;
 	private CacheItem itemMemCache[];
 	private int itemsInMemCache;
 
@@ -55,6 +55,8 @@ public class DiskCache implements Comparator<CacheItem>
 		this.compressionLevel = compressionLevel;
 
 		memCacheEnabled = useMemCache;
+		
+		log.info("Disk Cache Mem Cache : " + memCacheEnabled);
 
 		if(memCacheEnabled)
 		{
@@ -313,7 +315,7 @@ public class DiskCache implements Comparator<CacheItem>
 
 				log.info("Added " + itemMemCache[itemsInMemCache - 1].getId());
 			}
-			
+
 			for(CacheItem item : itemMemCache)
 			{
 				log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
