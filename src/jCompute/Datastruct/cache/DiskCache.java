@@ -34,7 +34,10 @@ public class DiskCache implements Comparator<CacheItem>
 
 	// Mem Cache
 	private final boolean memCacheEnabled;
-	private final int MEM_CACHE_SIZE = 1024;
+	private final int MIN_MEM_CACHE_SIZE = 1000;
+	private final int MAX_MEM_CACHE_SIZE = 40000;
+	private final int memCacheSize;
+
 	private CacheItem itemMemCache[];
 	private int itemsInMemCache;
 
@@ -47,21 +50,40 @@ public class DiskCache implements Comparator<CacheItem>
 	// We need to know the size and ratio to create a perfect mapping of duplicates
 	public DiskCache(boolean useMemCache, int cacheSize, int uniqueRatio, String storageLocation, int compressionLevel)
 	{
-		// i.e location/diskCache
-		diskCacheLocation = storageLocation + File.separator + "diskCache";
-
-		compressFiles = true;
-
-		this.compressionLevel = compressionLevel;
-
 		memCacheEnabled = useMemCache;
-		
-		log.info("Disk Cache Mem Cache : " + memCacheEnabled);
 
 		if(memCacheEnabled)
 		{
+			// Try 10 percent of cache size
+			int tempMemCacheSize = cacheSize / 10;
+
+			// check the calculated value
+			if(tempMemCacheSize < MIN_MEM_CACHE_SIZE)
+			{
+				// Too small use the min
+				tempMemCacheSize = MIN_MEM_CACHE_SIZE;
+			}
+			if(tempMemCacheSize > MAX_MEM_CACHE_SIZE)
+			{
+				// Too big use the max
+				tempMemCacheSize = MAX_MEM_CACHE_SIZE;
+			}
+
+			// Set mem cache size
+			memCacheSize = tempMemCacheSize;
+
+			log.info("Disk Cache (Mem Cache) Size : " + memCacheSize);
+
 			initMemCache();
 		}
+		else
+		{
+			// variable is final.
+			memCacheSize = 0;
+		}
+
+		// always log
+		log.info("Disk Cache Mem Cache : " + memCacheEnabled);
 
 		if(cacheSize == 0)
 		{
@@ -73,8 +95,16 @@ public class DiskCache implements Comparator<CacheItem>
 			log.error("Non unique is zero");
 		}
 
-		log.info("Disk Cache c/r " + cacheSize + "/" + uniqueRatio);
+		// i.e location/diskCache
+		diskCacheLocation = storageLocation + File.separator + "diskCache";
+		log.info("Disk Cache location " + diskCacheLocation);
 
+		// always compress
+		compressFiles = true;
+
+		this.compressionLevel = compressionLevel;
+
+		log.info("Disk Cache c/r " + cacheSize + "/" + uniqueRatio);
 		initCache(cacheSize, uniqueRatio);
 	}
 
@@ -95,7 +125,7 @@ public class DiskCache implements Comparator<CacheItem>
 	{
 		itemsInMemCache = 0;
 
-		itemMemCache = new CacheItem[MEM_CACHE_SIZE];
+		itemMemCache = new CacheItem[memCacheSize];
 	}
 
 	public void clear()
@@ -292,7 +322,7 @@ public class DiskCache implements Comparator<CacheItem>
 		}
 
 		// If mem cache is full - remove last if needed
-		if(itemsInMemCache == MEM_CACHE_SIZE)
+		if(itemsInMemCache == memCacheSize)
 		{
 			// Sort the items by NLRA
 			Arrays.sort(itemMemCache, this);
