@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.zip.Deflater;
 import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ public abstract class ItemGenerator
 
 	// Generated here
 	private String batchStatsExportDir;
-	private DiskCache itemDiskCache;
 
 	// Type interface methods
 	public abstract String[] getGroupNames();
@@ -36,6 +34,9 @@ public abstract class ItemGenerator
 	public abstract ArrayList<String> getParameters();
 
 	public abstract ZipOutputStream getResultsZipOut();
+
+	// where are the item configurations kept
+	public abstract DiskCache getItemDiskCache();
 
 	public abstract int getGeneratedItemCount();
 
@@ -109,11 +110,6 @@ public abstract class ItemGenerator
 				FileUtil.createDirIfNotExist(batchStatsExportDir);
 
 				log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
-
-				// Create DiskCache
-				itemDiskCache = new DiskCache(batchStatsExportDir, Deflater.BEST_SPEED);
-
-				log.info("Created an Item DiskCache for Batch " + batchId);
 			}
 		}
 	}
@@ -128,12 +124,6 @@ public abstract class ItemGenerator
 	public final ConfigurationInterpreter getBatchConfigProcessor()
 	{
 		return batchConfigProcessor;
-	}
-
-	// The batch needs this and Sub Classes can call this
-	public final DiskCache getItemDiskCache()
-	{
-		return itemDiskCache;
 	}
 
 	// The batch needs this.

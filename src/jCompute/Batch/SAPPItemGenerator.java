@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.Batch.ItemGenerator.ItemGenerator;
+import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.util.FileUtil;
 import jCompute.util.JCMath;
@@ -25,16 +27,16 @@ public class SAPPItemGenerator extends ItemGenerator
 
 	private final String GeneratorName = "SAPPItemGenerator";
 
-	private LinkedList<BatchItem> destinationItemList;
-	private int itemSamples;
+	private final LinkedList<BatchItem> destinationItemList;
+	private final int itemSamples;
 
-	private double[] progress1dArray;
-	private String baseScenarioText;
+	private final double[] progress1dArray;
+	private final String baseScenarioText;
 
-	private boolean storeStats;
-	private boolean statsMethodSingleArchive;
-	private int singleArchiveCompressionLevel;
-	private int bosBufferSize;
+	private final boolean storeStats;
+	private final boolean statsMethodSingleArchive;
+	private final int singleArchiveCompressionLevel;
+	private final int bosBufferSize;
 
 	// Returnable
 	private String[] groupName;
@@ -42,6 +44,7 @@ public class SAPPItemGenerator extends ItemGenerator
 	private ArrayList<String> parameters;
 	private ZipOutputStream resultsZipOut;
 	private int itemsCount;
+	private DiskCache itemDiskCache;
 
 	// Generation Progress
 	private boolean needGenerated;
@@ -59,7 +62,20 @@ public class SAPPItemGenerator extends ItemGenerator
 		this.baseScenarioText = baseScenarioText;
 		this.storeStats = storeStats;
 		this.statsMethodSingleArchive = statsMethodSingleArchive;
-		this.singleArchiveCompressionLevel = singleArchiveCompressionLevel;
+
+		if(singleArchiveCompressionLevel > 9)
+		{
+			this.singleArchiveCompressionLevel = 9;
+		}
+		else if(singleArchiveCompressionLevel < 0)
+		{
+			this.singleArchiveCompressionLevel = 0;
+		}
+		else
+		{
+			this.singleArchiveCompressionLevel = singleArchiveCompressionLevel;
+		}
+
 		this.bosBufferSize = bosBufferSize;
 
 		needGenerated = true;
@@ -226,6 +242,13 @@ public class SAPPItemGenerator extends ItemGenerator
 			combinations *= step[s];
 		}
 
+		// Calculate required cache size and unique ratio
+		int cacheSize = combinations * itemSamples;
+		int uniqueRatio = combinations;
+
+		itemDiskCache = new DiskCache(true, cacheSize, uniqueRatio, super.getBatchStatsExportDir(), Deflater.BEST_SPEED);
+		log.info("Created an Item DiskCache for Batch " + super.getBatchId());
+
 		// When to increment values in the combos
 		int incrementMods[] = new int[parameterGroups];
 		int div = combinations;
@@ -269,16 +292,6 @@ public class SAPPItemGenerator extends ItemGenerator
 
 				resultsZipOut = new ZipOutputStream(bos);
 
-				if(singleArchiveCompressionLevel > 9)
-				{
-					singleArchiveCompressionLevel = 9;
-				}
-
-				if(singleArchiveCompressionLevel < 0)
-				{
-					singleArchiveCompressionLevel = 0;
-				}
-
 				resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
 				resultsZipOut.setLevel(singleArchiveCompressionLevel);
 			}
@@ -304,25 +317,25 @@ public class SAPPItemGenerator extends ItemGenerator
 				// Create Sub Directories Entry in Zip Archive or a disk Directory
 				if(statsMethodSingleArchive)
 				{
-	
+
 					try
 					{
 						// Create Item Directories
 						resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/"));
 						resultsZipOut.closeEntry();
-	
+
 						for(int sid = 1; sid < (itemSamples + 1); sid++)
 						{
 							// Create Sample Directories
 							resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(c) + "/" + Integer.toString(sid) + "/"));
 							resultsZipOut.closeEntry();
 						}
-	
+
 					}
 					catch(IOException e)
 					{
 						log.error("Could not create create directory " + c + " in " + zipPath);
-	
+
 						e.printStackTrace();
 					}
 				}
@@ -330,11 +343,11 @@ public class SAPPItemGenerator extends ItemGenerator
 				{
 					// Create the item export dir
 					FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + c);
-	
+
 					for(int sid = 1; sid < (itemSamples + 1); sid++)
 					{
 						String fullExportPath = batchStatsExportDir + File.separator + c + File.separator + sid;
-	
+
 						// Create the item sample full export path dir
 						FileUtil.createDirIfNotExist(fullExportPath);
 					}
@@ -515,7 +528,7 @@ public class SAPPItemGenerator extends ItemGenerator
 			log.debug(itemName.toString());
 
 			// Add the generated item.
-			addItem(itemSamples, c, itemName.toString(), temp.getText(), tempCoord, tempCoordValues, storeStats);
+			addItem(c, itemSamples, itemName.toString(), temp.getText(), tempCoord, tempCoordValues, storeStats);
 
 			// Update the current progress
 			progress1dArray[0] = ((double) c / (double) combinations) * 100.0;
@@ -537,14 +550,14 @@ public class SAPPItemGenerator extends ItemGenerator
 		log.info((int) progress1dArray[0] + "%");
 
 		needGenerated = false;
-		
+
 		// TODO validate this generation.
-		
+
 		return true;
 	}
 
 	// Small wrapper around queue add and disk cache
-	private void addItem(int samples, int id, String name, String configText, ArrayList<Integer> coordinates, ArrayList<Float> coordinatesValues,
+	private void addItem(int uniqueId, int samples, String name, String configText, ArrayList<Integer> coordinates, ArrayList<Float> coordinatesValues,
 	boolean storeStats)
 	{
 		byte[] configBytes = null;
@@ -557,16 +570,24 @@ public class SAPPItemGenerator extends ItemGenerator
 			e.printStackTrace();
 		}
 
-		// Add to disk cache and get the hash
-		String itemHash = super.getItemDiskCache().addFile(configBytes);
-
 		// SID/SampleId is 1 base/ 1=first sample
 		for(int sid = 1; sid < (samples + 1); sid++)
 		{
-			destinationItemList.add(new BatchItem(sid, id, super.getBatchId(), name, itemHash, coordinates, coordinatesValues, storeStats));
-			itemsCount++;
-		}
+			try
+			{
+				// Add to disk cache and get an individual item cache index
+				int cacheIndex = itemDiskCache.addData(uniqueId, configBytes);
 
+				destinationItemList.add(new BatchItem(uniqueId, sid, super.getBatchId(), name, cacheIndex, coordinates, coordinatesValues, storeStats));
+				itemsCount++;
+			}
+			catch(IOException e)
+			{
+				log.error("Error adding item to disk cache");
+
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -599,4 +620,9 @@ public class SAPPItemGenerator extends ItemGenerator
 		return itemsCount;
 	}
 
+	@Override
+	public DiskCache getItemDiskCache()
+	{
+		return itemDiskCache;
+	}
 }
