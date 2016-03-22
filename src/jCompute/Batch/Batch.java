@@ -56,7 +56,11 @@ public class Batch implements StoredQueuePosition
 	private ArrayList<String> parameters;
 
 	// Set if this batch's items can be processed (stop/start)
-	private boolean status = false;
+	private boolean batchEnabled;
+
+	// Or if it has failed
+	private boolean failed;
+
 	private String type;
 
 	// Items Management
@@ -125,12 +129,12 @@ public class Batch implements StoredQueuePosition
 	// Completed items count
 	private int itemsCompleted = 0;
 
-	// Batch Finished Status
-	private boolean finished;
-	private boolean failed;
-
-	// Get Batch Info Cache (Non Changing Data / All Final Info )
+	// Info Cache (Non Changing Data)
 	private ArrayList<String> infoCache;
+
+	// Compacted info is created end of the batch (from now static info) and used in place of the live info normally generated when getBatchInfo is called.
+	private String[] compactedInfo;
+	private boolean infoCompacted;
 
 	// The base directory path
 	private String baseDirectoryPath;
@@ -161,7 +165,13 @@ public class Batch implements StoredQueuePosition
 		// Active Items
 		active = 0;
 
-		finished = false;
+		// Not enabled
+		batchEnabled = false;
+
+		// Batch info is not compacted until batch is complete
+		infoCompacted = false;
+		compactedInfo = null;
+
 		failed = false;
 	}
 
@@ -238,9 +248,9 @@ public class Batch implements StoredQueuePosition
 		}
 
 		// Last check - set the batch status to the outcome, if ok the batch will be enabled.
-		status = processBatchConfig(batchConfigText);
+		batchEnabled = processBatchConfig(batchConfigText);
 
-		return status;
+		return batchEnabled;
 	}
 
 	/**
@@ -408,9 +418,8 @@ public class Batch implements StoredQueuePosition
 	}
 
 	/**
-	 * This method is used for lazy initialisation of a batch.
-	 * This prevents considerable up-front processor usage when more than 1 batch is added as we then avoid generating items till the batch is scheduled.
-	 * It can safe considerable a mounts of memory and disk space where there are multiple batches queued (vs all generated when added).
+	 * This method is used for lazy initialisation of a batch. This prevents considerable up-front processor usage when more than 1 batch is added as we then avoid generating items
+	 * till the batch is scheduled. It can safe considerable a mounts of memory and disk space where there are multiple batches queued (vs all generated when added).
 	 */
 	public void init()
 	{
@@ -494,7 +503,7 @@ public class Batch implements StoredQueuePosition
 		{
 			try
 			{
-
+				
 				switch(ITEM_LOG_VERSION)
 				{
 					case 1:
@@ -598,7 +607,7 @@ public class Batch implements StoredQueuePosition
 		// Only Save configs if stats are enabled
 		if(storeStats)
 		{
-
+			
 			if(statsMethodSingleArchive)
 			{
 				// Export the stats
@@ -732,12 +741,7 @@ public class Batch implements StoredQueuePosition
 				}
 			}
 
-			log.info("Clearing Batch " + batchId + " DiskCache");
-			itemDiskCache.clear();
-
 			performBatchFinishedCompaction();
-
-			finished = true;
 		}
 
 		batchLock.release();
@@ -801,6 +805,235 @@ public class Batch implements StoredQueuePosition
 		return 0;
 	}
 
+	private void addBatchInfoSectionHeader(boolean formated, boolean pad, String text, ArrayList<String> targetList)
+	{
+		// Pad with a line
+		// The top section header is not padded, other main section headers are, other wise a subsection is not,
+		if(pad)
+		{
+			targetList.add("");
+			targetList.add("");
+		}
+
+		// The Section Header Text Formated
+		if(formated)
+		{
+			targetList.add("<html><b>" + text + "</b></html>");
+		}
+		else
+		{
+			targetList.add(text);
+		}
+		targetList.add("");
+	}
+
+	private void addBatchDetailsHeaderToList(boolean formated, boolean batchGenerated, ArrayList<String> targetList)
+	{
+		addBatchInfoSectionHeader(formated, true, "Batch", targetList);
+
+		targetList.add("Id");
+		targetList.add(String.valueOf(batchId));
+		targetList.add("Name");
+		targetList.add(batchName);
+		targetList.add("Scenario Type");
+		targetList.add(type);
+
+		if(batchGenerated)
+		{
+			// Values wont exist if not generated
+			addBatchInfoSectionHeader(formated, false, "Item", targetList);
+			targetList.add("Unique Items");
+			targetList.add(String.valueOf(batchItems / itemSamples));
+			targetList.add("Sample per Item");
+			targetList.add(String.valueOf(itemSamples));
+			targetList.add("Total Items");
+			targetList.add(String.valueOf(batchItems));
+			targetList.add("Max Steps");
+			targetList.add(String.valueOf(maxSteps));
+
+			addBatchInfoSectionHeader(formated, false, "Parameters", targetList);
+			targetList.addAll(parameters);
+		}
+
+		addBatchInfoSectionHeader(formated, false, "Files/Paths", targetList);
+		targetList.add("Batch");
+		targetList.add(batchFileName);
+		targetList.add("Scenario");
+		targetList.add(baseScenarioFileName);
+		targetList.add("Base");
+		targetList.add(baseDirectoryPath);
+		targetList.add("Export");
+		targetList.add(batchStatsExportDir);
+
+		addBatchInfoSectionHeader(formated, false, "Statistics", targetList);
+		targetList.add("Stats Store");
+		targetList.add(storeStats == true ? "Enabled" : "Disabled");
+		targetList.add("Single Archive");
+		targetList.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
+		targetList.add("Buffer Size");
+		targetList.add(String.valueOf(bosBufferSize));
+		targetList.add("Compression Level");
+		targetList.add(String.valueOf(singleArchiveCompressionLevel));
+		targetList.add("Info Log");
+		targetList.add(infoLogEnabled == true ? "Enabled" : "Disabled");
+		targetList.add("Item Log");
+		targetList.add(itemLogEnabled == true ? "Enabled" : "Disabled");
+	}
+
+	private void addBatchDetailsQueueInfoToList(boolean formated, ArrayList<String> targetList)
+	{
+		addBatchInfoSectionHeader(formated, false, "Queue", targetList);
+
+		targetList.add("Position");
+		targetList.add(String.valueOf(position));
+		targetList.add("Status");
+		targetList.add(batchEnabled == true ? "Enabled" : "Disabled");
+	}
+
+	private void addBatchDetailsGenerationProgressInfoToList(boolean formated, boolean batchGenerated, ArrayList<String> targetList)
+	{
+		addBatchInfoSectionHeader(formated, true, "Generation", targetList);
+
+		targetList.add("Generated");
+		targetList.add(batchGenerated ? "Yes" : "No");
+		targetList.add("Progress");
+		targetList.add(String.valueOf(generationProgress[0]));
+	}
+
+	private void addBatchDetailsItemInfoToList(boolean formated, ArrayList<String> targetList)
+	{
+		addBatchInfoSectionHeader(formated, true, "Items", targetList);
+
+		targetList.add("Active");
+		targetList.add(String.valueOf(getActiveItemsCount()));
+		targetList.add("Completed");
+		targetList.add(String.valueOf(itemsCompleted));
+		targetList.add("Requested");
+		targetList.add(String.valueOf(itemsRequested));
+		targetList.add("Returned");
+		targetList.add(String.valueOf(itemsReturned));
+	}
+
+	private void addBatchDetailsDiskCacheInfoToList(boolean formated, ArrayList<String> targetList)
+	{
+		addBatchInfoSectionHeader(formated, true, "DiskCache", targetList);
+
+		targetList.add("Cache Size");
+		targetList.add(String.valueOf(itemDiskCache.getCacheSize()));
+		targetList.add("Unique Ratio");
+		targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
+		targetList.add("MemCacheEnabled");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
+		targetList.add("M/C Hit");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheHit()));
+		targetList.add("M/C Miss");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
+		targetList.add("M/C H/M");
+		targetList.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
+	}
+
+	private void addBatchDetailsComputeInfoToList(boolean formated, ArrayList<String> targetList)
+	{
+		int div = 1;
+		if(itemsCompleted > 0)
+		{
+			div = itemsCompleted;
+		}
+
+		addBatchInfoSectionHeader(formated, true, "Item Times", targetList);
+
+		targetList.add("Total Cpu");
+		targetList.add(Text.longTimeToDHMSM(cpuTotalTimes));
+		targetList.add("Avg Cpu");
+		targetList.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
+
+		targetList.add("Items IO");
+		targetList.add(Text.longTimeToDHMSM(ioTotalTimes));
+		targetList.add("Items IO");
+		targetList.add(Text.longTimeToDHMSM(ioTotalTimes / div));
+
+		targetList.add("Items Total");
+		targetList.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
+		targetList.add("Items Avg");
+		targetList.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
+	}
+
+	private void addBatchDetailsTimeInfoToList(boolean formated, boolean batchGenerated, ArrayList<String> targetList)
+	{
+		addBatchInfoSectionHeader(formated, true, "Batch Times", targetList);
+
+		targetList.add("Added");
+		targetList.add(addedDateTime);
+		targetList.add("Started");
+		targetList.add(startDateTime);
+
+		if(batchGenerated)
+		{
+			targetList.add("Est Finished");
+			targetList.add(jCompute.util.Text.timeNowPlus(getETT()));
+			targetList.add("Finished");
+			targetList.add(endDateTime);
+			targetList.add("Running");
+			targetList.add(Text.longTimeToDHMS(getRunTime()));
+			targetList.add("Running (s)");
+			targetList.add(String.valueOf(((double) getRunTime() / (double) 1000)));
+		}
+	}
+
+	private void populateListWithBatchInfo(boolean formated, boolean batchIsGenerated, ArrayList<String> targetList)
+	{
+		// If failed add a message directly to the the top of the info list
+		if(failed)
+		{
+			targetList.add("<html><b><font color='red'>Warning</font></b></html>");
+			targetList.add("<html><b><font color='red'>Batch Failed</font></b></html>");
+		}
+
+		// Always add batches queue info
+		addBatchDetailsQueueInfoToList(formated, targetList);
+
+		// If generated cache some non changing values and reuse them each call
+		if(batchIsGenerated)
+		{
+			// do once
+			if(infoCache == null)
+			{
+				infoCache = new ArrayList<String>();
+
+				// Add the batch header - batchIsGenerated used to skip any values that don't exist
+				addBatchDetailsHeaderToList(formated, batchIsGenerated, infoCache);
+
+				// Cache the final progress info - in this case batchIsGenerated is used for informational purposes
+				addBatchDetailsGenerationProgressInfoToList(formated, batchIsGenerated, infoCache);
+			}
+
+			// Add the non changing cached values.
+			targetList.addAll(infoCache);
+
+			// item info.
+			addBatchDetailsItemInfoToList(formated, targetList);
+
+			// disk cache info.
+			addBatchDetailsDiskCacheInfoToList(formated, targetList);
+
+			// compute stats
+			addBatchDetailsComputeInfoToList(formated, targetList);
+
+			// Add the current time info minus any values that are valid yet (batchIsGenerated)
+			addBatchDetailsTimeInfoToList(formated, batchIsGenerated, targetList);
+		}
+		else
+		{
+			// If not generated add reduced info and info each call.
+
+			// Add the batch header - batchIsGenerated used to skip any values that don't exist
+			addBatchDetailsHeaderToList(formated, batchIsGenerated, targetList);
+
+			// Add progress each call (it updates until finished) - in this case batchIsGenerated is used for informational purposes
+			addBatchDetailsGenerationProgressInfoToList(formated, batchIsGenerated, targetList);
+		}
+	}
+
 	/*
 	 * Batch Info Getter
 	 */
@@ -808,334 +1041,57 @@ public class Batch implements StoredQueuePosition
 	{
 		batchLock.acquireUninterruptibly();
 
-		ArrayList<String> info = new ArrayList<String>();
+		// Formated array of strings (Field/Value)
+		String[] batchInfo = null;
 
-		if(!finished)
+		// Check if the batch info is compacted.
+		if(!infoCompacted)
 		{
-			if(!needGenerated.get())
-			{
-				// Cache the non changing values
-				if(infoCache == null)
-				{
-					infoCache = new ArrayList<String>();
+			// Not compacted - info must be generated and infoCache will be used for non changing values
 
-					infoCache.add("Id");
-					infoCache.add(String.valueOf(batchId));
-					infoCache.add("Name");
-					infoCache.add(batchName);
-					infoCache.add("Scenario Type");
-					infoCache.add(type);
+			// The list that is returned
+			ArrayList<String> info = new ArrayList<String>();
 
-					infoCache.add("");
-					infoCache.add("");
-					infoCache.add("Unique Items");
-					infoCache.add(String.valueOf(batchItems / itemSamples));
-					infoCache.add("Sample per Item");
-					infoCache.add(String.valueOf(itemSamples));
-					infoCache.add("Total Items");
-					infoCache.add(String.valueOf(batchItems));
-					infoCache.add("Max Steps");
-					infoCache.add(String.valueOf(maxSteps));
+			// Has the batch been generated - Note !
+			boolean batchIsGenerated = !needGenerated.get();
 
-					// Add The parameters and free
-					infoCache.addAll(parameters);
+			populateListWithBatchInfo(true, batchIsGenerated, info);
 
-					infoCache.add("");
-					infoCache.add("");
-					infoCache.add("Batch File");
-					infoCache.add(batchFileName);
+			// Size the array.
+			batchInfo = new String[info.size()];
 
-					infoCache.add("Scenario");
-					infoCache.add(baseScenarioFileName);
-					infoCache.add("Directory");
-					infoCache.add(baseDirectoryPath);
-					infoCache.add("Export Directory");
-					infoCache.add(batchStatsExportDir);
-
-					infoCache.add("");
-					infoCache.add("");
-					infoCache.add("Stats Store");
-					infoCache.add(storeStats == true ? "Enabled" : "Disabled");
-					infoCache.add("Single Archive");
-					infoCache.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
-					infoCache.add("Buffer Size");
-					infoCache.add(String.valueOf(bosBufferSize));
-					infoCache.add("Compression Level");
-					infoCache.add(String.valueOf(singleArchiveCompressionLevel));
-					infoCache.add("Info Log");
-					infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
-					infoCache.add("Item Log");
-					infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
-				}
-			}
-
-			// Add The Cache Header
-			if(failed)
-			{
-				info.add("Warning");
-				info.add("Batch Failed");
-			}
-			info.add("Queue Position");
-			info.add(String.valueOf(position));
-			info.add("Status");
-			info.add(status == true ? "Enabled" : "Disabled");
-
-			if(!needGenerated.get())
-			{
-				// Add the cached values
-				info.addAll(infoCache);
-			}
-			else
-			{
-				info.add("Id");
-				info.add(String.valueOf(batchId));
-				info.add("Name");
-				info.add(batchName);
-				info.add("Scenario Type");
-				info.add(type);
-
-				info.add("");
-				info.add("");
-				info.add("Batch File");
-				info.add(batchFileName);
-				info.add("Scenario");
-				info.add(baseScenarioFileName);
-				info.add("Directory");
-				info.add(baseDirectoryPath);
-				info.add("Export Directory");
-				info.add(batchStatsExportDir);
-
-				info.add("");
-				info.add("");
-				info.add("Stats Store");
-				info.add(storeStats == true ? "Enabled" : "Disabled");
-				info.add("Single Archive");
-				info.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
-				info.add("Buffer Size");
-				info.add(String.valueOf(bosBufferSize));
-				info.add("Compression Level");
-				info.add(String.valueOf(singleArchiveCompressionLevel));
-				info.add("Info Log");
-				info.add(infoLogEnabled == true ? "Enabled" : "Disabled");
-				info.add("Item Log");
-				info.add(itemLogEnabled == true ? "Enabled" : "Disabled");
-			}
-
-			info.add("");
-			info.add("");
-			info.add("Items Generated");
-			info.add(needGenerated.get() == false ? "Yes" : "No");
-			info.add("Generation Progress");
-			info.add(String.valueOf(generationProgress[0]));
-
-			if(!needGenerated.get())
-			{
-				info.add("");
-				info.add("");
-				info.add("Active Items");
-				info.add(String.valueOf(getActiveItemsCount()));
-
-				info.add("Items Completed");
-				info.add(String.valueOf(itemsCompleted));
-				info.add("Items Requested");
-				info.add(String.valueOf(itemsRequested));
-				info.add("Items Returned");
-				info.add(String.valueOf(itemsReturned));
-
-				info.add("");
-				info.add("");
-				info.add("Cache Size");
-				info.add(String.valueOf(itemDiskCache.getCacheSize()));
-				info.add("Unique Ratio");
-				info.add(String.valueOf(itemDiskCache.getUniqueRatio()));
-				info.add("MemCacheEnabled");
-				info.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
-				info.add("Mem CacheHit");
-				info.add(String.valueOf(itemDiskCache.getMemCacheHit()));
-				info.add("MemCacheMiss");
-				info.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
-				info.add("MemCacheHMRatio");
-				info.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
-
-				int div = 1;
-				if(itemsCompleted > 0)
-				{
-					div = itemsCompleted;
-				}
-
-				info.add("");
-				info.add("");
-				info.add("Items Cpu Time");
-				info.add(Text.longTimeToDHMSM(cpuTotalTimes));
-				info.add("Items Cpu Avg");
-				info.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
-
-				info.add("Items IO Time");
-				info.add(Text.longTimeToDHMSM(ioTotalTimes));
-				info.add("Items IO Avg");
-				info.add(Text.longTimeToDHMSM(ioTotalTimes / div));
-
-				info.add("Items Total Time");
-				info.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
-				info.add("Items Avg Time");
-				info.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
-			}
-
-			info.add("");
-			info.add("");
-			info.add("Added");
-			info.add(addedDateTime);
-			info.add("Started");
-			info.add(startDateTime);
-			if(!needGenerated.get())
-			{
-				info.add("Est Finished");
-				info.add(jCompute.util.Text.timeNowPlus(getETT()));
-				info.add("Finished");
-				info.add(endDateTime);
-				info.add("Run Time");
-				info.add(Text.longTimeToDHMS(getRunTime()));
-			}
+			// Copy data to the array
+			info.toArray(batchInfo);
 		}
 		else
 		{
-			info.addAll(infoCache);
+			// BatchInfo was compacted - use the compacted info - there is nothing to generate.
+			batchInfo = compactedInfo;
 		}
 
 		batchLock.release();
 
-		return info.toArray(new String[info.size()]);
+		return batchInfo;
 	}
 
+	// This method should only be called when the batch has successfully finished and anything needed is wrote to disk before hand
+	// When called the batchLock needs to be already acquired.
 	private void performBatchFinishedCompaction()
 	{
 		log.info("Compacting Batch Info");
 
-		infoCache = new ArrayList<String>();
+		// We clear and use info cache this time for cache the final info before freeing memory as much as we can
+		ArrayList<String> finalInfo = new ArrayList<String>();
 
-		infoCache.add("Id");
-		infoCache.add(String.valueOf(batchId));
-		infoCache.add("Name");
-		infoCache.add(batchName);
-		infoCache.add("Scenario Type");
-		infoCache.add(type);
+		// Populate the final info list
+		populateListWithBatchInfo(true, true, finalInfo);
 
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Unique Items");
-		infoCache.add(String.valueOf(batchItems / itemSamples));
-		infoCache.add("Sample per Item");
-		infoCache.add(String.valueOf(itemSamples));
-		infoCache.add("Total Items");
-		infoCache.add(String.valueOf(batchItems));
-		infoCache.add("Max Steps");
-		infoCache.add(String.valueOf(maxSteps));
-
-		// Add The parameters
-		infoCache.addAll(parameters);
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Batch File");
-		infoCache.add(batchFileName);
-		infoCache.add("Scenario");
-		infoCache.add(baseScenarioFileName);
-		infoCache.add(baseDirectoryPath);
-		infoCache.add("Export Directory");
-		infoCache.add("Export Directory");
-		infoCache.add(batchStatsExportDir);
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Stats Store");
-		infoCache.add(storeStats == true ? "Enabled" : "Disabled");
-		infoCache.add("Single Archive");
-		infoCache.add(statsMethodSingleArchive == true ? "Enabled" : "Disabled");
-		infoCache.add("Buffer Size");
-		infoCache.add(String.valueOf(bosBufferSize));
-		infoCache.add("Compression Level");
-		infoCache.add(String.valueOf(singleArchiveCompressionLevel));
-		infoCache.add("Info Log");
-		infoCache.add(infoLogEnabled == true ? "Enabled" : "Disabled");
-		infoCache.add("Item Log");
-		infoCache.add(itemLogEnabled == true ? "Enabled" : "Disabled");
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Items Generated");
-		infoCache.add(needGenerated.get() == false ? "Yes" : "No");
-		infoCache.add("Generation Progress");
-		infoCache.add(String.valueOf(generationProgress[0]));
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Active Items");
-		infoCache.add(String.valueOf(getActiveItemsCount()));
-
-		infoCache.add("Items Completed");
-		infoCache.add(String.valueOf(itemsCompleted));
-		infoCache.add("Items Requested");
-		infoCache.add(String.valueOf(itemsRequested));
-		infoCache.add("Items Returned");
-		infoCache.add(String.valueOf(itemsReturned));
-
-		int div = 1;
-		if(itemsCompleted > 0)
-		{
-			div = itemsCompleted;
-		}
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Items Cpu Time");
-		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes));
-		infoCache.add("Items Cpu Avg");
-		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes / div));
-
-		infoCache.add("Items IO Time");
-		infoCache.add(Text.longTimeToDHMSM(ioTotalTimes));
-		infoCache.add("Items IO Avg");
-		infoCache.add(Text.longTimeToDHMSM(ioTotalTimes / div));
-
-		infoCache.add("Items Total Time");
-		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
-		infoCache.add("Items Avg Time");
-		infoCache.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Cache Size");
-		infoCache.add(String.valueOf(itemDiskCache.getCacheSize()));
-		infoCache.add("Unique Ratio");
-		infoCache.add(String.valueOf(itemDiskCache.getUniqueRatio()));
-		infoCache.add("MemCacheEnabled");
-		infoCache.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
-		infoCache.add("Mem CacheHit");
-		infoCache.add(String.valueOf(itemDiskCache.getMemCacheHit()));
-		infoCache.add("MemCacheMiss");
-		infoCache.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
-		infoCache.add("MemCacheHMRatio");
-		infoCache.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
-
-		infoCache.add("");
-		infoCache.add("");
-		infoCache.add("Added");
-		infoCache.add(addedDateTime);
-		infoCache.add("Started");
-		infoCache.add(startDateTime);
-		infoCache.add("Est Finished");
-		infoCache.add(jCompute.util.Text.timeNowPlus(getETT()));
-		infoCache.add("Finished");
-		infoCache.add(endDateTime);
-		infoCache.add("Run Time");
-		infoCache.add(Text.longTimeToDHMS(getRunTime()));
-		infoCache.add("Run Time (s)");
-
-		infoCache.add(String.valueOf(((double) getRunTime() / (double) 1000)));
+		// Now begin compacting all info in the batch
 
 		// Batch Attributes
-		// batchName = null;
-		// priority = null;
+		// batchName - need to keep batch name.
+		// priority - need to keep priority.
+
 		baseScenarioFileName = null;
 		baseScenarioFileName = null;
 		parameters = null;
@@ -1167,16 +1123,31 @@ public class Batch implements StoredQueuePosition
 		// The active Items currently being processed.
 		activeItems = null;
 
+		// Info Cache can be cleared/nulled
+		infoCache.clear();
+		infoCache = null;
+
 		// The base directory
 		baseDirectoryPath = null;
 
 		// Base scenario text
 		baseScenarioText = null;
 
+		log.info("Clearing Batch " + batchId + " DiskCache");
+		itemDiskCache.clear();
+
 		// Disk Cache for Items
 		itemDiskCache = null;
 
-		log.info("Batch Info Compacted");
+		log.info("Batch was compacted information is now cached");
+
+		// Size the array.
+		compactedInfo = new String[finalInfo.size()];
+
+		// Copy data to the array
+		finalInfo.toArray(compactedInfo);
+
+		infoCompacted = true;
 	}
 
 	public void setStatus(boolean status)
