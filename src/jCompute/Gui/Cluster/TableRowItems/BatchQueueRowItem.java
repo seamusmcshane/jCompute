@@ -27,7 +27,7 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem, Integer>
 		position = batch.getPosition();
 		batchId = batch.getBatchId();
 		name = batch.getFileName();
-		status = batch.getStatus();
+		status = batch.isEnabled();
 		progress = batch.getProgress();
 
 		if(batch.getCompleted() > 0)

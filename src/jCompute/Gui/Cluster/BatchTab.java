@@ -636,7 +636,7 @@ public class BatchTab extends JPanel
 
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 
-		batchManager.setStatus(batchId, true);
+		batchManager.setBatchEnabled(batchId, true);
 	}
 
 	private String[] getSelectedBatchInfo()
@@ -687,7 +687,7 @@ public class BatchTab extends JPanel
 
 		int batchId = (int) batchQueuedTable.getValueAt(queuedSelectedBatchRowIndex, idColumn);
 
-		batchManager.setStatus(batchId, false);
+		batchManager.setBatchEnabled(batchId, false);
 	}
 
 	private void moveLast()

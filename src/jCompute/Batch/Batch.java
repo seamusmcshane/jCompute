@@ -56,7 +56,7 @@ public class Batch implements StoredQueuePosition
 	private ArrayList<String> parameters;
 
 	// Set if this batch's items can be processed (stop/start)
-	private boolean batchEnabled;
+	private boolean enabled;
 
 	// Or if it has failed
 	private boolean failed;
@@ -166,7 +166,7 @@ public class Batch implements StoredQueuePosition
 		active = 0;
 
 		// Not enabled
-		batchEnabled = false;
+		enabled = false;
 
 		// Batch info is not compacted until batch is complete
 		infoCompacted = false;
@@ -248,9 +248,9 @@ public class Batch implements StoredQueuePosition
 		}
 
 		// Last check - set the batch status to the outcome, if ok the batch will be enabled.
-		batchEnabled = processBatchConfig(batchConfigText);
+		enabled = processBatchConfig(batchConfigText);
 
-		return batchEnabled;
+		return enabled;
 	}
 
 	/**
@@ -887,7 +887,7 @@ public class Batch implements StoredQueuePosition
 		targetList.add("Position");
 		targetList.add(String.valueOf(position));
 		targetList.add("Status");
-		targetList.add(batchEnabled == true ? "Enabled" : "Disabled");
+		targetList.add(enabled == true ? "Enabled" : "Disabled");
 	}
 
 	private void addBatchDetailsGenerationProgressInfoToList(boolean formated, boolean batchGenerated, ArrayList<String> targetList)
@@ -1152,14 +1152,14 @@ public class Batch implements StoredQueuePosition
 		infoCompacted = true;
 	}
 
-	public void setStatus(boolean status)
+	public void setEnabled(boolean enable)
 	{
-		this.status = status;
+		enabled = enable;
 	}
 
-	public boolean getStatus()
+	public boolean isEnabled()
 	{
-		return status;
+		return enabled;
 	}
 
 	public String getFinished()

@@ -578,19 +578,18 @@ public class BatchManager
 		return info;
 	}
 
-	public void setStatus(int batchId, boolean status)
+	public void setBatchEnabled(int batchId, boolean enable)
 	{
 		batchManagerLock.acquireUninterruptibly();
 
 		Batch batch = findBatch(batchId);
 
-		// Remove batch from queues if disabled and add to stop else the reverse
-		// process for enabling
-		if(status == false)
+		// Remove batch from queues if disabled and add to stop list
+		if(enable == false)
 		{
-			if(batch.getStatus() != status)
+			if(batch.isEnabled() != enable)
 			{
-				batch.setStatus(status);
+				batch.setEnabled(enable);
 
 				// In Fifo
 				fifoQueue.remove(batch);
@@ -603,15 +602,15 @@ public class BatchManager
 
 				positionsChangedInQueue(fifoQueue);
 			}
-
 		}
 		else
 		{
+			// Else reverse process for enabling but only if it was not disabled due to failing
 			if(!batch.hasFailed())
 			{
-				if(batch.getStatus() != status)
+				if(batch.isEnabled() != enable)
 				{
-					batch.setStatus(status);
+					batch.setEnabled(enable);
 
 					// In Fifo
 					fifoQueue.add(batch);
@@ -780,7 +779,7 @@ public class BatchManager
 
 		Batch batch = findBatch(batchId);
 
-		boolean status = batch.getStatus();
+		boolean status = batch.isEnabled();
 
 		log.info("Batch " + batch.getBatchId() + " " + batch.getFileName() + " Removed");
 
@@ -879,30 +878,32 @@ public class BatchManager
 		switch(result)
 		{
 			case SUCESSFUL:
-
+			{
 				switch(operation)
 				{
 					case ADD:
-
-						//
+					{
+						// Reply says item add was successfully accepted
 						itemsLock.acquireUninterruptibly();
 						activeItems.add(batchItem);
 						itemsLock.release();
-
+					}
 					break;
 					case REMOVE:
-
-					// TODO
-
+					{
+						// Reply says item add was successfully removed - not yet needed to be handled due to current NCP  not supporting removing items
+						// Log an error if we ever get one due to an NCP change
+						log.error("ControlNodeItemRequestReply " + result.toString() + " Operation " + operation.toString() + " Batch " + batchItem.getBatchId()
+						+ " Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId " + batchItem.getSimId());
+					}
 					break;
-
 				}
 				log.info("ControlNodeItemRequestReply " + result.toString() + "Operation " + operation.toString() + " Batch " + batchItem.getBatchId() + "Item "
 				+ batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId " + batchItem.getSimId());
-
+			}
 			break;
 			case FAILED:
-
+			{
 				// BATCH has also failed
 				log.error("ControlNodeItemRequestReply " + result.toString() + " Operation " + operation.toString() + " Batch " + batchItem.getBatchId()
 				+ " Item " + batchItem.getItemId() + " Sample " + batchItem.getSampleId() + " Local SimId " + batchItem.getSimId());
@@ -913,13 +914,15 @@ public class BatchManager
 
 				if(batch != null)
 				{
+					// Mark the batch as failed
 					batch.setFailed();
-					// Stop Batch Processing
-					setStatus(batchItem.getBatchId(), false);
+					
+					// Stop the batch being processed 
+					setBatchEnabled(batchItem.getBatchId(), false);
 				}
 
 				log.error("Processing Batch " + batchItem.getBatchId() + " Failed");
-
+			}
 			break;
 		}
 
