@@ -719,7 +719,7 @@ public class Batch implements StoredQueuePosition
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
 
 					infoLogger.writeCacheInfo(itemDiskCache);
-					
+
 					infoLogger.writeItemComputeInfo(itemsCompleted, cpuTotalTimes, ioTotalTimes);
 
 					infoLogger.writeParameters(parameters);
@@ -941,7 +941,7 @@ public class Batch implements StoredQueuePosition
 				info.add(String.valueOf(itemsRequested));
 				info.add("Items Returned");
 				info.add(String.valueOf(itemsReturned));
-				
+
 				info.add("");
 				info.add("");
 				info.add("Cache Size");
@@ -956,7 +956,7 @@ public class Batch implements StoredQueuePosition
 				info.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
 				info.add("MemCacheHMRatio");
 				info.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
-				
+
 				int div = 1;
 				if(itemsCompleted > 0)
 				{
@@ -1113,7 +1113,7 @@ public class Batch implements StoredQueuePosition
 		infoCache.add("Mem CacheHit");
 		infoCache.add(String.valueOf(itemDiskCache.getMemCacheHit()));
 		infoCache.add("MemCacheMiss");
-		infoCache.add(String.valueOf(itemDiskCache.getMemCacheHit()));
+		infoCache.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
 		infoCache.add("MemCacheHMRatio");
 		infoCache.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
 
