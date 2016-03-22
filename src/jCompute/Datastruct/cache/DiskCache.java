@@ -46,8 +46,8 @@ public class DiskCache implements Comparator<CacheItem>
 	private CacheItem itemMemCache[];
 	private int itemsInMemCache;
 
-	// Cache time in millisecond before cache will look at recently access time of the last item. (reduces cache thrashing, but will mean a disk access on misses)
-	private final int CACHE_MIN_AGE_PURGE_TIME = 60000;
+	// Cache time in millisecond before cache will look at recently access time of the last item. (reduces cache thrashing when adding, but will mean a disk access on misses)
+	private final int CACHE_MIN_AGE_PURGE_TIME_LIMIT = 60000;
 
 	// How long to give an item before being valid for removal
 	private final int CACHE_LRA_THRESHOLD = 30000;
@@ -342,34 +342,44 @@ public class DiskCache implements Comparator<CacheItem>
 			return;
 		}
 
-		// If mem cache is full - remove last if needed
+		// If mem cache is full - remove last if allowed by removal time limits
 		if(itemsInMemCache == memCacheSize)
 		{
 			// Sort the items by NLRA
 			Arrays.sort(itemMemCache, this);
 
-			for(CacheItem item : itemMemCache)
-			{
-				log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
-			}
-
 			long lastItemTA = itemMemCache[itemsInMemCache - 1].getTimeAdded();
 			long lastItemLRA = itemMemCache[itemsInMemCache - 1].getLastAccessTime();
+			long timeNow = System.currentTimeMillis();
 
-			// If the oldest item is over the min time in teh cache and is over the LRA threshold
-			if((lastItemTA > CACHE_MIN_AGE_PURGE_TIME) && (lastItemLRA > CACHE_LRA_THRESHOLD))
+			// Windows Back
+			long purgeTimeWindow = (timeNow - CACHE_MIN_AGE_PURGE_TIME_LIMIT);
+			long accesssTimeWindow = (timeNow - CACHE_LRA_THRESHOLD);
+
+			// If the oldest item item added time is out side the purgeTimeWindow
+			// And if it is outside accesssTimeWindow the remove it and add the new item.
+			if((lastItemTA < purgeTimeWindow) && (lastItemLRA < accesssTimeWindow))
 			{
+				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
+				for(CacheItem item : itemMemCache)
+				{
+					log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
+				}
+
+				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
 				log.info("Removing " + itemMemCache[itemsInMemCache - 1].getId());
 
 				// Add this item to the mem cache.
 				itemMemCache[itemsInMemCache - 1] = new CacheItem(cacheNonUniqueIndex, data);
 
+				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
 				log.info("Added " + itemMemCache[itemsInMemCache - 1].getId());
-			}
 
-			for(CacheItem item : itemMemCache)
-			{
-				log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
+				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
+				for(CacheItem item : itemMemCache)
+				{
+					log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
+				}
 			}
 		}
 		else
@@ -424,12 +434,12 @@ public class DiskCache implements Comparator<CacheItem>
 	{
 		return memCacheEnabled;
 	}
-	
+
 	public int getMemCacheSize()
 	{
 		return memCacheSize;
 	}
-	
+
 	public int getMemCacheMiss()
 	{
 		return memCacheMiss;
@@ -443,23 +453,42 @@ public class DiskCache implements Comparator<CacheItem>
 	@Override
 	public int compare(CacheItem item1, CacheItem item2)
 	{
-		// Sorts newer first.
+		long item1AddedTime = item1.getTimeAdded();
+		long item2AddedTime = item2.getTimeAdded();
 
-		long item1Added = item1.getTimeAdded();
-		long item2Added = item2.getTimeAdded();
+		long item1AccessTime = item1.getLastAccessTime();
+		long item2AccessTime = item2.getLastAccessTime();
 
-		// Assumes time value increases
-		boolean itemOneOlder = (item1Added < item2Added);
+		// Assumes time value increases (larger msec is more recent)
+		boolean item1Older = (item1AddedTime < item2AddedTime);
+		boolean itemOneMoreRecent = (item1AccessTime > item2AccessTime);
 
-		if(itemOneOlder)
+		// If more recently accessed
+		if(itemOneMoreRecent)
 		{
-			// Item two is newer and should be above
-			return 1;
+			if(item1Older)
+			{
+				// and older then move up
+				return -1;
+			}
+			else
+			{
+				return 1;
+			}
+
 		}
 		else
 		{
-			// Item one is newer and should go above
-			return -1;
+			if(item1Older)
+			{
+				// and older then move up
+				return -1;
+			}
+			else
+			{
+				// more recent and younger move up
+				return 1;
+			}
 		}
 	}
 
