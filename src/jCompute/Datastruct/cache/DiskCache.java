@@ -47,7 +47,7 @@ public class DiskCache implements Comparator<CacheItem>
 	private int itemsInMemCache;
 
 	// Cache time in millisecond before cache will look at recently access time of the last item. (reduces cache thrashing, but will mean a disk access on misses)
-	private final int CACHE_MIN_AGE_PURGE_TIME = 15000;
+	private final int CACHE_MIN_AGE_PURGE_TIME = 60000;
 
 	// How long to give an item before being valid for removal
 	private final int CACHE_LRA_THRESHOLD = 30000;
@@ -59,8 +59,8 @@ public class DiskCache implements Comparator<CacheItem>
 
 		if(memCacheEnabled)
 		{
-			// Try 10 percent of cache size
-			int tempMemCacheSize = cacheSize / 10;
+			// Try 6.25~ percent of cache size
+			int tempMemCacheSize = cacheSize / 16;
 
 			// check the calculated value
 			if(tempMemCacheSize < MIN_MEM_CACHE_SIZE)
@@ -175,7 +175,13 @@ public class DiskCache implements Comparator<CacheItem>
 
 		log.info("addDataToCache created unique mapping " + itemsAddedToCache + " " + cacheNonUniqueIndex);
 
-		// mem cache is write back / disk is write through (for non-unique)
+		// Add to the memcache if enabled and possible
+		if(memCacheEnabled)
+		{
+			updateMemCache(cacheNonUniqueIndex, data);
+		}
+
+		// Add to disk cache.
 		writeDataToDiskCache(cacheNonUniqueIndex, data);
 
 		// Increase item count
@@ -368,12 +374,39 @@ public class DiskCache implements Comparator<CacheItem>
 		}
 		else
 		{
-			// Add this item to the mem cache that is filling
-			itemMemCache[itemsInMemCache] = new CacheItem(cacheNonUniqueIndex, data);
+			boolean inCache = false;
 
-			itemsInMemCache++;
+			for(CacheItem item : itemMemCache)
+			{
+				// Reached end of cache that is not full.
+				if(item == null)
+				{
+					log.info("Item not in cache " + cacheNonUniqueIndex);
 
-			log.info("Added item to mem cache " + itemsAddedToCache + " total " + itemsInMemCache);
+					inCache = false;
+					break;
+				}
+
+				// Cache contains our item.
+				if(item.getId() == cacheNonUniqueIndex)
+				{
+					log.info("Item not in cache " + cacheNonUniqueIndex);
+
+					inCache = true;
+					break;
+				}
+			}
+
+			if(!inCache)
+			{
+				// Add this item to the mem cache that is filling
+				itemMemCache[itemsInMemCache] = new CacheItem(cacheNonUniqueIndex, data);
+
+				itemsInMemCache++;
+
+				log.info("Added item to mem cache " + itemsAddedToCache + " total " + itemsInMemCache);
+			}
+
 		}
 	}
 
@@ -427,6 +460,6 @@ public class DiskCache implements Comparator<CacheItem>
 
 	public float getMemHitMissRatio()
 	{
-		return JCMath.round((memCacheMiss == 0) ? 100 : ((memCacheMiss / (float) memCacheHit) * 100), 2);
+		return JCMath.round((memCacheMiss == 0) ? 0 : ((memCacheMiss / (float) memCacheHit) * 100), 2);
 	}
 }
