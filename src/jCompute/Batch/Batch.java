@@ -924,6 +924,8 @@ public class Batch implements StoredQueuePosition
 		targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
 		targetList.add("MemCacheEnabled");
 		targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
+		targetList.add("M/C Size");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheSize()));
 		targetList.add("M/C Hit");
 		targetList.add(String.valueOf(itemDiskCache.getMemCacheHit()));
 		targetList.add("M/C Miss");

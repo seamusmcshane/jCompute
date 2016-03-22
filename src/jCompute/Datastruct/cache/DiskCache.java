@@ -424,7 +424,12 @@ public class DiskCache implements Comparator<CacheItem>
 	{
 		return memCacheEnabled;
 	}
-
+	
+	public int getMemCacheSize()
+	{
+		return memCacheSize;
+	}
+	
 	public int getMemCacheMiss()
 	{
 		return memCacheMiss;

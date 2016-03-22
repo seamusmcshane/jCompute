@@ -89,10 +89,10 @@ public class InfoLogger
 
 	public void writeCacheInfo(DiskCache diskCache)
 	{
-
 		infoLog.print("CacheSize=" + diskCache.getCacheSize());
 		infoLog.print("UniqueRatio=" + diskCache.getUniqueRatio());
 		infoLog.print("MemCacheEnabled=" + diskCache.getMemCacheEnabled());
+		infoLog.print("MemCacheSize=" + diskCache.getMemCacheSize());
 		infoLog.print("MemCacheHit=" + diskCache.getMemCacheHit());
 		infoLog.print("MemCacheMiss=" + diskCache.getMemCacheMiss());
 		infoLog.print("MemCacheHMRatio=" + diskCache.getMemHitMissRatio());
