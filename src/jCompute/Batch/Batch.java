@@ -448,10 +448,6 @@ public class Batch implements StoredQueuePosition
 			{
 				if(itemGenerator.generate())
 				{
-					// All the items need to get processed, but the estimated total time (see getETT()) can be influenced by their processing order.
-					// Randomise items in an attempt to reduce influence of item difficulty increasing/decreasing with combination order.
-					Collections.shuffle(queuedItems);
-
 					log.info("Generated Items Batch " + batchId);
 
 					// Super Class - Lazy Inits Storage
