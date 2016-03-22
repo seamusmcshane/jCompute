@@ -47,5 +47,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/AlphanumComparator/AlphanumComparator.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-math/commons-math3-3.5/commons-math3-3.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/disruptor/disruptor-3.3.2/disruptor-3.3.2.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/xerces/xerces-2_11_0/xercesImpl.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/xerces/xerces-2_11_0/xml-apis.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
