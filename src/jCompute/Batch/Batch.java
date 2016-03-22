@@ -119,7 +119,7 @@ public class Batch implements StoredQueuePosition
 
 	private ItemGenerator itemGenerator;
 	private long itemGenerationTime;
-	
+
 	// Our Queue of Items yet to be processed
 	private LinkedList<BatchItem> queuedItems;
 
@@ -448,9 +448,9 @@ public class Batch implements StoredQueuePosition
 			public void run()
 			{
 				TimerObj to = new TimerObj();
-				
+
 				to.startTimer();
-				
+
 				if(itemGenerator.generate())
 				{
 					log.info("Generated Items Batch " + batchId);
@@ -479,9 +479,9 @@ public class Batch implements StoredQueuePosition
 				{
 					log.error("Item Generation Failed");
 				}
-				
+
 				to.stopTimer();
-				
+
 				itemGenerationTime = to.getTimeTaken();
 			}
 		});
@@ -931,14 +931,21 @@ public class Batch implements StoredQueuePosition
 		targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
 		targetList.add("MemCacheEnabled");
 		targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
-		targetList.add("M/C Size");
+
+		addBatchInfoSectionHeader(formated, false, "MemCache", targetList);
+
+		targetList.add("Size");
 		targetList.add(String.valueOf(itemDiskCache.getMemCacheSize()));
-		targetList.add("M/C Hit");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheHit()));
-		targetList.add("M/C Miss");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
-		targetList.add("M/C H/M");
-		targetList.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
+		targetList.add("Requests");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheRequests()));
+		targetList.add("Hits");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheHits()));
+		targetList.add("Misses");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheMisses()));
+		targetList.add("Hit Ratio");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheHitRatio()));
+		targetList.add("Miss Ratio");
+		targetList.add(String.valueOf(itemDiskCache.getMemCacheMissRatio()));
 	}
 
 	private void addBatchDetailsComputeInfoToList(boolean formated, ArrayList<String> targetList)
@@ -1363,4 +1370,3 @@ public class Batch implements StoredQueuePosition
 	}
 
 }
-
