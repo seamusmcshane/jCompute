@@ -718,6 +718,8 @@ public class Batch implements StoredQueuePosition
 
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
 
+					infoLogger.writeCacheInfo(itemDiskCache);
+					
 					infoLogger.writeItemComputeInfo(itemsCompleted, cpuTotalTimes, ioTotalTimes);
 
 					infoLogger.writeParameters(parameters);
@@ -939,7 +941,22 @@ public class Batch implements StoredQueuePosition
 				info.add(String.valueOf(itemsRequested));
 				info.add("Items Returned");
 				info.add(String.valueOf(itemsReturned));
-
+				
+				info.add("");
+				info.add("");
+				info.add("Cache Size");
+				info.add(String.valueOf(itemDiskCache.getCacheSize()));
+				info.add("Unique Ratio");
+				info.add(String.valueOf(itemDiskCache.getUniqueRatio()));
+				info.add("MemCacheEnabled");
+				info.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
+				info.add("Mem CacheHit");
+				info.add(String.valueOf(itemDiskCache.getMemCacheHit()));
+				info.add("MemCacheMiss");
+				info.add(String.valueOf(itemDiskCache.getMemCacheMiss()));
+				info.add("MemCacheHMRatio");
+				info.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
+				
 				int div = 1;
 				if(itemsCompleted > 0)
 				{
@@ -1084,6 +1101,21 @@ public class Batch implements StoredQueuePosition
 		infoCache.add(Text.longTimeToDHMSM(cpuTotalTimes + ioTotalTimes));
 		infoCache.add("Items Avg Time");
 		infoCache.add(Text.longTimeToDHMSM((cpuTotalTimes + ioTotalTimes) / div));
+
+		infoCache.add("");
+		infoCache.add("");
+		infoCache.add("Cache Size");
+		infoCache.add(String.valueOf(itemDiskCache.getCacheSize()));
+		infoCache.add("Unique Ratio");
+		infoCache.add(String.valueOf(itemDiskCache.getUniqueRatio()));
+		infoCache.add("MemCacheEnabled");
+		infoCache.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
+		infoCache.add("Mem CacheHit");
+		infoCache.add(String.valueOf(itemDiskCache.getMemCacheHit()));
+		infoCache.add("MemCacheMiss");
+		infoCache.add(String.valueOf(itemDiskCache.getMemCacheHit()));
+		infoCache.add("MemCacheHMRatio");
+		infoCache.add(String.valueOf(itemDiskCache.getMemHitMissRatio()));
 
 		infoCache.add("");
 		infoCache.add("");

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jCompute.Datastruct.cache.DiskCache;
+
 public class InfoLogger
 {
 	// SL4J Logger
@@ -21,6 +23,7 @@ public class InfoLogger
 	private boolean generalInfo;
 	private boolean itemInfo;
 	private boolean processedInfo;
+	private boolean cacheInfo;
 	private boolean itemComputeInfo;
 	private boolean scenarioParameters;
 
@@ -34,6 +37,7 @@ public class InfoLogger
 			generalInfo = false;
 			itemInfo = false;
 			processedInfo = false;
+			cacheInfo = false;
 			itemComputeInfo = false;
 			scenarioParameters = false;
 
@@ -83,6 +87,19 @@ public class InfoLogger
 		processedInfo = true;
 	}
 
+	public void writeCacheInfo(DiskCache diskCache)
+	{
+
+		infoLog.print("CacheSize=" + diskCache.getCacheSize());
+		infoLog.print("UniqueRatio=" + diskCache.getUniqueRatio());
+		infoLog.print("MemCacheEnabled=" + diskCache.getMemCacheEnabled());
+		infoLog.print("MemCacheHit=" + diskCache.getMemCacheHit());
+		infoLog.print("MemCacheMiss=" + diskCache.getMemCacheMiss());
+		infoLog.print("MemCacheHMRatio=" + diskCache.getMemHitMissRatio());
+
+		cacheInfo = true;
+	}
+
 	public void writeItemComputeInfo(long itemCompleted, long cpuTotalTimes, long ioTotalTimes)
 	{
 		infoLog.println("CpuTotalTime=" + cpuTotalTimes);
@@ -118,7 +135,8 @@ public class InfoLogger
 
 	public void close()
 	{
-		if((generalInfo != false) && (itemInfo != false) && (processedInfo != false) && (itemComputeInfo != false) && (scenarioParameters != false))
+		if((generalInfo != false) && (itemInfo != false) && (processedInfo != false) && (cacheInfo != false) && (itemComputeInfo != false)
+		&& (scenarioParameters != false))
 		{
 			infoLog.flush();
 			infoLog.close();

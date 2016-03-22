@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jCompute.util.FileUtil;
+import jCompute.util.JCMath;
 
 public class DiskCache implements Comparator<CacheItem>
 {
@@ -30,13 +31,17 @@ public class DiskCache implements Comparator<CacheItem>
 
 	// Mappings
 	private int cacheUniqueMappingTable[];
+	private int cacheSize;
 	private int cacheNonUniqueTable[];
+	private int uniqueRatio;
 
 	// Mem Cache
 	private final boolean memCacheEnabled;
 	private final int MIN_MEM_CACHE_SIZE = 1000;
 	private final int MAX_MEM_CACHE_SIZE = 40000;
 	private final int memCacheSize;
+	private int memCacheHit;
+	private int memCacheMiss;
 
 	private CacheItem itemMemCache[];
 	private int itemsInMemCache;
@@ -85,6 +90,10 @@ public class DiskCache implements Comparator<CacheItem>
 		// always log
 		log.info("Disk Cache Mem Cache : " + memCacheEnabled);
 
+		this.cacheSize = cacheSize;
+
+		this.uniqueRatio = uniqueRatio;
+
 		if(cacheSize == 0)
 		{
 			log.error("Max unique zero");
@@ -105,10 +114,10 @@ public class DiskCache implements Comparator<CacheItem>
 		this.compressionLevel = compressionLevel;
 
 		log.info("Disk Cache c/r " + cacheSize + "/" + uniqueRatio);
-		initCache(cacheSize, uniqueRatio);
+		initCache();
 	}
 
-	private void initCache(int cacheSize, int uniqueRatio)
+	private void initCache()
 	{
 		itemsAddedToCache = 0;
 
@@ -257,6 +266,8 @@ public class DiskCache implements Comparator<CacheItem>
 		// null = cache miss - fetch from disk
 		if(data == null)
 		{
+			memCacheMiss++;
+
 			data = getFileFromDisk(cacheNonUniqueIndex);
 
 			// uncompress the data if needed
@@ -271,6 +282,10 @@ public class DiskCache implements Comparator<CacheItem>
 				// The cache had a miss update it.
 				updateMemCache(cacheNonUniqueIndex, data);
 			}
+		}
+		else
+		{
+			memCacheHit++;
 		}
 
 		return data;
@@ -362,6 +377,31 @@ public class DiskCache implements Comparator<CacheItem>
 		}
 	}
 
+	public int getCacheSize()
+	{
+		return cacheSize;
+	}
+
+	public int getUniqueRatio()
+	{
+		return uniqueRatio;
+	}
+
+	public boolean getMemCacheEnabled()
+	{
+		return memCacheEnabled;
+	}
+
+	public int getMemCacheMiss()
+	{
+		return memCacheMiss;
+	}
+
+	public int getMemCacheHit()
+	{
+		return memCacheHit;
+	}
+
 	@Override
 	public int compare(CacheItem item1, CacheItem item2)
 	{
@@ -383,5 +423,10 @@ public class DiskCache implements Comparator<CacheItem>
 			// Item one is newer and should go above
 			return -1;
 		}
+	}
+
+	public float getMemHitMissRatio()
+	{
+		return JCMath.round((memCacheMiss == 0) ? 100 : ((memCacheMiss / (float) memCacheHit) * 100), 2);
 	}
 }
