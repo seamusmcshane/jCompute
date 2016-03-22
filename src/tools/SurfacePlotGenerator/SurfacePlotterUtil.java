@@ -99,7 +99,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 	private boolean zMaxFixedScale = false;
 
 	// depthActivated, alphaActivated, smoothColor, smoothPoint, smoothLine, smoothPolygon, disableDepth
-	private final Quality QUALITY = new Quality(false, true, false, true, true, false, false);
+	private final Quality QUALITY = new Quality(false, true, false, true, true, true, false);
 
 	public SurfacePlotterUtil()
 	{
