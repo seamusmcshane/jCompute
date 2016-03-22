@@ -72,6 +72,7 @@ public class InfoLogger
 		infoLog.println("ItemSamples=" + samplesPerItem);
 		infoLog.println("UniqueItems=" + uniqueItems);
 		infoLog.println("MaxSteps=" + maxSteps);
+		infoLog.println("GenerationTime=" + generationTime);
 		
 		itemInfo = true;
 	}
