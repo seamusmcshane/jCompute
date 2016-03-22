@@ -37,8 +37,8 @@ public class DiskCache implements Comparator<CacheItem>
 
 	// Mem Cache
 	private final boolean memCacheEnabled;
-	private final int MIN_MEM_CACHE_SIZE = 1000;
-	private final int MAX_MEM_CACHE_SIZE = 40000;
+	private final int MIN_MEM_CACHE_SIZE = 250;
+	private final int MAX_MEM_CACHE_SIZE = 10000;
 	private final int memCacheSize;
 	private int memCacheHit;
 	private int memCacheMiss;
