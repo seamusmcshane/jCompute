@@ -27,6 +27,7 @@ import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioManager;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
 import jCompute.util.Text;
 
@@ -117,7 +118,8 @@ public class Batch implements StoredQueuePosition
 	private boolean infoLogEnabled;
 
 	private ItemGenerator itemGenerator;
-
+	private long itemGenerationTime;
+	
 	// Our Queue of Items yet to be processed
 	private LinkedList<BatchItem> queuedItems;
 
@@ -445,6 +447,10 @@ public class Batch implements StoredQueuePosition
 			@Override
 			public void run()
 			{
+				TimerObj to = new TimerObj();
+				
+				to.startTimer();
+				
 				if(itemGenerator.generate())
 				{
 					log.info("Generated Items Batch " + batchId);
@@ -473,6 +479,10 @@ public class Batch implements StoredQueuePosition
 				{
 					log.error("Item Generation Failed");
 				}
+				
+				to.stopTimer();
+				
+				itemGenerationTime = to.getTimeTaken();
 			}
 		});
 		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
@@ -718,7 +728,7 @@ public class Batch implements StoredQueuePosition
 
 					infoLogger.writeGeneralInfo(batchId, batchName, type, baseScenarioFileName);
 
-					infoLogger.writeItemInfo(batchItems, itemSamples, maxSteps);
+					infoLogger.writeItemInfo(batchItems, itemSamples, maxSteps, Text.longTimeToDHMSM(itemGenerationTime));
 
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
 
@@ -893,6 +903,8 @@ public class Batch implements StoredQueuePosition
 		targetList.add(batchGenerated ? "Yes" : "No");
 		targetList.add("Progress");
 		targetList.add(String.valueOf(generationProgress[0]));
+		targetList.add("Time");
+		targetList.add(Text.longTimeToDHMSM(itemGenerationTime));
 	}
 
 	private void addBatchDetailsItemInfoToList(boolean formated, ArrayList<String> targetList)
@@ -1351,3 +1363,4 @@ public class Batch implements StoredQueuePosition
 	}
 
 }
+
