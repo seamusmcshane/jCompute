@@ -34,11 +34,10 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-api-2.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-core-2.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-slf4j-impl-2.5.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/fontbox-1.8.10.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/jempbox-1.8.10.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/pdfbox-1.8.10.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/preflight-1.8.10.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-1.8.10/xmpbox-1.8.10.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/fontbox-2.0.0.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/pdfbox-2.0.0.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/preflight-2.0.0.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/xmpbox-2.0.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.0-bin/fftw-windows-x86_64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.0-bin/fftw.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.0-bin/javacpp.jar"/>
