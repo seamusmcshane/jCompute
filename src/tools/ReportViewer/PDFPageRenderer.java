@@ -18,7 +18,7 @@ public class PDFPageRenderer
 	private HashMap<Integer, PageImage> pageCache;
 	private int MAX = 16;
 
-	private float dpi = 96;
+	private float dpi = 200;
 
 	public PDFPageRenderer(String filePath) throws IOException
 	{
