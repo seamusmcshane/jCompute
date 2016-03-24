@@ -67,6 +67,14 @@ public class ImageViewerPanel extends JPanel
 		
 		paintImage = pageImage.getImage(0);
 		
+		imageMode = 2;
+		
+		// A resize is needed
+		lastActivityTime = System.currentTimeMillis();
+		
+		// Invalidate the scale
+		timerLastScale = -1;
+		
 		revalidate();
 		repaint();
 	}
