@@ -35,6 +35,8 @@ public class PDFViewer extends JFrame
 	
 	private static JFrame pdfViewer;
 	
+	private static String openCD = ".";
+	
 	private ImageViewerPanel viewerPanel;
 	private PDFPageRenderer ren;
 	
@@ -265,7 +267,7 @@ public class PDFViewer extends JFrame
 	
 	public void requestPDFFile()
 	{
-		final JFileChooser filechooser = new JFileChooser(new File("."));
+		final JFileChooser filechooser = new JFileChooser(new File(openCD));
 		
 		filechooser.setDialogTitle("Choose Directory");
 		filechooser.setMultiSelectionEnabled(false);
@@ -305,6 +307,8 @@ public class PDFViewer extends JFrame
 				try
 				{
 					drawImage(ren.getPageImage(0, 0));
+					
+					openCD = fullPath;
 				}
 				catch(IOException e1)
 				{
