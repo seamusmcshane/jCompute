@@ -241,7 +241,7 @@ public class ImageViewerPanel extends JPanel
 					// panelPadHeight = getHeight() - 50;
 					
 					// Too small - Scaled to Width
-					newWidth = panelPadWidth;
+					newWidth = panelPadWidth - PAD_SIZE;
 					newHeight = iHeight * (panelPadWidth / iWidth);
 					
 					System.out.println("3 Width " + newWidth);
@@ -266,6 +266,9 @@ public class ImageViewerPanel extends JPanel
 			if(scaleModeFitWindowWidth || scaleModeFitWindowSize)
 			{
 				scale = 1f * (newWidth / pageImageSize[0]);
+				
+				// Adjust pad
+				newWidth = newWidth - PAD_SIZE;
 			}
 			
 			float imageHalfWidth = (newWidth / 2);
@@ -288,9 +291,9 @@ public class ImageViewerPanel extends JPanel
 			g2.setStroke(new BasicStroke(LINE));
 			
 			g2.setColor(BORDER_COLOR);
-			g2.drawRect(((int) -iX + PAD) - 1, ((int) -iY + PAD) - 1, ((int) newWidth - PAD_SIZE) + 2, ((int) newHeight - PAD_SIZE) + 2);
+			g2.drawRect(((int) -iX) - 1, ((int) -iY) - 1, ((int) newWidth) + 2, ((int) newHeight) + 2);
 			
-			g2.drawImage(paintImage, (int) -iX + PAD, (int) -iY + PAD, (int) newWidth - PAD_SIZE, (int) newHeight - PAD_SIZE, null);
+			g2.drawImage(paintImage, (int) -iX, (int) -iY, (int) newWidth, (int) newHeight, null);
 		}
 	}
 	
