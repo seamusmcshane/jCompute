@@ -58,7 +58,8 @@ public class ReportUtility
 			Collections.sort(rowNames, new AlphanumComparator());
 			Collections.sort(colNames, new AlphanumComparator());
 			
-			SurfacePlotImageExporter imageExporter = new SurfacePlotImageExporter(imageWidth, imageHeight, rowNames, colNames, cells, fullPath, itemLogNameWithExt);
+			SurfacePlotImageExporter imageExporter = new SurfacePlotImageExporter(imageWidth, imageHeight, rowNames, colNames, cells, fullPath,
+			itemLogNameWithExt);
 			
 			imageExporter.export();
 			
@@ -66,7 +67,8 @@ public class ReportUtility
 			
 			try
 			{
-				pdfReport.generate();
+				String filePath = pdfReport.generate();
+				System.out.println("Report Save : " + filePath);
 			}
 			catch(IOException e)
 			{

@@ -51,17 +51,21 @@ public class PDFReport
 		this.imageHeight = imageHeight;
 	}
 	
-	public void generate() throws IOException
+	public String generate() throws IOException
 	{
+		String filePath = fullPath + File.separator + reportFileName + ".pdf";
+		
 		PDDocument document = new PDDocument();
 		
 		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Averages");
 		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Standard Deviations");
 		addReportPage(reportFileName, document, rowNames, colNames, fullPath, scale, "Max");
 		
-		document.save(fullPath + File.separator + reportFileName + ".pdf");
+		document.save(filePath);
 		
 		document.close();
+		
+		return filePath;
 	}
 	
 	private void addReportPage(String reportFileName, PDDocument doc, ArrayList<String> rowNames, ArrayList<String> colNames, String fullPath, float scale,
