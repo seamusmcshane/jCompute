@@ -22,8 +22,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
@@ -33,7 +33,7 @@ import java.awt.event.ActionEvent;
 
 public class HeatMapUtil implements WindowListener
 {
-	// SL4J Logger
+	// Log4j2 Logger
 	private static Logger log;
 	
 	private static JFrame gui;
@@ -51,7 +51,7 @@ public class HeatMapUtil implements WindowListener
 	{
 		System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
 		
-		log = LoggerFactory.getLogger(HeatMapUtil.class);
+		log = LogManager.getLogger(HeatMapUtil.class);
 		
 		LookAndFeel.setLookandFeel("default");
 		
@@ -110,7 +110,7 @@ public class HeatMapUtil implements WindowListener
 					filechooser.setDialogTitle("Choose Directory");
 					filechooser.setMultiSelectionEnabled(false);
 					filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					filechooser.setSelectedFile(new File(openedLogName+".png"));
+					filechooser.setSelectedFile(new File(openedLogName + ".png"));
 					int val = filechooser.showSaveDialog(gui);
 					
 					if(val == JFileChooser.APPROVE_OPTION)

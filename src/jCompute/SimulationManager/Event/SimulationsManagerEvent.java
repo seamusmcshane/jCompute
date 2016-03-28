@@ -1,17 +1,17 @@
 package jCompute.SimulationManager.Event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimulationsManagerEvent
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(SimulationsManagerEvent.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(SimulationsManagerEvent.class);
 	
 	private int simId;
 	private SimulationsManagerEventType eventType;
 	
-	public SimulationsManagerEvent(int simId,SimulationsManagerEventType eventType)
+	public SimulationsManagerEvent(int simId, SimulationsManagerEventType eventType)
 	{
 		this.simId = simId;
 		this.eventType = eventType;

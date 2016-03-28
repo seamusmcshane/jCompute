@@ -46,15 +46,15 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.eventbus.Subscribe;
 
 public class NodeManager
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(NodeManager.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(NodeManager.class);
 	
 	// Locks the node
 	private Semaphore nodeLock = new Semaphore(1, false);
@@ -783,6 +783,7 @@ public class NodeManager
 	
 	/**
 	 * Returns if the node is in the ready state.
+	 * 
 	 * @return
 	 */
 	public boolean isReady()
@@ -908,6 +909,7 @@ public class NodeManager
 	
 	/**
 	 * Add a Simulation - Blocking
+	 * 
 	 * @param scenarioText
 	 * @param initialStepRate
 	 * @param mapping
@@ -974,9 +976,8 @@ public class NodeManager
 	}
 	
 	/**
-	 * Check for valid orderly state transitions.
-	 * Direct changes to SHUTDOWN state are handled programmatically as error
-	 * conditions.
+	 * Check for valid orderly state transitions. Direct changes to SHUTDOWN state are handled programmatically as error conditions.
+	 * 
 	 * @param newState
 	 */
 	private void ChangeManagerState(NodeManagerState newState)

@@ -146,7 +146,7 @@ public class PDFViewer extends JFrame
 		
 		MouseAdapter mouseInputs = new MouseAdapter()
 		{
-			float baseInc = 0.006f;
+			float baseInc = 0.012f;
 			
 			final float[] cpos = new float[2];
 			

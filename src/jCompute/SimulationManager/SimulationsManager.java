@@ -21,13 +21,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimulationsManager implements SimulationsManagerInf
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(SimulationsManager.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(SimulationsManager.class);
 	
 	private static Semaphore simulationsManagerLock = new Semaphore(1);
 	

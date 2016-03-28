@@ -9,10 +9,10 @@ import java.util.concurrent.Semaphore;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -35,8 +35,9 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 public class View implements ApplicationListener, ViewRendererInf
 {
-	private static Logger log = LoggerFactory.getLogger(View.class);
-
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(View.class);
+	
 	/** Swing base panel */
 	private JPanel basePanel;
 	
@@ -176,7 +177,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	@Override
 	public void pause()
 	{
-	
+		
 	}
 	
 	private void globalInput()
@@ -358,7 +359,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	@Override
 	public void resume()
 	{
-	
+		
 	}
 	
 	public void drawOverlayText(float x, float y, boolean centered, String text)

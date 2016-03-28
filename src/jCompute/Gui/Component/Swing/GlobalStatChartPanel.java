@@ -13,6 +13,8 @@ import java.awt.GridLayout;
 
 import javax.swing.border.TitledBorder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -23,8 +25,6 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,8 +32,8 @@ import javax.swing.UIManager;
 
 public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(GlobalStatChartPanel.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(GlobalStatChartPanel.class);
 	
 	private static final long serialVersionUID = -3572724823868862025L;
 	
@@ -65,8 +65,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	private boolean dynamicLegend;
 	private int dynamicLegendLimit;
 	
-	public GlobalStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle, boolean totalStatEnabled,
-			int sampleWindow, boolean splitleftRight)
+	public GlobalStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle, boolean totalStatEnabled, int sampleWindow,
+	boolean splitleftRight)
 	{
 		// This panels name
 		this.statChartPanelName = statChartPanelName;
@@ -94,7 +94,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		if(displayTitle)
 		{
-			JLabel title = new JLabel("    " +statChartPanelName);
+			JLabel title = new JLabel("    " + statChartPanelName);
 			title.setFont(this.getFont().deriveFont(Font.BOLD));
 			this.add(title, BorderLayout.NORTH);
 		}
@@ -118,8 +118,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		}
 	}
 	
-	public GlobalStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle, boolean totalStatEnabled,
-			int sampleWindow, boolean splitleftRight, int dynamicLegendLimit)
+	public GlobalStatChartPanel(String statChartPanelName, String categoryName, boolean displayTitle, boolean totalStatEnabled, int sampleWindow,
+	boolean splitleftRight, int dynamicLegendLimit)
 	{
 		this(statChartPanelName, categoryName, displayTitle, totalStatEnabled, sampleWindow, splitleftRight);
 		
@@ -132,8 +132,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		statDataset = new DefaultCategoryDataset();
 		statBarChart = ChartFactory.createBarChart3D(null, null, null, statDataset, PlotOrientation.VERTICAL, true, false, false);
 		statBarChartPanel = new org.jfree.chart.ChartPanel(statBarChart);
-		statBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER,
-				TitledBorder.TOP, null, null));
+		statBarChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Current", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		
 		statBarChart.getCategoryPlot().setBackgroundPaint(Color.white);
 		statBarChart.getCategoryPlot().setRangeGridlinePaint(Color.LIGHT_GRAY);
@@ -196,8 +195,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			
 		}
 		
-		historyChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Historical", TitledBorder.CENTER,
-				TitledBorder.TOP, null, null));
+		historyChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Historical", TitledBorder.CENTER, TitledBorder.TOP, null,
+		null));
 		
 		container.add(historyChartPanel);
 		
@@ -338,7 +337,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 			
 			// Set Sample Trace Color
 			dataset.addSeries(tempS);
-
+			
 			int hci = dataset.getSeriesIndex(name);
 			historyChart.getXYPlot().getRenderer().setSeriesPaint(hci, color);
 			

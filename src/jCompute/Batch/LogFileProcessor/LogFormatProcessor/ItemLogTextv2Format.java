@@ -12,12 +12,13 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ItemLogTextv2Format implements ItemLogFormatInf
 {
-	private static Logger log = LoggerFactory.getLogger(ItemLogTextv2Format.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(ItemLogTextv2Format.class);
 	
 	public static final int HEADER_LINE_OPTS = 4;
 	public static final int MAX_LINE_OPTS = 7;
@@ -211,7 +212,7 @@ public class ItemLogTextv2Format implements ItemLogFormatInf
 				break;
 				case "Hash":
 					item.setCacheIndex(value);
-				// Fall through
+					// Fall through
 				case "CacheIndex":
 					item.setCacheIndex(value);
 				break;

@@ -12,21 +12,20 @@ import jCompute.Stats.StatManager;
 
 import java.util.concurrent.Semaphore;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Simulation class
- * This class handles the Simulation activity of the program.
- * It contains the main loop in the form of the asynchronous Simulation Update Thread.
- * Apart from performing a step, it is primarily concerned with timing the step and ensuring statistics are updated..
+ * Simulation class This class handles the Simulation activity of the program. It contains the main loop in the form of the asynchronous Simulation Update Thread. Apart from
+ * performing a step, it is primarily concerned with timing the step and ensuring statistics are updated..
+ * 
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
 public class Simulation implements stateChangedInf, ViewTarget
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(Simulation.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(Simulation.class);
 	
 	/* Simulation Id */
 	private int simId = -1;
@@ -265,6 +264,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 	
 	/**
 	 * Calculates the total taken between repeated call to this method - used for inter-step time wait
+	 * 
 	 * @return long
 	 */
 	private long timeTotal()
@@ -304,11 +304,8 @@ public class Simulation implements stateChangedInf, ViewTarget
 	}
 	
 	/**
-	 * Toggle Pause/UnPause
-	 * If Simulation is paused, this will unpause it.
-	 * If Simulation is running this will pause it.
-	 * If Simulation is CON this method does nothing.
-	 * This method will log an error if called when a Simulation is finished.
+	 * Toggle Pause/UnPause If Simulation is paused, this will unpause it. If Simulation is running this will pause it. If Simulation is CON this method does nothing. This method
+	 * will log an error if called when a Simulation is finished.
 	 */
 	public SimState togglePause()
 	{
@@ -361,8 +358,9 @@ public class Simulation implements stateChangedInf, ViewTarget
 	
 	/**
 	 * Method reqSimUpdateRate.
+	 * 
 	 * @param steps
-	 *            int
+	 * int
 	 */
 	public void setReqStepRate(int steps)
 	{

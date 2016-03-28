@@ -18,6 +18,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -26,8 +28,6 @@ import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jCompute.Stats.StatGroupSetting;
 
@@ -36,8 +36,8 @@ import jCompute.Stats.StatGroupSetting;
  */
 public class ConfigurationInterpreter
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(ConfigurationInterpreter.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(ConfigurationInterpreter.class);
 	
 	private XmlSchema schema;
 	private XMLConfiguration configurationFile;
@@ -265,6 +265,7 @@ public class ConfigurationInterpreter
 	
 	/**
 	 * Only Sub Class add StatSettings
+	 * 
 	 * @param statSetting
 	 */
 	protected void addStatSettings(StatGroupSetting statSetting)
@@ -280,8 +281,8 @@ public class ConfigurationInterpreter
 		for(int i = 0; i < statisticsGroups; i++)
 		{
 			section = "Statistics.Stat(" + i + ")";
-			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section, "TotalStat"), getBooleanValue(section, "Graph"),
-					getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
+			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section, "TotalStat"),
+			getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
 		}
 		
 		log.debug("Statistics " + statisticsGroups);
@@ -440,9 +441,9 @@ public class ConfigurationInterpreter
 		return latchedFileText;
 	}
 	
-	// Converts the XMLConfiguration to XML formated text string 
+	// Converts the XMLConfiguration to XML formated text string
 	// ByteArrayOutputStream - close is a no op - null allows gc
-	@SuppressWarnings("resource") 
+	@SuppressWarnings("resource")
 	private String getScenarioXMLText()
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -454,7 +455,7 @@ public class ConfigurationInterpreter
 		catch(ConfigurationException e)
 		{
 			log.error("Error getting scenario XML");
-
+			
 			baos = null;
 			
 			return "";

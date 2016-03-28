@@ -3,8 +3,8 @@ package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
 import java.io.IOException;
 import java.util.stream.IntStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.Average;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.Max;
@@ -15,7 +15,8 @@ import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Values.SumTota
 
 public class ItemLogFormatValuesContainer
 {
-	private static Logger log = LoggerFactory.getLogger(ItemLogFormatValuesContainer.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(ItemLogFormatValuesContainer.class);
 	
 	private final int ySteps;
 	private final int xSteps;
@@ -80,15 +81,16 @@ public class ItemLogFormatValuesContainer
 		
 		// Standard Dev
 		log.info("Computing Standard Deviations");
-		surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()] = new StandardDeviation(sampleValues, surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.ordinal()].getResult(), xSteps, ySteps,
-				samples);
-				
+		surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()] = new StandardDeviation(sampleValues, surfaceMetrics[SurfaceMetricInf.Type.AVERAGE
+		.ordinal()].getResult(), xSteps, ySteps, samples);
+		
 		log.info("Standard Deviations Min : " + surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()].getMin());
 		log.info("Standard Deviations Max : " + surfaceMetrics[SurfaceMetricInf.Type.STANDARD_DEVIATION.asInt()].getMax());
 		
 		// Max
 		log.info("Computing Avg Max Total Surface");
-		surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()] = new Max(surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.asInt()].getResult(), xSteps, ySteps, rangeMax);
+		surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()] = new Max(surfaceMetrics[SurfaceMetricInf.Type.AVERAGE.asInt()].getResult(), xSteps, ySteps,
+		rangeMax);
 		double maxTotal = new SumTotal(surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()].getResult()).getResult();
 		
 		log.info("Avg Max Total Surface Min : " + surfaceMetrics[SurfaceMetricInf.Type.MAX.asInt()].getMin());

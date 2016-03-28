@@ -6,15 +6,15 @@ import java.io.File;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import jCompute.Cluster.BatchManager.BatchManager;
 
 public class OpenBatchFileTask extends SwingWorker<Void, Void>
 {
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(OpenBatchFileTask.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(OpenBatchFileTask.class);
 	
 	private Component parent;
 	private JComputeProgressMonitor openBatchProgressMonitor;

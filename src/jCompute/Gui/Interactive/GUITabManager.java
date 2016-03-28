@@ -25,12 +25,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
 {
-	private static Logger log = LoggerFactory.getLogger(GUITabManager.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(GUITabManager.class);
 	
 	private static final long serialVersionUID = 1L;
 	

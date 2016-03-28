@@ -28,15 +28,15 @@ import java.util.stream.IntStream;
 
 import javax.swing.JPanel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HeatMap extends JPanel
 {
 	private static final long serialVersionUID = 6954044353596181009L;
-
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(HeatMap.class);
+	
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(HeatMap.class);
 	
 	private TimerObj to = new TimerObj();
 	
@@ -84,7 +84,8 @@ public class HeatMap extends JPanel
 	public void setLog(ItemLogProcessor logProcessor)
 	{
 		// Linear RGB ColorModel
-		linearRGB = new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000, false, DataBuffer.TYPE_INT);
+		linearRGB = new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000, false,
+		DataBuffer.TYPE_INT);
 		
 		// Chart Image
 		chartImage = new BufferedImage(linearRGB, linearRGB.createCompatibleWritableRaster(heatMapWidth, heatMapHeight), false, null);
@@ -205,7 +206,8 @@ public class HeatMap extends JPanel
 		totalTime += to.getTimeTaken();
 	}
 	
-	private void addColorMapTickAndLabels(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
+	private void addColorMapTickAndLabels(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth,
+	int heatMapPlotHeight, int tickLength)
 	{
 		to.startTimer();
 		
@@ -322,7 +324,8 @@ public class HeatMap extends JPanel
 		totalTime += to.getTimeTaken();
 	}
 	
-	private void addLegend(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight)
+	private void addLegend(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth,
+	int heatMapPlotHeight)
 	{
 		to.startTimer();
 		
@@ -334,7 +337,8 @@ public class HeatMap extends JPanel
 		
 		String[] legend =
 		{
-			"X 		: " + logProcessor.getXAxisName(), "Y 		: " + logProcessor.getYAxisName(), "SRate : " + logProcessor.getComputedMetric(ComputedMetric.MAX_RATE), "ZMin : " + logProcessor.getZmin(), "ZMax : " + logProcessor.getZmax()
+			"X 		: " + logProcessor.getXAxisName(), "Y 		: " + logProcessor.getYAxisName(), "SRate : " + logProcessor.getComputedMetric(
+			ComputedMetric.MAX_RATE), "ZMin : " + logProcessor.getZmin(), "ZMax : " + logProcessor.getZmax()
 		};
 		
 		double max = 0;
@@ -358,7 +362,8 @@ public class HeatMap extends JPanel
 		totalTime += to.getTimeTaken();
 	}
 	
-	private void addPlotTickAndLabels(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth, int heatMapPlotHeight, int tickLength)
+	private void addPlotTickAndLabels(ItemLogProcessor logProcessor, Graphics2D cg, int heatMapPlotXOffset, int heatMapPlotYOffset, int heatMapPlotWidth,
+	int heatMapPlotHeight, int tickLength)
 	{
 		to.startTimer();
 		
@@ -466,7 +471,8 @@ public class HeatMap extends JPanel
 		
 		int cX = (int) ((heatMapPlotXOffset) + (heatMapPlotWidth * 0.5));
 		double xAnx = (cX) - (xAxisNameWidth);
-		cg.drawString(logProcessor.getXAxisName(), (float) xAnx, (float) ((heatMapPlotHeight + heatMapPlotYOffset + tickLength + fontHeight + labelPad) + labelPad + (fontHeight / 2)));
+		cg.drawString(logProcessor.getXAxisName(), (float) xAnx, (float) ((heatMapPlotHeight + heatMapPlotYOffset + tickLength + fontHeight + labelPad)
+		+ labelPad + (fontHeight / 2)));
 		
 		// Y Ticks
 		

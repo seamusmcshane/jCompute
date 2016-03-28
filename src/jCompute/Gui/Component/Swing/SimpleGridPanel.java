@@ -9,15 +9,15 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimpleGridPanel extends JPanel
 {
 	private static final long serialVersionUID = -5209653908016192280L;
 	
-	// SL4J Logger
-	private static Logger log = LoggerFactory.getLogger(SimpleGridPanel.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(SimpleGridPanel.class);
 	
 	private final Font labelFont;
 	private final Font valFont;

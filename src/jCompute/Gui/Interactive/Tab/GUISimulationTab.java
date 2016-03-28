@@ -68,12 +68,12 @@ import javax.swing.event.ChangeListener;
 
 import java.awt.Font;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -81,7 +81,8 @@ import javax.swing.border.LineBorder;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener
 {
-	private static Logger log = LoggerFactory.getLogger(GUISimulationTab.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(GUISimulationTab.class);
 	
 	private static final long serialVersionUID = 5391587818992199457L;
 	
@@ -1057,6 +1058,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	/**
 	 * The Average Steps per second.
+	 * 
 	 * @param asps
 	 */
 	private void setASPS(int asps)
@@ -1066,6 +1068,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	/**
 	 * The current step number.
+	 * 
 	 * @param stepNo
 	 */
 	private void setStepNo(int stepNo)

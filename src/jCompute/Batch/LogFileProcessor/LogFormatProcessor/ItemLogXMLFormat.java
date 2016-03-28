@@ -11,14 +11,15 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.ConfigurationNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import jCompute.util.Text;
 
 public class ItemLogXMLFormat implements ItemLogFormatInf
 {
-	private static Logger log = LoggerFactory.getLogger(ItemLogXMLFormat.class);
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(ItemLogXMLFormat.class);
 	
 	private final String logFormat = "ItemLogXMLFormat";
 	
