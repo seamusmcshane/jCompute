@@ -308,8 +308,6 @@ public class Launcher
 		// Set the log level filenames using the logPrefix and append with the correct level suffix
 		String errorLog = logPrefix.toString() + "error.log";
 		String standardLog = logPrefix.toString() + "standard.log";
-		System.setProperty("ERROR_LOG_FILENAME", errorLog);
-		System.setProperty("STANDARD_LOG_FILENAME", standardLog);
 		
 		Level level;
 		
