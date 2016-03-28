@@ -30,10 +30,8 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.1-javadoc.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-logging/commons-logging-1.2/commons-logging-1.2.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/slf4j/slf4j-1.7.14/slf4j-api-1.7.14.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-api-2.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-core-2.5.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.5-bin/log4j-slf4j-impl-2.5.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/fontbox-2.0.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/pdfbox-2.0.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/preflight-2.0.0.jar"/>
