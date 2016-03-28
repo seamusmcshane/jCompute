@@ -103,8 +103,6 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 
 	public SurfacePlotterUtil()
 	{
-		System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
-
 		lookandFeel();
 
 		gui = new JFrame();

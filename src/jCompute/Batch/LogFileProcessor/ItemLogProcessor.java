@@ -75,8 +75,6 @@ public final class ItemLogProcessor
 	
 	public ItemLogProcessor(String filePath, int rangeMin, int rangeMax, boolean useRangeLimits) throws IOException
 	{
-		System.setProperty("log4j.configurationFile", "log/config/log4j2-consoleonly.xml");
-		
 		ItemLogFormatInf logFormatProcessor = detectAndProcessLogFile(filePath);
 		
 		processLogItems(logFormatProcessor.getLogItems(), rangeMin, rangeMax, useRangeLimits);

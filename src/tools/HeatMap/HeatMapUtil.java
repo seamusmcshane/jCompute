@@ -49,8 +49,6 @@ public class HeatMapUtil implements WindowListener
 	
 	public HeatMapUtil()
 	{
-		System.setProperty("log4j.configurationFile", "log-config/log4j2-consoleonly.xml");
-		
 		log = LogManager.getLogger(HeatMapUtil.class);
 		
 		LookAndFeel.setLookandFeel("default");
