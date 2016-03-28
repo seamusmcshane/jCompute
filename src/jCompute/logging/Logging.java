@@ -15,6 +15,9 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 public final class Logging
 {
+	private static String standardLogPath;
+	private static String errorLogPath;
+	
 	private Logging()
 	{
 		
@@ -67,17 +70,21 @@ public final class Logging
 		// Standard Log Appender - Name = filename
 		AppenderComponentBuilder standardAppender = builder.newAppender(standardLogFile, "File");
 		standardAppender.add(layout);
-		standardAppender.addAttribute("fileName", logDir + File.separatorChar + standardLogFile);
+		
+		standardLogPath = logDir + File.separatorChar + standardLogFile;
+		
+		standardAppender.addAttribute("fileName", standardLogPath);
 		standardAppender.addAttribute("append", "true");
 		// Buffered
 		standardAppender.addAttribute("immediateFlush", "false");
-		standardAppender.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.DENY).addAttribute("level", Level.INFO));
+		standardAppender.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.DENY).addAttribute("level", logLevel));
 		builder.add(standardAppender);
 
 		// Warnings and Errors Log Appender - Name = filename
 		AppenderComponentBuilder errorAppender = builder.newAppender(errorLogFile, "File");
 		errorAppender.add(layout);
-		errorAppender.addAttribute("fileName", logDir + File.separatorChar + errorLogFile);
+		errorLogPath = logDir + File.separatorChar + errorLogFile;
+		errorAppender.addAttribute("fileName", errorLogPath);
 		errorAppender.addAttribute("append", "true");
 		// Immediate Flush
 		errorAppender.addAttribute("immediateFlush", "true");
@@ -100,5 +107,10 @@ public final class Logging
 
 		// Apply the logging configuration
 		Configurator.initialize(builder.build());
+	}
+	
+	public static String getStandardLogPath()
+	{
+		return standardLogPath;
 	}
 }

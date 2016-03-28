@@ -141,6 +141,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	/**
 	 * Sets a TableCellRenderer to be used for a column
+	 *
 	 * @param renderer
 	 * @param column
 	 */
@@ -173,6 +174,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	/**
 	 * Updates a row
+	 *
 	 * @param rowKey
 	 */
 	public void updateRow(final IndexType rowKey, final RowType row)
@@ -210,6 +212,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	/**
 	 * Removes a row
+	 *
 	 * @param rowKey
 	 */
 	public void removeRow(final IndexType rowKey)
@@ -224,6 +227,29 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 		}
 
 		activeList.getReadWriteLock().writeLock().unlock();
+	}
+
+	public void removeFirstRow()
+	{
+		activeList.getReadWriteLock().writeLock().lock();
+
+		if(activeList.size() > 0)
+		{
+			activeList.remove(0);
+		}
+
+		activeList.getReadWriteLock().writeLock().unlock();
+	}
+
+	public int getRows()
+	{
+		activeList.getReadWriteLock().writeLock().lock();
+
+		int size = activeList.size();
+
+		activeList.getReadWriteLock().writeLock().unlock();
+
+		return size;
 	}
 
 	/**
@@ -246,6 +272,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	/**
 	 * Gets a value at a specific coordinate in the table
+	 *
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -267,6 +294,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	/**
 	 * Returns the number of rows in the table
+	 *
 	 * @return
 	 */
 	public int getRowsCount()
@@ -341,5 +369,17 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	public void setSelection(int row, int column)
 	{
 		table.changeSelection(row, column, false, false);
+	}
+
+	public void scrollToBottom()
+	{
+		activeList.getReadWriteLock().writeLock().lock();
+
+		int size = activeList.size();
+
+		table.scrollRectToVisible(table.getCellRect(size - 1, 0, true));
+
+		activeList.getReadWriteLock().writeLock().unlock();
+
 	}
 }
