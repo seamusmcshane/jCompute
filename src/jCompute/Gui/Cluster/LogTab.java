@@ -97,7 +97,7 @@ public class LogTab extends JPanel implements TailerListener
 		end = line.length();
 		String message = line.substring(start, end);
 
-		System.out.println("TAILER " + index + " " + level + " " + comp + " " + message + " start " + start + " " + " end " + end);
+		//System.out.println("TAILER " + index + " " + level + " " + comp + " " + message + " start " + start + " " + " end " + end);
 
 		standardLog.addRow(new StandardLogRowItem(linesAdded++, index, level, comp, message));
 
