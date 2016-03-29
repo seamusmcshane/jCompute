@@ -80,11 +80,88 @@ public final class IconManager
 	 * Mappings that have a relative path starting with a ! are cross reference mappings.
 	 * Cross reference mappings declarations - point to an existing mapping in the format name,!existingMappingName.
 	 * Cross reference mappings declarations can be in any location in the mapping file, including before the exiting mapping declaration.
+	 * Mapping List
+	 * ##########################################
+	 * # Interactive GUI
+	 * ##########################################
+	 * #
+	 * # Main Tabs
+	 * ##########################################
+	 * addSimTab32,
+	 * simListTab32,
+	 * #
+	 * # Simulation Tab Status
+	 * ##########################################
+	 * simTabStatusNew32,!stop32
+	 * simTabStatusRunning32,!start32
+	 * simTabStatusPaused32,!pause32
+	 * simTabStatusFinished32,
+	 * #
+	 * # Scenario Editor Buttons
+	 * ##########################################
+	 * openScenario32,
+	 * saveScenario32,
+	 * #
+	 * # Sim Control Buttons
+	 * ##########################################
+	 * generateSim16,
+	 * startSim16,!start16
+	 * pauseSim16,!paused16
+	 * resumeSim16,!resume16
+	 * #
+	 * # Simulation Tab - Tabs
+	 * ##########################################
+	 * scenarioEditor16,
+	 * chartTab16,
+	 * charts16,
+	 * #
+	 * #
+	 * ##########################################
+	 * # Batch GUI
+	 * ##########################################
+	 * #
+	 * # Main Tabs
+	 * ##########################################
+	 * batchTab32,
+	 * clusterTab32,
+	 * loggingTab32,
+	 * #
+	 * # Batch Tab
+	 * ##########################################
+	 * addBatch32,
+	 * removeBatch32,
+	 * moveForward32,
+	 * moveBackward32,
+	 * moveToFront32,
+	 * moveToBack32,
+	 * start32,
+	 * stop32,
+	 * pause32,
+	 * #
+	 * # Batch Priority (Fifo/Fair)
+	 * ##########################################
+	 * std32,
+	 * high32,
+	 * #
+	 * # Simulation/Batch Tables Status
+	 * ##########################################
+	 * start16,
+	 * pause16,
+	 * stop16,
+	 * paused16,
+	 * resume16,
+	 * #
+	 * # Cluster Info Tabs
+	 * ##########################################
+	 * simListTab16,
+	 * loggingTab16,
+	 * nodesTab16,
 	 *
 	 * @param themeURI
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
+
 	private void readIconsViaMapping(String themeURI) throws IOException, URISyntaxException
 	{
 		LinkedList<String[]> crossRefs = new LinkedList<String[]>();

@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -135,8 +134,8 @@ public class ClusterTab extends JPanel
 		clusterConnectedNodesTablePanel.setColumWidth(9, 120);
 		clusterConnectedNodesTablePanel.setColumWidth(stateColumn, 75);
 		
-		clusterConnectedNodesTablePanel.addColumRenderer(new NodeControlButtonRenderer(clusterConnectedNodesTablePanel, stateColumn, IconManager.getIcon(
-		"startSimIcon"), IconManager.getIcon("pauseSimIcon"), IconManager.getIcon("stopIcon")), stateColumn);
+		clusterConnectedNodesTablePanel.addColumRenderer(new NodeControlButtonRenderer(clusterConnectedNodesTablePanel, stateColumn, IconManager.retrieveIcon(
+		"start16"), IconManager.retrieveIcon("pause16"), IconManager.retrieveIcon("stop16")), stateColumn);
 		
 		clusterConnectedNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
 		
@@ -290,14 +289,11 @@ public class ClusterTab extends JPanel
 		gbConstraints9.gridy = 9;
 		graphsJPanelContainer.add(clusterNodeRXSChar, gbConstraints9);
 		
-		ImageIcon clusterIcon = IconManager.getIcon("simulationListTabIcon16");
-		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, clusterIcon, "Activity"));
+		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, IconManager.retrieveIcon("simListTab16"), "Activity"));
 		
-		ImageIcon nodesIcon = IconManager.getIcon("Nodes16");
-		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, nodesIcon, "Connected Nodes"));
+		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, IconManager.retrieveIcon("nodesTab16"), "Connected Nodes"));
 		
-		ImageIcon logIcon = IconManager.getIcon("Log16");
-		tabPanel.addTab(clusterNodesLogTablePanel, new SimpleTabTabTitle(160, logIcon, "Nodes Log"));
+		tabPanel.addTab(clusterNodesLogTablePanel, new SimpleTabTabTitle(160, IconManager.retrieveIcon("loggingTab16"), "Nodes Log"));
 		
 		this.add(tabPanel);
 		this.add(graphScrollPane);
@@ -434,7 +430,7 @@ public class ClusterTab extends JPanel
 	
 	/**
 	 * SimulationsManagerEvent handler method
-	 * 
+	 *
 	 * @param e
 	 * @return
 	 */

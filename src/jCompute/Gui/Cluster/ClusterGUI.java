@@ -8,7 +8,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -51,10 +50,6 @@ public class ClusterGUI implements WindowListener
 	private BatchTab batchTab;
 	private ClusterTab clusterTab;
 	private LogTab logTab;
-
-	/* Icons */
-	ImageIcon batchTabIcon = IconManager.getIcon("list");
-	ImageIcon clusterIcon = IconManager.getIcon("Nodes32");
 
 	public ClusterGUI(final boolean buttonText, BatchManager batchManager)
 	{
@@ -114,15 +109,15 @@ public class ClusterGUI implements WindowListener
 
 		batchTab = new BatchTab(rightPanelsMinWidth, buttonText);
 
-		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, batchTabIcon, "Batch"));
+		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("batchTab32"), "Batch"));
 
 		clusterTab = new ClusterTab(rightPanelsMinWidth);
 
-		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, clusterIcon, "Cluster"));
+		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("clusterTab32"), "Cluster"));
 
 		logTab = new LogTab();
 
-		guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, clusterIcon, "Logging"));
+		guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("loggingTab32"), "Logging"));
 
 		logTab.start();
 	}
