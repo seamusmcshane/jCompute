@@ -473,5 +473,16 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		// NA
 	}
-	
+
+	@Override
+	public int getHeight()
+	{
+		return 0;
+	}
+
+	@Override
+	public int getWidth()
+	{
+		return 0;
+	}
 }

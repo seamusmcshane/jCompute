@@ -1,5 +1,6 @@
 package jCompute.Gui.View.Renderers;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +52,7 @@ public class PixMapRenderer implements ViewRendererInf
 
 	private long drawTimeoutLimit = 67;
 
-	private int[] drawBuffer;
+	private ByteBuffer drawBuffer;
 
 	private InputProcessor inputProcessor;
 
@@ -67,8 +68,6 @@ public class PixMapRenderer implements ViewRendererInf
 		this.computed = computed;
 
 		this.textureSize = textureSize;
-
-		drawBuffer = new int[textureSize * textureSize];
 
 		this.computeBuffer = computeBuffer;
 
@@ -111,6 +110,8 @@ public class PixMapRenderer implements ViewRendererInf
 		pTemp = new Pixmap(textureSize, textureSize, Format.RGBA8888);
 		texture = new Texture(textureSize, textureSize, Format.RGBA8888);
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		drawBuffer = pTemp.getPixels();
 
 		updateCamera();
 
@@ -196,7 +197,7 @@ public class PixMapRenderer implements ViewRendererInf
 			// don't reply in time draw the OLD buffer
 			if(computed.tryAcquire(drawTimeoutLimit, TimeUnit.MILLISECONDS))
 			{
-				System.arraycopy(computeBuffer, 0, drawBuffer, 0, computeBuffer.length);
+				drawBuffer.asIntBuffer().put(computeBuffer);
 			}
 		}
 		catch(InterruptedException e)
@@ -212,7 +213,7 @@ public class PixMapRenderer implements ViewRendererInf
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		scaledSize = Lib2D.drawPixelMap(this, 0, drawBuffer, 0, 0);
+		scaledSize = Lib2D.drawPixelMap(this, 0, 0, 0, true);
 	}
 
 	@Override
@@ -230,6 +231,18 @@ public class PixMapRenderer implements ViewRendererInf
 			inputMultiplexer.addProcessor(inputProcessor);
 		}
 
+	}
+
+	@Override
+	public int getWidth()
+	{
+		return viewport.getScreenWidth();
+	}
+
+	@Override
+	public int getHeight()
+	{
+		return viewport.getScreenHeight();
 	}
 
 	public float getTextureScale()

@@ -1,23 +1,22 @@
 package jCompute.Gui.View;
 
-import jCompute.Gui.View.Graphics.A2DCircle;
-import jCompute.Gui.View.Graphics.A2DLine;
-import jCompute.Gui.View.Graphics.A2DRectangle;
-import jCompute.Gui.View.Graphics.A2DVector2f;
-import jCompute.Gui.View.Graphics.A2RGBA;
-
-import java.nio.ByteBuffer;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
+
+import jCompute.Gui.View.Graphics.A2DCircle;
+import jCompute.Gui.View.Graphics.A2DLine;
+import jCompute.Gui.View.Graphics.A2DRectangle;
+import jCompute.Gui.View.Graphics.A2DVector2f;
+import jCompute.Gui.View.Graphics.A2RGBA;
 
 public class Lib2D
 {
@@ -52,22 +51,37 @@ public class Lib2D
 	/*
 	 * PixelMap
 	 */
-	public static float drawPixelMap(ViewRendererInf ren, int id, int[] buffer, float x, float y)
+	public static float drawPixelMap(ViewRendererInf ren, int id, float x, float y, boolean noFilter1to1)
 	{
 		SpriteBatch sb = ren.getSpriteBatch();
 		Pixmap pTemp = ren.getPixmap(id);
 		Texture tTemp = ren.getTexture(id);
-		ByteBuffer pixels = pTemp.getPixels();
 		int textureSize = ren.getTextureSize(id);
 		
-		pixels.asIntBuffer().put(buffer);
 		tTemp.draw(pTemp, 0, 0);
 		
-		float min = Math.min(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		float min = Math.min(ren.getWidth(), ren.getHeight());
 		
 		float scale = min / textureSize;
 		
-		float textureScale = textureSize * scale;
+		if(noFilter1to1)
+		{
+			float mod = Math.round(scale);
+			
+			// Avoid scaling within 10percent of an exact multiple of texture size - also disable filtering
+			if(scale < (mod * 1.1f) && scale > (mod * 0.9f))
+			{
+				scale = mod;
+				
+				tTemp.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+			}
+			else
+			{
+				tTemp.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			}
+		}
+		
+		int textureScale = (int) (textureSize * scale);
 		
 		sb.begin();
 		
@@ -418,14 +432,14 @@ public class Lib2D
 	 */
 	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle)
 	{
-		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor().getGreen(),
-				rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), DEFAULT_LINE_WIDTH);
+		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor()
+		.getGreen(), rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), DEFAULT_LINE_WIDTH);
 	}
 	
 	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle, float lineWidth)
 	{
-		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor().getGreen(),
-				rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), lineWidth);
+		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor()
+		.getGreen(), rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), lineWidth);
 	}
 	
 	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
