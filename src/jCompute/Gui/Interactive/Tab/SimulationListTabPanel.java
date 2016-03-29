@@ -18,6 +18,9 @@ import java.awt.Point;
 
 import javax.swing.JTable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.event.MouseAdapter;
@@ -26,6 +29,9 @@ import java.awt.event.MouseEvent;
 public class SimulationListTabPanel extends JPanel
 {
 	private static final long serialVersionUID = 76641721672552215L;
+	
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(SimulationListTabPanel.class);
 
 	// The table object
 	private TablePanel<Integer, SimulationListRowItem> table;
@@ -141,7 +147,7 @@ public class SimulationListTabPanel extends JPanel
 		}
 		else
 		{
-			System.out.println("Unhandled SimulationManagerEvent in Simulations List");
+			log.error("Unhandled SimulationManagerEvent in Simulations List");
 		}
 	}
 

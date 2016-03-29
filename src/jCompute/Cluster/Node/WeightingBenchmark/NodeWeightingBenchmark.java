@@ -140,15 +140,6 @@ public class NodeWeightingBenchmark
 		return fullWeighting;
 	}
 	
-	public void outputResults()
-	{
-		System.out.println("Objects\t" + objectCount);
-		System.out.println("Iterations\t" + iterations);
-		System.out.println("Add Time\t" + addTime);
-		System.out.println("Search Time\t" + searchTime);
-		System.out.println("Weighting\t" + getWeighting());
-	}
-	
 	public long getWeighting()
 	{
 		return addTime+searchTime;
@@ -163,5 +154,4 @@ public class NodeWeightingBenchmark
 	{
 		return running;
 	}
-
 }

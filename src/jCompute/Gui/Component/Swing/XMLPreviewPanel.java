@@ -15,6 +15,8 @@ import java.io.InputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
@@ -23,21 +25,24 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 {
 	private static final long serialVersionUID = 7753963396925709079L;
+	
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(XMLPreviewPanel.class);
 
 	private RTextScrollPane scenarioEditorRTextScrollPane;
 	private RSyntaxTextArea scenarioEditor;
-
+	
 	public XMLPreviewPanel()
 	{
-		this.setLayout(new BorderLayout());
-		this.setMinimumSize(new Dimension(500, 300));
-		this.setPreferredSize(new Dimension(500, 300));
-
+		setLayout(new BorderLayout());
+		setMinimumSize(new Dimension(500, 300));
+		setPreferredSize(new Dimension(500, 300));
+		
 		scenarioEditor = new RSyntaxTextArea();
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		scenarioEditor = new RSyntaxTextArea();
 		scenarioEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
-
+		
 		scenarioEditor.setCloseMarkupTags(false);
 		scenarioEditor.setCloseCurlyBraces(false);
 		scenarioEditor.setAnimateBracketMatching(false);
@@ -51,24 +56,23 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 		scenarioEditor.setBracketMatchingEnabled(false);
 		scenarioEditor.setEditable(false);
 		scenarioEditor.setHighlightCurrentLine(false);
-
-		Theme theme;
-		InputStream in;
+		
 		try
 		{
-			in = new FileInputStream(new File("editor-themes" + File.separator + "dark-mod.xml"));
-			theme = Theme.load(in);
+			InputStream in = new FileInputStream(new File("editor-themes" + File.separator + "dark-mod.xml"));
+			Theme theme = Theme.load(in);
 			theme.apply(scenarioEditor);
+			in.close();
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
 		}
-
+		
 		scenarioEditorRTextScrollPane = new RTextScrollPane(scenarioEditor);
 		this.add(scenarioEditorRTextScrollPane, BorderLayout.CENTER);
 	}
-
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent e)
 	{
@@ -83,7 +87,7 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 			if(files.length > 0)
 			{
 				file = files[0];
-			}			
+			}
 		}
 		else
 		{
@@ -92,32 +96,33 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 				file = (File) e.getNewValue();
 			}
 		}
-				
+		
 		if(file != null)
 		{
-			if( (source.isMultiSelectionEnabled() && file.getName().toLowerCase().endsWith(".batch"))  || ( !source.isMultiSelectionEnabled() && file.getName().toLowerCase().endsWith(".scenario")))
+			if((source.isMultiSelectionEnabled() && file.getName().toLowerCase().endsWith(".batch")) || (!source.isMultiSelectionEnabled() && file.getName()
+			.toLowerCase().endsWith(".scenario")))
 			{
-				BufferedReader bufferedReader;
-
 				try
 				{
-					bufferedReader = new BufferedReader(new FileReader(source.getSelectedFile()));
+					BufferedReader bufferedReader = new BufferedReader(new FileReader(source.getSelectedFile()));
 					String sCurrentLine;
 					scenarioEditor.setText("");
-
-					while ((sCurrentLine = bufferedReader.readLine()) != null)
+					
+					while((sCurrentLine = bufferedReader.readLine()) != null)
 					{
 						scenarioEditor.append(sCurrentLine + "\n");
 					}
+					
+					bufferedReader.close();
 				}
-				catch (FileNotFoundException e1)
+				catch(FileNotFoundException e1)
 				{
-					System.out.println("File Not Found");
+					log.error("File Not Found");
 					e1.printStackTrace();
 				}
-				catch (IOException e1)
+				catch(IOException e1)
 				{
-					System.out.println("I/O Error");
+					log.error("I/O Error");
 					e1.printStackTrace();
 				}
 			}
@@ -125,7 +130,7 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 			{
 				scenarioEditor.setText("Not Valid");
 			}
-
+			
 		}
 		else
 		{
@@ -133,5 +138,5 @@ public class XMLPreviewPanel extends JPanel implements PropertyChangeListener
 		}
 		
 	}
-
+	
 }

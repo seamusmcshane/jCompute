@@ -19,9 +19,14 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FileUtil
 {
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(FileUtil.class);
+
 	public static File[] getFilesInDir(URL url)
 	{
 		File file = null;
@@ -35,7 +40,7 @@ public class FileUtil
 		}
 		catch(URISyntaxException e)
 		{
-			System.out.println(e.getCause());
+			log.error(e.getCause());
 		}
 
 		if(file != null)
@@ -96,7 +101,7 @@ public class FileUtil
 			{
 				if(file.getName().equals(fileName))
 				{
-					System.out.println(fileName + " Found : " + file.getAbsolutePath());
+					log.debug(fileName + " Found : " + file.getAbsolutePath());
 
 					return true;
 				}
@@ -119,7 +124,7 @@ public class FileUtil
 
 				if(fileFound.equals(fileNameNoExt))
 				{
-					System.out.println(fileNameNoExt + " Found : " + file.getAbsolutePath());
+					log.debug(fileNameNoExt + " Found : " + file.getAbsolutePath());
 
 					return true;
 				}
@@ -142,7 +147,7 @@ public class FileUtil
 
 				if(fileFoundNoExt.equals(name))
 				{
-					System.out.println(name + " Found : " + file.getAbsolutePath());
+					log.debug(name + " Found : " + file.getAbsolutePath());
 
 					return fileFound;
 				}
@@ -251,6 +256,7 @@ public class FileUtil
 
 	/**
 	 * Wrapper Around ApacheIO
+	 *
 	 * @param path
 	 * @return
 	 */

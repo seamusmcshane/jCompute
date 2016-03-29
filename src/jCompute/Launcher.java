@@ -92,7 +92,7 @@ public class Launcher
 		}
 		catch(UnknownHostException e)
 		{
-			log.error("Could not resolve the address of the local host");
+			System.out.println("Could not resolve the address of the local host");
 			
 			e.printStackTrace();
 			
@@ -285,8 +285,6 @@ public class Launcher
 	{
 		String logPath = "log" + File.separator;
 		
-		FileUtil.createDirIfNotExist(logPath);
-		
 		StringBuilder logPrefix = new StringBuilder();
 		
 		// Detect the mode and add the log file prefix - Mode_hostname
@@ -335,6 +333,10 @@ public class Launcher
 		log.info("LogPath      : " + logPath);
 		log.info("Standard Log : " + standardLog);
 		log.info("Error Log    : " + errorLog);
+		
+		// Classes with internal static loggers cannot be referenced until logging is setup - FileUtil is one of those classes.
+		// Create the log dir now
+		FileUtil.createDirIfNotExist(logPath);
 	}
 	
 	// Output the running environment
@@ -366,6 +368,14 @@ public class Launcher
 		
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		log.info("Temp dir provided by OS : " + tmpDir);
+		
+		for(int i = 0; i < 10; i++)
+		{
+			log.error("TEST");
+			log.debug("TEST");
+			log.warn("TEST");
+		}
+		
 	}
 	
 	// Output all the values the program launched with - only called if command line successfully parsed

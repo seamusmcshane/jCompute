@@ -14,6 +14,9 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
@@ -28,6 +31,10 @@ import jCompute.Gui.Component.TableCell.ColorConstants;
 public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> extends JPanel
 {
 	private static final long serialVersionUID = 7193787210494563482L;
+	
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(TablePanel.class);
+	
 	private JTable table;
 
 	private JScrollPane scrollPane;
@@ -133,7 +140,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 		}
 		catch(InstantiationException | IllegalAccessException e)
 		{
-			System.out.println("Error in Row Item Reflection : " + rowClass.toString());
+			log.error("Row Item Reflection : " + rowClass.toString());
 			e.printStackTrace();
 		}
 

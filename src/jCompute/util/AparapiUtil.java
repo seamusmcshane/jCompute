@@ -1,10 +1,16 @@
 package jCompute.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.amd.aparapi.device.OpenCLDevice;
 import com.amd.aparapi.internal.opencl.OpenCLPlatform;
 
 public class AparapiUtil
 {
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(AparapiUtil.class);
+
 	public static OpenCLDevice chooseOpenCLDevice()
 	{
 		OpenCLDevice dev = OpenCLDevice.select(new OpenCLDevice.DeviceSelector()
@@ -20,26 +26,26 @@ public class AparapiUtil
 				 * Will choice a device in this order of preference - AMD GPU,
 				 * nVidia GPU , Intel GPU, Intel CPU, AMD CPU
 				 */
-				System.out.println("-------------------");
-				System.out.println("Platform List");
-				System.out.println("-------------------");
+				log.info("-------------------");
+				log.info("Platform List");
+				log.info("-------------------");
 				for(OpenCLPlatform platform : d.getOpenCLPlatform().getOpenCLPlatforms())
 				{
-					System.out.println(platform.getName());
+					log.info(platform.getName());
 				}
-				System.out.println("-------------------");
-				System.out.println("Device List");
-				System.out.println("-------------------");
+				log.info("-------------------");
+				log.info("Device List");
+				log.info("-------------------");
 				for(OpenCLPlatform platform : d.getOpenCLPlatform().getOpenCLPlatforms())
 				{
-
+					
 					if(platform.getName().contains("AMD"))
 					{
 						for(OpenCLDevice dev : platform.getOpenCLDevices())
 						{
 							if(dev.getType().toString().equals("GPU"))
 							{
-								System.out.println("AMD GPU Detected");
+								log.info("AMD GPU Detected");
 
 								amd = dev;
 
@@ -54,7 +60,7 @@ public class AparapiUtil
 						{
 							if(dev.getType().toString().equals("GPU"))
 							{
-								System.out.println("NVIDIA GPU Detected");
+								log.info("NVIDIA GPU Detected");
 
 								nvidia = dev;
 
@@ -69,7 +75,7 @@ public class AparapiUtil
 						{
 							if(dev.getType().toString().equals("GPU"))
 							{
-								System.out.println("Intel GPU Detected");
+								log.info("Intel GPU Detected");
 
 								intel = dev;
 
@@ -86,7 +92,7 @@ public class AparapiUtil
 							{
 								if(dev.getType().toString().equals("CPU"))
 								{
-									System.out.println("Intel CPU Detected");
+									log.info("Intel CPU Detected");
 
 									intel = dev;
 
@@ -96,7 +102,6 @@ public class AparapiUtil
 						}
 					}
 
-
 					if(amd == null)
 					{
 						if(platform.getName().contains("AMD"))
@@ -105,7 +110,7 @@ public class AparapiUtil
 							{
 								if(dev.getType().toString().equals("CPU"))
 								{
-									System.out.println("AMD CPU Detected");
+									log.info("AMD CPU Detected");
 
 									amd = dev;
 
@@ -116,31 +121,33 @@ public class AparapiUtil
 					}
 
 				}
-				System.out.println("-------------------");
+				log.info("-------------------");
 
 				if(amd != null)
 				{
-					System.out.println("Selected : " + amd.getOpenCLPlatform().getName() + " " + amd.getType());
-					System.out.println("-------------------");
+					log.info("Selected : " + amd.getOpenCLPlatform().getName() + " " + amd.getType());
+					log.info("-------------------");
 
 					return amd;
 				}
 
 				if(nvidia != null)
 				{
-					System.out.println("Selected : " + nvidia.getOpenCLPlatform().getName() + " " + nvidia.getType());
-					System.out.println("-------------------");
+					log.info("Selected : " + nvidia.getOpenCLPlatform().getName() + " " + nvidia.getType());
+					log.info("-------------------");
 
 					return nvidia;
 				}
 
 				if(intel != null)
 				{
-					System.out.println("Selected : " + intel.getOpenCLPlatform().getName() + " " + intel.getType());
-					System.out.println("-------------------");
+					log.info("Selected : " + intel.getOpenCLPlatform().getName() + " " + intel.getType());
+					log.info("-------------------");
 
 					return intel;
 				}
+
+				log.error("No device Selected");
 
 				return null;
 			}
@@ -164,13 +171,16 @@ public class AparapiUtil
 						{
 							if(dev.getType().toString().toLowerCase().contains(type.toLowerCase()))
 							{
-								System.out.println(gpuVendor + " " + type + " Detected");
+								log.info(gpuVendor + " " + type + " Detected");
 
 								return dev;
 							}
 						}
 					}
 				}
+
+				log.error("No device detected");
+
 				return null;
 			}
 		});

@@ -164,10 +164,6 @@ public class BatchManager
 				
 				BatchItem item = findActiveBatchItemFromSimId(simId);
 				
-				// System.out.println("SimId " + simId);
-				// System.out.println("itemActive " + itemActive);
-				// System.out.println("Item " + item);
-				
 				batchManagerLock.acquireUninterruptibly();
 				Batch batch = findBatch(item.getBatchId());
 				batchManagerLock.release();
