@@ -13,9 +13,7 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -83,11 +81,10 @@ public class BenchmarkTab extends JPanel
 		JButton close = new JButton("Close");
 		close.addActionListener(new ActionListener()
 		{
-			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				close(tabpanel, self, true);
+				close(tabpanel, self);
 			}
 		});
 
@@ -125,7 +122,7 @@ public class BenchmarkTab extends JPanel
 						openBatchProgressMonitorTask.start();
 					}
 
-					close(tabpanel, self, false);
+					close(tabpanel, self);
 				}
 			}
 		});
@@ -145,48 +142,20 @@ public class BenchmarkTab extends JPanel
 		bench.add(container);
 	}
 
-	private void close(SimpleTabPanel tabpanel, BenchmarkTab self, boolean prompt)
+	private void close(SimpleTabPanel tabpanel, BenchmarkTab self)
 	{
-		// If no prompt then close = true, else close depends on prompt outcome
-		boolean close = !prompt;
+		// Remove current batch list
+		list.clear();
 
-		if(prompt)
-		{
-			String message;
-			message = "You have not added any benchmarks, do you wish to close the benchmark tab?";
+		list = null;
 
-			JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+		clist.clear();
 
-			// Center Dialog on the GUI
-			JDialog dialog = pane.createDialog(self, "Canceling Benchmark");
+		clist = null;
 
-			dialog.pack();
-			dialog.setVisible(true);
-
-			int value = ((Integer) pane.getValue()).intValue();
-
-			if(value == JOptionPane.YES_OPTION)
-			{
-				close = true;
-			}
-		}
-
-		if(close)
-		{
-			// Remove current batch list
-			list.clear();
-
-			list = null;
-
-			clist.clear();
-
-			clist = null;
-
-			// Remove
-			tabpanel.removeTab(self);
-			tabpanel.setSelectedTab(0);
-		}
-
+		// Remove
+		tabpanel.removeTab(self);
+		tabpanel.setSelectedTab(0);
 	}
 
 	private void addTitlePanel(JPanel panel, BatchManager batchManager, BenchmarkTab self, SimpleTabPanel tabpanel)

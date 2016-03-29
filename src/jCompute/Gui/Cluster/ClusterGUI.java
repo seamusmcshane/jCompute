@@ -50,11 +50,10 @@ public class ClusterGUI implements WindowListener
 	private final int rightPanelsMinWidth = 400;
 	private final int tabWidth = 100;
 	
-	// GUI Tabs
+	// Permanent Tabs
 	private SimpleTabPanel guiTabs;
 	private BatchTab batchTab;
 	private ClusterTab clusterTab;
-	private LogTab logTab;
 	
 	public ClusterGUI(final boolean buttonText, BatchManager batchManager)
 	{
@@ -103,7 +102,6 @@ public class ClusterGUI implements WindowListener
 		// Menu Bar
 		createMenuBar(batchManager);
 		guiFrame.setJMenuBar(menuBar);
-		
 	}
 	
 	public void createAndAddTabs(boolean buttonText)
@@ -117,12 +115,6 @@ public class ClusterGUI implements WindowListener
 		clusterTab = new ClusterTab(rightPanelsMinWidth);
 		
 		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("clusterTab32"), "Cluster"));
-		
-		logTab = new LogTab();
-		
-		guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("loggingTab32"), "Logging"));
-		
-		logTab.start();
 	}
 	
 	public void createMenuBar(BatchManager batchManager)
@@ -157,7 +149,7 @@ public class ClusterGUI implements WindowListener
 					BenchmarkTab benchmark = new BenchmarkTab(batchManager, guiTabs);
 					
 					guiTabs.addTab(benchmark, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("benchmarkTab32"), "Benchmark"));
-
+					
 					guiTabs.setSelectedTab(benchmark);
 				}
 			});
@@ -168,6 +160,22 @@ public class ClusterGUI implements WindowListener
 		{
 			log.warn("SAPPv2 not found benchmark disabled");
 		}
+		
+		JMenuItem mntmLogging = new JMenuItem("Logging");
+		mnTab.add(mntmLogging);
+		mntmLogging.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				LogTab logTab = new LogTab(guiTabs);
+				
+				guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("loggingTab32"), "Logging"));
+				guiTabs.setSelectedTab(logTab);
+				logTab.start();
+			}
+		});
+		
 		menuBar.add(mnTab);
 		
 		mnHelp = new JMenu("Help");
@@ -259,6 +267,5 @@ public class ClusterGUI implements WindowListener
 				}
 			}
 		});
-		
 	}
 }

@@ -2,8 +2,11 @@ package jCompute.Gui.Component.Swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -23,13 +26,15 @@ public class LogTab extends JPanel implements TailerListener
 	private final int MAX_ITEMS = 5000;
 	private int linesAdded;
 
-	public LogTab()
+	public LogTab(SimpleTabPanel tabpanel)
 	{
+		LogTab self = this;
+
 		setLayout(new BorderLayout());
 		Tailer tailer = new Tailer(new File(Logging.getStandardLogPath()), this, 1000);
 		tailerThread = new Thread(tailer);
 		tailerThread.setDaemon(true);
-
+		tailerThread.setName("Logging Tailer");
 		standardLog = new TablePanel<Integer, StandardLogRowItem>(StandardLogRowItem.class, "Standard Log", true, true);
 		standardLog.setColumWidth(0, 80);
 		standardLog.setColumWidth(1, 80);
@@ -49,6 +54,25 @@ public class LogTab extends JPanel implements TailerListener
 		standardLog.addColumRenderer(new TextHighLighterRenderer(colors, text), 2);
 
 		this.add(standardLog, BorderLayout.CENTER);
+
+		JPanel panel = new JPanel();
+		add(panel, BorderLayout.SOUTH);
+		panel.setLayout(new BorderLayout(0, 0));
+
+		JButton btnClose = new JButton("Close");
+		btnClose.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				tailer.stop();
+				tabpanel.removeTab(self);
+				standardLog.clearTable();
+				standardLog = null;
+				tailerThread = null;
+			}
+		});
+		panel.add(btnClose, BorderLayout.EAST);
 	}
 
 	public void start()
@@ -96,7 +120,7 @@ public class LogTab extends JPanel implements TailerListener
 		end = line.length();
 		String message = line.substring(start, end);
 
-		//System.out.println("TAILER " + index + " " + level + " " + comp + " " + message + " start " + start + " " + " end " + end);
+		// System.out.println("TAILER " + index + " " + level + " " + comp + " " + message + " start " + start + " " + " end " + end);
 
 		standardLog.addRow(new StandardLogRowItem(linesAdded++, index, level, comp, message));
 
