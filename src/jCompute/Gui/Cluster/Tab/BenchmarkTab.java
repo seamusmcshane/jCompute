@@ -1,58 +1,59 @@
-package jCompute.Gui.Component.Swing;
+package jCompute.Gui.Cluster.Tab;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 
 import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.io.Files;
 
 import jCompute.Cluster.BatchManager.BatchManager;
+import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
+import jCompute.Gui.Component.Swing.OpenBatchFileTask;
+import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.util.FileUtil;
 
-public class BenchmarkWindow extends JDialog
+public class BenchmarkTab extends JPanel
 {
 	private static final long serialVersionUID = -6582518152127005845L;
 
 	private final String path = "benchmark";
+
+	private ArrayList<JComponent> clist;
 	private ArrayList<String> list;
 	private int fileCount;
 
-	public static void main(String args[])
+	public BenchmarkTab(BatchManager batchManager, SimpleTabPanel tabpanel)
 	{
-		BenchmarkWindow test = new BenchmarkWindow(null);
+		BenchmarkTab self = this;
 
-		test.pack();
-		test.setLocationRelativeTo(null);
-		test.setVisible(true);
-	}
+		setLayout(new BorderLayout());
 
-	public BenchmarkWindow(BatchManager batchManager)
-	{
-		BenchmarkWindow self = this;
+		// The Benchmark panel
+		JPanel bench = new JPanel();
+		bench.setMinimumSize(new Dimension(500, 300));
+		bench.setPreferredSize(new Dimension(500, 300));
+		bench.setMaximumSize(new Dimension(500, 300));
 
-		setModal(true);
-		setResizable(false);
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setType(Type.NORMAL);
-
-		setTitle("jCompute");
-		setMinimumSize(new Dimension(600, 150));
-		setModalExclusionType(ModalExclusionType.NO_EXCLUDE);
+		// Align in tab to top left
+		JPanel benchContainer = new JPanel(new BorderLayout());
+		benchContainer.add(bench, BorderLayout.WEST);
+		this.add(benchContainer, BorderLayout.NORTH);
 
 		File[] files = FileUtil.getFilesInDir(path);
 
@@ -62,21 +63,33 @@ public class BenchmarkWindow extends JDialog
 		fileCount = files.length;
 
 		list = new ArrayList<String>();
+		clist = new ArrayList<JComponent>();
 
-		getContentPane().setLayout(new GridLayout((fileCount * 2) + 2, 0, 0, 0));
+		bench.setLayout(new GridLayout((fileCount * 2) + 2, 0, 0, 0));
 
-		addPadPanel((JPanel) getContentPane());
+		addPadPanel(bench);
 
-		addTitlePanel(this, batchManager);
-		addPadPanel((JPanel) getContentPane());
+		addTitlePanel(bench, batchManager, self, tabpanel);
+		addPadPanel(bench);
 
 		for(File file : files)
 		{
 			if(Files.getFileExtension(file.getName()).equals("batch"))
 			{
-				addTestOption(benchmarkStringTrim(file.getName()));
+				addTestOption(benchmarkStringTrim(file.getName()), bench);
 			}
 		}
+
+		JButton close = new JButton("Close");
+		close.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				close(tabpanel, self, true);
+			}
+		});
 
 		JButton start = new JButton("Start");
 		start.addActionListener(new ActionListener()
@@ -84,7 +97,7 @@ public class BenchmarkWindow extends JDialog
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				JComputeProgressMonitor openBatchProgressMonitor = new JComputeProgressMonitor(getContentPane(), "Adding Benchmark Batches", 0, 100);
+				JComputeProgressMonitor openBatchProgressMonitor = new JComputeProgressMonitor(bench, "Adding Benchmark Batches", 0, 100);
 
 				int size = list.size();
 
@@ -106,38 +119,80 @@ public class BenchmarkWindow extends JDialog
 						}
 					}
 
-					self.dispatchEvent(new WindowEvent(self, WindowEvent.WINDOW_CLOSING));
-
 					if(batchManager != null)
 					{
-						OpenBatchFileTask openBatchProgressMonitorTask = new OpenBatchFileTask(getContentPane(), openBatchProgressMonitor, batchManager,
-						fileList);
+						OpenBatchFileTask openBatchProgressMonitorTask = new OpenBatchFileTask(bench, openBatchProgressMonitor, batchManager, fileList);
 						openBatchProgressMonitorTask.start();
 					}
+
+					close(tabpanel, self, false);
 				}
 			}
 		});
 
-		addPadPanel((JPanel) getContentPane());
+		addPadPanel(bench);
 		JPanel container = new JPanel();
-		getContentPane().add(container);
+		bench.add(container);
 		container.setLayout(new GridLayout(0, 7, 0, 0));
 
 		addPadPanel(container);
 		addPadPanel(container);
 		addPadPanel(container);
 		addPadPanel(container);
-		addPadPanel(container);
+		container.add(close);
 		container.add(start);
 		addPadPanel(container);
-		getContentPane().add(container);
+		bench.add(container);
+	}
+
+	private void close(SimpleTabPanel tabpanel, BenchmarkTab self, boolean prompt)
+	{
+		// If no prompt then close = true, else close depends on prompt outcome
+		boolean close = !prompt;
+
+		if(prompt)
+		{
+			String message;
+			message = "You have not added any benchmarks, do you wish to close the benchmark tab?";
+
+			JOptionPane pane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+			// Center Dialog on the GUI
+			JDialog dialog = pane.createDialog(self, "Canceling Benchmark");
+
+			dialog.pack();
+			dialog.setVisible(true);
+
+			int value = ((Integer) pane.getValue()).intValue();
+
+			if(value == JOptionPane.YES_OPTION)
+			{
+				close = true;
+			}
+		}
+
+		if(close)
+		{
+			// Remove current batch list
+			list.clear();
+
+			list = null;
+
+			clist.clear();
+
+			clist = null;
+
+			// Remove
+			tabpanel.removeTab(self);
+			tabpanel.setSelectedTab(0);
+		}
 
 	}
 
-	private void addTitlePanel(BenchmarkWindow benchmarkWindow, BatchManager batchManager)
+	private void addTitlePanel(JPanel panel, BatchManager batchManager, BenchmarkTab self, SimpleTabPanel tabpanel)
 	{
 		JPanel container = new JPanel();
-		getContentPane().add(container);
+		panel.add(container);
 		container.setLayout(new GridLayout(0, 7, 0, 0));
 
 		addPadPanel(container);
@@ -161,18 +216,19 @@ public class BenchmarkWindow extends JDialog
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				BenchmarkWindow reset = new BenchmarkWindow(batchManager);
-				reset.pack();
-				reset.setLocationRelativeTo(benchmarkWindow);
-				reset.setVisible(true);
+				// Remove current batch list
+				list.clear();
 
-				benchmarkWindow.dispatchEvent(new WindowEvent(benchmarkWindow, WindowEvent.WINDOW_CLOSING));
+				// Renable all combo boxes and buttons
+				for(JComponent comp : clist)
+				{
+					comp.setEnabled(true);
+				}
 			}
 		});
 		container.add(buttton);
 
 		addPadPanel(container);
-
 	}
 
 	private void addPadPanel(JPanel container)
@@ -182,10 +238,10 @@ public class BenchmarkWindow extends JDialog
 		container.add(pad1);
 	}
 
-	private void addTestOption(String name)
+	private void addTestOption(String name, JPanel panel)
 	{
 		JPanel container = new JPanel();
-		getContentPane().add(container);
+		panel.add(container);
 		container.setLayout(new GridLayout(0, 7, 0, 0));
 
 		addPadPanel(container);
@@ -227,6 +283,10 @@ public class BenchmarkWindow extends JDialog
 
 				comboBox.setEnabled(false);
 				buttton.setEnabled(false);
+
+				// For reset button
+				clist.add(comboBox);
+				clist.add(buttton);
 			}
 		});
 		container.add(buttton);
