@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster;
+package jCompute.Gui.Component.Swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,7 +11,6 @@ import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
 
 import jCompute.Gui.Cluster.TableRowItems.StandardLogRowItem;
-import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.TextHighLighterRenderer;
 import jCompute.logging.Logging;
 

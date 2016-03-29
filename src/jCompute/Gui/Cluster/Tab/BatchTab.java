@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster;
+package jCompute.Gui.Cluster.Tab;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

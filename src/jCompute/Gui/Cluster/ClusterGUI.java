@@ -21,8 +21,11 @@ import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
 import jCompute.Cluster.BatchManager.BatchManager;
+import jCompute.Gui.Cluster.Tab.BatchTab;
+import jCompute.Gui.Cluster.Tab.ClusterTab;
 import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.BenchmarkWindow;
+import jCompute.Gui.Component.Swing.LogTab;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
 import jCompute.Scenario.ScenarioManager;
