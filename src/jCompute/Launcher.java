@@ -368,14 +368,6 @@ public class Launcher
 		
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		log.info("Temp dir provided by OS : " + tmpDir);
-		
-		for(int i = 0; i < 10; i++)
-		{
-			log.error("TEST");
-			log.debug("TEST");
-			log.warn("TEST");
-		}
-		
 	}
 	
 	// Output all the values the program launched with - only called if command line successfully parsed
