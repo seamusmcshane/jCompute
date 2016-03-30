@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,18 +38,23 @@ public class ConfigurationInterpreter
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(ConfigurationInterpreter.class);
 	
-	private XmlSchema schema;
+	// Configuration file and associated schema.
 	private XMLConfiguration configurationFile;
-	private List<StatGroupSetting> statSettingsList;
+	private XmlSchema schema;
 	
+	// Lazy XML to String updating - updates the string if needed.
 	private boolean latchNeedsUpdated;
 	private String latchedFileText;
 	
-	/** Simulation End Events */
+	// Statistics
+	private List<StatGroupSetting> statSettingsList;
+	
+	// End Events
 	private HashMap<String, Integer> endEvents;
 	
 	public ConfigurationInterpreter()
 	{
+		// Statistics settings are managed at the top level.
 		statSettingsList = new ArrayList<StatGroupSetting>();
 	}
 	
@@ -65,29 +69,56 @@ public class ConfigurationInterpreter
 		
 		try
 		{
-			InputStream stream = new ByteArrayInputStream(text.getBytes());
+			// Load the text string into the XMLConfiguration
+			ByteArrayInputStream configurationTextInputStream = new ByteArrayInputStream(text.getBytes());
 			configurationFile = new XMLConfiguration();
 			configurationFile.setSchemaValidation(true);
-			configurationFile.load(stream);
+			configurationFile.load(configurationTextInputStream);
 			
+			// Read the noNamespaceSchemaLocation attribute (expected to be 1) containing the relative schema path.
+			FileInputStream schemaFileInputStream = new FileInputStream((String) configurationFile.getRoot().getAttribute(1).getValue());
+			
+			// Load the schema file and create an XmlSchema object.
 			XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-			schema = schemaCol.read(new StreamSource(new FileInputStream((String) configurationFile.getRoot().getAttribute(1).getValue())), null);
+			schema = schemaCol.read(new StreamSource(schemaFileInputStream), null);
 			
-			// This is ok to be 0 if the file does not have the section endevents
+			// The are end events types which are supported globally and some that are specific per scenario.
+			// They are read and populated here if they exist - it is up to the schema to allow the element to exist.
+			
+			// Get the event number - this is ok to be 0 if the file does not have the section end events
 			int numEvent = getSubListSize("EndEvents", "Event");
 			
-			endEvents = new HashMap<String, Integer>();
-			
-			String section;
-			
-			for(int i = 0; i < numEvent; i++)
+			if(numEvent > 0)
 			{
-				section = "EndEvents.Event(" + i + ")";
+				endEvents = new HashMap<String, Integer>();
 				
-				endEvents.put(getStringValue(section, "Name"), getIntValue(section, "Value"));
+				String section;
+				
+				for(int i = 0; i < numEvent; i++)
+				{
+					section = "EndEvents.Event(" + i + ")";
+					
+					endEvents.put(getStringValue(section, "Name"), getIntValue(section, "Value"));
+				}
 			}
 			
-			stream.close();
+			int statisticsGroups = getSubListSize("Statistics", "Stat");
+			
+			if(statisticsGroups > 0)
+			{
+				String section;
+				for(int i = 0; i < statisticsGroups; i++)
+				{
+					section = "Statistics.Stat(" + i + ")";
+					statSettingsList.add(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section,
+					"TotalStat"), getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
+				}
+				
+				log.debug("Statistics " + statisticsGroups);
+			}
+			
+			schemaFileInputStream.close();
+			configurationTextInputStream.close();
 			
 			// Store the text as is
 			latchedFileText = text;
@@ -136,6 +167,31 @@ public class ConfigurationInterpreter
 		return configurationFile.getString("Header.Type", ScenarioInf.INVALID);
 	}
 	
+	public boolean endEventIsSet(String eventName)
+	{
+		if(endEvents == null)
+		{
+			return false;
+		}
+		
+		return endEvents.containsKey(eventName);
+	}
+	
+	public int getEventValue(String eventName)
+	{
+		if(endEvents == null)
+		{
+			return Integer.MIN_VALUE;
+		}
+		
+		return endEvents.get(eventName);
+	}
+	
+	public List<StatGroupSetting> getStatGroupSettingsList()
+	{
+		return statSettingsList;
+	}
+	
 	/*
 	 * *****************************************************************************************************
 	 * Section/SubSection Size/Existence methods
@@ -154,6 +210,11 @@ public class ConfigurationInterpreter
 	public int getSubListSize(String path)
 	{
 		return configurationFile.configurationsAt(path).size();
+	}
+	
+	public boolean hasSection(String string)
+	{
+		return(getListSize(string) > 0);
 	}
 	
 	/*
@@ -263,46 +324,6 @@ public class ConfigurationInterpreter
 		return configurationFile.getDouble(section + "." + value);
 	}
 	
-	/**
-	 * Only Sub Class add StatSettings
-	 * 
-	 * @param statSetting
-	 */
-	protected void addStatSettings(StatGroupSetting statSetting)
-	{
-		statSettingsList.add(statSetting);
-	}
-	
-	public void readStatSettings()
-	{
-		int statisticsGroups = getSubListSize("Statistics", "Stat");
-		
-		String section;
-		for(int i = 0; i < statisticsGroups; i++)
-		{
-			section = "Statistics.Stat(" + i + ")";
-			addStatSettings(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section, "TotalStat"),
-			getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
-		}
-		
-		log.debug("Statistics " + statisticsGroups);
-	}
-	
-	public List<StatGroupSetting> getStatGroupSettingsList()
-	{
-		return statSettingsList;
-	}
-	
-	public boolean endEventIsSet(String eventName)
-	{
-		return endEvents.containsKey(eventName);
-	}
-	
-	public int getEventValue(String eventName)
-	{
-		return endEvents.get(eventName);
-	}
-	
 	public String getValueToString(String path, XmlSchemaType type)
 	{
 		String value = "";
@@ -341,31 +362,6 @@ public class ConfigurationInterpreter
 		XmlSchemaType type = findSubNodeDataType(configurationFile.getRoot().getName(), target);
 		
 		return type.getQName().getLocalPart();
-	}
-	
-	public List<StatGroupSetting> getStats()
-	{
-		return statSettingsList;
-	}
-	
-	public HashMap<String, Integer> getEndEvents()
-	{
-		return endEvents;
-	}
-	
-	public void setStats(List<StatGroupSetting> statSettingsList)
-	{
-		this.statSettingsList = statSettingsList;
-	}
-	
-	public void setEndEvents(HashMap<String, Integer> endEvents)
-	{
-		this.endEvents = endEvents;
-	}
-	
-	public boolean hasSection(String string)
-	{
-		return(getListSize(string) > 0);
 	}
 	
 	/*
