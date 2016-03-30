@@ -24,7 +24,7 @@ import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Scenario.ScenarioInf;
-import jCompute.Scenario.ScenarioManager;
+import jCompute.Scenario.ScenarioPluginManager;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Timing.TimerObj;
@@ -401,7 +401,7 @@ public class Batch implements StoredQueuePosition
 			// Finally create a real Scenario as the final test
 			if(baseScenarioText != null)
 			{
-				scenario = ScenarioManager.getScenario(baseScenarioText);
+				scenario = ScenarioPluginManager.getScenario(baseScenarioText);
 			}
 		}
 		

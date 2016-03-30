@@ -2,8 +2,6 @@ package jCompute.Scenario;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ServiceLoader;
@@ -13,15 +11,23 @@ import org.apache.logging.log4j.Logger;
 
 import jCompute.util.FileUtil;
 
-public class ScenarioManager
+public class ScenarioPluginManager
 {
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(ScenarioPluginManager.class);
+	
+	/** Plug-in location */
 	private static final String PLUGINS_PATH = "plugins" + File.separator + "scenarios";
 	
+	/** Service loaded */
 	private static ServiceLoader<ScenarioInf> loader;
 	
-	// Log4j2 Logger
-	private static Logger log = LogManager.getLogger(ScenarioManager.class);
-	
+	/**
+	 * Loads all scenario plug-in from the plug-in directory.
+	 * 
+	 * @throws IOException
+	 * If there is a problem with the plug-ins path.
+	 */
 	public static void loadPlugins() throws IOException
 	{
 		log.info("Loading scenario plugins...");
@@ -30,18 +36,15 @@ public class ScenarioManager
 		{
 			URL[] urls = FileUtil.getFilesInDirAsURLS(PLUGINS_PATH);
 			
-			for(URL url : urls)
-			{
-				addUrlToClassPath(url);
-			}
-			
-			URLClassLoader ucl = new URLClassLoader(urls);
+			@SuppressWarnings("resource")
+			URLClassLoader ucl = URLClassLoader.newInstance(urls, Thread.currentThread().getContextClassLoader());
 			
 			loader = ServiceLoader.load(ScenarioInf.class, ucl);
 			
-			listScenarioPlugins();
-			
-			ucl.close();
+			for(ScenarioInf currentScenario : loader)
+			{
+				log.info("Scenario : " + currentScenario.getScenarioType());
+			}
 		}
 		catch(IOException e)
 		{
@@ -51,56 +54,14 @@ public class ScenarioManager
 		}
 	}
 	
-	public static void addUrlToClassPath(URL url) throws IOException
-	{
-		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		Class<URLClassLoader> urlClassLoaderClass = URLClassLoader.class;
-		
-		Method method;
-		
-		try
-		{
-			method = urlClassLoaderClass.getDeclaredMethod("addURL", new Class[]
-			{
-				URL.class
-			});
-			
-			// Unlock Method
-			method.setAccessible(true);
-			
-			// Add path
-			method.invoke(sysloader, new Object[]
-			{
-				url
-			});
-			
-			// Relock Method
-			method.setAccessible(false);
-		}
-		catch(NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-		{
-			String message = "Error Loading Scenario Plugin";
-			
-			log.error(message);
-			
-			Throwable throwable = new Throwable(message);
-			
-			throwable.setStackTrace(Thread.currentThread().getStackTrace());
-			
-			throw new IOException(throwable);
-		}
-		
-	}
-	
-	private static void listScenarioPlugins()
-	{
-		// Look for scenario plugin based on type
-		for(ScenarioInf currentScenario : loader)
-		{
-			log.info("Scenario : " + currentScenario.getScenarioType());
-		}
-	}
-	
+	/**
+	 * Checks if a scenario plug-in is loaded matching the target type.
+	 * 
+	 * @param targetType
+	 * @return
+	 * true if the type is found.
+	 * false if the type is not found.
+	 */
 	public static boolean hasScenario(String targetType)
 	{
 		boolean status = false;
@@ -119,11 +80,26 @@ public class ScenarioManager
 		return status;
 	}
 	
+	/**
+	 * Creates a scenario.
+	 * 
+	 * @param configText
+	 * @return
+	 * Returns a scenario based on the configuration text.
+	 * or null if configuration is invalid or there is no matching scenario plug-in.
+	 */
 	public static ScenarioInf getScenario(String configText)
 	{
-		// Load the config text
+		// Load the configuration text
 		ConfigurationInterpreter parser = new ConfigurationInterpreter();
-		parser.loadConfig(configText);
+		
+		// Is the configuration valid
+		if(!parser.loadConfig(configText))
+		{
+			log.error("Invalid configuration text");
+			// Invalid configuration and thus no scenario
+			return null;
+		}
 		
 		// Get the requested scenario type
 		String type = parser.getScenarioType();
@@ -154,5 +130,4 @@ public class ScenarioManager
 		
 		return scenario;
 	}
-	
 }

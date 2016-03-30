@@ -28,7 +28,7 @@ import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.LogTab;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
-import jCompute.Scenario.ScenarioManager;
+import jCompute.Scenario.ScenarioPluginManager;
 
 public class ClusterGUI implements WindowListener
 {
@@ -137,7 +137,7 @@ public class ClusterGUI implements WindowListener
 		
 		mnTab = new JMenu("Tabs");
 		
-		if(ScenarioManager.hasScenario("SAPPv2"))
+		if(ScenarioPluginManager.hasScenario("SAPPv2"))
 		{
 			mntmBenchmnark = new JMenuItem("Benchmark");
 			mnTab.add(mntmBenchmnark);

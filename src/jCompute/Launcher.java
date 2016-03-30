@@ -16,7 +16,7 @@ import jCompute.Cluster.Controller.ControlNode.ControlNode;
 import jCompute.Cluster.Node.Node;
 import jCompute.Gui.Cluster.ClusterGUI;
 import jCompute.Gui.Interactive.StandardGUI;
-import jCompute.Scenario.ScenarioManager;
+import jCompute.Scenario.ScenarioPluginManager;
 import jCompute.SimulationManager.SimulationsManager;
 import jCompute.logging.Logging;
 import jCompute.util.FileUtil;
@@ -122,7 +122,7 @@ public class Launcher
 		IconManager.init(iTheme);
 		
 		// Load plugins
-		ScenarioManager.loadPlugins();
+		ScenarioPluginManager.loadPlugins();
 		
 		int bText = Integer.valueOf(options.get("bText").getValue());
 		boolean buttonText = true;

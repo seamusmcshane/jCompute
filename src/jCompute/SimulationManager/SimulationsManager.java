@@ -3,7 +3,7 @@ package jCompute.SimulationManager;
 import jCompute.JComputeEventBus;
 import jCompute.Gui.View.View;
 import jCompute.Scenario.ScenarioInf;
-import jCompute.Scenario.ScenarioManager;
+import jCompute.Scenario.ScenarioPluginManager;
 import jCompute.Simulation.Simulation;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
@@ -73,7 +73,7 @@ public class SimulationsManager implements SimulationsManagerInf
 			Simulation sim = new Simulation(simulationNum);
 			
 			// Validate Scenario
-			ScenarioInf scenario = ScenarioManager.getScenario(scenarioText);
+			ScenarioInf scenario = ScenarioPluginManager.getScenario(scenarioText);
 			
 			if(sim != null && scenario != null)
 			{
