@@ -2,7 +2,6 @@ package jCompute.Scenario;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -76,12 +75,8 @@ public class ConfigurationInterpreter
 			configurationFile.setSchemaValidation(true);
 			configurationFile.load(configurationTextInputStream);
 			
-			// Read the noNamespaceSchemaLocation attribute (expected to be 1) which contains the schema name and relative path.
-			// Then build a path for it in the framework directory structure.
-			String jarPath = new File(ConfigurationInterpreter.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
-			String schemaFilePath = new File(jarPath + File.separator + (String) configurationFile.getRoot().getAttribute(1).getValue()).toString();
-			
-			FileInputStream schemaFileInputStream = new FileInputStream(schemaFilePath);
+			// Read the noNamespaceSchemaLocation attribute (expected to be 1) containing the relative schema path.
+			FileInputStream schemaFileInputStream = new FileInputStream((String) configurationFile.getRoot().getAttribute(1).getValue());
 			
 			// Load the schema file and create an XmlSchema object.
 			XmlSchemaCollection schemaCol = new XmlSchemaCollection();
