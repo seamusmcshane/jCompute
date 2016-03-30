@@ -333,4 +333,14 @@ public class FileUtil
 
 		return dir.toString();
 	}
+	
+	public static String getClassDirectory(Class<?> jClass)
+	{
+		return new File(jClass.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
+	}
+	
+	public static String getJCDirectory()
+	{
+		return getClassDirectory(FileUtil.class);
+	}
 }
