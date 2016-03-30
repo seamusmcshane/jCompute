@@ -113,8 +113,6 @@ public class ConfigurationInterpreter
 					statSettingsList.add(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section,
 					"TotalStat"), getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
 				}
-				
-				log.debug("Statistics " + statisticsGroups);
 			}
 			
 			schemaFileInputStream.close();
