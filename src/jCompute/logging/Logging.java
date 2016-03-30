@@ -109,6 +109,24 @@ public final class Logging
 		Configurator.initialize(builder.build());
 	}
 	
+	public static void initTestLevelLogging()
+	{
+		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
+		
+		// The configuration name
+		builder.setConfigurationName("jComputeTestLoggingConfig");
+
+		LayoutComponentBuilder layout = builder.newLayout("PatternLayout").addAttribute("pattern", "%d{yyy-MM-dd HH:mm:ss.SSS} | %r | %5p [%t] - %msg %n");
+		AppenderComponentBuilder consoleStdIOAppender = builder.newAppender("standardIO", "CONSOLE").addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
+		consoleStdIOAppender.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.ACCEPT).addAttribute("level", Level.ALL));
+		consoleStdIOAppender.add(layout);
+		builder.add(consoleStdIOAppender);
+		RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.ALL);
+		rootLogger.add(builder.newAppenderRef("standardIO"));
+		builder.add(rootLogger);
+		Configurator.initialize(builder.build());
+	}
+	
 	public static String getStandardLogPath()
 	{
 		return standardLogPath;
