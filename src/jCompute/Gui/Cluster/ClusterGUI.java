@@ -147,11 +147,14 @@ public class ClusterGUI implements WindowListener
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					BenchmarkTab benchmark = new BenchmarkTab(batchManager, guiTabs);
-					
-					guiTabs.addTab(benchmark, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.benchmarkTab32), "Benchmark"));
-					
-					guiTabs.setSelectedTab(benchmark);
+					if(!guiTabs.hasTabComponentWithClass(BenchmarkTab.class))
+					{
+						BenchmarkTab benchmark = new BenchmarkTab(batchManager, guiTabs);
+						
+						guiTabs.addTab(benchmark, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.benchmarkTab32), "Benchmark"));
+						
+						guiTabs.setSelectedTab(benchmark);
+					}
 				}
 			});
 			
@@ -169,11 +172,14 @@ public class ClusterGUI implements WindowListener
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				LogTab logTab = new LogTab(guiTabs);
-				
-				guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.loggingTab32), "Logging"));
-				guiTabs.setSelectedTab(logTab);
-				logTab.start();
+				if(!guiTabs.hasTabComponentWithClass(LogTab.class))
+				{
+					LogTab logTab = new LogTab(guiTabs);
+					
+					guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.loggingTab32), "Logging"));
+					guiTabs.setSelectedTab(logTab);
+					logTab.start();
+				}
 			}
 		});
 		
