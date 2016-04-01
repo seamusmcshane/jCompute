@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 
 import jCompute.Cluster.Node.WeightingBenchmark.TreeBenchObject;
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 import jCompute.Datastruct.knn.KNNResult;
 import jCompute.Datastruct.knn.quadtree.RecursiveRegionQuadTree;
 
@@ -19,7 +19,7 @@ public class QuadTreeTestFullRebuild
 	public static int size = 768;
 	public static QuadPanel qpanel;
 	public static RecursiveRegionQuadTree quadTree = new RecursiveRegionQuadTree(size * 0.5f, size * 0.5f, size);
-	public static ArrayList<KNNPosInf> list = new ArrayList<KNNPosInf>();
+	public static ArrayList<KNNFloatPosInf> list = new ArrayList<KNNFloatPosInf>();
 
 	public static int mouseX = 0;
 	public static int mouseY = 0;
@@ -165,7 +165,7 @@ public class QuadTreeTestFullRebuild
 								KNNResult result = new KNNResult(null, distance * distance);
 
 								quadTree.setNearestNeighbour(result, search, distance * distance);
-								ArrayList<KNNPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, distance * distance);
+								ArrayList<KNNFloatPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, distance * distance);
 
 								// Display the Search point
 								qpanel.showSearchPointAndRange(search, distance);
@@ -179,12 +179,12 @@ public class QuadTreeTestFullRebuild
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
-									qpanel.setShow1NNResult(result.getPos().getKNNPos());
+									qpanel.setShow1NNResult(result.getPos().getLatchedPos());
 								}
 
 								if(result.getDis() < (removeDis * removeDis))
 								{
-									System.out.println("Remove" + result.getPos().getKNNPos()[0] + "x" + result.getPos().getKNNPos()[1]);
+									System.out.println("Remove" + result.getPos().getLatchedPos()[0] + "x" + result.getPos().getLatchedPos()[1]);
 
 									// Remove from quad tree
 									// quadTree.removePoint(result.getPos());

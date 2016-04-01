@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 
 public class KDTreeBulk
 {
@@ -12,7 +12,7 @@ public class KDTreeBulk
 	
 	Random r = new Random();
 
-	KDNode<KNNPosInf> rootnode;
+	KDNode<KNNFloatPosInf> rootnode;
 
 	public KDTreeBulk(int dim)
 	{		
@@ -20,17 +20,17 @@ public class KDTreeBulk
 	}
 
 
-	public void load(ArrayList<KNNPosInf> listIn)
+	public void load(ArrayList<KNNFloatPosInf> listIn)
 	{
 		// Assume KNNPosInf supports KNNNodeInf...
-		ArrayList<KNNPosInf> list = listIn;
+		ArrayList<KNNFloatPosInf> list = listIn;
 		
 		int depth = 0;
 		// Random Select Pivot
 		int pivot = RSelectPiviot(list);
 		
 		// Root Node
-		rootnode = new KDNode<KNNPosInf>(0,list.get(pivot).getKNNPos(),list.get(pivot));
+		rootnode = new KDNode<KNNFloatPosInf>(0,list.get(pivot).updateAndGetPos(),list.get(pivot));
 		
 		// Left
 		rootnode.setLeftChild(split(depth+1,rootnode, list.subList(0, pivot)));
@@ -40,7 +40,7 @@ public class KDTreeBulk
 		
 	}
 	
-	private KDNode<KNNPosInf> split(int depth,KDNode<KNNPosInf> parent,List<KNNPosInf> list)
+	private KDNode<KNNFloatPosInf> split(int depth,KDNode<KNNFloatPosInf> parent,List<KNNFloatPosInf> list)
 	{
 		if(list.size() < 1)
 		{
@@ -51,7 +51,7 @@ public class KDTreeBulk
 		
 		int pivot = RSelectPiviot(list);
 
-		KDNode<KNNPosInf> node = new KDNode<KNNPosInf>(0,list.get(pivot).getKNNPos(),list.get(pivot));
+		KDNode<KNNFloatPosInf> node = new KDNode<KNNFloatPosInf>(0,list.get(pivot).updateAndGetPos(),list.get(pivot));
 
 		if(parent.isValueGreater(k, node.getPos())) // Larger
 		{
@@ -88,17 +88,17 @@ public class KDTreeBulk
 		
 	}
 	
-	private void dumpChildern(int depth,KDNode<KNNPosInf> parent)
+	private void dumpChildern(int depth,KDNode<KNNFloatPosInf> parent)
 	{
 		
-		KDNode<KNNPosInf> left = parent.getLeftChild();		
+		KDNode<KNNFloatPosInf> left = parent.getLeftChild();		
 		
 		if(left!=null)
 		{
 			System.out.println("Depth : " + depth + " Left x" + left.getPos()[0] + " y" + left.getPos()[1]);
 		}
 		
-		KDNode<KNNPosInf> right = parent.getRightChild();
+		KDNode<KNNFloatPosInf> right = parent.getRightChild();
 		if(right!=null)
 		{
 			System.out.println("Depth : " + depth + " Right x" + right.getPos()[0] + " y" + right.getPos()[1]);
@@ -116,7 +116,7 @@ public class KDTreeBulk
 		
 	}
 	
-	private int RSelectPiviot(List<KNNPosInf> list)
+	private int RSelectPiviot(List<KNNFloatPosInf> list)
 	{
 		return r.nextInt(list.size());		
 	}

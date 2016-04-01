@@ -2,13 +2,13 @@ package jCompute.Cluster.Node.WeightingBenchmark;
 
 import java.util.ArrayList;
 
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 import jCompute.Datastruct.knn.ThirdGenKDWrapperFloat;
 import jCompute.Timing.TimerObj;
 
 public class NodeWeightingBenchmark
 {
-	private ThirdGenKDWrapperFloat<KNNPosInf> tree;
+	private ThirdGenKDWrapperFloat<KNNFloatPosInf> tree;
 	private int objectCount;
 
 	private ArrayList<TreeBenchObject> list;
@@ -59,20 +59,20 @@ public class NodeWeightingBenchmark
 
 	private void populateTree()
 	{
-		tree = new ThirdGenKDWrapperFloat<KNNPosInf>(2,bucketSize);
+		tree = new ThirdGenKDWrapperFloat<KNNFloatPosInf>(2,bucketSize);
 
-		for(KNNPosInf object : list)
+		for(KNNFloatPosInf object : list)
 		{
-			tree.add(object.getKNNPos(), object);
+			tree.add(object, object);
 		}
 	}
 
 	private void searchTree()
 	{
-		for(KNNPosInf object : list)
+		for(KNNFloatPosInf object : list)
 		{
 			TreeBenchObject cto = (TreeBenchObject)object;
-			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object.getKNNPos());
+			TreeBenchObject no = (TreeBenchObject)tree.nearestNeighbour(object);
 			
 			cto.setNearestObject(no);
 		}

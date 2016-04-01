@@ -2,20 +2,20 @@ package jCompute.Datastruct.knn;
 
 public class KNNResult
 {
-	private KNNPosInf pos;
+	private KNNFloatPosInf pos;
 	private float dis;
 
 	public KNNResult()
 	{
 	}
 
-	public KNNResult(KNNPosInf pos, float dis)
+	public KNNResult(KNNFloatPosInf pos, float dis)
 	{
 		this.pos = pos;
 		this.dis = dis;
 	}
 
-	public KNNPosInf getPos()
+	public KNNFloatPosInf getPos()
 	{
 		return pos;
 	}
@@ -25,7 +25,7 @@ public class KNNResult
 		return dis;
 	}
 
-	public void setPos(KNNPosInf pos)
+	public void setPos(KNNFloatPosInf pos)
 	{
 		this.pos = pos;
 	}

@@ -2,7 +2,7 @@ package jCompute.Datastruct.knn.quadtree;
 
 import java.util.ArrayList;
 
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 import jCompute.Datastruct.knn.KNNResult;
 import jCompute.util.JCMath;
 
@@ -53,7 +53,7 @@ public class RecursiveRegionQuadTree
 	 * @param size
 	 * @param objects
 	 */
-	public RecursiveRegionQuadTree(float xOffset, float yOffset, float size, ArrayList<KNNPosInf> objects)
+	public RecursiveRegionQuadTree(float xOffset, float yOffset, float size, ArrayList<KNNFloatPosInf> objects)
 	{
 		this.size = size;
 
@@ -75,7 +75,7 @@ public class RecursiveRegionQuadTree
 		rootNode = buildTree(objects, center, size, level);
 	}
 
-	private RegionQuadTreeNode buildTree(ArrayList<KNNPosInf> objects, float[] center, float size, int level)
+	private RegionQuadTreeNode buildTree(ArrayList<KNNFloatPosInf> objects, float[] center, float size, int level)
 	{
 		// System.out.println("level " + level + " size " + objects.size());
 
@@ -127,18 +127,18 @@ public class RecursiveRegionQuadTree
 				System.out.println("Level " + level + "BRCenter " + centers[3][0] + "x" + centers[3][1]);
 			}
 
-			ArrayList<KNNPosInf> topLeft = new ArrayList<KNNPosInf>(MAX_OBJECTS_PER_NODE);
-			ArrayList<KNNPosInf> topRight = new ArrayList<KNNPosInf>(MAX_OBJECTS_PER_NODE);
-			ArrayList<KNNPosInf> bottomLeft = new ArrayList<KNNPosInf>(MAX_OBJECTS_PER_NODE);
-			ArrayList<KNNPosInf> bottomRight = new ArrayList<KNNPosInf>(MAX_OBJECTS_PER_NODE);
+			ArrayList<KNNFloatPosInf> topLeft = new ArrayList<KNNFloatPosInf>(MAX_OBJECTS_PER_NODE);
+			ArrayList<KNNFloatPosInf> topRight = new ArrayList<KNNFloatPosInf>(MAX_OBJECTS_PER_NODE);
+			ArrayList<KNNFloatPosInf> bottomLeft = new ArrayList<KNNFloatPosInf>(MAX_OBJECTS_PER_NODE);
+			ArrayList<KNNFloatPosInf> bottomRight = new ArrayList<KNNFloatPosInf>(MAX_OBJECTS_PER_NODE);
 
 			int numObjects = objects.size();
 
 			for(int i = 0; i < numObjects; i++)
 			{
-				KNNPosInf object = objects.get(i);
+				KNNFloatPosInf object = objects.get(i);
 
-				float point[] = object.getKNNPos();
+				float point[] = object.getLatchedPos();
 
 				if(JCMath.SquareContainsPoint(centers[0][0], centers[0][1], halfSize, point[0], point[1]))
 				{
@@ -199,15 +199,15 @@ public class RecursiveRegionQuadTree
 	 * Adds a point into the QuadTree
 	 * @param point
 	 */
-	public void addPoint(KNNPosInf point)
+	public void addPoint(KNNFloatPosInf point)
 	{
 		// Add a point starting from root node
 		addPoint(point, rootNode);
 	}
 
-	private void addPoint(KNNPosInf object, RegionQuadTreeNode node)
+	private void addPoint(KNNFloatPosInf object, RegionQuadTreeNode node)
 	{
-		if(JCMath.SquareContainsPoint(node.center, node.size, object.getKNNPos()))
+		if(JCMath.SquareContainsPoint(node.center, node.size, object.getLatchedPos()))
 		{
 			if(node.isLeaf())
 			{
@@ -276,7 +276,7 @@ public class RecursiveRegionQuadTree
 					node.setSubNodes(nodes);
 
 					// Get Sub objects
-					ArrayList<KNNPosInf> objects = node.removeObjects();
+					ArrayList<KNNFloatPosInf> objects = node.removeObjects();
 
 					// Add new objects
 					objects.add(object);
@@ -285,9 +285,9 @@ public class RecursiveRegionQuadTree
 
 					for(int i = 0; i < numObjects; i++)
 					{
-						KNNPosInf tObject = objects.get(i);
+						KNNFloatPosInf tObject = objects.get(i);
 
-						float point[] = tObject.getKNNPos();
+						float point[] = tObject.getLatchedPos();
 
 						if(JCMath.SquareContainsPoint(centers[0][0], centers[0][1], halfSize, point[0], point[1]))
 						{
@@ -325,22 +325,22 @@ public class RecursiveRegionQuadTree
 				}
 
 				// recurse into sub nodes
-				if(JCMath.SquareContainsPoint(node.nodes[0].center, node.nodes[0].size, object.getKNNPos()))
+				if(JCMath.SquareContainsPoint(node.nodes[0].center, node.nodes[0].size, object.getLatchedPos()))
 				{
 					// Top Left
 					addPoint(object, node.nodes[0]);
 				}
-				else if(JCMath.SquareContainsPoint(node.nodes[1].center, node.nodes[1].size, object.getKNNPos()))
+				else if(JCMath.SquareContainsPoint(node.nodes[1].center, node.nodes[1].size, object.getLatchedPos()))
 				{
 					// Top Right
 					addPoint(object, node.nodes[1]);
 				}
-				else if(JCMath.SquareContainsPoint(node.nodes[2].center, node.nodes[2].size, object.getKNNPos()))
+				else if(JCMath.SquareContainsPoint(node.nodes[2].center, node.nodes[2].size, object.getLatchedPos()))
 				{
 					// Bottom Left
 					addPoint(object, node.nodes[2]);
 				}
-				else if(JCMath.SquareContainsPoint(node.nodes[3].center, node.nodes[3].size, object.getKNNPos()))
+				else if(JCMath.SquareContainsPoint(node.nodes[3].center, node.nodes[3].size, object.getLatchedPos()))
 				{
 					// Bottom Right
 					addPoint(object, node.nodes[3]);
@@ -374,16 +374,16 @@ public class RecursiveRegionQuadTree
 	 * @param maxDistance
 	 * @return
 	 */
-	public ArrayList<KNNPosInf> findNearestNeighbours(float[] point, float maxDistance)
+	public ArrayList<KNNFloatPosInf> findNearestNeighbours(float[] point, float maxDistance)
 	{
-		ArrayList<KNNPosInf> nearestObjects = new ArrayList<KNNPosInf>();
+		ArrayList<KNNFloatPosInf> nearestObjects = new ArrayList<KNNFloatPosInf>();
 
 		findKNN(nearestObjects, rootNode, point, maxDistance);
 
 		return nearestObjects;
 	}
 
-	private void findKNN(ArrayList<KNNPosInf> result, RegionQuadTreeNode node, float[] point, float maxDistance)
+	private void findKNN(ArrayList<KNNFloatPosInf> result, RegionQuadTreeNode node, float[] point, float maxDistance)
 	{
 		if(node.isLeaf())
 		{
@@ -474,12 +474,12 @@ public class RecursiveRegionQuadTree
 	 * Remove a point from the tree.
 	 * @param point
 	 */
-	public void removePoint(KNNPosInf point)
+	public void removePoint(KNNFloatPosInf point)
 	{
 		removePoint(point, rootNode, 0);
 	}
 
-	private void removePoint(KNNPosInf searchPoint, RegionQuadTreeNode node, int level)
+	private void removePoint(KNNFloatPosInf searchPoint, RegionQuadTreeNode node, int level)
 	{
 		if(node.isLeaf())
 		{
@@ -494,7 +494,7 @@ public class RecursiveRegionQuadTree
 		}
 		else
 		{
-			float[] searchPos = searchPoint.getKNNPos();
+			float[] searchPos = searchPoint.getLatchedPos();
 
 			// Top Left
 			if(searchPos[0] <= node.center[0] && searchPos[1] <= node.center[1])

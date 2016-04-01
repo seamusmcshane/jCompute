@@ -1,7 +1,7 @@
 package jCompute.Datastruct.knn.kdtree;
 
 import jCompute.Cluster.Node.WeightingBenchmark.TreeBenchObject;
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -16,7 +16,7 @@ public class KDTreeTest
 		
 		System.out.println("Object count " + num);
 
-		ArrayList<KNNPosInf> list = new ArrayList<KNNPosInf>(num);
+		ArrayList<KNNFloatPosInf> list = new ArrayList<KNNFloatPosInf>(num);
 		
 		Random r = new Random();
 		float[] pos;

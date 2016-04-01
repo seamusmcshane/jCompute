@@ -1,12 +1,13 @@
 package jCompute.Cluster.Node.WeightingBenchmark;
 
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 import jCompute.util.JCMath;
 
-public class TreeBenchObject implements KNNPosInf
+public class TreeBenchObject implements KNNFloatPosInf
 {
 	private int id;
 	private float pos[];
+	private float latchedPos[];
 	
 	private TreeBenchObject nearestObject;
 	private int nearestObjectID;
@@ -15,7 +16,11 @@ public class TreeBenchObject implements KNNPosInf
 	public TreeBenchObject(int id,float[] pos) 
 	{
 		this.id = id;
+		
 		this.pos = pos;
+		latchedPos = new float[pos.length];
+		
+		updateAndGetPos();
 	}
 	
 	public void setNearestObject(TreeBenchObject nearestObject)
@@ -61,7 +66,7 @@ public class TreeBenchObject implements KNNPosInf
 		}
 		else
 		{
-			dis = JCMath.distanceSquared(pos, nearestObject.getKNNPos());
+			dis = JCMath.distanceSquared(pos, nearestObject.getLatchedPos());
 		}
 
 		/* Distance */
@@ -79,15 +84,24 @@ public class TreeBenchObject implements KNNPosInf
 		this.nearestObjectID = nearestObjectID;
 	}
 
-	@Override
-	public float[] getKNNPos()
-	{
-		return pos;
-	}
-
 	public TreeBenchObject getObject()
 	{
 		return this;
+	}
+
+	@Override
+	public float[] updateAndGetPos()
+	{
+		latchedPos[0] = pos[0];
+		latchedPos[1] = pos[1];
+		
+		return latchedPos;
+	}
+
+	@Override
+	public float[] getLatchedPos()
+	{
+		return latchedPos;
 	}
 	
 }

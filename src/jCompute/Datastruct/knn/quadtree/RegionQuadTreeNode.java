@@ -3,7 +3,7 @@ package jCompute.Datastruct.knn.quadtree;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 import jCompute.Datastruct.knn.KNNResult;
 import jCompute.util.JCMath;
 
@@ -30,7 +30,7 @@ public class RegionQuadTreeNode
 	public RegionQuadTreeNode nodes[];
 
 	// Object in partition
-	private ArrayList<KNNPosInf> objects;
+	private ArrayList<KNNFloatPosInf> objects;
 
 	private int maxObjectsPerNode;
 
@@ -59,11 +59,11 @@ public class RegionQuadTreeNode
 	 * MAX_OBJECTS_PER_NODE, as the tree may have reached the max level.
 	 * @param object
 	 */
-	public void addPoint(KNNPosInf object)
+	public void addPoint(KNNFloatPosInf object)
 	{
 		if(objects == null)
 		{
-			objects = new ArrayList<KNNPosInf>(maxObjectsPerNode);
+			objects = new ArrayList<KNNFloatPosInf>(maxObjectsPerNode);
 		}
 
 		objects.add(object);
@@ -88,9 +88,9 @@ public class RegionQuadTreeNode
 			return;
 		}
 
-		for(KNNPosInf object : objects)
+		for(KNNFloatPosInf object : objects)
 		{
-			float dis = JCMath.distanceSquared(point, object.getKNNPos());
+			float dis = JCMath.distanceSquared(point, object.getLatchedPos());
 
 			if(dis < result.getDis())
 			{
@@ -113,16 +113,16 @@ public class RegionQuadTreeNode
 	 * @param point
 	 * @param maxDistance
 	 */
-	public void getNearestObjects(ArrayList<KNNPosInf> result, float[] point, float maxDistance)
+	public void getNearestObjects(ArrayList<KNNFloatPosInf> result, float[] point, float maxDistance)
 	{
 		if(objects == null)
 		{
 			return;
 		}
 
-		for(KNNPosInf object : objects)
+		for(KNNFloatPosInf object : objects)
 		{
-			float dis = JCMath.distanceSquared(point, object.getKNNPos());
+			float dis = JCMath.distanceSquared(point, object.getLatchedPos());
 
 			if(dis < maxDistance)
 			{
@@ -141,7 +141,7 @@ public class RegionQuadTreeNode
 	 * Explicitly sets the objects in this node.
 	 * @param objects
 	 */
-	public void setPoints(ArrayList<KNNPosInf> objects)
+	public void setPoints(ArrayList<KNNFloatPosInf> objects)
 	{
 		this.objects = objects;
 	}
@@ -150,9 +150,9 @@ public class RegionQuadTreeNode
 	 * Explicitly removes the objects in this node.
 	 * @return
 	 */
-	public ArrayList<KNNPosInf> removeObjects()
+	public ArrayList<KNNFloatPosInf> removeObjects()
 	{
-		ArrayList<KNNPosInf> currentObjects = objects;
+		ArrayList<KNNFloatPosInf> currentObjects = objects;
 
 		// Clear internal reference
 		objects = null;
@@ -224,13 +224,13 @@ public class RegionQuadTreeNode
 	 * removes a point from this node.
 	 * @param searchPoint
 	 */
-	public void removePoint(KNNPosInf searchPoint)
+	public void removePoint(KNNFloatPosInf searchPoint)
 	{
-		float[] searchPos = searchPoint.getKNNPos();
+		float[] searchPos = searchPoint.getLatchedPos();
 
 		if(objects != null)
 		{
-			Iterator<KNNPosInf> itr = objects.iterator();
+			Iterator<KNNFloatPosInf> itr = objects.iterator();
 
 			if(debug)
 			{
@@ -239,8 +239,8 @@ public class RegionQuadTreeNode
 
 			while(itr.hasNext())
 			{
-				KNNPosInf object = itr.next();
-				float[] objectPos = object.getKNNPos();
+				KNNFloatPosInf object = itr.next();
+				float[] objectPos = object.getLatchedPos();
 
 				if(objectPos[0] == searchPos[0] && objectPos[1] == searchPos[1])
 				{

@@ -10,14 +10,14 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import jCompute.Datastruct.knn.KNNPosInf;
+import jCompute.Datastruct.knn.KNNFloatPosInf;
 
 public class QuadPanel extends JPanel
 {
 	private static final long serialVersionUID = 2594853691732440288L;
 
 	private float[][] lines;
-	private List<KNNPosInf> list;
+	private List<KNNFloatPosInf> list;
 	private int size;
 
 	private float[] search;
@@ -26,7 +26,7 @@ public class QuadPanel extends JPanel
 	private boolean searchValid1NN = false;
 	private float[] result;
 
-	private List<KNNPosInf> nearestNeighbours;
+	private List<KNNFloatPosInf> nearestNeighbours;
 	private boolean searchValidKNN = false;
 
 	private float pointSize;
@@ -63,7 +63,7 @@ public class QuadPanel extends JPanel
 		searchValid1NN = true;
 	}
 
-	public void setShowKNNResult(List<KNNPosInf> nearestNeighbours)
+	public void setShowKNNResult(List<KNNFloatPosInf> nearestNeighbours)
 	{
 		this.nearestNeighbours = nearestNeighbours;
 		searchValidKNN = true;
@@ -114,19 +114,19 @@ public class QuadPanel extends JPanel
 
 		if(list != null)
 		{
-			for(KNNPosInf point : list)
+			for(KNNFloatPosInf point : list)
 			{
 				g2.setColor(Color.BLACK);
-				g2.drawOval((int) (point.getKNNPos()[0] - pointHalf), (int) (point.getKNNPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
+				g2.drawOval((int) (point.getLatchedPos()[0] - pointHalf), (int) (point.getLatchedPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
 			}
 		}
 
 		if(searchValidKNN)
 		{
-			for(KNNPosInf point : nearestNeighbours)
+			for(KNNFloatPosInf point : nearestNeighbours)
 			{
 				g2.setColor(Color.RED);
-				g2.fillOval((int) (point.getKNNPos()[0] - pointHalf), (int) (point.getKNNPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
+				g2.fillOval((int) (point.getLatchedPos()[0] - pointHalf), (int) (point.getLatchedPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
 			}
 		}
 
@@ -156,7 +156,7 @@ public class QuadPanel extends JPanel
 		g2.drawOval((int) (search[0] - radius), (int) (search[1] - radius), (int) diameter, (int) diameter);
 	}
 
-	public void setPoints(List<KNNPosInf> list)
+	public void setPoints(List<KNNFloatPosInf> list)
 	{
 		this.list = list;
 	}
