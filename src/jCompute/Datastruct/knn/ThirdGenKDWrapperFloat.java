@@ -29,9 +29,9 @@ public class ThirdGenKDWrapperFloat<Datatype>
 		tree = new ThirdGenKdTreeFloat<Datatype>(dim, bucketSize);
 	}
 
-	public void add(float kd[], Datatype agent)
+	public void add(KNNFloatPosInf pos, Datatype agent)
 	{
-		tree.addPoint(kd, agent);
+		tree.addPoint(pos.updateAndGetPos(), agent);
 		treenodes++;
 	}
 
@@ -40,17 +40,17 @@ public class ThirdGenKDWrapperFloat<Datatype>
 		return treenodes;
 	}
 
-	public Datatype nearestNeighbour(float kd[])
+	public Datatype nearestNeighbour(KNNFloatPosInf pos)
 	{
 		// Max is the next closest - Self is 0 (if same tree)
-		return tree.findNearestNeighbors(kd, 1, distanceKD).getMax();
+		return tree.findNearestNeighbors(pos.getLatchedPos(), 1, distanceKD).getMax();
 	}
 
-	public List<Datatype> nearestNeighbours(float kd[], int maxNeighbours)
+	public List<Datatype> nearestNeighbours(KNNFloatPosInf pos, int maxNeighbours)
 	{
 		ArrayList<Datatype> list = new ArrayList<Datatype>(maxNeighbours);
 
-		MaxHeapFloat<Datatype> heap = tree.findNearestNeighbors(kd, maxNeighbours, distanceKD);
+		MaxHeapFloat<Datatype> heap = tree.findNearestNeighbors(pos.getLatchedPos(), maxNeighbours, distanceKD);
 
 		while(heap.size() > 0)
 		{
@@ -60,10 +60,10 @@ public class ThirdGenKDWrapperFloat<Datatype>
 		return list;
 	}
 
-	public Datatype nearestNNeighbour(float[] pos, int n)
+	public Datatype nearestNNeighbour(KNNFloatPosInf pos, int n)
 	{
 		// Get nth nearest neighbours
-		return tree.findNearestNeighbors(pos, n, distanceKD).getMax();
+		return tree.findNearestNeighbors(pos.getLatchedPos(), n, distanceKD).getMax();
 	}
 
 }
