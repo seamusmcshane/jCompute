@@ -59,6 +59,7 @@ import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
 import jCompute.Gui.Component.Swing.XMLPreviewPanel;
 import jCompute.Gui.Interactive.GUITabManager;
 import jCompute.Gui.Interactive.Listener.TabStatusChangedListenerInf;
+import jCompute.IconManager.IconIndex;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
@@ -340,7 +341,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		JPanel generatePanel = new JPanel(new BorderLayout());
 		btnGenerateSim = new JButton("Generate");
-		btnGenerateSim.setIcon(IconManager.retrieveIcon("generateSim16"));
+		btnGenerateSim.setIcon(IconManager.retrieveIcon(IconIndex.generateSim16));
 		btnGenerateSim.addActionListener(this);
 		btnGenerateSim.setToolTipText("Generate a new simuation based on the values of the parameters.");
 		btnGenerateSim.setEnabled(false);
@@ -358,7 +359,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		generatePanel.add(chckbxWarn, BorderLayout.WEST);
 		
 		btnStartSim = new JButton("Start");
-		btnStartSim.setIcon(IconManager.retrieveIcon("startSim16"));
+		btnStartSim.setIcon(IconManager.retrieveIcon(IconIndex.startSim16));
 		btnStartSim.addActionListener(this);
 		btnStartSim.setToolTipText("Start the simulation.");
 		btnStartSim.setEnabled(false);
@@ -370,7 +371,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		simulationControlPanel.add(btnStartSim, gbc_btnStartSim);
 		
 		btnPauseSim = new JButton("   Pause");
-		btnPauseSim.setIcon(IconManager.retrieveIcon("resumeSim16"));
+		btnPauseSim.setIcon(IconManager.retrieveIcon(IconIndex.resumeSim16));
 		btnPauseSim.addActionListener(this);
 		btnPauseSim.setToolTipText("Pause / Unpause the simulation.");
 		btnPauseSim.setEnabled(false);
@@ -416,7 +417,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		scenarioEditorButtonPanel.setLayout(gbl_scenarioEditorButtonPanel);
 		
 		btnOpen = new JButton("Open");
-		btnOpen.setIcon(IconManager.retrieveIcon("openScenario32"));
+		btnOpen.setIcon(IconManager.retrieveIcon(IconIndex.openScenario32));
 		btnOpen.addActionListener(this);
 		GridBagConstraints gbc_btnOpen = new GridBagConstraints();
 		gbc_btnOpen.fill = GridBagConstraints.HORIZONTAL;
@@ -426,7 +427,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		scenarioEditorButtonPanel.add(btnOpen, gbc_btnOpen);
 		
 		btnSave = new JButton("Save");
-		btnSave.setIcon(IconManager.retrieveIcon("saveScenario32"));
+		btnSave.setIcon(IconManager.retrieveIcon(IconIndex.saveScenario32));
 		btnSave.addActionListener(this);
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
@@ -490,7 +491,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	public void addScenarioTab()
 	{
 		simulationTabPane.addTab("Scenario", null, simulationScenarioTab, null);
-		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, IconManager.retrieveIcon("scenarioEditor16"));
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, IconManager.retrieveIcon(IconIndex.scenarioEditor16));
 	}
 	
 	private boolean discardCurrentSimGenerated()
@@ -756,7 +757,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private void addGraphsPanel()
 	{
 		simulationTabPane.addTab("Charts", graphsTabPanel);
-		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, IconManager.retrieveIcon("chartTab16"));
+		simulationTabPane.setIconAt(simulationTabPane.getTabCount() - 1, IconManager.retrieveIcon(IconIndex.chartTab16));
 		
 		// Re-add the ChartTabs
 		addChartTabs();
@@ -1169,7 +1170,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		btnPauseSim.setText("   Pause");
 		
-		btnPauseSim.setIcon(IconManager.retrieveIcon("pauseSim16"));
+		btnPauseSim.setIcon(IconManager.retrieveIcon(IconIndex.pauseSim16));
 		
 		sliderSimStepRate.setEnabled(true);
 	}
@@ -1182,7 +1183,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		btnPauseSim.setEnabled(true);
 		btnGenerateSim.setEnabled(true);
 		
-		btnPauseSim.setIcon(IconManager.retrieveIcon("resumeSim16"));
+		btnPauseSim.setIcon(IconManager.retrieveIcon(IconIndex.resumeSim16));
 	}
 	
 	private void startUpState()
@@ -1205,7 +1206,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		btnPauseSim.setEnabled(false);
 		btnPauseSim.setText("   Pause");
-		btnPauseSim.setIcon(IconManager.retrieveIcon("pauseSim16"));
+		btnPauseSim.setIcon(IconManager.retrieveIcon(IconIndex.pauseSim16));
 		
 		sliderSimStepRate.setEnabled(false);
 	}
@@ -1250,7 +1251,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			setOpaque(false);
 			
 			title = new JLabel(tab.getTitle());
-			title.setIcon(IconManager.retrieveIcon("simTabStatusNew32"));
+			title.setIcon(IconManager.retrieveIcon(IconIndex.simTabStatusNew32));
 			
 			this.add(title);
 			
@@ -1282,24 +1283,24 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			
 			if(state == SimState.RUNNING)
 			{
-				title.setIcon(IconManager.retrieveIcon("simTabStatusRunning32"));
+				title.setIcon(IconManager.retrieveIcon(IconIndex.simTabStatusRunning32));
 				title.setText(tab.getTitle());
 			}
 			else if(state == SimState.PAUSED)
 			{
-				title.setIcon(IconManager.retrieveIcon("simTabStatusPaused32"));
+				title.setIcon(IconManager.retrieveIcon(IconIndex.simTabStatusPaused32));
 				title.setText(tab.getTitle());
 				
 			}
 			else if(state == SimState.NEW)
 			{
-				title.setIcon(IconManager.retrieveIcon("simTabStatusNew32"));
+				title.setIcon(IconManager.retrieveIcon(IconIndex.simTabStatusNew32));
 				title.setText(tab.getTitle());
 			}
 			else
 			// Finished
 			{
-				title.setIcon(IconManager.retrieveIcon("simTabStatusFinished32"));
+				title.setIcon(IconManager.retrieveIcon(IconIndex.simTabStatusFinished32));
 				title.setText(tab.getTitle());
 			}
 			

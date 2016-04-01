@@ -38,6 +38,7 @@ import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
+import jCompute.IconManager.IconIndex;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
@@ -135,7 +136,7 @@ public class ClusterTab extends JPanel
 		clusterConnectedNodesTablePanel.setColumWidth(stateColumn, 75);
 		
 		clusterConnectedNodesTablePanel.addColumRenderer(new NodeControlButtonRenderer(clusterConnectedNodesTablePanel, stateColumn, IconManager.retrieveIcon(
-		"start16"), IconManager.retrieveIcon("pause16"), IconManager.retrieveIcon("stop16")), stateColumn);
+		IconIndex.start16), IconManager.retrieveIcon(IconIndex.pause16), IconManager.retrieveIcon(IconIndex.stop16)), stateColumn);
 		
 		clusterConnectedNodesTablePanel.addColumRenderer(new ColorLabelRenderer(), 0);
 		
@@ -289,11 +290,11 @@ public class ClusterTab extends JPanel
 		gbConstraints9.gridy = 9;
 		graphsJPanelContainer.add(clusterNodeRXSChar, gbConstraints9);
 		
-		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, IconManager.retrieveIcon("simListTab16"), "Activity"));
+		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, IconManager.retrieveIcon(IconIndex.simListTab16), "Activity"));
 		
-		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, IconManager.retrieveIcon("nodesTab16"), "Connected Nodes"));
+		tabPanel.addTab(clusterConnectedNodesTablePanel, new SimpleTabTabTitle(160, IconManager.retrieveIcon(IconIndex.nodesTab16), "Connected Nodes"));
 		
-		tabPanel.addTab(clusterNodesLogTablePanel, new SimpleTabTabTitle(160, IconManager.retrieveIcon("loggingTab16"), "Nodes Log"));
+		tabPanel.addTab(clusterNodesLogTablePanel, new SimpleTabTabTitle(160, IconManager.retrieveIcon(IconIndex.loggingTab16), "Nodes Log"));
 		
 		this.add(tabPanel);
 		this.add(graphScrollPane);

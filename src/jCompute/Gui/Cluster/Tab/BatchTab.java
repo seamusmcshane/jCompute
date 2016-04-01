@@ -51,6 +51,7 @@ import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
+import jCompute.IconManager.IconIndex;
 import jCompute.util.FileUtil;
 
 public class BatchTab extends JPanel
@@ -216,7 +217,7 @@ public class BatchTab extends JPanel
 				}
 			}
 		});
-		btnAdd.setIcon(IconManager.retrieveIcon("addBatch32"));
+		btnAdd.setIcon(IconManager.retrieveIcon(IconIndex.addBatch32));
 		toolBar.add(btnAdd);
 
 		btnRemove = new JButton();
@@ -283,11 +284,11 @@ public class BatchTab extends JPanel
 				}
 			}
 		});
-		btnRemove.setIcon(IconManager.retrieveIcon("removeBatch32"));
+		btnRemove.setIcon(IconManager.retrieveIcon(IconIndex.removeBatch32));
 		toolBar.add(btnRemove);
 		toolBar.addSeparator();
 
-		btnStart.setIcon(IconManager.retrieveIcon("start32"));
+		btnStart.setIcon(IconManager.retrieveIcon(IconIndex.start32));
 		toolBar.add(btnStart);
 
 		btnStop = new JButton();
@@ -299,7 +300,7 @@ public class BatchTab extends JPanel
 				stopBatch();
 			}
 		});
-		btnStop.setIcon(IconManager.retrieveIcon("stop32"));
+		btnStop.setIcon(IconManager.retrieveIcon(IconIndex.stop32));
 		toolBar.add(btnStop);
 
 		toolBar.addSeparator();
@@ -323,7 +324,7 @@ public class BatchTab extends JPanel
 				moveFirst();
 			}
 		});
-		btnMoveFirst.setIcon(IconManager.retrieveIcon("moveToFront32"));
+		btnMoveFirst.setIcon(IconManager.retrieveIcon(IconIndex.moveToFront32));
 		toolBar.add(btnMoveFirst);
 
 		btnMoveForward = new JButton();
@@ -335,7 +336,7 @@ public class BatchTab extends JPanel
 				moveForward();
 			}
 		});
-		btnMoveForward.setIcon(IconManager.retrieveIcon("moveForward32"));
+		btnMoveForward.setIcon(IconManager.retrieveIcon(IconIndex.moveForward32));
 		toolBar.add(btnMoveForward);
 
 		btnMoveBackward = new JButton();
@@ -347,9 +348,9 @@ public class BatchTab extends JPanel
 				moveBackward();
 			}
 		});
-		btnMoveBackward.setIcon(IconManager.retrieveIcon("moveBackward32"));
+		btnMoveBackward.setIcon(IconManager.retrieveIcon(IconIndex.moveBackward32));
 		toolBar.add(btnMoveBackward);
-		btnMoveLast.setIcon(IconManager.retrieveIcon("moveToBack32"));
+		btnMoveLast.setIcon(IconManager.retrieveIcon(IconIndex.moveToBack32));
 		toolBar.add(btnMoveLast);
 
 		toolBar.addSeparator();
@@ -408,7 +409,7 @@ public class BatchTab extends JPanel
 		batchQueuedTable = new TablePanel<Integer, BatchQueueRowItem>(BatchQueueRowItem.class, "Queued", true, true);
 
 		// Batch State
-		batchQueuedTable.addColumRenderer(new BooleanIconRenderer(IconManager.retrieveIcon("start16"), IconManager.retrieveIcon("stop16")), statusColumn);
+		batchQueuedTable.addColumRenderer(new BooleanIconRenderer(IconManager.retrieveIcon(IconIndex.start16), IconManager.retrieveIcon(IconIndex.stop16)), statusColumn);
 
 		// Progress Column uses a progress bar for display
 		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), progressColumn);

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
 import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
+import jCompute.IconManager.IconIndex;
 import jCompute.SimulationManager.SimulationsManagerInf;
 
 public class GraphsTabPanel extends JPanel
@@ -40,7 +41,7 @@ public class GraphsTabPanel extends JPanel
 		{
 			log.debug("Adding " + chartPanel.getName() + " Chart Panel");
 			chartTabs.addTab(chartPanel.getName(), null, chartPanel);
-			chartTabs.setIconAt(chartTabs.getTabCount() - 1, IconManager.retrieveIcon("charts16"));
+			chartTabs.setIconAt(chartTabs.getTabCount() - 1, IconManager.retrieveIcon(IconIndex.charts16));
 		}
 
 		this.charts = charts;

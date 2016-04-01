@@ -28,6 +28,7 @@ import jCompute.Gui.Component.Swing.AboutWindow;
 import jCompute.Gui.Component.Swing.LogTab;
 import jCompute.Gui.Component.Swing.SimpleTabPanel;
 import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
+import jCompute.IconManager.IconIndex;
 import jCompute.Scenario.ScenarioPluginManager;
 
 public class ClusterGUI implements WindowListener
@@ -110,11 +111,11 @@ public class ClusterGUI implements WindowListener
 		
 		batchTab = new BatchTab(rightPanelsMinWidth, buttonText);
 		
-		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("batchTab32"), "Batch"));
+		guiTabs.addTab(batchTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.batchTab32), "Batch"));
 		
 		clusterTab = new ClusterTab(rightPanelsMinWidth);
 		
-		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("clusterTab32"), "Cluster"));
+		guiTabs.addTab(clusterTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.clusterTab32), "Cluster"));
 	}
 	
 	public void createMenuBar(BatchManager batchManager)
@@ -148,7 +149,7 @@ public class ClusterGUI implements WindowListener
 				{
 					BenchmarkTab benchmark = new BenchmarkTab(batchManager, guiTabs);
 					
-					guiTabs.addTab(benchmark, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("benchmarkTab32"), "Benchmark"));
+					guiTabs.addTab(benchmark, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.benchmarkTab32), "Benchmark"));
 					
 					guiTabs.setSelectedTab(benchmark);
 				}
@@ -170,7 +171,7 @@ public class ClusterGUI implements WindowListener
 			{
 				LogTab logTab = new LogTab(guiTabs);
 				
-				guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon("loggingTab32"), "Logging"));
+				guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.loggingTab32), "Logging"));
 				guiTabs.setSelectedTab(logTab);
 				logTab.start();
 			}

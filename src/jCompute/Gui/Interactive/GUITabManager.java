@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import jCompute.IconManager;
 import jCompute.Gui.Interactive.Tab.GUISimulationTab;
 import jCompute.Gui.Interactive.Tab.SimulationListTabPanel;
+import jCompute.IconManager.IconIndex;
 import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
@@ -80,11 +81,11 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		this.add(simulationListTab);
 		
 		setTitleAt(getTabCount() - 1, simulationListTab.getTabName());
-		setIconAt(getTabCount() - 1, IconManager.retrieveIcon("simListTab32"));
+		setIconAt(getTabCount() - 1, IconManager.retrieveIcon(IconIndex.simListTab32));
 		
 		/* The Special AddTab button */
 		this.add(addPanel);
-		setIconAt(getTabCount() - 1, IconManager.retrieveIcon("addSimTab32"));
+		setIconAt(getTabCount() - 1, IconManager.retrieveIcon(IconIndex.addSimTab32));
 		
 		addChangeListener(new ChangeListener()
 		{
