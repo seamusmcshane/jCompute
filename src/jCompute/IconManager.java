@@ -1,5 +1,6 @@
 package jCompute;
 
+import java.awt.MediaTracker;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -246,6 +247,11 @@ public final class IconManager
 		
 		// Assign the icon
 		icons[index.value] = new ImageIcon(filePath, index.name);
+		
+		if(icons[index.value].getImageLoadStatus() != MediaTracker.COMPLETE)
+		{
+			icons[index.value] = null;
+		}
 	}
 	
 	private int addCrossRef(String name, String reference)
