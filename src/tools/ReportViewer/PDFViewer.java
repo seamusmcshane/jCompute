@@ -260,6 +260,8 @@ public class PDFViewer extends JFrame
 		if(image == null)
 		{
 			MessageBox.popup("No Page", pdfViewer);
+			
+			return;
 		}
 		
 		viewerPanel.setImage(image);
