@@ -119,7 +119,7 @@ public class Launcher
 		logRunningEnvironment();
 		
 		String iTheme = options.get("iTheme").getValue();
-		IconManager.init(iTheme);
+		IconManager.initialiseWithTheme(iTheme);
 		
 		// Load plugins
 		ScenarioPluginManager.loadPlugins();
