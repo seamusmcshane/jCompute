@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.Swing;
+package jCompute.Gui.Component.Swing.logtab;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,16 +12,24 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import jCompute.Gui.Cluster.TableRowItems.StandardLogRowItem;
+import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.TextHighLighterRenderer;
 import jCompute.logging.Logging;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.JComboBox;
 
 public class LogTab extends JPanel implements TailerListener
 {
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(LogTab.class);
+	
 	private static final long serialVersionUID = 758063954767436104L;
 	private Tailer tailer;
 	private Thread tailerThread;
@@ -37,23 +45,33 @@ public class LogTab extends JPanel implements TailerListener
 	{
 		setLayout(new BorderLayout());
 		createTailer(self);
-		standardLog = new TablePanel<Integer, StandardLogRowItem>(StandardLogRowItem.class, "Standard Log", true, false);
+		
+		String[] levelNames = new String[]
+		{
+			"ALL", "INFO", "WARN", "ERROR", "DEBUG"
+		};
+		
+		LogLevelSelect levelSector = new LogLevelSelect(levelNames);
+		
+		standardLog = new TablePanel<Integer, StandardLogRowItem>(StandardLogRowItem.class, "Standard Log", true, false, false, levelSector);
 		standardLog.setColumWidth(0, 80);
 		standardLog.setColumWidth(1, 80);
 		standardLog.setColumWidth(2, 80);
 		standardLog.setColumWidth(3, 140);
 		
-		Color[] colors = new Color[]
+		JComboBox<String> comboBoxLevelSelect = levelSector.getJComboBox(standardLog);
+		
+		Color[] levelColors = new Color[]
 		{
-			Color.GREEN, Color.ORANGE, Color.RED, Color.BLACK
+			Color.GREEN, Color.ORANGE, Color.RED
 		};
 		
-		String[] text = new String[]
+		levelNames = new String[]
 		{
-			" INFO", " WARN", "ERROR", "DEBUG"
+			"INFO", "WARN", "ERROR", "DEBUG"
 		};
 		
-		standardLog.addColumRenderer(new TextHighLighterRenderer(colors, text), 2);
+		standardLog.addColumRenderer(new TextHighLighterRenderer(levelColors, levelNames), 2);
 		
 		this.add(standardLog, BorderLayout.CENTER);
 		
@@ -106,6 +124,9 @@ public class LogTab extends JPanel implements TailerListener
 		lblLinesVar = new JLabel("");
 		lblLinesVar.setHorizontalAlignment(SwingConstants.LEFT);
 		panel_LogLines.add(lblLinesVar);
+		
+		// Add JComboBox
+		panel.add(comboBoxLevelSelect);
 		panel.add(btnClear);
 		
 		JButton btnReload = new JButton("Reload Log");
@@ -119,6 +140,8 @@ public class LogTab extends JPanel implements TailerListener
 					createTailer(self);
 					
 					tailerThread.start();
+					
+					log.error("TEST!!!");
 				}
 			}
 		});
@@ -206,10 +229,17 @@ public class LogTab extends JPanel implements TailerListener
 			// System.out.println("TAILER " + index + " " + level + " " + comp + " " + message + " start " + start + " " + " end " + end);
 			standardLog.addRowTailed(new StandardLogRowItem(++linesAdded, index, level, comp, message), MAX_ITEMS);
 			
-			standardLog.scrollToBottom();
-			
 			refreshLabels();
 		}
+		
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				standardLog.scrollToBottom();
+			}
+		});
 	}
 	
 	@Override
