@@ -370,41 +370,41 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	public void updateCell(final IndexType rowKey, final int column, final Object columnValue)
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
 		int index = findRow(rowKey);
 
 		if(index != -1)
 		{
-			RowType row = activeList.get(index);
+			RowType row = sortedList.get(index);
 
 			row.setFieldValue(column, columnValue);
 
-			activeList.set(index, row);
+			sortedList.set(index, row);
 		}
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
 	}
 
 	public void updateCells(final IndexType rowKey, final int columns[], final Object columnValues[])
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
 		int index = findRow(rowKey);
 
 		if(index != -1)
 		{
-			RowType row = activeList.get(index);
+			RowType row = sortedList.get(index);
 
 			for(int c = 0; c < columns.length; c++)
 			{
 				row.setFieldValue(columns[c], columnValues[c]);
 			}
 
-			activeList.set(index, row);
+			sortedList.set(index, row);
 		}
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
 	}
 
 	public void setColumWidth(int column, int pref)
