@@ -18,6 +18,7 @@ public final class JComputeInfo
 	private final long LAUNCH_TIME;
 	
 	private final String BUILD_DATE;
+	private final String BUILD_REVISON;
 	private final String LAUNCH_DATE_TIME;
 	
 	private JComputeInfo() throws IOException
@@ -25,7 +26,7 @@ public final class JComputeInfo
 		try
 		{
 			// Open the file stream
-			FileInputStream input = new FileInputStream("BuildDateTime");
+			FileInputStream input = new FileInputStream("buildinfo.prop");
 			
 			// Create and load properties
 			Properties prop = new Properties();
@@ -35,7 +36,10 @@ public final class JComputeInfo
 			LAUNCH_TIME = ManagementFactory.getRuntimeMXBean().getStartTime();
 			
 			// The Build date of the jCompute Framework
-			BUILD_DATE = prop.getProperty("BuildDateTime");
+			BUILD_DATE = prop.getProperty("datetime");
+			
+			// The revision control id
+			BUILD_REVISON = prop.getProperty("revision");
 			
 			LAUNCH_DATE_TIME = Text.longTimeToDateString(LAUNCH_TIME);
 			
@@ -75,6 +79,11 @@ public final class JComputeInfo
 	public String getBuildDate()
 	{
 		return BUILD_DATE;
+	}
+	
+	public String getBuildRevison()
+	{
+		return BUILD_REVISON;
 	}
 	
 	public String getLaunched()
