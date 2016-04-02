@@ -93,8 +93,8 @@ public class AboutWindow extends JDialog
 		SimpleGridPanel gridPanel = new SimpleGridPanel(numberOfRows);
 		
 		// Row and Indexes
-		int buildDate = gridPanel.addRow("Built Date", "NOT_SET");
-		int buildRev = gridPanel.addRow("Built Revision", "NOT_SET");
+		int buildDate = gridPanel.addRow("Build Date", "NOT_SET");
+		int buildRev = gridPanel.addRow("Build Revision", "NOT_SET");
 		int jvmIndex = gridPanel.addRow("JVM Name and Version", "NOT_SET");
 		int osIndex = gridPanel.addRow("Operating System", "NOT_SET");
 		int archIndex = gridPanel.addRow("System Architecture", "NOT_SET");
