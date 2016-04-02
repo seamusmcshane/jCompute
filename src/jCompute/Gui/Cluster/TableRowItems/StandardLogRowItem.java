@@ -23,7 +23,7 @@ public class StandardLogRowItem extends RowItem<StandardLogRowItem, Integer>
 		super();
 		this.index = index;
 		this.msec = msec;
-		this.level = level;
+		this.level = level.replaceAll("\\s", "");
 		this.thread = thread;
 		this.message = message;
 	}

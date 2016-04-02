@@ -140,8 +140,6 @@ public class LogTab extends JPanel implements TailerListener
 					createTailer(self);
 					
 					tailerThread.start();
-					
-					log.error("TEST!!!");
 				}
 			}
 		});
