@@ -412,7 +412,7 @@ public class BatchTab extends JPanel
 		batchQueuedTable.addColumRenderer(new BooleanIconRenderer(IconManager.retrieveIcon(IconIndex.start16), IconManager.retrieveIcon(IconIndex.stop16)), statusColumn);
 
 		// Progress Column uses a progress bar for display
-		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(), progressColumn);
+		batchQueuedTable.addColumRenderer(new ProgressBarTableCellRenderer(batchQueuedTable.getJTable()), progressColumn);
 
 		GridBagConstraints gbc_batchQueuedTable = new GridBagConstraints();
 		gbc_batchQueuedTable.fill = GridBagConstraints.BOTH;

@@ -104,7 +104,7 @@ public class ClusterTab extends JPanel
 		activeSimulationsListTable.setColumWidth(4, 80);
 		activeSimulationsListTable.setColumWidth(5, 110);
 		// Progress Column uses a progress bar for display
-		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
+		activeSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(activeSimulationsListTable.getJTable()), 3);
 		
 		simulationListsContainer.add(activeSimulationsListTable);
 		
@@ -117,7 +117,7 @@ public class ClusterTab extends JPanel
 		finishedSimulationsListTable.setColumWidth(4, 80);
 		finishedSimulationsListTable.setColumWidth(5, 110);
 		// Progress Column uses a progress bar for display
-		finishedSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
+		finishedSimulationsListTable.addColumRenderer(new ProgressBarTableCellRenderer(finishedSimulationsListTable.getJTable()), 3);
 		simulationListsContainer.add(finishedSimulationsListTable);
 		
 		// Connected Nodes Tab

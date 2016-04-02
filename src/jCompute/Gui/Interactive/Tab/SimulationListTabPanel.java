@@ -76,7 +76,7 @@ public class SimulationListTabPanel extends JPanel
 		// table.setColumWidth(5,25);
 
 		// Progress Column uses a progress bar for display
-		table.addColumRenderer(new ProgressBarTableCellRenderer(), 3);
+		table.addColumRenderer(new ProgressBarTableCellRenderer(table.getJTable()), 3);
 		this.add(table);
 
 		registerTableMouseListener();
