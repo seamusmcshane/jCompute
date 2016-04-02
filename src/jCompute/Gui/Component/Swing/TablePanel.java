@@ -205,8 +205,26 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 		sortedList.getReadWriteLock().writeLock().unlock();
 	}
+	
+	/**
+	 * Appends a new row to the end of the table and removes the first row if above a threshold value
+	 */
+	public void addRowTailed(RowType row, int threshold)
+	{
+		sortedList.getReadWriteLock().writeLock().lock();
+		
+		sortedList.add(row);
+		
+		int size = sortedList.size();
+		
+		if(size > threshold)
+		{
+			sortedList.remove(0);
+		}
+		
+		sortedList.getReadWriteLock().writeLock().unlock();
 	}
-
+	
 	/**
 	 * Updates a row
 	 *
