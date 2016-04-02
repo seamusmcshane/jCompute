@@ -155,6 +155,10 @@ public class ClusterGUI implements WindowListener
 						
 						guiTabs.setSelectedTab(benchmark);
 					}
+					else
+					{
+						guiTabs.setSelectedTab(BenchmarkTab.class);
+					}
 				}
 			});
 			
@@ -179,6 +183,10 @@ public class ClusterGUI implements WindowListener
 					guiTabs.addTab(logTab, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.loggingTab32), "Logging"));
 					guiTabs.setSelectedTab(logTab);
 					logTab.start();
+				}
+				else
+				{
+					guiTabs.setSelectedTab(LogTab.class);
 				}
 			}
 		});
