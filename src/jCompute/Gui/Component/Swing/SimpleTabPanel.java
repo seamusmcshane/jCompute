@@ -106,6 +106,21 @@ public class SimpleTabPanel extends JPanel
 		tabs.setSelectedComponent(component);
 	}
 	
+	/**
+	 * 
+	 * @param class1
+	 */
+	public void setSelectedTab(Class<?> clazz)
+	{
+		for(Component tabComponent : tabs.getComponents())
+		{
+			if(tabComponent.getClass().equals(clazz))
+			{
+				tabs.setSelectedComponent(tabComponent);
+			}
+		}		
+	}
+	
 	/***
 	 * Selects a tab index
 	 *
