@@ -1,9 +1,11 @@
 package jCompute.Gui.Component.Swing;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -104,8 +106,9 @@ public class SimpleGridPanel extends JPanel
 		// Val
 		lblVals[rowsAdded] = new JTextField(intialValueText);
 		lblVals[rowsAdded].setEditable(false);
-		lblVals[rowsAdded].setBackground(null);
-		lblVals[rowsAdded].setBorder(null);
+		lblVals[rowsAdded].setOpaque(false);
+		lblVals[rowsAdded].setBorder(BorderFactory.createEmptyBorder());
+		lblVals[rowsAdded].setBackground(new Color(0,0,0,0));
 		lblVals[rowsAdded].setFont(valFont);
 		lblVals[rowsAdded].setHorizontalAlignment(SwingConstants.LEFT);
 		
