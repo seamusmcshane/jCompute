@@ -2,6 +2,7 @@ package jCompute.Gui.Component.Swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 
 import javax.swing.JLabel;
@@ -18,11 +19,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.gui.AbstractTableComparatorChooser;
 import ca.odell.glazedlists.gui.TableFormat;
+import ca.odell.glazedlists.swing.AdvancedListSelectionModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import jCompute.Gui.Component.RowItem;
@@ -31,20 +32,24 @@ import jCompute.Gui.Component.TableCell.ColorConstants;
 public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> extends JPanel
 {
 	private static final long serialVersionUID = 7193787210494563482L;
-	
+
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(TablePanel.class);
-	
+
 	private JTable table;
 
 	private JScrollPane scrollPane;
 
-	private BasicEventList<RowType> baseList;
 	private SortedList<RowType> sortedList;
-
-	private EventList<RowType> activeList;
+	private AdvancedListSelectionModel<RowType> selectionModel;
 
 	private Class<RowType> rowClass;
+
+	public static final Color BackgroundColor = ColorConstants.Gainsboro;
+	public static final Color RowBackgroundColor = ColorConstants.WhiterSmoke;
+	public static final Color RowAlternateBackgroundColor = ColorConstants.WhiterSmoke.brighter();
+	public static final Color TitleBackgroundColor = ColorConstants.LightBlue;
+	public static final Color GridColor = ColorConstants.Gainsboro;
 
 	public TablePanel(Class<RowType> rowClass, boolean sortable, boolean rowSelection, boolean hScroll)
 	{
@@ -74,7 +79,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 		// Table Title Label
 		JPanel titlePanel = new JPanel(new BorderLayout());
 		titlePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		titlePanel.setBackground(ColorConstants.LightBlue);
+		titlePanel.setBackground(TitleBackgroundColor);
 		JLabel lblTitle = new JLabel(title);
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -95,21 +100,52 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 			// Create a new table format via reflection of the rowClass
 			TableFormat<RowType> tf = GlazedLists.tableFormat(rowClass, rowItem.getFieldList(), rowItem.getFieldNames(), rowItem.getEditableCells());
+			sortedList = new SortedList<RowType>(new BasicEventList<RowType>());
+			// Note - prepareRenderer override.
+			table = new JTable(GlazedListsSwing.eventTableModelWithThreadProxyList(sortedList, tf))
+			{
+				private static final long serialVersionUID = 1455279281459224269L;
+				
+				@Override
+				public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+				{
+					Component c = super.prepareRenderer(renderer, row, column);
 
-			baseList = new BasicEventList<RowType>();
+					if(!isRowSelected(row))
+					{
+						if((row % 2) == 1)
+						{
+							c.setBackground(RowBackgroundColor);
+						}
+						else
+						{
+							c.setBackground(RowAlternateBackgroundColor);
+						}
+					}
+
+					return c;
+				}
+			};
+			table.setFillsViewportHeight(true);
+			table.setBackground(BackgroundColor);
+			table.setRowHeight(20);
+			table.setShowGrid(true);
+
+			table.setGridColor(GridColor);
 
 			if(sortable)
 			{
-				sortedList = new SortedList<RowType>(baseList);
-				table = new JTable(GlazedListsSwing.eventTableModelWithThreadProxyList(sortedList, tf));
 				TableComparatorChooser.install(table, sortedList, AbstractTableComparatorChooser.SINGLE_COLUMN);
-				activeList = sortedList;
 			}
-			else
-			{
-				table = new JTable(GlazedListsSwing.eventTableModelWithThreadProxyList(baseList, tf));
-				activeList = baseList;
-			}
+			selectionModel = GlazedListsSwing.eventSelectionModelWithThreadProxyList(sortedList);
+			// table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.setSelectionModel(selectionModel);
+
+			table.setCellSelectionEnabled(false);
+			table.setColumnSelectionAllowed(false);
+
+			table.setRowSelectionAllowed(rowSelection);
 
 			scrollPane = new JScrollPane(table);
 
@@ -124,16 +160,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			}
 			scrollPane.setWheelScrollingEnabled(true);
-
-			table.setBackground(Color.white);
-			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			table.setCellSelectionEnabled(false);
-			table.setColumnSelectionAllowed(false);
-			table.setRowSelectionAllowed(rowSelection);
-			table.setRowHeight(20);
-
-			table.setShowGrid(true);
-			table.setGridColor(Color.LIGHT_GRAY);
+			scrollPane.getVerticalScrollBar().setUnitIncrement(25);
 
 			this.add(scrollPane, BorderLayout.CENTER);
 
@@ -172,11 +199,12 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	 */
 	public void addRow(RowType row)
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
-		activeList.add(row);
+		sortedList.add(row);
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
+	}
 	}
 
 	/**
@@ -186,16 +214,16 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	 */
 	public void updateRow(final IndexType rowKey, final RowType row)
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
 		int index = findRow(rowKey);
 
 		if(index != -1)
 		{
-			activeList.set(index, row);
+			sortedList.set(index, row);
 		}
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
 	}
 
 	private int findRow(IndexType rowKey)
@@ -203,9 +231,9 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 		int index = -1;
 		RowType row;
 
-		for(int i = 0; i < activeList.size(); i++)
+		for(int i = 0; i < sortedList.size(); i++)
 		{
-			row = activeList.get(i);
+			row = sortedList.get(i);
 
 			if(row.keyEquals(rowKey))
 			{
@@ -224,37 +252,37 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	 */
 	public void removeRow(final IndexType rowKey)
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
 		int index = findRow(rowKey);
 
 		if(index != -1)
 		{
-			activeList.remove(index);
+			sortedList.remove(index);
 		}
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
 	}
 
 	public void removeFirstRow()
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
-		if(activeList.size() > 0)
+		if(sortedList.size() > 0)
 		{
-			activeList.remove(0);
+			sortedList.remove(0);
 		}
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
 	}
 
 	public int getRows()
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().readLock().lock();
 
-		int size = activeList.size();
+		int size = sortedList.size();
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().readLock().unlock();
 
 		return size;
 	}
@@ -264,11 +292,11 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	 */
 	public void clearTable()
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().writeLock().lock();
 
-		activeList.clear();
+		sortedList.clear();
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().writeLock().unlock();
 
 	}
 
@@ -288,13 +316,13 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	{
 		Object value;
 
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().readLock().lock();
 
-		RowType row = activeList.get(rowIndex);
+		RowType row = sortedList.get(rowIndex);
 
 		value = row.getFieldValue(columnIndex);
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().readLock().unlock();
 
 		return value;
 	}
@@ -308,11 +336,11 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 	{
 		int size = 0;
 
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().readLock().lock();
 
-		size = activeList.size();
+		size = sortedList.size();
 
-		activeList.getReadWriteLock().writeLock().unlock();
+		sortedList.getReadWriteLock().readLock().unlock();
 
 		return size;
 	}
@@ -380,13 +408,12 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 
 	public void scrollToBottom()
 	{
-		activeList.getReadWriteLock().writeLock().lock();
+		sortedList.getReadWriteLock().readLock().lock();
 
-		int size = activeList.size();
+		int size = sortedList.size();
 
 		table.scrollRectToVisible(table.getCellRect(size - 1, 0, true));
 
-		activeList.getReadWriteLock().writeLock().unlock();
-
+		sortedList.getReadWriteLock().readLock().unlock();
 	}
 }
