@@ -138,6 +138,13 @@ public final class IconManager
 		// Locate the theme icons path. (Note URL)
 		URL baseURL = IconManager.class.getResource(themeURI);
 		
+		if(baseURL == null)
+		{
+			log.error("Icon Theme and/or mapping file not found");
+			
+			return;
+		}
+		
 		// Find the full path to the mapping file (URLtoPath via URI)
 		String basePath = new File(baseURL.toURI()).getAbsolutePath();
 		String mappingFilePath = basePath + File.separator + "icon.mapping";
