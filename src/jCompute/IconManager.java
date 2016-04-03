@@ -21,16 +21,62 @@ public final class IconManager
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(IconManager.class);
 	
-	private static ImageIcon[] icons;
-	
-	@SuppressWarnings("unused")
+	// The icon manager singleton
 	private static IconManager iconManager;
 	
-	public static void initialiseWithTheme(String themeName)
+	// The permanent "ImageIcon" index using by the rest of the API for retrieving image icons.
+	private ImageIcon[] imageIconIndex;
+	
+	/*
+	 * ***************************************************************************************************
+	 * Public Static Methods
+	 *****************************************************************************************************/
+	
+	/**
+	 * Initialise the icon manager.
+	 * The icon manager will then attempt to load the icon theme.
+	 *
+	 * @param themeName
+	 */
+	public synchronized static boolean initialiseWithTheme(String themeName)
 	{
-		iconManager = new IconManager(themeName);
+		if(iconManager == null)
+		{
+			iconManager = new IconManager(themeName);
+			
+			return true;
+		}
+		
+		return false;
 	}
 	
+	/**
+	 * Retrieves the an icon from the IconManager.
+	 *
+	 * @param index
+	 * @return
+	 * null if IconManager is not initialised, there is no theme loaded or the icon is missing from the theme.
+	 */
+	public static ImageIcon retrieveIcon(IconIndex index)
+	{
+		if(iconManager == null)
+		{
+			return null;
+		}
+		
+		return iconManager.retrieveImageIcon(index);
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Private singleton Methods
+	 *****************************************************************************************************/
+	
+	/**
+	 * Private constructor.
+	 *
+	 * @param themeName
+	 */
 	private IconManager(String themeName)
 	{
 		if(themeName.equals("none"))
@@ -40,21 +86,24 @@ public final class IconManager
 		
 		try
 		{
+			// An indexer object that maps icon names to indexes
+			IconIndexer indexer = new IconIndexer();
+			
 			// Size the array to total IconIndex enum length
-			icons = new ImageIcon[IconIndex.values().length];
+			imageIconIndex = new ImageIcon[IconIndex.values().length];
 			
 			log.info("Loading icon theme " + themeName);
 			
 			String themeURI = "/icons/" + themeName + "/";
 			
-			readIconsViaMapping(themeURI);
+			readIconsViaMapping(themeURI, indexer);
 			
 			// Check the the icons are all loaded.
-			for(int i = 0; i < icons.length; i++)
+			for(int i = 0; i < imageIconIndex.length; i++)
 			{
-				if(icons[i] == null)
+				if(imageIconIndex[i] == null)
 				{
-					log.warn("Theme " + themeName + " has no Icon Mapping for " + IconIndex.fromValue(i).getName());
+					log.warn("Theme " + themeName + " has no Icon Mapping for " + indexer.getIconIndexbyValue(i).name);
 				}
 			}
 		}
@@ -62,23 +111,6 @@ public final class IconManager
 		{
 			log.warn("Cannot read mapping file for " + themeName);
 		}
-	}
-	
-	/**
-	 * Retrieves the an icon from the IconManager.
-	 *
-	 * @param index
-	 * @return
-	 * null if IconManager is not initialised or there is no theme loaded.
-	 */
-	public static ImageIcon retrieveIcon(IconIndex index)
-	{
-		if(icons == null)
-		{
-			return null;
-		}
-		
-		return icons[index.value];
 	}
 	
 	/**
@@ -95,10 +127,11 @@ public final class IconManager
 	 * Cross reference mappings declarations can be in any location in the mapping file, including before the target mapping declaration.
 	 *
 	 * @param themeURI
+	 * @param indexer
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	private void readIconsViaMapping(String themeURI) throws IOException, URISyntaxException
+	private void readIconsViaMapping(String themeURI, IconIndexer indexer) throws IOException, URISyntaxException
 	{
 		LinkedList<String[]> crossRefs = new LinkedList<String[]>();
 		
@@ -109,11 +142,12 @@ public final class IconManager
 		String basePath = new File(baseURL.toURI()).getAbsolutePath();
 		String mappingFilePath = basePath + File.separator + "icon.mapping";
 		
-		log.info("Parsing " + mappingFilePath);
+		log.info("Performing Icon Mapping using : " + mappingFilePath);
 		
 		final String lineEmptyMessage = "Empty line in mapping file on line ";
 		final String lineParseErrorMessage = "Error parsing mapping on line ";
-		final String lineIndexErrorMessage = "Did not find a matching index for mapping on line ";
+		final String lineIndexErrorMessage = "Did not find an index for the mapping name on line ";
+		final String iconFileErrorMessage = "Did not find the icon file for mapping on line ";
 		
 		final String crossRefMappingErrorMessage = "A cross reference was not created due to the mapping not matching an index ";
 		final String crossRefReferenceErrorMessage = "A cross reference was not created due to the reference not matching an index ";
@@ -173,18 +207,30 @@ public final class IconManager
 						}
 						else
 						{
-							IconIndex index = lookupMappingByName(jcName);
-							
-							if(index == null)
+							switch(addIcon(jcName, basePath + File.separator + path, indexer))
 							{
-								errorMessage = lineIndexErrorMessage;
-								
-								error = true;
-							}
-							else
-							{
-								// Add the mapping
-								addIcon(index, basePath + File.separator + path);
+								case -10:
+								{
+									// The index / icon name was not found
+									errorMessage = lineIndexErrorMessage;
+									
+									error = true;
+								}
+								break;
+								case -20:
+								{
+									// Problem loading icon file.
+									errorMessage = iconFileErrorMessage;
+									
+									error = true;
+								}
+								break;
+								case 0:
+								{
+									// Created
+									log.debug("Created mapping " + jcName);
+								}
+								break;
 							}
 						}
 					}
@@ -208,9 +254,8 @@ public final class IconManager
 		// Map the cross refs.
 		for(String[] crossRef : crossRefs)
 		{
-			switch(addCrossRef(crossRef[0], crossRef[1]))
+			switch(addCrossRef(crossRef[0], crossRef[1], indexer))
 			{
-				
 				case -10:
 				{
 					// Mapping index bad
@@ -219,14 +264,14 @@ public final class IconManager
 				break;
 				case -20:
 				{
-					// reference index bad
+					// Reference index bad
 					log.error(crossRefReferenceErrorMessage + " mapping " + crossRef[0] + " reference " + crossRef[1]);
 				}
 				break;
 				case 0:
 				{
-					log.debug("Created crossRef mapping " + crossRef[0] + " reference " + crossRef[1]);
 					// Created
+					log.debug("Created crossRef mapping " + crossRef[0] + " reference " + crossRef[1]);
 				}
 				break;
 			}
@@ -235,29 +280,56 @@ public final class IconManager
 		// Mapping file parsed.
 		reader.close();
 		
-		log.info("Parsing Completed");
+		log.info("Icon Mapping Finished");
 	}
 	
-	private void addIcon(IconIndex index, String iconPath)
+	/**
+	 * Adds loads an image icon into the index.
+	 *
+	 * @param index
+	 * @param iconPath
+	 * @param indexer
+	 */
+	private int addIcon(String name, String iconPath, IconIndexer indexer)
 	{
+		IconIndex index = indexer.getIconIndexbyName(name);
+		
+		if(index == null)
+		{
+			return -10;
+		}
+		
 		// File will replace invalid file separators chars (for current system e.g. / to \ ) with a valid system separator
 		String filePath = new File(iconPath).toString();
 		
 		log.debug(index.name + " " + filePath);
 		
 		// Assign the icon
-		icons[index.value] = new ImageIcon(filePath, index.name);
+		imageIconIndex[index.value] = new ImageIcon(filePath, index.name);
 		
-		if(icons[index.value].getImageLoadStatus() != MediaTracker.COMPLETE)
+		if(imageIconIndex[index.value].getImageLoadStatus() != MediaTracker.COMPLETE)
 		{
-			icons[index.value] = null;
+			imageIconIndex[index.value] = null;
+			
+			// We had a correct name but the icon file was not loaded.
+			return -20;
 		}
+		
+		return 0;
 	}
 	
-	private int addCrossRef(String name, String reference)
+	/**
+	 * Adds a cross ref icon into the index using the target mapping.
+	 *
+	 * @param name
+	 * @param reference
+	 * @param indexer
+	 * @return
+	 */
+	private int addCrossRef(String name, String reference, IconIndexer indexer)
 	{
-		IconIndex mappingIndex = lookupMappingByName(name);
-		IconIndex referenceIndex = lookupMappingByName(reference);
+		IconIndex mappingIndex = indexer.getIconIndexbyName(name);
+		IconIndex referenceIndex = indexer.getIconIndexbyName(reference);
 		
 		if(mappingIndex == null)
 		{
@@ -272,29 +344,99 @@ public final class IconManager
 		}
 		
 		// Point to the original reference - it could still be null if the reference is was not created, checked else where
-		icons[mappingIndex.value] = icons[referenceIndex.value];
+		imageIconIndex[mappingIndex.value] = imageIconIndex[referenceIndex.value];
 		
 		// Cross reference was created successfully
 		return 0;
 	}
 	
 	/**
-	 * Looks up the current mappings for a target string
+	 * Retrieves the an icon from the IconManager.
 	 *
-	 * @param name
+	 * @param index
 	 * @return
-	 * null if the name does match an IconIndex name, or the IconIndex.
+	 * null if IconManager is not initialised or there is no theme loaded.
 	 */
-	private IconIndex lookupMappingByName(String name)
+	public ImageIcon retrieveImageIcon(IconIndex index)
 	{
-		return IconIndex.fromName(name);
+		if(imageIconIndex == null)
+		{
+			return null;
+		}
+		
+		return imageIconIndex[index.value];
 	}
 	
-	/**
-	 * Allows looking up the icons by array index at runtime vs the former sting/hashmap approach
-	 *
-	 * @author Seamus McShane
-	 */
+	/*
+	 * ***************************************************************************************************
+	 * Private API object
+	 *****************************************************************************************************/
+	
+	private class IconIndexer
+	{
+		// "IconIndex" value to IconIndex lookup table.
+		private IconIndex[] iconIndex = new IconIndex[IconIndex.values().length];
+		
+		// Hash function for looking up the iconIndex by string.
+		private PearsonHash pearsonHash;
+		
+		public IconIndexer()
+		{
+			// This allows looking up the icons by array index at runtime vs the former sting + permanent hashmap approach
+			// Index the enums by there internal value
+			// If the enum orders are ever changed (and dont not match the value order) they the index may needed sorted by internal value before generating
+			// pearson hash.
+			for(IconIndex index : IconIndex.values())
+			{
+				// Note using the IconIndex value field not enum ordinal.
+				iconIndex[index.value] = index;
+			}
+			
+			// Create an array of strings that we will create a perfect minimal hash for. (as we know the complete set)
+			String[] textList = new String[IconIndex.values().length];
+			
+			// Effectively an array copy but just the index.names
+			for(IconIndex index : IconIndex.values())
+			{
+				textList[index.value] = index.name;
+			}
+			
+			// Value may need adjusting when indexes increase. (temporary)
+			pearsonHash = new PearsonHash(textList, 10);
+		}
+		
+		// Avoidance of enum iteration at runtime at the cost of a lookup table.
+		public IconIndex getIconIndexbyValue(int value)
+		{
+			// if out of range, then return null else do the lookup
+			return ((value >= 0) && (value < iconIndex.length)) ? iconIndex[value] : null;
+		}
+		
+		public IconIndex getIconIndexbyName(String name)
+		{
+			int hash = pearsonHash.getHash(name.getBytes());
+			
+			int[] minimalKeyList = pearsonHash.getHashKeys();
+			
+			for(int i = 0; i < minimalKeyList.length; i++)
+			{
+				// Integer comparison
+				if(hash == minimalKeyList[i])
+				{
+					return getIconIndexbyValue(i);
+				}
+			}
+			
+			// Icon not found
+			return null;
+		}
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * Public API Enum
+	 *****************************************************************************************************/
+	
 	public enum IconIndex
 	{
 		// Enum Types
@@ -309,70 +451,13 @@ public final class IconManager
 		stop16(32, "stop16"), paused16(33, "paused16"), resume16(34, "resume16"), simListTab16(35, "simListTab16"), loggingTab16(36, "loggingTab16"),
 		nodesTab16(37, "nodesTab16");
 		
-		// IconIndex value to IconIndex lookup table
-		private static final IconIndex[] indexes = new IconIndex[IconIndex.values().length];
-		private static final PearsonHash pearsonHash;
-		
-		static
-		{
-			// Index the enums by there internal value - TODO sort by internal value before generating pearson hash.
-			for(IconIndex index : IconIndex.values())
-			{
-				// Note using the IconIndex value field not enum ordinal.
-				indexes[index.value] = index;
-			}
-			
-			String[] textList = new String[IconIndex.values().length];
-			
-			for(IconIndex index : IconIndex.values())
-			{
-				textList[index.getValue()] = index.getName();
-			}
-			
-			// Value may need adjusting when indexes increase.
-			pearsonHash = new PearsonHash(textList, 10);
-		}
-		
-		private final int value;
-		private final String name;
+		public final int value;
+		public final String name;
 		
 		private IconIndex(int value, String name)
 		{
 			this.value = value;
 			this.name = name;
-		}
-		
-		public String getName()
-		{
-			return name;
-		}
-		
-		public int getValue()
-		{
-			return value;
-		}
-		
-		// Avoidance of enum iteration at runtime at the cost of a lookup table.
-		public static IconIndex fromValue(int value)
-		{
-			return ((value >= 0) && (value < indexes.length)) ? indexes[value] : null;
-		}
-		
-		public static IconIndex fromName(String name)
-		{
-			int hash = pearsonHash.getHash(name.getBytes());
-			
-			int[] minimalKeyList = pearsonHash.getHashKeys();
-			
-			for(int i = 0; i < minimalKeyList.length; i++)
-			{
-				if(hash == minimalKeyList[i])
-				{
-					return IconIndex.fromValue(i);
-				}
-			}
-			
-			return null;
 		}
 	}
 }
