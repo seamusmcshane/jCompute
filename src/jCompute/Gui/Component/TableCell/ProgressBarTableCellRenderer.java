@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormatSymbols;
@@ -26,9 +25,12 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		pb.setSelected(isSelected);
+		int width = table.getTableHeader().getColumnModel().getColumn(column).getWidth();
+		int height = table.getRowHeight();
 		
-		pb.setProgress((int) value);
+		pb.setSize(width, height);
+		
+		pb.prepare((int) value, isSelected);
 		
 		return pb;
 	}
@@ -63,7 +65,7 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 			font = table.getFont().deriveFont(table.getFont().getSize() * .75f);
 		}
 		
-		public void setProgress(int value)
+		public void prepare(int value, boolean isSelected)
 		{
 			if(value < 100)
 			{
@@ -73,6 +75,8 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 			{
 				progress = 100;
 			}
+			
+			selected = isSelected;
 		}
 		
 		private String progressToString()
@@ -82,7 +86,7 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 				return new DecimalFormatSymbols().getInfinity();
 			}
 			
-			return Integer.toString(progress) + " %";
+			return Integer.toString(progress);
 		}
 		
 		@Override
@@ -92,9 +96,6 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 			
 			Graphics2D g2 = (Graphics2D) g1;
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			
-			// Selection Bar
-			Rectangle clip = g2.getClipBounds();
 			
 			if(!selected)
 			{
@@ -106,22 +107,7 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 			}
 			
 			// Cell BG
-			g2.fillRect(clip.x, clip.y, clip.width, clip.height);
-			
-			// Progress Bar BG
-			g2.setColor(bg);
-			g2.fillRect(clip.x + pad, clip.y + pad, ((clip.width - (pad * 2))) - 1, clip.height - (pad * 2) - 1);
-			
-			// Progress Bar Percent Fill
-			float barWidth = ((float) progress / 100);
-			g2.setColor(barFill);
-			g2.fillRect(clip.x + pad, clip.y + pad, (int) ((clip.width - (pad * 2)) * barWidth) - 1, clip.height - (pad * 2) - 1);
-			
-			// Outline
-			g2.setColor(barOutline);
-			g2.drawRect(clip.x + pad, clip.y + pad, ((clip.width - (pad * 2))) - 1, clip.height - (pad * 2) - 1);
-			
-			g2.setFont(font);
+			g2.fillRect(0, 0, getWidth(), getHeight());
 			
 			// String to draw
 			String sProgress = progressToString();
@@ -129,16 +115,41 @@ public class ProgressBarTableCellRenderer implements TableCellRenderer
 			// Bounds
 			Rectangle2D stringBounds = font.createGlyphVector(g2.getFontRenderContext(), sProgress).getVisualBounds();
 			
+			// Progress Bar Percent Fill
+			float barWidth = ((float) progress / 100);
+			
+			// Wide enough for nice percentage bar
+			if(getWidth() > (pad * 8))
+			{
+				// Progress Bar BG
+				g2.setColor(bg);
+				g2.fillRect(pad, pad, ((getWidth() - (pad * 2))) - 1, getHeight() - (pad * 2) - 1);
+				
+				// Progress Bar
+				g2.setColor(barFill);
+				g2.fillRect(pad, pad, (int) ((getWidth() - (pad * 2)) * barWidth) - 1, getHeight() - (pad * 2) - 1);
+				
+				// Outline
+				g2.setColor(barOutline);
+				g2.drawRect(pad, pad, ((getWidth() - (pad * 2))) - 1, getHeight() - (pad * 2) - 1);
+				
+				// Append %
+				sProgress += " %";
+			}
+			else
+			{
+				// Progress Bar ALT (when too small)
+				g2.setColor(barFill);
+				g2.fillRect(0, 0, (int) (getWidth() * barWidth) - 1, getHeight() - 1);
+			}
+			
+			g2.setFont(font);
+			
 			// Draw Label
 			g2.setColor(fg);
 			
-			g2.drawString(sProgress, (int) (clip.width - stringBounds.getWidth()) / 2, (int) (((clip.height - stringBounds.getHeight()) / 2) - (stringBounds
+			g2.drawString(sProgress, (int) (getWidth() - stringBounds.getWidth()) / 2, (int) (((getHeight() - stringBounds.getHeight()) / 2) - (stringBounds
 			.getY())));
-		}
-		
-		public void setSelected(boolean isSelected)
-		{
-			selected = isSelected;
 		}
 	}
 	
