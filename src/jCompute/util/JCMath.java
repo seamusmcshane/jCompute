@@ -208,6 +208,21 @@ public class JCMath
 
 		return index;
 	}
+	
+	/**
+	 * Will perform a fast modulus given a value and a positive power of 2.
+	 * Incorrect results for non-powers of 2.
+	 * 
+	 * @param value
+	 * @param power2
+	 * @return
+	 * Remainder of value divided by power2
+	 */
+	public static int absModBase2(int value, int power2)
+	{
+		return((value ^ ((value) >> 31)) & (power2 - 1));
+	}
+	
 
 	/**
 	 * Returns a prime number from the first 1000 primes.
