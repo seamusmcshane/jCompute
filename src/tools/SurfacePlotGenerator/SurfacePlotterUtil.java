@@ -33,6 +33,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
@@ -57,11 +59,15 @@ import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
 import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
+import jCompute.logging.Logging;
 import jCompute.util.FileUtil;
 import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
 {
+	// Log4j2 Logger
+	private static Logger log;
+	
 	private JFrame gui;
 	private JMenuBar menuBar;
 	private JMenu mnFile;
@@ -103,6 +109,10 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 
 	public SurfacePlotterUtil()
 	{
+		Logging.initTestLevelLogging();
+		
+		log = LogManager.getLogger(SurfacePlotterUtil.class);
+		
 		lookandFeel();
 
 		gui = new JFrame();
@@ -258,7 +268,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					}
 					else
 					{
-						log(drawable.getClass().getName());
+						log.info(drawable.getClass().getName());
 					}
 				}
 
@@ -440,7 +450,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				else
 				{
-					log(drawable.getClass().getName());
+					log.info(drawable.getClass().getName());
 				}
 			}
 
@@ -474,7 +484,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 				}
 				else
 				{
-					log(drawable.getClass().getName());
+					log.info(drawable.getClass().getName());
 				}
 			}
 
@@ -497,7 +507,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 		{
 			final JFileChooser filechooser = new JFileChooser(new File(openCD));
 
-			log("Open Dialog");
+			log.info("Open Dialog");
 
 			int val = filechooser.showOpenDialog(filechooser);
 
@@ -510,7 +520,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 					{
 						removeCharts();
 
-						log("New File Choosen");
+						log.info("New File Choosen");
 
 						String filePath = filechooser.getSelectedFile().getAbsolutePath();
 
@@ -518,12 +528,12 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 
 						gui.setTitle(filechooser.getSelectedFile().getName());
 
-						log(filePath);
+						log.info(filePath);
 
-						log("Creating Mapper");
+						log.info("Creating Mapper");
 
 						String ext = FileUtil.getFileNameExtension(filePath);
-						log("File ext : " + ext);
+						log.info("File ext : " + ext);
 
 						// Info Log
 						batchInfo.clearTable();
@@ -544,7 +554,7 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 						}
 						catch(IOException e)
 						{
-							log("Error Reading Log : " + e.getMessage() + " " + e.getCause());
+							log.info("Error Reading Log : " + e.getMessage() + " " + e.getCause());
 						}
 
 						try
@@ -552,10 +562,10 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 							// If there is an info log - use the range limits 0 to max steps possible, else range limits will be that of the data.
 							logProcessor = (ilp != null) ? new ItemLogProcessor(filePath, 0, ilp.getMaxSteps()) : new ItemLogProcessor(filePath);
 
-							log("Average Chart");
+							log.info("Average Chart");
 							addAvgChart();
 
-							log("Standard Deviation Chart");
+							log.info("Standard Deviation Chart");
 							addStdDevChart();
 
 							// chart = new Chart(factory, Quality.Fastest);
@@ -767,10 +777,4 @@ public class SurfacePlotterUtil implements ActionListener, WindowListener
 			e1.printStackTrace();
 		}
 	}
-
-	private void log(String text)
-	{
-		System.out.println(text);
-	}
-
 }
