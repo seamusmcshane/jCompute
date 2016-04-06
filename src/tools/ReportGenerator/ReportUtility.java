@@ -9,18 +9,29 @@ import java.util.Map;
 
 import javax.swing.JFileChooser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.DaveKoelle.AlphanumComparator;
 
+import jCompute.logging.Logging;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
 
 public class ReportUtility
 {
+	// Log4j2 Logger
+	private static Logger log;
+	
 	private final static int imageWidth = 600;
 	private final static int imageHeight = 400;
 	
 	public static void main(String args[])
 	{
+		Logging.initTestLevelLogging();
+		
+		log = LogManager.getLogger(ReportUtility.class);
+		
 		LookAndFeel.setLookandFeel("default");
 		
 		// Rows/Colum Names
@@ -44,16 +55,16 @@ public class ReportUtility
 		if(val == JFileChooser.APPROVE_OPTION)
 		{
 			String fullPath = filechooser.getSelectedFile().getPath();
-			System.out.println("Path : " + fullPath);
+			log.info("Path : " + fullPath);
 			
 			// Level 0
 			String documentName = filechooser.getSelectedFile().getName();
-			System.out.println("Document Name will be : " + documentName);
+			log.info("Document Name will be : " + documentName);
 			
 			// Item LogName detected
 			String itemLogNameWithExt = generateMap(rowNames, colNames, cells, fullPath, itemLogName);
 			
-			System.out.println("LogFile detected as : " + itemLogNameWithExt);
+			log.info("LogFile detected as : " + itemLogNameWithExt);
 			
 			Collections.sort(rowNames, new AlphanumComparator());
 			Collections.sort(colNames, new AlphanumComparator());
@@ -68,19 +79,19 @@ public class ReportUtility
 			try
 			{
 				String filePath = pdfReport.generate();
-				System.out.println("Report Save : " + filePath);
+				log.info("Report Save : " + filePath);
 			}
 			catch(IOException e)
 			{
-				System.out.println("PDF Report Error");
+				log.info("PDF Report Error");
 				e.printStackTrace();
 			}
 			
-			System.out.println("Report Finished");
+			log.info("Report Finished");
 		}
 		else
 		{
-			System.out.println("Report Cancelled");
+			log.info("Report Cancelled");
 		}
 		
 		System.exit(0);
@@ -107,7 +118,7 @@ public class ReportUtility
 		if(FileUtil.dirContainsFileNamedMinusExt(fullPath + File.separator, filename))
 		{
 			// A single directory
-			System.out.println("Single Dir");
+			log.info("Single Dir");
 			
 			if(!extDetected)
 			{
@@ -118,18 +129,18 @@ public class ReportUtility
 			
 			String rowName = fullPath.substring(fullPath.lastIndexOf(']') + 1, fullPath.length());
 			rowNames.add(rowName);
-			System.out.println("Row Name : " + rowName);
+			log.info("Row Name : " + rowName);
 			
 			String colName = rowName;
 			colNames.add(colName);
-			System.out.println("Column Name : " + colName);
+			log.info("Column Name : " + colName);
 			
 			String index = rowName + colName;
 			
 			// Add Cell Index - item log locations
 			cells.put(index, fullPath);
 			
-			System.out.println("Added Cell " + cells.size());
+			log.info("Added Cell " + cells.size());
 		}
 		else
 		{
@@ -142,7 +153,7 @@ public class ReportUtility
 				if(!level1dir.equals("images"))
 				{
 					String level1Path = fullPath + File.separator + level1dir;
-					System.out.println("l1 Dir : " + level1dir);
+					log.info("l1 Dir : " + level1dir);
 					
 					// Row Name
 					String rowName;
@@ -157,7 +168,7 @@ public class ReportUtility
 						}
 						
 						// A directory with 1 level of groups
-						System.out.println("Group Dir");
+						log.info("Group Dir");
 						
 						rowName = fullPath.substring(fullPath.lastIndexOf(File.separator) + 1, fullPath.length());
 						
@@ -165,19 +176,19 @@ public class ReportUtility
 						{
 							doRows = false;
 							rowNames.add(rowName);
-							System.out.println("Row Name : " + rowName);
+							log.info("Row Name : " + rowName);
 						}
 						
 						String colName = level1dir;
 						colNames.add(colName);
-						System.out.println("Column Name : " + colName);
+						log.info("Column Name : " + colName);
 						
 						String index = rowName + colName;
 						
 						// Add Cell Index - item log locations
 						cells.put(index, level1Path);
 						
-						System.out.println("Added Cell " + cells.size());
+						log.info("Added Cell " + cells.size());
 						
 					}
 					else
@@ -185,7 +196,7 @@ public class ReportUtility
 						// Row Name
 						rowName = level1dir;
 						rowNames.add(rowName);
-						System.out.println("Row Name : " + rowName);
+						log.info("Row Name : " + rowName);
 						
 						// A directory with 2 levels of groups
 						String level2dirs[] = FileUtil.getDirectoriesInDir(level1Path);
@@ -205,7 +216,7 @@ public class ReportUtility
 								
 								colNames.add(colName);
 								
-								System.out.println("Column Name : " + colName);
+								log.info("Column Name : " + colName);
 							}
 							
 						}
@@ -223,7 +234,7 @@ public class ReportUtility
 									extDetected = true;
 								}
 								
-								System.out.println("L2 Dir : " + level2dir);
+								log.info("L2 Dir : " + level2dir);
 								
 								String colName = level2dir.substring(level2dir.lastIndexOf(']') + 2, level2dir.length());
 								
@@ -232,7 +243,7 @@ public class ReportUtility
 								// Add Cell Index - item log locations
 								cells.put(index, level2Path);
 								
-								System.out.println("Added Cell " + cells.size());
+								log.info("Added Cell " + cells.size());
 							}
 							
 						}

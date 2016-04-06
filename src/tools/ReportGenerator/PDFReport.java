@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -19,6 +21,9 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 public class PDFReport
 {
+	// Log4j2 Logger
+	private static Logger log = LogManager.getLogger(PDFReport.class);
+	
 	// Report Name
 	private String reportFileName;
 	
@@ -39,6 +44,7 @@ public class PDFReport
 	int imageWidth, int imageHeight)
 	{
 		super();
+		
 		this.reportFileName = reportFileName;
 		this.rowNames = rowNames;
 		this.colNames = colNames;
@@ -96,8 +102,8 @@ public class PDFReport
 			imagesSuffix = "-max";
 		}
 		
-		System.out.println("Page Width : " + pageWidth);
-		System.out.println("Page Height : " + pageHeight);
+		log.info("Page Width : " + pageWidth);
+		log.info("Page Height : " + pageHeight);
 		
 		PDRectangle pageBox = new PDRectangle(pageWidth, pageHeight);
 		
@@ -117,7 +123,7 @@ public class PDFReport
 			for(String col : colNames)
 			{
 				String path = fullPath + File.separator + row + File.separator + col;
-				System.out.println("Path : " + path);
+				log.info("Path : " + path);
 				
 				String imagesPath = fullPath + File.separator + "images";
 				String exportPath = imagesPath + File.separator + row;
@@ -125,13 +131,13 @@ public class PDFReport
 				String logDir = cells.get(row + col);
 				String imageName = logDir.substring(logDir.lastIndexOf(']') + 2, logDir.length());
 				
-				System.out.println("imagePath : " + imagesPath);
-				System.out.println("exportPath : " + exportPath);
-				System.out.println("imageName : " + imageName);
+				log.info("imagePath : " + imagesPath);
+				log.info("exportPath : " + exportPath);
+				log.info("imageName : " + imageName);
 				
 				String imagePath = exportPath + File.separator + imageName + imagesSuffix + ".png";
 				
-				System.out.println(imagePath);
+				log.info(imagePath);
 				
 				addImage(doc, page, cos, imagePath, imageWidth * colX + xMargin, imageHeight * rowY + yMargin + titleHeight, scale);
 				addRectangle(doc, page, cos, imageWidth * colX + xMargin, imageHeight * rowY + yMargin + titleHeight, imageWidth * scale, imageHeight * scale,
@@ -180,8 +186,8 @@ public class PDFReport
 		float stringWidth = ((font.getStringWidth(text) / 1000f) * size) / 2;
 		float fontHeight = (font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000f) * size;
 		
-		System.out.println("center " + center);
-		System.out.println("String " + stringWidth);
+		log.info("center " + center);
+		log.info("String " + stringWidth);
 		
 		cs.newLineAtOffset((center - stringWidth) + xOffset, (page.getTrimBox().getHeight() - fontHeight) - yOffset);
 		cs.showText(text);
