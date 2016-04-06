@@ -9,14 +9,15 @@ import org.apache.logging.log4j.Logger;
 
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogFormatInf;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogFormatValuesContainer;
+import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogItem;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextv2Format;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogItem;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogXMLFormat;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Timing.TimerObj;
 import jCompute.util.FileUtil;
-import jCompute.util.Text;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public final class ItemLogProcessor
 {
@@ -128,11 +129,12 @@ public final class ItemLogProcessor
 		samples = logFormatProcessor.getSamples();
 		logFormat = logFormatProcessor.getLogFormat();
 		logFormat = logFormatProcessor.getLogFormat();
-		
+
 		to.stopTimer();
-		
-		log.info("Time Processing " + logFormatProcessor.getLogFormat() + " : " + Text.longTimeToDHMSM(to.getTimeTaken()));
-		
+
+		log.info("Time Processing " + logFormatProcessor.getLogFormat() + " : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(),
+		TimeStringFormat.SM));
+
 		totalTime += to.getTimeTaken();
 		
 		return logFormatProcessor;
@@ -551,11 +553,11 @@ public final class ItemLogProcessor
 		log.debug("xMax" + values.getXMax());
 		log.debug("yMax" + values.getYMax());
 		log.debug("zMax" + values.getZMax());
-		
+
 		to.stopTimer();
-		
-		log.info("Processed Items : " + Text.longTimeToDHMSM(to.getTimeTaken()));
-		
+
+		log.info("Processed Items : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
+
 		totalTime += to.getTimeTaken();
 	}
 	

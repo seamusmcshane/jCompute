@@ -14,35 +14,36 @@ import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.util.Text;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public class ItemLogXMLFormat implements ItemLogFormatInf
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(ItemLogXMLFormat.class);
-	
+
 	private final String logFormat = "ItemLogXMLFormat";
-	
+
 	private String logFileName;
 	private String logType;
 	private int samples;
-	
+
 	private String xAxisName;
 	private String yAxisName;
 	private String zAxisName;
-	
+
 	private ArrayList<ItemLogItem> logItems;
-	
+
 	public ItemLogXMLFormat(String fileName) throws IOException
 	{
 		log.info("Processing XML Log");
-		
+
 		XMLConfiguration logFile = new XMLConfiguration();
 		logFile.setSchemaValidation(true);
-		
+
 		// As a stream so we can control when its closed.
 		InputStream targetStream = new FileInputStream(new File(fileName));
-		
+
 		try
 		{
 			logFile.load(targetStream);
@@ -50,66 +51,66 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 		catch(ConfigurationException e)
 		{
 			String message = "failed to load log file, check the file is a log file and that it complies with the schema";
-			
+
 			Throwable throwable = new Throwable(message, null);
-			
+
 			throwable.setStackTrace(e.getStackTrace());
-			
+
 			throw new IOException(throwable);
 		}
-		
+
 		readHeader(logFile);
 		readItems(logFile);
-		
+
 		logFile.clear();
 		targetStream.close();
-		
+
 		// Choose Plot Source
 		zAxisName = "StepCount";
 	}
-	
+
 	/*
 	 * *****************************************************************************************************
 	 * Format Processing Methods
 	 *****************************************************************************************************/
-	
+
 	private void readItems(XMLConfiguration logFile)
 	{
 		// Log Items List
 		logItems = new ArrayList<ItemLogItem>();
-		
+
 		log.info("Reading Items Values");
-		
+
 		String itemsNodePath = "Items";
 		List<ConfigurationNode> itemNodes = getConfigurationNodeList(logFile, itemsNodePath, 0);
-		
+
 		int itemTotal = itemNodes.size();
 		log.info("Items : " + itemTotal);
-		
+
 		// XML Log Format assumes Square Surfaces.
 		int matrixDim = (int) Math.sqrt((itemTotal) / samples) + 1;
-		
+
 		log.info("XML log format processing previous assumed surface is square - this log would be calulated as : " + matrixDim + "x" + matrixDim);
-		
+
 		for(ConfigurationNode itemNode : itemNodes)
 		{
 			logItems.add(readItem(itemNode));
 		}
-		
+
 		log.info("logItemsSize " + logItems.size());
 	}
-	
+
 	private ItemLogItem readItem(ConfigurationNode node)
 	{
 		ItemLogItem item = new ItemLogItem();
-		
+
 		List<ConfigurationNode> fieldList = node.getChildren();
-		
+
 		for(ConfigurationNode field : fieldList)
 		{
 			String fieldName = field.getName();
 			String fieldValue = (String) field.getValue();
-			
+
 			switch(fieldName)
 			{
 				case "IID":
@@ -132,8 +133,8 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 				{
 					// RunTime is Stored as a string in XML format
 					String runTime = fieldValue;
-					
-					item.setRunTime((int) Text.stringTimeDHMStoLongMilli(runTime));
+
+					item.setRunTime((int) TimeString.formattedTimeStringToMilliseconds(runTime, TimeStringFormat.DHMS));
 				}
 				break;
 				case "EndEvent":
@@ -149,16 +150,16 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 				case "Coordinates":
 				{
 					List<ConfigurationNode> coordList = field.getChildren();
-					
+
 					// Max Supported Coords to set as item pos/values
 					int maxCoords = 2;
-					
+
 					// Per item Coord Count
 					int coord = 0;
-					
+
 					int pos[] = new int[maxCoords];
 					double vals[] = new double[maxCoords];
-					
+
 					// Coordinates are a list of Coordinate(s)
 					for(ConfigurationNode coordinate : coordList)
 					{
@@ -168,7 +169,7 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 						{
 							String name = posVal.getName();
 							String val = (String) posVal.getValue();
-							
+
 							switch(name)
 							{
 								case "Pos":
@@ -188,21 +189,21 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 								}
 								break;
 							}
-							
+
 							// log.info("Coord " + name + " value " + val);
 						}
-						
+
 						coord++;
-						
+
 						if(coord == maxCoords)
 						{
 							break;
 						}
 					}
-					
+
 					// log.info("p = " + pos[0] + "x" + pos[1]);
 					// log.info("v = " + vals[0] + "x" + vals[1]);
-					
+
 					item.setCoordsPos(pos);
 					item.setCoordsVals(vals);
 				}
@@ -212,43 +213,43 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 				break;
 			}
 		}
-		
+
 		return item;
 	}
-	
+
 	private List<ConfigurationNode> getConfigurationNodeList(XMLConfiguration logFile, String path, int listIndex)
 	{
 		// A Sub Tree
 		List<HierarchicalConfiguration> subTreeNodes = logFile.configurationsAt(path);
-		
+
 		// A list of nodes from node at listIndex
 		ConfigurationNode node = subTreeNodes != null ? subTreeNodes.get(listIndex).getRootNode() : null;
-		
+
 		// Node List of All XML Nodes
 		List<ConfigurationNode> itemNodes = node != null ? node.getChildren() : null;
-		
+
 		return itemNodes;
 	}
-	
+
 	private void readHeader(XMLConfiguration logFile)
 	{
 		// Axis Names are from Axis 0 and Axis 1
 		xAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 0 + ").Name", "X");
 		yAxisName = logFile.getString("Header." + "AxisLabels.AxisLabel(" + 1 + ").Name", "Y");
-		
+
 		log.info("xAxisName : " + xAxisName);
 		log.info("yAxisName : " + yAxisName);
-		
+
 		// Samples
 		samples = logFile.getInt("Header.SamplesPerItem");
-		
+
 		log.info("Samples : " + samples);
-		
+
 		logType = logFile.getString("Header." + "LogType", "unset");
-		
+
 		log.info("LogType : " + logType);
 	}
-	
+
 	/*
 	 * *****************************************************************************************************
 	 * Log Format
@@ -258,7 +259,7 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 	{
 		return logFormat;
 	}
-	
+
 	/*
 	 * *****************************************************************************************************
 	 * Axis Names
@@ -268,19 +269,19 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 	{
 		return xAxisName;
 	}
-	
+
 	@Override
 	public String getYAxisName()
 	{
 		return yAxisName;
 	}
-	
+
 	@Override
 	public String getZAxisName()
 	{
 		return zAxisName;
 	}
-	
+
 	/*
 	 * *****************************************************************************************************
 	 * Log Info
@@ -290,19 +291,19 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 	{
 		return logFileName;
 	}
-	
+
 	@Override
 	public String getLogType()
 	{
 		return logType;
 	}
-	
+
 	@Override
 	public int getSamples()
 	{
 		return samples;
 	}
-	
+
 	/*
 	 * *****************************************************************************************************
 	 * Log Items

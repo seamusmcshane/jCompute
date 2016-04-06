@@ -65,6 +65,8 @@ import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.util.FileUtil;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener
 {
@@ -1041,7 +1043,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private void setTime(long time)
 	{
-		lblSimRunTime.setText(jCompute.util.Text.longTimeToDHMS(time));
+		lblSimRunTime.setText(TimeString.timeInMillisAsFormattedString(time, TimeStringFormat.HMS));
 	}
 	
 	private void notifiyTabStatusChangedListeners(SimState state)

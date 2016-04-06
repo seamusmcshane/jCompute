@@ -11,6 +11,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.Datastruct.cache.DiskCache;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public class InfoLogger
 {
@@ -83,7 +85,7 @@ public class InfoLogger
 		infoLog.println("AddedDateTime=" + addedDateTime);
 		infoLog.println("StartDateTime=" + startDateTime);
 		infoLog.println("FinishedDateTime=" + endDateTime);
-		infoLog.println("TotalTime=" + jCompute.util.Text.longTimeToDHMS(System.currentTimeMillis() - startTimeMillis));
+		infoLog.println("TotalTime=" + TimeString.timeInMillisAsFormattedString(System.currentTimeMillis() - startTimeMillis, TimeStringFormat.DHMS));
 		
 		processedInfo = true;
 	}

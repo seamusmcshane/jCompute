@@ -6,7 +6,8 @@ import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.Surfac
 import jCompute.Gui.View.Misc.Palette;
 import jCompute.Timing.TimerObj;
 import jCompute.util.JCMath;
-import jCompute.util.Text;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -201,7 +202,7 @@ public class HeatMap extends JPanel
 		
 		to.stopTimer();
 		
-		log.info("ColorMap : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		log.info("ColorMap : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
 		
 		totalTime += to.getTimeTaken();
 	}
@@ -319,7 +320,7 @@ public class HeatMap extends JPanel
 		
 		to.stopTimer();
 		
-		log.info("ColorMap Ticks And Labels : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		log.info("ColorMap Ticks And Labels : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
 		
 		totalTime += to.getTimeTaken();
 	}
@@ -357,7 +358,7 @@ public class HeatMap extends JPanel
 		
 		to.stopTimer();
 		
-		log.info("Legend : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		log.info("Legend : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
 		
 		totalTime += to.getTimeTaken();
 	}
@@ -575,7 +576,7 @@ public class HeatMap extends JPanel
 		
 		to.stopTimer();
 		
-		log.info("PlotArea Ticks And Labels : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		log.info("PlotArea Ticks And Labels : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
 		
 		totalTime += to.getTimeTaken();
 	}
@@ -595,7 +596,7 @@ public class HeatMap extends JPanel
 		
 		to.stopTimer();
 		
-		log.info("Created Scaled Image : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		log.info("Created Scaled Image : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
 		
 		totalTime += to.getTimeTaken();
 		
@@ -650,7 +651,7 @@ public class HeatMap extends JPanel
 		
 		to.stopTimer();
 		
-		log.info("Created Unscaled Image : " + Text.longTimeToDHMSM(to.getTimeTaken()));
+		log.info("Created Unscaled Image : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
 		
 		totalTime += to.getTimeTaken();
 		

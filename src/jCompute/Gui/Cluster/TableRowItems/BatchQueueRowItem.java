@@ -2,6 +2,8 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Batch.Batch;
 import jCompute.Gui.Component.RowItem;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public class BatchQueueRowItem extends RowItem<BatchQueueRowItem, Integer>
 {
@@ -29,18 +31,18 @@ public class BatchQueueRowItem extends RowItem<BatchQueueRowItem, Integer>
 		name = batch.getFileName();
 		status = batch.isEnabled();
 		progress = batch.getProgress();
-
+		
 		if(batch.getCompleted() > 0)
 		{
-			estimatedFinish = jCompute.util.Text.timeNowPlus(batch.getETT());
+			estimatedFinish = TimeString.timeNowPlus(batch.getETT());
 		}
 		else
 		{
-			estimatedFinish = jCompute.util.Text.timeNowPlus(-1);
+			estimatedFinish = TimeString.timeNowPlus(-1);
 		}
-
+		
 	}
-
+	
 	@Override
 	public String[] getFieldList()
 	{

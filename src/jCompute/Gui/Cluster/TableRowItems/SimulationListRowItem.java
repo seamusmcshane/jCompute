@@ -2,7 +2,8 @@ package jCompute.Gui.Cluster.TableRowItems;
 
 import jCompute.Gui.Component.RowItem;
 import jCompute.Simulation.SimulationState.SimState;
-import jCompute.util.Text;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public class SimulationListRowItem extends RowItem<SimulationListRowItem, Integer>
 {
@@ -170,12 +171,12 @@ public class SimulationListRowItem extends RowItem<SimulationListRowItem, Intege
 	{
 		this.asps = asps;
 	}
-
+	
 	public String getRunTime()
 	{
-		return Text.longTimeToDHMS(runTime);
+		return TimeString.timeInMillisAsFormattedString(runTime, TimeStringFormat.HMS);
 	}
-
+	
 	public void setRunTime(long runTime)
 	{
 		this.runTime = runTime;

@@ -41,7 +41,7 @@ public final class JComputeInfo
 			// The revision control id
 			BUILD_REVISON = prop.getProperty("revision");
 			
-			LAUNCH_DATE_TIME = Text.longTimeToDateString(LAUNCH_TIME);
+			LAUNCH_DATE_TIME = TimeString.longTimeToDateString(LAUNCH_TIME);
 			
 			// Close file stream
 			input.close();

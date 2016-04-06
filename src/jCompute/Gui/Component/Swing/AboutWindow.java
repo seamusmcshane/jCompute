@@ -21,7 +21,8 @@ import javax.swing.WindowConstants;
 import jCompute.util.JComputeInfo;
 import jCompute.util.JVMInfo;
 import jCompute.util.OSInfo;
-import jCompute.util.Text;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 public class AboutWindow extends JDialog
 {
@@ -158,7 +159,7 @@ public class AboutWindow extends JDialog
 					lblTotalVal.setText(String.valueOf(jvmInfo.getTotalJVMMemory()));
 					lblMaxVal.setText(String.valueOf(jvmInfo.getMaxMemory()));
 					
-					gridPanel.changeValText(runTimeIndex, Text.longTimeToDHMS(jComputeInfo.getRuntime()));
+					gridPanel.changeValText(runTimeIndex, TimeString.timeInMillisAsFormattedString(jComputeInfo.getRuntime(), TimeStringFormat.DHMS));
 				}
 			}, 0, 1000);
 		}

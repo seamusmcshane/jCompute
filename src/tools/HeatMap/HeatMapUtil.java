@@ -5,6 +5,8 @@ import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Gui.Component.Swing.MessageBox;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
+import jCompute.util.TimeString;
+import jCompute.util.TimeString.TimeStringFormat;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -49,6 +51,7 @@ public class HeatMapUtil implements WindowListener
 	
 	public HeatMapUtil()
 	{
+		
 		log = LogManager.getLogger(HeatMapUtil.class);
 		
 		LookAndFeel.setLookandFeel("default");
@@ -183,7 +186,7 @@ public class HeatMapUtil implements WindowListener
 			
 			timeTaken += hm.getTimeTaken();
 			
-			log.info("Total Time : " + Text.longTimeToDHMSM(timeTaken));
+			log.info("Total Time : " + TimeString.timeInMillisAsFormattedString(timeTaken, TimeStringFormat.SM));
 			
 			SwingUtilities.invokeLater(new Runnable()
 			{
