@@ -314,8 +314,6 @@ public class ItemLogTextFormat implements ItemLogFormatInf
 			}
 		}
 		
-		log.debug("Coord : " + coord);
-		
 		// Reset the coord counted (per item)
 		coord = 0;
 		logItems.add(item);
