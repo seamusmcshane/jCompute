@@ -3,6 +3,7 @@ package tools.HeatMap;
 import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Gui.Component.Swing.MessageBox;
+import jCompute.logging.Logging;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
 import jCompute.util.TimeString;
@@ -51,6 +52,7 @@ public class HeatMapUtil implements WindowListener
 	
 	public HeatMapUtil()
 	{
+		Logging.initTestLevelLogging();
 		
 		log = LogManager.getLogger(HeatMapUtil.class);
 		
