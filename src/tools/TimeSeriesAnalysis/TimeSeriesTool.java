@@ -46,6 +46,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bytedeco.javacpp.DoublePointer;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.fftw3;
@@ -54,10 +56,15 @@ import org.bytedeco.javacpp.fftw3.fftw_plan;
 import jCompute.Stats.Logs.CSVLogParser;
 import jCompute.Stats.Trace.SingleStat;
 import jCompute.Stats.Trace.StatSample;
+import jCompute.logging.Logging;
+import jCompute.util.LookAndFeel;
 import tools.PhasePlot3d.PhasePlotterUtil;
 
 public class TimeSeriesTool implements ActionListener, MouseListener
 {
+	// Log4j2 Logger
+	private static Logger log;
+	
 	private JFrame gui;
 	private JPanel centerPanel;
 	private JPanel rightPanel;
@@ -113,6 +120,12 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 	public TimeSeriesTool()
 	{
+		Logging.initTestLevelLogging();
+		
+		log = LogManager.getLogger(TimeSeriesTool.class);
+		
+		LookAndFeel.setLookandFeel("default");
+		
 		// Frame
 		gui = new JFrame();
 		gui.getContentPane().setLayout(new BorderLayout());
@@ -540,7 +553,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 		int timeAxis = (int) (overSampleFreq * seconds);
 
-		System.out.println(timeAxis);
+		log.info(timeAxis);
 
 		double time = 0;
 
@@ -564,7 +577,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		names = new String[1];
 		histories = new StatSample[1][];
 
-		System.out.println("Got Arrays");
+		log.info("Got Arrays");
 
 		for(int st = 0; st < 1; st++)
 		{
@@ -630,6 +643,8 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			centerPanel.add(scrollPane, gbc_panel_1);
+			
+			scrollPane.getVerticalScrollBar().setUnitIncrement(25);
 		}
 
 		int height = (int) (centerPanel.getHeight() * 0.9);
@@ -676,7 +691,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		{
 			final JFileChooser filechooser = new JFileChooser(new File("./stats"));
 
-			System.out.println("Open Dialog");
+			log.info("Open Dialog");
 
 			int val = filechooser.showOpenDialog(filechooser);
 
@@ -685,7 +700,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 				// OPEN FILE
 				tIsSeconds = false;
 
-				System.out.println("New File Choosen");
+				log.info("New File Choosen");
 
 				// Clear the list items
 				historyListModel.clear();
@@ -696,7 +711,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 				gui.setTitle(file);
 
-				System.out.println(file);
+				log.info(file);
 
 				try
 				{
@@ -708,7 +723,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 					names = new String[stats.size()];
 					histories = new StatSample[stats.size()][];
 
-					System.out.println("Got Arrays");
+					log.info("Got Arrays");
 
 					for(int st = 0; st < stats.size(); st++)
 					{
@@ -729,7 +744,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 				}
 				catch(IOException e1)
 				{
-					System.out.println("Error opening file");
+					log.info("Error opening file");
 
 					e1.printStackTrace();
 				}
@@ -765,7 +780,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 			if((indicies.length == 3) | (histories.length >= 3))
 			{
-				System.out.println("Drawing");
+				log.info("Drawing");
 
 				int statsLenght = 3;
 				int samples = histories[0].length;
@@ -796,7 +811,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 						}
 						catch(NumberFormatException exception)
 						{
-							System.out.println("Radius not Valid");
+							log.info("Radius not Valid");
 						}
 
 						float radius = nVal;
@@ -1068,8 +1083,8 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 		// double[] han = hanningWindow(norm);
 
-		System.out.println("timePeriod " + timePeriod);
-		System.out.println("tIsSeconds " + tIsSeconds);
+		log.info("timePeriod " + timePeriod);
+		log.info("tIsSeconds " + tIsSeconds);
 
 		double maxValue = Double.MIN_VALUE;
 
@@ -1145,7 +1160,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		// freq.populateFFTShift("Frequency",array3,maxT);
 		// freq.populateFFTShift("Frequency",array3,maxT);
 
-		System.out.println("Adding FFT");
+		log.info("Adding FFT");
 
 		fftListPanel.add(freq);
 
@@ -1325,7 +1340,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 				largeRP.revalidate();
 				// Data GET
 
-				System.out.println("Drawing");
+				log.info("Drawing");
 
 				int statsLenght = 3;
 				int samples = histories[0].length;
@@ -1350,7 +1365,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 				}
 				catch(NumberFormatException exception)
 				{
-					System.out.println("Radius not Valid");
+					log.info("Radius not Valid");
 				}
 
 				float radius = nVal;

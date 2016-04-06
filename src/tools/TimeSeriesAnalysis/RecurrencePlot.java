@@ -9,8 +9,13 @@ import java.util.stream.IntStream;
 
 import javax.swing.JPanel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class RecurrencePlot extends JPanel
 {
+	private static Logger log = LogManager.getLogger(RecurrencePlot.class);
+	
 	private static final long serialVersionUID = 1165414116871596076L;
 
 	// Axis Indexes
@@ -56,7 +61,7 @@ public class RecurrencePlot extends JPanel
 			{
 				dataloaded = true;
 				tMax = data[0].length;
-				System.out.println("Data set / tMax " + tMax);
+				log.info("Data set / tMax " + tMax);
 			}
 		}
 	}
@@ -122,13 +127,13 @@ public class RecurrencePlot extends JPanel
 
 		double scale = tMax / (double) bitmapSize;
 
-		System.out.println("tMax " + tMax);
-		System.out.println("bitmapSize " + bitmapSize);
-		System.out.println("scale " + scale);
+		log.info("tMax " + tMax);
+		log.info("bitmapSize " + bitmapSize);
+		log.info("scale " + scale);
 
-		System.out.println("tMaxArea " + tMax * tMax);
-		System.out.println("bitmapArea " + bitmapSize * bitmapSize);
-		System.out.println("SizeOffset " + (tMax * tMax) / (bitmapSize * bitmapSize));
+		log.info("tMaxArea " + tMax * tMax);
+		log.info("bitmapArea " + bitmapSize * bitmapSize);
+		log.info("SizeOffset " + (tMax * tMax) / (bitmapSize * bitmapSize));
 
 		greenBitmap = new float[bitmapSize * bitmapSize];
 		blueBitmap = new float[bitmapSize * bitmapSize];
@@ -171,7 +176,7 @@ public class RecurrencePlot extends JPanel
 			}
 		}
 
-		System.out.println("Created Recurrence");
+		log.info("Created Recurrence");
 	}
 
 	@Override
@@ -186,13 +191,13 @@ public class RecurrencePlot extends JPanel
 				float scale = (float) maxOutputSize / (float) bitmapSize;
 				image = scaleAndFlip(getPlotImage(bitmapSize), BufferedImage.TYPE_INT_RGB, scale);
 
-				System.out.println("Scale Image " + scale);
+				log.info("Scale Image " + scale);
 
 			}
 
 			g.drawImage(image, 0, 0, null);
 
-			System.out.println("Drew Image");
+			log.info("Drew Image");
 		}
 
 	}
@@ -231,9 +236,9 @@ public class RecurrencePlot extends JPanel
 		float gcscale = 1f / grMax;
 		float bcscale = 1f / brMax;
 
-		System.out.println("Color Scale " + rcscale);
-		System.out.println("Color Scale " + gcscale);
-		System.out.println("Color Scale " + bcscale);
+		log.info("Color Scale " + rcscale);
+		log.info("Color Scale " + gcscale);
+		log.info("Color Scale " + bcscale);
 
 		final int WHITE = 0xFFFFFFFF;
 		final int BLACK = 0xFF000000;
@@ -247,7 +252,7 @@ public class RecurrencePlot extends JPanel
 					float val = redBitmap[x + (y * bitmapSize)];
 
 					val = 1f - (val * rcscale);
-					// System.out.println("RVal " + val);
+					// log.info("RVal " + val);
 
 					pixelData[x + (y * bitmapSize)] = (255 << 24) | (((int) (val * 255)) << 16);
 				}
@@ -256,7 +261,7 @@ public class RecurrencePlot extends JPanel
 					float val = greenBitmap[x + (y * bitmapSize)];
 
 					val = 1f - (val * gcscale);
-					// System.out.println("RVal " + val);
+					// log.info("RVal " + val);
 
 					pixelData[x + (y * bitmapSize)] = (255 << 24) | (((int) (val * 255)) << 8);
 				}
@@ -265,7 +270,7 @@ public class RecurrencePlot extends JPanel
 					float val = blueBitmap[x + (y * bitmapSize)];
 
 					val = 1f - (val * bcscale);
-					// System.out.println("RVal " + val);
+					// log.info("RVal " + val);
 
 					pixelData[x + (y * bitmapSize)] = (255 << 24) | (((int) (val * 255)));
 				}
@@ -284,7 +289,7 @@ public class RecurrencePlot extends JPanel
 			}
 		}));
 
-		System.out.println("Created Image");
+		log.info("Created Image");
 
 		return image;
 	}
