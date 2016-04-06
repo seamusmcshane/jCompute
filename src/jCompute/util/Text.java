@@ -6,118 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Arrays;
 
 public class Text
 {
 	/**
-	 * Converts the longtime to D/H/M/Sec milliseconds
-	 * @param time
-	 */
-	public static String longTimeToDHMS(long milliseconds)
-	{
-		milliseconds = milliseconds / 1000; // seconds
-		int days = (int) (milliseconds / 86400); // to days
-		int hrs = (int) (milliseconds / 3600) % 24; // to hrs
-		int mins = (int) ((milliseconds / 60) % 60);	// to seconds
-		int sec = (int) (milliseconds % 60);
-		
-		return String.format("%d:%02d:%02d:%02d", days, hrs, mins, sec);
-	}
-	
-	/**
-	 * Converts a string in D:H:M:Sec to a long in Second
-	 * @param time
-	 */
-	public static long stringTimeDHMStoLongMilli(String time)
-	{
-		long longTime = 0;
-		
-		// String offsets
-		int endIndex = time.indexOf(':');
-		int startIndex = 0;
-		
-		int day_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (86400);
-		
-		startIndex = endIndex + 1;
-		endIndex = time.indexOf(':', startIndex);
-		int hour_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (3600);
-		
-		startIndex = endIndex + 1;
-		endIndex = time.indexOf(':', startIndex);
-		int min_seconds = (Integer.parseInt(time.substring(startIndex, endIndex))) * (60);
-		
-		startIndex = endIndex + 1;
-		endIndex = time.length();
-		int seconds = Integer.parseInt(time.substring(startIndex, endIndex));
-		
-		// Seconds to millsecond
-		longTime = (day_seconds + hour_seconds + min_seconds + seconds) * 1000;
-		
-		return longTime;
-	}
-	
-	/**
-	 * Converts the longtime to D/H/M/Sec/Mili
-	 * @param time
-	 */
-	public static String longTimeToDHMSM(long milliseconds)
-	{
-		int msec = (int) (milliseconds % 1000); // miliseconds
-		milliseconds = milliseconds / 1000; // seconds
-		int days = (int) (milliseconds / 86400); // to days
-		int hrs = (int) (milliseconds / 3600) % 24; // to hrs
-		int mins = (int) ((milliseconds / 60) % 60);	// to seconds
-		int sec = (int) (milliseconds % 60);
-		
-		return String.format("%d:%02d:%02d:%02d:%03d", days, hrs, mins, sec, msec);
-	}
-	
-	public static String timeNowPlus(long milliseconds)
-	{
-		String stime = new DecimalFormatSymbols().getInfinity();
-		if(milliseconds > 0)
-		{
-			int seconds = (int) (milliseconds / 1000);
-			Calendar time = Calendar.getInstance();
-			
-			time.add(Calendar.SECOND, seconds);
-			stime = time.getTime().toString();
-		}
-		
-		return stime;
-	}
-	
-	public static String longTimeToDateString(long milliseconds)
-	{
-		Calendar time = Calendar.getInstance();
-		
-		time.setTimeInMillis(milliseconds);
-		
-		return time.getTime().toString();
-	}
-	
-	public static String longTimeToDateSafeString(long milliseconds)
-	{
-		Calendar calendar = Calendar.getInstance();
-		
-		calendar.setTimeInMillis(milliseconds);
-		
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-		String time = new SimpleDateFormat("HHmm").format(calendar.getTime());
-		
-		return FileUtil.stringAsValidFileName(date + "_" + time);
-	}
-	
-	public static String timeNow()
-	{
-		return Calendar.getInstance().getTime().toString();
-	}
-	
-	/**
 	 * Reads in a text file and converts it to a string.
+	 *
 	 * @param fileName
 	 * @return
 	 * @throws IOException
@@ -183,5 +78,28 @@ public class Text
 		}
 		
 		return sb.toString();
+	}
+	
+	public static String SpacePaddedString(String text, int maxSize)
+	{
+		return String.format("%" + maxSize + "s", text);
+	}
+	
+	public static String CharRepeatBounded(char c, int repeat)
+	{
+		// Catch negatives and roll overs
+		int chars = JCMath.absModBase2(repeat, 256);
+		
+		// Don't repeat ok..
+		if(chars == 0)
+		{
+			return "";
+		}
+		
+		char[] text = new char[chars];
+		
+		Arrays.fill(text, c);
+		
+		return new String(text);
 	}
 }
