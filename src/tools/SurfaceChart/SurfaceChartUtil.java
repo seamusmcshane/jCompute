@@ -3,6 +3,7 @@ package tools.SurfaceChart;
 import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Gui.Component.Swing.MessageBox;
+import jCompute.logging.Logging;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;
@@ -20,6 +21,8 @@ import javax.swing.SwingUtilities;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
 import javax.swing.JMenuBar;
@@ -34,6 +37,9 @@ import java.io.IOException;
 
 public class SurfaceChartUtil implements WindowListener, ActionListener
 {
+	// Log4j2 Logger
+	private static Logger log;
+	
 	private static String openCD = "./stats";
 	
 	private static JFrame gui;
@@ -48,6 +54,10 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 	
 	public SurfaceChartUtil()
 	{
+		Logging.initTestLevelLogging();
+		
+		log = LogManager.getLogger(SurfaceChartUtil.class);
+		
 		LookAndFeel.setLookandFeel("default");
 		
 		gui = new JFrame();
@@ -182,13 +192,13 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 		{
 			final JFileChooser filechooser = new JFileChooser(new File(openCD));
 			
-			System.out.println("Open Dialog");
+			log.info("Open Dialog");
 			
 			int val = filechooser.showOpenDialog(filechooser);
 			
 			if(val == JFileChooser.APPROVE_OPTION)
 			{
-				System.out.println("New File Choosen");
+				log.info("New File Choosen");
 				
 				String file = filechooser.getSelectedFile().getAbsolutePath();
 				
@@ -196,11 +206,11 @@ public class SurfaceChartUtil implements WindowListener, ActionListener
 				
 				gui.setTitle(filechooser.getSelectedFile().getName());
 				
-				System.out.println(file);
+				log.info(file);
 				
-				System.out.println("Creating Mapper");
+				log.info("Creating Mapper");
 				String ext = FileUtil.getFileNameExtension(file);
-				System.out.println(ext);
+				log.info(ext);
 				
 				InfoLogProcessor ilp = null;
 				try
