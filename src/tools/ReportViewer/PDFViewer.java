@@ -28,6 +28,7 @@ import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
 import jCompute.Gui.Component.Swing.MessageBox;
+import jCompute.util.LookAndFeel;
 
 public class PDFViewer extends JFrame
 {
@@ -44,6 +45,8 @@ public class PDFViewer extends JFrame
 	
 	public static void main(String args[]) throws IOException
 	{
+		LookAndFeel.setLookandFeel("default");
+		
 		pdfViewer = new PDFViewer();
 	}
 	
