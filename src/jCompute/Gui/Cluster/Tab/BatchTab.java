@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Timer;
@@ -24,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker.StateValue;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +36,7 @@ import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
+import jCompute.IconManager.IconIndex;
 import jCompute.JComputeEventBus;
 import jCompute.Batch.Batch;
 import jCompute.Cluster.BatchManager.BatchManager;
@@ -47,16 +51,17 @@ import jCompute.Gui.Component.TableCell.BooleanIconRenderer;
 import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
 import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
 import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
-import jCompute.Gui.Component.swing.jpanel.JComputeProgressMonitor;
+import jCompute.Gui.Component.swing.MessageBox;
+import jCompute.Gui.Component.swing.jpanel.GlobalProgressMonitor;
 import jCompute.Gui.Component.swing.jpanel.TablePanel;
 import jCompute.Gui.Component.swing.jpanel.XMLPreviewPanel;
-import jCompute.Gui.Component.swing.swingworker.OpenBatchFileTask;
-import jCompute.IconManager.IconIndex;
+import jCompute.Gui.Component.swing.swingworker.LoadableTask;
+import jCompute.Gui.Component.swing.swingworker.Loadable;
 import jCompute.util.FileUtil;
 import jCompute.util.TimeString;
 import jCompute.util.TimeString.TimeStringFormat;
 
-public class BatchTab extends JPanel
+public class BatchTab extends JPanel implements Loadable, PropertyChangeListener
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(BatchTab.class);
@@ -83,8 +88,6 @@ public class BatchTab extends JPanel
 	private JToolBar toolBar;
 	// Batch Add
 	private JButton btnAdd;
-	private JComputeProgressMonitor openBatchProgressMonitor;
-	private OpenBatchFileTask openBatchProgressMonitorTask;
 	private JButton btnRemove;
 	private JButton btnStart;
 	private JButton btnStop;
@@ -109,7 +112,12 @@ public class BatchTab extends JPanel
 	
 	private BatchManager batchManager;
 	
-	private Timer timer;
+	private Timer batchInfoUpdateTimer;
+	
+	// Loadable
+	private int[] indexes;
+	private String[] filePaths;
+	private Loadable requester;
 	
 	public BatchTab(int rightPanelsMinWidth, boolean buttonText)
 	{
@@ -142,8 +150,8 @@ public class BatchTab extends JPanel
 		// Register on the event bus
 		JComputeEventBus.register(this);
 		
-		timer = new Timer("Batch Info Timer");
-		timer.scheduleAtFixedRate(new TimerTask()
+		batchInfoUpdateTimer = new Timer("Batch Info Timer");
+		batchInfoUpdateTimer.scheduleAtFixedRate(new TimerTask()
 		{
 			@Override
 			public void run()
@@ -180,7 +188,6 @@ public class BatchTab extends JPanel
 			}
 		});
 		
-		openBatchProgressMonitor = new JComputeProgressMonitor(self, "Loading BatchFiles", 0, 100);
 		btnAdd = new JButton();
 		btnAdd.addActionListener(new ActionListener()
 		{
@@ -208,14 +215,43 @@ public class BatchTab extends JPanel
 				{
 					log.info("New Batch Choosen");
 					
+					// Get list of files choosen
 					File[] selectedFiles = filechooser.getSelectedFiles();
 					
 					// Sort Files Alpha Numerically by FileName
 					Arrays.sort(selectedFiles, new AlphanumFileNameComparator());
 					
-					openBatchProgressMonitorTask = new OpenBatchFileTask(self, openBatchProgressMonitor, batchManager, selectedFiles);
+					// The total
+					int numBatchesToLoad = selectedFiles.length;
 					
-					openBatchProgressMonitorTask.start();
+					/*
+					 * Loadable setup section
+					 */
+					
+					// Names and Index order
+					filePaths = new String[numBatchesToLoad];
+					indexes = new int[numBatchesToLoad];
+					
+					// Populate data structures for Loadable
+					for(int f = 0; f < numBatchesToLoad; f++)
+					{
+						// Add the path to the list
+						filePaths[f] = selectedFiles[f].getAbsolutePath();
+						
+						// Set the index order (as is)
+						indexes[f] = f;
+					}
+					
+					// BatchTab is the "Loadable" here to avoid swing worker(GUI) related code in the batch manager.
+					LoadableTask task = new LoadableTask(self);
+					
+					// Send progress to the GlobalProgressMonitor
+					task.addPropertyChangeListener(GlobalProgressMonitor.getInstance());
+					
+					// BatchTab needs to know if batches failed to be added
+					task.addPropertyChangeListener(self);
+					
+					task.execute();
 				}
 			}
 		});
@@ -855,5 +891,63 @@ public class BatchTab extends JPanel
 	public void setBatchManager(BatchManager batchManager)
 	{
 		this.batchManager = batchManager;
+	}
+	
+	@Override
+	public boolean load(int index)
+	{
+		if(requester != null)
+		{
+			MessageBox.popup("Cannot add batches at this at this time", self);
+			
+			return false;
+		}
+		
+		return batchManager.addBatch(filePaths[index]);
+	}
+	
+	@Override
+	public int[] getIndexes()
+	{
+		return indexes;
+	}
+	
+	@Override
+	public boolean makeDelegate(Loadable requester)
+	{
+		if(this.requester != null || requester == null)
+		{
+			return false;
+		}
+		
+		this.requester = requester;
+		
+		return true;
+	}
+	
+	@Override
+	public boolean delegateLoad(Loadable requester, String info)
+	{
+		if(this.requester == requester)
+		{
+			return batchManager.addBatch(info);
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public void releaseDelegate(Loadable requester)
+	{
+		if(this.requester == requester)
+		{
+			this.requester = null;
+		}
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+		Common.handlePropertyChangeEvent(self, e, indexes, filePaths);
 	}
 }
