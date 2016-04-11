@@ -1,8 +1,8 @@
 package jCompute.Cluster.Controller.Mapping;
 
-import jCompute.Batch.BatchItem;
 import jCompute.Cluster.Protocol.Notification.SimulationStateChanged;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.batch.BatchItem;
 
 public class RemoteSimulationMapping
 {

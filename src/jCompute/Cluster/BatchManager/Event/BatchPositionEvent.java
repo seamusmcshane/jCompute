@@ -1,6 +1,6 @@
 package jCompute.Cluster.BatchManager.Event;
 
-import jCompute.Batch.Batch;
+import jCompute.batch.Batch;
 
 public class BatchPositionEvent
 {

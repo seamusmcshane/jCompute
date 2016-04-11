@@ -1,4 +1,4 @@
-package jCompute.Batch.LogFileProcessor;
+package jCompute.batch.logfileprocessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,14 +7,14 @@ import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogFormatInf;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogFormatValuesContainer;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogItem;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextFormat;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextv2Format;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogXMLFormat;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
 import jCompute.Timing.TimerObj;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogFormatInf;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogFormatValuesContainer;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogItem;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogTextFormat;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogTextv2Format;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogXMLFormat;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
 import jCompute.util.FileUtil;
 import jCompute.util.TimeString;
 import jCompute.util.TimeString.TimeStringFormat;

@@ -1,4 +1,4 @@
-package jCompute.Batch;
+package jCompute.batch;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,15 +17,15 @@ import java.util.zip.ZipOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Batch.ItemGenerator.ItemGenerator;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.ItemLogTextv2Format;
-import jCompute.Batch.Logger.InfoLogger;
 import jCompute.Scenario.ConfigurationInterpreter;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioPluginManager;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
 import jCompute.Timing.TimerObj;
+import jCompute.batch.itemgenerator.ItemGenerator;
+import jCompute.batch.logfileprocessor.logformatprocessor.ItemLogTextv2Format;
+import jCompute.batch.logger.InfoLogger;
 import jCompute.datastruct.cache.DiskCache;
 import jCompute.datastruct.list.StoredQueuePosition;
 import jCompute.util.FileUtil;

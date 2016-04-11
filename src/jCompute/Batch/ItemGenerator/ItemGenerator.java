@@ -1,4 +1,4 @@
-package jCompute.Batch.ItemGenerator;
+package jCompute.batch.itemgenerator;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

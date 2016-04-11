@@ -1,6 +1,6 @@
 package jCompute.Cluster.Controller.ControlNode.Request;
 
-import jCompute.Batch.BatchItem;
+import jCompute.batch.BatchItem;
 
 public class ControlNodeItemRequest
 {

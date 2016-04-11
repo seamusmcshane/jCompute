@@ -1,4 +1,4 @@
-package jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface;
+package jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface;
 
 public interface SurfaceMetricInf
 {

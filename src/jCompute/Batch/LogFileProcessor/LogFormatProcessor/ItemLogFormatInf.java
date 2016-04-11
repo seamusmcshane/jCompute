@@ -1,4 +1,4 @@
-package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
+package jCompute.batch.logfileprocessor.logformatprocessor;
 
 import java.util.ArrayList;
 

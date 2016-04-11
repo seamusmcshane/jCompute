@@ -37,6 +37,7 @@ import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
 import jCompute.IconManager.IconIndex;
+import jCompute.batch.Batch;
 import jCompute.gui.cluster.tablerowitems.BatchCompletedRowItem;
 import jCompute.gui.cluster.tablerowitems.BatchQueueRowItem;
 import jCompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
@@ -51,7 +52,6 @@ import jCompute.gui.component.tablecell.EmptyCellColorRenderer;
 import jCompute.gui.component.tablecell.HeaderRowRenderer;
 import jCompute.gui.component.tablecell.ProgressBarTableCellRenderer;
 import jCompute.JComputeEventBus;
-import jCompute.Batch.Batch;
 import jCompute.Cluster.BatchManager.BatchManager;
 import jCompute.Cluster.BatchManager.Event.BatchAddedEvent;
 import jCompute.Cluster.BatchManager.Event.BatchFinishedEvent;

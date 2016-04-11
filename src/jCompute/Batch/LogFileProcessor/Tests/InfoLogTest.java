@@ -1,8 +1,8 @@
-package jCompute.Batch.LogFileProcessor.Tests;
+package jCompute.batch.logfileprocessor.tests;
 
 import java.io.IOException;
 
-import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
+import jCompute.batch.logfileprocessor.InfoLogProcessor;
 
 public class InfoLogTest
 {

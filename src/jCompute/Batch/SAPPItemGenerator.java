@@ -1,4 +1,4 @@
-package jCompute.Batch;
+package jCompute.batch;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -16,8 +16,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Batch.ItemGenerator.ItemGenerator;
 import jCompute.Scenario.ConfigurationInterpreter;
+import jCompute.batch.itemgenerator.ItemGenerator;
 import jCompute.datastruct.cache.DiskCache;
 import jCompute.util.FileUtil;
 import jCompute.util.JCMath;

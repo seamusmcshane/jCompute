@@ -1,4 +1,4 @@
-package jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Values;
+package jCompute.batch.logfileprocessor.logformatprocessor.metrics.values;
 
 public interface ValueMetricInf
 {

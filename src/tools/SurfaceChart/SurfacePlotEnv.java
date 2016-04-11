@@ -1,8 +1,8 @@
 package tools.SurfaceChart;
 
 import tools.SurfaceChart.Surface.BarSurface;
-import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
+import jCompute.batch.logfileprocessor.ItemLogProcessor;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
 import jCompute.gui.view.input.OrbitalCameraInputController;
 import jCompute.gui.view.misc.Palette;
 

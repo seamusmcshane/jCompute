@@ -1,4 +1,4 @@
-package jCompute.Batch.Logger;
+package jCompute.batch.logger;
 
 public class TextBatchLogFormatV2
 {

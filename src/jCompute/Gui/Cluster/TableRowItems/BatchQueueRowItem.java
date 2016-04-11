@@ -1,6 +1,6 @@
 package jCompute.gui.cluster.tablerowitems;
 
-import jCompute.Batch.Batch;
+import jCompute.batch.Batch;
 import jCompute.gui.component.RowItem;
 import jCompute.util.TimeString;
 

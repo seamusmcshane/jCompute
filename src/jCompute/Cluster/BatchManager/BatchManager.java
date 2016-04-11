@@ -15,8 +15,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.eventbus.Subscribe;
 
 import jCompute.JComputeEventBus;
-import jCompute.Batch.Batch;
-import jCompute.Batch.BatchItem;
 import jCompute.Cluster.BatchManager.Event.BatchAddedEvent;
 import jCompute.Cluster.BatchManager.Event.BatchFinishedEvent;
 import jCompute.Cluster.BatchManager.Event.BatchPositionEvent;
@@ -29,6 +27,8 @@ import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.Co
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Stats.StatExporter;
+import jCompute.batch.Batch;
+import jCompute.batch.BatchItem;
 import jCompute.datastruct.list.ManagedBypassableQueue;
 import jCompute.datastruct.list.StoredQueuePosition;
 

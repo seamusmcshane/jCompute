@@ -1,7 +1,7 @@
 package jCompute.Cluster.BatchManager;
 
-import jCompute.Batch.BatchItem;
 import jCompute.Stats.StatExporter;
+import jCompute.batch.BatchItem;
 
 public class CompletedItemsNode
 {

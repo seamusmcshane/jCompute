@@ -1,4 +1,4 @@
-package jCompute.Batch.LogFileProcessor.LogFormatProcessor;
+package jCompute.batch.logfileprocessor.logformatprocessor;
 
 import java.io.IOException;
 import java.util.stream.IntStream;
@@ -6,12 +6,12 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.Average;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.Max;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.StandardDeviation;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
-import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Values.SumTotal;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.Average;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.Max;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.StandardDeviation;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
+import jCompute.batch.logfileprocessor.logformatprocessor.metrics.values.SumTotal;
 
 public class ItemLogFormatValuesContainer
 {

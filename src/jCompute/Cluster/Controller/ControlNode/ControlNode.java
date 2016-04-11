@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.eventbus.Subscribe;
 
 import jCompute.JComputeEventBus;
-import jCompute.Batch.BatchItem;
 import jCompute.Cluster.Controller.ControlNode.Event.ControlNodeItemStateEvent;
 import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent;
 import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent.NodeEventType;
@@ -38,6 +37,7 @@ import jCompute.Cluster.Protocol.NCP;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.batch.BatchItem;
 
 public class ControlNode
 {
