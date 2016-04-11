@@ -63,7 +63,7 @@ public class LogTab extends JPanel implements TailerListener
 		
 		Color[] levelColors = new Color[]
 		{
-			Color.GREEN, Color.ORANGE, Color.RED
+			Color.BLUE, Color.ORANGE, Color.RED, Color.GREEN.darker()
 		};
 		
 		levelNames = new String[]
