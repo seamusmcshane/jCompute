@@ -105,7 +105,7 @@ public class ComputeNodeManager
 	private long requestNum = 0;
 	
 	// Benchmark Configuration
-	private final int BENCHMARK = 0;
+	private final int BENCHMARK = 1;
 	private final int NUM_OBJECTS = 1024;
 	private final int ITERATIONS = 10000;
 	private final int WARM_UP_ITERATIONS = 10000;
