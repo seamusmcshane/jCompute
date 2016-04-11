@@ -203,11 +203,11 @@ public class ClusterTab extends JPanel
 		clusterNodeStatsPending.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeStatsPending.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeUtilChar = new GlobalStatChartPanel("ComputeNode CPU Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeUtilChar = new GlobalStatChartPanel("CPU Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeUtilChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("ComputeNode JVM Mem Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("JVM Mem Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
@@ -320,7 +320,7 @@ public class ClusterTab extends JPanel
 				NodeEventType eventType = e.getEventType();
 				
 				int nid = e.getNodeConfiguration().getUid();
-				String nodeId = "ComputeNode " + e.getNodeConfiguration().getUid();
+				String nodeId = Integer.toString(e.getNodeConfiguration().getUid());
 				
 				switch(eventType)
 				{
@@ -411,7 +411,7 @@ public class ClusterTab extends JPanel
 			@Override
 			public void run()
 			{
-				String nodeId = "ComputeNode " + e.getNodeId();
+				String nodeId = Integer.toString(e.getNodeId());
 				
 				clusterSimProChart.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsProcessed());
 				clusterNodeActiveSims.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsActive());
