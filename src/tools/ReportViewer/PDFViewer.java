@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -25,32 +27,48 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.SwingWorker.StateValue;
 
-import jCompute.Gui.Component.Swing.MessageBox;
+import jCompute.Gui.Component.swing.MessageBox;
+import jCompute.Gui.Component.swing.jpanel.JComputeProgressMonitor;
+import jCompute.Gui.Component.swing.swingworker.LoadableTask;
 import jCompute.util.LookAndFeel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
-public class PDFViewer extends JFrame
+public class PDFViewer extends JFrame implements PropertyChangeListener
 {
 	private static final long serialVersionUID = 1320429389739545477L;
 	
-	private static JFrame pdfViewer;
-	
-	private static String openCD = ".";
-	
+	private String openCD = ".";
+	private PDFViewer pdfViewer;
 	private ImageViewerPanel viewerPanel;
 	private PDFPageRenderer ren;
+	private JComputeProgressMonitor pm;
 	
+	private JScrollPane scrollpane;
+	private JPanel pageListPanel;
 	private final float SCALE_REF = 1f;
 	
-	public static void main(String args[]) throws IOException
+	public static void main(String args[])
 	{
-		LookAndFeel.setLookandFeel("default");
-		
-		pdfViewer = new PDFViewer();
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@SuppressWarnings("unused")
+			@Override
+			public void run()
+			{
+				LookAndFeel.setLookandFeel("default");
+				
+				new PDFViewer();
+			}
+		});
 	}
 	
-	public PDFViewer() throws IOException
+	public PDFViewer()
 	{
 		pdfViewer = this;
 		setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
@@ -213,8 +231,15 @@ public class PDFViewer extends JFrame
 		viewerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "NextPage");
 		viewerPanel.getActionMap().put("NextPage", new PageAction(PageAction.NEXT_PAGE));
 		
+		pm = new JComputeProgressMonitor(0, 100);
+		
+		getContentPane().add(pm, BorderLayout.SOUTH);
+		
 		pdfViewer.pack();
 		pdfViewer.setVisible(true);
+		
+		// Hide the progress monitor
+		pm.setVisible(false);
 		
 		requestPDFFile();
 	}
@@ -300,6 +325,8 @@ public class PDFViewer extends JFrame
 			String fullPath = filechooser.getSelectedFile().getPath();
 			System.out.println("Path : " + fullPath);
 			
+			openCD = fullPath;
+			
 			try
 			{
 				if(ren != null)
@@ -309,18 +336,9 @@ public class PDFViewer extends JFrame
 				
 				ren = new PDFPageRenderer(fullPath);
 				
-				try
-				{
-					drawImage(ren.getPageImage(0, 0));
-					
-					openCD = fullPath;
-				}
-				catch(IOException e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				ren.load(0);
 				
+				drawImage(ren.getPageImage(0, 0));
 			}
 			catch(IOException e)
 			{
@@ -328,7 +346,20 @@ public class PDFViewer extends JFrame
 				e.printStackTrace();
 			}
 			
-			System.out.println("Report Finished");
+			if(ren != null)
+			{
+				System.out.println("BackgroundLoadingTask start");
+				
+				LoadableTask task = new LoadableTask(ren);
+				
+				// JComputeProgressMonitor uses progress
+				task.addPropertyChangeListener(pm);
+				
+				// PDFViewer needs state
+				task.addPropertyChangeListener(pdfViewer);
+				
+				task.execute();
+			}
 		}
 		else
 		{
@@ -366,5 +397,123 @@ public class PDFViewer extends JFrame
 			}
 		});
 		
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e)
+	{
+		// Check for the BackgroundLoadableTasks
+		if(e.getSource() instanceof LoadableTask)
+		{
+			// Hide the JComputeProgressMonitor when loaded or show it when loading.
+			if("state".equals(e.getPropertyName()))
+			{
+				// Use the properties state.
+				StateValue state = (StateValue) e.getNewValue();
+				
+				if(state == StateValue.DONE)
+				{
+					pm.setVisible(false);
+					
+					doThumbs();
+				}
+				else
+				{
+					pm.reset();
+					pm.setVisible(true);
+				}
+			}
+			else if("progress".equals(e.getPropertyName()))
+			{
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						doThumbs();
+					}
+				});
+			}
+		}
+	}
+	
+	public void doThumbs()
+	{
+		if(ren != null)
+		{
+			int pages = ren.loadedPages();
+			int height = 256 * pages;
+			
+			try
+			{
+				int ph = ren.getPageImage(0, 0).getImage(2).getHeight();
+				float aspect = 256 / ph;
+				
+				height = (int) ((ph * aspect) * pages);
+			}
+			catch(IOException e1)
+			{
+				e1.printStackTrace();
+			}
+			
+			if(pageListPanel == null)
+			{
+				pageListPanel = new JPanel(new FlowLayout());
+			}
+			
+			if(scrollpane == null)
+			{
+				scrollpane = new JScrollPane(pageListPanel);
+				
+				scrollpane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				
+				scrollpane.getVerticalScrollBar().setUnitIncrement(100);
+				
+				add(scrollpane, BorderLayout.EAST);
+			}
+			
+			pageListPanel.setPreferredSize(new Dimension(256, height));
+			pageListPanel.setMinimumSize(new Dimension(256, height));
+			
+			pageListPanel.removeAll();
+			
+			for(int t = 0; t < pages; t++)
+			{
+				try
+				{
+					final BufferedImage image = ren.getPageImage(t, 0).getImage(2);
+					
+					final int width = pageListPanel.getWidth() - (scrollpane.getVerticalScrollBar().getWidth() * 2);
+					
+					JPanel thumbPanel = new JPanel()
+					{
+						@Override
+						public void paintComponent(Graphics g)
+						{
+							Graphics2D g2d = (Graphics2D) g;
+							
+							g2d.setColor(Color.GRAY);
+							g2d.fillRect(0, 0, getWidth(), getHeight());
+							
+							g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+							
+							g2d.drawImage(image, 0, 0, width, image.getHeight(), null);
+						}
+					};
+					
+					thumbPanel.setPreferredSize(new Dimension(pageListPanel.getWidth(), image.getHeight()));
+					thumbPanel.setMinimumSize(new Dimension(pageListPanel.getWidth(), image.getHeight()));
+					thumbPanel.setMaximumSize(new Dimension(pageListPanel.getWidth(), image.getHeight()));
+					
+					pageListPanel.add(thumbPanel);
+					
+					pageListPanel.revalidate();
+				}
+				catch(IOException e1)
+				{
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 }
