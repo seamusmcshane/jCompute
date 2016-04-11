@@ -143,6 +143,9 @@ public class BenchmarkTab extends JPanel implements Loadable, PropertyChangeList
 					return;
 				}
 				
+				// Disable close as we will do it automatically
+				close.setEnabled(false);
+				
 				filePaths = new String[benchmarkTotal];
 				indexes = new int[benchmarkTotal];
 				
