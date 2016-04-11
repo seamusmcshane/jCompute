@@ -136,8 +136,6 @@ public class BatchManager
 			batchManagerLock.release();
 			
 			JComputeEventBus.post(new BatchAddedEvent(tempBatch));
-			
-			log.info("Added Batch : " + batchId);
 		}
 		else
 		{
@@ -176,9 +174,7 @@ public class BatchManager
 				
 				batch.returnItemToQueue(item);
 			}
-			
 		}
-		
 	}
 	
 	private void processCompletedItems()
