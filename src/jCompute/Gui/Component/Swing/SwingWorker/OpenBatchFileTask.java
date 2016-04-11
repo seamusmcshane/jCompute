@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.swingworker;
+package jCompute.gui.component.swing.swingworker;
 
 import java.awt.Component;
 import java.io.File;
@@ -9,8 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.Cluster.BatchManager.BatchManager;
-import jCompute.Gui.Component.swing.MessageBox;
-import jCompute.Gui.Component.swing.jpanel.JComputeProgressMonitor;
+import jCompute.gui.component.swing.MessageBox;
+import jCompute.gui.component.swing.jpanel.JComputeProgressMonitor;
 
 public class OpenBatchFileTask extends SwingWorker<Void, Void>
 {

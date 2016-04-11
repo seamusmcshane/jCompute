@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.jpanel;
+package jCompute.gui.component.swing.jpanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,8 +29,8 @@ import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.swing.AdvancedListSelectionModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
-import jCompute.Gui.Component.RowItem;
-import jCompute.Gui.Component.TableCell.ColorConstants;
+import jCompute.gui.component.RowItem;
+import jCompute.gui.component.tablecell.ColorConstants;
 
 public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> extends JPanel
 {

@@ -1,4 +1,4 @@
-package jCompute.Gui.View;
+package jCompute.gui.view;
 
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;

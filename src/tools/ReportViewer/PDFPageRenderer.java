@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
-import jCompute.Gui.Component.swing.swingworker.Loadable;
+import jCompute.gui.component.swing.swingworker.Loadable;
 
 public class PDFPageRenderer implements Loadable
 {

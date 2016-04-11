@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.jdialog;
+package jCompute.gui.component.swing.jdialog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-import jCompute.Gui.Component.swing.MessageBox;
-import jCompute.Gui.Component.swing.jpanel.SimpleGridPanel;
+import jCompute.gui.component.swing.MessageBox;
+import jCompute.gui.component.swing.jpanel.SimpleGridPanel;
 import jCompute.util.JComputeInfo;
 import jCompute.util.JVMInfo;
 import jCompute.util.OSInfo;

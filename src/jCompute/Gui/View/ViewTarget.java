@@ -1,4 +1,4 @@
-package jCompute.Gui.View;
+package jCompute.gui.view;
 
 public interface ViewTarget
 {

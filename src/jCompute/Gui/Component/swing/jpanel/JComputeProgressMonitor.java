@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.jpanel;
+package jCompute.gui.component.swing.jpanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -8,7 +8,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
-import jCompute.Gui.Component.swing.jcomponent.JComputeProgressBar;
+import jCompute.gui.component.swing.jcomponent.JComputeProgressBar;
 
 public class JComputeProgressMonitor extends JPanel implements PropertyChangeListener
 {

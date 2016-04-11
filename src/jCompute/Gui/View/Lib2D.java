@@ -1,4 +1,4 @@
-package jCompute.Gui.View;
+package jCompute.gui.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -12,11 +12,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
-import jCompute.Gui.View.Graphics.A2DCircle;
-import jCompute.Gui.View.Graphics.A2DLine;
-import jCompute.Gui.View.Graphics.A2DRectangle;
-import jCompute.Gui.View.Graphics.A2DVector2f;
-import jCompute.Gui.View.Graphics.A2RGBA;
+import jCompute.gui.view.graphics.A2DCircle;
+import jCompute.gui.view.graphics.A2DLine;
+import jCompute.gui.view.graphics.A2DRectangle;
+import jCompute.gui.view.graphics.A2DVector2f;
+import jCompute.gui.view.graphics.A2RGBA;
 
 public class Lib2D
 {

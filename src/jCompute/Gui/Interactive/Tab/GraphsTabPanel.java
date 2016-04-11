@@ -1,4 +1,4 @@
-package jCompute.Gui.Interactive.Tab;
+package jCompute.gui.interactive.tab;
 
 import java.awt.BorderLayout;
 import java.util.LinkedList;
@@ -10,9 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
-import jCompute.Gui.Component.swing.jpanel.GlobalStatChartPanel;
 import jCompute.IconManager.IconIndex;
 import jCompute.SimulationManager.SimulationsManagerInf;
+import jCompute.gui.component.swing.jpanel.GlobalStatChartPanel;
 
 public class GraphsTabPanel extends JPanel
 {

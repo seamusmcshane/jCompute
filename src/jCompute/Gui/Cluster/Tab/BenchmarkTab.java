@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster.Tab;
+package jCompute.gui.cluster.tab;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -24,11 +24,11 @@ import javax.swing.SwingWorker.StateValue;
 import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.io.Files;
 
-import jCompute.Gui.Component.swing.MessageBox;
-import jCompute.Gui.Component.swing.jpanel.GlobalProgressMonitor;
-import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
-import jCompute.Gui.Component.swing.swingworker.LoadableTask;
-import jCompute.Gui.Component.swing.swingworker.Loadable;
+import jCompute.gui.component.swing.MessageBox;
+import jCompute.gui.component.swing.jpanel.GlobalProgressMonitor;
+import jCompute.gui.component.swing.jpanel.SimpleTabPanel;
+import jCompute.gui.component.swing.swingworker.Loadable;
+import jCompute.gui.component.swing.swingworker.LoadableTask;
 import jCompute.util.FileUtil;
 
 public class BenchmarkTab extends JPanel implements Loadable, PropertyChangeListener

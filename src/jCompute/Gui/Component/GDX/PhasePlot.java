@@ -1,7 +1,7 @@
 /**
  *
  */
-package jCompute.Gui.Component.GDX;
+package jCompute.gui.component.gdx;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,10 +13,10 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 
-import jCompute.Gui.View.Lib3D.AxisGrid;
-import jCompute.Gui.View.Lib3D.BoundaryCube2;
-import jCompute.Gui.View.Lib3D.MeshHelper;
-import jCompute.Gui.View.Lib3D.VertexModel;
+import jCompute.gui.view.lib3d.AxisGrid;
+import jCompute.gui.view.lib3d.BoundaryCube2;
+import jCompute.gui.view.lib3d.MeshHelper;
+import jCompute.gui.view.lib3d.VertexModel;
 
 /**
  * @author Seamus McShane

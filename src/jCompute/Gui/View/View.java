@@ -1,6 +1,4 @@
-package jCompute.Gui.View;
-
-import jCompute.Gui.View.Graphics.A2RGBA;
+package jCompute.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -32,6 +30,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+
+import jCompute.gui.view.graphics.A2RGBA;
 
 public class View implements ApplicationListener, ViewRendererInf
 {

@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.TableCell;
+package jCompute.gui.component.tablecell;
 
 import java.awt.Component;
 

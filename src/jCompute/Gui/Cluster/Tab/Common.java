@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster.Tab;
+package jCompute.gui.cluster.tab;
 
 import java.beans.PropertyChangeEvent;
 
@@ -8,9 +8,9 @@ import javax.swing.SwingWorker.StateValue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Gui.Component.swing.MessageBox;
-import jCompute.Gui.Component.swing.swingworker.LoadableResult;
-import jCompute.Gui.Component.swing.swingworker.LoadableTask;
+import jCompute.gui.component.swing.MessageBox;
+import jCompute.gui.component.swing.swingworker.LoadableResult;
+import jCompute.gui.component.swing.swingworker.LoadableTask;
 
 public class Common
 {

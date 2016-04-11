@@ -1,4 +1,4 @@
-package jCompute.Gui.View.Lib3D;
+package jCompute.gui.view.lib3d;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;

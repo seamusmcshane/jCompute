@@ -1,4 +1,4 @@
-package jCompute.Gui.Interactive;
+package jCompute.gui.interactive;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,12 +21,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
-import jCompute.Gui.Interactive.Tab.GUISimulationTab;
-import jCompute.Gui.Interactive.Tab.SimulationListTabPanel;
 import jCompute.IconManager.IconIndex;
 import jCompute.SimulationManager.SimulationsManagerInf;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.gui.interactive.tab.GUISimulationTab;
+import jCompute.gui.interactive.tab.SimulationListTabPanel;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
 {

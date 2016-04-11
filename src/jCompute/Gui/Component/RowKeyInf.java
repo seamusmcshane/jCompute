@@ -1,4 +1,4 @@
-package jCompute.Gui.Component;
+package jCompute.gui.component;
 
 public interface RowKeyInf<IndexType>
 {

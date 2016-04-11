@@ -1,8 +1,5 @@
 package tools.PhasePlot3d;
 
-import jCompute.Gui.Component.GDX.PhasePlot;
-import jCompute.Gui.View.Input.OrbitalCameraInputController;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 
@@ -18,6 +15,9 @@ import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+
+import jCompute.gui.component.gdx.PhasePlot;
+import jCompute.gui.view.input.OrbitalCameraInputController;
 
 public class PhasePlotGDXContainer implements ApplicationListener
 {

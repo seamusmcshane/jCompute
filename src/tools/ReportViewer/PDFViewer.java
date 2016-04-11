@@ -38,9 +38,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.SwingWorker.StateValue;
 
-import jCompute.Gui.Component.swing.MessageBox;
-import jCompute.Gui.Component.swing.jpanel.JComputeProgressMonitor;
-import jCompute.Gui.Component.swing.swingworker.LoadableTask;
+import jCompute.gui.component.swing.MessageBox;
+import jCompute.gui.component.swing.jpanel.JComputeProgressMonitor;
+import jCompute.gui.component.swing.swingworker.LoadableTask;
 import jCompute.util.LookAndFeel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;

@@ -1,10 +1,10 @@
-package jCompute.Gui.Component.TableCell;
+package jCompute.gui.component.tablecell;
 
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import jCompute.Gui.Component.swing.jcomponent.JComputeProgressBar;
+import jCompute.gui.component.swing.jcomponent.JComputeProgressBar;
 
 public class ProgressBarTableCellRenderer implements TableCellRenderer
 {

@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.jcomponent;
+package jCompute.gui.component.swing.jcomponent;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +10,7 @@ import java.text.DecimalFormatSymbols;
 
 import javax.swing.JComponent;
 
-import jCompute.Gui.Component.TableCell.ColorConstants;
+import jCompute.gui.component.tablecell.ColorConstants;
 
 public class JComputeProgressBar extends JComponent
 {

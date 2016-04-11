@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.swingworker;
+package jCompute.gui.component.swing.swingworker;
 
 /**
  * This interface is used as a generic method of loading with out exposing the actual detail of the loading method<br>

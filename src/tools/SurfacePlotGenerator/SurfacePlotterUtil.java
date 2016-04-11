@@ -55,10 +55,10 @@ import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
 import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
-import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
-import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
-import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
-import jCompute.Gui.Component.swing.jpanel.TablePanel;
+import jCompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
+import jCompute.gui.component.swing.jpanel.TablePanel;
+import jCompute.gui.component.tablecell.EmptyCellColorRenderer;
+import jCompute.gui.component.tablecell.HeaderRowRenderer;
 import jCompute.logging.Logging;
 import jCompute.util.FileUtil;
 import tools.SurfacePlotGenerator.Lib.SurfaceChartHelper;

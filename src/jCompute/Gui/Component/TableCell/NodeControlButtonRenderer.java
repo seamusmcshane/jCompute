@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.TableCell;
+package jCompute.gui.component.tablecell;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -23,9 +23,9 @@ import javax.swing.table.TableColumnModel;
 
 import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
+import jCompute.gui.cluster.tablerowitems.NodeInfoRowItem;
+import jCompute.gui.component.swing.jpanel.TablePanel;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChangeRequest;
-import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
-import jCompute.Gui.Component.swing.jpanel.TablePanel;
 
 public class NodeControlButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor, ActionListener
 {

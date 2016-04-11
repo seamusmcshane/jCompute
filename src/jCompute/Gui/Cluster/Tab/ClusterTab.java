@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster.Tab;
+package jCompute.gui.cluster.tab;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -25,25 +25,25 @@ import jCompute.Cluster.Controller.ControlNode.Event.StatusChanged;
 import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
-import jCompute.Gui.Cluster.TableRowItems.NodeConnectionLogRowItem;
-import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
-import jCompute.Gui.Cluster.TableRowItems.SimpleInfoRowItem;
-import jCompute.Gui.Cluster.TableRowItems.SimulationListRowItem;
-import jCompute.Gui.Component.TableCell.ColorLabelRenderer;
-import jCompute.Gui.Component.TableCell.EmptyCellColorRenderer;
-import jCompute.Gui.Component.TableCell.HeaderRowRenderer;
-import jCompute.Gui.Component.TableCell.NodeControlButtonRenderer;
-import jCompute.Gui.Component.TableCell.ProgressBarTableCellRenderer;
-import jCompute.Gui.Component.swing.jpanel.GlobalStatChartPanel;
-import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
-import jCompute.Gui.Component.swing.jpanel.SimpleTabTabTitle;
-import jCompute.Gui.Component.swing.jpanel.TablePanel;
 import jCompute.IconManager.IconIndex;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
+import jCompute.gui.cluster.tablerowitems.NodeConnectionLogRowItem;
+import jCompute.gui.cluster.tablerowitems.NodeInfoRowItem;
+import jCompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
+import jCompute.gui.cluster.tablerowitems.SimulationListRowItem;
+import jCompute.gui.component.swing.jpanel.GlobalStatChartPanel;
+import jCompute.gui.component.swing.jpanel.SimpleTabPanel;
+import jCompute.gui.component.swing.jpanel.SimpleTabTabTitle;
+import jCompute.gui.component.swing.jpanel.TablePanel;
+import jCompute.gui.component.tablecell.ColorLabelRenderer;
+import jCompute.gui.component.tablecell.EmptyCellColorRenderer;
+import jCompute.gui.component.tablecell.HeaderRowRenderer;
+import jCompute.gui.component.tablecell.NodeControlButtonRenderer;
+import jCompute.gui.component.tablecell.ProgressBarTableCellRenderer;
 
 public class ClusterTab extends JPanel
 {

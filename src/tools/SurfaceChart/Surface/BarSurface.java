@@ -1,11 +1,12 @@
 package tools.SurfaceChart.Surface;
 
-import jCompute.Gui.View.Lib3D.AxisGrid;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
+
+import jCompute.gui.view.lib3d.AxisGrid;
 
 public class BarSurface
 {

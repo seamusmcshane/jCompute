@@ -1,7 +1,6 @@
 package jCompute.SimulationManager;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.View.View;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Scenario.ScenarioPluginManager;
 import jCompute.Simulation.Simulation;
@@ -11,6 +10,7 @@ import jCompute.SimulationManager.Event.SimulationsManagerEventType;
 import jCompute.Stats.StatExporter;
 import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.StatExporter.ExportFormat;
+import jCompute.gui.view.View;
 
 import java.util.ArrayList;
 import java.util.HashMap;

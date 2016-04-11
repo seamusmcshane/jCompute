@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.swingworker;
+package jCompute.gui.component.swing.swingworker;
 
 /**
  * This interface can be used is used by Loadable processors to return the result of the operations.

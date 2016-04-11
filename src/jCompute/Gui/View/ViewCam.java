@@ -1,6 +1,6 @@
-package jCompute.Gui.View;
+package jCompute.gui.view;
 
-import jCompute.Gui.View.Graphics.A2DVector2f;
+import jCompute.gui.view.graphics.A2DVector2f;
 
 public class ViewCam
 {

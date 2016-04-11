@@ -1,4 +1,4 @@
-package jCompute.Gui.View.Graphics;
+package jCompute.gui.view.graphics;
 
 public class A3DVector3f
 {

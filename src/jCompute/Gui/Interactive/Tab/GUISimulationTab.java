@@ -1,4 +1,4 @@
-package jCompute.Gui.Interactive.Tab;
+package jCompute.gui.interactive.tab;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -55,15 +55,15 @@ import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Gui.Component.swing.jpanel.GlobalStatChartPanel;
-import jCompute.Gui.Component.swing.jpanel.XMLPreviewPanel;
-import jCompute.Gui.Interactive.GUITabManager;
-import jCompute.Gui.Interactive.Listener.TabStatusChangedListenerInf;
 import jCompute.IconManager.IconIndex;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.SimulationsManagerInf;
+import jCompute.gui.component.swing.jpanel.GlobalStatChartPanel;
+import jCompute.gui.component.swing.jpanel.XMLPreviewPanel;
+import jCompute.gui.interactive.GUITabManager;
+import jCompute.gui.interactive.listener.TabStatusChangedListenerInf;
 import jCompute.util.FileUtil;
 import jCompute.util.TimeString;
 import jCompute.util.TimeString.TimeStringFormat;

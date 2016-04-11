@@ -1,4 +1,4 @@
-package jCompute.Gui.Cluster;
+package jCompute.gui.cluster;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,15 +22,15 @@ import org.apache.logging.log4j.Logger;
 import jCompute.IconManager;
 import jCompute.IconManager.IconIndex;
 import jCompute.Cluster.BatchManager.BatchManager;
-import jCompute.Gui.Cluster.Tab.BatchTab;
-import jCompute.Gui.Cluster.Tab.BenchmarkTab;
-import jCompute.Gui.Cluster.Tab.ClusterTab;
-import jCompute.Gui.Component.swing.jdialog.AboutWindow;
-import jCompute.Gui.Component.swing.jpanel.GlobalProgressMonitor;
-import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
-import jCompute.Gui.Component.swing.jpanel.SimpleTabTabTitle;
-import jCompute.Gui.Component.swing.logtab.LogTab;
 import jCompute.Scenario.ScenarioPluginManager;
+import jCompute.gui.cluster.tab.BatchTab;
+import jCompute.gui.cluster.tab.BenchmarkTab;
+import jCompute.gui.cluster.tab.ClusterTab;
+import jCompute.gui.component.swing.jdialog.AboutWindow;
+import jCompute.gui.component.swing.jpanel.GlobalProgressMonitor;
+import jCompute.gui.component.swing.jpanel.SimpleTabPanel;
+import jCompute.gui.component.swing.jpanel.SimpleTabTabTitle;
+import jCompute.gui.component.swing.logtab.LogTab;
 
 public class ClusterGUI implements WindowListener
 {

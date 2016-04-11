@@ -1,4 +1,4 @@
-package jCompute.Gui.View.Misc;
+package jCompute.gui.view.misc;
 
 import java.awt.Color;
 

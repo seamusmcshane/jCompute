@@ -1,8 +1,8 @@
 package jCompute.Simulation;
 
-import jCompute.Gui.View.ViewRendererInf;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Stats.StatManager;
+import jCompute.gui.view.ViewRendererInf;
 
 public interface SimulationScenarioManagerInf
 {

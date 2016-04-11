@@ -1,14 +1,14 @@
 package jCompute.Simulation;
 
 import jCompute.JComputeEventBus;
-import jCompute.Gui.View.ViewRendererInf;
-import jCompute.Gui.View.ViewTarget;
 import jCompute.Scenario.ScenarioInf;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.SimulationState.stateChangedInf;
 import jCompute.Stats.StatManager;
+import jCompute.gui.view.ViewRendererInf;
+import jCompute.gui.view.ViewTarget;
 
 import java.util.concurrent.Semaphore;
 

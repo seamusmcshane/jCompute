@@ -1,7 +1,7 @@
-package jCompute.Gui.Cluster.TableRowItems;
+package jCompute.gui.cluster.tablerowitems;
 
-import jCompute.Gui.Component.RowItem;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.gui.component.RowItem;
 import jCompute.util.TimeString;
 import jCompute.util.TimeString.TimeStringFormat;
 

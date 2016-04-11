@@ -1,4 +1,4 @@
-package jCompute.Gui.Component;
+package jCompute.gui.component;
 
 public abstract class RowItem<RowType, IndexType> implements Comparable<RowType>, RowKeyInf<IndexType>
 {

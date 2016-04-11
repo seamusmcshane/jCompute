@@ -1,7 +1,7 @@
-package jCompute.Gui.Interactive.Listener;
+package jCompute.gui.interactive.listener;
 
-import jCompute.Gui.Interactive.Tab.GUISimulationTab;
 import jCompute.Simulation.SimulationState.SimState;
+import jCompute.gui.interactive.tab.GUISimulationTab;
 
 public interface TabStatusChangedListenerInf
 {

@@ -3,8 +3,8 @@ package tools.SurfaceChart;
 import tools.SurfaceChart.Surface.BarSurface;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
 import jCompute.Batch.LogFileProcessor.LogFormatProcessor.Metrics.Surface.SurfaceMetricInf.Type;
-import jCompute.Gui.View.Input.OrbitalCameraInputController;
-import jCompute.Gui.View.Misc.Palette;
+import jCompute.gui.view.input.OrbitalCameraInputController;
+import jCompute.gui.view.misc.Palette;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;

@@ -2,7 +2,7 @@ package tools.HeatMap;
 
 import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
-import jCompute.Gui.Component.swing.MessageBox;
+import jCompute.gui.component.swing.MessageBox;
 import jCompute.logging.Logging;
 import jCompute.util.LookAndFeel;
 import jCompute.util.Text;

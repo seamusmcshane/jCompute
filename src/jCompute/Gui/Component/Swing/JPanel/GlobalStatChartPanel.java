@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.jpanel;
+package jCompute.gui.component.swing.jpanel;
 
 import jCompute.Stats.Groups.StatGroupListenerInf;
 import jCompute.Stats.Trace.SingleStat;

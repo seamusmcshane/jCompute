@@ -1,7 +1,7 @@
-package jCompute.Gui.Cluster.TableRowItems;
+package jCompute.gui.cluster.tablerowitems;
 
 import jCompute.Cluster.Node.NodeDetails.NodeInfo;
-import jCompute.Gui.Component.RowItem;
+import jCompute.gui.component.RowItem;
 
 public class NodeInfoRowItem extends RowItem<NodeInfoRowItem, Integer>
 {

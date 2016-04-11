@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.swingworker;
+package jCompute.gui.component.swing.swingworker;
 
 import javax.swing.SwingWorker;
 

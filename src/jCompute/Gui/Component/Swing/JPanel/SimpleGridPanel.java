@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.swing.jpanel;
+package jCompute.gui.component.swing.jpanel;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;

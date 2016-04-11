@@ -2,7 +2,7 @@ package tools.SurfaceChart;
 
 import jCompute.Batch.LogFileProcessor.InfoLogProcessor;
 import jCompute.Batch.LogFileProcessor.ItemLogProcessor;
-import jCompute.Gui.Component.swing.MessageBox;
+import jCompute.gui.component.swing.MessageBox;
 import jCompute.logging.Logging;
 import jCompute.util.FileUtil;
 import jCompute.util.LookAndFeel;
