@@ -124,24 +124,6 @@ public class ControlNode
 		startNSMCPTimer();
 	}
 	
-	private class NodeManagerComparator implements Comparator<ComputeNodeManager>
-	{
-		@Override
-		public int compare(ComputeNodeManager node1, ComputeNodeManager node2)
-		{
-			if(node1.getWeighting() < node2.getWeighting())
-			{
-				return -1;
-			}
-			else if(node1.getWeighting() > node2.getWeighting())
-			{
-				return 1;
-			}
-			
-			return 0;
-		}
-	}
-	
 	private void startNSMCPTimer()
 	{
 		timerCount = 0;
@@ -184,15 +166,15 @@ public class ControlNode
 						// Sort the ComputeNode by weighting
 						Collections.sort(activeNodes, new NodeManagerComparator());
 						
-						log.info("------------------------------------");
-						log.info("Active (" + activeNodes.size() + ")");
-						log.info("------------------------------------");
+						log.debug("------------------------------------");
+						log.debug("Active (" + activeNodes.size() + ")");
+						log.debug("------------------------------------");
 						for(ComputeNodeManager aNode : activeNodes)
 						{
-							log.info("ComputeNode " + aNode.getUid() + ": " + aNode.getWeighting());
+							log.debug("ComputeNode " + aNode.getUid() + ": " + aNode.getWeighting());
 							
 						}
-						log.info("------------------------------------");
+						log.debug("------------------------------------");
 						
 						JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTED, node.getNodeConfig()));
 					}
@@ -417,7 +399,8 @@ public class ControlNode
 				
 			});
 			
-			thread.setName("Recieve Thread");
+			// Connection Processing
+			thread.setName("ControlNode ConnectionProcessing");
 			thread.start();
 		}
 		catch(Exception e)
@@ -629,5 +612,23 @@ public class ControlNode
 		}
 		
 		controlNodeLock.release();
+	}
+	
+	private class NodeManagerComparator implements Comparator<ComputeNodeManager>
+	{
+		@Override
+		public int compare(ComputeNodeManager node1, ComputeNodeManager node2)
+		{
+			if(node1.getWeighting() < node2.getWeighting())
+			{
+				return -1;
+			}
+			else if(node1.getWeighting() > node2.getWeighting())
+			{
+				return 1;
+			}
+			
+			return 0;
+		}
 	}
 }
