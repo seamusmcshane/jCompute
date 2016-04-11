@@ -302,6 +302,8 @@ public class Batch implements StoredQueuePosition
 
 			if(baseScenario != null)
 			{
+				log.info("Base scenario ok.");
+				
 				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
 				type = baseScenario.getScenarioType();
 				log.debug(type);
@@ -319,6 +321,8 @@ public class Batch implements StoredQueuePosition
 			}
 			else
 			{
+				log.error("Processing batch config - error found checking base scenario.");
+				
 				status = false;
 			}
 		}
@@ -404,7 +408,7 @@ public class Batch implements StoredQueuePosition
 				scenario = ScenarioPluginManager.getScenario(baseScenarioText);
 			}
 		}
-
+		
 		return scenario;
 	}
 

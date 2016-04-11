@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ScenarioInf
 {
-	public void loadConfig(ConfigurationInterpreter interpreter);
+	public boolean loadConfig(ConfigurationInterpreter interpreter);
 	
 	public String getScenarioType();
 	

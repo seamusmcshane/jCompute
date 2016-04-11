@@ -26,7 +26,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker.StateValue;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

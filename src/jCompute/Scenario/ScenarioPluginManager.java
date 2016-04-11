@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.util.FileUtil;
+import jCompute.util.Text;
 
 public class ScenarioPluginManager
 {
@@ -122,12 +123,30 @@ public class ScenarioPluginManager
 			if(type.equals(currentScenario.getScenarioType()))
 			{
 				scenario = currentScenario;
-				scenario.loadConfig(parser);
 			}
 		}
 		
-		log.info(("Looking for Scenario Type " + type + " Found " + scenario) != null ? scenario.getScenarioType() : null);
+		log.info(("Looking for plugin supporting scenario type " + type + " Found " + scenario) != null ? scenario.getScenarioType() : null);
 		
-		return scenario;
+		// jCompute cannot know if the code about to is valid so we must catch problems here and not assume anything.
+		// It can only catch thrown errors that are sub classes of java.lang.Throwable (all errors and exceptions).
+		try
+		{
+			// TODO check for a plug-ins logical fail status
+			scenario.loadConfig(parser);
+			
+			return scenario;
+		}
+		catch(Throwable e)
+		{
+			log.error("Scenario type " + type + " had a problem. This is what we know caught thowable : " + e.getClass().getName() + " cause : " + e.getCause()
+			+ " message : " + e.getMessage());
+			
+			// Output the stack trace to the log so our message is before the trace. (preserve ordering)
+			log.error(Text.stackTraceToString(e.getStackTrace(), false));
+			
+			// Did not load due to exception.
+			return null;
+		}
 	}
 }
