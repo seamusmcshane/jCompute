@@ -182,8 +182,7 @@ public class Batch implements StoredQueuePosition
 		// Path String
 		if(filePath == null)
 		{
-			log.error("No file path");
-
+			log.error("Batch loadConfig file path is null");
 			return false;
 		}
 
