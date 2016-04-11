@@ -25,7 +25,7 @@ import jCompute.JComputeEventBus;
 import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
 import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChangeRequest;
 import jCompute.Gui.Cluster.TableRowItems.NodeInfoRowItem;
-import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.swing.jpanel.TablePanel;
 
 public class NodeControlButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor, ActionListener
 {

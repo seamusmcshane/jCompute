@@ -1,15 +1,16 @@
-package jCompute.Gui.Component.Swing;
+package jCompute.Gui.Component.swing.swingworker;
 
 import java.awt.Component;
 import java.io.File;
 
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.Cluster.BatchManager.BatchManager;
+import jCompute.Gui.Component.swing.MessageBox;
+import jCompute.Gui.Component.swing.jpanel.JComputeProgressMonitor;
 
 public class OpenBatchFileTask extends SwingWorker<Void, Void>
 {
@@ -17,7 +18,6 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 	private static Logger log = LogManager.getLogger(OpenBatchFileTask.class);
 	
 	private Component parent;
-	private JComputeProgressMonitor openBatchProgressMonitor;
 	private BatchManager batchManager;
 	private File[] files;
 	
@@ -28,7 +28,7 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 	public OpenBatchFileTask(Component parent, JComputeProgressMonitor openBatchProgressMonitor, BatchManager batchManager, File[] files)
 	{
 		this.parent = parent;
-		this.openBatchProgressMonitor = openBatchProgressMonitor;
+		
 		this.batchManager = batchManager;
 		this.files = files;
 		
@@ -41,6 +41,7 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 	public Void doInBackground()
 	{
 		int progress = 0;
+		
 		setProgress(progress);
 		
 		StringBuilder errorMessage = new StringBuilder();
@@ -58,7 +59,6 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 				if(error == 0)
 				{
 					errorMessage.append("Error Creating Batch(s) from - \n");
-					
 				}
 				
 				errorMessage.append(error + " " + batchFile + "\n");
@@ -72,7 +72,7 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 			
 			progress += progressInc;
 			
-			updateProgressMonitor(Math.min(progress, 100));
+			setProgress(Math.min(progress, 100));
 		}
 		
 		if(error > 0)
@@ -80,26 +80,13 @@ public class OpenBatchFileTask extends SwingWorker<Void, Void>
 			MessageBox.popup(errorMessage.toString(), parent);
 		}
 		
-		updateProgressMonitor(100);
+		setProgress(100);
 		
 		return null;
 	}
 	
-	private void updateProgressMonitor(int progress)
-	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				openBatchProgressMonitor.setProgress(progress);
-			}
-		});
-	}
-	
 	public void start()
 	{
-		updateProgressMonitor(0);
 		this.execute();
 	}
 	

@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.Swing.logtab;
+package jCompute.Gui.Component.swing.logtab;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,9 +16,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.Gui.Cluster.TableRowItems.StandardLogRowItem;
-import jCompute.Gui.Component.Swing.SimpleTabPanel;
-import jCompute.Gui.Component.Swing.TablePanel;
 import jCompute.Gui.Component.TableCell.TextHighLighterRenderer;
+import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
+import jCompute.Gui.Component.swing.jpanel.TablePanel;
 import jCompute.logging.Logging;
 import java.awt.GridLayout;
 import javax.swing.JLabel;

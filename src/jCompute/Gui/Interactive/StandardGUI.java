@@ -1,6 +1,6 @@
 package jCompute.Gui.Interactive;
 
-import jCompute.Gui.Component.Swing.AboutWindow;
+import jCompute.Gui.Component.swing.jdialog.AboutWindow;
 import jCompute.Gui.View.View;
 import jCompute.SimulationManager.SimulationsManagerInf;
 

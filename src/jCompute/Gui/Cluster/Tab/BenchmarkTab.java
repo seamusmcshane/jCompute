@@ -21,9 +21,9 @@ import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.io.Files;
 
 import jCompute.Cluster.BatchManager.BatchManager;
-import jCompute.Gui.Component.Swing.JComputeProgressMonitor;
-import jCompute.Gui.Component.Swing.OpenBatchFileTask;
-import jCompute.Gui.Component.Swing.SimpleTabPanel;
+import jCompute.Gui.Component.swing.jpanel.JComputeProgressMonitor;
+import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
+import jCompute.Gui.Component.swing.swingworker.OpenBatchFileTask;
 import jCompute.util.FileUtil;
 
 public class BenchmarkTab extends JPanel

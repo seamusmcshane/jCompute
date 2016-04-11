@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.Swing.logtab;
+package jCompute.Gui.Component.swing.logtab;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Level;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 import jCompute.Gui.Cluster.TableRowItems.StandardLogRowItem;
-import jCompute.Gui.Component.Swing.TablePanel;
+import jCompute.Gui.Component.swing.jpanel.TablePanel;
 
 public class LogLevelSelect extends AbstractMatcherEditor<StandardLogRowItem> implements ActionListener
 {

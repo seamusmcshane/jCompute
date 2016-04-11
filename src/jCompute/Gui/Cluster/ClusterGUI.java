@@ -24,10 +24,10 @@ import jCompute.Cluster.BatchManager.BatchManager;
 import jCompute.Gui.Cluster.Tab.BatchTab;
 import jCompute.Gui.Cluster.Tab.BenchmarkTab;
 import jCompute.Gui.Cluster.Tab.ClusterTab;
-import jCompute.Gui.Component.Swing.AboutWindow;
-import jCompute.Gui.Component.Swing.SimpleTabPanel;
-import jCompute.Gui.Component.Swing.SimpleTabTabTitle;
-import jCompute.Gui.Component.Swing.logtab.LogTab;
+import jCompute.Gui.Component.swing.jdialog.AboutWindow;
+import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
+import jCompute.Gui.Component.swing.jpanel.SimpleTabTabTitle;
+import jCompute.Gui.Component.swing.logtab.LogTab;
 import jCompute.IconManager.IconIndex;
 import jCompute.Scenario.ScenarioPluginManager;
 

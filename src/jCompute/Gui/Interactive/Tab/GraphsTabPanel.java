@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
-import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
+import jCompute.Gui.Component.swing.jpanel.GlobalStatChartPanel;
 import jCompute.IconManager.IconIndex;
 import jCompute.SimulationManager.SimulationsManagerInf;
 

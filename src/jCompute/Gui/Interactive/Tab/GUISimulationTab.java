@@ -55,8 +55,8 @@ import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Gui.Component.Swing.GlobalStatChartPanel;
-import jCompute.Gui.Component.Swing.XMLPreviewPanel;
+import jCompute.Gui.Component.swing.jpanel.GlobalStatChartPanel;
+import jCompute.Gui.Component.swing.jpanel.XMLPreviewPanel;
 import jCompute.Gui.Interactive.GUITabManager;
 import jCompute.Gui.Interactive.Listener.TabStatusChangedListenerInf;
 import jCompute.IconManager.IconIndex;

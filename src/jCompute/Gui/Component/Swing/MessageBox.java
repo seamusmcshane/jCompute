@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.Swing;
+package jCompute.Gui.Component.swing;
 
 import java.awt.Component;
 import java.awt.Dimension;

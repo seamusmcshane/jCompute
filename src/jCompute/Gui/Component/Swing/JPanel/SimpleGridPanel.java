@@ -1,4 +1,4 @@
-package jCompute.Gui.Component.Swing;
+package jCompute.Gui.Component.swing.jpanel;
 
 import java.awt.Color;
 import java.awt.Font;
