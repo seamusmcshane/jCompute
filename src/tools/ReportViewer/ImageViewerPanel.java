@@ -32,6 +32,7 @@ public class ImageViewerPanel extends JPanel
 	// Rendering
 	private int imageMode;
 	private boolean continousUpdate;
+	private boolean continousUpdateSwitchOff;
 	
 	// TimerVars
 	private long lastActivityTime;
@@ -92,6 +93,8 @@ public class ImageViewerPanel extends JPanel
 		// Position is then corrected by scale later
 		pos[0] += (dx * mag);
 		pos[1] += (dy * mag);
+		
+		continousUpdate = true;
 	}
 	
 	/*
@@ -168,7 +171,7 @@ public class ImageViewerPanel extends JPanel
 	
 	public void allowImageSelect(boolean imageSelect)
 	{
-		continousUpdate = !imageSelect;
+		continousUpdateSwitchOff = imageSelect;
 	}
 	
 	@Override
@@ -181,27 +184,35 @@ public class ImageViewerPanel extends JPanel
 		
 		if(paintImage != null)
 		{
+			if(continousUpdateSwitchOff)
+			{
+				continousUpdate = false;
+				continousUpdateSwitchOff = false;
+				
+				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			}
+			else
+			{
+				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+			}
+			
 			if(!continousUpdate)
 			{
 				switch(imageMode)
 				{
 					case 0:
-						paintImage = pageImage.getImage(imageMode);
+						paintImage = pageImage.getImage(0);
 						g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 					break;
 					case 1:
-						paintImage = pageImage.getImage(imageMode);
-						g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+						paintImage = pageImage.getImage(0);
+						g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 					break;
 					case 2:
+						paintImage = pageImage.getImage(1);
 						g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-						paintImage = pageImage.getImage(imageMode);
 					break;
 				}
-			}
-			else
-			{
-				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 			}
 			
 			float[] pageImageSize = pageImage.getSize();
@@ -327,7 +338,7 @@ public class ImageViewerPanel extends JPanel
 				
 				private long minScaleDrawTime = 10;
 				private long minFullDrawTime = 100;
-				private long fullDrawTimeOut = 500;
+				private long fullDrawTimeOut = 1000;
 				
 				@Override
 				public void run()
@@ -339,6 +350,7 @@ public class ImageViewerPanel extends JPanel
 						revalidate();
 						repaint();
 					}
+					else
 					{
 						if((timeNow - lastActivityTime) < minScaleDrawTime)
 						{

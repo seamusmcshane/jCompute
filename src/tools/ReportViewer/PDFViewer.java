@@ -1,8 +1,13 @@
 package tools.ReportViewer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -51,6 +57,7 @@ public class PDFViewer extends JFrame implements PropertyChangeListener
 	
 	private JScrollPane scrollpane;
 	private JPanel pageListPanel;
+	
 	private final float SCALE_REF = 1f;
 	
 	public static void main(String args[])
@@ -71,6 +78,7 @@ public class PDFViewer extends JFrame implements PropertyChangeListener
 	public PDFViewer()
 	{
 		pdfViewer = this;
+		
 		setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
@@ -171,26 +179,57 @@ public class PDFViewer extends JFrame implements PropertyChangeListener
 			
 			final float[] cpos = new float[2];
 			
+			private boolean leftMouse = false;
+			private boolean rightMouse = false;
+			
 			@Override
 			public void mousePressed(MouseEvent e)
 			{
-				// TODO remove
-				viewerPanel.allowImageSelect(false);
+				System.out.println("Button " + e.getButton());
+				
+				if(e.getButton() == MouseEvent.BUTTON1)
+				{
+					viewerPanel.allowImageSelect(false);
+					
+					leftMouse = true;
+					rightMouse = false;
+				}
+				else
+				{
+					leftMouse = false;
+					rightMouse = true;
+				}
 			}
 			
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
-				viewerPanel.allowImageSelect(true);
+				System.out.println("Button " + e.getButton());
+				
+				if(e.getButton() == MouseEvent.BUTTON1)
+				{
+					viewerPanel.allowImageSelect(true);
+					
+					leftMouse = false;
+				}
+				else
+				{
+					rightMouse = false;
+				}
 			}
 			
 			@Override
 			public void mouseDragged(MouseEvent e)
 			{
-				viewerPanel.translate(cpos[0] - e.getX(), cpos[1] - e.getY());
+				System.out.println("Button " + e.getButton());
 				
-				cpos[0] = e.getX();
-				cpos[1] = e.getY();
+				if(leftMouse)
+				{
+					viewerPanel.translate(cpos[0] - e.getX(), cpos[1] - e.getY());
+					
+					cpos[0] = e.getX();
+					cpos[1] = e.getY();
+				}
 			}
 			
 			// Need to track mouse or it will snap the view
@@ -216,7 +255,30 @@ public class PDFViewer extends JFrame implements PropertyChangeListener
 					adjInc = inc * 3;
 				}
 				
-				viewerPanel.adjScaleModeScale(adjInc);
+				if(rightMouse)
+				{
+					viewerPanel.adjScaleModeScale(adjInc);
+				}
+				else
+				{
+					try
+					{
+						if(adjInc > 0)
+						{
+							drawImage(ren.getImagePrev());
+						}
+						else
+						{
+							drawImage(ren.getImageNext());
+							
+						}
+					}
+					catch(IOException e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+				
 				// viewerPanel.setScaleMode(scale, 0);
 			}
 			
@@ -277,7 +339,6 @@ public class PDFViewer extends JFrame implements PropertyChangeListener
 			}
 			catch(IOException e1)
 			{
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -363,9 +424,8 @@ public class PDFViewer extends JFrame implements PropertyChangeListener
 		}
 		else
 		{
-			System.out.println("Report Cancelled");
+			System.out.println("PDF Loading Cancelled");
 		}
-		
 	}
 	
 	/* Ensure the user wants to exit then exit the program */
