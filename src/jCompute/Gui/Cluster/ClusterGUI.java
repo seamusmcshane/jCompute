@@ -20,15 +20,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
+import jCompute.IconManager.IconIndex;
 import jCompute.Cluster.BatchManager.BatchManager;
 import jCompute.Gui.Cluster.Tab.BatchTab;
 import jCompute.Gui.Cluster.Tab.BenchmarkTab;
 import jCompute.Gui.Cluster.Tab.ClusterTab;
 import jCompute.Gui.Component.swing.jdialog.AboutWindow;
+import jCompute.Gui.Component.swing.jpanel.GlobalProgressMonitor;
 import jCompute.Gui.Component.swing.jpanel.SimpleTabPanel;
 import jCompute.Gui.Component.swing.jpanel.SimpleTabTabTitle;
 import jCompute.Gui.Component.swing.logtab.LogTab;
-import jCompute.IconManager.IconIndex;
 import jCompute.Scenario.ScenarioPluginManager;
 
 public class ClusterGUI implements WindowListener
@@ -55,7 +56,8 @@ public class ClusterGUI implements WindowListener
 	private SimpleTabPanel guiTabs;
 	private BatchTab batchTab;
 	private ClusterTab clusterTab;
-	
+	private GlobalProgressMonitor globalMuliplexedProgressBar;
+
 	public ClusterGUI(final boolean buttonText, BatchManager batchManager)
 	{
 		try
@@ -70,7 +72,11 @@ public class ClusterGUI implements WindowListener
 					createAndAddTabs(buttonText);
 					
 					guiFrame.getContentPane().add(guiTabs, BorderLayout.CENTER);
-					
+
+					globalMuliplexedProgressBar = GlobalProgressMonitor.getInstance();
+
+					guiFrame.getContentPane().add(globalMuliplexedProgressBar, BorderLayout.SOUTH);
+
 					// Show Frame
 					guiFrame.setVisible(true);
 					
