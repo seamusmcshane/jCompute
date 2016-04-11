@@ -1,6 +1,6 @@
 package jCompute.gui.cluster.tablerowitems;
 
-import jCompute.Cluster.Node.NodeDetails.NodeInfo;
+import jCompute.cluster.computenode.nodedetails.NodeInfo;
 import jCompute.gui.component.RowItem;
 
 public class NodeInfoRowItem extends RowItem<NodeInfoRowItem, Integer>
@@ -56,7 +56,7 @@ public class NodeInfoRowItem extends RowItem<NodeInfoRowItem, Integer>
 	{
 		return new String[]
 		{
-			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory", "Description", "Node State"
+			"Uid", "Weighting", "Address", "Max Sims", "HThreads", "OS", "Arch", "OS Mem", "JVM Memory", "Description", "ComputeNode State"
 		};
 	}
 

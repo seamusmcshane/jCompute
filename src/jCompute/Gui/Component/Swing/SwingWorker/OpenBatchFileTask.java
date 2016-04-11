@@ -8,7 +8,7 @@ import javax.swing.SwingWorker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Cluster.BatchManager.BatchManager;
+import jCompute.cluster.batchmanager.BatchManager;
 import jCompute.gui.component.swing.MessageBox;
 import jCompute.gui.component.swing.jpanel.JComputeProgressMonitor;
 

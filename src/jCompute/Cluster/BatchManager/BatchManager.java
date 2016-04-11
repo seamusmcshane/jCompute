@@ -1,4 +1,4 @@
-package jCompute.Cluster.BatchManager;
+package jCompute.cluster.batchmanager;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,20 +15,20 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.eventbus.Subscribe;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.BatchManager.Event.BatchAddedEvent;
-import jCompute.Cluster.BatchManager.Event.BatchFinishedEvent;
-import jCompute.Cluster.BatchManager.Event.BatchPositionEvent;
-import jCompute.Cluster.BatchManager.Event.BatchProgressEvent;
-import jCompute.Cluster.Controller.ControlNode.ControlNode;
-import jCompute.Cluster.Controller.ControlNode.Event.ControlNodeItemStateEvent;
-import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest;
-import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
-import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Stats.StatExporter;
 import jCompute.batch.Batch;
 import jCompute.batch.BatchItem;
+import jCompute.cluster.batchmanager.event.BatchAddedEvent;
+import jCompute.cluster.batchmanager.event.BatchFinishedEvent;
+import jCompute.cluster.batchmanager.event.BatchPositionEvent;
+import jCompute.cluster.batchmanager.event.BatchProgressEvent;
+import jCompute.cluster.controlnode.ControlNode;
+import jCompute.cluster.controlnode.event.ControlNodeItemStateEvent;
+import jCompute.cluster.controlnode.request.ControlNodeItemRequest;
+import jCompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
+import jCompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jCompute.datastruct.list.ManagedBypassableQueue;
 import jCompute.datastruct.list.StoredQueuePosition;
 

@@ -19,18 +19,18 @@ import com.google.common.eventbus.Subscribe;
 
 import jCompute.IconManager;
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent;
-import jCompute.Cluster.Controller.ControlNode.Event.NodeEvent.NodeEventType;
-import jCompute.Cluster.Controller.ControlNode.Event.StatusChanged;
-import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
-import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChange;
-import jCompute.Cluster.Controller.NodeManager.Event.NodeStatsUpdate;
 import jCompute.IconManager.IconIndex;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStatChangedEvent;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEvent;
 import jCompute.SimulationManager.Event.SimulationsManagerEventType;
+import jCompute.cluster.controlnode.computenodemanager.ComputeNodeManager.NodeManagerState;
+import jCompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerStateChange;
+import jCompute.cluster.controlnode.computenodemanager.event.ComputeNodeStatsUpdate;
+import jCompute.cluster.controlnode.event.NodeEvent;
+import jCompute.cluster.controlnode.event.StatusChanged;
+import jCompute.cluster.controlnode.event.NodeEvent.NodeEventType;
 import jCompute.gui.cluster.tablerowitems.NodeConnectionLogRowItem;
 import jCompute.gui.cluster.tablerowitems.NodeInfoRowItem;
 import jCompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
@@ -77,7 +77,7 @@ public class ClusterTab extends JPanel
 	private GlobalStatChartPanel clusterNodeStatsPending;
 	private GlobalStatChartPanel clusterSimProChart;
 	
-	// Node OS/JVM
+	// ComputeNode OS/JVM
 	private GlobalStatChartPanel clusterNodeUtilChar;
 	private GlobalStatChartPanel clusterNodeMemUsedPerChar;
 	private GlobalStatChartPanel clusterNodeBytesTXChar;
@@ -203,11 +203,11 @@ public class ClusterTab extends JPanel
 		clusterNodeStatsPending.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeStatsPending.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeUtilChar = new GlobalStatChartPanel("Node CPU Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeUtilChar = new GlobalStatChartPanel("ComputeNode CPU Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeUtilChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeUtilChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("Node JVM Mem Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeMemUsedPerChar = new GlobalStatChartPanel("ComputeNode JVM Mem Utilisation", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
@@ -253,7 +253,7 @@ public class ClusterTab extends JPanel
 		gbConstraints3.gridy = 3;
 		graphsJPanelContainer.add(clusterSimProChart, gbConstraints3);
 		
-		// Node OS/JVM
+		// ComputeNode OS/JVM
 		GridBagConstraints gbConstraints4 = new GridBagConstraints();
 		gbConstraints4.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints4.gridx = 0;
@@ -320,7 +320,7 @@ public class ClusterTab extends JPanel
 				NodeEventType eventType = e.getEventType();
 				
 				int nid = e.getNodeConfiguration().getUid();
-				String nodeId = "Node " + e.getNodeConfiguration().getUid();
+				String nodeId = "ComputeNode " + e.getNodeConfiguration().getUid();
 				
 				switch(eventType)
 				{
@@ -391,7 +391,7 @@ public class ClusterTab extends JPanel
 	}
 	
 	@Subscribe
-	public void NodeManagerStateChange(NodeManagerStateChange e)
+	public void ComputeNodeManagerStateChange(ComputeNodeManagerStateChange e)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -404,14 +404,14 @@ public class ClusterTab extends JPanel
 	}
 	
 	@Subscribe
-	public void NodeStatsUpdateEvent(NodeStatsUpdate e)
+	public void NodeStatsUpdateEvent(ComputeNodeStatsUpdate e)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				String nodeId = "Node " + e.getNodeId();
+				String nodeId = "ComputeNode " + e.getNodeId();
 				
 				clusterSimProChart.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsProcessed());
 				clusterNodeActiveSims.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getSimulationsActive());

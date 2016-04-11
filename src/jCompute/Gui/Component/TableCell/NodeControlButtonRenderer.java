@@ -22,10 +22,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import jCompute.JComputeEventBus;
-import jCompute.Cluster.Controller.NodeManager.NodeManager.NodeManagerState;
+import jCompute.cluster.controlnode.computenodemanager.ComputeNodeManager.NodeManagerState;
+import jCompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerStateChangeRequest;
 import jCompute.gui.cluster.tablerowitems.NodeInfoRowItem;
 import jCompute.gui.component.swing.jpanel.TablePanel;
-import jCompute.Cluster.Controller.NodeManager.Event.NodeManagerStateChangeRequest;
 
 public class NodeControlButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor, ActionListener
 {
@@ -212,11 +212,11 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 		{
 			if(ePauseResumeToggle.getIcon() == pauseIcon)
 			{
-				JComputeEventBus.post(new NodeManagerStateChangeRequest(uid, NodeManagerState.PAUSING));
+				JComputeEventBus.post(new ComputeNodeManagerStateChangeRequest(uid, NodeManagerState.PAUSING));
 			}
 			else
 			{
-				JComputeEventBus.post(new NodeManagerStateChangeRequest(uid, NodeManagerState.RUNNING));
+				JComputeEventBus.post(new ComputeNodeManagerStateChangeRequest(uid, NodeManagerState.RUNNING));
 			}
 
 		}
@@ -229,9 +229,9 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 
 			sb.append("<html>");
 			sb.append("<h3>");
-			sb.append("Shutdown Node ?");
+			sb.append("Shutdown ComputeNode ?");
 			sb.append("</h3>");
-			sb.append("Node&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;:&emsp;");
+			sb.append("ComputeNode&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;:&emsp;");
 			sb.append("<font color=red>");
 			sb.append(uid);
 			sb.append("</font>");
@@ -251,11 +251,11 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 
 			messagePanel.add(new JLabel(sb.toString()));
 
-			int result = JOptionPane.showConfirmDialog(tablePanel, messagePanel, "Node Shutdown", JOptionPane.YES_NO_OPTION);
+			int result = JOptionPane.showConfirmDialog(tablePanel, messagePanel, "ComputeNode Shutdown", JOptionPane.YES_NO_OPTION);
 
 			if(result == JOptionPane.YES_OPTION)
 			{
-				JComputeEventBus.post(new NodeManagerStateChangeRequest(uid, NodeManagerState.SHUTDOWN));
+				JComputeEventBus.post(new ComputeNodeManagerStateChangeRequest(uid, NodeManagerState.SHUTDOWN));
 			}
 		}
 

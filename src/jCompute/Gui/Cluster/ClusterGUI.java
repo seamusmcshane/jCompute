@@ -21,8 +21,8 @@ import org.apache.logging.log4j.Logger;
 
 import jCompute.IconManager;
 import jCompute.IconManager.IconIndex;
-import jCompute.Cluster.BatchManager.BatchManager;
 import jCompute.Scenario.ScenarioPluginManager;
+import jCompute.cluster.batchmanager.BatchManager;
 import jCompute.gui.cluster.tab.BatchTab;
 import jCompute.gui.cluster.tab.BenchmarkTab;
 import jCompute.gui.cluster.tab.ClusterTab;

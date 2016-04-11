@@ -11,11 +11,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Cluster.BatchManager.BatchManager;
-import jCompute.Cluster.Controller.ControlNode.ControlNode;
-import jCompute.Cluster.Node.Node;
 import jCompute.Scenario.ScenarioPluginManager;
 import jCompute.SimulationManager.SimulationsManager;
+import jCompute.cluster.batchmanager.BatchManager;
+import jCompute.cluster.computenode.ComputeNode;
+import jCompute.cluster.controlnode.ControlNode;
 import jCompute.gui.cluster.ClusterGUI;
 import jCompute.gui.interactive.StandardGUI;
 import jCompute.logging.Logging;
@@ -34,9 +34,9 @@ public class Launcher
 	private static final CommandLineArg defaultsList[] =
 	{
 		new CommandLineArg("mcs", Integer.toString(Runtime.getRuntime().availableProcessors()), "Max Concurrent Simulations (Int)"), new CommandLineArg("mode",
-		"0", "Standard/Batch GUI/Node (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1",
+		"0", "Standard/ControlNode/ComputeNode (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1",
 		"Button Text (0/1)"), new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0",
-		"Logging Level (int) Info/Error/Debug (0/1/2)"), new CommandLineArg("desc", null, "Node Description"), new CommandLineArg("jLook", "default",
+		"Logging Level (int) Info/Error/Debug (0/1/2)"), new CommandLineArg("desc", null, "ComputeNode Description"), new CommandLineArg("jLook", "default",
 		"Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address"), new CommandLineArg("SocketTX",
 		"65536", "SocketTX Buffer Size (int)"), new CommandLineArg("SocketRX", "65536", "SocketRX Buffer Size (int)"), new CommandLineArg("TcpNoDelay", "1",
 		"Configure TcpNoDelay (0/1)"), new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)")
@@ -163,7 +163,7 @@ public class Launcher
 					allowMulti = true;
 				}
 				
-				// Cluster GUI + Batch Manager with Control Node
+				// Cluster GUI + Batch Manager with ControlNode
 				createClusterGUI(buttonText, new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq)));
 				
 			break;
@@ -171,7 +171,7 @@ public class Launcher
 				
 				final String address = options.get("addr").getValue();
 				
-				log.info("Creating Node : " + address + " (" + nodeDescription + ")");
+				log.info("Creating ComputeNode : " + address + " (" + nodeDescription + ")");
 				
 				// Launcher thread so we don't block Launcher and allow it to exit the same way as the GUI modes.
 				Thread nodeLauncher = new Thread(new Runnable()
@@ -179,18 +179,18 @@ public class Launcher
 					@Override
 					public void run()
 					{
-						// Remote Node
-						Node node = new Node(address, nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())), socketTX,
+						// Remote ComputeNode
+						ComputeNode computeNode = new ComputeNode(address, nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())), socketTX,
 						socketRX, tcpNoDelay, txFreq);
 						
-						node.start();
+						computeNode.start();
 						
-						log.info("Node Exited");
+						log.info("ComputeNode Exited");
 						
 						System.exit(0);
 					}
 				});
-				nodeLauncher.setName("Node");
+				nodeLauncher.setName("ComputeNode");
 				nodeLauncher.start();
 				
 			break;
