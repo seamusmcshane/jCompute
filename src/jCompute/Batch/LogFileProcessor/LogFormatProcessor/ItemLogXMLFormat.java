@@ -225,7 +225,7 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 		// A list of nodes from node at listIndex
 		ConfigurationNode node = subTreeNodes != null ? subTreeNodes.get(listIndex).getRootNode() : null;
 
-		// Node List of All XML Nodes
+		// List of All XML Nodes
 		List<ConfigurationNode> itemNodes = node != null ? node.getChildren() : null;
 
 		return itemNodes;
