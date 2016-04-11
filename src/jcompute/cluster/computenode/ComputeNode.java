@@ -193,7 +193,7 @@ public class ComputeNode
 			
 		}, 0, ncpTimerVal * 1000);
 		
-		Thread txThread = new Thread(new Runnable()
+		Thread txData = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
@@ -223,10 +223,10 @@ public class ComputeNode
 				
 			}
 		});
-		txThread.setName("TX Thread");
-		txThread.start();
+		txData.setName("TXData");
+		txData.start();
 		
-		Thread rxThread = new Thread(new Runnable()
+		Thread processing = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
@@ -341,14 +341,13 @@ public class ComputeNode
 				doShutdownCleanUp();
 			}
 		});
-		rxThread.setName("RX Thread");
-		rxThread.start();
+		processing.setName("Processing");
+		processing.start();
 		
 		try
 		{
-			txThread.join();
-			rxThread.join();
-			
+			txData.join();
+			processing.join();
 		}
 		catch(InterruptedException e)
 		{
@@ -713,8 +712,8 @@ public class ComputeNode
 		socket.setSendBufferSize(socketTX);
 		socket.setTcpNoDelay(tcpNoDelay);
 		
-		socket.connect(new InetSocketAddress(address, NCP.StandardServerPort), 1000);
 		
+		socket.connect(new InetSocketAddress(address, NCP.StandardServerPort), 10000);
 		// Link up Output Stream
 		commandOutput = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 		
