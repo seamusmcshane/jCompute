@@ -26,11 +26,11 @@ import jCompute.Cluster.Controller.ControlNode.Event.ControlNodeItemStateEvent;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
 import jCompute.Cluster.Controller.ControlNode.Request.ControlNodeItemRequest.ControlNodeItemRequestResult;
-import jCompute.Datastruct.List.ManagedBypassableQueue;
-import jCompute.Datastruct.List.Interface.StoredQueuePosition;
 import jCompute.Simulation.SimulationState.SimState;
 import jCompute.Simulation.Event.SimulationStateChangedEvent;
 import jCompute.Stats.StatExporter;
+import jCompute.datastruct.list.ManagedBypassableQueue;
+import jCompute.datastruct.list.StoredQueuePosition;
 
 public class BatchManager
 {

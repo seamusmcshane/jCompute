@@ -1,4 +1,4 @@
-package jCompute.Datastruct.cache;
+package jCompute.datastruct.cache;
 
 import java.io.File;
 import java.io.FileOutputStream;

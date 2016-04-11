@@ -2,9 +2,9 @@ package jCompute.Cluster.Node.WeightingBenchmark;
 
 import java.util.ArrayList;
 
-import jCompute.Datastruct.knn.KNNFloatPosInf;
-import jCompute.Datastruct.knn.ThirdGenKDWrapperFloat;
 import jCompute.Timing.TimerObj;
+import jCompute.datastruct.knn.KNNFloatPosInf;
+import jCompute.datastruct.knn.ThirdGenKDWrapperFloat;
 
 public class NodeWeightingBenchmark
 {

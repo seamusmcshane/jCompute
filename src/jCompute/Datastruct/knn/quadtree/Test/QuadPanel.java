@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn.quadtree.Test;
+package jCompute.datastruct.knn.quadtree.test;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -10,7 +10,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import jCompute.Datastruct.knn.KNNFloatPosInf;
+import jCompute.datastruct.knn.KNNFloatPosInf;
 
 public class QuadPanel extends JPanel
 {

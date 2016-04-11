@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn.quadtree.Test;
+package jCompute.datastruct.knn.quadtree.test;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -9,9 +9,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.JFrame;
 
 import jCompute.Cluster.Node.WeightingBenchmark.TreeBenchObject;
-import jCompute.Datastruct.knn.KNNFloatPosInf;
-import jCompute.Datastruct.knn.KNNResult;
-import jCompute.Datastruct.knn.quadtree.RecursiveRegionQuadTree;
+import jCompute.datastruct.knn.KNNFloatPosInf;
+import jCompute.datastruct.knn.KNNResult;
+import jCompute.datastruct.knn.quadtree.RecursiveRegionQuadTree;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

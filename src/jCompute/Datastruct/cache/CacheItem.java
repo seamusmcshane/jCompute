@@ -1,4 +1,4 @@
-package jCompute.Datastruct.cache;
+package jCompute.datastruct.cache;
 
 public final class CacheItem
 {

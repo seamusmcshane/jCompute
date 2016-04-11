@@ -1,6 +1,4 @@
-package jCompute.Datastruct.List;
-
-import jCompute.Datastruct.List.Interface.StoredQueuePosition;
+package jCompute.datastruct.list;
 
 import java.util.ArrayList;
 import java.util.Collections;

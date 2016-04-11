@@ -17,8 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jCompute.Batch.ItemGenerator.ItemGenerator;
-import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
+import jCompute.datastruct.cache.DiskCache;
 import jCompute.util.FileUtil;
 import jCompute.util.JCMath;
 

@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn;
+package jCompute.datastruct.knn;
 
 public class KNNResult
 {

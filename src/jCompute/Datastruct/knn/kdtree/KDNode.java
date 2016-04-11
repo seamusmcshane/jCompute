@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn.kdtree;
+package jCompute.datastruct.knn.kdtree;
 
 public class KDNode<Datatype>
 {

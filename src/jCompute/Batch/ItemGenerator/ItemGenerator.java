@@ -9,8 +9,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Datastruct.cache.DiskCache;
 import jCompute.Scenario.ConfigurationInterpreter;
+import jCompute.datastruct.cache.DiskCache;
 import jCompute.util.FileUtil;
 
 public abstract class ItemGenerator

@@ -1,9 +1,9 @@
-package jCompute.Datastruct.knn.quadtree;
+package jCompute.datastruct.knn.quadtree;
 
 import java.util.ArrayList;
 
-import jCompute.Datastruct.knn.KNNFloatPosInf;
-import jCompute.Datastruct.knn.KNNResult;
+import jCompute.datastruct.knn.KNNFloatPosInf;
+import jCompute.datastruct.knn.KNNResult;
 import jCompute.util.JCMath;
 
 /**

@@ -1,4 +1,4 @@
-package jCompute.Datastruct.knn;
+package jCompute.datastruct.knn;
 
 import java.util.ArrayList;
 import java.util.List;

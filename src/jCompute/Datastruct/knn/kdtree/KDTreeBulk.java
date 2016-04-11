@@ -1,10 +1,10 @@
-package jCompute.Datastruct.knn.kdtree;
+package jCompute.datastruct.knn.kdtree;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import jCompute.Datastruct.knn.KNNFloatPosInf;
+import jCompute.datastruct.knn.KNNFloatPosInf;
 
 public class KDTreeBulk
 {

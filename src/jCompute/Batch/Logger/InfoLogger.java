@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jCompute.Datastruct.cache.DiskCache;
+import jCompute.datastruct.cache.DiskCache;
 import jCompute.util.TimeString;
 import jCompute.util.TimeString.TimeStringFormat;
 

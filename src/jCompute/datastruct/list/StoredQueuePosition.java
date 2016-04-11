@@ -1,4 +1,4 @@
-package jCompute.Datastruct.List.Interface;
+package jCompute.datastruct.list;
 
 public interface StoredQueuePosition
 {
