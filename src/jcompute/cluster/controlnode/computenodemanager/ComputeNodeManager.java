@@ -162,7 +162,6 @@ public class ComputeNodeManager
 				{
 					if(handleRegistration())
 					{
-						log.info("Registration Succeeded");
 						createCMDRecieveThread();
 					}
 					else
@@ -187,6 +186,8 @@ public class ComputeNodeManager
 			@Override
 			public void run()
 			{
+				log.info("TX Ready");
+
 				// Disconnect Recovery Loop
 				while(nodeState != NodeManagerState.SHUTDOWN)
 				{
@@ -216,7 +217,7 @@ public class ComputeNodeManager
 	
 	private boolean handleRegistration() throws IOException
 	{
-		log.info("Awaiting Registration");
+		log.info("Awaiting ComputeNode Registration");
 		
 		boolean registered = false;
 		boolean finished = false;
@@ -244,7 +245,7 @@ public class ComputeNodeManager
 				// Wrap the backingArray
 				data = ByteBuffer.wrap(backingArray);
 				
-				log.info("Type " + type + " len " + len);
+				log.debug("Type " + type + " len " + len);
 			}
 			
 			switch(type)
@@ -265,11 +266,9 @@ public class ComputeNodeManager
 						int remoteProtocolVersion = data.getInt();
 						if(remoteProtocolVersion != NCP.NCP_PROTOCOL_VERSION)
 						{
-							log.warn("Protocol Version Mismatch");
+							log.warn("Sent Registration nack Protocol Version Mismatch - expected " + NCP.NCP_PROTOCOL_VERSION + " found " + remoteProtocolVersion);
 							
 							txDataEnqueue(new RegistrationReqNack(NCP.ProtocolVersionMismatch, NCP.NCP_PROTOCOL_VERSION).toBytes());
-							
-							log.info("Sent Registration nack");
 							
 							protocolState = ProtocolState.DIS;
 							
@@ -283,7 +282,7 @@ public class ComputeNodeManager
 						}
 						else
 						{
-							log.info("Protocol Version OK!");
+							log.info("Protocol Version is " + NCP.NCP_PROTOCOL_VERSION);
 						}
 						
 						if(ackReg)
@@ -437,6 +436,8 @@ public class ComputeNodeManager
 			@Override
 			public void run()
 			{
+				log.info("RX Ready");
+				
 				try
 				{
 					int type = -1;
@@ -688,12 +689,10 @@ public class ComputeNodeManager
 				
 			}
 		});
-		
 		ncpRX.setName("ComputeNodeManager " + nodeInfo.getUid() + " NCP RX");
 		
 		// Start Processing
 		ncpRX.start();
-		
 	}
 	
 	/*
@@ -1037,7 +1036,7 @@ public class ComputeNodeManager
 			{
 				nodeState = newState;
 				
-				log.info("now " + nodeState.toString());
+				log.info("NodeManagerState changed to " + nodeState.toString());
 			}
 			
 			JComputeEventBus.post(new ComputeNodeManagerStateChange(nodeInfo.getUid(), newState));
