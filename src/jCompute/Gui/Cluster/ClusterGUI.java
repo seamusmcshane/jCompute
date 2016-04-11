@@ -155,8 +155,8 @@ public class ClusterGUI implements WindowListener
 				{
 					if(!guiTabs.hasTabComponentWithClass(BenchmarkTab.class))
 					{
-						BenchmarkTab benchmark = new BenchmarkTab(batchManager, guiTabs);
-						
+						BenchmarkTab benchmark = new BenchmarkTab(batchTab, guiTabs);
+
 						guiTabs.addTab(benchmark, new SimpleTabTabTitle(tabWidth, IconManager.retrieveIcon(IconIndex.benchmarkTab32), "Benchmark"));
 						
 						guiTabs.setSelectedTab(benchmark);
