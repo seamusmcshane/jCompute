@@ -7,6 +7,7 @@ import java.awt.GraphicsEnvironment;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 
 public class MessageBox
 {
@@ -27,7 +28,8 @@ public class MessageBox
 			
 			JScrollPane messageBox = new JScrollPane(messageHolder);
 			messageBox.setPreferredSize(new Dimension(700, 200));
-			messageBox.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			messageBox.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+			
 			JOptionPane.showMessageDialog(parentComponent, messageBox);
 			
 			return true;
