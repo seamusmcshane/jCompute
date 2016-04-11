@@ -19,15 +19,13 @@ public class Text
 	 */
 	public static String textFileToString(String filePath)
 	{
-		StringBuilder destination;
-		BufferedReader bufferedReader;
 		String text = null;
 		
 		try
 		{
-			destination = new StringBuilder();
+			StringBuilder destination = new StringBuilder();
 			
-			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "ISO_8859_1"));
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "ISO_8859_1"));
 			
 			String sCurrentLine;
 			
