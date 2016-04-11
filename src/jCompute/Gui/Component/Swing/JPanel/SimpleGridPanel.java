@@ -1,14 +1,11 @@
 package jCompute.Gui.Component.swing.jpanel;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -26,7 +23,7 @@ public class SimpleGridPanel extends JPanel
 	private final Font valFont;
 	
 	private final JLabel[] lblFields;
-	private final JTextField[] lblVals;
+	private final JLabel[] lblVals;
 	
 	private final int rows;
 	
@@ -71,7 +68,7 @@ public class SimpleGridPanel extends JPanel
 		
 		layout.rowHeights = new int[rows];
 		lblFields = new JLabel[rows];
-		lblVals = new JTextField[rows];
+		lblVals = new JLabel[rows];
 		
 		int rowHeight = 20;
 		
@@ -104,11 +101,7 @@ public class SimpleGridPanel extends JPanel
 		this.add(lblFields[rowsAdded], gbc_lblLabel);
 		
 		// Val
-		lblVals[rowsAdded] = new JTextField(intialValueText);
-		lblVals[rowsAdded].setEditable(false);
-		lblVals[rowsAdded].setOpaque(false);
-		lblVals[rowsAdded].setBorder(BorderFactory.createEmptyBorder());
-		lblVals[rowsAdded].setBackground(new Color(0,0,0,0));
+		lblVals[rowsAdded] = new JLabel(intialValueText);
 		lblVals[rowsAdded].setFont(valFont);
 		lblVals[rowsAdded].setHorizontalAlignment(SwingConstants.LEFT);
 		
