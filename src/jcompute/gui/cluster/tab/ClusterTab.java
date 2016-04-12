@@ -18,18 +18,19 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.eventbus.Subscribe;
 
 import jcompute.IconManager;
-import jcompute.JComputeEventBus;
 import jcompute.IconManager.IconIndex;
+import jcompute.JComputeEventBus;
 import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager.NodeManagerState;
 import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerStateChange;
 import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeStatsUpdate;
 import jcompute.cluster.controlnode.event.NodeEvent;
-import jcompute.cluster.controlnode.event.StatusChanged;
 import jcompute.cluster.controlnode.event.NodeEvent.NodeEventType;
+import jcompute.cluster.controlnode.event.StatusChanged;
 import jcompute.gui.cluster.tablerowitems.NodeConnectionLogRowItem;
 import jcompute.gui.cluster.tablerowitems.NodeInfoRowItem;
 import jcompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
 import jcompute.gui.cluster.tablerowitems.SimulationListRowItem;
+import jcompute.gui.component.swing.SwingHelper;
 import jcompute.gui.component.swing.jpanel.GlobalStatChartPanel;
 import jcompute.gui.component.swing.jpanel.SimpleTabPanel;
 import jcompute.gui.component.swing.jpanel.SimpleTabTabTitle;
@@ -86,6 +87,8 @@ public class ClusterTab extends JPanel
 	private GlobalStatChartPanel clusterNodeRXSChar;
 	private final int legendMaxNodes = 6;
 	
+	private final int IP4_ADDRESS_SIZE;
+	
 	public ClusterTab(int rightPanelsMinWidth)
 	{
 		setLayout(new GridLayout(0, 2, 0, 0));
@@ -125,7 +128,10 @@ public class ClusterTab extends JPanel
 		
 		clusterConnectedNodesTablePanel.setColumWidth(0, 50);
 		clusterConnectedNodesTablePanel.setColumWidth(1, 65);
-		clusterConnectedNodesTablePanel.setColumWidth(2, 90);
+		
+		IP4_ADDRESS_SIZE = SwingHelper.getInstance().getFontStringWidth(clusterConnectedNodesTablePanel.getFont(), "255.255.255.255");
+		
+		clusterConnectedNodesTablePanel.setColumWidth(2, IP4_ADDRESS_SIZE);
 		clusterConnectedNodesTablePanel.setColumWidth(3, 65);
 		clusterConnectedNodesTablePanel.setColumWidth(4, 65);
 		clusterConnectedNodesTablePanel.setColumWidth(5, 75);
@@ -146,7 +152,7 @@ public class ClusterTab extends JPanel
 		
 		clusterNodesLogTablePanel.setColumWidth(0, 50);
 		clusterNodesLogTablePanel.setColumWidth(1, 50);
-		clusterNodesLogTablePanel.setColumWidth(2, 90);
+		clusterNodesLogTablePanel.setColumWidth(2, IP4_ADDRESS_SIZE);
 		clusterNodesLogTablePanel.setColumWidth(3, 90);
 		
 		/*

@@ -58,7 +58,7 @@ public class LogTab extends JPanel implements TailerListener
 		standardLog.setColumWidth(0, 80);
 		standardLog.setColumWidth(1, 80);
 		standardLog.setColumWidth(2, 80);
-		standardLog.setColumWidth(3, 140);
+		standardLog.setColumWidth(3, 180);
 		
 		JComboBox<String> comboBoxLevelSelect = levelSector.getJComboBox(standardLog);
 		
