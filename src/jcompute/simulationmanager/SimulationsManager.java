@@ -87,7 +87,7 @@ public class SimulationsManager
 			{
 				sim.destroySim();
 				simulationNum--;
-				
+				activeSims--;
 				simulationsManagerLock.release();
 				
 				log.error("Add sim failed - unable to get scenario.");
@@ -103,7 +103,7 @@ public class SimulationsManager
 		}
 		else
 		{
-			log.info("Reached Max Active Sims");
+			log.warn("Reached Max Active Sims");
 			
 			simulationsManagerLock.release();
 			
