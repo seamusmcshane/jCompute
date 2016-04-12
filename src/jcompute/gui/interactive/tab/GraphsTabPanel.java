@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import jcompute.IconManager;
 import jcompute.IconManager.IconIndex;
 import jcompute.gui.component.swing.jpanel.GlobalStatChartPanel;
-import jcompute.simulationmanager.SimulationsManagerInf;
+import jcompute.simulationmanager.SimulationsManager;
 
 public class GraphsTabPanel extends JPanel
 {
@@ -47,7 +47,7 @@ public class GraphsTabPanel extends JPanel
 		this.charts = charts;
 	}
 
-	public void clearCharts(SimulationsManagerInf simsManager, int simId)
+	public void clearCharts(SimulationsManager simsManager, int simId)
 	{
 		if(charts != null)
 		{

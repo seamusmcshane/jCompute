@@ -24,7 +24,7 @@ import jcompute.IconManager;
 import jcompute.IconManager.IconIndex;
 import jcompute.gui.interactive.tab.GUISimulationTab;
 import jcompute.gui.interactive.tab.SimulationListTabPanel;
-import jcompute.simulationmanager.SimulationsManagerInf;
+import jcompute.simulationmanager.SimulationsManager;
 import jcompute.stats.StatExporter;
 import jcompute.stats.StatExporter.ExportFormat;
 
@@ -63,9 +63,9 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	private int selectedTabIndex;
 	
 	/** A Reference to the Simulations Manager */
-	private SimulationsManagerInf simsManager;
+	private SimulationsManager simsManager;
 	
-	public GUITabManager(final SimulationsManagerInf simsManager)
+	public GUITabManager(final SimulationsManager simsManager)
 	{
 		/* Tabs on the Left */
 		super(LEFT);

@@ -63,7 +63,7 @@ import jcompute.gui.interactive.listener.TabStatusChangedListenerInf;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
-import jcompute.simulationmanager.SimulationsManagerInf;
+import jcompute.simulationmanager.SimulationsManager;
 import jcompute.util.FileUtil;
 import jcompute.util.TimeString;
 import jcompute.util.TimeString.TimeStringFormat;
@@ -113,7 +113,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private GraphsTabPanel graphsTabPanel;
 	
-	private SimulationsManagerInf simsManager;
+	private SimulationsManager simsManager;
 	
 	/* This Sim */
 	private int simId = -1;
@@ -123,7 +123,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private Semaphore listenersLock = new Semaphore(1, false);
 	private TabButton title;
 	
-	public GUISimulationTab(GUITabManager tabManager, SimulationsManagerInf simsManager, int simId)
+	public GUISimulationTab(GUITabManager tabManager, SimulationsManager simsManager, int simId)
 	{
 		this.simsManager = simsManager;
 		

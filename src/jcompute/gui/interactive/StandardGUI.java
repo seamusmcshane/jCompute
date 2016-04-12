@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.gui.component.swing.jdialog.AboutWindow;
 import jcompute.gui.view.View;
-import jcompute.simulationmanager.SimulationsManagerInf;
+import jcompute.simulationmanager.SimulationsManager;
 
 import java.awt.BorderLayout;
 
@@ -51,7 +51,7 @@ public class StandardGUI implements ActionListener, WindowListener
 	// Simulation View (Right Split)
 	private View simView;
 	
-	private SimulationsManagerInf simsManager;
+	private SimulationsManager simsManager;
 	
 	// Menu Bar
 	private JMenuBar menuBar;
@@ -62,7 +62,7 @@ public class StandardGUI implements ActionListener, WindowListener
 	// Menu Items
 	private JMenuItem mntmQuit, mntmAbout;
 	
-	public StandardGUI(SimulationsManagerInf simsManager)
+	public StandardGUI(SimulationsManager simsManager)
 	{
 		this.simsManager = simsManager;
 		
