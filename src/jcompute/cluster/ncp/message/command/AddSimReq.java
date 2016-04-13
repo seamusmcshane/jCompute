@@ -1,10 +1,11 @@
-package jcompute.cluster.ncp.command;
+package jcompute.cluster.ncp.message.command;
 
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class AddSimReq
+public class AddSimReq extends NCPMessage
 {
 	private long requestId;
 	private String scenarioText;
@@ -36,6 +37,13 @@ public class AddSimReq
 		return requestId;
 	}
 	
+	@Override
+	public int getType()
+	{
+		return NCP.AddSimReq;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int configLen = scenarioText.getBytes().length;
@@ -58,5 +66,4 @@ public class AddSimReq
 		
 		return tbuffer.array();
 	}
-	
 }

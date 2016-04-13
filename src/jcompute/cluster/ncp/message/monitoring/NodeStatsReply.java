@@ -1,11 +1,12 @@
-package jcompute.cluster.ncp.monitoring;
+package jcompute.cluster.ncp.message.monitoring;
 
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.computenode.nodedetails.NodeStatsSample;
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class NodeStatsReply
+public class NodeStatsReply extends NCPMessage
 {
 	private int sequenceNum;
 	private NodeStatsSample nodeStatsSample;
@@ -31,6 +32,7 @@ public class NodeStatsReply
 		nodeStatsSample.setTXS(source.getLong());
 		nodeStatsSample.setBytesRX(source.getLong());
 		nodeStatsSample.setRXS(source.getLong());
+		nodeStatsSample.setLastResponseTime(source.getLong());
 	}
 	
 	public NodeStatsSample getNodeStats()
@@ -43,9 +45,16 @@ public class NodeStatsReply
 		return sequenceNum;
 	}
 	
+	@Override
+	public int getType()
+	{
+		return NCP.NodeStatsReply;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
-		int dataLen = 60;
+		int dataLen = 68;
 		
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
@@ -64,8 +73,8 @@ public class NodeStatsReply
 		tbuffer.putLong(nodeStatsSample.getTXS());
 		tbuffer.putLong(nodeStatsSample.getBytesRX());
 		tbuffer.putLong(nodeStatsSample.getRXS());
+		tbuffer.putLong(nodeStatsSample.getLastResponseTime());
 		
 		return tbuffer.array();
 	}
-	
 }

@@ -1,10 +1,11 @@
-package jcompute.cluster.ncp.registration;
+package jcompute.cluster.ncp.message.registration;
 
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class RegistrationReqAck
+public class RegistrationReqAck extends NCPMessage
 {
 	private int uid;
 	// Standard Constructor
@@ -24,6 +25,13 @@ public class RegistrationReqAck
 		return uid;
 	}
 
+	@Override
+	public int getType()
+	{
+		return NCP.RegAck;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int dataLen = 4;

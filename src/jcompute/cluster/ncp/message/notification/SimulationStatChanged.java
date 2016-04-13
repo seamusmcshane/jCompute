@@ -1,12 +1,13 @@
-package jcompute.cluster.ncp.notification;
+package jcompute.cluster.ncp.message.notification;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 
-public class SimulationStatChanged
+public class SimulationStatChanged extends NCPMessage
 {
 	private int simId;
 	private long time;
@@ -26,47 +27,54 @@ public class SimulationStatChanged
 	public SimulationStatChanged(ByteBuffer source) throws IOException
 	{
 		simId = source.getInt();
-		time = source.getLong();		
+		time = source.getLong();
 		stepNo = source.getInt();
 		progress = source.getInt();
-		asps = source.getInt();		
+		asps = source.getInt();
 	}
 	
 	public int getSimId()
 	{
 		return simId;
 	}
-
+	
 	public long getTime()
 	{
 		return time;
 	}
-
+	
 	public int getStepNo()
 	{
 		return stepNo;
 	}
-
+	
 	public int getProgress()
 	{
 		return progress;
 	}
-
+	
 	public int getAsps()
 	{
 		return asps;
 	}
-
+	
+	@Override
+	public int getType()
+	{
+		return NCP.SimStatNoti;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int dataLen = 24;
-
-		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NCP.HEADER_SIZE);
-
+		
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
+		
 		// Header
 		tbuffer.putInt(NCP.SimStatNoti);
 		tbuffer.putInt(dataLen);
-
+		
 		// Data
 		tbuffer.putInt(simId);
 		tbuffer.putLong(time);
@@ -79,7 +87,7 @@ public class SimulationStatChanged
 	
 	public String info()
 	{
-		return "SimulationStatChanged : " +simId + " t " + time + " s " + stepNo + " p " + progress + " a " + asps;
+		return "SimulationStatChanged : " + simId + " t " + time + " s " + stepNo + " p " + progress + " a " + asps;
 	}
 	
 }

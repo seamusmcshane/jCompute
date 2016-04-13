@@ -220,7 +220,7 @@ public class StatExporter
 			
 			if(numFiles != 1)
 			{
-				log.error("More than 1 file detected in archive operaton");
+				log.error("More than 1 file detected in archive operation");
 			}
 			
 			if(fNum != 0)

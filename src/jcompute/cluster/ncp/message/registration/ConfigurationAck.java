@@ -1,12 +1,13 @@
-package jcompute.cluster.ncp.registration;
+package jcompute.cluster.ncp.message.registration;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.computenode.nodedetails.NodeInfo;
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class ConfigurationAck
+public class ConfigurationAck extends NCPMessage
 {
 	private int maxSims;
 	private long weighting;
@@ -107,6 +108,13 @@ public class ConfigurationAck
 		return desc;
 	}
 	
+	@Override
+	public int getType()
+	{
+		return NCP.ConfAck;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int osLen = os.getBytes().length;

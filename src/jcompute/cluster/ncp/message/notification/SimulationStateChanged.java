@@ -1,13 +1,14 @@
-package jcompute.cluster.ncp.notification;
+package jcompute.cluster.ncp.message.notification;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 
-public class SimulationStateChanged
+public class SimulationStateChanged extends NCPMessage
 {
 	private int simId;
 	private SimState state;
@@ -21,17 +22,17 @@ public class SimulationStateChanged
 		this.simId = e.getSimId();
 		this.runTime = e.getRunTime();
 		this.endEvent = e.getEndEvent();
-		this.stepCount = e.getStepCount();		
+		this.stepCount = e.getStepCount();
 	}
 	
 	public SimulationStateChanged(ByteBuffer source) throws IOException
 	{
 		state = SimState.fromInt(source.getInt());
-		simId = source.getInt();		
+		simId = source.getInt();
 		runTime = source.getLong();
 		
-		int elen = source.getInt();		
-
+		int elen = source.getInt();
+		
 		if(elen > 0)
 		{
 			byte[] sBytes = new byte[elen];
@@ -48,7 +49,7 @@ public class SimulationStateChanged
 		stepCount = source.getLong();
 		
 	}
-
+	
 	public SimState getState()
 	{
 		return state;
@@ -63,35 +64,42 @@ public class SimulationStateChanged
 	{
 		return runTime;
 	}
-
+	
 	public String getEndEvent()
 	{
 		return endEvent;
 	}
-
+	
 	public long getStepCount()
 	{
 		return stepCount;
 	}
-
+	
+	@Override
+	public int getType()
+	{
+		return NCP.SimStateNoti;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		// End Event
 		int elen = 0;
 		
-		if(endEvent!=null)
+		if(endEvent != null)
 		{
 			elen = endEvent.getBytes().length;
 		}
 		
-		int dataLen = elen+28;
-
-		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen+NCP.HEADER_SIZE);
+		int dataLen = elen + 28;
+		
+		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
 		// Header
 		tbuffer.putInt(NCP.SimStateNoti);
 		tbuffer.putInt(dataLen);
-
+		
 		// Data
 		tbuffer.putInt(state.ordinal());
 		tbuffer.putInt(simId);
@@ -100,7 +108,7 @@ public class SimulationStateChanged
 		// EndEvent follows (elen is chars)
 		tbuffer.putInt(elen);
 		
-		if(elen>0)
+		if(elen > 0)
 		{
 			tbuffer.put(endEvent.getBytes());
 		}
@@ -112,7 +120,7 @@ public class SimulationStateChanged
 	
 	public String info()
 	{
-		return "SimulationStateChanged : " +simId + " s " + state.toString() + " RT " + runTime + " ee " + endEvent + " sc " + stepCount;
+		return "SimulationStateChanged : " + simId + " s " + state.toString() + " RT " + runTime + " ee " + endEvent + " sc " + stepCount;
 	}
 	
 }

@@ -1,11 +1,12 @@
-package jcompute.cluster.ncp.command;
+package jcompute.cluster.ncp.message.command;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class AddSimReply
+public class AddSimReply extends NCPMessage
 {
 	private long requestId;
 	private int simId;
@@ -23,6 +24,23 @@ public class AddSimReply
 		simId = source.getInt();
 	}
 	
+	public long getRequestId()
+	{
+		return requestId;
+	}
+	
+	public int getSimId()
+	{
+		return simId;
+	}
+
+	@Override
+	public int getType()
+	{
+		return NCP.AddSimReply;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int dataLen = 12;
@@ -39,15 +57,4 @@ public class AddSimReply
 		
 		return tbuffer.array();
 	}
-	
-	public long getRequestId()
-	{
-		return requestId;
-	}
-	
-	public int getSimId()
-	{
-		return simId;
-	}
-	
 }

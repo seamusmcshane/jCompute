@@ -1,7 +1,7 @@
 package jcompute.cluster.controlnode.mapping;
 
 import jcompute.batch.BatchItem;
-import jcompute.cluster.ncp.notification.SimulationStateChanged;
+import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
 import jcompute.stats.StatExporter.ExportFormat;
 
 public class RemoteSimulationMapping

@@ -1,16 +1,24 @@
-package jcompute.cluster.ncp.control;
+package jcompute.cluster.ncp.message.control;
 
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class NodeOrderlyShutdown
+public class NodeOrderlyShutdown extends NCPMessage
 {
 	public NodeOrderlyShutdown()
 	{
 		
 	}
 	
+	@Override
+	public int getType()
+	{
+		return NCP.NodeOrderlyShutdown;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int dataLen = 0;

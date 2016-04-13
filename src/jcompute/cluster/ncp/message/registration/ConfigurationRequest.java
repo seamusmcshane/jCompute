@@ -1,10 +1,11 @@
-package jcompute.cluster.ncp.registration;
+package jcompute.cluster.ncp.message.registration;
 
 import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
+import jcompute.cluster.ncp.message.NCPMessage;
 
-public class ConfigurationRequest
+public class ConfigurationRequest extends NCPMessage
 {
 	private int bench;
 	private int objects;
@@ -60,6 +61,13 @@ public class ConfigurationRequest
 		return runs;
 	}
 
+	@Override
+	public int getType()
+	{
+		return NCP.ConfReq;
+	}
+	
+	@Override
 	public byte[] toBytes()
 	{
 		int dataLen;
