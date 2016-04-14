@@ -10,7 +10,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.logging.log4j.LogManager;
@@ -66,8 +65,9 @@ public class MessageManager
 	private LongAdder rxS;
 	
 	// Connection Test
-	private long totalTestSinceReset;
-	private long totalResponseTime;
+	private LongAdder totalTestSinceReset;
+	private LongAdder totalResponseTime;
+	
 	private int recvConnectionTestSeqNum;
 	private int sentConnectionTestSeqNum;
 	
@@ -115,6 +115,8 @@ public class MessageManager
 			bytesRX = new LongAdder();
 			txS = new LongAdder();
 			rxS = new LongAdder();
+			totalTestSinceReset = new LongAdder();
+			totalResponseTime = new LongAdder();
 			
 			// TX Pending Message List to allowing TCP message concatenation
 			txPendingList = new ArrayList<byte[]>();
@@ -236,13 +238,13 @@ public class MessageManager
 		nodeStatsSample.setTXS(txS.sumThenReset());
 		nodeStatsSample.setRXS(rxS.sumThenReset());
 		
+		long time = totalResponseTime.sumThenReset();
+		long test = totalTestSinceReset.sumThenReset();
+		
 		// Check for a div0
-		long avgResponseTime = (totalTestSinceReset > 0) ? (totalResponseTime / totalTestSinceReset) : -1;
+		long avgResponseTime = (test > 0) ? (time / test) : -1;
 		
-		nodeStatsSample.setAvgResponseTime(avgResponseTime);
-		
-		totalResponseTime = 0;
-		totalTestSinceReset = 0;
+		nodeStatsSample.setAvgRTT(avgResponseTime);
 		
 		txDataEnqueue(new NodeStatsReply(req.getSequenceNum(), nodeStatsSample).toBytes());
 	}
@@ -420,8 +422,7 @@ public class MessageManager
 						log.error("NOT !!!");
 						
 						ActivityTestRequest req = new ActivityTestRequest(data);
-						
-						txDataEnqueue(new ActivityTestReply(req, System.nanoTime()).toBytes());
+						txDataEnqueue(new ActivityTestReply(req).toBytes());
 						
 						testFrame = true;
 					}
@@ -436,9 +437,9 @@ public class MessageManager
 						{
 							recvConnectionTestSeqNum = sentConnectionTestSeqNum;
 							
-							totalTestSinceReset++;
+							totalTestSinceReset.increment();
 							
-							totalResponseTime += (req.getReceiveTime() - req.getSentTime());
+							totalResponseTime.add(System.nanoTime() - req.getSentTime());
 						}
 						else
 						{

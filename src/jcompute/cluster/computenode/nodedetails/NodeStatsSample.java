@@ -14,7 +14,7 @@ public class NodeStatsSample
 	private long txS;
 	private long bytesRX;
 	private long rxS;
-	private long avgResponseTime;
+	private long avgRTT;
 	
 	public void setBytesTX(long bytesTX)
 	{
@@ -106,14 +106,14 @@ public class NodeStatsSample
 		return rxS;
 	}
 	
-	public void setAvgResponseTime(long avgResponseTime)
+	public void setAvgRTT(long avgRTT)
 	{
-		this.avgResponseTime = avgResponseTime;
+		this.avgRTT = avgRTT;
 	}
 	
-	public long getAvgResponseTime()
+	public long getAvgRTT()
 	{
-		return avgResponseTime;
+		return avgRTT;
 	}
 	
 	public void reset()
@@ -129,6 +129,6 @@ public class NodeStatsSample
 		bytesRX = 0;
 		rxS = 0;
 		
-		avgResponseTime = 0;
+		avgRTT = 0;
 	}
 }

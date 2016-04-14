@@ -85,7 +85,7 @@ public class ClusterTab extends JPanel
 	private GlobalStatChartPanel clusterNodeBytesRXChar;
 	private GlobalStatChartPanel clusterNodeTXSChar;
 	private GlobalStatChartPanel clusterNodeRXSChar;
-	private GlobalStatChartPanel clusterNodeResponse;
+	private GlobalStatChartPanel clusterNodeRTT;
 	private final int legendMaxNodes = 6;
 	
 	private final int IP4_ADDRESS_SIZE;
@@ -234,9 +234,9 @@ public class ClusterTab extends JPanel
 		clusterNodeRXSChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeRXSChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeResponse = new GlobalStatChartPanel("Response", "Nodes", true, false, 60, true, legendMaxNodes);
-		clusterNodeResponse.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
-		clusterNodeResponse.setPreferredSize(new Dimension(600, CHART_HEIGHT));
+		clusterNodeRTT = new GlobalStatChartPanel("Round Trip (ms)", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeRTT.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
+		clusterNodeRTT.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
 		// Cluster Info
 		GridBagConstraints gbConstraints0 = new GridBagConstraints();
@@ -305,7 +305,7 @@ public class ClusterTab extends JPanel
 		gbConstraints10.fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints10.gridx = 0;
 		gbConstraints10.gridy = 10;
-		graphsJPanelContainer.add(clusterNodeResponse, gbConstraints10);
+		graphsJPanelContainer.add(clusterNodeRTT, gbConstraints10);
 		
 		tabPanel.addTab(simulationListsContainer, new SimpleTabTabTitle(160, IconManager.retrieveIcon(IconIndex.simListTab16), "Activity"));
 		
@@ -359,7 +359,7 @@ public class ClusterTab extends JPanel
 						clusterNodeBytesRXChar.addStat(nodeId, nid);
 						clusterNodeTXSChar.addStat(nodeId, nid);
 						clusterNodeRXSChar.addStat(nodeId, nid);
-						clusterNodeResponse.addStat(nodeId, nid);
+						clusterNodeRTT.addStat(nodeId, nid);
 						
 						clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(),
 						eventType.name(), new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
@@ -379,7 +379,7 @@ public class ClusterTab extends JPanel
 						clusterNodeBytesRXChar.removeStat(nodeId);
 						clusterNodeTXSChar.removeStat(nodeId);
 						clusterNodeRXSChar.removeStat(nodeId);
-						clusterNodeResponse.removeStat(nodeId);
+						clusterNodeRTT.removeStat(nodeId);
 						
 						clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(),
 						eventType.name(), new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
@@ -445,7 +445,7 @@ public class ClusterTab extends JPanel
 				
 				clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
 				clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
-				clusterNodeResponse.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getAvgResponseTime() / 1000000.0);
+				clusterNodeRTT.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getAvgRTT() / 1000000.0);
 			}
 		});
 	}

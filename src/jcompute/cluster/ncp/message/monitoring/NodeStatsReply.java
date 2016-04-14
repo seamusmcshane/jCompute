@@ -32,7 +32,7 @@ public class NodeStatsReply extends NCPMessage
 		nodeStatsSample.setTXS(source.getLong());
 		nodeStatsSample.setBytesRX(source.getLong());
 		nodeStatsSample.setRXS(source.getLong());
-		nodeStatsSample.setAvgResponseTime(source.getLong());
+		nodeStatsSample.setAvgRTT(source.getLong());
 	}
 	
 	public NodeStatsSample getNodeStats()
@@ -73,7 +73,7 @@ public class NodeStatsReply extends NCPMessage
 		tbuffer.putLong(nodeStatsSample.getTXS());
 		tbuffer.putLong(nodeStatsSample.getBytesRX());
 		tbuffer.putLong(nodeStatsSample.getRXS());
-		tbuffer.putLong(nodeStatsSample.getAvgResponseTime());
+		tbuffer.putLong(nodeStatsSample.getAvgRTT());
 		
 		return tbuffer.array();
 	}

@@ -644,7 +644,7 @@ public class ComputeNodeManager
 							case NCP.ActivityTestRequest:
 							{
 								ActivityTestRequest req = new ActivityTestRequest(data);
-								txDataEnqueue(new ActivityTestReply(req, System.nanoTime()).toBytes());
+								txDataEnqueue(new ActivityTestReply(req).toBytes());
 							}
 							break;
 							case NCP.ActivityTestReply:
