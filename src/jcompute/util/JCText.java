@@ -83,6 +83,11 @@ public class JCText
 		return String.format("%" + maxSize + "s", text);
 	}
 	
+	public static String ZeroPaddedValue(long value, int maxSize)
+	{
+		return String.format("%0" + maxSize + "d", value);
+	}
+	
 	public static String CharRepeatBounded(char c, int repeat)
 	{
 		// Catch negatives and roll overs
