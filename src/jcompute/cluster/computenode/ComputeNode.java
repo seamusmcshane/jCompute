@@ -28,17 +28,18 @@ import jcompute.cluster.computenode.nodedetails.NodeStatsSample;
 import jcompute.cluster.computenode.weightingbenchmark.NodeWeightingBenchmark;
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.NCP.ProtocolState;
-import jcompute.cluster.ncp.command.AddSimReply;
-import jcompute.cluster.ncp.command.AddSimReq;
-import jcompute.cluster.ncp.command.SimulationStatsReply;
-import jcompute.cluster.ncp.command.SimulationStatsRequest;
-import jcompute.cluster.ncp.monitoring.NodeStatsReply;
-import jcompute.cluster.ncp.notification.SimulationStatChanged;
-import jcompute.cluster.ncp.notification.SimulationStateChanged;
-import jcompute.cluster.ncp.registration.ConfigurationAck;
-import jcompute.cluster.ncp.registration.ConfigurationRequest;
-import jcompute.cluster.ncp.registration.RegistrationReqAck;
-import jcompute.cluster.ncp.registration.RegistrationRequest;
+import jcompute.cluster.ncp.message.command.AddSimReply;
+import jcompute.cluster.ncp.message.command.AddSimReq;
+import jcompute.cluster.ncp.message.command.SimulationStatsReply;
+import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
+import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
+import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
+import jcompute.cluster.ncp.message.notification.SimulationStatChanged;
+import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
+import jcompute.cluster.ncp.message.registration.ConfigurationAck;
+import jcompute.cluster.ncp.message.registration.ConfigurationRequest;
+import jcompute.cluster.ncp.message.registration.RegistrationReqAck;
+import jcompute.cluster.ncp.message.registration.RegistrationRequest;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
@@ -150,210 +151,224 @@ public class ComputeNode
 	// Starts the node
 	public void start()
 	{
-		log.info("Starting ComputeNode");
-		
 		JComputeEventBus.register(this);
 		
-		statCache = new ProcessedItemStatCache();
-		log.info("Created ComputeNode Stat Cache");
-		
-		// Average over 60 Seconds
-		nodeAveragedStats = new NodeAveragedStats(60);
-		
-		nodeStatsUpdateTimer = new Timer("ComputeNode Stats Update Timer");
-		nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
+		// Node thread so we don't block Launcher and allow it to exit the same way as the GUI modes.
+		Thread computeNode = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), jvmInfo
-				.getUsedJVMMemoryPercentage());
-			}
-		}, 0, 1000);
-		log.info("ComputeNode Stats Update Timer Started");
-		
-		// TX Pending Message List
-		txPendingList = new ArrayList<byte[]>();
-		pendingByteCount = 0;
-		
-		log.info("Created TX Pending Message List");
-		
-		// We are in the connecting state
-		protocolState = ProtocolState.CON;
-		
-		ncpTimerCount = 0;
-		ncpReadyStateTimer = new Timer("NCP Timer");
-		ncpReadyStateTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run()
-			{
-				doNCPTick();
-			}
-			
-		}, 0, ncpTimerVal * 1000);
-		
-		Thread txData = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// Disconnect Recovery Loop
-				while(!shutdown)
-				{
-					try
-					{
-						txPendingData();
-						Thread.sleep(TX_FREQUENCY);
-					}
-					catch(InterruptedException e)
-					{
-						log.info(e.getMessage());
-						
-						doShutdownCleanUp();
-					}
-					catch(IOException e)
-					{
-						log.info(e.getMessage());
-						
-						// Socket is closed but node will remain up to reconnect
-						protocolState = ProtocolState.DIS;
-					}
-				}
+				log.info("Starting ComputeNode");
 				
-			}
-		});
-		txData.setName("TXData");
-		txData.start();
-		
-		Thread processing = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// Disconnect Recovery Loop
-				while(!shutdown)
+				statCache = new ProcessedItemStatCache();
+				log.info("Created ComputeNode Stat Cache");
+				
+				// Average over 60 Seconds
+				nodeAveragedStats = new NodeAveragedStats(60);
+				
+				nodeStatsUpdateTimer = new Timer("ComputeNode Stats Update Timer");
+				nodeStatsUpdateTimer.scheduleAtFixedRate(new TimerTask()
 				{
-					try
+					@Override
+					public void run()
 					{
-						switch(protocolState)
+						nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simsManager.getActiveSims(), statCache.getStatsStore(), jvmInfo
+						.getUsedJVMMemoryPercentage());
+					}
+				}, 0, 1000);
+				log.info("ComputeNode Stats Update Timer Started");
+				
+				// TX Pending Message List
+				txPendingList = new ArrayList<byte[]>();
+				pendingByteCount = 0;
+				
+				log.info("Created TX Pending Message List");
+				
+				// We are in the connecting state
+				protocolState = ProtocolState.CON;
+				
+				ncpTimerCount = 0;
+				ncpReadyStateTimer = new Timer("NCP Timer");
+				ncpReadyStateTimer.schedule(new TimerTask()
+				{
+					@Override
+					public void run()
+					{
+						doNCPTick();
+					}
+					
+				}, 0, ncpTimerVal * 1000);
+				
+				Thread txData = new Thread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Disconnect Recovery Loop
+						while(!shutdown)
 						{
-							case CON:
+							try
 							{
-								connect(nodeInfo.getAddress());
+								txPendingData();
+								Thread.sleep(TX_FREQUENCY);
 							}
-							break;
-							case REG:
+							catch(InterruptedException e)
 							{
-								register();
+								log.info(e.getMessage());
+								
+								doShutdownCleanUp();
 							}
-							break;
-							case RDY:
+							catch(IOException e)
 							{
-								process();
-							}
-							break;
-							case DIS:
-							{
-								// Reconnect if not shutting down
-								if(!shutdown)
-								{
-									// Clean up any previous socket
-									if(socket != null)
-									{
-										// Close Connection
-										if(!socket.isClosed())
-										{
-											socket.close();
-											
-											log.info("Socket Closed");
-										}
-									}
-									
-									// Our connection to the remote manager is
-									// gone.
-									simsManager.removeAll();
-									log.info("Removed all Simulations");
-									
-									// Any stats in the cache are not going to
-									// be requested.
-									statCache = new ProcessedItemStatCache();
-									log.info("Recreated ComputeNode Stat Cache");
-									
-									// Clear Pending Messages
-									clearPendingTXList();
-									
-									protocolState = ProtocolState.CON;
-								}
-							}
-							break;
-							default:
-							{
-								// Not Possible unless a new state is not
-								// handled correctly.
-								log.error("protocolState : " + protocolState + " NOT VALID");
+								log.info(e.getMessage());
+								
+								// Socket is closed but node will remain up to reconnect
 								protocolState = ProtocolState.DIS;
 							}
-							break;
 						}
 						
 					}
-					catch(SocketTimeoutException e)
+				});
+				txData.setName("TXData");
+				txData.start();
+				
+				Thread processing = new Thread(new Runnable()
+				{
+					@Override
+					public void run()
 					{
-						log.info(e.getMessage());
-					}
-					catch(ConnectException e)
-					{
-						log.info(e.getMessage());
-					}
-					catch(IOException e)
-					{
-						log.info(e.getMessage());
+						// Disconnect Recovery Loop
+						while(!shutdown)
+						{
+							try
+							{
+								switch(protocolState)
+								{
+									case CON:
+									{
+										connect(nodeInfo.getAddress());
+									}
+									break;
+									case REG:
+									{
+										register();
+									}
+									break;
+									case RDY:
+									{
+										process();
+									}
+									break;
+									case DIS:
+									{
+										// Reconnect if not shutting down
+										if(!shutdown)
+										{
+											// Clean up any previous socket
+											if(socket != null)
+											{
+												// Close Connection
+												if(!socket.isClosed())
+												{
+													socket.close();
+													
+													log.info("Socket Closed");
+												}
+											}
+											
+											// Our connection to the remote manager is
+											// gone.
+											simsManager.removeAll();
+											log.info("Removed all Simulations");
+											
+											// Any stats in the cache are not going to
+											// be requested.
+											statCache = new ProcessedItemStatCache();
+											log.info("Recreated ComputeNode Stat Cache");
+											
+											// Clear Pending Messages
+											clearPendingTXList();
+											
+											protocolState = ProtocolState.CON;
+										}
+									}
+									break;
+									default:
+									{
+										// Not Possible unless a new state is not
+										// handled correctly.
+										log.error("protocolState : " + protocolState + " NOT VALID");
+										protocolState = ProtocolState.DIS;
+									}
+									break;
+								}
+								
+							}
+							catch(SocketTimeoutException e)
+							{
+								log.info(e.getMessage());
+							}
+							catch(ConnectException e)
+							{
+								log.info(e.getMessage());
+							}
+							catch(IOException e)
+							{
+								log.info(e.getMessage());
+								
+								doShutdownCleanUp();
+								
+								e.printStackTrace();
+							}
+							
+							if(protocolState == ProtocolState.CON)
+							{
+								try
+								{
+									int sleep = (ThreadLocalRandom.current().nextInt(4750)) + 250;
+									log.info("Waiting " + sleep + " milliseconds");
+									Thread.sleep(sleep);
+								}
+								catch(InterruptedException e)
+								{
+									Thread.currentThread().interrupt();
+									
+									log.info(e.getMessage());
+									
+									doShutdownCleanUp();
+									
+									e.printStackTrace();
+								}
+							}
+							
+						}
 						
+						// Exiting RX Thread
 						doShutdownCleanUp();
-						
-						e.printStackTrace();
 					}
-					
-					if(protocolState == ProtocolState.CON)
-					{
-						try
-						{
-							int sleep = (ThreadLocalRandom.current().nextInt(4750)) + 250;
-							log.info("Waiting " + sleep + " milliseconds");
-							Thread.sleep(sleep);
-						}
-						catch(InterruptedException e)
-						{
-							Thread.currentThread().interrupt();
-							
-							log.info(e.getMessage());
-							
-							doShutdownCleanUp();
-							
-							e.printStackTrace();
-						}
-					}
-					
+				});
+				processing.setName("Processing");
+				processing.start();
+				
+				try
+				{
+					txData.join();
+					processing.join();
+				}
+				catch(InterruptedException e)
+				{
+					log.info(e.getMessage());
+					e.printStackTrace();
 				}
 				
-				// Exiting RX Thread
-				doShutdownCleanUp();
+				log.info("ComputeNode Exited");
+				
+				System.exit(0);
 			}
 		});
-		processing.setName("Processing");
-		processing.start();
-		
-		try
-		{
-			txData.join();
-			processing.join();
-		}
-		catch(InterruptedException e)
-		{
-			log.info(e.getMessage());
-			e.printStackTrace();
-		}
+		computeNode.setName("ComputeNode");
+		computeNode.start();
 	}
 	
 	/*
@@ -572,8 +587,10 @@ public class ComputeNode
 				break;
 				case NCP.NodeStatsRequest:
 				{
+					NodeStatsRequest req = new NodeStatsRequest(data);
+					
 					// Read here
-					int sequenceNum = data.getInt();
+					int sequenceNum = req.getSequenceNum();
 					
 					NodeStatsSample nodeStatsSample = new NodeStatsSample();
 					
@@ -684,7 +701,7 @@ public class ComputeNode
 	 *****************************************************************************************************/
 	
 	// Performs a socket connection attempt
-	private boolean connect(String address) throws IOException, SocketTimeoutException
+	private boolean connect(String address) throws IOException
 	{
 		// Reset the timer
 		ncpTimerCount = 0;
@@ -711,7 +728,6 @@ public class ComputeNode
 		socket.setReceiveBufferSize(socketRX);
 		socket.setSendBufferSize(socketTX);
 		socket.setTcpNoDelay(tcpNoDelay);
-		
 		
 		socket.connect(new InetSocketAddress(address, NCP.StandardServerPort), 10000);
 		// Link up Output Stream
