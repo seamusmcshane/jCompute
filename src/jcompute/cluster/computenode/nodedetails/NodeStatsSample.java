@@ -14,6 +14,7 @@ public class NodeStatsSample
 	private long txS;
 	private long bytesRX;
 	private long rxS;
+	private long lastResponseTime;
 	
 	public void setBytesTX(long bytesTX)
 	{
@@ -85,17 +86,6 @@ public class NodeStatsSample
 		return jvmMemoryUsedPercentage;
 	}
 	
-	public void reset()
-	{
-		cpuUsage = 0;
-		simulationsProcessed = 0;
-		simulationsActive = 0;
-		statisticsPendingFetch = 0;
-		jvmMemoryUsedPercentage = 0;
-		bytesTX = 0;
-		bytesRX = 0;
-	}
-	
 	public void setTXS(long txS)
 	{
 		this.txS = txS;
@@ -114,5 +104,31 @@ public class NodeStatsSample
 	public long getRXS()
 	{
 		return rxS;
+	}
+	
+	public void setLastResponseTime(long lastResponseTime)
+	{
+		this.lastResponseTime = lastResponseTime;
+	}
+	
+	public long getLastResponseTime()
+	{
+		return lastResponseTime;
+	}
+	
+	public void reset()
+	{
+		cpuUsage = 0;
+		simulationsProcessed = 0;
+		simulationsActive = 0;
+		statisticsPendingFetch = 0;
+		jvmMemoryUsedPercentage = 0;
+		
+		bytesTX = 0;
+		txS = 0;
+		bytesRX = 0;
+		rxS = 0;
+		
+		lastResponseTime = 0;
 	}
 }
