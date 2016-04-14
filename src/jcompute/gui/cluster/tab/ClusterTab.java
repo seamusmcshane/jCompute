@@ -364,6 +364,8 @@ public class ClusterTab extends JPanel
 						clusterNodesLogTablePanel.addRow(new NodeConnectionLogRowItem(eventIds.incrementAndGet(), nid, e.getNodeConfiguration().getAddress(),
 						eventType.name(), new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime())));
 					break;
+					// Deliberate
+					case REMOVED:
 					case DISCONNECTED:
 						
 						clusterConnectedNodesTablePanel.removeRow(nid);

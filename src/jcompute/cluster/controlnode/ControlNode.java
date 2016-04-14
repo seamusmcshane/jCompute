@@ -344,34 +344,31 @@ public class ControlNode
 							// address
 							if(!existingActive)
 							{
-								// If there is a existing connecting node -
-								// remove it.
+								// Add create a ComputeNodeManager for this ComputeNode and add to connecting lists.
+								ComputeNodeManager nm = new ComputeNodeManager(++connectionNumber, nodeSocket, txFreq);
+								
+								connectingNodes.add(nm);
+								
+								// Start the new ComputeNodeManager
+								nm.start();
+								
+								JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTING, nm.getNodeConfig()));
+								
+								// If there is already an existing connecting node but it is not connected yet remove it.
 								if(existingConnecting)
 								{
 									ComputeNodeManager existingNode = getExistingConnectingNode(nodeSocket);
 									
 									connectingNodes.remove(existingNode);
 									
+									JComputeEventBus.post(new NodeEvent(NodeEventType.REMOVED, existingNode.getNodeConfig()));
+									
 									existingNode.destroy("A new ComputeNode from " + existingNode.getAddress() + " has connected");
-									
-									nodeSocket.close();
 								}
-								else
-								{
-									// Add create a ComputeNodeManager for this ComputeNode and add to connecting lists.
-									ComputeNodeManager nm = new ComputeNodeManager(++connectionNumber, nodeSocket, txFreq);
-									
-									connectingNodes.add(nm);
-									
-									// Start the new ComputeNodeManager
-									nm.start();
-									
-									JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTING, nm.getNodeConfig()));
-								}
-								
 							}
 							else
 							{
+								// There is an exiting connected node - give it priority
 								log.warn("Closing Socket as a ComputeNode already exists on :" + nodeSocket.getRemoteSocketAddress());
 								nodeSocket.close();
 							}
@@ -504,7 +501,8 @@ public class ControlNode
 			log.debug("ComputeNode " + node.getUid());
 			if(node.hasFreeSlot() && node.isRunning())
 			{
-				log.info("Adding Batch " + item.getBatchId() + " Item " + item.getItemId() + " SampleId " + item.getSampleId() + " to ComputeNode " + node.getUid());
+				log.info("Adding Batch " + item.getBatchId() + " Item " + item.getItemId() + " SampleId " + item.getSampleId() + " to ComputeNode " + node
+				.getUid());
 				
 				// Record ComputeNode in mapping
 				mapping.setNodeUid(node.getUid());
@@ -566,8 +564,8 @@ public class ControlNode
 		{
 			case SUCESSFUL:
 				
-				log.debug("NodeItemRequestProcessed " + result.toString() + " Operation " + operation.toString() + " Simulation on ComputeNode " + mapping.getNodeUid()
-				+ " Local SimId " + mapping.getLocalSimId() + " Remote SimId " + mapping.getRemoteSimId());
+				log.debug("NodeItemRequestProcessed " + result.toString() + " Operation " + operation.toString() + " Simulation on ComputeNode " + mapping
+				.getNodeUid() + " Local SimId " + mapping.getLocalSimId() + " Remote SimId " + mapping.getRemoteSimId());
 				
 				switch(operation)
 				{
@@ -591,7 +589,8 @@ public class ControlNode
 			break;
 			case FAILED:
 				
-				log.error("ComputeNode Item Request Failed - " + operation.toString() + " SimId " + mapping.getLocalSimId() + " ComputeNode " + mapping.getNodeUid());
+				log.error("ComputeNode Item Request Failed - " + operation.toString() + " SimId " + mapping.getLocalSimId() + " ComputeNode " + mapping
+				.getNodeUid());
 				
 				switch(operation)
 				{

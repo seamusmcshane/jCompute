@@ -26,7 +26,7 @@ public class NodeEvent
 	/** State Enum */
 	public enum NodeEventType
 	{
-		CONNECTING("Connecting"), CONNECTED("Connected"), DISCONNECTED("Disconnected");
+		CONNECTING("Connecting"), CONNECTED("Connected"), DISCONNECTED("Disconnected"), REMOVED("Removed");
 		
 		private final String name;
 		
@@ -54,6 +54,9 @@ public class NodeEvent
 				break;
 				case 2:
 					state = NodeEventType.DISCONNECTED;
+				break;
+				case 3:
+					state = NodeEventType.REMOVED;
 				break;
 				default:
 					/* Invalid Usage */
