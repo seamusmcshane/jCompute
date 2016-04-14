@@ -30,20 +30,21 @@ import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest.N
 import jcompute.cluster.controlnode.mapping.RemoteSimulationMapping;
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.NCP.ProtocolState;
-import jcompute.cluster.ncp.command.AddSimReply;
-import jcompute.cluster.ncp.command.AddSimReq;
-import jcompute.cluster.ncp.command.RemoveSimAck;
-import jcompute.cluster.ncp.command.SimulationStatsReply;
-import jcompute.cluster.ncp.command.SimulationStatsRequest;
-import jcompute.cluster.ncp.control.NodeOrderlyShutdown;
-import jcompute.cluster.ncp.monitoring.NodeStatsReply;
-import jcompute.cluster.ncp.monitoring.NodeStatsRequest;
-import jcompute.cluster.ncp.notification.SimulationStatChanged;
-import jcompute.cluster.ncp.notification.SimulationStateChanged;
-import jcompute.cluster.ncp.registration.ConfigurationAck;
-import jcompute.cluster.ncp.registration.ConfigurationRequest;
-import jcompute.cluster.ncp.registration.RegistrationReqAck;
-import jcompute.cluster.ncp.registration.RegistrationReqNack;
+import jcompute.cluster.ncp.message.command.AddSimReply;
+import jcompute.cluster.ncp.message.command.AddSimReq;
+import jcompute.cluster.ncp.message.command.SimulationStatsReply;
+import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
+import jcompute.cluster.ncp.message.control.NodeOrderlyShutdown;
+import jcompute.cluster.ncp.message.monitoring.ActivityTestReply;
+import jcompute.cluster.ncp.message.monitoring.ActivityTestRequest;
+import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
+import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
+import jcompute.cluster.ncp.message.notification.SimulationStatChanged;
+import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
+import jcompute.cluster.ncp.message.registration.ConfigurationAck;
+import jcompute.cluster.ncp.message.registration.ConfigurationRequest;
+import jcompute.cluster.ncp.message.registration.RegistrationReqAck;
+import jcompute.cluster.ncp.message.registration.RegistrationReqNack;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
@@ -187,7 +188,7 @@ public class ComputeNodeManager
 			public void run()
 			{
 				log.info("TX Ready");
-
+				
 				// Disconnect Recovery Loop
 				while(nodeState != NodeManagerState.SHUTDOWN)
 				{
@@ -266,7 +267,8 @@ public class ComputeNodeManager
 						int remoteProtocolVersion = data.getInt();
 						if(remoteProtocolVersion != NCP.NCP_PROTOCOL_VERSION)
 						{
-							log.warn("Sent Registration nack Protocol Version Mismatch - expected " + NCP.NCP_PROTOCOL_VERSION + " found " + remoteProtocolVersion);
+							log.warn("Sent Registration nack Protocol Version Mismatch - expected " + NCP.NCP_PROTOCOL_VERSION + " found "
+							+ remoteProtocolVersion);
 							
 							txDataEnqueue(new RegistrationReqNack(NCP.ProtocolVersionMismatch, NCP.NCP_PROTOCOL_VERSION).toBytes());
 							
@@ -396,7 +398,12 @@ public class ComputeNodeManager
 					{
 						log.error("ConfAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 					}
-					
+				break;
+				case NCP.ActivityTestRequest:
+				{
+					ActivityTestRequest req = new ActivityTestRequest(data);
+					txDataEnqueue(new ActivityTestReply(req, System.nanoTime()).toBytes());
+				}
 				break;
 				// Test Frame or Garbage
 				case NCP.INVALID:
@@ -602,22 +609,6 @@ public class ComputeNodeManager
 								}
 								
 							break;
-							case NCP.RemSimAck:
-								if(protocolState == ProtocolState.RDY)
-								{
-									RemoveSimAck removeSimAck = new RemoveSimAck(data);
-									
-									log.info("Recieved RemSimAck : " + removeSimAck.getSimId());
-									
-									RemoteSimulationMapping mapping = remoteSimulationMap.get(removeSimAck.getSimId());
-									
-									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.RemovedSim));
-								}
-								else
-								{
-									log.error("RemSimAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
-								}
-							break;
 							case NCP.NodeStatsReply:
 								if(protocolState == ProtocolState.RDY)
 								{
@@ -634,28 +625,40 @@ public class ComputeNodeManager
 									log.error("NodeStatsReply for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
 							break;
-							case NCP.SimStats:
-								
+							case NCP.SimStatsReply:
+							{
 								if(protocolState == ProtocolState.RDY)
 								{
-									log.info("Recieved Sim Stats");
+									log.info("Recieved Sim Stats Reply");
 									
-									// Needed for the mapping lookup
-									int simId = data.getInt();
+									SimulationStatsReply statsReply = new SimulationStatsReply(data);
+									
+									// SimId
+									int simId = statsReply.getSimId();
 									
 									// find the mapping
 									RemoteSimulationMapping mapping = remoteSimulationMap.get(simId);
 									
-									SimulationStatsReply statsReply = new SimulationStatsReply(simId, data, mapping.getExportFormat(), mapping
-									.getFileNameSuffix());
-									
-									processFinishedSimulation(mapping, statsReply.getStatExporter());
+									processFinishedSimulation(mapping, statsReply.getStatExporter(mapping.getExportFormat(), mapping.getFileNameSuffix()));
 								}
 								else
 								{
 									log.error("SimStats for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 								}
-								
+							}
+							break;
+							case NCP.ActivityTestRequest:
+							{
+								ActivityTestRequest req = new ActivityTestRequest(data);
+								txDataEnqueue(new ActivityTestReply(req, System.nanoTime()).toBytes());
+							}
+							break;
+							case NCP.ActivityTestReply:
+							{
+								// TODO - Manager has sent a request
+								// ConnectionTestRequest req = new ConnectionTestRequest(data);
+								// txDataEnqueue(new ConnectionTestReply(req).toBytes());
+							}
 							break;
 							// Test Frame or Garbage
 							case NCP.INVALID:
