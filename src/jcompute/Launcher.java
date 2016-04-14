@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.cluster.batchmanager.BatchManager;
 import jcompute.cluster.computenode.ComputeNode;
+import jcompute.cluster.computenode.ComputeNode2;
 import jcompute.cluster.controlnode.ControlNode;
 import jcompute.gui.cluster.ClusterGUI;
 import jcompute.gui.interactive.StandardGUI;
@@ -42,9 +43,9 @@ public class Launcher
 		"Configure TcpNoDelay (0/1)"), new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)")
 	};
 	
-	public static void main(String args[]) throws IOException
+	public static void main(String arguments[]) throws IOException
 	{
-		// Set the main threads name
+		// Change the main threads name
 		Thread.currentThread().setName("Launcher");
 		
 		// Convert the defaults list into hash map
@@ -55,16 +56,16 @@ public class Launcher
 			optionsMap.put(cmdLineDefault.getName(), cmdLineDefault);
 		}
 		
-		// Check if the args exist
-		if(args.length > 0)
+		// Check if the arguments exist
+		if(arguments.length > 0)
 		{
-			// We expect the arguments as one comma delimited string of key value pairs (eg key1=value1,key2=value2,key3=value3) with no spaces - thus only read
-			// arg[0]
-			parseCommandLineOption(args[0], optionsMap);
+			// We expect the arguments as one comma delimited string of key value pairs (i.e key1=value1,key2=value2,key3=value3) with no spaces.
+			// Thus only need to read arguments[0]
+			parseCommandLineOption(arguments[0], optionsMap);
 		}
 		else
 		{
-			System.out.println("No Command Line Args using defaults.");
+			System.out.println("No command line arguments using defaults.");
 		}
 		
 		attemptToLaunchUsingOptionChoices(optionsMap);
@@ -121,7 +122,7 @@ public class Launcher
 		String iTheme = options.get("iTheme").getValue();
 		IconManager.initialiseWithTheme(iTheme);
 		
-		// Load plugins
+		// Load plug-ins
 		ScenarioPluginManager.loadPlugins();
 		
 		int bText = Integer.valueOf(options.get("bText").getValue());
@@ -132,7 +133,7 @@ public class Launcher
 			buttonText = false;
 		}
 		
-		/* Init the Event bus in Async Mode */
+		/* Initialise the event bus in asynchronous mode */
 		JComputeEventBus.initAsync();
 		
 		int socketTX = Integer.parseInt(options.get("SocketTX").getValue());
@@ -168,31 +169,21 @@ public class Launcher
 				
 			break;
 			case 2:
-				
+			{
 				final String address = options.get("addr").getValue();
 				
 				log.info("Creating ComputeNode : " + address + " (" + nodeDescription + ")");
 				
-				// Launcher thread so we don't block Launcher and allow it to exit the same way as the GUI modes.
-				Thread nodeLauncher = new Thread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Remote ComputeNode
-						ComputeNode computeNode = new ComputeNode(address, nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())), socketTX,
-						socketRX, tcpNoDelay, txFreq);
-						
-						computeNode.start();
-						
-						log.info("ComputeNode Exited");
-						
-						System.exit(0);
-					}
-				});
-				nodeLauncher.setName("ComputeNode");
-				nodeLauncher.start();
+				// Remote ComputeNode
+				// ComputeNode computeNode = new ComputeNode(address, nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())),
+				// socketTX, socketRX, tcpNoDelay, txFreq);
 				
+				// computeNode.start();
+				
+				// ComputeNode2
+				ComputeNode2 node = new ComputeNode2(nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())));
+				node.start(5, address, socketTX, socketRX, tcpNoDelay, txFreq);
+			}
 			break;
 			default:
 				
@@ -225,7 +216,7 @@ public class Launcher
 	 * Command Line Parser
 	 *****************************************************************************************************/
 	
-	// Get all the command line args and puts then in the map
+	// Get all the command line arguments and puts then in the map
 	private static void parseCommandLineOption(String cmdline, HashMap<String, CommandLineArg> destMap)
 	{
 		System.out.println("Command line was : " + cmdline);
@@ -329,14 +320,14 @@ public class Launcher
 		// Configure the launcher logger - as it is the first class it needs to be after l4j2 conf.
 		log = LogManager.getLogger(Launcher.class);
 		
+		// Classes with internal static loggers cannot be referenced until logging is setup - FileUtil is one of those classes.
+		// Create the log dir now
+		FileUtil.createDirIfNotExist(logPath);
+		
 		// Display the log file name - record in info log
 		log.info("LogPath      : " + logPath);
 		log.info("Standard Log : " + standardLog);
 		log.info("Error Log    : " + errorLog);
-		
-		// Classes with internal static loggers cannot be referenced until logging is setup - FileUtil is one of those classes.
-		// Create the log dir now
-		FileUtil.createDirIfNotExist(logPath);
 	}
 	
 	// Output the running environment
