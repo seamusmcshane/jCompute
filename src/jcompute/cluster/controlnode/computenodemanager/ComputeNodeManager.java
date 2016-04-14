@@ -399,12 +399,6 @@ public class ComputeNodeManager
 						log.error("ConfAck for node " + nodeInfo.getUid() + " not valid in state " + protocolState.toString());
 					}
 				break;
-				case NCP.ActivityTestRequest:
-				{
-					ActivityTestRequest req = new ActivityTestRequest(data);
-					txDataEnqueue(new ActivityTestReply(req, System.nanoTime()).toBytes());
-				}
-				break;
 				// Test Frame or Garbage
 				case NCP.INVALID:
 				default:
@@ -1123,5 +1117,4 @@ public class ComputeNodeManager
 			return state;
 		}
 	}
-	
 }

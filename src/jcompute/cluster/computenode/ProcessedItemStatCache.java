@@ -31,5 +31,4 @@ public class ProcessedItemStatCache
 	{
 		return statMap.size();
 	}
-	
 }

@@ -123,7 +123,7 @@ public class ComputeNode2
 					
 					// If ActivityTest is 1000ms and rxFrequency 10ms then the statistics divisor is 100.
 					// As processingTickCounter increments by 1 every 10ms, it takes 1 second to reach 100.
-					final int statisticsUpdateDivisor = (NCP.Timeout.ActivityTest.value) / rxFrequency;
+					final int statisticsUpdateDivisor = (NCP.ActivityTestFreq) / rxFrequency;
 					
 					int connectionAttempts = 0;
 					int processingTickCounter = 0;

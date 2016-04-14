@@ -117,8 +117,7 @@ public class NCP
 	// Timeouts in millis
 	public enum Timeout
 	{
-		ReadyState(RdyTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout"),
-		ActivityTest(ActivityTestFreq, "Activity Test Frequency Timeout");
+		ReadyState(RdyTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout");
 		
 		private final String name;
 		public final int value;

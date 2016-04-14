@@ -71,8 +71,8 @@ public class MessageManager
 	private int recvConnectionTestSeqNum;
 	private int sentConnectionTestSeqNum;
 	
-	// Last received message time
-	private long lastMessageTimeMillis;
+	// Last received test message time
+	private long lastTestMessageTime;
 	
 	private Timeout timeout = Timeout.ReadyState;
 	
@@ -141,8 +141,16 @@ public class MessageManager
 			return false;
 		}
 		
-		// Begin Message timeout
-		lastMessageTimeMillis = System.currentTimeMillis();
+		try
+		{
+			setTimeOut(NCP.Timeout.ReadyState);
+		}
+		catch(SocketException e)
+		{
+			shutdown(e.getMessage());
+			
+			return false;
+		}
 		
 		started = true;
 		
@@ -155,9 +163,6 @@ public class MessageManager
 				
 				try
 				{
-					// Initial NCP timeout at ready state timeout.
-					setTimeOut(NCP.Timeout.ReadyState);
-					
 					while(connected)
 					{
 						txPendingData();
@@ -296,9 +301,9 @@ public class MessageManager
 		
 		try
 		{
-			// We transparently receive NCPConnectionTest messages here and reply.
+			// We transparently receive ActivityTest messages here and reply.
 			// But they do not go higher up, so if received we intercept and redo the requested read while keeping any wait behaviour.
-			// This also limits processing of NCPConnectionTest to the speed at which this method is called.
+			// This also limits processing of ActivityTest to the speed at which this method is called.
 			while(true)
 			{
 				// Is there any data
@@ -307,15 +312,13 @@ public class MessageManager
 					// Do a test if there is no data - initiate an activity test sequence if we have not performed a test recently
 					if((recvConnectionTestSeqNum == sentConnectionTestSeqNum) && needsActivityTest())
 					{
-						sentConnectionTestSeqNum++;
-						
-						txDataEnqueue(new ActivityTestRequest(sentConnectionTestSeqNum).toBytes());
+						sendActivityTestMessage();
 					}
 					
 					// The connection has no pending data, no we had no test replies and we are over the NCP.TimeOut window length.
 					if(isNCPTimeout())
 					{
-						shutdown("NCP Timeout " + (System.currentTimeMillis() - lastMessageTimeMillis));
+						shutdown(timeout.toString() + " : " + (System.currentTimeMillis() - lastTestMessageTime));
 					}
 					
 					// No data but requested not to wait.
@@ -324,11 +327,9 @@ public class MessageManager
 						return null;
 					}
 				}
-				else
-				{
-					// We got data - reset NCP Timeout
-					resetNCPTimeout();
-				}
+				
+				NCPMessage message = null;
+				boolean testFrame = false;
 				
 				// Block here until data or timeout
 				type = input.readInt();
@@ -345,61 +346,75 @@ public class MessageManager
 					// Registration
 					case NCP.RegReq:
 					{
-						return new RegistrationRequest();
+						message = new RegistrationRequest();
 					}
+					break;
 					case NCP.RegAck:
 					{
-						return new RegistrationReqAck(data);
+						message = new RegistrationReqAck(data);
 					}
+					break;
 					case NCP.RegNack:
 					{
-						return new RegistrationReqNack(data);
+						message = new RegistrationReqNack(data);
 					}
+					break;
 					case NCP.ConfReq:
 					{
-						return new ConfigurationRequest(data);
+						message = new ConfigurationRequest(data);
 					}
+					break;
 					case NCP.ConfAck:
 					{
-						return new ConfigurationAck(data);
+						message = new ConfigurationAck(data);
 					}
+					break;
 					// Command
 					case NCP.AddSimReq:
 					{
-						return new AddSimReq(data);
+						message = new AddSimReq(data);
 					}
+					break;
 					case NCP.AddSimReply:
 					{
-						return new AddSimReply(data);
+						message = new AddSimReply(data);
 					}
+					break;
 					case NCP.SimStatsReq:
 					{
-						return new SimulationStatsRequest(data);
+						message = new SimulationStatsRequest(data);
 					}
+					break;
 					case NCP.SimStatsReply:
 					{
-						return new SimulationStatsReply(data);
+						message = new SimulationStatsReply(data);
 					}
+					break;
 					case NCP.SimStateNoti:
 					{
-						return new SimulationStateChanged(data);
+						message = new SimulationStateChanged(data);
 					}
+					break;
 					case NCP.SimStatNoti:
 					{
-						return new SimulationStatChanged(data);
+						message = new SimulationStatChanged(data);
 					}
+					break;
 					case NCP.NodeStatsRequest:
 					{
-						return new NodeStatsRequest(data);
+						message = new NodeStatsRequest(data);
 					}
+					break;
 					case NCP.NodeStatsReply:
 					{
-						return new NodeStatsReply(data);
+						message = new NodeStatsReply(data);
 					}
+					break;
 					case NCP.NodeOrderlyShutdown:
 					{
-						return new NodeOrderlyShutdown();
+						message = new NodeOrderlyShutdown();
 					}
+					break;
 					case NCP.ActivityTestRequest:
 					{
 						log.error("NOT !!!");
@@ -407,6 +422,8 @@ public class MessageManager
 						ActivityTestRequest req = new ActivityTestRequest(data);
 						
 						txDataEnqueue(new ActivityTestReply(req, System.nanoTime()).toBytes());
+						
+						testFrame = true;
 					}
 					break;
 					case NCP.ActivityTestReply:
@@ -427,6 +444,8 @@ public class MessageManager
 						{
 							shutdown("ConnectionTest Sequence not in sync " + sentConnectionTestSeqNum + " " + recvConnectionTestSeqNum + " " + reqSeqNum);
 						}
+						
+						testFrame = true;
 					}
 					break;
 					default:
@@ -434,6 +453,19 @@ public class MessageManager
 						return null;
 					}
 				}
+				
+				// The socket may have intercepted an activity test message.
+				if(!testFrame)
+				{
+					// Return the message
+					return message;
+				}
+				
+				// Reset NCP Timeout
+				resetNCPTimeout();
+				
+				// Reset flag
+				testFrame = false;
 			}
 		}
 		catch(SocketTimeoutException e)
@@ -565,25 +597,42 @@ public class MessageManager
 		log.info("Shutting down : " + reason);
 	}
 	
+	/*
+	 * ***************************************************************************************************
+	 * Timeout
+	 *****************************************************************************************************/
+	
+	private void sendActivityTestMessage()
+	{
+		sentConnectionTestSeqNum++;
+		
+		txDataEnqueue(new ActivityTestRequest(sentConnectionTestSeqNum).toBytes());
+	}
+	
 	private boolean needsActivityTest()
 	{
-		return NCP.Timeout.ActivityTest.isTimedout((int) (System.currentTimeMillis() - lastMessageTimeMillis));
+		// If timer is not an ActivityTest timer then we do not need a test other wise check the age of the last message against the test freq min.
+		return (timeout == NCP.Timeout.Inactivity) ? ((System.currentTimeMillis() - lastTestMessageTime) >= NCP.ActivityTestFreq) : false;
 	}
 	
 	private boolean isNCPTimeout()
 	{
-		return timeout.isTimedout((int) (System.currentTimeMillis() - lastMessageTimeMillis));
+		return timeout.isTimedout((int) (System.currentTimeMillis() - lastTestMessageTime));
 	}
 	
 	// Reset NCP Timeout
 	private void resetNCPTimeout()
 	{
-		lastMessageTimeMillis = System.currentTimeMillis();
+		lastTestMessageTime = System.currentTimeMillis();
 	}
 	
 	public void setTimeOut(Timeout timeout) throws SocketException
 	{
 		this.timeout = timeout;
+		
+		log.info("Activated " + timeout.toString());
+		
+		resetNCPTimeout();
 		
 		// Keep socket timeout in sync
 		socket.setSoTimeout(timeout.value);

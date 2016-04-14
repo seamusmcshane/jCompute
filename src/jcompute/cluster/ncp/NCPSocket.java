@@ -25,6 +25,7 @@ import jcompute.cluster.ncp.message.registration.RegistrationReqNack;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.stats.StatExporter;
+import jcompute.util.JCText;
 
 /**
  * NCP Socket Implementation
@@ -373,23 +374,33 @@ public class NCPSocket implements Closeable
 						log.info("Running Weighting Benchmark");
 						/* Benchmark */
 						NodeWeightingBenchmark nodeWeightingBenchmark = new NodeWeightingBenchmark(confReq.getObjects(), confReq.getIterations());
-						nodeWeightingBenchmark.warmUp(confReq.getWarmup());
+						long warmup = nodeWeightingBenchmark.warmUp(confReq.getWarmup());
 						long weighting = nodeWeightingBenchmark.weightingBenchmark(confReq.getRuns());
 						nodeInfo.setWeighting(weighting);
-						log.info("Weighting\t " + weighting);
+						
+						log.info("Warmup Time     : " + JCText.ZeroPaddedValue((warmup), 6));
+						log.info("Node Weighting  : " + JCText.ZeroPaddedValue((weighting), 6));
+						log.info("Total Time      : " + JCText.ZeroPaddedValue((warmup + weighting), 6));
 					}
 					
-					// If nothing untoward has happened during the benchmark (i.e. we didn't get disconnected or an NCP timeout)
-					if(ncpState == ProtocolState.REG_ACK)
+					// Check the ready state to see if we have already had a timeout
+					if(isReadyStateTimeOut())
 					{
-						log.info("Sending configuration acknowledgement : Max simulations " + nodeInfo.getMaxSims());
+						ncpState = ProtocolState.DIS;
 						
-						// Send the Configuration acknowledgement with our node info
-						ncpMM.sendConfigurationAck(nodeInfo);
+						log.error(NCP.DisconnectReason.ReadyStateTimeout);
 						
-						// Now Registered enter ready State
-						ncpState = ProtocolState.RDY;
+						// Exit the loop
+						break Registration;
 					}
+					
+					log.info("Sending configuration acknowledgement : Max simulations " + nodeInfo.getMaxSims());
+					
+					// Send the Configuration acknowledgement with our node info
+					ncpMM.sendConfigurationAck(nodeInfo);
+					
+					// Now Registered enter ready State
+					ncpState = ProtocolState.RDY;
 					
 					// Exit Loop here.
 					break Registration;
