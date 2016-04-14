@@ -234,7 +234,7 @@ public class MessageManager
 		// Check for a div0
 		long avgResponseTime = (totalTestSinceReset > 0) ? (totalResponseTime / totalTestSinceReset) : -1;
 		
-		nodeStatsSample.setLastResponseTime(avgResponseTime);
+		nodeStatsSample.setAvgResponseTime(avgResponseTime);
 		
 		totalResponseTime = 0;
 		totalTestSinceReset = 0;
@@ -304,8 +304,8 @@ public class MessageManager
 				// Is there any data
 				if(input.available() == 0)
 				{
-					// Do a test if there is no data - initiate the test sequence
-					if(recvConnectionTestSeqNum == sentConnectionTestSeqNum)
+					// Do a test if there is no data - initiate an activity test sequence if we have not performed a test recently
+					if((recvConnectionTestSeqNum == sentConnectionTestSeqNum) && needsActivityTest())
 					{
 						sentConnectionTestSeqNum++;
 						
@@ -421,7 +421,7 @@ public class MessageManager
 							
 							totalTestSinceReset++;
 							
-							totalResponseTime += TimeUnit.NANOSECONDS.toMillis(req.getReceiveTime() - req.getSentTime());
+							totalResponseTime += (req.getReceiveTime() - req.getSentTime());
 						}
 						else
 						{
@@ -563,6 +563,11 @@ public class MessageManager
 		}
 		
 		log.info("Shutting down : " + reason);
+	}
+	
+	private boolean needsActivityTest()
+	{
+		return NCP.Timeout.ActivityTest.isTimedout((int) (System.currentTimeMillis() - lastMessageTimeMillis));
 	}
 	
 	private boolean isNCPTimeout()

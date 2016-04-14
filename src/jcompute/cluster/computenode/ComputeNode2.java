@@ -101,8 +101,6 @@ public class ComputeNode2
 		// New thread so we don't block Launcher and allow it to exit the same way as the GUI modes do.
 		Thread computeNode = new Thread(new Runnable()
 		{
-			int connectionAttempts = 0;
-			
 			@Override
 			public void run()
 			{
@@ -121,6 +119,15 @@ public class ComputeNode2
 				
 				Thread processing = new Thread(new Runnable()
 				{
+					final int rxFrequency = 10;
+					
+					// If ActivityTest is 1000ms and rxFrequency 10ms then the statistics divisor is 100.
+					// As processingTickCounter increments by 1 every 10ms, it takes 1 second to reach 100.
+					final int statisticsUpdateDivisor = (NCP.Timeout.ActivityTest.value) / rxFrequency;
+					
+					int connectionAttempts = 0;
+					int processingTickCounter = 0;
+					
 					@Override
 					public void run()
 					{
@@ -325,8 +332,11 @@ public class ComputeNode2
 							{
 								if(ncpSocket.isConnected())
 								{
-									nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simulationsManager.getActiveSims(), statCache.getStatsStore(), jvmInfo
-									.getUsedJVMMemoryPercentage());
+									if((processingTickCounter % statisticsUpdateDivisor) == 0)
+									{
+										nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simulationsManager.getActiveSims(), statCache.getStatsStore(),
+										jvmInfo.getUsedJVMMemoryPercentage());
+									}
 								}
 								else
 								{
@@ -358,8 +368,7 @@ public class ComputeNode2
 								
 								try
 								{
-									// Note : Node statistics update at a divisor of this rate as does our socket polling.
-									Thread.sleep(1000);
+									Thread.sleep(rxFrequency);
 								}
 								catch(InterruptedException e)
 								{
@@ -370,6 +379,8 @@ public class ComputeNode2
 									break Shutdown;
 								}
 							}
+							
+							processingTickCounter++;
 						}
 						
 						// We have shutdown

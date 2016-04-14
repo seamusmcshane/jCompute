@@ -39,7 +39,7 @@ public class NCPSocket implements Closeable
 	// NCP Message Manager
 	private MessageManager ncpMM;
 	
-	// for NCP ready state timeout
+	// NCP ready state timeout logic
 	private long ncpStartTime;
 	
 	// Mode is locked on construction
@@ -582,13 +582,6 @@ public class NCPSocket implements Closeable
 	 */
 	private void shutdown(String reason)
 	{
-		// Timer only exists for client upon connect
-		// if(readyStateTimer != null)
-		{
-			// The ready state timer may still be running ask it to shutdown.
-			// readyStateTimer.shutdown();
-		}
-		
 		if(ncpMM != null)
 		{
 			ncpMM.shutdown(reason);

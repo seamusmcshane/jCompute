@@ -109,6 +109,7 @@ public class NCP
 	public static final int ActivityTestRequest = 80737871;		// Connection Test
 	public static final int ActivityTestReply = 80797871;			// Connection Test Reply
 	public static final int InactivityTimeOut = 15000;				// Max time millis to wait for a node to reply before closing connection
+	public static final int ActivityTestFreq = 1000;				// Frequency in millis
 	
 	// Registration Nack Reasons
 	public static final int ProtocolVersionMismatch = 01;			// Protocol Versions do not match - value contains local node version.
@@ -116,7 +117,8 @@ public class NCP
 	// Timeouts in millis
 	public enum Timeout
 	{
-		ReadyState(RdyTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout");
+		ReadyState(RdyTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout"),
+		ActivityTest(ActivityTestFreq, "Activity Test Frequency Timeout");
 		
 		private final String name;
 		public final int value;

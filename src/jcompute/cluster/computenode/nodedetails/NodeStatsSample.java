@@ -14,7 +14,7 @@ public class NodeStatsSample
 	private long txS;
 	private long bytesRX;
 	private long rxS;
-	private long lastResponseTime;
+	private long avgResponseTime;
 	
 	public void setBytesTX(long bytesTX)
 	{
@@ -106,14 +106,14 @@ public class NodeStatsSample
 		return rxS;
 	}
 	
-	public void setLastResponseTime(long lastResponseTime)
+	public void setAvgResponseTime(long avgResponseTime)
 	{
-		this.lastResponseTime = lastResponseTime;
+		this.avgResponseTime = avgResponseTime;
 	}
 	
-	public long getLastResponseTime()
+	public long getAvgResponseTime()
 	{
-		return lastResponseTime;
+		return avgResponseTime;
 	}
 	
 	public void reset()
@@ -129,6 +129,6 @@ public class NodeStatsSample
 		bytesRX = 0;
 		rxS = 0;
 		
-		lastResponseTime = 0;
+		avgResponseTime = 0;
 	}
 }

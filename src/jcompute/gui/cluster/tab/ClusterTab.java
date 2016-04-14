@@ -445,7 +445,7 @@ public class ClusterTab extends JPanel
 				
 				clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
 				clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
-				clusterNodeResponse.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getLastResponseTime());
+				clusterNodeResponse.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getAvgResponseTime() / 1000000.0);
 			}
 		});
 	}
