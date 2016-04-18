@@ -1,6 +1,6 @@
 package jcompute.cluster.controlnode.computenodemanager.event;
 
-import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager.NodeManagerState;
+import jcompute.cluster.controlnode.NodeManagerStateMachine.NodeManagerState;
 
 public class ComputeNodeManagerStateChangeRequest
 {

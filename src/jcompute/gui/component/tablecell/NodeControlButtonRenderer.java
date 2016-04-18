@@ -22,7 +22,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import jcompute.JComputeEventBus;
-import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager.NodeManagerState;
+import jcompute.cluster.controlnode.NodeManagerStateMachine.NodeManagerState;
 import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerStateChangeRequest;
 import jcompute.gui.cluster.tablerowitems.NodeInfoRowItem;
 import jcompute.gui.component.swing.jpanel.TablePanel;
@@ -30,33 +30,33 @@ import jcompute.gui.component.swing.jpanel.TablePanel;
 public class NodeControlButtonRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor, ActionListener
 {
 	private static final long serialVersionUID = 9095858955877318230L;
-
+	
 	private TablePanel<Integer, NodeInfoRowItem> tablePanel;
 	private JTable jTable;
-
+	
 	private ImageIcon runIcon = null;
 	private ImageIcon pauseIcon = null;
-
+	
 	private JPanel rPanel;
-
+	
 	private JButton rPauseResumeToggle;
 	private JButton rShutdownToggle;
-
+	
 	private JPanel ePanel;
 	private JButton ePauseResumeToggle;
 	private JButton eShutdownToggle;
-
+	
 	private int editorValue;
-
+	
 	public NodeControlButtonRenderer(TablePanel<Integer, NodeInfoRowItem> tablePanel, int column, ImageIcon runIcon, ImageIcon pauseIcon,
 	ImageIcon shutdownIcon)
 	{
 		this.tablePanel = tablePanel;
 		jTable = tablePanel.getJTable();
-
+		
 		this.runIcon = runIcon;
 		this.pauseIcon = pauseIcon;
-
+		
 		rPanel = new JPanel();
 		rPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		rPanel.setBackground(Color.white);
@@ -66,11 +66,11 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 		rShutdownToggle = new JButton("");
 		rShutdownToggle.setIcon(shutdownIcon);
 		rPanel.add(rShutdownToggle);
-
+		
 		ePanel = new JPanel();
 		ePanel.setLayout(new GridLayout(0, 2, 0, 0));
 		ePanel.setBackground(Color.white);
-
+		
 		ePauseResumeToggle = new JButton("");
 		ePauseResumeToggle.setIcon(pauseIcon);
 		ePauseResumeToggle.addActionListener(this);
@@ -82,7 +82,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 				// Editing Cell and mouse leaves it
 				fireEditingCanceled();
 			}
-
+			
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
@@ -103,7 +103,7 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 				// Editing Cell and mouse leaves it
 				fireEditingCanceled();
 			}
-
+			
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
@@ -113,18 +113,18 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 			}
 		});
 		ePanel.add(eShutdownToggle);
-
+		
 		TableColumnModel columnModel = tablePanel.getJTable().getColumnModel();
 		columnModel.getColumn(column).setCellRenderer(this);
 		columnModel.getColumn(column).setCellEditor(this);
 		JComputeEventBus.register(this);
 	}
-
+	
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		NodeManagerState state = NodeManagerState.fromInt((int) value);
-
+		NodeManagerState state = NodeManagerState.getStateFromNumber((int) value);
+		
 		switch(state)
 		{
 			case RUNNING:
@@ -141,39 +141,43 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 				rPauseResumeToggle.setEnabled(true);
 				rShutdownToggle.setEnabled(true);
 			break;
+			case SHUTTINGDOWN:
+				rPauseResumeToggle.setEnabled(false);
+				rShutdownToggle.setEnabled(false);
+			break;
 			default:
 				// Not Enabled
 				rPauseResumeToggle.setEnabled(false);
 				rShutdownToggle.setEnabled(false);
 			break;
 		}
-
+		
 		return rPanel;
 	}
-
+	
 	@Override
 	public Object getCellEditorValue()
 	{
 		return editorValue;
 	}
-
+	
 	@Override
 	public boolean shouldSelectCell(EventObject e)
 	{
 		return true;
 	}
-
+	
 	@Override
 	public boolean isCellEditable(EventObject e)
 	{
 		return true;
 	}
-
+	
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
 	{
-		NodeManagerState state = NodeManagerState.fromInt((int) value);
-
+		NodeManagerState state = NodeManagerState.getStateFromNumber((int) value);
+		
 		switch(state)
 		{
 			case RUNNING:
@@ -196,18 +200,18 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 				eShutdownToggle.setEnabled(false);
 			break;
 		}
-
+		
 		editorValue = (int) value;
-
+		
 		return ePanel;
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		int row = jTable.convertRowIndexToModel(jTable.getEditingRow());
 		int uid = (int) tablePanel.getValueAt(row, 0);
-
+		
 		if(e.getSource() == ePauseResumeToggle)
 		{
 			if(ePauseResumeToggle.getIcon() == pauseIcon)
@@ -218,15 +222,15 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 			{
 				JComputeEventBus.post(new ComputeNodeManagerStateChangeRequest(uid, NodeManagerState.RUNNING));
 			}
-
+			
 		}
 		else if(e.getSource() == eShutdownToggle)
 		{
 			String desc = (String) tablePanel.getValueAt(row, 9);
 			String address = (String) tablePanel.getValueAt(row, 2);
-
+			
 			StringBuilder sb = new StringBuilder();
-
+			
 			sb.append("<html>");
 			sb.append("<h3>");
 			sb.append("Shutdown ComputeNode ?");
@@ -246,19 +250,19 @@ public class NodeControlButtonRenderer extends AbstractCellEditor implements Tab
 			sb.append(address);
 			sb.append("</font>");
 			sb.append("</html>");
-
+			
 			JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
+			
 			messagePanel.add(new JLabel(sb.toString()));
-
+			
 			int result = JOptionPane.showConfirmDialog(tablePanel, messagePanel, "ComputeNode Shutdown", JOptionPane.YES_NO_OPTION);
-
+			
 			if(result == JOptionPane.YES_OPTION)
 			{
 				JComputeEventBus.post(new ComputeNodeManagerStateChangeRequest(uid, NodeManagerState.SHUTDOWN));
 			}
 		}
-
+		
 		fireEditingStopped();
 	}
 }

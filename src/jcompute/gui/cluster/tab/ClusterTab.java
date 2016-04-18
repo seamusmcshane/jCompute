@@ -20,8 +20,8 @@ import com.google.common.eventbus.Subscribe;
 import jcompute.IconManager;
 import jcompute.IconManager.IconIndex;
 import jcompute.JComputeEventBus;
-import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager.NodeManagerState;
-import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerStateChange;
+import jcompute.cluster.controlnode.NodeManagerStateMachine.NodeManagerState;
+import jcompute.cluster.controlnode.NodeManagerStateMachine.NodeManagerStateMachineEvent;
 import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeStatsUpdate;
 import jcompute.cluster.controlnode.event.NodeEvent;
 import jcompute.cluster.controlnode.event.NodeEvent.NodeEventType;
@@ -348,7 +348,7 @@ public class ClusterTab extends JPanel
 					case CONNECTED:
 						
 						// Assuming Starting State
-						clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.ordinal()));
+						clusterConnectedNodesTablePanel.addRow(new NodeInfoRowItem(e.getNodeConfiguration(), NodeManagerState.RUNNING.getNumber()));
 						
 						clusterSimProChart.addStat(nodeId, nid);
 						clusterNodeActiveSims.addStat(nodeId, nid);
@@ -411,14 +411,14 @@ public class ClusterTab extends JPanel
 	}
 	
 	@Subscribe
-	public void ComputeNodeManagerStateChange(ComputeNodeManagerStateChange e)
+	public void ComputeNodeManagerStateChange(NodeManagerStateMachineEvent e)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				clusterConnectedNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getState().ordinal());
+				clusterConnectedNodesTablePanel.updateCell(e.getUid(), stateColumn, e.getStateNum());
 			}
 		});
 	}
