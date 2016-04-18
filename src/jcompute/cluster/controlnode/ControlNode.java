@@ -272,8 +272,13 @@ public class ControlNode
 			}
 		}
 		
-		// Check existing nodes are still active, and request node statistics from those that are (at NODE_STATISTICS_FREQUENCY).
+		// Check existing nodes are still active, and request node statistics from those that are active. (at NODE_STATISTICS_FREQUENCY).
 		// If the node is not active recover any outstanding simulation id.
+		
+		// Request current statistics time every minute
+		long currentStatisticsTime = System.currentTimeMillis();
+		boolean requestStatistics = ((currentStatisticsTime - lastStatisticsTime) >= NODE_STATISTICS_FREQUENCY);
+		
 		itr = activeNodes.iterator();
 		while(itr.hasNext())
 		{
@@ -281,7 +286,6 @@ public class ControlNode
 			
 			if(node.isShutdown())
 			{
-				
 				ArrayList<Integer> nodeRecoveredSimIds = node.getRecoverableSimsIds();
 				
 				Iterator<Integer> nRSIdsIter = nodeRecoveredSimIds.iterator();
@@ -301,19 +305,21 @@ public class ControlNode
 			}
 			else
 			{
-				// Every minute
-				if((System.currentTimeMillis() - lastStatisticsTime) >= NODE_STATISTICS_FREQUENCY)
+				// Request statistics for this node.
+				if(requestStatistics)
 				{
-					// Use tick count as id (ticks at NODE_STATISTICS_FREQUENCY)
+					// Use tick count as id (ticks up at NODE_STATISTICS_FREQUENCY)
 					node.triggerNodeStatRequest(tickCount);
-					
-					lastStatisticsTime = System.currentTimeMillis();
-					
-					tickCount++;
-					
-					log.error("Update " + tickCount);
 				}
 			}
+		}
+		
+		// Statistics where requested
+		if(requestStatistics)
+		{
+			log.info("Requested Node Statistics " + tickCount);
+			lastStatisticsTime = System.currentTimeMillis();
+			tickCount++;
 		}
 		
 		if(recoveredSimIds.size() > 0)
