@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.cluster.batchmanager.BatchManager;
-import jcompute.cluster.computenode.ComputeNode;
 import jcompute.cluster.computenode.ComputeNode2;
 import jcompute.cluster.controlnode.ControlNode;
 import jcompute.gui.cluster.ClusterGUI;
@@ -173,12 +172,6 @@ public class Launcher
 				final String address = options.get("addr").getValue();
 				
 				log.info("Creating ComputeNode : " + address + " (" + nodeDescription + ")");
-				
-				// Remote ComputeNode
-				// ComputeNode computeNode = new ComputeNode(address, nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())),
-				// socketTX, socketRX, tcpNoDelay, txFreq);
-				
-				// computeNode.start();
 				
 				// ComputeNode2
 				ComputeNode2 node = new ComputeNode2(nodeDescription, new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())));
