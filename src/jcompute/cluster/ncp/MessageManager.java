@@ -23,7 +23,8 @@ import jcompute.cluster.ncp.message.command.AddSimReply;
 import jcompute.cluster.ncp.message.command.AddSimReq;
 import jcompute.cluster.ncp.message.command.SimulationStatsReply;
 import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
-import jcompute.cluster.ncp.message.control.NodeOrderlyShutdown;
+import jcompute.cluster.ncp.message.control.NodeOrderlyShutdownReply;
+import jcompute.cluster.ncp.message.control.NodeOrderlyShutdownRequest;
 import jcompute.cluster.ncp.message.monitoring.ActivityTestReply;
 import jcompute.cluster.ncp.message.monitoring.ActivityTestRequest;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
@@ -38,6 +39,7 @@ import jcompute.cluster.ncp.message.registration.RegistrationRequest;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.stats.StatExporter;
+import jcompute.stats.StatExporter.ExportFormat;
 
 public class MessageManager
 {
@@ -202,6 +204,16 @@ public class MessageManager
 		txDataEnqueue(new RegistrationReqAck(uid).toBytes());
 	}
 	
+	public void sendRegistrationReqNack(int reason, int value)
+	{
+		txDataEnqueue(new RegistrationReqNack(reason, value).toBytes());
+	}
+	
+	public void sendConfigurationRequest(int benchmark, int objects, int iterations, int warmupIterations, int runs)
+	{
+		txDataEnqueue(new ConfigurationRequest(benchmark, objects, iterations, warmupIterations, runs).toBytes());
+	}
+	
 	public void sendConfigurationAck(NodeInfo nodeInfo)
 	{
 		txDataEnqueue(new ConfigurationAck(nodeInfo).toBytes());
@@ -212,7 +224,7 @@ public class MessageManager
 	 * NCP ASync Replies
 	 *****************************************************************************************************/
 	
-	// Reply to and AddSimReq
+	// Reply to an AddSimReq
 	public void sendAddSimReply(AddSimReq req, int simId)
 	{
 		if(req == null)
@@ -224,7 +236,7 @@ public class MessageManager
 		txDataEnqueue(new AddSimReply(req.getRequestId(), simId).toBytes());
 	}
 	
-	// Reply to and AddSimReq
+	// Reply to a NodeStatsRequest
 	public void sendNodeStatsReply(NodeStatsRequest req, NodeStatsSample nodeStatsSample)
 	{
 		if((req == null) || (nodeStatsSample == null))
@@ -249,6 +261,7 @@ public class MessageManager
 		txDataEnqueue(new NodeStatsReply(req.getSequenceNum(), nodeStatsSample).toBytes());
 	}
 	
+	// Reply to a SimulationStatsRequest
 	public void sendSimulationStatsReply(SimulationStatsRequest req, StatExporter exporter)
 	{
 		if((req == null) || (exporter == null))
@@ -264,6 +277,7 @@ public class MessageManager
 	 * NCP ASync Notifications
 	 *****************************************************************************************************/
 	
+	// Send a sendSimulationStateChanged
 	public void sendSimulationStateChanged(SimulationStateChangedEvent e)
 	{
 		if(e == null)
@@ -274,6 +288,7 @@ public class MessageManager
 		txDataEnqueue(new SimulationStateChanged(e).toBytes());
 	}
 	
+	// Send a sendSimulationStatChanged
 	public void sendSimulationStatChanged(SimulationStatChangedEvent e)
 	{
 		if(e == null)
@@ -282,6 +297,59 @@ public class MessageManager
 		}
 		
 		txDataEnqueue(new SimulationStatChanged(e).toBytes());
+	}
+	
+	/**
+	 * Reply to a NodeOrderlyShutdownRequest
+	 * Note sending this message assumes the socket is about to close and will cause all pending data to be sent ensure the message is sent without delay.
+	 * This message exists so the receiver can also close their side with out waiting on a timeout.
+	 * 
+	 * @throws IOException
+	 */
+	public void sendNodeOrderlyShutdownReply() throws IOException
+	{
+		txDataEnqueue(new NodeOrderlyShutdownReply().toBytes());
+		
+		txPendingData();
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * NCP ASync Requests (Processing)
+	 *****************************************************************************************************/
+	
+	public void sendAddSimulationRequest(long requestId, String scenarioText)
+	{
+		if(scenarioText == null)
+		{
+			return;
+		}
+		
+		txDataEnqueue(new AddSimReq(requestId, scenarioText).toBytes());
+	}
+	
+	public void sendSimulationStatisticsRequest(int simId, ExportFormat format)
+	{
+		if(format == null)
+		{
+			return;
+		}
+		
+		txDataEnqueue(new SimulationStatsRequest(simId, format).toBytes());
+	}
+	
+	public void sendNodeStatisticsRequest(int sequenceNum)
+	{
+		txDataEnqueue(new NodeStatsRequest(sequenceNum).toBytes());
+	}
+	
+	/**
+	 * Node sending this message is a request that the node finishes processing and does not reconnect.
+	 * There may or may not be a NodeOrderlyShutdownReply to confirm a pending shutdown.
+	 */
+	public void sendNodeOrderlyShutdownRequest()
+	{
+		txDataEnqueue(new NodeOrderlyShutdownRequest().toBytes());
 	}
 	
 	/*
@@ -348,7 +416,7 @@ public class MessageManager
 					// Registration
 					case NCP.RegReq:
 					{
-						message = new RegistrationRequest();
+						message = new RegistrationRequest(data);
 					}
 					break;
 					case NCP.RegAck:
@@ -412,15 +480,18 @@ public class MessageManager
 						message = new NodeStatsReply(data);
 					}
 					break;
-					case NCP.NodeOrderlyShutdown:
+					case NCP.NodeOrderlyShutdownRequest:
 					{
-						message = new NodeOrderlyShutdown();
+						message = new NodeOrderlyShutdownRequest();
+					}
+					break;
+					case NCP.NodeOrderlyShutdownReply:
+					{
+						message = new NodeOrderlyShutdownReply();
 					}
 					break;
 					case NCP.ActivityTestRequest:
 					{
-						log.error("NOT !!!");
-						
 						ActivityTestRequest req = new ActivityTestRequest(data);
 						txDataEnqueue(new ActivityTestReply(req).toBytes());
 						

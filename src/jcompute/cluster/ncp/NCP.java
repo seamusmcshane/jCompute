@@ -7,7 +7,20 @@ public class NCP
 {
 	public enum ProtocolMode
 	{
-		CONTROLLER, NODE
+		CONTROLLER("Controller"), NODE("Node");
+		
+		final String name;
+		
+		private ProtocolMode(String name)
+		{
+			this.name = name;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return name;
+		}
 	}
 	
 	public enum ProtocolState
@@ -32,23 +45,24 @@ public class NCP
 	{
 		NCPNack("NCP Registration negative acknowledgement"), NullNCPRecv("Null NCP message received"), InvRegSeq("Invalid registration sequence"),
 		ReadyStateTimeout("Ready state timeout"), UnknownNCPType("Received invalid or unknown NCP message"), NCPNotReady("NCP not ready"),
-		TCPDisconnected("TCP disconnected"), RegNotCompleted("Registration did not complete");
+		TCPDisconnected("TCP disconnected"), RegNotCompleted("Registration did not complete"), NCPVersionMismatch("Protocol version mismatch"),
+		RegAckUidMismatch("Registration acknowledgement uid mismatch");
 		
 		final String reason;
 		
 		private DisconnectReason(String reason)
 		{
-			this.reason = reason + " switching protocol state " + ProtocolState.DIS.toString();
+			this.reason = reason + " switching to protocol state " + ProtocolState.DIS.toString();
 		}
 		
 		public String appendfromStateInfo(ProtocolState ncpState)
 		{
-			return reason + " State from " + ncpState.toString();
+			return reason + " from state " + ncpState.toString();
 		}
 		
 		public String appendfromStateInfoAndLastNCPType(ProtocolState ncpState, int lastNCPType)
 		{
-			return reason + " State from " + ncpState.toString() + " - last NCP Message  received was type " + lastNCPType;
+			return reason + " from state " + ncpState.toString() + " - last NCP Message  received was type " + lastNCPType;
 		}
 		
 		@Override
@@ -59,7 +73,7 @@ public class NCP
 	}
 	
 	// Protocol version - prevent mismatched nodes
-	public static final int NCP_PROTOCOL_VERSION = 7;
+	public static final int NCP_PROTOCOL_VERSION = 8;
 	
 	// NCP Message Type Definitions
 	
@@ -86,7 +100,7 @@ public class NCP
 	public static final int AddSimReply = 32;		// ComputeNode Add Simulation Acknowledgement - reply with a sim slot id or -1 denied
 	
 	// Simulation Statistics Retrieval
-	public static final int SimStatsReq = 41;		// ComputeNode Statistics Req - request from controller to retrieve the finished simulation statistics
+	public static final int SimStatsReq = 41;		// ComputeNode Statistics request from controller to retrieve the finished simulation statistics
 	public static final int SimStatsReply = 42;		// ComputeNode Statistics - reply with statistics.
 	
 	// Notifications
@@ -94,22 +108,24 @@ public class NCP
 	public static final int SimStatNoti = 52;		// Notification of a simulation stat change
 	
 	// Status Request
-	public static final int NodeStatsRequest = 61;			// Request for Statistic Information related to the node
-	public static final int NodeStatsReply = 62;			// Reply with ComputeNode Statistics
+	public static final int NodeStatsRequest = 61;					// Request for Statistic Information related to the node
+	public static final int NodeStatsReply = 62;					// Reply with ComputeNode Statistics
 	
-	public static final int NodeOrderlyShutdown = 70;		// Request that the ComputeNode does an orderly shutdown and not attempt to reconnect.
+	// Shutdown request
+	public static final int NodeOrderlyShutdownRequest = 71;		// Request that the ComputeNode does an orderly shutdown and not attempt to reconnect.
+	public static final int NodeOrderlyShutdownReply = 72;		// A Courteous reply that the ComputeNode is now shutting down as requested.
 	
-	// The standard NCP port
-	public static final int StandardServerPort = 10000;	// ControlNode Listening Port
-	
-	public static final int ReadyStateTimeOut = 120;		// Max time to wait for a node to enter ready state in seconds.
-	private static final int RdyTimeOut = 120000;			// Max time to wait for a node to enter ready state in seconds.
-	
-	// This test will return invalid times if all nodes are not in the same time zone or do have there time sync with ntp
+	// NCP connection activity test.
 	public static final int ActivityTestRequest = 80737871;		// Connection Test
 	public static final int ActivityTestReply = 80797871;			// Connection Test Reply
-	public static final int InactivityTimeOut = 15000;				// Max time millis to wait for a node to reply before closing connection
-	public static final int ActivityTestFreq = 1000;				// Frequency in millis
+	
+	// The standard NCP port
+	public static final int StandardServerPort = 10000;			// ControlNode Listening Port
+	
+	private static final int ReadyStateTimeOut = 120000;			// Max time to wait for a node to enter ready state in seconds.
+	
+	public static final int InactivityTimeOut = 15000;				// Max time milliseconds to wait for a node to reply before closing connection
+	public static final int ActivityTestFreq = 1000;				// Activity test frequency in milliseconds
 	
 	// Registration Nack Reasons
 	public static final int ProtocolVersionMismatch = 01;			// Protocol Versions do not match - value contains local node version.
@@ -117,7 +133,7 @@ public class NCP
 	// Timeouts in millis
 	public enum Timeout
 	{
-		ReadyState(RdyTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout");
+		ReadyState(ReadyStateTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout");
 		
 		private final String name;
 		public final int value;

@@ -19,12 +19,15 @@ import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReq;
 import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
+import jcompute.cluster.ncp.message.registration.ConfigurationAck;
 import jcompute.cluster.ncp.message.registration.ConfigurationRequest;
 import jcompute.cluster.ncp.message.registration.RegistrationReqAck;
 import jcompute.cluster.ncp.message.registration.RegistrationReqNack;
+import jcompute.cluster.ncp.message.registration.RegistrationRequest;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.stats.StatExporter;
+import jcompute.stats.StatExporter.ExportFormat;
 import jcompute.util.JCText;
 
 /**
@@ -78,6 +81,9 @@ public class NCPSocket implements Closeable
 		
 		// Start the MessageManager
 		ncpMM.start(txFreq);
+		
+		// Already connected and ready for NCP to register
+		ncpState = ProtocolState.CON;
 	}
 	
 	private void setCommonSocketOpts(Socket socket, int socketTXBuffer, boolean tcpNoDelay) throws SocketException
@@ -208,18 +214,323 @@ public class NCPSocket implements Closeable
 	}
 	
 	/**
-	 * Handles the NCP registration process.
+	 * Handles the NCP receive registration sequence.
 	 *
 	 * @return
 	 * True if NCP registered successfully and is in the ready state<br>
 	 * False if it failed for any reason.
 	 */
-	public boolean register(NodeInfo nodeInfo)
+	public boolean receiveRegistration(final NodeInfo nodeInfo, final int benchmark, final int objects, final int iterations, final int warmupIterations,
+	final int runs)
 	{
+		if(pMode != ProtocolMode.CONTROLLER)
+		{
+			log.error(pMode + " cannot receive NCP registration.");
+			
+			return false;
+		}
+		
+		if(nodeInfo == null)
+		{
+			log.error("Node Info is null registration aborted");
+			
+			return false;
+		}
+		
+		log.info("Awaiting ComputeNode Registration");
+		
+		// Registration loop - exit controlled via break Registration
+		Registration :
+		while(true)
+		{
+			// Wait on an NCP message.
+			NCPMessage message = ncpMM.getMessage(true);
+			
+			// Have we got a message - a null message is an unrecoverable failure during registration.
+			if(message == null)
+			{
+				// NCP is gone
+				ncpState = ProtocolState.DIS;
+				
+				// All the different sequence errors are logged individually versus one generic disconnect error
+				log.error(NCP.DisconnectReason.NullNCPRecv);
+				
+				// Exit Loop here.
+				break Registration;
+			}
+			
+			// Got a message but has an NCPReadyState timeout occurred
+			if(isReadyStateTimeOut())
+			{
+				ncpState = ProtocolState.DIS;
+				
+				log.error(NCP.DisconnectReason.ReadyStateTimeout);
+				
+				// Exit the loop
+				break Registration;
+			}
+			
+			switch(message.getType())
+			{
+				case NCP.RegReq:
+				{
+					// Invalid Sequence Check - we must in the ProtocolState.CON
+					if(ncpState != ProtocolState.CON)
+					{
+						// Log the state and message type
+						log.error(NCP.DisconnectReason.InvRegSeq.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+						
+						// NCP is gone
+						ncpState = ProtocolState.DIS;
+						
+						// Exit Loop here.
+						break Registration;
+					}
+					
+					// A socket has been connected and we have just received a registration request
+					
+					log.info("Received registration request");
+					
+					RegistrationRequest req = (RegistrationRequest) message;
+					
+					if(req.getProtocolVersion() != NCP.NCP_PROTOCOL_VERSION)
+					{
+						ncpMM.sendRegistrationReqNack(NCP.ProtocolVersionMismatch, NCP.NCP_PROTOCOL_VERSION);
+						
+						// Log the state and message type
+						log.error(NCP.DisconnectReason.NCPVersionMismatch.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+						
+						// NCP is gone
+						ncpState = ProtocolState.DIS;
+						
+						// Exit Loop here.
+						break Registration;
+					}
+					
+					log.info("Sending registration acknowledgement UID : " + nodeInfo.getUid());
+					
+					// Registration acknowledgement a uid for the node
+					ncpMM.sendRegistrationReqAck(nodeInfo.getUid());
+					
+					// Enter the registration state
+					ncpState = ProtocolState.REG;
+					
+					break;
+				}
+				case NCP.RegAck: // TODO move proto version
+				{
+					// Invalid Sequence Check - we must in the ProtocolState.REG
+					if(ncpState != ProtocolState.REG)
+					{
+						// Log the state and message type
+						log.error(NCP.DisconnectReason.InvRegSeq.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+						
+						// NCP is gone
+						ncpState = ProtocolState.DIS;
+						
+						// Exit Loop here.
+						break Registration;
+					}
+					
+					// A socket has been connected, the remote node has already sent us a registration registration.
+					// We have sent a registration acknowledgement and where have a confirmation registration acknowledgement.
+					
+					RegistrationReqAck req = (RegistrationReqAck) message;
+					
+					log.info("Registration acknowledgement received UID : " + req.getUid() + " expected " + nodeInfo.getUid());
+					
+					// Sanity does the node know its UID - confirm the UID
+					if(req.getUid() != nodeInfo.getUid())
+					{
+						// Log the state and message type
+						log.error(NCP.DisconnectReason.RegAckUidMismatch.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+						
+						// NCP is gone
+						ncpState = ProtocolState.DIS;
+						
+						// Exit Loop here.
+						break Registration;
+					}
+					
+					log.info("Now requesting node configuration with weighting");
+					ncpMM.sendConfigurationRequest(benchmark, objects, iterations, warmupIterations, runs);
+					
+					// State REG_ACK
+					ncpState = ProtocolState.REG_ACK;
+				}
+				break;
+				case NCP.RegNack:
+				{
+					// Invalid Sequence Check - we have already got beyond ProtocolState.REG
+					if(ncpState != ProtocolState.REG_ACK)
+					{
+						// Log the state and message type
+						log.error(NCP.DisconnectReason.InvRegSeq.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+						
+						// NCP is gone
+						ncpState = ProtocolState.DIS;
+						
+						// Exit Loop here.
+						break Registration;
+					}
+					
+					// Remote does not like us.
+					RegistrationReqNack reqNack = (RegistrationReqNack) message;
+					
+					// Get the reason and any value
+					// These values may not make any sense if the reasons are not in our protocol version.
+					int reason = reqNack.getReason();
+					int value = reqNack.getValue();
+					
+					switch(reason)
+					{
+						// The reason for a REG_NACK is a mismatch between NCP versions
+						case NCP.ProtocolVersionMismatch:
+							
+							log.error("Registration negative acknowledgement : Protocol Version Mismatch");
+							log.error("Local " + NCP.NCP_PROTOCOL_VERSION + " Remote " + value);
+							
+						break;
+						default:
+							
+							// The reason for a REG_NACK is something we do not understand - log the raw values.
+							log.error("Registration negative acknowledgement : Unknown Reason " + reason + " Value " + value);
+							
+						break;
+					}
+					
+					log.warn(NCP.DisconnectReason.NCPNack.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+					
+					// Unrecoverable - don't keep trying as the result will be the same.
+					ncpState = ProtocolState.DIS;
+					
+					// Exit Loop here
+					break Registration;
+				}
+				case NCP.ConfAck:
+				{
+					// Invalid Sequence Check - we need to have just had the registration acknowledged
+					if(ncpState != ProtocolState.REG_ACK)
+					{
+						// Log the state and message type
+						log.error(NCP.DisconnectReason.InvRegSeq.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+						
+						// NCP is gone
+						ncpState = ProtocolState.DIS;
+						
+						// Exit Loop here.
+						break Registration;
+					}
+					
+					log.info("Received configuration acknowledgement");
+					
+					ConfigurationAck req = (ConfigurationAck) message;
+					
+					nodeInfo.setMaxSims(req.getMaxSims());
+					
+					// Set weighting if it is was requested
+					if(benchmark == 1)
+					{
+						nodeInfo.setWeighting(req.getWeighting());
+					}
+					else
+					{
+						nodeInfo.setWeighting(Long.MAX_VALUE);
+					}
+					
+					nodeInfo.setHWThreads(req.getHwThreads());
+					nodeInfo.setOperatingSystem(req.getOs());
+					nodeInfo.setSystemArch(req.getArch());
+					nodeInfo.setTotalOSMemory(req.getTotalOSMemory());
+					nodeInfo.setMaxJVMMemory(req.getMaxJVMMemory());
+					nodeInfo.setDescription(req.getDescription());
+					
+					// Due to the work involved here its best to check debug is enabled before creating all the strings.
+					if(log.isDebugEnabled())
+					{
+						log.debug("ComputeNode " + nodeInfo.getUid() + " Max Sims   : " + nodeInfo.getMaxSims());
+						log.debug("ComputeNode " + nodeInfo.getUid() + " HW Threads : " + nodeInfo.getHWThreads());
+						log.debug("ComputeNode " + nodeInfo.getUid() + " Weighting  : " + nodeInfo.getWeighting());
+						log.debug("ComputeNode " + nodeInfo.getUid() + " OS         : " + nodeInfo.getOperatingSystem());
+						log.debug("ComputeNode " + nodeInfo.getUid() + " Arch       : " + nodeInfo.getSystemArch());
+						log.debug("ComputeNode " + nodeInfo.getUid() + " TotalMem   : " + nodeInfo.getTotalOSMemory());
+						log.debug("ComputeNode " + nodeInfo.getUid() + " Description: " + nodeInfo.getDescription());
+					}
+					
+					// Now Registered enter ready State
+					ncpState = ProtocolState.RDY;
+					
+					// Exit Loop here.
+					break Registration;
+				}
+				// Fall through for type 0 or anything type not valid in registration - this should never happen unless modify NCP
+				case NCP.INVALID:
+				default:
+				{
+					// Log the state and message type
+					log.error(NCP.DisconnectReason.UnknownNCPType.appendfromStateInfoAndLastNCPType(ncpState, message.getType()));
+					
+					// NCP is gone
+					ncpState = ProtocolState.DIS;
+					
+					// Exit Loop here.
+					break Registration;
+				}
+			} // Switch End
+		}// Loop End
+		
+		// NCP in ready state?
+		if(ncpState != ProtocolState.RDY)
+		{
+			// Then registration is not complete - shutdown the NCP socket (and underlying TCP)
+			shutdown(NCP.DisconnectReason.RegNotCompleted.toString());
+			
+			return false;
+		}
+		
+		try
+		{
+			// Switch from the ready state timeout value to the NCP inactivity timeout value
+			ncpMM.setTimeOut(NCP.Timeout.Inactivity);
+		}
+		catch(SocketException e)
+		{
+			// Failed to apply NCP Timeout
+			shutdown(e.getMessage());
+			
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Initiates NCP registration process.
+	 *
+	 * @return
+	 * True if NCP registered successfully and is in the ready state<br>
+	 * False if it failed for any reason.
+	 */
+	public boolean initiateRegistration(NodeInfo nodeInfo)
+	{
+		if(pMode != ProtocolMode.NODE)
+		{
+			log.error(pMode + " cannot initiate NCP registration process.");
+			
+			return false;
+		}
+		
+		if(nodeInfo == null)
+		{
+			log.error("Node Info is null registration aborted");
+			
+			return false;
+		}
+		
 		// Validate State Transition
 		if(ncpState != ProtocolState.CON)
 		{
-			log.error("Registration only possible in NCP connect state");
+			log.error("Registration initiation only possible in NCP connect state");
 			
 			return false;
 		}
@@ -310,7 +621,7 @@ public class NCPSocket implements Closeable
 						break Registration;
 					}
 					
-					// Remote does no like us.
+					// Remote does not like us.
 					RegistrationReqNack reqNack = (RegistrationReqNack) message;
 					
 					// Get the reason and any value
@@ -418,8 +729,8 @@ public class NCPSocket implements Closeable
 					// Exit Loop here.
 					break Registration;
 				}
-			}
-		}
+			} // Switch End
+		}// Loop End
 		
 		// NCP in ready state?
 		if(ncpState != ProtocolState.RDY)
@@ -502,6 +813,19 @@ public class NCPSocket implements Closeable
 	}
 	
 	/**
+	 * Sends a request to add a simulation based on a scenario text.
+	 * 
+	 * @param requestId
+	 * An an id by which to reference the request.
+	 * @param scenarioText
+	 * The configuration from which to create the simulation.
+	 */
+	public void sendAddSimulationRequest(long requestId, String scenarioText)
+	{
+		ncpMM.sendAddSimulationRequest(requestId, scenarioText);
+	}
+	
+	/**
 	 * Reply to an AddSimReq.
 	 *
 	 * @param req
@@ -512,6 +836,17 @@ public class NCPSocket implements Closeable
 	public void sendAddSimReply(AddSimReq req, int simId)
 	{
 		ncpMM.sendAddSimReply(req, simId);
+	}
+	
+	/**
+	 * Sends a request for the latest node statistics.
+	 * 
+	 * @param sequenceNum
+	 * The sequence number by which to reference the request.
+	 */
+	public void sendNodeStatisticsRequest(int sequenceNum)
+	{
+		ncpMM.sendNodeStatisticsRequest(sequenceNum);
 	}
 	
 	/**
@@ -557,11 +892,43 @@ public class NCPSocket implements Closeable
 	 * Note this is simulation manager information not scenario.
 	 *
 	 * @param e
-	 * A SimulationStatChangedEvent with details about which simulation and latest stats.
+	 * A SimulationStatChangedEvent with details about which simulation and its latest statistics.
 	 */
 	public void sendSimulationStatChanged(SimulationStatChangedEvent e)
 	{
 		ncpMM.sendSimulationStatChanged(e);
+	}
+	
+	/**
+	 * Requests statistics from a finished simulation.
+	 * Note : if the simulation is not finished it will be removed.
+	 *
+	 * @param e
+	 * A SimulationStateChangedEvent with details about which simulation and its state.
+	 */
+	public void sendSimulationStatisticsRequest(int simId, ExportFormat format)
+	{
+		ncpMM.sendSimulationStatisticsRequest(simId, format);
+	}
+	
+	/**
+	 * Requests the remote node finishes current processing, shuts down and does not reconnect.
+	 * 
+	 * @throws IOException
+	 */
+	public void sendNodeOrderlyShutdownRequest()
+	{
+		ncpMM.sendNodeOrderlyShutdownRequest();
+	}
+	
+	/**
+	 * A reply from remote node that has received and accepted a NodeOrderlyShutdownRequest and is now about to shutdown.
+	 * 
+	 * @throws IOException
+	 */
+	public void sendNodeOrderlyShutdownReply() throws IOException
+	{
+		ncpMM.sendNodeOrderlyShutdownReply();
 	}
 	
 	/**
