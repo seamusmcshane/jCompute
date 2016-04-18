@@ -7,9 +7,22 @@ import jcompute.cluster.ncp.message.NCPMessage;
 
 public class RegistrationRequest extends NCPMessage
 {
+	private final int protocolVersion;
+	
 	// Standard Constructor
 	public RegistrationRequest()
 	{
+		protocolVersion = NCP.NCP_PROTOCOL_VERSION;
+	}
+	
+	public RegistrationRequest(ByteBuffer data)
+	{
+		protocolVersion = data.getInt();
+	}
+	
+	public int getProtocolVersion()
+	{
+		return protocolVersion;
 	}
 	
 	@Override
@@ -28,7 +41,7 @@ public class RegistrationRequest extends NCPMessage
 		// Header Only
 		tbuffer.putInt(NCP.RegReq);
 		tbuffer.putInt(dataLen);
-		tbuffer.putInt(NCP.NCP_PROTOCOL_VERSION);
+		tbuffer.putInt(protocolVersion);
 		
 		return tbuffer.array();
 	}
