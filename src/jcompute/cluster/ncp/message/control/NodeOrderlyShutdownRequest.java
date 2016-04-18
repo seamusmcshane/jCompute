@@ -5,9 +5,9 @@ import java.nio.ByteBuffer;
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
 
-public class NodeOrderlyShutdown extends NCPMessage
+public class NodeOrderlyShutdownRequest extends NCPMessage
 {
-	public NodeOrderlyShutdown()
+	public NodeOrderlyShutdownRequest()
 	{
 		
 	}
@@ -15,7 +15,7 @@ public class NodeOrderlyShutdown extends NCPMessage
 	@Override
 	public int getType()
 	{
-		return NCP.NodeOrderlyShutdown;
+		return NCP.NodeOrderlyShutdownRequest;
 	}
 	
 	@Override
@@ -26,7 +26,7 @@ public class NodeOrderlyShutdown extends NCPMessage
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
 		// Header Only
-		tbuffer.putInt(NCP.NodeOrderlyShutdown);
+		tbuffer.putInt(NCP.NodeOrderlyShutdownRequest);
 		tbuffer.putInt(dataLen);
 		
 		return tbuffer.array();
