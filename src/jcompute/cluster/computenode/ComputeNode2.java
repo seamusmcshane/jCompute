@@ -49,7 +49,7 @@ public class ComputeNode2
 	// Counters
 	private LongAdder simulationsProcessed;
 	
-	/* ComputeNode Info */
+	// ComputeNode Info
 	private NodeInfo nodeInfo;
 	private JVMInfo jvmInfo;
 	private OSInfo osInfo;
@@ -67,7 +67,7 @@ public class ComputeNode2
 		jvmInfo = JVMInfo.getInstance();
 		osInfo = OSInfo.getInstance();
 		
-		/* Our Configuration */
+		// Our configuration info
 		nodeInfo = new NodeInfo();
 		
 		nodeInfo.setMaxSims(simulationsManager.getMaxSims());
@@ -131,6 +131,8 @@ public class ComputeNode2
 					@Override
 					public void run()
 					{
+						log.info("Started");
+						
 						boolean connected = false;
 						boolean registered = false;
 						
@@ -167,7 +169,7 @@ public class ComputeNode2
 								if(connected)
 								{
 									// Register
-									registered = ncpSocket.register(nodeInfo);
+									registered = ncpSocket.initiateRegistration(nodeInfo);
 									
 									if(!registered)
 									{
@@ -270,12 +272,12 @@ public class ComputeNode2
 										}
 									}
 									break;
-									case NCP.NodeOrderlyShutdown:
+									case NCP.NodeOrderlyShutdownRequest:
 									{
 										// No Data - comment here for consistency
-										// NodeOrderlyShutdown req = (NodeOrderlyShutdown) message;
+										// NodeOrderlyShutdownRequest req = (NodeOrderlyShutdownRequest) message;
 										
-										log.info("Received NodeOrderlyShutdown");
+										log.info("Received NodeOrderlyShutdownRequest");
 										
 										int activeSims = simulationsManager.getActiveSims();
 										int statsOutStanding = statCache.getStatsStore();
@@ -285,6 +287,9 @@ public class ComputeNode2
 										{
 											try
 											{
+												// Sends a reply that we are shutting down.
+												ncpSocket.sendNodeOrderlyShutdownReply();
+												
 												ncpSocket.close();
 											}
 											catch(IOException e)
@@ -300,8 +305,8 @@ public class ComputeNode2
 										}
 										else
 										{
-											log.warn("Refusing NodeOrderlyShutdown due to active simulations " + activeSims + " and statistics outstanding "
-											+ statsOutStanding);
+											log.warn("Refusing NodeOrderlyShutdownRequest due to active simulations " + activeSims
+											+ " and statistics outstanding " + statsOutStanding);
 										}
 									}
 									break;
@@ -378,17 +383,17 @@ public class ComputeNode2
 									
 									break Shutdown;
 								}
-							}
+							} // End if (message)
 							
 							processingTickCounter++;
-						}
+						} // End Processing Loop
 						
 						// We have shutdown
 						nodeStarted.set(false);
 						
-						// Last Message
-						log.warn("Processing Shutdown");
-					}
+						// Last message from processing
+						log.warn("Shutdown");
+					} // Run
 				});
 				processing.setName("Processing");
 				processing.start();
@@ -403,6 +408,7 @@ public class ComputeNode2
 					e.printStackTrace();
 				}
 				
+				// Last message from compute node
 				log.info("Exited");
 			}
 		});
