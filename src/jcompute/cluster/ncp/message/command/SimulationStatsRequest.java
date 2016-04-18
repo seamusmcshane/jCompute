@@ -2,7 +2,6 @@ package jcompute.cluster.ncp.message.command;
 
 import java.nio.ByteBuffer;
 
-import jcompute.cluster.controlnode.mapping.RemoteSimulationMapping;
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.stats.StatExporter.ExportFormat;
@@ -12,10 +11,10 @@ public class SimulationStatsRequest extends NCPMessage
 	private int simId;
 	private ExportFormat format;
 	
-	public SimulationStatsRequest(RemoteSimulationMapping mapping)
+	public SimulationStatsRequest(int simId, ExportFormat format)
 	{
-		this.simId = mapping.getRemoteSimId();
-		this.format = mapping.getExportFormat();
+		this.simId = simId;
+		this.format = format;
 	}
 	
 	// Construct from an input stream
