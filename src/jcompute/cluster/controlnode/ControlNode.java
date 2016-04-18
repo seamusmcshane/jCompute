@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,15 +20,15 @@ import com.google.common.eventbus.Subscribe;
 
 import jcompute.JComputeEventBus;
 import jcompute.batch.BatchItem;
-import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager;
+import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager2;
 import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerItemStateEvent;
 import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest;
 import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest.NodeItemRequestOperation;
 import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest.NodeItemRequestResult;
 import jcompute.cluster.controlnode.event.ControlNodeItemStateEvent;
 import jcompute.cluster.controlnode.event.NodeEvent;
-import jcompute.cluster.controlnode.event.StatusChanged;
 import jcompute.cluster.controlnode.event.NodeEvent.NodeEventType;
+import jcompute.cluster.controlnode.event.StatusChanged;
 import jcompute.cluster.controlnode.mapping.RemoteSimulationMapping;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
@@ -53,14 +52,14 @@ public class ControlNode
 	/* Server Listening Socket */
 	private ServerSocket listenSocket;
 	
-	/* Connections Processed */
+	// Connections Processed
 	private int connectionNumber = 0;
 	
-	/* Active Nodes indexed by nodeId */
-	private LinkedList<ComputeNodeManager> activeNodes;
+	// Active Nodes indexed by nodeId
+	private LinkedList<ComputeNodeManager2> activeNodes;
 	
 	/* Connecting Nodes List */
-	private LinkedList<ComputeNodeManager> connectingNodes;
+	private LinkedList<ComputeNodeManager2> connectingNodes;
 	
 	private final boolean allowMulti;
 	private final int socketTX;
@@ -68,29 +67,29 @@ public class ControlNode
 	private final boolean tcpNoDelay;
 	private final int txFreq;
 	
-	private Timer ncpTimer;
-	private int ncpTimerSpeed = 1;
-	/*
-	 * List of priority re-scheduled Simulations (recovered from nodes that
-	 * disappear)
-	 */
+	// List of priority re-scheduled Simulations (recovered from nodes that disappear)
 	private ArrayList<Integer> recoveredSimIds;
 	private boolean hasRecoverableSimsIds = false;
 	
-	/*
-	 * Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (LOCAL)
-	 * simId
-	 */
+	// Mapping between Nodes/RemoteSimIds and LocalSimIds - indexed by (LOCAL-simId)
 	private HashMap<Integer, RemoteSimulationMapping> localSimulationMap;
 	
 	private Semaphore controlNodeLock = new Semaphore(1, false);
 	
-	private int timerCount;
+	// Maximum nodes that can be pending connection
+	private final int MAX_OUTSTANDING_CONNECTIONS = 50;
+	
+	// In milliseconds
+	private final int TickFrequency = 1000;
+	
+	/// Node Statistics Frequency (1 minute)
+	private final int NODE_STATISTICS_FREQUENCY = 60000;
+	
+	private int tickCount;
+	private long lastStatisticsTime;
 	
 	public ControlNode(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq)
 	{
-		log.info("Starting ControlNode");
-		
 		this.allowMulti = allowMulti;
 		this.socketTX = socketTX;
 		this.socketRX = socketRX;
@@ -110,140 +109,223 @@ public class ControlNode
 		recoveredSimIds = new ArrayList<Integer>();
 		
 		// List of simulation nodes.
-		activeNodes = new LinkedList<ComputeNodeManager>();
-		connectingNodes = new LinkedList<ComputeNodeManager>();
+		activeNodes = new LinkedList<ComputeNodeManager2>();
+		connectingNodes = new LinkedList<ComputeNodeManager2>();
 	}
 	
 	public void start()
 	{
+		log.info("Starting");
+		
 		// Register on the event bus
 		JComputeEventBus.register(this);
 		
-		createAndStartRecieveThread();
+		try
+		{
+			listenSocket = new ServerSocket();
+			
+			// Listening RX must be done before address bind
+			listenSocket.setReceiveBufferSize(socketRX);
+			
+			// Wait on the socket for new connections for TickFrequency ms otherwise perform other processing.
+			// This is fine as we dont expect 100k connections
+			listenSocket.setSoTimeout(TickFrequency);
+			
+			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCP.StandardServerPort), MAX_OUTSTANDING_CONNECTIONS);
+		}
+		catch(Exception e)
+		{
+			// Unrecoverable error
+			log.error("ControlNode Processing Exited : " + e.getMessage());
+			
+			System.exit(-1);
+		}
 		
-		startNSMCPTimer();
-	}
-	
-	private void startNSMCPTimer()
-	{
-		timerCount = 0;
-		ncpTimer = new Timer("NCP Timer");
-		ncpTimer.schedule(new TimerTask()
+		// Create the processing thread
+		Thread processing = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				controlNodeLock.acquireUninterruptibly();
+				log.info("Listening Address : " + listenSocket.getLocalSocketAddress());
 				
-				log.debug("NSMCPTimer");
-				log.debug("------------------------------------");
-				log.debug("Connecting (" + connectingNodes.size() + ")");
-				log.debug("------------------------------------");
-				for(ComputeNodeManager node : connectingNodes)
+				while(listenSocket.isBound())
 				{
-					log.debug("ComputeNode :" + node.getUid());
-				}
-				log.debug("------------------------------------");
-				
-				// Detect nodes that are now ready in the connected nodes list
-				// and add them to the active nodes
-				// Now remove any ready / failed nodes in the connecting nodes list
-				Iterator<ComputeNodeManager> itr = connectingNodes.iterator();
-				while(itr.hasNext())
-				{
-					ComputeNodeManager node = itr.next();
-					
-					if(node.isReady())
+					try
 					{
-						itr.remove();
+						// With TickFrequency Timeout enabled - see catch
+						Socket nodeSocket = listenSocket.accept();
 						
-						activeNodes.add(node);
+						log.info("New Connection from : " + nodeSocket.getRemoteSocketAddress());
 						
-						maxSims += node.getMaxSims();
+						// We are handling the new connection
+						controlNodeLock.acquireUninterruptibly();
 						
-						log.debug("ComputeNode " + node.getUid() + " now Active (Max Sims " + maxSims + ")");
+						// Default to ignoring existing active/connecting nodes
+						boolean existingActive = false;
+						boolean existingConnecting = false;
 						
-						// Sort the ComputeNode by weighting
-						Collections.sort(activeNodes, new NodeManagerComparator());
-						
-						log.debug("------------------------------------");
-						log.debug("Active (" + activeNodes.size() + ")");
-						log.debug("------------------------------------");
-						for(ComputeNodeManager aNode : activeNodes)
+						// If we do not allow multiple connections from the network same address, check for existing active/connecting nodes.
+						if(!allowMulti)
 						{
-							log.debug("ComputeNode " + aNode.getUid() + ": " + aNode.getWeighting());
+							existingActive = existingActiveNode(nodeSocket);
+							existingConnecting = existingConnectingNode(nodeSocket);
+						}
+						
+						// If there is existing active node from this address
+						if(!existingActive)
+						{
+							// Add create a ComputeNodeManager for this ComputeNode and add to connecting lists.
+							ComputeNodeManager2 nm = new ComputeNodeManager2(++connectionNumber, nodeSocket, socketTX, tcpNoDelay, txFreq);
 							
+							connectingNodes.add(nm);
+							
+							// Start the new ComputeNodeManager
+							nm.start();
+							
+							// Post the new connecting node event
+							JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTING, nm.getNodeConfig()));
+							
+							// If there is already an existing connecting node but it is not connected yet remove it.
+							if(existingConnecting)
+							{
+								ComputeNodeManager2 existingNode = getExistingConnectingNode(nodeSocket);
+								
+								connectingNodes.remove(existingNode);
+								
+								// Post the remove event
+								JComputeEventBus.post(new NodeEvent(NodeEventType.REMOVED, existingNode.getNodeConfig()));
+							}
+						}
+						else
+						{
+							// There is an exiting connected node - give it priority
+							log.warn("Closing Socket as a ComputeNode already exists on :" + nodeSocket.getRemoteSocketAddress());
+							nodeSocket.close();
+						}
+						
+						log.debug("------------------------------------");
+						log.debug("Added (" + connectingNodes.size() + ")");
+						log.debug("------------------------------------");
+						for(ComputeNodeManager2 node : connectingNodes)
+						{
+							log.debug("ComputeNode :" + node.getUid());
 						}
 						log.debug("------------------------------------");
 						
-						JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTED, node.getNodeConfig()));
+						controlNodeLock.release();
 					}
-					else if(node.getReadyStateTimeOutValue() == NCP.ReadyStateTimeOut)
+					catch(SocketTimeoutException e)
 					{
-						itr.remove();
-						node.destroy("Ready State Timeout");
+						refreshNodes();
 					}
-					else if(node.hasFailedReg())
+					catch(IOException e)
 					{
-						itr.remove();
-						node.destroy("failed to register " + node.getRegFailedReason());
-					}
-					else
-					{
-						node.incrementTimeOut(ncpTimerSpeed);
+						log.error(e.toString());
+						
 					}
 				}
-				
-				itr = activeNodes.iterator();
-				while(itr.hasNext())
-				{
-					ComputeNodeManager node = itr.next();
-					
-					if(node.isShutdown())
-					{
-						
-						ArrayList<Integer> nodeRecoveredSimIds = node.getRecoverableSimsIds();
-						
-						Iterator<Integer> nRSIdsIter = nodeRecoveredSimIds.iterator();
-						while(nRSIdsIter.hasNext())
-						{
-							recoveredSimIds.add(nRSIdsIter.next());
-						}
-						
-						// Inactive ComputeNode Removed
-						JComputeEventBus.post(new NodeEvent(NodeEventType.DISCONNECTED, node.getNodeConfig()));
-						
-						log.debug("ComputeNode " + node.getUid() + " no longer active");
-						node.destroy("ComputeNode no longer active");
-						itr.remove();
-						
-						maxSims -= node.getMaxSims();
-					}
-					else
-					{
-						// Every minute
-						if((timerCount % 60) == 0)
-						{
-							// Seconds to Minutes
-							node.triggerNodeStatRequest(timerCount / 60);
-						}
-					}
-					
-				}
-				
-				if(recoveredSimIds.size() > 0)
-				{
-					hasRecoverableSimsIds = true;
-				}
-				
-				controlNodeLock.release();
-				
-				JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String.valueOf(listenSocket.getLocalPort()), String
-				.valueOf(connectingNodes.size()), String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulationNum)));
-				
-				timerCount += ncpTimerSpeed;
 			}
-		}, 0, ncpTimerSpeed * 1000);
+		});
+		
+		// Connection Processing
+		processing.setName("ControlNode Processing");
+		processing.start();
+	}
+	
+	private void refreshNodes()
+	{
+		// No new connections
+		controlNodeLock.acquireUninterruptibly();
+		
+		// Detect nodes that are now ready in the connected nodes list and add them to the active nodes
+		// Now remove any ready / failed nodes in the connecting nodes list
+		Iterator<ComputeNodeManager2> itr = connectingNodes.iterator();
+		while(itr.hasNext())
+		{
+			ComputeNodeManager2 node = itr.next();
+			
+			if(node.isRunning())
+			{
+				itr.remove();
+				
+				activeNodes.add(node);
+				
+				maxSims += node.getMaxSims();
+				
+				log.debug("ComputeNode " + node.getUid() + " now Active (Max Sims " + maxSims + ")");
+				
+				// Sort the ComputeNodes by weighting
+				Collections.sort(activeNodes, new NodeManagerComparator());
+				
+				log.debug("------------------------------------");
+				log.debug("Active (" + activeNodes.size() + ")");
+				log.debug("------------------------------------");
+				for(ComputeNodeManager2 aNode : activeNodes)
+				{
+					log.debug("ComputeNode " + aNode.getUid() + ": " + aNode.getWeighting());
+					
+				}
+				log.debug("------------------------------------");
+				
+				JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTED, node.getNodeConfig()));
+			}
+		}
+		
+		// Check existing nodes are still active, and request node statistics from those that are (at NODE_STATISTICS_FREQUENCY).
+		// If the node is not active recover any outstanding simulation id.
+		itr = activeNodes.iterator();
+		while(itr.hasNext())
+		{
+			ComputeNodeManager2 node = itr.next();
+			
+			if(node.isShutdown())
+			{
+				
+				ArrayList<Integer> nodeRecoveredSimIds = node.getRecoverableSimsIds();
+				
+				Iterator<Integer> nRSIdsIter = nodeRecoveredSimIds.iterator();
+				while(nRSIdsIter.hasNext())
+				{
+					recoveredSimIds.add(nRSIdsIter.next());
+				}
+				
+				// Inactive ComputeNode Removed
+				JComputeEventBus.post(new NodeEvent(NodeEventType.DISCONNECTED, node.getNodeConfig()));
+				
+				log.info("ComputeNode " + node.getUid() + " no longer active");
+				// node.destroy("ComputeNode no longer active");
+				itr.remove();
+				
+				maxSims -= node.getMaxSims();
+			}
+			else
+			{
+				// Every minute
+				if((System.currentTimeMillis() - lastStatisticsTime) >= NODE_STATISTICS_FREQUENCY)
+				{
+					// Use tick count as id (ticks at NODE_STATISTICS_FREQUENCY)
+					node.triggerNodeStatRequest(tickCount);
+					
+					lastStatisticsTime = System.currentTimeMillis();
+					
+					tickCount++;
+					
+					log.error("Update " + tickCount);
+				}
+			}
+		}
+		
+		if(recoveredSimIds.size() > 0)
+		{
+			hasRecoverableSimsIds = true;
+		}
+		
+		controlNodeLock.release();
+		
+		// TODO
+		JComputeEventBus.post(new StatusChanged(listenSocket.getInetAddress().getHostAddress(), String.valueOf(listenSocket.getLocalPort()), String.valueOf(
+		connectingNodes.size()), String.valueOf(activeNodes.size()), String.valueOf(maxSims), String.valueOf(simulationNum)));
 	}
 	
 	public boolean hasFreeSlot()
@@ -252,10 +334,10 @@ public class ControlNode
 		
 		boolean tActive = false;
 		
-		Iterator<ComputeNodeManager> itr = activeNodes.iterator();
+		Iterator<ComputeNodeManager2> itr = activeNodes.iterator();
 		while(itr.hasNext())
 		{
-			ComputeNodeManager node = itr.next();
+			ComputeNodeManager2 node = itr.next();
 			
 			tActive |= node.hasFreeSlot();
 		}
@@ -291,130 +373,13 @@ public class ControlNode
 		return simIds;
 	}
 	
-	private void createAndStartRecieveThread()
-	{
-		try
-		{
-			listenSocket = new ServerSocket();
-			
-			// Listening RX must be done before address bind
-			listenSocket.setReceiveBufferSize(socketRX);
-			
-			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCP.StandardServerPort));
-			
-			Thread thread = new Thread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					log.info("Listening Address : " + listenSocket.getLocalSocketAddress());
-					
-					while(listenSocket.isBound())
-					{
-						log.info("Ready for Connections");
-						
-						try
-						{
-							Socket nodeSocket = listenSocket.accept();
-							
-							// Set Socket opts
-							nodeSocket.setSendBufferSize(socketTX);
-							nodeSocket.setTcpNoDelay(tcpNoDelay);
-							
-							log.info("New Connection from : " + nodeSocket.getRemoteSocketAddress());
-							
-							// Accept new Connections
-							controlNodeLock.acquireUninterruptibly();
-							
-							// Default to ignoring existing active/connecting
-							// nodes
-							boolean existingActive = false;
-							boolean existingConnecting = false;
-							
-							// if we do not allow multiple connections from the
-							// same address, check for existing
-							// active/connecting nodes.
-							if(!allowMulti)
-							{
-								existingActive = existingActiveNode(nodeSocket);
-								existingConnecting = existingConnectingNode(nodeSocket);
-							}
-							
-							// If there is existing active node from this
-							// address
-							if(!existingActive)
-							{
-								// Add create a ComputeNodeManager for this ComputeNode and add to connecting lists.
-								ComputeNodeManager nm = new ComputeNodeManager(++connectionNumber, nodeSocket, txFreq);
-								
-								connectingNodes.add(nm);
-								
-								// Start the new ComputeNodeManager
-								nm.start();
-								
-								JComputeEventBus.post(new NodeEvent(NodeEventType.CONNECTING, nm.getNodeConfig()));
-								
-								// If there is already an existing connecting node but it is not connected yet remove it.
-								if(existingConnecting)
-								{
-									ComputeNodeManager existingNode = getExistingConnectingNode(nodeSocket);
-									
-									connectingNodes.remove(existingNode);
-									
-									JComputeEventBus.post(new NodeEvent(NodeEventType.REMOVED, existingNode.getNodeConfig()));
-									
-									existingNode.destroy("A new ComputeNode from " + existingNode.getAddress() + " has connected");
-								}
-							}
-							else
-							{
-								// There is an exiting connected node - give it priority
-								log.warn("Closing Socket as a ComputeNode already exists on :" + nodeSocket.getRemoteSocketAddress());
-								nodeSocket.close();
-							}
-							
-							log.debug("------------------------------------");
-							log.debug("Added (" + connectingNodes.size() + ")");
-							log.debug("------------------------------------");
-							for(ComputeNodeManager node : connectingNodes)
-							{
-								log.debug("ComputeNode :" + node.getUid());
-							}
-							log.debug("------------------------------------");
-							
-							controlNodeLock.release();
-							
-						}
-						catch(IOException e)
-						{
-							log.error(e.toString());
-						}
-						
-					}
-					
-				}
-				
-			});
-			
-			// Connection Processing
-			thread.setName("ControlNode ConnectionProcessing");
-			thread.start();
-		}
-		catch(Exception e)
-		{
-			log.error("Server Recieve Thread Exited : " + e.getMessage());
-			
-			System.exit(-1);
-		}
-	}
-	
 	public boolean existingActiveNode(Socket nodeSocket)
 	{
 		boolean nodeExists = false;
 		
 		String socketAddress = nodeSocket.getInetAddress().getHostAddress();
 		
-		for(ComputeNodeManager node : activeNodes)
+		for(ComputeNodeManager2 node : activeNodes)
 		{
 			if(node.getAddress().equals(socketAddress))
 			{
@@ -432,7 +397,7 @@ public class ControlNode
 		
 		String socketAddress = nodeSocket.getInetAddress().getHostAddress();
 		
-		for(ComputeNodeManager node : connectingNodes)
+		for(ComputeNodeManager2 node : connectingNodes)
 		{
 			if(node.getAddress().equals(socketAddress))
 			{
@@ -444,13 +409,13 @@ public class ControlNode
 		return nodeExists;
 	}
 	
-	public ComputeNodeManager getExistingConnectingNode(Socket nodeSocket)
+	public ComputeNodeManager2 getExistingConnectingNode(Socket nodeSocket)
 	{
-		ComputeNodeManager tNode = null;
+		ComputeNodeManager2 tNode = null;
 		
 		String socketAddress = nodeSocket.getInetAddress().getHostAddress();
 		
-		for(ComputeNodeManager node : connectingNodes)
+		for(ComputeNodeManager2 node : connectingNodes)
 		{
 			if(node.getAddress().equals(socketAddress))
 			{
@@ -464,7 +429,7 @@ public class ControlNode
 	
 	/**
 	 * Add an item for processing to the cluster
-	 * 
+	 *
 	 * @param item
 	 * @param itemConfig
 	 * @param statExportFormat
@@ -496,7 +461,7 @@ public class ControlNode
 		
 		// Find the node with a free slot
 		log.debug("Finding free node (" + activeNodes.size() + ")");
-		for(ComputeNodeManager node : activeNodes)
+		for(ComputeNodeManager2 node : activeNodes)
 		{
 			log.debug("ComputeNode " + node.getUid());
 			if(node.hasFreeSlot() && node.isRunning())
@@ -613,10 +578,10 @@ public class ControlNode
 		controlNodeLock.release();
 	}
 	
-	private class NodeManagerComparator implements Comparator<ComputeNodeManager>
+	private class NodeManagerComparator implements Comparator<ComputeNodeManager2>
 	{
 		@Override
-		public int compare(ComputeNodeManager node1, ComputeNodeManager node2)
+		public int compare(ComputeNodeManager2 node1, ComputeNodeManager2 node2)
 		{
 			if(node1.getWeighting() < node2.getWeighting())
 			{
