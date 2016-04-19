@@ -16,9 +16,10 @@ import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.stats.StatManager;
 
 /**
- * Simulation class This class handles the Simulation activity of the program. It contains the main loop in the form of the asynchronous Simulation Update Thread. Apart from
+ * Simulation class This class handles the Simulation activity of the program. It contains the main loop in the form of the asynchronous Simulation Update
+ * Thread. Apart from
  * performing a step, it is primarily concerned with timing the step and ensuring statistics are updated..
- * 
+ *
  * @author Seamus McShane
  * @version $Revision: 1.0 $
  */
@@ -54,7 +55,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 	 * ***************************************************************************************************
 	 * Simulation Stat Events
 	 ****************************************************************************************************/
-	private int eventFreq = 2500;
+	private int eventFreq = 5000;
 	private long prevEventTimeMillis = Long.MAX_VALUE;
 	
 	/*
@@ -104,7 +105,6 @@ public class Simulation implements stateChangedInf, ViewTarget
 	{
 		// Clear Stats
 		simulationSteps = 0;
-		prevEventTimeMillis = System.currentTimeMillis();
 		stepStartTime = 0;
 		stepEndTime = 0;
 		totalStepsTime = 0;
@@ -176,7 +176,6 @@ public class Simulation implements stateChangedInf, ViewTarget
 				
 				while(running)
 				{
-					
 					// The pause semaphore (We do not pause half way through a step)
 					pause.acquireUninterruptibly();
 					
@@ -250,21 +249,21 @@ public class Simulation implements stateChangedInf, ViewTarget
 		long currentEventTimeMillis = System.currentTimeMillis();
 		long timeElapsed = currentEventTimeMillis - prevEventTimeMillis;
 		
-		if(timeElapsed < eventFreq && simulationSteps != endStepNum)
+		if((timeElapsed < eventFreq) && (simulationSteps != endStepNum))
 		{
 			return;
 		}
 		
-		prevEventTimeMillis = currentEventTimeMillis;
-		
-		progress = (int) ((float) (simulationSteps + 1) / (float) endStepNum * 100f);
+		progress = (int) (((float) simulationSteps / (float) endStepNum) * 100f);
 		
 		JComputeEventBus.post(new SimulationStatChangedEvent(simId, totalStepsTime, simulationSteps, progress, getAverageStepRate()));
+		
+		prevEventTimeMillis = System.currentTimeMillis();
 	}
 	
 	/**
 	 * Calculates the total taken between repeated call to this method - used for inter-step time wait
-	 * 
+	 *
 	 * @return long
 	 */
 	private long timeTotal()
@@ -295,16 +294,12 @@ public class Simulation implements stateChangedInf, ViewTarget
 	
 	private int getAverageStepRate()
 	{
-		if(simulationSteps < 100)
-		{
-			return 0;
-		}
-		
 		return (int) (simulationSteps / (totalStepsTime / 1000f));
 	}
 	
 	/**
-	 * Toggle Pause/UnPause If Simulation is paused, this will unpause it. If Simulation is running this will pause it. If Simulation is CON this method does nothing. This method
+	 * Toggle Pause/UnPause If Simulation is paused, this will unpause it. If Simulation is running this will pause it. If Simulation is CON this method does
+	 * nothing. This method
 	 * will log an error if called when a Simulation is finished.
 	 */
 	public SimState togglePause()
@@ -344,6 +339,8 @@ public class Simulation implements stateChangedInf, ViewTarget
 		simState.runState();
 		
 		pause.release();					// Release the pause semaphore
+		
+		prevEventTimeMillis = System.currentTimeMillis();
 	}
 	
 	/**
@@ -358,7 +355,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 	
 	/**
 	 * Method reqSimUpdateRate.
-	 * 
+	 *
 	 * @param steps
 	 * int
 	 */
