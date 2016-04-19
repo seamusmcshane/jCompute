@@ -93,6 +93,7 @@ public class MessageManager
 	private long lastTestMessageTime;
 	
 	private Timeout timeout = Timeout.ReadyState;
+	private Semaphore timeoutLock = new Semaphore(1, false);
 	
 	/**
 	 * NCP class used to send and retrieve NCP messages.
@@ -840,13 +841,25 @@ public class MessageManager
 	
 	private boolean needsActivityTest()
 	{
+		timeoutLock.acquireUninterruptibly();
+		
 		// If timer is not an ActivityTest timer then we do not need a test other wise check the age of the last message against the test freq min.
-		return (timeout == NCP.Timeout.Inactivity) ? ((System.currentTimeMillis() - lastTestMessageTime) >= NCP.ActivityTestFreq) : false;
+		boolean needsTest = (timeout == NCP.Timeout.Inactivity) ? ((System.currentTimeMillis() - lastTestMessageTime) >= NCP.ActivityTestFreq) : false;
+		
+		timeoutLock.release();
+		
+		return needsTest;
 	}
 	
 	private boolean isNCPTimeout()
 	{
-		return timeout.hasTimeoutError((int) (System.currentTimeMillis() - lastTestMessageTime));
+		timeoutLock.acquireUninterruptibly();
+		
+		boolean ncpTimedOut = timeout.hasTimeoutError((int) (System.currentTimeMillis() - lastTestMessageTime));
+		
+		timeoutLock.release();
+		
+		return ncpTimedOut;
 	}
 	
 	// Reset NCP Timeout
@@ -857,13 +870,18 @@ public class MessageManager
 	
 	public void setTimeOut(Timeout timeout) throws SocketException
 	{
+		timeoutLock.acquireUninterruptibly();
+		
 		this.timeout = timeout;
 		
 		log.info("Activated " + timeout.toString());
 		
+		// Reset the timeout as we have changed timers.
 		resetNCPTimeout();
 		
 		// Keep socket timeout in sync - default to error timeout.
 		socket.setSoTimeout(timeout.errorTimeout);
+		
+		timeoutLock.release();
 	}
 }
