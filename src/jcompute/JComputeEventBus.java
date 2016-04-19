@@ -1,5 +1,6 @@
 package jcompute;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,13 +17,14 @@ public class JComputeEventBus
 	
 	private static boolean init = false;
 	private static AsyncEventBus eventBus;
+	private static ExecutorService executor;
 	
 	protected JComputeEventBus()
 	{
 	}
-
+	
 	public static boolean initAsync()
-	{		
+	{
 		if(!init)
 		{
 			/*
@@ -31,8 +33,10 @@ public class JComputeEventBus
 			 * A fixed thread pool of 1 ensures the event orders are preserved in order of posting to the bus.
 			 * This makes the event bus - a non-blocking in-order event dispatcher.
 			 */
-			 
-			eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1, new SimpleNamedThreadFactory("JComputeEventBus")));
+			
+			executor = Executors.newFixedThreadPool(1, new SimpleNamedThreadFactory("JComputeEventBus"));
+			
+			eventBus = new AsyncEventBus(executor);
 			init = true;
 			
 			log.info("JComputeEventBus Started");
@@ -46,15 +50,27 @@ public class JComputeEventBus
 		log.info(subscriber.getClass().getSimpleName() + " Registered on EventBus");
 		eventBus.register(subscriber);
 	}
-
+	
 	public static void unregister(Object subscriber)
 	{
 		log.info(subscriber.getClass().getSimpleName() + " Unregistered from EventBus");
 		eventBus.unregister(subscriber);
 	}
-
+	
 	public static void post(Object e)
 	{
 		eventBus.post(e);
+	}
+	
+	public static void shutdown()
+	{
+		// Shutting 
+		log.warn("Shutting down JComputeEventBus");
+		executor.shutdown();
+		while(!executor.isShutdown())
+		{
+			// wait
+		}
+		log.info("JComputeEventBus shutdown");
 	}
 }
