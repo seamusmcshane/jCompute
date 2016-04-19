@@ -46,7 +46,8 @@ public class DiskCache implements Comparator<CacheItem>
 	private CacheItem itemMemCache[];
 	private int itemsInMemCache;
 	
-	// Cache time in millisecond before cache will look at recently access time of the last item. (reduces cache thrashing when adding, but will mean a disk access on misses)
+	// Cache time in millisecond before cache will look at recently access time of the last item. (reduces cache thrashing when adding, but will mean a disk
+	// access on misses)
 	private final int CACHE_MIN_AGE_PURGE_TIME_LIMIT = 60000;
 	
 	// How long to give an item before being valid for removal
@@ -365,11 +366,11 @@ public class DiskCache implements Comparator<CacheItem>
 			// And if it is outside accesssTimeWindow the remove it and add the new item.
 			if((lastItemTA < purgeTimeWindow) && (lastItemLRA < accesssTimeWindow))
 			{
-				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
-				for(CacheItem item : itemMemCache)
-				{
-					log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
-				}
+				// log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
+				// for(CacheItem item : itemMemCache)
+				// {
+				// log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
+				// }
 				
 				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
 				log.info("Removing " + itemMemCache[itemsInMemCache - 1].getId());
@@ -380,11 +381,11 @@ public class DiskCache implements Comparator<CacheItem>
 				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
 				log.info("Added " + itemMemCache[itemsInMemCache - 1].getId());
 				
-				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
-				for(CacheItem item : itemMemCache)
-				{
-					log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
-				}
+				// log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
+				// for(CacheItem item : itemMemCache)
+				// {
+				// log.info("Cache " + item.getId() + " " + item.getTimeAdded() + " " + item.getLastAccessTime());
+				// }
 			}
 		}
 		else
