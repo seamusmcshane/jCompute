@@ -35,7 +35,6 @@ public class ComputeNode2
 	
 	// NCP Protocol Socket
 	private NCPSocket ncpSocket;
-	private boolean lock = false;
 	
 	// Simulation Manager
 	private SimulationsManager simulationsManager;
@@ -145,13 +144,8 @@ public class ComputeNode2
 							{
 								log.info("processing");
 								
-								// Busy wait
-								waitOnSocketLock();
-								
 								// NCP Socket
 								ncpSocket = new NCPSocket();
-								
-								releaseSocketLock();
 								
 								// Reset UID
 								nodeInfo.setUid(-1);
@@ -428,10 +422,6 @@ public class ComputeNode2
 					e.printStackTrace();
 				}
 				
-				// We may have exited with the socket locked.
-				// Forcefully release it as the event bus subscriber may be waiting on the socket.
-				releaseSocketLock();
-				
 				// We need to shutdown the event bus for a clean exit, all event posting threads must also have exited.
 				JComputeEventBus.shutdown();
 				
@@ -450,54 +440,10 @@ public class ComputeNode2
 	 * Event Subscribers
 	 *****************************************************************************************************/
 	
-	// Used to protect the Subscribers from a null socket and also to reduce the time blocking the event bus to as short as possible
-	// This approach is only usable if the calling thread do not repeatedly need the lock and release the lock very quickly.
-	private void waitOnSocketLock()
-	{
-		// Busy wait
-		while(true)
-		{
-			// Try grab lock
-			if(testAndSetSocketLock())
-			{
-				// We got the lock, now exit.
-				return;
-			}
-			
-			// The lock is not available
-			// Spin on lock read until it changes.
-			// This is a multi-core optimisation - read cost is reduced until the local cache is invalidated by the lock value changing in another thread.
-			while(!lock)
-			{
-				// This is here for dead lock detection not lock contention debugging.
-				// In the case where this lock is required - the socket is gone thus overhead of this warning should be minimal.
-				log.warn("Spinning waitOnSocketLock");
-			}
-			// Lock is now false...loop and retry.
-		}
-	}
-	
-	// Do not call directly.
-	private synchronized boolean testAndSetSocketLock()
-	{
-		boolean cVal = lock;
-		lock = true;
-		return cVal;
-	}
-	
-	private void releaseSocketLock()
-	{
-		lock = false;
-	}
-	
 	@Subscribe
 	public void SimulationStatChangedEvent(SimulationStatChangedEvent e)
 	{
-		waitOnSocketLock();
-		
 		ncpSocket.sendSimulationStatChanged(e);
-		
-		releaseSocketLock();
 	}
 	
 	@Subscribe
@@ -526,12 +472,7 @@ public class ComputeNode2
 			simulationsProcessed.increment();
 		}
 		
-		// Busy wait
-		waitOnSocketLock();
-		
 		ncpSocket.sendSimulationStateChanged(e);
-		
-		releaseSocketLock();
 		
 		log.info("Simulation State Changed " + e.getSimId() + " " + e.getState().toString());
 	}
