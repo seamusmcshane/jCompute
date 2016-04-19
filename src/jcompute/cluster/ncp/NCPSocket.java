@@ -223,6 +223,12 @@ public class NCPSocket implements Closeable
 	public boolean receiveRegistration(final NodeInfo nodeInfo, final int benchmark, final int objects, final int iterations, final int warmupIterations,
 	final int runs)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return false;
+		}
+		
 		if(pMode != ProtocolMode.CONTROLLER)
 		{
 			log.error(pMode + " cannot receive NCP registration.");
@@ -513,6 +519,12 @@ public class NCPSocket implements Closeable
 	 */
 	public boolean initiateRegistration(NodeInfo nodeInfo)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return false;
+		}
+		
 		if(pMode != ProtocolMode.NODE)
 		{
 			log.error(pMode + " cannot initiate NCP registration process.");
@@ -769,6 +781,12 @@ public class NCPSocket implements Closeable
 	 */
 	public NCPMessage getReadyStateMessage()
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return null;
+		}
+		
 		// Cannot call this method outside of ready state
 		if(ncpState != ProtocolState.RDY)
 		{
@@ -822,6 +840,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendAddSimulationRequest(long requestId, String scenarioText)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendAddSimulationRequest(requestId, scenarioText);
 	}
 	
@@ -835,6 +859,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendAddSimReply(AddSimReq req, int simId)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendAddSimReply(req, simId);
 	}
 	
@@ -846,6 +876,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendNodeStatisticsRequest(int sequenceNum)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendNodeStatisticsRequest(sequenceNum);
 	}
 	
@@ -859,6 +895,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendNodeStatsReply(NodeStatsRequest req, NodeStatsSample nodeStatsSample)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendNodeStatsReply(req, nodeStatsSample);
 	}
 	
@@ -872,6 +914,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendSimulationStatsReply(SimulationStatsRequest req, StatExporter exporter)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendSimulationStatsReply(req, exporter);
 	}
 	
@@ -884,6 +932,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendSimulationStateChanged(SimulationStateChangedEvent e)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendSimulationStateChanged(e);
 	}
 	
@@ -896,6 +950,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendSimulationStatChanged(SimulationStatChangedEvent e)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendSimulationStatChanged(e);
 	}
 	
@@ -908,6 +968,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendSimulationStatisticsRequest(int simId, ExportFormat format)
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendSimulationStatisticsRequest(simId, format);
 	}
 	
@@ -918,6 +984,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendNodeOrderlyShutdownRequest()
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendNodeOrderlyShutdownRequest();
 	}
 	
@@ -928,6 +1000,12 @@ public class NCPSocket implements Closeable
 	 */
 	public void sendNodeOrderlyShutdownReply() throws IOException
 	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
 		ncpMM.sendNodeOrderlyShutdownReply();
 	}
 	
