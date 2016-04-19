@@ -9,7 +9,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.logging.log4j.LogManager;
@@ -57,8 +59,22 @@ public class MessageManager
 	private DataOutputStream output;
 	private DataInputStream input;
 	
+	private final int RX_QUEUE_SIZE = 32;
+	private final int MAX_RX_CYCLES = 16;
+	
+	private final int TX_QUEUE_SIZE = 32;
+	
+	// RX Message List
+	private ArrayDeque<NCPMessage> rxMessages;
+	private Semaphore rxLock = new Semaphore(1, false);
+	
+	private AtomicBoolean waitingRX = new AtomicBoolean(false);
+	private Semaphore rxWait = new Semaphore(0, false);
+	
 	// TX Pending Message List
-	private ArrayList<byte[]> txPendingList;
+	private ArrayDeque<byte[]> txPendingList;
+	private Semaphore txLock = new Semaphore(1, false);
+	
 	private int pendingByteCount;
 	
 	private LongAdder bytesTX;
@@ -120,8 +136,11 @@ public class MessageManager
 			totalTestSinceReset = new LongAdder();
 			totalResponseTime = new LongAdder();
 			
+			// RX Message List
+			rxMessages = new ArrayDeque<NCPMessage>(RX_QUEUE_SIZE);
+			
 			// TX Pending Message List to allowing TCP message concatenation
-			txPendingList = new ArrayList<byte[]>();
+			txPendingList = new ArrayDeque<byte[]>(TX_QUEUE_SIZE);
 			pendingByteCount = 0;
 			recvConnectionTestSeqNum = 0;
 			sentConnectionTestSeqNum = 0;
@@ -158,19 +177,51 @@ public class MessageManager
 		
 		started = true;
 		
-		Thread ncpMessageManagerTX = new Thread(new Runnable()
+		Thread ncpMessageManager = new Thread(new Runnable()
 		{
 			@Override
 			public void run()
 			{
 				log.info("Started");
 				
+				final int TX_FREQUENCY = txFreq;
+				
 				try
 				{
+					long currentTXTime = System.currentTimeMillis();
+					long lastTXTime = System.currentTimeMillis();
+					
 					while(connected)
 					{
-						txPendingData();
-						Thread.sleep(txFreq);
+						boolean outStandingRx = rxDataEnqueue();
+						
+						// The connection has no pending data, no we had no test replies and we are over the NCP.TimeOut window length.
+						if(isNCPTimeout())
+						{
+							shutdown(timeout.toString() + " : " + (System.currentTimeMillis() - lastTestMessageTime));
+						}
+						
+						// Do a test if there is no data - initiate an activity test sequence if we have not performed a test recently
+						if((recvConnectionTestSeqNum == sentConnectionTestSeqNum) && needsActivityTest())
+						{
+							sendActivityTestMessage();
+						}
+						
+						currentTXTime = System.currentTimeMillis();
+						boolean txNeeded = ((currentTXTime - lastTXTime) >= TX_FREQUENCY);
+						
+						if(txNeeded)
+						{
+							txPendingData();
+							
+							lastTXTime = System.currentTimeMillis();
+						}
+						
+						// Only sleep if RX is not busy.
+						if(!outStandingRx)
+						{
+							Thread.sleep(1);
+						}
 					}
 				}
 				catch(InterruptedException | IOException e)
@@ -183,8 +234,8 @@ public class MessageManager
 		});
 		
 		// Manager is the NCP sockets tx
-		ncpMessageManagerTX.setName("NCP TX");
-		ncpMessageManagerTX.start();
+		ncpMessageManager.setName("NCP Queue Processor");
+		ncpMessageManager.start();
 		
 		return true;
 	}
@@ -359,56 +410,98 @@ public class MessageManager
 	
 	public NCPMessage getMessage(boolean wait)
 	{
+		rxLock.acquireUninterruptibly();
+		
+		NCPMessage message = rxMessages.pollFirst();
+		
+		rxLock.release();
+		
+		// Are we waiting.
+		if(wait && message == null)
+		{
+			// We are waiting
+			waitingRX.set(true);
+			
+			// Wait for a message.
+			rxWait.acquireUninterruptibly();
+			
+			// We are not waiting
+			waitingRX.set(false);
+			
+			// Got a message.
+			rxLock.acquireUninterruptibly();
+			message = rxMessages.pollFirst();
+			rxLock.release();
+		}
+		
+		return message;
+	}
+	
+	/*
+	 * ***************************************************************************************************
+	 * RX Transfer
+	 *****************************************************************************************************/
+	
+	private boolean rxDataEnqueue() throws IOException
+	{
 		// Connection lost
 		if(input == null)
 		{
-			return null;
+			return false;
 		}
 		
-		int type = -1;
-		int len = -1;
-		ByteBuffer data = null;
+		// Any pending data in the TCP socket?
+		if(input.available() == 0)
+		{
+			return false;
+		}
 		
 		try
 		{
-			// We transparently receive ActivityTest messages here and reply.
-			// But they do not go higher up, so if received we intercept and redo the requested read while keeping any wait behaviour.
-			// This also limits processing of ActivityTest to the speed at which this method is called.
+			// We transparently receive ActivityTest messages here and reply immediately.
+			
+			// Begin the cycle count.
+			int cycle = 0;
+			
 			while(true)
 			{
-				// Is there any data
-				if(input.available() == 0)
+				// TVL
+				int type = -1;
+				int len = -1;
+				ByteBuffer data = null;
+				
+				// Switch the socket the normal timeout.
+				socket.setSoTimeout(timeout.normalTimeout);
+				
+				try
 				{
-					// Do a test if there is no data - initiate an activity test sequence if we have not performed a test recently
-					if((recvConnectionTestSeqNum == sentConnectionTestSeqNum) && needsActivityTest())
-					{
-						sendActivityTestMessage();
-					}
+					// Wait for data or timeout
+					type = input.readInt();
+				}
+				catch(SocketTimeoutException e)
+				{
 					
-					// The connection has no pending data, no we had no test replies and we are over the NCP.TimeOut window length.
-					if(isNCPTimeout())
-					{
-						shutdown(timeout.toString() + " : " + (System.currentTimeMillis() - lastTestMessageTime));
-					}
+					// Timeout waiting for type field.
+					// This is OK return as there is no data.
 					
-					// No data but requested not to wait.
-					if(!wait)
-					{
-						return null;
-					}
+					return false;
 				}
 				
+				// Switch the socket the error timeout.
+				socket.setSoTimeout(timeout.errorTimeout);
+				
+				// To get here we must have read a type field - there is a message in the buffer.
+				// A timeout here is will cause cause the connection to close.
+				len = input.readInt();					// TODO validate lengths vs the type
+				
+				data = readBytesToByteBuffer(len);		// Get the data
+				
+				// The abstract message
 				NCPMessage message = null;
-				boolean testFrame = false;
 				
-				// Block here until data or timeout
-				type = input.readInt();
-				
-				// TODO validate lengths vs the type
-				len = input.readInt();
-				
-				// Get the data
-				data = readBytesToByteBuffer(len);
+				// Marker to intercept test messages
+				boolean testMessage = false;
+				boolean ourMessage = false;
 				
 				// Determine how to parse the message.
 				switch(type)
@@ -495,7 +588,7 @@ public class MessageManager
 						ActivityTestRequest req = new ActivityTestRequest(data);
 						txDataEnqueue(new ActivityTestReply(req).toBytes());
 						
-						testFrame = true;
+						testMessage = true;
 					}
 					break;
 					case NCP.ActivityTestReply:
@@ -514,34 +607,72 @@ public class MessageManager
 						}
 						else
 						{
+							// An error has occurred.
+							
 							shutdown("ConnectionTest Sequence not in sync " + sentConnectionTestSeqNum + " " + recvConnectionTestSeqNum + " " + reqSeqNum);
+							
+							return false;
 						}
 						
-						testFrame = true;
+						ourMessage = true;
+						testMessage = true;
 					}
 					break;
-					default:
+				}
+				
+				// Is the test message marker set.
+				if(!testMessage)
+				{
+					rxLock.acquireUninterruptibly();
+					
+					// The is a normal NCP message - enqueue.
+					rxMessages.add(message);
+					
+					rxLock.release();
+					
+					if(waitingRX.get())
 					{
-						return null;
+						// Release waiting for a message.
+						rxWait.release();
 					}
 				}
-				
-				// The socket may have intercepted an activity test message.
-				if(!testFrame)
+				else
 				{
-					// Return the message
-					return message;
+					// This was a test message.
+					// Was it ours
+					if(ourMessage)
+					{
+						// Reset NCP our Timeout as we got a reply.
+						resetNCPTimeout();
+						
+						// Reset flag
+						ourMessage = false;
+					}
+					
+					// Reset flag
+					testMessage = false;
 				}
 				
-				// Reset NCP Timeout
-				resetNCPTimeout();
+				// Increase our cycle count and continue the loop
+				cycle++;
 				
-				// Reset flag
-				testFrame = false;
+				// There are no more messages
+				if(input.available() == 0)
+				{
+					return false;
+				}
+				
+				// We may have more message but we have to allow other processing
+				if(cycle == MAX_RX_CYCLES)
+				{
+					return true;
+				}
 			}
 		}
 		catch(SocketTimeoutException e)
 		{
+			// To get here we have timed out waiting on len or data
+			// This is not recoverable as the stream is out of sync.
 			shutdown(e.getMessage());
 		}
 		catch(IOException e)
@@ -549,8 +680,8 @@ public class MessageManager
 			shutdown(e.getMessage());
 		}
 		
-		// No message after exceptions
-		return null;
+		// An error has occurred - no messages
+		return false;
 	}
 	
 	/*
@@ -559,19 +690,27 @@ public class MessageManager
 	 *****************************************************************************************************/
 	
 	// Enqueue Messages to be sent
-	private synchronized void txDataEnqueue(byte[] bytes)
+	private void txDataEnqueue(byte[] bytes)
 	{
+		txLock.acquireUninterruptibly();
+		
 		txPendingList.add(bytes);
 		
 		// Byte count pending
 		pendingByteCount += bytes.length;
+		
+		txLock.release();
 	}
 	
 	// Send Pending Messages
-	private synchronized void txPendingData() throws IOException
+	private void txPendingData() throws IOException
 	{
+		txLock.acquireUninterruptibly();
+		
 		if(pendingByteCount == 0)
 		{
+			txLock.release();
+			
 			return;
 		}
 		
@@ -603,6 +742,8 @@ public class MessageManager
 		
 		// Count reset
 		pendingByteCount = 0;
+		
+		txLock.release();
 	}
 	
 	/*
@@ -611,26 +752,26 @@ public class MessageManager
 	 *****************************************************************************************************/
 	
 	// TODO check lengths
-	// Reads n bytes from the socket and returns them in a byte buffer.
-	private ByteBuffer readBytesToByteBuffer(int len) throws SocketTimeoutException, IOException
+	// Reads the specified length of bytes from the socket and returns them in a byte buffer.
+	private ByteBuffer readBytesToByteBuffer(int length) throws SocketTimeoutException, IOException
 	{
 		byte[] backingArray = null;
 		ByteBuffer data = null;
 		
 		// Allocate here to avoid duplication of allocation code
-		if(len > 0)
+		if(length > 0)
 		{
 			// Destination
-			backingArray = new byte[len];
+			backingArray = new byte[length];
 			
 			// Block until whole message is complete then copy data from the socket
-			input.readFully(backingArray, 0, len);
+			input.readFully(backingArray, 0, length);
 			
 			// Wrap the backing array
 			data = ByteBuffer.wrap(backingArray);
 			
-			// Record RXBytes
-			bytesRX.add(backingArray.length);
+			// Record RXBytes + 8 for type and length fields already read
+			bytesRX.add(backingArray.length + 8);
 			
 			// Record RX Call
 			rxS.increment();
@@ -666,6 +807,13 @@ public class MessageManager
 			}
 		}
 		
+		// Check no one is waiting in the getMessageMethod.
+		if(waitingRX.get())
+		{
+			// Release waiting for a message.
+			rxWait.release();
+		}
+		
 		log.info("Shutting down : " + reason);
 	}
 	
@@ -689,7 +837,7 @@ public class MessageManager
 	
 	private boolean isNCPTimeout()
 	{
-		return timeout.isTimedout((int) (System.currentTimeMillis() - lastTestMessageTime));
+		return timeout.hasTimeoutError((int) (System.currentTimeMillis() - lastTestMessageTime));
 	}
 	
 	// Reset NCP Timeout
@@ -706,7 +854,7 @@ public class MessageManager
 		
 		resetNCPTimeout();
 		
-		// Keep socket timeout in sync
-		socket.setSoTimeout(timeout.value);
+		// Keep socket timeout in sync - default to error timeout.
+		socket.setSoTimeout(timeout.errorTimeout);
 	}
 }

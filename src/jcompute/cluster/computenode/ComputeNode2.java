@@ -119,22 +119,22 @@ public class ComputeNode2
 				
 				Thread processing = new Thread(new Runnable()
 				{
-					final int rxFrequency = 10;
-					
-					// If ActivityTest is 1000ms and rxFrequency 10ms then the statistics divisor is 100.
-					// As processingTickCounter increments by 1 every 10ms, it takes 1 second to reach 100.
-					final int statisticsUpdateDivisor = (NCP.ActivityTestFreq) / rxFrequency;
-					
-					int connectionAttempts = 0;
-					int processingTickCounter = 0;
+					// Timing Frequencies
+					final int RX_FREQUENCY = 10;
+					final int STATISTICS_UPDATE_FREQUENCY = 1000;
 					
 					@Override
 					public void run()
 					{
 						log.info("Started");
 						
+						int connectionAttempts = 0;
+						
 						boolean connected = false;
 						boolean registered = false;
+						
+						long currentStatisticsTime = System.currentTimeMillis();
+						long lastStatisticsTime = currentStatisticsTime;
 						
 						// Retry connection loop - exit on fatal error or orderly shutdown
 						Shutdown :
@@ -150,11 +150,22 @@ public class ComputeNode2
 								
 								releaseSocketLock();
 								
+								// Reset UID
+								nodeInfo.setUid(-1);
+								
 								// Reset Averaged statistics on re/connection.
 								nodeAveragedStats.reset();
 								
 								// Reset Instant statistics on re/connection.
 								simulationsProcessed.reset();
+								
+								// Remove all current simulations.
+								simulationsManager.removeAll();
+								log.info("Simulations manager cleared");
+								
+								// Any statistics in the cache are not going to be requested so remove them too.
+								statCache = new ProcessedItemStatCache();
+								log.info("Statistics cache cleared");
 								
 								// Log connection parameters
 								log.info("Address       : " + address);
@@ -332,15 +343,33 @@ public class ComputeNode2
 										break Shutdown;
 									}
 								}
-							}
+							} // End if (message)
 							else
 							{
 								if(ncpSocket.isConnected())
 								{
-									if((processingTickCounter % statisticsUpdateDivisor) == 0)
+									currentStatisticsTime = System.currentTimeMillis();
+									boolean requestStatistics = ((currentStatisticsTime - lastStatisticsTime) >= STATISTICS_UPDATE_FREQUENCY);
+									
+									if(requestStatistics)
 									{
 										nodeAveragedStats.update(osInfo.getSystemCpuUsage(), simulationsManager.getActiveSims(), statCache.getStatsStore(),
 										jvmInfo.getUsedJVMMemoryPercentage());
+										
+										lastStatisticsTime = currentStatisticsTime;
+									}
+									
+									try
+									{
+										Thread.sleep(RX_FREQUENCY);
+									}
+									catch(InterruptedException e)
+									{
+										log.error(e.getMessage());
+										
+										e.printStackTrace();
+										
+										break Shutdown;
 									}
 								}
 								else
@@ -359,33 +388,21 @@ public class ComputeNode2
 									connected = false;
 									registered = false;
 									
-									// Reset Instant statistics on reconnection.
-									simulationsProcessed.reset();
-									
-									// Remove all current simulations.
-									simulationsManager.removeAll();
-									log.info("Removed all Simulations");
-									
-									// Any statistics in the cache are not going to be requested so remove them too.
-									statCache = new ProcessedItemStatCache();
-									log.info("Recreated ComputeNode Statistics Cache");
+									// Delay the retry.
+									try
+									{
+										Thread.sleep(1000);
+									}
+									catch(InterruptedException e)
+									{
+										log.error(e.getMessage());
+										
+										e.printStackTrace();
+										
+										break Shutdown;
+									}
 								}
-								
-								try
-								{
-									Thread.sleep(rxFrequency);
-								}
-								catch(InterruptedException e)
-								{
-									log.error(e.getMessage());
-									
-									e.printStackTrace();
-									
-									break Shutdown;
-								}
-							} // End if (message)
-							
-							processingTickCounter++;
+							}
 						} // End Processing Loop
 						
 						// We have shutdown

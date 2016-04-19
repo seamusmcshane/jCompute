@@ -123,8 +123,10 @@ public class NCP
 	public static final int StandardServerPort = 10000;			// ControlNode Listening Port
 	
 	private static final int ReadyStateTimeOut = 120000;			// Max time to wait for a node to enter ready state in seconds.
+	private static final int InactivityTimeOut = 15000;			// Max time milliseconds to wait for a node to reply before closing connection
 	
-	public static final int InactivityTimeOut = 15000;				// Max time milliseconds to wait for a node to reply before closing connection
+	private static final int SafeReadTimeOut = 10;					// Max time milliseconds to wait for a message to rx enqueue.
+	
 	public static final int ActivityTestFreq = 1000;				// Activity test frequency in milliseconds
 	
 	// Registration Nack Reasons
@@ -133,20 +135,24 @@ public class NCP
 	// Timeouts in millis
 	public enum Timeout
 	{
-		ReadyState(ReadyStateTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, "NCP Inactivity Timeout");
+		ReadyState(ReadyStateTimeOut, SafeReadTimeOut, "NCP Ready State Timeout"), Inactivity(InactivityTimeOut, SafeReadTimeOut, "NCP Inactivity Timeout");
 		
 		private final String name;
-		public final int value;
 		
-		private Timeout(int value, String name)
+		public final int normalTimeout;
+		public final int errorTimeout;
+		
+		private Timeout(int errorTimeout, int normalTimeout, String name)
 		{
-			this.value = value;
+			this.errorTimeout = errorTimeout;
+			this.normalTimeout = normalTimeout;
+			
 			this.name = name;
 		}
 		
-		public boolean isTimedout(int value)
+		public boolean hasTimeoutError(int reference)
 		{
-			return(value > this.value);
+			return(reference > this.errorTimeout);
 		}
 		
 		@Override

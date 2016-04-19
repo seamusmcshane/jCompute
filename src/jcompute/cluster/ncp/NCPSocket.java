@@ -970,6 +970,6 @@ public class NCPSocket implements Closeable
 	
 	private boolean isReadyStateTimeOut()
 	{
-		return NCP.Timeout.ReadyState.isTimedout((int) (System.currentTimeMillis() - ncpStartTime));
+		return NCP.Timeout.ReadyState.hasTimeoutError((int) (System.currentTimeMillis() - ncpStartTime));
 	}
 }

@@ -317,7 +317,7 @@ public class ControlNode
 		// Statistics where requested
 		if(requestStatistics)
 		{
-			log.info("Requested Node Statistics " + tickCount);
+			log.info("Node Statistics Tick : " + tickCount);
 			lastStatisticsTime = System.currentTimeMillis();
 			tickCount++;
 		}

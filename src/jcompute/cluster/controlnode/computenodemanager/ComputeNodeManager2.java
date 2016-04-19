@@ -109,6 +109,9 @@ public class ComputeNodeManager2
 		
 		Thread computeNodeManager = new Thread(new Runnable()
 		{
+			// Thread rx sleep period
+			final int RX_FREQUENCY = 10;
+			
 			@Override
 			public void run()
 			{
@@ -128,9 +131,6 @@ public class ComputeNodeManager2
 					
 					sm.transitionToState(NodeManagerState.SHUTDOWN);
 				}
-				
-				// Thread sleep period
-				final int rxFrequency = 10;
 				
 				// Running loop - exit on fatal error or orderly shutdown
 				// We still enter if we failed to register as it collates shutdown processing in one place.
@@ -359,7 +359,7 @@ public class ComputeNodeManager2
 							// No messages and we are connected - sleep
 							try
 							{
-								Thread.sleep(rxFrequency);
+								Thread.sleep(RX_FREQUENCY);
 							}
 							catch(InterruptedException e)
 							{
