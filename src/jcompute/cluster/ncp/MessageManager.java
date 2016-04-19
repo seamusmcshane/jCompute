@@ -725,11 +725,20 @@ public class MessageManager
 			databuffer.put(bytes);
 		}
 		
-		// Send the concatenated data in bulk
-		output.write(concatenated);
-		
-		// Flush the data
-		output.flush();
+		try
+		{
+			// Send the concatenated data in bulk
+			output.write(concatenated);
+			
+			// Flush the data
+			output.flush();
+		}
+		catch(IOException e)
+		{
+			txLock.release();
+			
+			throw e;
+		}
 		
 		// Record TXBytes
 		bytesTX.add(pendingByteCount);
