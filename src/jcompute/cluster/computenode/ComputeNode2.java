@@ -89,13 +89,14 @@ public class ComputeNode2
 	public boolean start(final int maxConnectionAttempts, final String address, final int socketTX, final int socketRX, final boolean tcpNoDelay,
 	final int txFreq)
 	{
-		if(nodeStarted.get() == true)
+		if(nodeStarted.getAndSet(true))
 		{
 			log.error("Node already Started");
 			
 			return false;
 		}
 		
+		// Register on the event bus
 		JComputeEventBus.register(this);
 		
 		// New thread so we don't block Launcher and allow it to exit the same way as the GUI modes do.
@@ -142,6 +143,8 @@ public class ComputeNode2
 						{
 							if(!connected)
 							{
+								log.info("processing");
+								
 								// Busy wait
 								waitOnSocketLock();
 								
@@ -405,7 +408,7 @@ public class ComputeNode2
 							}
 						} // End Processing Loop
 						
-						// We have shutdown
+						// We have shutdown - restart not tested
 						nodeStarted.set(false);
 						
 						// Last message from processing
@@ -425,6 +428,13 @@ public class ComputeNode2
 					e.printStackTrace();
 				}
 				
+				// We may have exited with the socket locked.
+				// Forcefully release it as the event bus subscriber may be waiting on the socket.
+				releaseSocketLock();
+				
+				// We need to shutdown the event bus for a clean exit, all event posting threads must also have exited.
+				JComputeEventBus.shutdown();
+				
 				// Last message from compute node
 				log.info("Exited");
 			}
@@ -441,16 +451,33 @@ public class ComputeNode2
 	 *****************************************************************************************************/
 	
 	// Used to protect the Subscribers from a null socket and also to reduce the time blocking the event bus to as short as possible
+	// This approach is only usable if the calling thread do not repeatedly need the lock and release the lock very quickly.
 	private void waitOnSocketLock()
 	{
 		// Busy wait
-		while(testAndSetSocketLock())
+		while(true)
 		{
-			log.info("BLOCK");
-			//
+			// Try grab lock
+			if(testAndSetSocketLock())
+			{
+				// We got the lock, now exit.
+				return;
+			}
+			
+			// The lock is not available
+			// Spin on lock read until it changes.
+			// This is a multi-core optimisation - read cost is reduced until the local cache is invalidated by the lock value changing in another thread.
+			while(!lock)
+			{
+				// This is here for dead lock detection not lock contention debugging.
+				// In the case where this lock is required - the socket is gone thus overhead of this warning should be minimal.
+				log.warn("Spinning waitOnSocketLock");
+			}
+			// Lock is now false...loop and retry.
 		}
 	}
 	
+	// Do not call directly.
 	private synchronized boolean testAndSetSocketLock()
 	{
 		boolean cVal = lock;
@@ -468,10 +495,7 @@ public class ComputeNode2
 	{
 		waitOnSocketLock();
 		
-		if(ncpSocket != null)
-		{
-			ncpSocket.sendSimulationStatChanged(e);
-		}
+		ncpSocket.sendSimulationStatChanged(e);
 		
 		releaseSocketLock();
 	}
@@ -505,10 +529,7 @@ public class ComputeNode2
 		// Busy wait
 		waitOnSocketLock();
 		
-		if(ncpSocket != null)
-		{
-			ncpSocket.sendSimulationStateChanged(e);
-		}
+		ncpSocket.sendSimulationStateChanged(e);
 		
 		releaseSocketLock();
 		
