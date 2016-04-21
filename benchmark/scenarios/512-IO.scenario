@@ -86,6 +86,14 @@
 			<EnergyConsumptionRate>100</EnergyConsumptionRate>
 			<ReproductionEnergyDivisionRatio>0.50</ReproductionEnergyDivisionRatio>
 			<ReproductionCostRatio>0.55</ReproductionCostRatio>
+			<ContinuousMaxMoves>250</ContinuousMaxMoves>
+			<RestMaxMoves>10</RestMaxMoves>
+			<RoamMaxMoves>20</RoamMaxMoves>
+			<LearnToMoveMaxMoves>15</LearnToMoveMaxMoves>
+			<HuntingMovePerseverance>50</HuntingMovePerseverance>
+			<AlwaysMove>false</AlwaysMove>
+			<AdvancedReproductionDecisionMaking>true</AdvancedReproductionDecisionMaking>
+			<PreventOverlapping>false</PreventOverlapping>
 		</SimpleAgent>
 		<SimpleAgent>
 			<GroupName>Prey</GroupName>
@@ -106,18 +114,26 @@
 			<EnergyConsumptionRate>10</EnergyConsumptionRate>
 			<ReproductionEnergyDivisionRatio>0.50</ReproductionEnergyDivisionRatio>
 			<ReproductionCostRatio>0.50</ReproductionCostRatio>
+			<ContinuousMaxMoves>250</ContinuousMaxMoves>
+			<RestMaxMoves>10</RestMaxMoves>
+			<RoamMaxMoves>20</RoamMaxMoves>
+			<LearnToMoveMaxMoves>15</LearnToMoveMaxMoves>
 			<SelfishBehaviour>true</SelfishBehaviour>
+			<AlwaysMove>false</AlwaysMove>
+			<AdvancedReproductionDecisionMaking>true</AdvancedReproductionDecisionMaking>
+			<PreventOverlapping>false</PreventOverlapping>
 		</SimpleAgent>
 	</Agents>
 	<Plants>
 		<GenericPlant>
-				<Type>0</Type>
-				<InitialNumbers>600</InitialNumbers>
-				<StartingEnergy>50</StartingEnergy>
-				<PlantRegeratonRate>2</PlantRegeratonRate>
-				<PlantRegenerationNSteps>1</PlantRegenerationNSteps>
-				<EnergyAbsorptionRate>8</EnergyAbsorptionRate>
-				<ReproductionAndSurvivalDivisor>0.25</ReproductionAndSurvivalDivisor>
+			<Type>0</Type>
+			<InitialNumbers>600</InitialNumbers>
+			<Size>1.4</Size>
+			<StartingEnergy>50</StartingEnergy>
+			<EnergyAbsorptionRate>8</EnergyAbsorptionRate>
+			<PlantRegenerationRate>2</PlantRegenerationRate>
+			<PlantRegenerationRateStepDiv>1</PlantRegenerationRateStepDiv>
+			<PreventOverlapping>false</PreventOverlapping>
 		</GenericPlant>
 	</Plants>
 </Scenario>
