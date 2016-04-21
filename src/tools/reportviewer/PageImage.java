@@ -3,10 +3,15 @@ package tools.reportviewer;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class PageImage
 {
-	private BufferedImage[] images;
+	private byte[][] imageBytes;
 	
 	private float[] size;
 	
@@ -16,14 +21,15 @@ public class PageImage
 	
 	public PageImage(BufferedImage baseImage)
 	{
-		images = new BufferedImage[3];
+		imageBytes = new byte[3][];
 		
 		int dMax = Math.max(baseImage.getWidth(), baseImage.getHeight());
 		
 		int largeImage = Math.min(LARGE, dMax);
 		
-		images[0] = createScaledImageFIX(baseImage, baseImage.getWidth(), baseImage.getHeight(), largeImage, false);
+		BufferedImage[] images = new BufferedImage[3];
 		
+		images[0] = createScaledImageFIX(baseImage, baseImage.getWidth(), baseImage.getHeight(), largeImage, false);
 		size = new float[]
 		{
 			images[0].getWidth(), images[0].getHeight()
@@ -32,12 +38,52 @@ public class PageImage
 		baseImage = null;
 		
 		images[1] = createScaledImageFIX(images[0], images[0].getWidth(), images[0].getHeight(), MEDIUM, false);
-		
 		images[2] = createScaledImageFIX(images[1], images[1].getWidth(), images[1].getHeight(), SMALL, false);
 		
-		System.out.println("images[0] " + images[0].getWidth() + " " + images[0].getHeight());
-		System.out.println("images[1] " + images[1].getWidth() + " " + images[1].getHeight());
-		System.out.println("images[2] " + images[2].getWidth() + " " + images[2].getHeight());
+		for(int i = 0; i < imageBytes.length; i++)
+		{
+			System.out.println("1 " + images[i].getWidth() + " " + images[i].getHeight());
+			imageBytes[i] = imageToPngBytes(images[i]);
+		}
+	}
+	
+	public BufferedImage pngBytesToBufferedImage(byte[] bytes)
+	{
+		try
+		{
+			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+			
+			return ImageIO.read(in);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
+	}
+	
+	public byte[] imageToPngBytes(BufferedImage image)
+	{
+		try
+		{
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			
+			ImageIO.write(image, "png", out);
+			
+			int inBytes = image.getRaster().getDataBuffer().getSize() * 4;
+			int outBytes = out.size();
+			
+			System.out.println("Compressed size from " + inBytes + " to " + outBytes + " ratio " + ((float) inBytes / (float) outBytes));
+			
+			return out.toByteArray();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
 	}
 	
 	public float[] getSize()
@@ -49,17 +95,17 @@ public class PageImage
 	{
 		if(res < 0)
 		{
-			return images[0];
+			return pngBytesToBufferedImage(imageBytes[res]);
 		}
 		
-		if(res > images.length)
+		if(res > imageBytes.length)
 		{
-			return images[images.length - 1];
+			return pngBytesToBufferedImage(imageBytes[imageBytes.length - 1]);
 		}
 		
 		System.out.println("Res " + res);
 		
-		return images[res];
+		return pngBytesToBufferedImage(imageBytes[res]);
 	}
 	
 	public static BufferedImage createScaledImageFIX(BufferedImage image, int width, int height, float maxSize, boolean fastScale)
