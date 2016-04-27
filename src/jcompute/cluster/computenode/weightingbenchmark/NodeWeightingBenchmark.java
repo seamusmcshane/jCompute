@@ -70,7 +70,7 @@ public class NodeWeightingBenchmark
 		for(KNNFloatPosInf object : list)
 		{
 			TreeBenchObject cto = (TreeBenchObject) object;
-			TreeBenchObject no = (TreeBenchObject) tree.nearestNeighbour(object);
+			TreeBenchObject no = (TreeBenchObject) tree.kn1NearestNeighbour(object, null);
 			
 			cto.setNearestObject(no);
 		}
