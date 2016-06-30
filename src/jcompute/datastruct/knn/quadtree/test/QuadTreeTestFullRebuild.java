@@ -20,24 +20,24 @@ public class QuadTreeTestFullRebuild
 	public static QuadPanel qpanel;
 	public static RecursiveRegionQuadTree quadTree = new RecursiveRegionQuadTree(size * 0.5f, size * 0.5f, size);
 	public static ArrayList<KNNFloatPosInf> list = new ArrayList<KNNFloatPosInf>();
-
+	
 	public static int mouseX = 0;
 	public static int mouseY = 0;
 	public static boolean mouse1Pressed = false;
 	public static boolean mouse3Pressed = false;
 	public static JFrame frame;
-
+	
 	public static boolean searchEntered = false;
 	private static float[] search;
-
+	
 	public static void main(String args[])
 	{
 		search = new float[2];
-
+		
 		// Frame
 		frame = new JFrame();
-
-		qpanel = new QuadPanel(size, 10f);
+		
+		qpanel = new QuadPanel(size, size, 10f);
 		qpanel.addMouseMotionListener(new MouseMotionAdapter()
 		{
 			@Override
@@ -45,7 +45,7 @@ public class QuadTreeTestFullRebuild
 			{
 				mouseX = e.getX();
 				mouseY = e.getY();
-
+				
 				if(mouse1Pressed)
 				{
 					list.add(new TreeBenchObject(list.size(), new float[]
@@ -59,13 +59,13 @@ public class QuadTreeTestFullRebuild
 					{
 						search[0] = e.getX();
 						search[1] = e.getY();
-
+						
 						searchEntered = true;
 					}
 				}
-
+				
 			}
-
+			
 			@Override
 			public void mouseMoved(MouseEvent e)
 			{
@@ -87,13 +87,13 @@ public class QuadTreeTestFullRebuild
 					mouse3Pressed = true;
 				}
 			}
-
+			
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
 				mouse1Pressed = false;
 			}
-
+			
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
@@ -107,31 +107,31 @@ public class QuadTreeTestFullRebuild
 				else if(e.getButton() == MouseEvent.BUTTON3)
 				{
 					System.out.println("Button 3");
-
+					
 					if(!searchEntered)
 					{
 						search[0] = e.getX();
 						search[1] = e.getY();
-
+						
 						searchEntered = true;
 					}
-
+					
 				}
 			}
 		});
-
+		
 		frame.getContentPane().add(qpanel, BorderLayout.CENTER);
-
+		
 		// Size
 		frame.setSize(size + 20, size + 40);
 		frame.setVisible(true);
-
+		
 		// For now
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		initThread();
-
+		
 	}
-
+	
 	private static void initThread()
 	{
 		new Thread()
@@ -146,59 +146,59 @@ public class QuadTreeTestFullRebuild
 						if(qpanel != null)
 						{
 							quadTree = new RecursiveRegionQuadTree(size * 0.5f, size * 0.5f, size, list);
-
-							float[][] lines = quadTree.getQuadTreePartitionLines();
-
+							
+							float[][] lines = quadTree.getPartitionLines();
+							
 							qpanel.setLines(lines);
 							qpanel.setPoints(list);
-
+							
 							if(searchEntered)
 							{
 								qpanel.clearSearch();
-
+								
 								// System.out.println("Search " +
 								// search[0]+"x"+search[1]);
-
+								
 								float removeDis = 10f;
 								float distance = 100f;
-
+								
 								KNNResult result = new KNNResult(null, distance * distance);
-
+								
 								quadTree.setNearestNeighbour(result, search, distance * distance);
 								ArrayList<KNNFloatPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, distance * distance);
-
+								
 								// Display the Search point
 								qpanel.showSearchPointAndRange(search, distance);
-
+								
 								// Display the Nearest Neighbours
 								if(nearestNeighbours.size() > 0)
 								{
 									qpanel.setShowKNNResult(nearestNeighbours);
 								}
-
+								
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
 									qpanel.setShow1NNResult(result.getPos().getLatchedPos());
 								}
-
+								
 								if(result.getDis() < (removeDis * removeDis))
 								{
 									System.out.println("Remove" + result.getPos().getLatchedPos()[0] + "x" + result.getPos().getLatchedPos()[1]);
-
+									
 									// Remove from quad tree
 									// quadTree.removePoint(result.getPos());
-
+									
 									// Remove from list or it will be re-added
 									// on next loop
 									// list.remove(result.getPos());
 								}
-
+								
 								searchEntered = false;
 							}
-
+							
 							// System.out.println("Points " + list.size());
-
+							
 							qpanel.repaint();
 							frame.repaint();
 						}
@@ -208,10 +208,10 @@ public class QuadTreeTestFullRebuild
 					{
 						e.printStackTrace();
 					}
-
+					
 				}
 			}
 		}.start();
 	}
-
+	
 }

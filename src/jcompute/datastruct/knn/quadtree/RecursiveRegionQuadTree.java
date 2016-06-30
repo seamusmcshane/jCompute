@@ -2,6 +2,7 @@ package jcompute.datastruct.knn.quadtree;
 
 import java.util.ArrayList;
 
+import jcompute.datastruct.knn.KNNDataStruct;
 import jcompute.datastruct.knn.KNNFloatPosInf;
 import jcompute.datastruct.knn.KNNResult;
 import jcompute.util.JCMath;
@@ -10,7 +11,7 @@ import jcompute.util.JCMath;
  * RegionQuadTree
  * @author Seamus McShane
  */
-public class RecursiveRegionQuadTree
+public class RecursiveRegionQuadTree implements KNNDataStruct
 {
 	private final int MAX_OBJECTS_PER_NODE = 64;
 	private final int MAX_LEVEL = 10;
@@ -558,7 +559,7 @@ public class RecursiveRegionQuadTree
 	 * Returns the partition lines of the tree as a list of vertices.
 	 * @return
 	 */
-	public float[][] getQuadTreePartitionLines()
+	public float[][] getPartitionLines()
 	{
 		ArrayList<float[]> partitions = new ArrayList<float[]>();
 

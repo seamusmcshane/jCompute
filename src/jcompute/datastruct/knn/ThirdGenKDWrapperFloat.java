@@ -31,6 +31,12 @@ public class ThirdGenKDWrapperFloat<Datatype>
 		treenodes++;
 	}
 	
+	public void add(float[] pos, Datatype data)
+	{
+		tree.addPoint(pos, data);
+		treenodes++;
+	}
+	
 	public int size()
 	{
 		return treenodes;
@@ -41,6 +47,14 @@ public class ThirdGenKDWrapperFloat<Datatype>
 		// KNN1AgentSearchRule agentSearch = new KNN1AgentSearchRule(pos.getLatchedPos(), data);
 		
 		return tree.kn1NearestNeighbor(pos.getLatchedPos(), data, distanceKD);
+		// return tree.findNearestNeighbors(pos.getLatchedPos(), 2, distanceKD).getMax();
+	}
+	
+	public Datatype kn1NearestNeighbour(float[] pos, Datatype data)
+	{
+		// KNN1AgentSearchRule agentSearch = new KNN1AgentSearchRule(pos.getLatchedPos(), data);
+		
+		return tree.kn1NearestNeighbor(pos, data, distanceKD);
 		// return tree.findNearestNeighbors(pos.getLatchedPos(), 2, distanceKD).getMax();
 	}
 	
