@@ -12,56 +12,56 @@ public class JCMath
 	{
 		return (float) FastMath.sqrt(distanceSquared(from, to));
 	}
-
+	
 	public static float distanceSquared(float[] from, float[] to)
 	{
 		return ((to[0] - from[0]) * (to[0] - from[0])) + ((to[1] - from[1]) * (to[1] - from[1]));
 	}
-
+	
 	public static double distance(double[] from, double[] to)
 	{
 		return FastMath.sqrt(distanceSquared(from, to));
 	}
-
+	
 	public static double distanceSquared(double[] from, double[] to)
 	{
 		return ((to[0] - from[0]) * (to[0] - from[0])) + ((to[1] - from[1]) * (to[1] - from[1]));
 	}
-
+	
 	public static double distance(double fromX, double fromY, double toX, double toY)
 	{
 		return FastMath.sqrt(distanceSquared(fromX, fromY, toX, toY));
 	}
-
+	
 	public static double distanceSquared(double fromX, double fromY, double toX, double toY)
 	{
 		return ((toX - fromX) * (toX - fromX)) + ((toY - fromY) * (toY - fromY));
 	}
-
+	
 	public static float distance(float fromX, float fromY, float toX, float toY)
 	{
 		return (float) FastMath.sqrt(distanceSquared(fromX, fromY, toX, toY));
 	}
-
+	
 	public static float distanceSquared(float fromX, float fromY, float toX, float toY)
 	{
 		return ((toX - fromX) * (toX - fromX)) + ((toY - fromY) * (toY - fromY));
 	}
-
+	
 	public static double round(double value, int places)
 	{
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_EVEN);
 		return bd.doubleValue();
 	}
-
+	
 	public static float round(float value, int places)
 	{
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_EVEN);
 		return bd.floatValue();
 	}
-
+	
 	public static int getNumberOfDecimalPlaces(float val)
 	{
 		// String constructor required for correct conversion
@@ -70,7 +70,7 @@ public class JCMath
 		int index = string.indexOf(".");
 		return index < 0 ? 0 : string.length() - index - 1;
 	}
-
+	
 	public static int getNumberOfDecimalPlaces(double val)
 	{
 		// String constructor required for correct conversion
@@ -79,7 +79,12 @@ public class JCMath
 		int index = string.indexOf(".");
 		return index < 0 ? 0 : string.length() - index - 1;
 	}
-
+	
+	public static int nextPow2Up(int size)
+	{
+		return (int) Math.pow(2, (32 - Integer.numberOfLeadingZeros(size - 1)));
+	}
+	
 	/**
 	 * Returns if a point is in a Square.
 	 * Square is Centred on 0,0
@@ -98,10 +103,10 @@ public class JCMath
 		float yMin = cy - halfSize;
 		float xMax = cx + halfSize;
 		float yMax = cy + halfSize;
-
+		
 		return((pointX >= xMin) && (pointX <= (xMax)) && (pointY >= yMin) && (pointY <= yMax));
 	}
-
+	
 	/**
 	 * Returns if a point is in a Square.
 	 * Square is Centred on 0,0
@@ -120,10 +125,10 @@ public class JCMath
 		float yMin = xy[1] - halfSize;
 		float xMax = xy[0] + halfSize;
 		float yMax = xy[1] + halfSize;
-
+		
 		return((xy2[0] >= xMin) && (xy2[0] <= (xMax)) && (xy2[1] >= yMin) && (xy2[1] <= yMax));
 	}
-
+	
 	/**
 	 * Returns the angle from a point to another point, and adds an adjustment to the angle - in the range (0-360).
 	 * Y is inverted - thus direction is inverted
@@ -135,17 +140,27 @@ public class JCMath
 	public static float calculateAdjustedEuclideanVectorDirection(float[] from, float[] to, float adjustmentAngle)
 	{
 		float direction = (float) FastMath.toDegrees(FastMath.atan2(to[0] - from[0], from[1] - to[1]));
-
+		
 		direction = direction + adjustmentAngle;
-
+		
 		if(direction < 0)
 		{
 			direction += 360;
 		}
-
+		
 		return direction % 360;
 	}
-
+	
+	/**
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public static float calculateRadianDirection(float[] from, float[] to)
+	{
+		return (float) (FastMath.atan2(to[1] - from[1], to[0] - from[0]) + (Math.PI / 2.0));
+	}
+	
 	/**
 	 * Adds an angle to another angle, ensuring the result wraps correctly - in the range (0-360).
 	 *
@@ -156,17 +171,17 @@ public class JCMath
 	public static float adjustAngle(float angle, float adjustmentAngle)
 	{
 		float newAngle = angle;
-
+		
 		newAngle = newAngle + adjustmentAngle;
-
+		
 		if(newAngle < 0)
 		{
 			newAngle += 360;
 		}
-
+		
 		return newAngle % 360;
 	}
-
+	
 	/**
 	 * Returns a random integer from the requested signed number range centred on 0
 	 * +/- range / 2
@@ -178,12 +193,12 @@ public class JCMath
 	{
 		return ThreadLocalRandom.current().nextInt(range) - (range / 2);
 	}
-
+	
 	public static float getRandomFloat(float range)
 	{
 		return (ThreadLocalRandom.current().nextFloat() * range) - (range / 2);
 	}
-
+	
 	public static int findMinValueIndex(double[] values)
 	{
 		int index = 0;
@@ -195,7 +210,7 @@ public class JCMath
 		}
 		return index;
 	}
-
+	
 	public static int findMaxValueIndex(double[] values)
 	{
 		int index = 0;
@@ -205,7 +220,7 @@ public class JCMath
 			index = (values[i] > max ? i : index);
 			max = values[index];
 		}
-
+		
 		return index;
 	}
 	
@@ -223,7 +238,6 @@ public class JCMath
 		return((value ^ ((value) >> 31)) & (power2 - 1));
 	}
 	
-
 	/**
 	 * Returns a prime number from the first 1000 primes.
 	 *
@@ -234,7 +248,7 @@ public class JCMath
 	{
 		return primes1000[index];
 	}
-
+	
 	/**
 	 * The first 1000 primes.
 	 */
