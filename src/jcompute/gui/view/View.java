@@ -22,14 +22,12 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import jcompute.gui.view.graphics.A2RGBA;
 
@@ -46,10 +44,6 @@ public class View implements ApplicationListener, ViewRendererInf
 	
 	/** Overlay text */
 	private OrthographicCamera overlayCam;
-	
-	/** Needed to apply correct ViewPort during screen resize (BUG) */
-	private PerspectiveCamera viewportBugCam;
-	private ExtendViewport viewportBugCamPort;
 	
 	// OverLay Text
 	private GlyphLayout layout;
@@ -150,9 +144,6 @@ public class View implements ApplicationListener, ViewRendererInf
 		glCanvas.getInput().setInputProcessor(inputMultiplexer);
 		
 		overlayCam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		viewportBugCam = new PerspectiveCamera();
-		
-		viewportBugCamPort = new ExtendViewport(1, 1, viewportBugCam);
 		
 		resetCamera();
 		
@@ -259,6 +250,8 @@ public class View implements ApplicationListener, ViewRendererInf
 					
 					inputMultiplexer.clear();
 					r.setMultiplexer(inputMultiplexer);
+					
+					viewportNeedsupdated = true;
 				}
 				
 				if(viewportNeedsupdated)
@@ -348,8 +341,6 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		overlayCam.viewportWidth = width;
 		overlayCam.viewportHeight = height;
-		
-		viewportBugCamPort.update(width, height);
 		
 		viewportNeedsupdated = true;
 		
@@ -473,13 +464,13 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		// NA
 	}
-
+	
 	@Override
 	public int getHeight()
 	{
 		return 0;
 	}
-
+	
 	@Override
 	public int getWidth()
 	{
