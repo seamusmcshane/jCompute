@@ -83,6 +83,16 @@ public class JCText
 		return String.format("%" + maxSize + "s", text);
 	}
 	
+	public static String SpacePaddedString(float f, int maxSize)
+	{
+		return SpacePaddedString(String.valueOf(f), maxSize);
+	}
+	
+	public static String SpacePaddedString(double d, int maxSize)
+	{
+		return SpacePaddedString(String.valueOf(d), maxSize);
+	}
+	
 	public static String ZeroPaddedValue(long value, int maxSize)
 	{
 		return String.format("%0" + maxSize + "d", value);
