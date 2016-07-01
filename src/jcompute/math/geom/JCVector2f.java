@@ -1,7 +1,7 @@
-package jcompute.gui.view.lib2d;
+package jcompute.math.geom;
 
-import jcompute.util.math.FloatingPoint;
-import jcompute.util.math.JCTrig;
+import jcompute.math.FloatingPoint;
+import jcompute.math.trig.JCTrig;
 
 public class JCVector2f
 {
@@ -116,7 +116,7 @@ public class JCVector2f
 	public float enclosedAngle(JCVector2f b)
 	{
 		// Dot product of two unit vectors
-		float dp = MathVector.Unit(this).dotProduct(MathVector.Unit(b));
+		float dp = MathVector2f.Unit(this).dotProduct(MathVector2f.Unit(b));
 		
 		// Ensure DP is in the acos valid range.
 		// Cases such as when locations one or both vectors are close to 0
@@ -144,13 +144,13 @@ public class JCVector2f
 	
 	public float angleToAltSigned(JCVector2f b)
 	{
-		JCVector2f v1u = MathVector.Unit(this);
-		JCVector2f v2u = MathVector.Unit(b);
+		JCVector2f v1u = MathVector2f.Unit(this);
+		JCVector2f v2u = MathVector2f.Unit(b);
 		
 		float dp = v1u.dotProduct(v2u);
 		float angle = (float) JCTrig.acosLutInt(dp);
 		
-		JCVector2f v1Perp = MathVector.RotatedCC90(v1u);
+		JCVector2f v1Perp = MathVector2f.RotatedCC90(v1u);
 		
 		float pdp = v1Perp.dotProduct(v2u);
 		

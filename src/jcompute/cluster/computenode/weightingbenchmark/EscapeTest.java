@@ -2,8 +2,8 @@ package jcompute.cluster.computenode.weightingbenchmark;
 
 import java.util.Scanner;
 
+import jcompute.math.JCMath;
 import jcompute.timing.TimerObj;
-import jcompute.util.JCMath;
 import jcompute.util.JVMInfo;
 
 public class EscapeTest

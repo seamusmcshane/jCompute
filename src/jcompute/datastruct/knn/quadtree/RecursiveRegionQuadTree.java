@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import jcompute.datastruct.knn.KNNDataStruct;
 import jcompute.datastruct.knn.KNNFloatPosInf;
 import jcompute.datastruct.knn.KNNResult;
-import jcompute.util.JCMath;
+import jcompute.math.JCMath;
 
 /**
  * RegionQuadTree

@@ -1,4 +1,4 @@
-package jcompute.util.math;
+package jcompute.math.trig;
 
 import org.apache.commons.math3.util.FastMath;
 

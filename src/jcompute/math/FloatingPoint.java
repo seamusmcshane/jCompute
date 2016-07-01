@@ -1,4 +1,4 @@
-package jcompute.util.math;
+package jcompute.math;
 
 public class FloatingPoint
 {

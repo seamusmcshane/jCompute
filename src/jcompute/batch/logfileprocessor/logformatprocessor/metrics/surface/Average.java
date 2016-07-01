@@ -5,7 +5,7 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.util.JCMath;
+import jcompute.math.JCMath;
 
 public class Average implements SurfaceMetricInf
 {

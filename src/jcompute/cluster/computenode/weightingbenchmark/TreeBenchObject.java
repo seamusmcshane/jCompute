@@ -1,7 +1,7 @@
 package jcompute.cluster.computenode.weightingbenchmark;
 
 import jcompute.datastruct.knn.KNNFloatPosInf;
-import jcompute.util.JCMath;
+import jcompute.math.JCMath;
 
 public class TreeBenchObject implements KNNFloatPosInf
 {

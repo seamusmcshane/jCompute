@@ -1,10 +1,8 @@
-package jcompute.gui.view.lib2d;
+package jcompute.math.geom;
 
-import jcompute.util.math.FloatingPoint;
-
-public class MathCollision
+public class MathCollision2f
 {
-	private MathCollision()
+	private MathCollision2f()
 	{
 		
 	}
@@ -16,7 +14,7 @@ public class MathCollision
 	
 	public static boolean LineInfiniteCollidesWithLineInfinite(JCLineInfinite a, JCLineInfinite b)
 	{
-		if(MathVector.VectorsAreParallel(a.direction, b.direction))
+		if(MathVector2f.VectorsAreParallel(a.direction, b.direction))
 		{
 			return InfiniteLinesAreEquivalent(a, b);
 		}
@@ -28,21 +26,21 @@ public class MathCollision
 	
 	public static boolean LineSegmentCollidesWithLineSegment(JCLineSegment a, JCLineSegment b)
 	{
-		JCLineInfinite axisA = new JCLineInfinite(a.start, MathVector.Subtracted(a.end, a.start));
+		JCLineInfinite axisA = new JCLineInfinite(a.start, MathVector2f.Subtracted(a.end, a.start));
 		
 		if(LineSegmentOnOneSide(axisA, b))
 		{
 			return false;
 		}
 		
-		JCLineInfinite axisB = new JCLineInfinite(b.start, MathVector.Subtracted(b.end, b.start));
+		JCLineInfinite axisB = new JCLineInfinite(b.start, MathVector2f.Subtracted(b.end, b.start));
 		
 		if(LineSegmentOnOneSide(axisB, a))
 		{
 			return false;
 		}
 		
-		if(MathVector.VectorsAreParallel(axisA.direction, axisB.direction))
+		if(MathVector2f.VectorsAreParallel(axisA.direction, axisB.direction))
 		{
 			JCRange rangeA = ProjectLineSegment(a, axisA.direction);
 			JCRange rangeB = ProjectLineSegment(b, axisB.direction);
@@ -89,7 +87,7 @@ public class MathCollision
 	
 	public static boolean CircleCollidesWithVector(JCCircle a, JCVector2f b)
 	{
-		JCVector2f distance = MathVector.Subtracted(a.center, b);
+		JCVector2f distance = MathVector2f.Subtracted(a.center, b);
 		
 		// Squared
 		return distance.lengthSquared() <= (a.radius * a.radius);
@@ -97,11 +95,11 @@ public class MathCollision
 	
 	public static boolean CircleCollidesWithLineInfinite(JCCircle a, JCLineInfinite b)
 	{
-		JCVector2f lc = MathVector.Subtracted(a.center, b.base);
+		JCVector2f lc = MathVector2f.Subtracted(a.center, b.base);
 		
-		JCVector2f projected = MathVector.Projected(lc, b.direction);
+		JCVector2f projected = MathVector2f.Projected(lc, b.direction);
 		
-		JCVector2f nearest = MathVector.Added(b.base, projected);
+		JCVector2f nearest = MathVector2f.Added(b.base, projected);
 		
 		return CircleCollidesWithVector(a, nearest);
 	}
@@ -118,13 +116,13 @@ public class MathCollision
 			return true;
 		}
 		
-		JCVector2f d = MathVector.Subtracted(b.end, b.start);
+		JCVector2f d = MathVector2f.Subtracted(b.end, b.start);
 		
-		JCVector2f lc = MathVector.Subtracted(a.center, b.start);
+		JCVector2f lc = MathVector2f.Subtracted(a.center, b.start);
 		
-		JCVector2f p = MathVector.Projected(lc, d);
+		JCVector2f p = MathVector2f.Projected(lc, d);
 		
-		JCVector2f nearest = MathVector.Added(b.start, p);
+		JCVector2f nearest = MathVector2f.Added(b.start, p);
 		
 		// Squared Len
 		return CircleCollidesWithVector(a, nearest) && p.lengthSquared() <= d.lengthSquared() && 0 <= p.dotProduct(d);
@@ -144,11 +142,11 @@ public class MathCollision
 	
 	private static boolean LineSegmentOnOneSide(JCLineInfinite axis, JCLineSegment segment)
 	{
-		JCVector2f d1 = MathVector.Subtracted(segment.start, axis.base);
+		JCVector2f d1 = MathVector2f.Subtracted(segment.start, axis.base);
 		
-		JCVector2f d2 = MathVector.Subtracted(segment.end, axis.base);
+		JCVector2f d2 = MathVector2f.Subtracted(segment.end, axis.base);
 		
-		JCVector2f n = MathVector.RotatedC90(axis.direction);
+		JCVector2f n = MathVector2f.RotatedC90(axis.direction);
 		
 		return (n.dotProduct(d1) * n.dotProduct(d2)) > 0;
 	}
@@ -197,7 +195,7 @@ public class MathCollision
 	
 	private static JCRange ProjectLineSegment(JCLineSegment s, JCVector2f onTo)
 	{
-		JCVector2f ontoUnit = MathVector.Unit(onTo);
+		JCVector2f ontoUnit = MathVector2f.Unit(onTo);
 		
 		JCRange r = new JCRange();
 		
@@ -215,7 +213,7 @@ public class MathCollision
 	
 	private static boolean InfiniteLinesAreEquivalent(JCLineInfinite a, JCLineInfinite b)
 	{
-		if(!MathVector.VectorsAreParallel(a.direction, b.direction))
+		if(!MathVector2f.VectorsAreParallel(a.direction, b.direction))
 		{
 			return false;
 		}
@@ -223,7 +221,7 @@ public class MathCollision
 		JCVector2f d = a.base.copy();
 		d.sub(b.base);
 		
-		return MathVector.VectorsAreParallel(d, a.direction);
+		return MathVector2f.VectorsAreParallel(d, a.direction);
 	}
 	
 	private static boolean Overlapping(float minA, float maxA, float minB, float maxB)

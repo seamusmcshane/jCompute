@@ -1,4 +1,4 @@
-package jcompute.util.math;
+package jcompute.math.trig;
 
 import java.util.ArrayList;
 import java.util.Collections;

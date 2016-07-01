@@ -1,5 +1,7 @@
 package jcompute.util;
 
+import jcompute.math.NumericConstants;
+
 public final class JVMInfo
 {
 	private static JVMInfo instance;

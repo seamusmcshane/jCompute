@@ -1,4 +1,4 @@
-package jcompute.gui.view.lib2d;
+package jcompute.math.geom;
 
 public class JCRectangle
 {

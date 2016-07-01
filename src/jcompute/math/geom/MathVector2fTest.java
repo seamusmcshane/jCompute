@@ -1,9 +1,9 @@
-package jcompute.gui.view.lib2d;
+package jcompute.math.geom;
 
+import jcompute.math.trig.JCTrig;
 import jcompute.util.JCText;
-import jcompute.util.math.JCTrig;
 
-public class JCVector2fTest
+public class MathVector2fTest
 {
 	
 	public static void main(String[] args)
@@ -88,7 +88,7 @@ public class JCVector2fTest
 		System.out.println(JCText.CharRepeatBounded('-', 80));
 		
 		JCVector2f vector1 = new JCVector2f(7, 4);
-		JCVector2f vector2 = MathVector.Negated(vector1);
+		JCVector2f vector2 = MathVector2f.Negated(vector1);
 		
 		System.out.println("negated " + vector2);
 	}
@@ -144,7 +144,7 @@ public class JCVector2fTest
 		System.out.println(JCText.CharRepeatBounded('-', 80));
 		
 		JCVector2f vector1 = new JCVector2f(3, 5);
-		JCVector2f vector2 = MathVector.Unit(vector1);
+		JCVector2f vector2 = MathVector2f.Unit(vector1);
 		System.out.println("unit" + vector2);
 	}
 	
@@ -165,8 +165,8 @@ public class JCVector2fTest
 		}
 		
 		System.out.println("vector1 " + vector1);
-		System.out.println("rotated C90 " + MathVector.RotatedC90(vector1));
-		System.out.println("rotated CC90 " + MathVector.RotatedCC90(vector1));
+		System.out.println("rotated C90 " + MathVector2f.RotatedC90(vector1));
+		System.out.println("rotated CC90 " + MathVector2f.RotatedCC90(vector1));
 		
 		System.out.println("vector1 " + vector1);
 		vector1.rotateC90();
@@ -203,7 +203,7 @@ public class JCVector2fTest
 		
 		JCVector2f vector1 = new JCVector2f(12, 5);
 		JCVector2f vector2 = new JCVector2f(5, 6);
-		JCVector2f vector3 = MathVector.Projected(vector2, vector1);
+		JCVector2f vector3 = MathVector2f.Projected(vector2, vector1);
 		System.out.println("vector1 " + vector1);
 		System.out.println("vector2 " + vector2);
 		System.out.println("project " + vector3);

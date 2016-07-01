@@ -2,7 +2,7 @@ package jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface;
 
 import java.util.stream.IntStream;
 
-import jcompute.util.JCMath;
+import jcompute.math.JCMath;
 
 public class StandardDeviation implements SurfaceMetricInf
 {

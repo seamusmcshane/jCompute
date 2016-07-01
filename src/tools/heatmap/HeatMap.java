@@ -27,8 +27,8 @@ import jcompute.batch.logfileprocessor.ItemLogProcessor;
 import jcompute.batch.logfileprocessor.ItemLogProcessor.ComputedMetric;
 import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
 import jcompute.gui.view.misc.Palette;
+import jcompute.math.JCMath;
 import jcompute.timing.TimerObj;
-import jcompute.util.JCMath;
 import jcompute.util.TimeString;
 import jcompute.util.TimeString.TimeStringFormat;
 

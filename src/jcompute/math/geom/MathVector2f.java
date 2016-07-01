@@ -1,11 +1,11 @@
-package jcompute.gui.view.lib2d;
+package jcompute.math.geom;
 
-import jcompute.util.math.FloatingPoint;
-import jcompute.util.math.JCTrig;
+import jcompute.math.FloatingPoint;
+import jcompute.math.trig.JCTrig;
 
-public class MathVector
+public class MathVector2f
 {
-	private MathVector()
+	private MathVector2f()
 	{
 		
 	}
@@ -167,7 +167,7 @@ public class MathVector
 	
 	public static boolean VectorsAreParallel(JCVector2f a, JCVector2f b)
 	{
-		JCVector2f na = MathVector.RotatedC90(a);
+		JCVector2f na = MathVector2f.RotatedC90(a);
 		
 		return FloatingPoint.AlmostEqual(0, na.dotProduct(b));
 	}

@@ -1,6 +1,6 @@
 package jcompute.batch;
 
-import jcompute.util.JCMath;
+import jcompute.math.JCMath;
 
 public class ComboTest
 {

@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.math;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

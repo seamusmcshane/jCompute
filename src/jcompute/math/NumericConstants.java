@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.math;
 
 public final class NumericConstants
 {

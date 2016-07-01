@@ -1,6 +1,6 @@
-package jcompute.gui.view.lib2d;
+package jcompute.math.geom;
 
-public class Lib2dTest
+public class MathCollision2fTest
 {
 	public static void main(String args[])
 	{
@@ -29,10 +29,10 @@ public class Lib2dTest
 		System.out.println(c);
 		System.out.println(d);
 		
-		System.out.println("(true)  a with b " + MathCollision.RectangleCollidesWithRectangle(a, b));
-		System.out.println("(true)  b with c " + MathCollision.RectangleCollidesWithRectangle(b, c));
-		System.out.println("(false) a with c " + MathCollision.RectangleCollidesWithRectangle(a, c));
-		System.out.println("(true)  a with d " + MathCollision.RectangleCollidesWithRectangle(a, d));
+		System.out.println("(true)  a with b " + MathCollision2f.RectangleCollidesWithRectangle(a, b));
+		System.out.println("(true)  b with c " + MathCollision2f.RectangleCollidesWithRectangle(b, c));
+		System.out.println("(false) a with c " + MathCollision2f.RectangleCollidesWithRectangle(a, c));
+		System.out.println("(true)  a with d " + MathCollision2f.RectangleCollidesWithRectangle(a, d));
 	}
 	
 	public static void JCCircleCollisions()
@@ -49,10 +49,10 @@ public class Lib2dTest
 		System.out.println(c);
 		System.out.println(d);
 		
-		System.out.println("(true)  a with b " + MathCollision.CircleCollidesWithCircle(a, b));
-		System.out.println("(true)  b with c " + MathCollision.CircleCollidesWithCircle(b, c));
-		System.out.println("(false) a with c " + MathCollision.CircleCollidesWithCircle(a, c));
-		System.out.println("(false) a with d " + MathCollision.CircleCollidesWithCircle(a, d));
+		System.out.println("(true)  a with b " + MathCollision2f.CircleCollidesWithCircle(a, b));
+		System.out.println("(true)  b with c " + MathCollision2f.CircleCollidesWithCircle(b, c));
+		System.out.println("(false) a with c " + MathCollision2f.CircleCollidesWithCircle(a, c));
+		System.out.println("(false) a with d " + MathCollision2f.CircleCollidesWithCircle(a, d));
 	}
 	
 	public static void JCVector2fCollisions()
@@ -67,10 +67,10 @@ public class Lib2dTest
 		System.out.println(b);
 		System.out.println(c);
 		
-		System.out.println("(true)  a with b " + MathCollision.VectorCollidesWithVector(a, b));
-		System.out.println("(true)  b with c " + MathCollision.VectorCollidesWithVector(b, c));
-		System.out.println("(false) a with c " + MathCollision.VectorCollidesWithVector(a, c));
-		System.out.println("(false) b with c " + MathCollision.VectorCollidesWithVector(b, c));
+		System.out.println("(true)  a with b " + MathCollision2f.VectorCollidesWithVector(a, b));
+		System.out.println("(true)  b with c " + MathCollision2f.VectorCollidesWithVector(b, c));
+		System.out.println("(false) a with c " + MathCollision2f.VectorCollidesWithVector(a, c));
+		System.out.println("(false) b with c " + MathCollision2f.VectorCollidesWithVector(b, c));
 	}
 	
 	public static void JCLineInfiniteCollisions()
@@ -87,10 +87,10 @@ public class Lib2dTest
 		System.out.println(c);
 		System.out.println(d);
 		
-		System.out.println("(true)  a with b " + MathCollision.LineInfiniteCollidesWithLineInfinite(a, b));
-		System.out.println("(true)  a with c " + MathCollision.LineInfiniteCollidesWithLineInfinite(a, c));
-		System.out.println("(false) b with c " + MathCollision.LineInfiniteCollidesWithLineInfinite(b, c));
-		System.out.println("(true) a with d " + MathCollision.LineInfiniteCollidesWithLineInfinite(a, d));
+		System.out.println("(true)  a with b " + MathCollision2f.LineInfiniteCollidesWithLineInfinite(a, b));
+		System.out.println("(true)  a with c " + MathCollision2f.LineInfiniteCollidesWithLineInfinite(a, c));
+		System.out.println("(false) b with c " + MathCollision2f.LineInfiniteCollidesWithLineInfinite(b, c));
+		System.out.println("(true) a with d " + MathCollision2f.LineInfiniteCollidesWithLineInfinite(a, d));
 	}
 	
 	public static void JCLineSegmentCollisions()
@@ -103,7 +103,7 @@ public class Lib2dTest
 		System.out.println(a);
 		System.out.println(b);
 		
-		System.out.println("(false)  a with b " + MathCollision.LineSegmentCollidesWithLineSegment(a, b));
+		System.out.println("(false)  a with b " + MathCollision2f.LineSegmentCollidesWithLineSegment(a, b));
 	}
 	
 	public static void JCCircleCollidesWithVector()
@@ -118,8 +118,8 @@ public class Lib2dTest
 		System.out.println(b);
 		System.out.println(c);
 		
-		System.out.println("(true)  a with b " + MathCollision.CircleCollidesWithVector(a, b));
-		System.out.println("(false)  a with c " + MathCollision.CircleCollidesWithVector(a, c));
+		System.out.println("(true)  a with b " + MathCollision2f.CircleCollidesWithVector(a, b));
+		System.out.println("(false)  a with c " + MathCollision2f.CircleCollidesWithVector(a, c));
 	}
 	
 	public static void JCCircleCollidesWithJCLineInfinite()
@@ -132,7 +132,7 @@ public class Lib2dTest
 		System.out.println(a);
 		System.out.println(b);
 		
-		System.out.println("(false)  a with b " + MathCollision.CircleCollidesWithLineInfinite(a, b));
+		System.out.println("(false)  a with b " + MathCollision2f.CircleCollidesWithLineInfinite(a, b));
 	}
 	
 	public static void JCCircleCollidesWithJCLineSegment()
@@ -149,9 +149,9 @@ public class Lib2dTest
 		System.out.println(c);
 		System.out.println(d);
 		
-		System.out.println("(false)  a with b " + MathCollision.CircleCollidesWithLineSegment(a, b));
-		System.out.println("(true)  a with c " + MathCollision.CircleCollidesWithLineSegment(a, c));
-		System.out.println("(true)  a with d " + MathCollision.CircleCollidesWithLineSegment(a, d));
+		System.out.println("(false)  a with b " + MathCollision2f.CircleCollidesWithLineSegment(a, b));
+		System.out.println("(true)  a with c " + MathCollision2f.CircleCollidesWithLineSegment(a, c));
+		System.out.println("(true)  a with d " + MathCollision2f.CircleCollidesWithLineSegment(a, d));
 	}
 	
 	public static void JCCircleCollidesWithRectangle()
@@ -166,7 +166,7 @@ public class Lib2dTest
 		System.out.println(b);
 		System.out.println(c);
 		
-		System.out.println("(true)  a with b " + MathCollision.CircleCollidesWithRectangle(a, c));
-		System.out.println("(false)  a with c " + MathCollision.CircleCollidesWithRectangle(b, c));
+		System.out.println("(true)  a with b " + MathCollision2f.CircleCollidesWithRectangle(a, c));
+		System.out.println("(false)  a with c " + MathCollision2f.CircleCollidesWithRectangle(b, c));
 	}
 }

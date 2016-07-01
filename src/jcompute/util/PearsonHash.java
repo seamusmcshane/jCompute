@@ -6,6 +6,8 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.math.JCMath;
+
 public final class PearsonHash
 {
 	// Log4j2 Logger

@@ -4,6 +4,8 @@ import java.lang.management.ManagementFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
+import jcompute.math.NumericConstants;
+
 public final class OSInfo
 {
 	private static OSInfo instance;
