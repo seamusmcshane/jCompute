@@ -301,21 +301,6 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	/* Will Reset the Camera of the active */
-	
-	public void resetActiveSimCamera()
-	{
-		simulationsManagerLock.acquireUninterruptibly();
-		
-		if(simView != null)
-		{
-			simView.resetCamera();
-		}
-		
-		simulationsManagerLock.release();
-	}
-	
-	
 	public List<Simulation> getSimList()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
