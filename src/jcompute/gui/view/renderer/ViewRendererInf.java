@@ -1,4 +1,4 @@
-package jcompute.gui.view;
+package jcompute.gui.view.renderer;
 
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
@@ -18,7 +18,7 @@ public interface ViewRendererInf
 	public int getTextureSize(int id);
 	public Pixmap getPixmap(int num);
 	public BitmapFont getFont();
-	public ViewCam getViewCam();
+	public void resetViewCam();
 	public Camera getCamera();
 	public void updateViewPort(int width,int height);
 	public void render();	

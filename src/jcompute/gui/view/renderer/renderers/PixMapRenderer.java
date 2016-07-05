@@ -1,4 +1,4 @@
-package jcompute.gui.view.renderers;
+package jcompute.gui.view.renderer.renderers;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
@@ -20,10 +20,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
-import jcompute.gui.view.Lib2D;
 import jcompute.gui.view.ViewCam;
-import jcompute.gui.view.ViewRendererInf;
 import jcompute.gui.view.graphics.A2DVector2f;
+import jcompute.gui.view.renderer.ViewRendererInf;
+import jcompute.gui.view.renderer.util.Lib2D;
 
 public class PixMapRenderer implements ViewRendererInf
 {
@@ -157,9 +157,9 @@ public class PixMapRenderer implements ViewRendererInf
 	}
 
 	@Override
-	public ViewCam getViewCam()
+	public void resetViewCam()
 	{
-		return simViewCam;
+		simViewCam.reset();
 	}
 
 	@Override

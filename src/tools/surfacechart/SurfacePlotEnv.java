@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 
 import jcompute.batch.logfileprocessor.ItemLogProcessor;
 import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
-import jcompute.gui.view.input.OrbitalCameraInputController;
+import jcompute.gui.view.inputcontroller.OrbitalCameraInputController;
 import jcompute.gui.view.misc.Palette;
 
 public class SurfacePlotEnv implements ApplicationListener

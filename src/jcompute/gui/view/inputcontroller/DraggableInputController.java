@@ -1,8 +1,12 @@
-package jcompute.gui.view;
+package jcompute.gui.view.inputcontroller;
+
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Camera;
 
 import jcompute.gui.view.graphics.A2DVector2f;
+import jcompute.math.geom.JCVector2f;
 
-public class ViewCam
+public class DraggableInputController implements InputProcessor
 {
 	// Zoom and Reset Animation Steps
 	private final int animationSteps = 20;
@@ -43,26 +47,27 @@ public class ViewCam
 	private float aniYresetInter = 0;
 	private boolean yAnimateInterSet = false;
 	
-	public ViewCam(A2DVector2f camPos, A2DVector2f camOffset)
-	{
-		super();
-		
-		this.camPos = camPos;
-		
-		camZoom = zoomDefault;
-		zoomDefault = camZoom;
-		
-		this.camOffset = new A2DVector2f(new float[]
-		{
-			camOffset.getX(), camOffset.getY()
-		});
-		
-		camPos.add(camOffset);
-	}
+	//
+	// Camera Drag
+	private boolean button0Pressed;
+	/** Stores the mouse vector across updates */
+	private JCVector2f mouseDragPos = new JCVector2f(0, 0);
 	
-	public ViewCam(float camPosX, float camPosY, float offsetX, float offsetY)
+	// Camera reset trigger
+	private boolean button1Pressed;
+	private boolean button2Pressed;
+	
+	// Target Camera
+	private Camera camera;
+	
+	private boolean cameraResetAnimate = false;
+	
+	private final int MAX_MIDDLE_BUTTON_MODE;
+	private int currentMiddleButtonMode = 0;
+	
+	public DraggableInputController(Camera camera, float camPosX, float camPosY, float offsetX, float offsetY, int middleButtonModes)
 	{
-		super();
+		this.camera = camera;
 		
 		camPos = new A2DVector2f(camPosX, camPosY);
 		
@@ -72,17 +77,8 @@ public class ViewCam
 		camOffset = new A2DVector2f(offsetX, offsetY);
 		
 		camPos.add(camOffset);
-	}
-	
-	public ViewCam()
-	{
-		camOffset = new A2DVector2f(0, 0);
 		
-		camPos = new A2DVector2f(0, 0);
-		
-		camPos.add(camOffset);
-		
-		camZoom = zoomDefault;
+		this.MAX_MIDDLE_BUTTON_MODE = (middleButtonModes > 0) ? middleButtonModes : 0;
 	}
 	
 	public void setZoomLimits(float min, float max)
@@ -363,5 +359,151 @@ public class ViewCam
 		boolean z = resetZoom();
 		
 		return x & y & z;
+	}
+	
+	@Override
+	public boolean keyDown(int arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean keyTyped(char arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean keyUp(int arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean mouseMoved(int arg0, int arg1)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean scrolled(int val)
+	{
+		adjCamZoom(val);
+		
+		System.out.println("Val " + val);
+		
+		return false;
+	}
+	
+	@Override
+	public boolean touchDown(int x, int y, int pointer, int button)
+	{
+		switch(button)
+		{
+			case 0:
+			{
+				button0Pressed = true;
+				
+				// Update newX/Y
+				mouseDragPos.x = x;
+				mouseDragPos.y = y;
+			}
+			break;
+			case 1:
+			{
+				button1Pressed = true;
+				// resetCamera();
+				
+				cameraResetAnimate = true;
+			}
+			break;
+			case 2:
+			{
+				button2Pressed = true;
+			}
+			break;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public boolean touchDragged(int x, int y, int z)
+	{
+		if(button0Pressed)
+		{
+			// Latch the old position
+			float previousX = mouseDragPos.x;
+			float previousY = mouseDragPos.y;
+			
+			// Update newX/Y
+			mouseDragPos.x = x;
+			mouseDragPos.y = y;
+			
+			// How much did the mouse move.
+			float diffX = previousX - mouseDragPos.x;
+			float diffY = previousY - mouseDragPos.y;
+			
+			// -y for when converting from screen to graphics coordinates
+			moveCam(diffX, -diffY);
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public boolean touchUp(int x, int y, int pointer, int button)
+	{
+		if(button0Pressed)
+		{
+			// Update newX/Y
+			mouseDragPos.x = x;
+			mouseDragPos.y = y;
+			
+			button0Pressed = false;
+		}
+		
+		if(button1Pressed)
+		{
+			button1Pressed = false;
+		}
+		
+		if(button2Pressed)
+		{
+			currentMiddleButtonMode += 1;
+			
+			currentMiddleButtonMode = currentMiddleButtonMode % MAX_MIDDLE_BUTTON_MODE;
+			
+			button2Pressed = false;
+		}
+		
+		return false;
+	}
+	
+	public void update()
+	{
+		if(cameraResetAnimate)
+		{
+			// if(camController.reset())
+			if(reset())
+			{
+				cameraResetAnimate = false;
+			}
+		}
+		
+		camera.position.x = getCamPosX();
+		camera.position.y = getCamPosY();
+		camera.position.z = getCamZoom();
+		
+		camera.update();
+	}
+	
+	public int middleButtonMode()
+	{
+		return currentMiddleButtonMode;
 	}
 }

@@ -17,7 +17,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import jcompute.gui.component.gdx.PhasePlot;
-import jcompute.gui.view.input.OrbitalCameraInputController;
+import jcompute.gui.view.inputcontroller.OrbitalCameraInputController;
 
 public class PhasePlotGDXContainer implements ApplicationListener
 {

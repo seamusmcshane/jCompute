@@ -6,8 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.JComputeEventBus;
-import jcompute.gui.view.ViewRendererInf;
 import jcompute.gui.view.ViewTarget;
+import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.scenario.ScenarioInf;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.SimulationState.stateChangedInf;

@@ -1,4 +1,4 @@
-package jcompute.gui.view;
+package jcompute.gui.view.renderer.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -17,6 +17,7 @@ import jcompute.gui.view.graphics.A2DLine;
 import jcompute.gui.view.graphics.A2DRectangle;
 import jcompute.gui.view.graphics.A2DVector2f;
 import jcompute.gui.view.graphics.A2RGBA;
+import jcompute.gui.view.renderer.ViewRendererInf;
 
 public class Lib2D
 {

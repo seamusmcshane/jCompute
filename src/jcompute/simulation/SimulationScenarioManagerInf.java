@@ -1,6 +1,6 @@
 package jcompute.simulation;
 
-import jcompute.gui.view.ViewRendererInf;
+import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.scenario.ScenarioInf;
 import jcompute.stats.StatManager;
 

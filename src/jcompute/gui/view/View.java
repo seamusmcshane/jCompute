@@ -30,6 +30,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import jcompute.gui.view.graphics.A2RGBA;
+import jcompute.gui.view.renderer.ViewRendererInf;
+import jcompute.gui.view.renderer.util.Lib2D;
 
 public class View implements ApplicationListener, ViewRendererInf
 {
@@ -123,7 +125,7 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 		target = simIn;
 		
-		if(target != null)
+		if(target != null && target.getRenderer() != null)
 		{
 			target.getRenderer().setMultiplexer(inputMultiplexer);
 		}
@@ -248,6 +250,7 @@ public class View implements ApplicationListener, ViewRendererInf
 				{
 					r.glInit();
 					
+					// Input reset
 					inputMultiplexer.clear();
 					r.setMultiplexer(inputMultiplexer);
 					
@@ -374,7 +377,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		if(target != null)
 		{
-			target.getRenderer().getViewCam().reset();
+			target.getRenderer().resetViewCam();
 		}
 	}
 	
@@ -410,11 +413,9 @@ public class View implements ApplicationListener, ViewRendererInf
 	}
 	
 	@Override
-	public ViewCam getViewCam()
+	public void resetViewCam()
 	{
 		// NA
-		
-		return null;
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package jcompute.gui.view.input;
+package jcompute.gui.view.inputcontroller;
 
 import org.lwjgl.input.Mouse;
 
