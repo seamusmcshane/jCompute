@@ -650,7 +650,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 			}
 		}
 
-		getSquareToLineVertices(0, 0, 1);
+		getSquareToLineVertices(0, 0, size);
 	}
 
 	/**
@@ -679,11 +679,11 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 		// Right
 		lines[2] = new float[]
 		{
-			cx + hSize, cy - hSize
+			cx + hSize, cy + hSize
 		};
 		lines[3] = new float[]
 		{
-			cx + hSize, cy + hSize
+			cx + hSize, cy - hSize
 		};
 
 		// Bottom
@@ -693,7 +693,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 		};
 		lines[5] = new float[]
 		{
-			cx - hSize, cy + hSize
+			cx + hSize, cy + hSize
 		};
 
 		// Left
