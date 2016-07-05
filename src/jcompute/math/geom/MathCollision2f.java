@@ -12,6 +12,18 @@ public class MathCollision2f
 		return a.equals(b);
 	}
 	
+	public static boolean VectorCollidesWithRectangle(JCVector2f a, JCRectangle b)
+	{
+		float bLeft = b.origin.x;
+		float bRight = bLeft + b.size.x;
+		
+		// 0,0 bottom Left
+		float bBottom = b.origin.y;
+		float bTop = bBottom + b.size.y;
+		
+		return bLeft <= a.x && bBottom <= a.y && bRight >= a.x && bTop >= a.y;
+	}
+	
 	public static boolean LineInfiniteCollidesWithLineInfinite(JCLineInfinite a, JCLineInfinite b)
 	{
 		if(MathVector2f.VectorsAreParallel(a.direction, b.direction))
