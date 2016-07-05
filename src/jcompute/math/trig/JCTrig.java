@@ -17,6 +17,9 @@ public class JCTrig
 	public static final double PI_PLUS_HALF_PI = (3 * (Math.PI / 4));
 	public static final double TWO_PI = (2 * Math.PI);
 	
+	private static final float RAD_TO_DEG = (float) (360 / TWO_PI);
+	private static final float DEG_TO_RAD = (float) (TWO_PI / 360);
+	
 	private static final double[] sineTable;
 	private static final double SINE_TABLE_STEP_SIZE = (TWO_PI / VALUES);
 	private static final double REV_SINE_TABLE_STEP_SIZE = (VALUES / TWO_PI);
@@ -205,7 +208,7 @@ public class JCTrig
 	 */
 	public static float toRadiansFloat(float angleDegree)
 	{
-		return angleDegree / 180.0f * PI_F;
+		return angleDegree * DEG_TO_RAD;
 	}
 	
 	/**
@@ -214,6 +217,6 @@ public class JCTrig
 	 */
 	public static float toDegreesFloat(float angleRadians)
 	{
-		return angleRadians * 180.0f / PI_F;
+		return angleRadians * RAD_TO_DEG;
 	}
 }
