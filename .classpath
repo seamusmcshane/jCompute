@@ -5,10 +5,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rsyntaxtextarea/rsyntaxtextarea-2.5.8/rsyntaxtextarea-2.5.8.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx-backend-lwjgl-natives.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx-backend-lwjgl.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx-natives.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2015.01.31/gdx.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-backend-lwjgl.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-natives.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-backend-lwjgl-natives.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-xmlschema/commons-xmlschema-1.4.7/XmlSchema-1.4.7.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-configuration/commons-configuration-1.10/commons-configuration-1.10.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-collections/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
