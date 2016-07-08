@@ -94,6 +94,7 @@ public class StandardGUI implements ActionListener, WindowListener
 		catch(InvocationTargetException | InterruptedException e)
 		{
 			log.error("Failed to Create GUI");
+			e.printStackTrace();
 		}
 		
 	}
