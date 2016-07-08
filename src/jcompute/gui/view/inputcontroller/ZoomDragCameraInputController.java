@@ -39,8 +39,10 @@ public class ZoomDragCameraInputController implements InputProcessor
 	// Mouse Button Status (Left/ Right / Middle)
 	private boolean button0Pressed;
 	private boolean button1Pressed;
-	private long lastButton1Time;
 	private boolean button2Pressed;
+	
+	private final long DOUBLE_CLICK_TIMEOUT = 500;
+	private long lastButton1Time;
 	
 	// Middle Click Mode
 	private final int MAX_MIDDLE_BUTTON_MODE;
@@ -252,7 +254,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 				
 				long timeNow = System.currentTimeMillis();
 				
-				if((timeNow - lastButton1Time) < 250 && (lastButton1Time > 0))
+				// Has a double click occurred
+				if((timeNow - lastButton1Time) < DOUBLE_CLICK_TIMEOUT)
 				{
 					cameraZoomAnimate = false;
 					
