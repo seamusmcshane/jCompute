@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
+import jcompute.gui.view.View;
 import jcompute.gui.view.ViewCam;
 import jcompute.gui.view.graphics.A2DVector2f;
 import jcompute.gui.view.renderer.ViewRendererInf;
@@ -89,7 +90,7 @@ public class PixMapRenderer implements ViewRendererInf
 	}
 
 	@Override
-	public void glInit()
+	public void glInit(View view)
 	{
 		camera = new PerspectiveCamera();
 
@@ -148,12 +149,6 @@ public class PixMapRenderer implements ViewRendererInf
 	public ShapeRenderer getShapeRenderer()
 	{
 		return shapeRenderer;
-	}
-
-	@Override
-	public BitmapFont getFont()
-	{
-		return font;
 	}
 
 	@Override
@@ -263,5 +258,4 @@ public class PixMapRenderer implements ViewRendererInf
 			pTemp.dispose();
 		}
 	}
-
 }

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.math.Vector3;
 
 import jcompute.gui.view.graphics.A2DCircle;
 import jcompute.gui.view.graphics.A2DLine;
-import jcompute.gui.view.graphics.A2DRectangle;
 import jcompute.gui.view.graphics.A2DVector2f;
 import jcompute.gui.view.graphics.A2RGBA;
 import jcompute.gui.view.renderer.ViewRendererInf;
@@ -22,44 +20,6 @@ import jcompute.gui.view.renderer.ViewRendererInf;
 public class Lib2D
 {
 	private static final float DEFAULT_LINE_WIDTH = 0.10f;
-	
-	/*
-	 * ***************************************************************************************************
-	 * Text
-	 *****************************************************************************************************/
-	
-	public static void drawText(ViewRendererInf ren, float x, float y, String text)
-	{
-		SpriteBatch sb = ren.getSpriteBatch();
-		BitmapFont font = ren.getFont();
-		
-		sb.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		sb.begin();
-		font.draw(sb, text, x, y);
-		sb.end();
-	}
-	
-	public static void drawText(ViewRendererInf ren, float x, float y, float r, float g, float b, float a, String text)
-	{
-		SpriteBatch sb = ren.getSpriteBatch();
-		BitmapFont font = ren.getFont();
-		
-		if(a < 1)
-		{
-			Gdx.gl.glEnable(GL20.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		}
-		
-		sb.begin();
-		font.setColor(r, g, b, a);
-		font.draw(sb, text, x, y);
-		sb.end();
-		
-		if(a < 1)
-		{
-			Gdx.gl.glDisable(GL20.GL_BLEND);
-		}
-	}
 	
 	/*
 	 * ***************************************************************************************************
@@ -438,194 +398,5 @@ public class Lib2D
 		sr.end();
 		Gdx.gl.glDisable(GL20.GL_BLEND);
 		
-	}
-	
-	/*
-	 * Rectangle
-	 */
-	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle)
-	{
-		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor()
-		.getGreen(), rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), DEFAULT_LINE_WIDTH);
-	}
-	
-	public static void drawRectangle(ViewRendererInf ren, A2DRectangle rectangle, float lineWidth)
-	{
-		drawRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), rectangle.getColor().getRed(), rectangle.getColor()
-		.getGreen(), rectangle.getColor().getBlue(), rectangle.getColor().getAlpha(), lineWidth);
-	}
-	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
-	{
-		drawRectangle(ren, x, y, width, height, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(), DEFAULT_LINE_WIDTH);
-	}
-	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color, float lineWidth)
-	{
-		drawRectangle(ren, x, y, width, height, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(), lineWidth);
-	}
-	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a)
-	{
-		drawRectangle(ren, x, y, width, height, r, g, b, a, DEFAULT_LINE_WIDTH);
-	}
-	
-	public static void drawRectangle(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a, float lineWidth)
-	{
-		boolean pos00View = true;
-		boolean pos01View = true;
-		boolean pos11View = true;
-		boolean pos10View = true;
-		
-		Camera cam = ren.getCamera();
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x, y, 0)))
-		{
-			pos00View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y, 0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x, y + height, 0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y + height, 0)))
-		{
-			pos11View = false;
-		}
-		
-		if(!pos00View && !pos10View && !pos01View && !pos11View)
-		{
-			return;
-		}
-		Gdx.gl20.glLineWidth(lineWidth);
-		
-		ShapeRenderer sr = ren.getShapeRenderer();
-		
-		if(a < 1)
-		{
-			Gdx.gl.glEnable(GL20.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		}
-		
-		sr.begin(ShapeType.Line);
-		sr.setColor(r, g, b, a);
-		sr.rect(x, y, width, height);
-		sr.end();
-		
-		Gdx.gl.glDisable(GL20.GL_BLEND);
-	}
-	
-	/*
-	 * Filled Rectangle
-	 */
-	public static void drawFilledRectangle(ViewRendererInf ren, A2DRectangle rectangle, A2RGBA color)
-	{
-		drawFilledRectangle(ren, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight(), color);
-	}
-	
-	public static void drawFilledRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
-	{
-		boolean pos00View = true;
-		boolean pos01View = true;
-		boolean pos11View = true;
-		boolean pos10View = true;
-		
-		Camera cam = ren.getCamera();
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x, y, 0)))
-		{
-			pos00View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y, 0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x, y + height, 0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y + height, 0)))
-		{
-			pos11View = false;
-		}
-		
-		if(!pos00View && !pos10View && !pos01View && !pos11View)
-		{
-			return;
-		}
-		
-		ShapeRenderer sr = ren.getShapeRenderer();
-		
-		if(color.getAlpha() < 1)
-		{
-			Gdx.gl.glEnable(GL20.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		}
-		
-		sr.begin(ShapeType.Filled);
-		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		sr.rect(x, y, width, height);
-		sr.end();
-		
-		Gdx.gl.glDisable(GL20.GL_BLEND);
-	}
-	
-	/*
-	 * Transparent Filled Rectangle
-	 */
-	public static void drawTransparentFillRectangle(ViewRendererInf ren, float x, float y, float width, float height, A2RGBA color)
-	{
-		boolean pos00View = true;
-		boolean pos01View = true;
-		boolean pos11View = true;
-		boolean pos10View = true;
-		
-		Camera cam = ren.getCamera();
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x, y, 0)))
-		{
-			pos00View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y, 0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x, y + height, 0)))
-		{
-			pos10View = false;
-		}
-		
-		if(!cam.frustum.pointInFrustum(new Vector3(x + width, y + height, 0)))
-		{
-			pos11View = false;
-		}
-		
-		if(!pos00View && !pos10View && !pos01View && !pos11View)
-		{
-			return;
-		}
-		
-		ShapeRenderer sr = ren.getShapeRenderer();
-		
-		Gdx.gl.glEnable(GL20.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		
-		sr.begin(ShapeType.Filled);
-		sr.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-		sr.rect(x, y, width, height);
-		sr.end();
-		
-		Gdx.gl.glDisable(GL20.GL_BLEND);
 	}
 }

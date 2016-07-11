@@ -2,6 +2,9 @@ package jcompute.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JComponent;
@@ -27,11 +30,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import jcompute.gui.view.graphics.A2RGBA;
 import jcompute.gui.view.renderer.ViewRendererInf;
-import jcompute.gui.view.renderer.util.Lib2D;
+import jcompute.gui.view.renderer.util.Text;
+import jcompute.gui.view.renderer.util.VectorGraphic2d;
 
 public class View implements ApplicationListener, ViewRendererInf
 {
@@ -44,17 +50,22 @@ public class View implements ApplicationListener, ViewRendererInf
 	/** The Drawing Canvas's */
 	private LwjglCanvas glCanvas;
 	
-	/** Overlay text */
-	private OrthographicCamera overlayCam;
+	// Overlay camera
+	private OrthographicCamera overlayCamera;
+	private ScreenViewport overlayViewport;
 	
 	// OverLay Text
 	private GlyphLayout layout;
-	private BitmapFont overlayFont;
 	private SpriteBatch overlaySpriteBatch;
 	private ShapeRenderer overlayShapeRenderer;
 	private String overlayTitle = "";
 	
-	/** ViewTarget Reference */
+	// Fonts
+	private BitmapFont headingFont;
+	private BitmapFont subHeadingFont;
+	private BitmapFont textFont;
+	
+	// ViewTarget Reference
 	private ViewTarget target;
 	private Semaphore viewLock = new Semaphore(1);
 	
@@ -71,6 +82,10 @@ public class View implements ApplicationListener, ViewRendererInf
 	private long lastPressFrame = 0;
 	
 	private boolean viewportNeedsupdated = true;
+	
+	// View port width/height latched
+	private int viewWidth;
+	private int viewHeight;
 	
 	public View()
 	{
@@ -145,13 +160,52 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 		glCanvas.getInput().setInputProcessor(inputMultiplexer);
 		
-		overlayCam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		
-		resetCamera();
+		overlayCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		overlayViewport = new ScreenViewport(overlayCamera);
 		
 		layout = new GlyphLayout();
-		overlayFont = new BitmapFont();
-		overlayFont.setColor(Color.WHITE);
+		
+		// TODO - font name hardcoded for now.
+		String fontPathString = "/fonts/" + "Open_Sans/" + "OpenSans-Regular.ttf";
+		URL fontUrl = View.class.getResource(fontPathString);
+		String fontFile = null;
+		try
+		{
+			fontFile = new File(fontUrl.toURI()).getAbsolutePath();
+		}
+		catch(URISyntaxException e)
+		{
+			e.printStackTrace();
+			
+			System.exit(-1);
+		}
+		
+		// Load the source font
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontFile));
+		
+		// Set the parameters
+		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+		parameter.color = Color.WHITE;
+		parameter.borderColor = Color.BLACK;
+		parameter.borderStraight = false;
+		// parameter.genMipMaps = true;
+		// parameter.minFilter = TextureFilter.MipMapLinearLinear;
+		// parameter.magFilter = TextureFilter.MipMapLinearLinear;
+		
+		parameter.borderWidth = 1;
+		parameter.size = 20;
+		headingFont = generator.generateFont(parameter);
+		
+		parameter.borderWidth = 1;
+		parameter.size = 12;
+		subHeadingFont = generator.generateFont(parameter);
+		
+		parameter.borderWidth = 0;
+		parameter.size = 12;
+		textFont = generator.generateFont(parameter);
+		
+		// Free font generator
+		generator.dispose();
 		
 		overlaySpriteBatch = new SpriteBatch();
 		overlayShapeRenderer = new ShapeRenderer();
@@ -233,10 +287,10 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 		globalInput();
 		
-		overlaySpriteBatch.setProjectionMatrix(overlayCam.combined);
-		overlayShapeRenderer.setProjectionMatrix(overlayCam.combined);
+		overlayCamera.update();
 		
-		overlayCam.update();
+		overlaySpriteBatch.setProjectionMatrix(overlayCamera.combined);
+		overlayShapeRenderer.setProjectionMatrix(overlayCamera.combined);
 		
 		viewLock.acquireUninterruptibly();
 		
@@ -248,7 +302,7 @@ public class View implements ApplicationListener, ViewRendererInf
 				
 				if(r.needsGLInit())
 				{
-					r.glInit();
+					r.glInit(this);
 					
 					// Input reset
 					inputMultiplexer.clear();
@@ -264,14 +318,19 @@ public class View implements ApplicationListener, ViewRendererInf
 					
 					if(fullscreen)
 					{
-						resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+						viewWidth = Gdx.graphics.getDisplayMode().width;
+						viewHeight = Gdx.graphics.getDisplayMode().height;
+						
 					}
 					else
 					{
-						resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+						viewWidth = Gdx.graphics.getWidth();
+						viewHeight = Gdx.graphics.getHeight();
 					}
 					
-					r.updateViewPort((int) overlayCam.viewportWidth, (int) overlayCam.viewportHeight);
+					r.updateViewPort(viewWidth, viewHeight);
+					
+					overlayViewport.update(viewWidth, viewHeight);
 					
 					viewportNeedsupdated = false;
 				}
@@ -300,12 +359,21 @@ public class View implements ApplicationListener, ViewRendererInf
 				
 				if(fullscreen)
 				{
-					resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+					// resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+					
+					viewWidth = Gdx.graphics.getDisplayMode().width;
+					viewHeight = Gdx.graphics.getDisplayMode().height;
+					
 				}
 				else
 				{
-					resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+					// resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+					
+					viewWidth = Gdx.graphics.getWidth();
+					viewHeight = Gdx.graphics.getHeight();
 				}
+				
+				overlayViewport.update(viewWidth, viewHeight);
 				
 				viewportNeedsupdated = false;
 			}
@@ -313,13 +381,27 @@ public class View implements ApplicationListener, ViewRendererInf
 			overlayTitle = "None";
 		}
 		
+		overlayViewport.apply();
+		
 		// View Title String (TopLeft)
-		float x = -(overlayCam.viewportWidth / 2);
-		float y = (overlayCam.viewportHeight / 2);
+		float x = -(overlayCamera.viewportWidth * 0.5f);
+		float y = (overlayCamera.viewportHeight * 0.5f);
 		
-		Lib2D.drawTransparentFillRectangle(this, x, y - 35, overlayCam.viewportWidth, 35, new A2RGBA(0f, 0f, 0f, 0.5f));
+		// Blending on
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
-		drawOverlayText(x + 10, y - 10, false, overlayTitle);
+		// View Overlay
+		VectorGraphic2d.RectangleFilled(this, x, y - 35, overlayCamera.viewportWidth, 35, 0f, 0f, 0f, 0.5f);
+		
+		drawOverlayText(x + 10, y - 10, false, overlayTitle, headingFont);
+		
+		Text.String(this, headingFont, x + 50, y - 150, "HEADING");
+		Text.String(this, subHeadingFont, x + 50, y - 200, "SUBHEADING");
+		Text.String(this, textFont, x + 50, y - 250, "TEXT");
+		
+		// End Blending
+		Gdx.gl.glDisable(GL20.GL_BLEND);
 		
 		viewLock.release();
 	}
@@ -342,12 +424,15 @@ public class View implements ApplicationListener, ViewRendererInf
 	@Override
 	public void resize(int width, int height)
 	{
-		overlayCam.viewportWidth = width;
-		overlayCam.viewportHeight = height;
+		// overlayCam.viewportWidth = width;
+		// overlayCam.viewportHeight = height;
+		
+		viewWidth = width;
+		viewHeight = height;
 		
 		viewportNeedsupdated = true;
 		
-		resetCamera();
+		// resetCamera();
 	}
 	
 	@Override
@@ -356,18 +441,19 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 	}
 	
-	public void drawOverlayText(float x, float y, boolean centered, String text)
+	public void drawOverlayText(float x, float y, boolean centered, String text, BitmapFont font)
 	{
 		overlaySpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		overlaySpriteBatch.begin();
+		
 		if(centered)
 		{
-			layout.setText(overlayFont, text);
-			overlayFont.draw(overlaySpriteBatch, text, -layout.width / 2 + x, -(layout.height / 2) - y);
+			layout.setText(font, text);
+			font.draw(overlaySpriteBatch, text, -layout.width * 0.5f + x, -(layout.height * 0.5f) - y);
 		}
 		else
 		{
-			overlayFont.draw(overlaySpriteBatch, text, x, y);
+			font.draw(overlaySpriteBatch, text, x, y);
 		}
 		
 		overlaySpriteBatch.end();
@@ -389,9 +475,10 @@ public class View implements ApplicationListener, ViewRendererInf
 	}
 	
 	@Override
-	public void glInit()
+	public void glInit(View view)
 	{
 		// NA
+		return;
 	}
 	
 	@Override
@@ -407,21 +494,16 @@ public class View implements ApplicationListener, ViewRendererInf
 	}
 	
 	@Override
-	public BitmapFont getFont()
-	{
-		return overlayFont;
-	}
-	
-	@Override
 	public void resetViewCam()
 	{
 		// NA
+		return;
 	}
 	
 	@Override
 	public Camera getCamera()
 	{
-		return overlayCam;
+		return overlayCamera;
 	}
 	
 	@Override
@@ -476,5 +558,42 @@ public class View implements ApplicationListener, ViewRendererInf
 	public int getWidth()
 	{
 		return 0;
+	}
+	
+	public enum ViewFont
+	{
+		TITLE, HEADING, SUBHEADING, TEXT;
+	}
+	
+	/**
+	 * Allows retrieving and using the fonts provided by the view.
+	 * 
+	 * @param font
+	 * @return
+	 */
+	public BitmapFont getFont(ViewFont font)
+	{
+		switch(font)
+		{
+			case HEADING:
+			{
+				return headingFont;
+			}
+			case SUBHEADING:
+			{
+				return subHeadingFont;
+			}
+			case TEXT:
+				// Fallthough
+			default:
+			{
+				return textFont;
+			}
+		}
+	}
+	
+	public Camera getOverlayCamera()
+	{
+		return overlayCamera;
 	}
 }
