@@ -4,10 +4,10 @@ import java.awt.Color;
 
 public class A2RGBA
 {
-	private float red;
-	private float green;
-	private float blue;
-	private float alpha;
+	public float red;
+	public float green;
+	public float blue;
+	public float alpha;
 	
 	public A2RGBA(float red, float green, float blue,float alpha)
 	{
@@ -60,5 +60,4 @@ public class A2RGBA
 	{
 		this.alpha = alpha;
 	}
-	
 }
