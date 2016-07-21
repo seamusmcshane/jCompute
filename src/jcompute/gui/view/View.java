@@ -34,10 +34,13 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.gui.view.renderer.util.Text;
 import jcompute.gui.view.renderer.util.VectorGraphic2d;
+import jcompute.math.geom.JCVector2f;
+import jcompute.math.geom.JCVector3f;
 
 public class View implements ApplicationListener, ViewRendererInf
 {
@@ -595,5 +598,17 @@ public class View implements ApplicationListener, ViewRendererInf
 	public Camera getOverlayCamera()
 	{
 		return overlayCamera;
+	}
+	
+	@Override
+	public void screenToWorld(JCVector2f toProject, float targetZ, JCVector3f projected)
+	{
+		// TODO
+	}
+	
+	@Override
+	public void worldToScreen(JCVector3f projected, JCVector2f destination)
+	{
+		// TODO
 	}
 }

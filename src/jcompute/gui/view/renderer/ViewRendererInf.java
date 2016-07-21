@@ -6,8 +6,11 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import jcompute.gui.view.View;
+import jcompute.math.geom.JCVector2f;
+import jcompute.math.geom.JCVector3f;
 
 public interface ViewRendererInf
 {
@@ -37,4 +40,7 @@ public interface ViewRendererInf
 	
 	public int getHeight();
 	public int getWidth();
+	
+	public void screenToWorld(JCVector2f toProject, float targetZ, JCVector3f projected);
+	void worldToScreen(JCVector3f projected, JCVector2f destination);
 }

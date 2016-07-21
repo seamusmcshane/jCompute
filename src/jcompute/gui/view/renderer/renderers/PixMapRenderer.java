@@ -25,6 +25,8 @@ import jcompute.gui.view.ViewCam;
 import jcompute.gui.view.graphics.A2DVector2f;
 import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.gui.view.renderer.util.Lib2D;
+import jcompute.math.geom.JCVector2f;
+import jcompute.math.geom.JCVector3f;
 
 public class PixMapRenderer implements ViewRendererInf
 {
@@ -257,5 +259,17 @@ public class PixMapRenderer implements ViewRendererInf
 			texture.dispose();
 			pTemp.dispose();
 		}
+	}
+
+	@Override
+	public void screenToWorld(JCVector2f toProject, float targetZ, JCVector3f projected)
+	{
+		// TODO
+	}
+
+	@Override
+	public void worldToScreen(JCVector3f projected, JCVector2f destination)
+	{
+		// TODO
 	}
 }
