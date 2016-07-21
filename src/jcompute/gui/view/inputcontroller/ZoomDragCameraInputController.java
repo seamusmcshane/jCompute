@@ -398,33 +398,18 @@ public class ZoomDragCameraInputController implements InputProcessor
 		
 		if(zooming)
 		{
+			// Which zoom
 			if(zoomingIn)
 			{
-				if(!FloatingPoint.AlmostEqualEpsilon(position.z, minZoom, EPSILON))
-				{
-					animateToPosition.x = mouseXYCursorProjected.x;
-					animateToPosition.y = mouseXYCursorProjected.y;
-				}
-				else
-				{
-					// Prevent zooming further
-					animateToPosition.x = position.x;
-					animateToPosition.y = position.y;
-					animateToPosition.z = minZoom;
-				}
-				
-				// zoomingIn = false;
+				// Zoom into mouse XY
+				animateToPosition.x = mouseXYCursorProjected.x;
+				animateToPosition.y = mouseXYCursorProjected.y;
 			}
 			else
 			{
+				// Zoom out from camera XY
 				animateToPosition.x = position.x;
 				animateToPosition.y = position.y;
-				
-				if(FloatingPoint.AlmostEqualEpsilon(position.z, maxZoom, EPSILON))
-				{
-					// Prevent zooming out further
-					animateToPosition.z = maxZoom;
-				}
 			}
 			
 			// animateToPosition must be provided with out an offset
