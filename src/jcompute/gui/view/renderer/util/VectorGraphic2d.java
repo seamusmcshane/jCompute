@@ -47,6 +47,37 @@ public class VectorGraphic2d
 		sr.end();
 	}
 	
+	public static void BatchCircleFilled(ViewRendererInf ren, float[] xyrrgba)
+	{
+		Camera cam = ren.getCamera();
+		
+		ShapeRenderer sr = ren.getShapeRenderer();
+		
+		sr.begin(ShapeType.Filled);
+		
+		for(int i = 0; i < xyrrgba.length; i += 7)
+		{
+			
+			float x = xyrrgba[i];
+			float y = xyrrgba[i + 1];
+			
+			// TODO Circle
+			if(cam.frustum.pointInFrustum(x, y, 0))
+			{
+				float radius = xyrrgba[i + 2];
+				
+				float r = xyrrgba[i + 3];
+				float g = xyrrgba[i + 4];
+				float b = xyrrgba[i + 5];
+				float a = xyrrgba[i + 6];
+				
+				sr.setColor(r, g, b, a);
+				sr.circle(x, y, radius);
+			}
+		}
+		sr.end();
+	}
+	
 	public static void RectangleOutline(ViewRendererInf ren, float x, float y, float width, float height, float r, float g, float b, float a, float lineWidth)
 	{
 		boolean pos00View = true;
