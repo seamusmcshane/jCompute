@@ -461,25 +461,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 		camera.position.y = position.y;
 		camera.position.z = position.z;
 		
-		// float ratio = (zoomDefault / position.z);
-		//
-		// if(ratio > 2f)
-		// {
-		// ratio = 2f;
-		// }
-		//
-		// if(ratio < 1f)
-		// {
-		// ratio = 1f;
-		// }
-		//
-		// float offsetY = (ratio - 1f) * (100f);
-		// //
-		// camera.lookAt(position.x, position.y + offsetY, targetZ);
-		
 		// Ensure we are look at the location below the camera - similar to an orthographic view
 		camera.lookAt(position.x, position.y, targetZ);
-		//
 		// Update the camera view projection
 		camera.update();
 	}
