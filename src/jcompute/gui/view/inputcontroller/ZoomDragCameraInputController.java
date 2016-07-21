@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.math.FloatingPoint;
+import jcompute.math.MathCollision2f;
 import jcompute.math.MathVector3f;
 import jcompute.math.geom.JCVector2f;
 import jcompute.math.geom.JCVector3f;
@@ -49,6 +50,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 	private boolean button1Pressed;
 	private boolean button2Pressed;
 	
+	// Double click detection
 	private final long DOUBLE_CLICK_TIMEOUT = 250;
 	private long lastButton0Time;
 	private long lastButton1Time;
@@ -61,8 +63,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 	private boolean cameraAnimate;
 	private boolean zooming;
 	private boolean zoomingIn;
-	private boolean zoomingDone;
 	
+	// Position to animate to
 	private final JCVector3f animateToPosition = new JCVector3f(0, 0, 0);
 	
 	public ZoomDragCameraInputController(ViewRendererInf renderer, float camPosX, float camPosY, float offsetX, float offsetY, int middleButtonModes)
@@ -139,10 +141,6 @@ public class ZoomDragCameraInputController implements InputProcessor
 			// Re-apply offset
 			position.add(offset);
 			
-			// mouseXYZTargetProjected.x = position.x;
-			// mouseXYZTargetProjected.y = position.y;
-			// mouseXYZTargetProjected.z = position.z;
-			
 			return true;
 		}
 		
@@ -204,16 +202,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 	@Override
 	public boolean mouseMoved(int x, int y)
 	{
-		// mouseXYCursor.x = x * movementScale;
-		// mouseXYCursor.y = y * movementScale;
-		
-		// mouseRawXY.x = x;
-		// mouseRawXY.y = y;
-		
-		// updateMouseRawXY(x, y);
-		
-		mouseRawXY.x = x;
-		mouseRawXY.y = y;
+		updateMouseRawXY(x, y);
 		
 		return false;
 	}
@@ -228,12 +217,25 @@ public class ZoomDragCameraInputController implements InputProcessor
 	
 	private void adjustZoom(int val)
 	{
+		float tZoom = position.z;
+		
+		// Don'd try zooming in when target is min zoom
+		if(FloatingPoint.AlmostEqualEpsilon(animateToPosition.z, minZoom, EPSILON) & val < 0)
+		{
+			return;
+		}
+		
+		// Don'd try zooming in when target is max zoom
+		if(FloatingPoint.AlmostEqualEpsilon(animateToPosition.z, maxZoom, EPSILON) & val > 0)
+		{
+			return;
+		}
+		
 		cameraAnimate = false;
 		zooming = false;
 		zoomingIn = false;
 		
-		float tZoom = position.z;
-		
+		// Adjust the zoom
 		if(val > 0)
 		{
 			tZoom *= 2;
@@ -247,15 +249,17 @@ public class ZoomDragCameraInputController implements InputProcessor
 			zoomingIn = true;
 		}
 		
-		// Clamp the zoom range
-		if(tZoom < minZoom)
-		{
-			tZoom = minZoom;
-		}
-		else if(tZoom > maxZoom)
-		{
-			tZoom = maxZoom;
-		}
+		// Clamp the new zoom to the zoom range
+		tZoom = MathCollision2f.ClampOnRange(tZoom, minZoom, maxZoom);
+		
+		// if(tZoom < minZoom)
+		// {
+		// tZoom = minZoom;
+		// }
+		// else if(tZoom > maxZoom)
+		// {
+		// tZoom = maxZoom;
+		// }
 		
 		animateToPosition.z = tZoom;
 		
@@ -357,9 +361,6 @@ public class ZoomDragCameraInputController implements InputProcessor
 			float diffX = previousX - mouseXYDragging.x;
 			float diffY = previousY - mouseXYDragging.y;
 			
-			// Raw X,Y,Z is at screen resolution - scaled here to smooth movement
-			// float ratio = (zoom * MOVEMENT_DAMPER);
-			
 			// -y
 			position.add(diffX * mouseXYDraggingSmoothing, -diffY * mouseXYDraggingSmoothing, 0);
 		}
@@ -372,14 +373,6 @@ public class ZoomDragCameraInputController implements InputProcessor
 	{
 		if(button0Pressed)
 		{
-			// Update newX/Y
-			// mouseXYLatch.x = x * movementScale;
-			// mouseXYLatch.y = y * movementScale;
-			
-			// Translate the current mouse coordinates.
-			// mouseRawXY.x = x;
-			// mouseRawXY.y = y;
-			
 			updateMouseRawXY(x, y);
 			
 			button0Pressed = false;
@@ -404,7 +397,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 	
 	public void update(float targetX, float targetY, float targetZ)
 	{
-		if(!button0Pressed & !zoomingIn)
+		// No buttons pressed and not animating
+		if(!button0Pressed & !button1Pressed & !button2Pressed & !cameraAnimate)
 		{
 			renderer.screenToWorld(mouseRawXY, targetZ, mouseXYCursorProjected);
 		}
@@ -452,29 +446,24 @@ public class ZoomDragCameraInputController implements InputProcessor
 			{
 				if(zoomingIn)
 				{
-					mouseRawXY.x = Gdx.graphics.getWidth() * 0.5f;
-					mouseRawXY.y = Gdx.graphics.getHeight() * 0.5f;
-					
-					Gdx.input.setCursorPosition((int) mouseRawXY.x, (int) mouseRawXY.y);
+					// mouseRawXY.x = Gdx.graphics.getWidth() * 0.5f;
+					// mouseRawXY.y = Gdx.graphics.getHeight() * 0.5f;
+					//
+					// Gdx.input.setCursorPosition((int) mouseRawXY.x, (int) mouseRawXY.y);
 					
 					zoomingIn = false;
 				}
 				
-				renderer.screenToWorld(mouseRawXY, targetZ, mouseXYCursorProjected);
-				
 				cameraAnimate = false;
 			}
+			
+			renderer.screenToWorld(mouseRawXY, targetZ, mouseXYCursorProjected);
 		}
 		
 		// Update camera X/Y/Z position
 		camera.position.x = position.x;
 		camera.position.y = position.y;
 		camera.position.z = position.z;
-		
-		// mouseXYLatch.x = Gdx.input.getX() * movementScale;
-		// mouseXYLatch.y = Gdx.input.getY() * movementScale;
-		
-		// Ensure we are look at the location below the camera - similar to an orthographic view
 		
 		// float ratio = (zoomDefault / position.z);
 		//
@@ -491,6 +480,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 		// float offsetY = (ratio - 1f) * (100f);
 		// //
 		// camera.lookAt(position.x, position.y + offsetY, targetZ);
+		
+		// Ensure we are look at the location below the camera - similar to an orthographic view
 		camera.lookAt(position.x, position.y, targetZ);
 		//
 		// Update the camera view projection
@@ -498,9 +489,6 @@ public class ZoomDragCameraInputController implements InputProcessor
 		
 		// Adjust mouse drag
 		mouseXYDraggingSmoothing = (position.z / zoomDefault);
-		
-		// mouseXYDraggingSmoothing = (position.z / TARGET_Z) / maxZoom;
-		
 	}
 	
 	public int middleButtonMode()
@@ -508,19 +496,10 @@ public class ZoomDragCameraInputController implements InputProcessor
 		return currentMiddleButtonMode;
 	}
 	
+	// Wrapper method for allowing modification of raw mouse coordinates before application
 	private void updateMouseRawXY(float x, float y)
 	{
-		// float prevX = mouseRawXY.x;
-		// float prevY = mouseRawXY.y;
-		//
-		// float dX = x - prevX;
-		// float dY = y - prevY;
-		//
-		// float scale = position.z / maxZoom;
-		//
-		// mouseRawXY.x += dX * scale;
-		// mouseRawXY.y += dY * scale;
-		
+		// Direct
 		mouseRawXY.x = x;
 		mouseRawXY.y = y;
 	}
