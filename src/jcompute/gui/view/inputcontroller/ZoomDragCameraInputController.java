@@ -173,15 +173,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 	{
 		if(key == Input.Keys.CONTROL_LEFT)
 		{
-			if(!Gdx.input.isCursorCatched())
-			{
-				Gdx.input.setCursorCatched(true);
-				Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-			}
-			else
-			{
-				Gdx.input.setCursorCatched(false);
-			}
+			Gdx.input.setCursorCatched(!Gdx.input.isCursorCatched());
+			Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 		}
 		
 		return false;
