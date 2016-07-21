@@ -35,7 +35,6 @@ public class ZoomDragCameraInputController implements InputProcessor
 	
 	// Mouse dragging
 	public final JCVector2f mouseXYDragging;
-	private float mouseXYDraggingSmoothing = 1f;
 	
 	// Mouse Cursor Grabbed
 	public final JCVector3f mouseXYCursorProjected;
@@ -343,6 +342,9 @@ public class ZoomDragCameraInputController implements InputProcessor
 	{
 		if(button0Pressed)
 		{
+			// Adjust mouse drag
+			float mouseXYDraggingSmoothing = (position.z / zoomDefault);
+			
 			// Latch the old position
 			float previousX = mouseXYDragging.x;
 			float previousY = mouseXYDragging.y;
@@ -480,9 +482,6 @@ public class ZoomDragCameraInputController implements InputProcessor
 		//
 		// Update the camera view projection
 		camera.update();
-		
-		// Adjust mouse drag
-		mouseXYDraggingSmoothing = (position.z / zoomDefault);
 	}
 	
 	public int middleButtonMode()
