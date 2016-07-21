@@ -9,6 +9,7 @@ import jcompute.cluster.computenode.weightingbenchmark.TreeBenchObject;
 import jcompute.datastruct.knn.KNNFloatPosInf;
 import jcompute.datastruct.knn.KNNResult;
 import jcompute.datastruct.knn.quadtree.RecursiveRegionQuadTree;
+import jcompute.math.geom.JCVector2f;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,16 +29,20 @@ public class QuadTreeTestFullRebuild
 	public static JFrame frame;
 	
 	public static boolean searchEntered = false;
-	private static float[] search;
+	private static JCVector2f search;
+	
+	private static float pointRadius = 20f;
+	private static float viewRange = 100f;
+	private static float searchRange = viewRange + (pointRadius * 0.5f);
 	
 	public static void main(String args[])
 	{
-		search = new float[2];
+		search = new JCVector2f(0, 0);
 		
 		// Frame
 		frame = new JFrame();
 		
-		qpanel = new QuadPanel(size, size, 10f);
+		qpanel = new QuadPanel(size, size, pointRadius);
 		qpanel.addMouseMotionListener(new MouseMotionAdapter()
 		{
 			@Override
@@ -48,17 +53,14 @@ public class QuadTreeTestFullRebuild
 				
 				if(mouse1Pressed)
 				{
-					list.add(new TreeBenchObject(list.size(), new float[]
-					{
-						mouseX, mouseY
-					}));
+					list.add(new TreeBenchObject(list.size(), mouseX, mouseY));
 				}
 				else if(mouse3Pressed)
 				{
 					if(!searchEntered)
 					{
-						search[0] = e.getX();
-						search[1] = e.getY();
+						search.x = e.getX();
+						search.y = e.getY();
 						
 						searchEntered = true;
 					}
@@ -99,10 +101,7 @@ public class QuadTreeTestFullRebuild
 			{
 				if(e.getButton() == MouseEvent.BUTTON1)
 				{
-					list.add(new TreeBenchObject(list.size(), new float[]
-					{
-						mouseX, mouseY
-					}));
+					list.add(new TreeBenchObject(list.size(), mouseX, mouseY));
 				}
 				else if(e.getButton() == MouseEvent.BUTTON3)
 				{
@@ -110,8 +109,8 @@ public class QuadTreeTestFullRebuild
 					
 					if(!searchEntered)
 					{
-						search[0] = e.getX();
-						search[1] = e.getY();
+						search.x = e.getX();
+						search.y = e.getY();
 						
 						searchEntered = true;
 					}
@@ -159,39 +158,38 @@ public class QuadTreeTestFullRebuild
 								// System.out.println("Search " +
 								// search[0]+"x"+search[1]);
 								
-								float removeDis = 10f;
-								float distance = 100f;
+								float searchRangeSqr = searchRange * searchRange;
 								
-								KNNResult result = new KNNResult(null, distance * distance);
+								KNNResult result = new KNNResult(null, searchRangeSqr);
 								
-								quadTree.setNearestNeighbour(result, search, distance * distance);
-								ArrayList<KNNFloatPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, distance * distance);
+								quadTree.setNearestNeighbour(result, search);
+								ArrayList<KNNFloatPosInf> nearestNeighbours = quadTree.findNearestNeighbours(search, searchRangeSqr);
 								
 								// Display the Search point
-								qpanel.showSearchPointAndRange(search, distance);
+								qpanel.showSearchPointAndRange(search, viewRange);
 								
 								// Display the Nearest Neighbours
 								if(nearestNeighbours.size() > 0)
 								{
 									qpanel.setShowKNNResult(nearestNeighbours);
+									
+									if(result.getDis() < (pointRadius * pointRadius))
+									{
+										System.out.println("Remove" + result.getPos().getXY());
+										
+										// Remove from quad tree
+										// quadTree.removePoint(result.getPos());
+										
+										// Remove from list or it will be re-added
+										// on next loop
+										// list.remove(result.getPos());
+									}
 								}
 								
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
-									qpanel.setShow1NNResult(result.getPos().getLatchedPos());
-								}
-								
-								if(result.getDis() < (removeDis * removeDis))
-								{
-									System.out.println("Remove" + result.getPos().getLatchedPos()[0] + "x" + result.getPos().getLatchedPos()[1]);
-									
-									// Remove from quad tree
-									// quadTree.removePoint(result.getPos());
-									
-									// Remove from list or it will be re-added
-									// on next loop
-									// list.remove(result.getPos());
+									qpanel.setShow1NNResult(result.getPos().getXY());
 								}
 								
 								searchEntered = false;

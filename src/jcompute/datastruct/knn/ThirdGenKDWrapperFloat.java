@@ -27,7 +27,13 @@ public class ThirdGenKDWrapperFloat<Datatype>
 	
 	public void add(KNNFloatPosInf pos, Datatype data)
 	{
-		tree.addPoint(pos.updateAndGetPos(), data);
+		// TODO FIX
+		float[] posF = new float[]
+		{
+			pos.getXY().x, pos.getXY().y
+		};
+		
+		tree.addPoint(posF, data);
 		treenodes++;
 	}
 	
@@ -46,7 +52,13 @@ public class ThirdGenKDWrapperFloat<Datatype>
 	{
 		// KNN1AgentSearchRule agentSearch = new KNN1AgentSearchRule(pos.getLatchedPos(), data);
 		
-		return tree.kn1NearestNeighbor(pos.getLatchedPos(), data, distanceKD);
+		// TODO FIX
+		float[] posF = new float[]
+		{
+			pos.getXY().x, pos.getXY().y
+		};
+		
+		return tree.kn1NearestNeighbor(posF, data, distanceKD);
 		// return tree.findNearestNeighbors(pos.getLatchedPos(), 2, distanceKD).getMax();
 	}
 	

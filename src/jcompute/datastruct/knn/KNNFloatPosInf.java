@@ -1,8 +1,8 @@
 package jcompute.datastruct.knn;
 
+import jcompute.math.geom.JCVector2f;
+
 public interface KNNFloatPosInf
 {
-	public float[] updateAndGetPos();
-	
-	public float[] getLatchedPos();
+	public JCVector2f getXY();
 }

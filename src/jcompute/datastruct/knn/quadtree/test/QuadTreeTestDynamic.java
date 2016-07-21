@@ -12,6 +12,7 @@ import jcompute.cluster.computenode.weightingbenchmark.TreeBenchObject;
 import jcompute.datastruct.knn.KNNFloatPosInf;
 import jcompute.datastruct.knn.KNNResult;
 import jcompute.datastruct.knn.quadtree.RecursiveRegionQuadTree;
+import jcompute.math.geom.JCVector2f;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,9 +20,9 @@ import java.awt.event.MouseMotionAdapter;
 
 public class QuadTreeTestDynamic
 {
-	public static int WIDTH = 1024;
-	public static int HEIGHT = 768;
-	public static int SIZE = Math.max(WIDTH, HEIGHT);
+	public static final int WIDTH = 1024;
+	public static final int HEIGHT = 1024;
+	public static final int SIZE = Math.max(WIDTH, HEIGHT);
 	public static QuadPanel qpanel;
 	public static RecursiveRegionQuadTree quadTree = new RecursiveRegionQuadTree(WIDTH * 0.5f, HEIGHT * 0.5f, SIZE);
 	
@@ -35,20 +36,21 @@ public class QuadTreeTestDynamic
 	public static JFrame frame;
 	
 	public static boolean searchEntered = false;
-	private static float[] search;
+	private static JCVector2f search;
 	
-	private static float pointRadius = 50f;
-	private static float viewRange = 200f;
+	private static float pointRadius = 20f;
+	private static float viewRange = 100f;
+	private static float searchRange = viewRange + (pointRadius * 0.5f);
 	
 	private static boolean checkCollisions = true;
 	
 	public static void main(String args[])
 	{
-		addRandom(1000);
+		addRandom(100);
 		
 		System.out.println("Initial Points " + list.size());
 		
-		search = new float[2];
+		search = new JCVector2f(0, 0);
 		
 		// Frame
 		frame = new JFrame();
@@ -73,10 +75,7 @@ public class QuadTreeTestDynamic
 						return;
 					}
 					
-					list.add(new TreeBenchObject(list.size(), new float[]
-					{
-						mouseX, mouseY
-					}));
+					list.add(new TreeBenchObject(list.size(), mouseX, mouseY));
 					
 					listLock.release();
 				}
@@ -84,8 +83,8 @@ public class QuadTreeTestDynamic
 				{
 					if(!searchEntered)
 					{
-						search[0] = e.getX();
-						search[1] = e.getY();
+						search.x = e.getX();
+						search.y = e.getY();
 						
 						searchEntered = true;
 					}
@@ -128,10 +127,7 @@ public class QuadTreeTestDynamic
 				{
 					listLock.acquireUninterruptibly();
 					
-					list.add(new TreeBenchObject(list.size(), new float[]
-					{
-						mouseX, mouseY
-					}));
+					list.add(new TreeBenchObject(list.size(), mouseX, mouseY));
 					
 					listLock.release();
 				}
@@ -141,8 +137,8 @@ public class QuadTreeTestDynamic
 					
 					if(!searchEntered)
 					{
-						search[0] = e.getX();
-						search[1] = e.getY();
+						search.x = e.getX();
+						search.y = e.getY();
 						
 						searchEntered = true;
 					}
@@ -177,20 +173,12 @@ public class QuadTreeTestDynamic
 		{
 			boolean overlap = false;
 			
-			int x = 0;
-			int y = 0;
-			
-			float[] pos;
+			JCVector2f pos = new JCVector2f(0, 0);
 			
 			do
 			{
-				x = ThreadLocalRandom.current().nextInt(WIDTH);
-				y = ThreadLocalRandom.current().nextInt(HEIGHT);
-				
-				pos = new float[]
-				{
-					x, y
-				};
+				pos.x = ThreadLocalRandom.current().nextInt(WIDTH);
+				pos.y = ThreadLocalRandom.current().nextInt(HEIGHT);
 				
 				if(checkCollisions)
 				{
@@ -236,7 +224,7 @@ public class QuadTreeTestDynamic
 							
 							if(checkCollisions)
 							{
-								ArrayList<KNNFloatPosInf> overlaps = quadTree.findNearestNeighbours(next.getLatchedPos(), pointRadius * pointRadius);
+								ArrayList<KNNFloatPosInf> overlaps = quadTree.findNearestNeighbours(next.getXY(), pointRadius * pointRadius);
 								
 								if(overlaps != null)
 								{
@@ -276,7 +264,10 @@ public class QuadTreeTestDynamic
 								// System.out.println("Search " +
 								// search[0]+"x"+search[1]);
 								
-								KNNResult result = new KNNResult(null, viewRange * viewRange);
+								float searchRangeSqr = searchRange * searchRange;
+								
+								KNNResult result = new KNNResult(null, searchRangeSqr);
+								// KNNResult result = new KNNResult(null, viewRange * viewRange);
 								
 								ArrayList<KNNFloatPosInf> nearestNeighbours = new ArrayList<KNNFloatPosInf>();
 								
@@ -284,11 +275,12 @@ public class QuadTreeTestDynamic
 								// increase
 								int x = 0;
 								int max = 1;
+								
 								for(int i = 0; i < max; i++)
 								{
-									quadTree.setNearestNeighbour(result, search, viewRange * viewRange);
+									quadTree.setNearestNeighbour(result, search);
 									
-									nearestNeighbours = quadTree.findNearestNeighbours(search, viewRange * viewRange);
+									nearestNeighbours = quadTree.findNearestNeighbours(search, searchRangeSqr);
 									x += 1;
 								}
 								
@@ -306,22 +298,22 @@ public class QuadTreeTestDynamic
 								// Display the single nearest neighbour
 								if(result.getPos() != null)
 								{
-									qpanel.setShow1NNResult(result.getPos().getLatchedPos());
-								}
-								
-								if(result.getDis() < (pointRadius * pointRadius))
-								{
-									// System.out.println("Remove" + result.getPos().getKNNPos()[0] + "x" + result.getPos().getKNNPos()[1]);
+									qpanel.setShow1NNResult(result.getPos().getXY());
 									
-									// KNNPosInf test = new TreeBenchObject(-1, new float[]{0, 0});
-									
-									// Remove from quad tree
-									// quadTree.removePoint(test);
-									quadTree.removePoint(result.getPos());
-									
-									// Remove from list or it will be re-added
-									// on next loop
-									// list.remove(result.getPos());
+									if(result.getDis() < (pointRadius * pointRadius))
+									{
+										System.out.println("Remove" + result.getPos());
+										
+										// KNNPosInf test = new TreeBenchObject(-1, new float[]{0, 0});
+										
+										// Remove from quad tree
+										// quadTree.removePoint(test);
+										quadTree.removePoint(result.getPos());
+										
+										// Remove from list or it will be re-added
+										// on next loop
+										// list.remove(result.getPos());
+									}
 								}
 								
 								searchEntered = false;

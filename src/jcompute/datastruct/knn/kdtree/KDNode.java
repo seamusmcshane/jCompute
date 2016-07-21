@@ -1,17 +1,19 @@
 package jcompute.datastruct.knn.kdtree;
 
+import jcompute.math.geom.JCVector2f;
+
 public class KDNode<Datatype>
 {
 	int dim;
 	int nodeDepth;
-	float pos[];
+	JCVector2f pos;
 	Datatype data;
-
+	
 	KDNode<Datatype> parentNode;
 	KDNode<Datatype> leftChild;
 	KDNode<Datatype> rightChild;
 	
-	public KDNode(int depth,float pos[], Datatype object)
+	public KDNode(int depth, JCVector2f pos, Datatype object)
 	{
 		this.pos = pos;
 		this.nodeDepth = depth;
@@ -21,16 +23,30 @@ public class KDNode<Datatype>
 		leftChild = null;
 		rightChild = null;
 	}
-
-	public boolean isValueGreater(int k,float pos[])
+	
+	public boolean isValueGreater(int d, JCVector2f pos)
 	{
-		if( this.pos[k] > pos[k])
+		if(d == 0)
 		{
-			return true;
+			if(this.pos.x > pos.x)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
-			return false;
+			if(this.pos.y > pos.y)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 	
@@ -38,37 +54,37 @@ public class KDNode<Datatype>
 	{
 		return data;
 	}
-		
-	public float[] getPos()
+	
+	public JCVector2f getPos()
 	{
 		return pos;
 	}
-
+	
 	public KDNode<Datatype> getParentNode()
 	{
 		return parentNode;
 	}
-
+	
 	public void setParentNode(KDNode<Datatype> parentNode)
 	{
 		this.parentNode = parentNode;
 	}
-
+	
 	public KDNode<Datatype> getLeftChild()
 	{
 		return leftChild;
 	}
-
+	
 	public void setLeftChild(KDNode<Datatype> leftChild)
 	{
 		this.leftChild = leftChild;
 	}
-
+	
 	public KDNode<Datatype> getRightChild()
 	{
 		return rightChild;
 	}
-
+	
 	public void setRightChild(KDNode<Datatype> rightChild)
 	{
 		this.rightChild = rightChild;

@@ -41,16 +41,11 @@ public class NodeWeightingBenchmark
 		
 		list = new ArrayList<TreeBenchObject>();
 		
-		float[] pos;
 		for(int y = 0; y < yMax; y++)
 		{
 			for(int x = 0; x < xMax; x++)
 			{
-				pos = new float[]
-				{
-					x, y
-				};
-				list.add(new TreeBenchObject(x * y + x, pos));
+				list.add(new TreeBenchObject(x * y + x, x, y));
 			}
 		}
 	}

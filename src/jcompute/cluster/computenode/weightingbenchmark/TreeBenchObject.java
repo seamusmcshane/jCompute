@@ -1,26 +1,30 @@
 package jcompute.cluster.computenode.weightingbenchmark;
 
 import jcompute.datastruct.knn.KNNFloatPosInf;
-import jcompute.math.JCMath;
+import jcompute.math.MathVector2f;
+import jcompute.math.geom.JCVector2f;
 
 public class TreeBenchObject implements KNNFloatPosInf
 {
 	private int id;
-	private float pos[];
-	private float latchedPos[];
+	public final JCVector2f position;
 	
 	private TreeBenchObject nearestObject;
 	private int nearestObjectID;
 	private float nearestObjectDistance;
 	
-	public TreeBenchObject(int id,float[] pos) 
+	public TreeBenchObject(int id, float x, float y)
 	{
 		this.id = id;
 		
-		this.pos = pos;
-		latchedPos = new float[pos.length];
+		position = new JCVector2f(x, y);
+	}
+	
+	public TreeBenchObject(int id, JCVector2f position)
+	{
+		this.id = id;
 		
-		updateAndGetPos();
+		this.position = new JCVector2f(position);
 	}
 	
 	public void setNearestObject(TreeBenchObject nearestObject)
@@ -44,64 +48,45 @@ public class TreeBenchObject implements KNNFloatPosInf
 	{
 		return id;
 	}
-
-	public float getX()
-	{
-		return pos[0];
-	}
-
-	public float getY()
-	{
-		return pos[1];
-	}
-
+	
 	public float distanceTo(TreeBenchObject nearestObject)
 	{
 		float dis;
 		
-		/* ignore self */
-		if(this.getX() == nearestObject.getX() && this.getY() == nearestObject.getY())
+		/* Ignore self */
+		if(position.x == nearestObject.position.x && position.y == nearestObject.position.y)
 		{
 			dis = Float.MAX_VALUE;
 		}
 		else
 		{
-			dis = JCMath.distanceSquared(pos, nearestObject.getLatchedPos());
+			dis = MathVector2f.DistanceSquared(position, nearestObject.position);
 		}
-
+		
 		/* Distance */
 		return dis;
 	}
-
+	
 	// Aparapi
 	public int getNearestObjectID()
 	{
 		return nearestObjectID;
 	}
-
+	
 	public void setNearestObjectID(int nearestObjectID)
 	{
 		this.nearestObjectID = nearestObjectID;
 	}
-
+	
 	public TreeBenchObject getObject()
 	{
 		return this;
 	}
-
+	
 	@Override
-	public float[] updateAndGetPos()
+	public JCVector2f getXY()
 	{
-		latchedPos[0] = pos[0];
-		latchedPos[1] = pos[1];
-		
-		return latchedPos;
-	}
-
-	@Override
-	public float[] getLatchedPos()
-	{
-		return latchedPos;
+		return position;
 	}
 	
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import jcompute.datastruct.knn.KNNFloatPosInf;
+import jcompute.math.geom.JCVector2f;
 
 public class QuadPanel extends JPanel
 {
@@ -21,11 +22,11 @@ public class QuadPanel extends JPanel
 	private int WIDTH;
 	private int HEIGHT;
 	
-	private float[] search;
+	private JCVector2f search;
 	private float diameter = 0;
 	
 	private boolean searchValid1NN = false;
-	private float[] result;
+	private JCVector2f result;
 	
 	private List<KNNFloatPosInf> nearestNeighbours;
 	private boolean searchValidKNN = false;
@@ -40,8 +41,8 @@ public class QuadPanel extends JPanel
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		
-		this.search = new float[2];
-		this.result = new float[2];
+		this.search = new JCVector2f(0, 0);
+		this.result = new JCVector2f(0, 0);
 		
 		this.pointSize = pointSize;
 	}
@@ -51,17 +52,17 @@ public class QuadPanel extends JPanel
 		this.lines = lines;
 	}
 	
-	public void showSearchPointAndRange(float[] search, float distance)
+	public void showSearchPointAndRange(JCVector2f search, float distance)
 	{
-		this.search[0] = search[0];
-		this.search[1] = search[1];
+		this.search.x = search.x;
+		this.search.y = search.y;
 		this.diameter = distance * 2;
 	}
 	
-	public void setShow1NNResult(float[] result)
+	public void setShow1NNResult(JCVector2f result)
 	{
-		this.result[0] = result[0];
-		this.result[1] = result[1];
+		this.result.x = result.x;
+		this.result.y = result.y;
 		searchValid1NN = true;
 	}
 	
@@ -119,7 +120,7 @@ public class QuadPanel extends JPanel
 			for(KNNFloatPosInf point : list)
 			{
 				g2.setColor(Color.BLACK);
-				g2.drawOval((int) (point.getLatchedPos()[0] - pointHalf), (int) (point.getLatchedPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
+				g2.drawOval((int) (point.getXY().x - pointHalf), (int) (point.getXY().y - pointHalf), (int) pointSize, (int) pointSize);
 			}
 		}
 		
@@ -128,7 +129,7 @@ public class QuadPanel extends JPanel
 			for(KNNFloatPosInf point : nearestNeighbours)
 			{
 				g2.setColor(Color.RED);
-				g2.fillOval((int) (point.getLatchedPos()[0] - pointHalf), (int) (point.getLatchedPos()[1] - pointHalf), (int) pointSize, (int) pointSize);
+				g2.fillOval((int) (point.getXY().x - pointHalf), (int) (point.getXY().y - pointHalf), (int) pointSize, (int) pointSize);
 			}
 		}
 		
@@ -136,14 +137,14 @@ public class QuadPanel extends JPanel
 		{
 			g2.setColor(Color.BLACK);
 			g2.setStroke(thickLine);
-			g2.drawLine((int) search[0], (int) search[1], (int) result[0], (int) result[1]);
+			g2.drawLine((int) search.x, (int) search.y, (int) result.x, (int) result.y);
 			
 			g2.setColor(Color.WHITE);
 			g2.setStroke(thinLine);
-			g2.drawLine((int) search[0], (int) search[1], (int) result[0], (int) result[1]);
+			g2.drawLine((int) search.x, (int) search.y, (int) result.x, (int) result.y);
 			
 			g2.setColor(Color.GREEN);
-			g2.fillOval((int) (result[0] - pointHalf), (int) (result[1] - pointHalf), (int) pointSize, (int) pointSize);
+			g2.fillOval((int) (result.x - pointHalf), (int) (result.y - pointHalf), (int) pointSize, (int) pointSize);
 			
 			g2.setColor(Color.BLACK);
 			g2.setStroke(defaultStroke);
@@ -152,10 +153,10 @@ public class QuadPanel extends JPanel
 		float radius = diameter / 2;
 		
 		g2.setColor(Color.BLUE);
-		g2.fillOval((int) (search[0] - pointHalf), (int) (search[1] - pointHalf), (int) pointSize, (int) pointSize);
+		g2.fillOval((int) (search.x - pointHalf), (int) (search.y - pointHalf), (int) pointSize, (int) pointSize);
 		
 		g2.setColor(Color.RED);
-		g2.drawOval((int) (search[0] - radius), (int) (search[1] - radius), (int) diameter, (int) diameter);
+		g2.drawOval((int) (search.x - radius), (int) (search.y - radius), (int) diameter, (int) diameter);
 	}
 	
 	public void setPoints(List<KNNFloatPosInf> list)
