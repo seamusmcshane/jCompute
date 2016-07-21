@@ -1,39 +1,47 @@
 package jcompute.gui.view.inputcontroller;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 
+import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.math.FloatingPoint;
+import jcompute.math.MathVector3f;
 import jcompute.math.geom.JCVector2f;
-import jcompute.math.geom.MathVector2f;
+import jcompute.math.geom.JCVector3f;
 
 public class ZoomDragCameraInputController implements InputProcessor
 {
-	// Target Camera
+	// ViewRendererInf with Controlled Camera
+	private final ViewRendererInf renderer;
 	private final Camera camera;
 	
-	// Current CamPos
-	private final JCVector2f position;
+	// Calculated camera position
+	public final JCVector3f position;
 	
-	// Camera Offset (from 0,0)
-	private final JCVector2f offset;
-	
-	// Current Zoom
-	private float zoom;
+	// Camera Offset (from 0,0,0)
+	private final JCVector3f offset;
 	
 	// Error Margin for Animation Equality
 	private final float EPSILON = 0.5f;
 	
-	// Stores the mouse vector across updates
-	private final JCVector2f mousePosition = new JCVector2f(0, 0);
+	// Percentage to scale distances
+	private final float SCALED_PERCENTAGE = 0.8f;
 	
-	// Scale the X/Y passed in by this amount ( 1 / 800 )
-	private final float MOVEMENT_DAMPER = 0.00125f;
+	// Raw mouse
+	public final JCVector2f mouseRawXY;
+	
+	// Mouse dragging
+	public final JCVector2f mouseXYDragging;
+	private float mouseXYDraggingSmoothing = 1f;
+	
+	// Mouse Cursor Grabbed
+	public final JCVector3f mouseXYCursorProjected;
 	
 	// Zoom Parameters
-	private final float zoomIncr = 200f;
 	private float zoomDefault = 800f;
-	private float minZoom = zoomIncr;
+	private float minZoom = 200f;
 	private float maxZoom = zoomDefault;
 	
 	// Mouse Button Status (Left/ Right / Middle)
@@ -41,7 +49,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 	private boolean button1Pressed;
 	private boolean button2Pressed;
 	
-	private final long DOUBLE_CLICK_TIMEOUT = 500;
+	private final long DOUBLE_CLICK_TIMEOUT = 250;
+	private long lastButton0Time;
 	private long lastButton1Time;
 	
 	// Middle Click Mode
@@ -49,25 +58,42 @@ public class ZoomDragCameraInputController implements InputProcessor
 	private int currentMiddleButtonMode = 0;
 	
 	// Animation enabled / Required (Right Click)
-	private boolean cameraResetAnimate = false;
+	private boolean cameraAnimate;
+	private boolean zooming;
+	private boolean zoomingIn;
+	private boolean zoomingDone;
 	
-	private boolean cameraZoomAnimate = false;
-	private float zoomTo;
+	private final JCVector3f animateToPosition = new JCVector3f(0, 0, 0);
 	
-	public ZoomDragCameraInputController(Camera camera, float camPosX, float camPosY, float offsetX, float offsetY, int middleButtonModes)
+	public ZoomDragCameraInputController(ViewRendererInf renderer, float camPosX, float camPosY, float offsetX, float offsetY, int middleButtonModes)
 	{
-		this.camera = camera;
+		this.renderer = renderer;
+		this.camera = renderer.getCamera();
 		
-		position = new JCVector2f(camPosX, camPosY);
+		position = new JCVector3f(camPosX, camPosY, zoomDefault);
 		
-		zoom = zoomDefault;
-		zoomDefault = zoom;
-		
-		offset = new JCVector2f(offsetX, offsetY);
+		offset = new JCVector3f(offsetX, offsetY, 0);
 		
 		position.add(offset);
 		
+		mouseRawXY = new JCVector2f(0, 0);
+		
+		mouseXYDragging = new JCVector2f(0, 0);
+		
+		mouseXYCursorProjected = new JCVector3f(0, 0, 0);
+		
 		this.MAX_MIDDLE_BUTTON_MODE = (middleButtonModes > 0) ? middleButtonModes : 0;
+	}
+	
+	public void reset()
+	{
+		animateToPosition.x = 0;
+		animateToPosition.y = 0;
+		animateToPosition.z = zoomDefault;
+		
+		position.add(offset);
+		
+		cameraAnimate = true;
 	}
 	
 	public void setZoomLimits(float min, float max)
@@ -76,110 +102,61 @@ public class ZoomDragCameraInputController implements InputProcessor
 		maxZoom = max;
 	}
 	
-	public void setCamOffset(float x, float y)
+	public void setCamOffset(float x, float y, float z)
 	{
 		// Remove old offset
 		position.sub(this.offset);
 		
 		offset.x = x;
 		offset.x = y;
+		offset.z = z;
 		
 		// Add new
 		position.add(offset);
 	}
 	
-	public void setCamPos(float x, float y)
+	public void setCamPos(float x, float y, float z)
 	{
 		position.x = x;
 		position.x = y;
+		position.z = z;
 	}
 	
-	public void adjCamZoom(float zoomAdj)
+	private boolean animateToPosition(JCVector3f newPosition)
 	{
-		cameraResetAnimate = false;
-		
-		float tZoom = zoom;
-		
-		if(zoomAdj > 0)
-		{
-			tZoom += zoomIncr;
-		}
-		else
-		{
-			tZoom -= zoomIncr;
-		}
-		
-		if(tZoom < minZoom)
-		{
-			tZoom = minZoom;
-		}
-		
-		if(tZoom > maxZoom)
-		{
-			tZoom = maxZoom;
-		}
-		
-		zoomTo = tZoom;
-		
-		cameraZoomAnimate = true;
-	}
-	
-	public boolean reset()
-	{
-		cameraZoomAnimate = false;
-		
-		boolean z = zoomTo(zoomDefault, 0.60f);
-		
-		return resetCameraXY(0, 0) & z;
-	}
-	
-	private boolean zoomTo(float z, float percent)
-	{
-		// Done if near z +- ANIMATE_SNAP
-		if(FloatingPoint.AlmostEqualEpsilon(zoom, z, EPSILON))
-		{
-			zoom = z;
-			
-			return true;
-		}
-		
-		// Distance to target z
-		float zoomLen = z - zoom;
-		
-		// CamZoom scaled adjusted by scaled distance to z
-		zoom = zoom + (zoomLen - (zoomLen * percent));
-		
-		return false;
-	}
-	
-	private boolean resetCameraXY(float x, float y)
-	{
-		// Remove the offset before the calculation
+		// Assume we have been provided newPosition with no offset applied
+		// Remove the current offset before the calculation
 		position.sub(offset);
 		
 		// Done if near x,y +- ANIMATE_SNAP
-		if(FloatingPoint.AlmostEqualEpsilon(position.x, x, EPSILON) && FloatingPoint.AlmostEqualEpsilon(position.y, y, EPSILON))
+		if(FloatingPoint.AlmostEqualEpsilon(position.x, newPosition.x, EPSILON) & FloatingPoint.AlmostEqualEpsilon(position.y, newPosition.y, EPSILON)
+		& FloatingPoint.AlmostEqualEpsilon(position.z, newPosition.z, EPSILON))
 		{
-			position.x = 0;
-			position.y = 0;
+			position.x = newPosition.x;
+			position.y = newPosition.y;
+			position.z = newPosition.z;
 			
 			// Re-apply offset
 			position.add(offset);
+			
+			// mouseXYZTargetProjected.x = position.x;
+			// mouseXYZTargetProjected.y = position.y;
+			// mouseXYZTargetProjected.z = position.z;
 			
 			return true;
 		}
 		
 		// Distance Vector
-		JCVector2f dv = new JCVector2f(x - position.x, y - position.y);
+		JCVector3f dv = new JCVector3f(newPosition.x - position.x, newPosition.y - position.y, newPosition.z - position.z);
 		
 		// Vector length
 		float len = dv.length();
 		
 		// Distance unit vector
-		JCVector2f du = MathVector2f.Unit(dv);
+		JCVector3f du = MathVector3f.Unit(dv);
 		
 		// Scaled length
-		float dl = (len * 0.80f);
+		float dl = (len * SCALED_PERCENTAGE);
 		
 		// Unit vector scaled by new length
 		du.multiply(len - dl);
@@ -194,8 +171,21 @@ public class ZoomDragCameraInputController implements InputProcessor
 	}
 	
 	@Override
-	public boolean keyDown(int arg0)
+	public boolean keyDown(int key)
 	{
+		if(key == Input.Keys.CONTROL_LEFT)
+		{
+			if(!Gdx.input.isCursorCatched())
+			{
+				Gdx.input.setCursorCatched(true);
+				Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+			}
+			else
+			{
+				Gdx.input.setCursorCatched(false);
+			}
+		}
+		
 		return false;
 	}
 	
@@ -212,19 +202,65 @@ public class ZoomDragCameraInputController implements InputProcessor
 	}
 	
 	@Override
-	public boolean mouseMoved(int arg0, int arg1)
+	public boolean mouseMoved(int x, int y)
 	{
+		// mouseXYCursor.x = x * movementScale;
+		// mouseXYCursor.y = y * movementScale;
+		
+		// mouseRawXY.x = x;
+		// mouseRawXY.y = y;
+		
+		// updateMouseRawXY(x, y);
+		
+		mouseRawXY.x = x;
+		mouseRawXY.y = y;
+		
 		return false;
 	}
 	
 	@Override
 	public boolean scrolled(int val)
 	{
-		adjCamZoom(val);
-		
-		System.out.println("Val " + val);
+		adjustZoom(val);
 		
 		return false;
+	}
+	
+	private void adjustZoom(int val)
+	{
+		cameraAnimate = false;
+		zooming = false;
+		zoomingIn = false;
+		
+		float tZoom = position.z;
+		
+		if(val > 0)
+		{
+			tZoom *= 2;
+			
+			zoomingIn = false;
+		}
+		else
+		{
+			tZoom *= 0.5f;
+			
+			zoomingIn = true;
+		}
+		
+		// Clamp the zoom range
+		if(tZoom < minZoom)
+		{
+			tZoom = minZoom;
+		}
+		else if(tZoom > maxZoom)
+		{
+			tZoom = maxZoom;
+		}
+		
+		animateToPosition.z = tZoom;
+		
+		zooming = true;
+		cameraAnimate = true;
 	}
 	
 	@Override
@@ -237,11 +273,30 @@ public class ZoomDragCameraInputController implements InputProcessor
 				button0Pressed = true;
 				
 				// Update newX/Y
-				mousePosition.x = x;
-				mousePosition.y = y;
+				mouseXYDragging.x = x;
+				mouseXYDragging.y = y;
 				
-				// Abort Animation
-				cameraResetAnimate = false;
+				// Translate the current mouse coordinates.
+				mouseRawXY.x = x;
+				mouseRawXY.y = y;
+				
+				zooming = false;
+				zoomingIn = false;
+				
+				long timeNow = System.currentTimeMillis();
+				
+				// Has a double click occurred
+				if((timeNow - lastButton0Time) < DOUBLE_CLICK_TIMEOUT)
+				{
+					adjustZoom(-1);
+				}
+				else
+				{
+					// Abort Animation
+					cameraAnimate = false;
+				}
+				
+				lastButton0Time = System.currentTimeMillis();
 			}
 			break;
 			case 1:
@@ -249,18 +304,24 @@ public class ZoomDragCameraInputController implements InputProcessor
 				button1Pressed = true;
 				
 				// Reset Zoom
-				cameraZoomAnimate = true;
-				zoomTo = zoomDefault;
+				cameraAnimate = true;
+				
+				// Reset just zoom
+				animateToPosition.x = position.x;
+				animateToPosition.y = position.y;
+				animateToPosition.z = zoomDefault;
+				
+				// animateToPosition must be provided with out an offset
+				animateToPosition.sub(offset);
 				
 				long timeNow = System.currentTimeMillis();
 				
 				// Has a double click occurred
 				if((timeNow - lastButton1Time) < DOUBLE_CLICK_TIMEOUT)
 				{
-					cameraZoomAnimate = false;
-					
-					// Allow Animation
-					cameraResetAnimate = true;
+					// Center Camera at origin
+					animateToPosition.x = 0;
+					animateToPosition.y = 0;
 				}
 				
 				lastButton1Time = System.currentTimeMillis();
@@ -271,7 +332,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 				button2Pressed = true;
 				
 				// Abort Animation
-				cameraResetAnimate = false;
+				cameraAnimate = false;
 			}
 			break;
 		}
@@ -285,22 +346,22 @@ public class ZoomDragCameraInputController implements InputProcessor
 		if(button0Pressed)
 		{
 			// Latch the old position
-			float previousX = mousePosition.x;
-			float previousY = mousePosition.y;
+			float previousX = mouseXYDragging.x;
+			float previousY = mouseXYDragging.y;
 			
 			// Update newX/Y
-			mousePosition.x = x;
-			mousePosition.y = y;
+			mouseXYDragging.x = x;
+			mouseXYDragging.y = y;
 			
 			// How much did the mouse move.
-			float diffX = previousX - mousePosition.x;
-			float diffY = previousY - mousePosition.y;
+			float diffX = previousX - mouseXYDragging.x;
+			float diffY = previousY - mouseXYDragging.y;
 			
 			// Raw X,Y,Z is at screen resolution - scaled here to smooth movement
-			float ratio = (zoom * MOVEMENT_DAMPER);
+			// float ratio = (zoom * MOVEMENT_DAMPER);
 			
-			// -y for when converting from screen to graphics coordinates
-			position.add(diffX * ratio, -diffY * ratio);
+			// -y
+			position.add(diffX * mouseXYDraggingSmoothing, -diffY * mouseXYDraggingSmoothing, 0);
 		}
 		
 		return false;
@@ -312,8 +373,14 @@ public class ZoomDragCameraInputController implements InputProcessor
 		if(button0Pressed)
 		{
 			// Update newX/Y
-			mousePosition.x = x;
-			mousePosition.y = y;
+			// mouseXYLatch.x = x * movementScale;
+			// mouseXYLatch.y = y * movementScale;
+			
+			// Translate the current mouse coordinates.
+			// mouseRawXY.x = x;
+			// mouseRawXY.y = y;
+			
+			updateMouseRawXY(x, y);
 			
 			button0Pressed = false;
 		}
@@ -335,33 +402,126 @@ public class ZoomDragCameraInputController implements InputProcessor
 		return false;
 	}
 	
-	public void update()
+	public void update(float targetX, float targetY, float targetZ)
 	{
-		if(cameraResetAnimate)
+		if(!button0Pressed & !zoomingIn)
 		{
-			if(reset())
+			renderer.screenToWorld(mouseRawXY, targetZ, mouseXYCursorProjected);
+		}
+		
+		if(zooming)
+		{
+			if(zoomingIn)
 			{
-				cameraResetAnimate = false;
+				if(!FloatingPoint.AlmostEqualEpsilon(position.z, minZoom, EPSILON))
+				{
+					animateToPosition.x = mouseXYCursorProjected.x;
+					animateToPosition.y = mouseXYCursorProjected.y;
+				}
+				else
+				{
+					// Prevent zooming further
+					animateToPosition.x = position.x;
+					animateToPosition.y = position.y;
+					animateToPosition.z = minZoom;
+				}
+				
+				// zoomingIn = false;
+			}
+			else
+			{
+				animateToPosition.x = position.x;
+				animateToPosition.y = position.y;
+				
+				if(FloatingPoint.AlmostEqualEpsilon(position.z, maxZoom, EPSILON))
+				{
+					// Prevent zooming out further
+					animateToPosition.z = maxZoom;
+				}
+			}
+			
+			// animateToPosition must be provided with out an offset
+			animateToPosition.sub(offset);
+			
+			zooming = false;
+		}
+		
+		if(cameraAnimate)
+		{
+			if(animateToPosition(animateToPosition))
+			{
+				if(zoomingIn)
+				{
+					mouseRawXY.x = Gdx.graphics.getWidth() * 0.5f;
+					mouseRawXY.y = Gdx.graphics.getHeight() * 0.5f;
+					
+					Gdx.input.setCursorPosition((int) mouseRawXY.x, (int) mouseRawXY.y);
+					
+					zoomingIn = false;
+				}
+				
+				renderer.screenToWorld(mouseRawXY, targetZ, mouseXYCursorProjected);
+				
+				cameraAnimate = false;
 			}
 		}
 		
-		if(cameraZoomAnimate)
-		{
-			if(zoomTo(zoomTo, 0.74f))
-			{
-				cameraZoomAnimate = false;
-			}
-		}
-		
+		// Update camera X/Y/Z position
 		camera.position.x = position.x;
 		camera.position.y = position.y;
-		camera.position.z = zoom;
+		camera.position.z = position.z;
 		
+		// mouseXYLatch.x = Gdx.input.getX() * movementScale;
+		// mouseXYLatch.y = Gdx.input.getY() * movementScale;
+		
+		// Ensure we are look at the location below the camera - similar to an orthographic view
+		
+		// float ratio = (zoomDefault / position.z);
+		//
+		// if(ratio > 2f)
+		// {
+		// ratio = 2f;
+		// }
+		//
+		// if(ratio < 1f)
+		// {
+		// ratio = 1f;
+		// }
+		//
+		// float offsetY = (ratio - 1f) * (100f);
+		// //
+		// camera.lookAt(position.x, position.y + offsetY, targetZ);
+		camera.lookAt(position.x, position.y, targetZ);
+		//
+		// Update the camera view projection
 		camera.update();
+		
+		// Adjust mouse drag
+		mouseXYDraggingSmoothing = (position.z / zoomDefault);
+		
+		// mouseXYDraggingSmoothing = (position.z / TARGET_Z) / maxZoom;
+		
 	}
 	
 	public int middleButtonMode()
 	{
 		return currentMiddleButtonMode;
+	}
+	
+	private void updateMouseRawXY(float x, float y)
+	{
+		// float prevX = mouseRawXY.x;
+		// float prevY = mouseRawXY.y;
+		//
+		// float dX = x - prevX;
+		// float dY = y - prevY;
+		//
+		// float scale = position.z / maxZoom;
+		//
+		// mouseRawXY.x += dX * scale;
+		// mouseRawXY.y += dY * scale;
+		
+		mouseRawXY.x = x;
+		mouseRawXY.y = y;
 	}
 }
