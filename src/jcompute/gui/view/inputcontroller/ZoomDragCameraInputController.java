@@ -63,6 +63,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 	private boolean cameraAnimate;
 	private boolean zooming;
 	private boolean zoomingIn;
+	private boolean mouseDoubleClickMove;
 	
 	// Position to animate to
 	private final JCVector3f animateToPosition = new JCVector3f(0, 0, 0);
@@ -285,11 +286,11 @@ public class ZoomDragCameraInputController implements InputProcessor
 				// Has a double click occurred
 				if((timeNow - lastButton0Time) < DOUBLE_CLICK_TIMEOUT)
 				{
-					adjustZoom(-1);
+					mouseDoubleClickMove = true;
 				}
 				else
 				{
-					// Abort Animation
+					// Abort any current animation
 					cameraAnimate = false;
 				}
 				
@@ -390,10 +391,25 @@ public class ZoomDragCameraInputController implements InputProcessor
 	
 	public void update(float targetX, float targetY, float targetZ)
 	{
-		// No buttons pressed and not animating
+		// No buttons held down and not animating
 		if(!button0Pressed & !button1Pressed & !button2Pressed & !cameraAnimate)
 		{
+			// Project the mouse into world coordinates
 			renderer.screenToWorld(mouseRawXY, targetZ, mouseXYCursorProjected);
+		}
+		
+		if(mouseDoubleClickMove)
+		{
+			// Translate to mouse XY with no change in current zoom
+			animateToPosition.x = mouseXYCursorProjected.x;
+			animateToPosition.y = mouseXYCursorProjected.y;
+			animateToPosition.z = position.z;
+			
+			// animateToPosition must be provided with out an offset
+			animateToPosition.sub(offset);
+			
+			mouseDoubleClickMove = false;
+			cameraAnimate = true;
 		}
 		
 		if(zooming)
