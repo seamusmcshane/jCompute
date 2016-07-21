@@ -46,6 +46,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 	
 	// Mouse Button Status (Left/ Right / Middle)
 	private boolean button0Pressed;
+	public final JCVector3f button0clickPosition = new JCVector3f(0, 0, 0);
+	
 	private boolean button1Pressed;
 	private boolean button2Pressed;
 	
@@ -294,6 +296,9 @@ public class ZoomDragCameraInputController implements InputProcessor
 				}
 				
 				lastButton0Time = System.currentTimeMillis();
+				
+				button0clickPosition.x = x;
+				button0clickPosition.x = y;
 			}
 			break;
 			case 1:
@@ -463,6 +468,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 		
 		// Ensure we are look at the location below the camera - similar to an orthographic view
 		camera.lookAt(position.x, position.y, targetZ);
+		
 		// Update the camera view projection
 		camera.update();
 	}
