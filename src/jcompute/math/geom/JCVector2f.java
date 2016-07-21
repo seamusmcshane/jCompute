@@ -1,6 +1,7 @@
 package jcompute.math.geom;
 
 import jcompute.math.FloatingPoint;
+import jcompute.math.MathVector2f;
 import jcompute.math.trig.JCTrig;
 
 public class JCVector2f

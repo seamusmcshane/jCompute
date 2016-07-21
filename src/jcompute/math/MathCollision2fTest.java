@@ -1,4 +1,10 @@
-package jcompute.math.geom;
+package jcompute.math;
+
+import jcompute.math.geom.JCCircle;
+import jcompute.math.geom.JCLineInfinite;
+import jcompute.math.geom.JCLineSegment;
+import jcompute.math.geom.JCRectangle;
+import jcompute.math.geom.JCVector2f;
 
 public class MathCollision2fTest
 {

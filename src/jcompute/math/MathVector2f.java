@@ -1,6 +1,6 @@
-package jcompute.math.geom;
+package jcompute.math;
 
-import jcompute.math.FloatingPoint;
+import jcompute.math.geom.JCVector2f;
 import jcompute.math.trig.JCTrig;
 
 public class MathVector2f
@@ -170,5 +170,21 @@ public class MathVector2f
 		JCVector2f na = MathVector2f.RotatedC90(a);
 		
 		return FloatingPoint.AlmostEqual(0, na.dotProduct(b));
+	}
+	
+	public static float DistanceSquared(JCVector2f from, JCVector2f to)
+	{
+		// Do not modify the original vectors
+		JCVector2f temp = Subtracted(to, from);
+		
+		return temp.lengthSquared();
+	}
+	
+	public static float Distance(JCVector2f from, JCVector2f to)
+	{
+		// Do not modify the original vectors
+		JCVector2f temp = Subtracted(from, to);
+		
+		return temp.length();
 	}
 }

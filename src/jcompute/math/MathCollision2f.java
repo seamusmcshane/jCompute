@@ -1,4 +1,13 @@
-package jcompute.math.geom;
+package jcompute.math;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+import jcompute.math.geom.JCCircle;
+import jcompute.math.geom.JCLineInfinite;
+import jcompute.math.geom.JCLineSegment;
+import jcompute.math.geom.JCRange;
+import jcompute.math.geom.JCRectangle;
+import jcompute.math.geom.JCVector2f;
 
 public class MathCollision2f
 {
@@ -105,6 +114,14 @@ public class MathCollision2f
 		return distance.lengthSquared() <= (a.radius * a.radius);
 	}
 	
+	public static boolean CircleCollidesWithVector(JCVector2f cOrigin, float cRadius, JCVector2f b)
+	{
+		JCVector2f distance = MathVector2f.Subtracted(cOrigin, b);
+		
+		// Squared
+		return distance.lengthSquared() <= (cRadius * cRadius);
+	}
+	
 	public static boolean CircleCollidesWithLineInfinite(JCCircle a, JCLineInfinite b)
 	{
 		JCVector2f lc = MathVector2f.Subtracted(a.center, b.base);
@@ -145,6 +162,29 @@ public class MathCollision2f
 		JCVector2f clamped = ClampOnRectangle(a.center, b);
 		
 		return CircleCollidesWithVector(a, clamped);
+	}
+	
+	public static boolean CircleCollidesWithRectangle(JCVector2f cOrigin, float cRadius, float rXOrigin, float rYOrigin, float rWidth, float rHeight)
+	{
+		float clx = ClampOnRange(cOrigin.x, rXOrigin, rXOrigin + rWidth);
+		float cly = ClampOnRange(cOrigin.y, rYOrigin, rYOrigin + rHeight);
+		
+		JCVector2f clamped = new JCVector2f(clx, cly);
+		
+		return CircleCollidesWithVector(cOrigin, cRadius, clamped);
+	}
+	
+	public static JCVector2f RectangleRangedRandomXY(float minX, float maxX, float minY, float maxY)
+	{
+		float rangeX = maxX - minX;
+		
+		float x = (ThreadLocalRandom.current().nextFloat() * rangeX) + minX;
+		
+		float rangeY = maxY - minY;
+		
+		float y = (ThreadLocalRandom.current().nextFloat() * rangeY) + minY;
+		
+		return new JCVector2f(x, y);
 	}
 	
 	/*

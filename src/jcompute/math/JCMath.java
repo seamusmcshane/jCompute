@@ -6,6 +6,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.util.FastMath;
 
+import jcompute.math.geom.JCVector2f;
+
 public class JCMath
 {
 	public static float distance(float[] from, float[] to)
@@ -140,6 +142,28 @@ public class JCMath
 	public static float calculateAdjustedEuclideanVectorDirection(float[] from, float[] to, float adjustmentAngle)
 	{
 		float direction = (float) FastMath.toDegrees(FastMath.atan2(to[0] - from[0], from[1] - to[1]));
+		
+		direction = direction + adjustmentAngle;
+		
+		if(direction < 0)
+		{
+			direction += 360;
+		}
+		
+		return direction % 360;
+	}
+	
+	/**
+	 * Returns the angle from a point to another point, and adds an adjustment to the angle - in the range (0-360).
+	 * Y is inverted - thus direction is inverted
+	 *
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public static float calculateAdjustedEuclideanVectorDirection(JCVector2f from, JCVector2f to, float adjustmentAngle)
+	{
+		float direction = (float) FastMath.toDegrees(FastMath.atan2(to.x - from.x, from.y - to.y));
 		
 		direction = direction + adjustmentAngle;
 		

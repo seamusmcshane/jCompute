@@ -1,5 +1,6 @@
-package jcompute.math.geom;
+package jcompute.math;
 
+import jcompute.math.geom.JCVector2f;
 import jcompute.math.trig.JCTrig;
 import jcompute.util.JCText;
 
