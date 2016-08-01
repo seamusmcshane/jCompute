@@ -187,4 +187,27 @@ public class MathVector2f
 		
 		return temp.length();
 	}
+	
+	public static float DistanceToRectangleVectorRange(JCVector2f point, JCVector2f minBound, JCVector2f maxBound)
+	{
+		float dis = 0;
+		
+		for(int d = 0; d < JCVector2f.DIMENSIONS; d++)
+		{
+			float diff = 0;
+			
+			if(point.getDimVal(d) > maxBound.getDimVal(d))
+			{
+				diff = (point.getDimVal(d) - maxBound.getDimVal(d));
+			}
+			else if(point.getDimVal(d) < minBound.getDimVal(d))
+			{
+				diff = (point.getDimVal(d) - minBound.getDimVal(d));
+			}
+			
+			dis += diff * diff;
+		}
+		
+		return dis;
+	}
 }
