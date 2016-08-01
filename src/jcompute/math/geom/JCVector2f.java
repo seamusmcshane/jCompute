@@ -9,6 +9,8 @@ public class JCVector2f
 	public float x;
 	public float y;
 	
+	public static final int DIMENSIONS = 2;
+	
 	/**
 	 * Creates a vector from two floats
 	 * 
@@ -258,6 +260,48 @@ public class JCVector2f
 	{
 		x = -x;
 		y = -y;
+	}
+	
+	public float getDimVal(int dim)
+	{
+		switch(dim)
+		{
+			case 0:
+			{
+				return x;
+			}
+			case 1:
+			{
+				return y;
+			}
+			default:
+			{
+				// Numeric Error
+				throw new Error("Invalid Dimension (" + dim + ") - " + DIMENSIONS);
+			}
+		}
+	}
+	
+	public void setDimVal(int dim, float val)
+	{
+		switch(dim)
+		{
+			case 0:
+			{
+				x = val;
+			}
+			break;
+			case 1:
+			{
+				y = val;
+			}
+			break;
+			default:
+			{
+				// Numeric Error
+				throw new Error("Invalid Dimension (" + dim + ") - " + DIMENSIONS);
+			}
+		}
 	}
 	
 	public boolean equals(JCVector2f b)
