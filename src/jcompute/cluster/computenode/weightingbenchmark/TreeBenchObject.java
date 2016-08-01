@@ -29,6 +29,11 @@ public class TreeBenchObject implements KNNFloatPosInf
 	
 	public void setNearestObject(TreeBenchObject nearestObject)
 	{
+		if(nearestObject == null)
+		{
+			return;
+		}
+		
 		this.nearestObject = nearestObject;
 		
 		this.nearestObjectDistance = distanceTo(nearestObject);

@@ -2,13 +2,12 @@ package jcompute.cluster.computenode.weightingbenchmark;
 
 import java.util.ArrayList;
 
-import jcompute.datastruct.knn.KNNFloatPosInf;
-import jcompute.datastruct.knn.ThirdGenKDWrapperFloat;
+import jcompute.datastruct.knn.kdtree.KDTree;
 import jcompute.timing.TimerObj;
 
-public class NodeWeightingBenchmark
+public class NodeWeightingBenchmark2
 {
-	private ThirdGenKDWrapperFloat<KNNFloatPosInf> tree;
+	private KDTree<TreeBenchObject> tree;
 	private int objectCount;
 	
 	private ArrayList<TreeBenchObject> list;
@@ -21,13 +20,13 @@ public class NodeWeightingBenchmark
 	private boolean running = false;
 	private boolean cancelled = false;
 	
-	public NodeWeightingBenchmark(int objectCount, int iterations)
+	public NodeWeightingBenchmark2(int objectCount, int iterations)
 	{
 		this.objectCount = objectCount;
 		this.iterations = iterations;
 	}
 	
-	public NodeWeightingBenchmark(int objectCount, int iterations, int buckSize)
+	public NodeWeightingBenchmark2(int objectCount, int iterations, int buckSize)
 	{
 		this.objectCount = objectCount;
 		this.iterations = iterations;
@@ -52,22 +51,21 @@ public class NodeWeightingBenchmark
 	
 	private void populateTree()
 	{
-		tree = new ThirdGenKDWrapperFloat<KNNFloatPosInf>(2, bucketSize);
+		tree = new KDTree<TreeBenchObject>(bucketSize);
 		
-		for(KNNFloatPosInf object : list)
+		for(TreeBenchObject object : list)
 		{
-			tree.add(object, object);
+			tree.add(object.getXY(), object);
 		}
 	}
 	
 	private void searchTree()
 	{
-		for(KNNFloatPosInf object : list)
+		for(TreeBenchObject object : list)
 		{
-			TreeBenchObject cto = (TreeBenchObject) object;
-			TreeBenchObject no = (TreeBenchObject) tree.kn1NearestNeighbour(cto, null);
+			TreeBenchObject no = tree.kn1NearestNeighbour(object.getXY(), object);
 			
-			cto.setNearestObject(no);
+			object.setNearestObject(no);
 		}
 	}
 	
