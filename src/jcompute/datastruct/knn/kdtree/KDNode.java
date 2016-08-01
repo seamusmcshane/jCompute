@@ -1,93 +1,234 @@
 package jcompute.datastruct.knn.kdtree;
 
+import java.util.Arrays;
+
 import jcompute.math.geom.JCVector2f;
 
 public class KDNode<Datatype>
 {
-	int dim;
-	int nodeDepth;
-	JCVector2f pos;
-	Datatype data;
+	// All types
+	protected int bucketCapacity;
+	protected int size;
 	
-	KDNode<Datatype> parentNode;
-	KDNode<Datatype> leftChild;
-	KDNode<Datatype> rightChild;
+	// Leaf only
+	protected JCVector2f[] points;
+	protected Datatype[] data;
 	
-	public KDNode(int depth, JCVector2f pos, Datatype object)
+	// Stem only
+	protected KDNode<Datatype> left;
+	protected KDNode<Datatype> right;
+	protected int splitDimension;
+	protected float splitValue;
+	
+	// Bounds
+	protected JCVector2f minBound;
+	protected JCVector2f maxBound;
+	
+	protected boolean singlePoint;
+	
+	public KDNode(int bucketCapacity)
 	{
-		this.pos = pos;
-		this.nodeDepth = depth;
-		this.data = object;
+		// Init base
+		this.bucketCapacity = bucketCapacity;
+		this.size = 0;
+		this.singlePoint = true;
 		
-		parentNode = null;
-		leftChild = null;
-		rightChild = null;
+		// Init leaf elements
+		this.points = new JCVector2f[bucketCapacity + 1];
+		
+		// Avoids needing to cast every index
+		this.data = (Datatype[]) new Object[bucketCapacity + 1];
 	}
 	
-	public boolean isValueGreater(int d, JCVector2f pos)
+	public int size()
 	{
-		if(d == 0)
+		return size;
+	}
+	
+	public void add(JCVector2f point, Datatype value)
+	{
+		KDNode<Datatype> cursor = this;
+		while(!cursor.isLeaf())
 		{
-			if(this.pos.x > pos.x)
+			cursor.checkBounds(point);
+			cursor.size++;
+			
+			// float pointVal = cursor.splitDimension == 0 ? point.x : point.y;
+			
+			float pointVal = point.getDimVal(cursor.splitDimension);
+			
+			if(pointVal > cursor.splitValue)
 			{
-				return true;
+				cursor = cursor.right;
 			}
 			else
 			{
-				return false;
+				cursor = cursor.left;
 			}
 		}
-		else
+		cursor.addLeafPoint(point, value);
+	}
+	
+	public void addLeafPoint(JCVector2f point, Datatype value)
+	{
+		// Add the data point
+		points[size] = point;
+		data[size] = value;
+		
+		checkBounds(point);
+		
+		size++;
+		
+		if(size == points.length - 1)
 		{
-			if(this.pos.y > pos.y)
+			// If the node is getting too large
+			if(calculateSplit())
 			{
-				return true;
+				// If the node successfully had it's split value calculated,
+				// split node
+				splitLeafNode();
 			}
 			else
 			{
-				return false;
+				// If the node could not be split, enlarge node
+				increaseLeafCapacity();
 			}
 		}
 	}
 	
-	public Datatype getData()
+	public boolean isLeaf()
 	{
-		return data;
+		return points != null;
 	}
 	
-	public JCVector2f getPos()
+	private void checkBounds(JCVector2f point)
 	{
-		return pos;
+		if(minBound == null)
+		{
+			// Single Point
+			minBound = new JCVector2f(point);
+			maxBound = new JCVector2f(point);
+			
+			return;
+		}
+		
+		for(int d = 0; d < JCVector2f.DIMENSIONS; d++)
+		{
+			if(Float.isNaN(point.getDimVal(d)))
+			{
+				// A previous point may have set bounds - this prevents invalidating it.
+				if(!Float.isNaN(minBound.getDimVal(d)) || !Float.isNaN(maxBound.getDimVal(d)))
+				{
+					singlePoint = false;
+				}
+				
+				// Invalid first bound
+				minBound.setDimVal(d, Float.NaN);
+				maxBound.setDimVal(d, Float.NaN);
+			}
+			else if(minBound.getDimVal(d) > point.getDimVal(d))
+			{
+				minBound.setDimVal(d, point.getDimVal(d));
+				singlePoint = false;
+			}
+			else if(maxBound.getDimVal(d) < point.getDimVal(d))
+			{
+				maxBound.setDimVal(d, point.getDimVal(d));
+				singlePoint = false;
+			}
+		}
 	}
 	
-	public KDNode<Datatype> getParentNode()
+	private void increaseLeafCapacity()
 	{
-		return parentNode;
+		points = Arrays.copyOf(points, points.length * 2);
+		data = Arrays.copyOf(data, data.length * 2);
 	}
 	
-	public void setParentNode(KDNode<Datatype> parentNode)
+	private boolean calculateSplit()
 	{
-		this.parentNode = parentNode;
+		if(singlePoint)
+		{
+			return false;
+		}
+		
+		float width = 0;
+		
+		for(int d = 0; d < JCVector2f.DIMENSIONS; d++)
+		{
+			// Dimension Width
+			float dWidth = maxBound.getDimVal(d) - minBound.getDimVal(d);
+			
+			// First bound
+			if(Float.isNaN(dWidth))
+			{
+				dWidth = 0;
+			}
+			
+			// Which dimension is largest
+			if(dWidth > width)
+			{
+				splitDimension = d;
+				
+				width = dWidth;
+			}
+		}
+		
+		// Can we split
+		if(width == 0)
+		{
+			return false;
+		}
+		
+		// Start the split in the middle of the variance
+		splitValue = (minBound.getDimVal(splitDimension) + maxBound.getDimVal(splitDimension)) * 0.5f;
+		
+		// Never split on infinity or NaN
+		if(splitValue == Float.POSITIVE_INFINITY)
+		{
+			splitValue = Float.MAX_VALUE;
+		}
+		else if(splitValue == Float.NEGATIVE_INFINITY)
+		{
+			splitValue = -Float.MAX_VALUE;
+		}
+		
+		// Don't let the split value be the same as the upper value as
+		// can happen due to rounding errors!
+		if(splitValue == maxBound.getDimVal(splitDimension))
+		{
+			splitValue = minBound.getDimVal(splitDimension);
+		}
+		
+		// Success
+		return true;
 	}
 	
-	public KDNode<Datatype> getLeftChild()
+	private void splitLeafNode()
 	{
-		return leftChild;
+		right = new KDNode<Datatype>(bucketCapacity);
+		left = new KDNode<Datatype>(bucketCapacity);
+		
+		// Move locations into children
+		for(int i = 0; i < size; i++)
+		{
+			// Location
+			JCVector2f oldLocation = points[i];
+			
+			// Data
+			Datatype oldData = data[i];
+			
+			if(oldLocation.getDimVal(splitDimension) > splitValue)
+			{
+				right.addLeafPoint(oldLocation, oldData);
+			}
+			else
+			{
+				left.addLeafPoint(oldLocation, oldData);
+			}
+		}
+		
+		points = null;
+		data = null;
 	}
-	
-	public void setLeftChild(KDNode<Datatype> leftChild)
-	{
-		this.leftChild = leftChild;
-	}
-	
-	public KDNode<Datatype> getRightChild()
-	{
-		return rightChild;
-	}
-	
-	public void setRightChild(KDNode<Datatype> rightChild)
-	{
-		this.rightChild = rightChild;
-	}
-	
 }
