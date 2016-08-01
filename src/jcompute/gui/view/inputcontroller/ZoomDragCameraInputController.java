@@ -177,6 +177,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 		{
 			Gdx.input.setCursorCatched(!Gdx.input.isCursorCatched());
 			Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+			
+			return true;
 		}
 		
 		return false;
@@ -199,7 +201,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 	{
 		updateMouseRawXY(x, y);
 		
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -207,7 +209,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 	{
 		adjustZoom(val);
 		
-		return false;
+		return true;
 	}
 	
 	private void adjustZoom(int val)
@@ -339,7 +341,7 @@ public class ZoomDragCameraInputController implements InputProcessor
 			break;
 		}
 		
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -364,6 +366,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 			
 			// -y
 			position.add(diffX * mouseXYDraggingSmoothing, -diffY * mouseXYDraggingSmoothing, 0);
+			
+			return true;
 		}
 		
 		return false;
@@ -377,11 +381,15 @@ public class ZoomDragCameraInputController implements InputProcessor
 			updateMouseRawXY(x, y);
 			
 			button0Pressed = false;
+			
+			return true;
 		}
 		
 		if(button1Pressed)
 		{
 			button1Pressed = false;
+			
+			return true;
 		}
 		
 		if(button2Pressed)
@@ -391,6 +399,8 @@ public class ZoomDragCameraInputController implements InputProcessor
 			currentMiddleButtonMode = currentMiddleButtonMode % MAX_MIDDLE_BUTTON_MODE;
 			
 			button2Pressed = false;
+			
+			return true;
 		}
 		
 		return false;
