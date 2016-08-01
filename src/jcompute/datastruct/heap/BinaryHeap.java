@@ -44,17 +44,41 @@ public class BinaryHeap<Datatype>
 		occupancy = 0;
 		
 		// Place a debug marker at index 0.
-		keys[0] = Float.NaN;
+		// keys[0] = Float.NaN;
 	}
 	
+	/**
+	 * Push object into the heap
+	 * 
+	 * @param key
+	 * @param value
+	 */
 	public void push(float key, Datatype value)
 	{
 		// Apply limits
-		checkSize();
+		if(occupancy == capacity - 1)
+		{
+			// Resize strategy is to double the arrays.
+			capacity *= 2;
+			
+			// Create sized arrays with old data
+			keys = Arrays.copyOf(keys, capacity);
+			values = Arrays.copyOf(values, capacity);
+		}
 		
-		// Update
 		occupancy++;
 		
+		replace(key, value);
+	}
+	
+	/**
+	 * Replace the object at the top of the heap.
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void replace(float key, Datatype value)
+	{
 		// Append to end of heap
 		keys[occupancy] = key;
 		values[occupancy] = value;
@@ -63,14 +87,12 @@ public class BinaryHeap<Datatype>
 		int currentIndex = occupancy;
 		
 		// Avoids repeated / 2
-		int cid2 = 0;
+		int cid2 = currentIndex / 2;
 		
-		while(currentIndex > 0)
+		while(currentIndex != 1 && ((order * keys[currentIndex]) < (order * keys[cid2])))
 		{
-			cid2 = currentIndex / 2;
-			
 			// Current Less than Parent - Do Swap
-			if((order * keys[currentIndex]) < (order * keys[cid2]))
+			// if((order * keys[currentIndex]) < (order * keys[cid2]))
 			{
 				// Temp
 				float ktmp = keys[cid2];
@@ -87,16 +109,35 @@ public class BinaryHeap<Datatype>
 			
 			// Switch to parent
 			currentIndex = currentIndex / 2;
+			cid2 = currentIndex / 2;
 		}
 	}
 	
-	// Top of heap
+	/**
+	 * Object at the Top of heap
+	 * 
+	 * @return
+	 */
 	public Datatype peek()
 	{
 		return values[1];
 	}
 	
-	// Remove top of heap
+	/**
+	 * Index/Key for the object at the top of heap
+	 * 
+	 * @return
+	 */
+	public float peekKey()
+	{
+		return keys[1];
+	}
+	
+	/**
+	 * Remove object at the top of heap
+	 * 
+	 * @return
+	 */
 	public Datatype poll()
 	{
 		// Latch top
@@ -169,20 +210,6 @@ public class BinaryHeap<Datatype>
 	public boolean isEmpty()
 	{
 		return occupancy == 0;
-	}
-	
-	// Check Size
-	private void checkSize()
-	{
-		if(occupancy == capacity - 1)
-		{
-			// Double
-			capacity *= 2;
-			
-			// Create sized arrays with old data
-			keys = Arrays.copyOf(keys, capacity);
-			values = Arrays.copyOf(values, capacity);
-		}
 	}
 	
 	public void dumpHeapArray()
