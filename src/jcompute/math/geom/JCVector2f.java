@@ -11,6 +11,10 @@ public class JCVector2f
 	
 	public static final int DIMENSIONS = 2;
 	
+	public JCVector2f()
+	{
+	}
+	
 	/**
 	 * Creates a vector from two floats
 	 * 
@@ -32,6 +36,28 @@ public class JCVector2f
 	{
 		this.x = vector.x;
 		this.y = vector.y;
+	}
+	
+	/**
+	 * Set this vectors values from another vector
+	 * 
+	 * @param vector
+	 */
+	public void set(JCVector2f vector)
+	{
+		this.x = vector.x;
+		this.y = vector.y;
+	}
+	
+	/**
+	 * Set this vectors values from floats
+	 * 
+	 * @param vector
+	 */
+	public void set(int x, int y)
+	{
+		this.x = x;
+		this.y = y;
 	}
 	
 	/**
@@ -324,5 +350,4 @@ public class JCVector2f
 	{
 		return x + " x " + y;
 	}
-	
 }
