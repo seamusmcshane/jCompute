@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.cluster.computenode.nodedetails.NodeInfo;
 import jcompute.cluster.computenode.nodedetails.NodeStatsSample;
-import jcompute.cluster.computenode.weightingbenchmark.NodeWeightingBenchmark;
+import jcompute.cluster.computenode.weightingbenchmark.NodeWeightingBenchmark2;
 import jcompute.cluster.ncp.NCP.ProtocolMode;
 import jcompute.cluster.ncp.NCP.ProtocolState;
 import jcompute.cluster.ncp.message.NCPMessage;
@@ -696,7 +696,7 @@ public class NCPSocket implements Closeable
 					{
 						log.info("Running Weighting Benchmark");
 						/* Benchmark */
-						NodeWeightingBenchmark nodeWeightingBenchmark = new NodeWeightingBenchmark(confReq.getObjects(), confReq.getIterations());
+						NodeWeightingBenchmark2 nodeWeightingBenchmark = new NodeWeightingBenchmark2(confReq.getObjects(), confReq.getIterations());
 						long warmup = nodeWeightingBenchmark.warmUp(confReq.getWarmup());
 						long weighting = nodeWeightingBenchmark.weightingBenchmark(confReq.getRuns());
 						nodeInfo.setWeighting(weighting);
