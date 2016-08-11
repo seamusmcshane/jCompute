@@ -32,7 +32,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 	
 	private int points = 0;
 	
-	private final boolean debug = false;
+	private final boolean DEBUG = false;
 	
 	/**
 	 * Creates an empty Tree
@@ -66,7 +66,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 		
 		rootNode = new RegionQuadTreeNode(0, new JCVector2f(treeCenter), treeSize, level, MAX_OBJECTS_PER_NODE);
 		
-		if(debug)
+		if(DEBUG)
 		{
 			System.out.println("Level " + level + "Center " + treeCenter.toString());
 		}
@@ -85,7 +85,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 		{
 			node.setPoints(objects);
 			
-			if(debug)
+			if(DEBUG)
 			{
 				System.out.println("Level " + level + " size " + objects.size());
 			}
@@ -179,14 +179,14 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 	{
 		if(node.isLeaf())
 		{
-			if(debug)
+			if(DEBUG)
 			{
 				System.out.println("Leaf Node");
 			}
 			
 			if(node.canStorePoint() || node.level == MAX_LEVEL)
 			{
-				if(debug)
+				if(DEBUG)
 				{
 					System.out.println("Add Point");
 				}
@@ -197,7 +197,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 			}
 			else
 			{
-				if(debug)
+				if(DEBUG)
 				{
 					System.out.println("Split");
 				}
@@ -257,7 +257,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 		}
 		else
 		{
-			if(debug)
+			if(DEBUG)
 			{
 				System.out.println("Checking SubNodes");
 			}
@@ -339,7 +339,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 	{
 		if(node.isLeaf())
 		{
-			if(debug)
+			if(DEBUG)
 			{
 				System.out.println("Node is Leaf" + node.isLeaf());
 			}
@@ -375,7 +375,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 	{
 		if(node.isLeaf())
 		{
-			if(debug)
+			if(DEBUG)
 			{
 				System.out.println("Remove @ " + level);
 			}
@@ -390,7 +390,10 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 			
 			int region = determineSubNode(point, node.center);
 			
-			System.out.println("Region " + level);
+			if(DEBUG)
+			{
+				System.out.println("Region " + level);
+			}
 			
 			removePoint(searchPoint, node.getSubNodeNode(region), level + 1);
 			
@@ -422,7 +425,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 	{
 		ArrayList<float[]> partitions = new ArrayList<float[]>();
 		
-		if(debug)
+		if(DEBUG)
 		{
 			System.out.println("treeCenter " + treeCenter);
 			System.out.println("treeSize " + treeSize);
@@ -461,7 +464,7 @@ public class RecursiveRegionQuadTree implements KNNDataStruct
 			// From 0,0 Center (X+/Y+)
 			JCVector2f[] centers = getSubdividedCenters(node.center, node.halfExtend);
 			
-			if(debug)
+			if(DEBUG)
 			{
 				System.out.println("SubDivide Node");
 				System.out.println("Level " + level + "NoCenter " + nodeCenter);
