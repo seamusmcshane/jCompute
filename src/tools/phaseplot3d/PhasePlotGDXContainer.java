@@ -51,7 +51,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 	
 	private float width;
 	private float height;
-
+	
 	// Display FullScreen Toggle
 	boolean fullscreen = false;
 	private int dWidth = 0;
@@ -67,11 +67,86 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		phPlot = new PhasePlot();
 	}
 	
+	private float[] superFormulae(int lines, float radius)
+	{
+		int numPoints = lines + 1;
+		
+		float multi = (float) ((Math.PI * 2) / lines);
+		
+		float[] points = new float[numPoints * 3];
+		
+		System.out.println("superFormulae lines " + lines);
+		System.out.println("superFormulae points " + numPoints);
+		float a = 1f;
+		float b = 1f;
+		float m = 6f;
+		float n1 = 0.1f;
+		float n2 = 2f;
+		float n3 = 1f;
+		
+		float max = 0;
+		for(int i = 0; i < numPoints; i++)
+		{
+			float theta = i * multi;
+			float sv = superVVV(theta, a, b, m, n1, n2, n3);
+			
+			max = Math.max(max, sv * radius);
+			// float dv = sv * radius;
+		}
+		
+		float diff = 0;
+		if(max > radius)
+		{
+			diff = radius / max;
+		}
+		else
+		{
+			diff = max / radius;
+		}
+		
+		int pointNum = 0;
+		for(int i = 0; i < numPoints; i++)
+		{
+			float theta = i * multi;
+			float sv = superVVV(theta, a, b, m, n1, n2, n3);
+			
+			float dv = sv * radius;
+			
+			dv = dv * diff;
+			// float dv = sv * radius;
+			
+			double x = 0 + dv * Math.sin(theta);
+			double y = 0 + dv * Math.cos(theta);
+			double z = 0;
+			
+			points[pointNum] = (float) x;
+			points[pointNum + 1] = (float) y;
+			points[pointNum + 2] = (float) z;
+			
+			pointNum += 3;
+		}
+		
+		return points;
+	}
+	
+	private float superVVV(float theta, float a, float b, float m, float n1, float n2, float n3)
+	{
+		double mT = m * theta * 0.25;
+		
+		double cosA = Math.abs(Math.cos(mT / a));
+		double sinB = Math.abs(Math.sin(mT / b));
+		
+		double p1 = Math.pow(cosA, n2);
+		double p2 = Math.pow(sinB, n3);
+		
+		return (float) Math.pow(p1 + p2, -1.0 / n1);
+	}
+	
 	public float[] createCircle(int lines, float radius)
 	{
 		int numPoints = lines + 1;
-				
-		float multi = 360f / lines;
+		
+		float multi = (float) ((Math.PI * 2) / lines);
 		
 		float[] points = new float[numPoints * 3];
 		
@@ -81,8 +156,8 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		int pointNum = 0;
 		for(int i = 0; i < numPoints; i++)
 		{
-			double x = 0 + Math.sin((i * multi) * (Math.PI / 180)) * radius;
-			double y = 0 + Math.cos((i * multi) * (Math.PI / 180)) * radius;
+			double x = 0 + Math.sin((i * multi)) * radius;
+			double y = 0 + Math.cos((i * multi)) * radius;
 			double z = 0;
 			
 			points[pointNum] = (float) x;
@@ -101,7 +176,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		
 		int numPoints = lines + 1;
 		
-		float halfRadius = radius/2;
+		float halfRadius = radius / 2;
 		
 		float multi = 360f / lines;
 		
@@ -132,7 +207,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		// int div = 32; // 16
 		int lines = 360 * div;
 		
-		float halfRadius = radius/2;
+		float halfRadius = radius / 2;
 		
 		float multi = 360f / lines;
 		
@@ -188,7 +263,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		light5.set(topSide, topSide, topSide, 0, 0, -lightScale);
 		
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, amb, amb, amb, 0.1f));
-				
+		
 		// Cam
 		// cam = new PerspectiveCamera(75f, (width / height), 1f);
 		cam = new PerspectiveCamera();
@@ -211,7 +286,6 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		
 		// Decals
 		db = new DecalBatch(new CameraGroupStrategy(cam));
-		
 		
 		// Initial Model
 		float[][] minMax = new float[3][2];
@@ -240,9 +314,9 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		firstLast[5][1] = 0;
 		
 		phPlot.glInit();
-				
+		
 		// Default Model
-		phPlot.setPlotPoints(createTorus(16, 360,1000), new float[]
+		phPlot.setPlotPoints(superFormulae(30, 200), new float[]
 		{
 			0, 0, 0
 		}, new String[]
@@ -265,8 +339,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 				try
 				{
 					Display.setFullscreen(true);
-					viewport.update(Gdx.graphics.getDisplayMode().width,
-							Gdx.graphics.getDisplayMode().height);
+					viewport.update(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 				}
 				catch(LWJGLException e)
 				{
@@ -293,7 +366,7 @@ public class PhasePlotGDXContainer implements ApplicationListener
 		// Background
 		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-				
+		
 		camController.setTarget(phPlot.getCenter());
 		
 		phPlot.render(modelBatch, environment, cam, db);
@@ -308,11 +381,11 @@ public class PhasePlotGDXContainer implements ApplicationListener
 	{
 		camController.reset();
 	}
-		
+	
 	@Override
 	public void dispose()
 	{
-		//phPlot.dispose();
+		// phPlot.dispose();
 	}
 	
 	@Override
@@ -344,54 +417,54 @@ public class PhasePlotGDXContainer implements ApplicationListener
 	{
 		phPlot.populateChart();
 	}
-
+	
 	/**
 	 * @param data
 	 * @param names
 	 * @param i
 	 * @param j
 	 * @param k
-	 * @return 
+	 * @return
 	 */
 	public boolean setData(float[][] inData, String[] inNames, int xAxis, int yAxis, int zAxis)
 	{
-		boolean status =  phPlot.setData(inData, inNames, xAxis, yAxis, zAxis);
+		boolean status = phPlot.setData(inData, inNames, xAxis, yAxis, zAxis);
 		
 		// Populate now
 		phPlot.populateChart();
 		
 		return status;
 	}
-
+	
 	/**
 	 * @param lineWidth
 	 */
 	public void setPlotLineWidth(float lineWidth)
 	{
-		phPlot.setPlotLineWidth(lineWidth);		
+		phPlot.setPlotLineWidth(lineWidth);
 	}
-
+	
 	/**
 	 * @param lineWidth
 	 */
 	public void setGridLineWidth(float lineWidth)
 	{
-		phPlot.setGridLineWidth(lineWidth);		
+		phPlot.setGridLineWidth(lineWidth);
 	}
-
+	
 	/**
 	 * @param enabled
 	 */
 	public void enableMinMax(boolean enabled)
 	{
-		phPlot.enableMinMax(enabled);		
+		phPlot.enableMinMax(enabled);
 	}
-
+	
 	/**
 	 * @param val
 	 */
 	public void setMinMaxLineWidth(float lineWidth)
 	{
-		phPlot.setMinMaxLineWidth(lineWidth);		
+		phPlot.setMinMaxLineWidth(lineWidth);
 	}
 }
