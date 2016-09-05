@@ -133,29 +133,6 @@ public class JCMath
 	
 	/**
 	 * Returns the angle from a point to another point, and adds an adjustment to the angle - in the range (0-360).
-	 * Y is inverted - thus direction is inverted
-	 *
-	 * @param from
-	 * @param to
-	 * @return
-	 */
-	public static float calculateAdjustedEuclideanVectorDirection(float[] from, float[] to, float adjustmentAngle)
-	{
-		float direction = (float) FastMath.toDegrees(FastMath.atan2(to[0] - from[0], from[1] - to[1]));
-		
-		direction = direction + adjustmentAngle;
-		
-		if(direction < 0)
-		{
-			direction += 360;
-		}
-		
-		return direction % 360;
-	}
-	
-	/**
-	 * Returns the angle from a point to another point, and adds an adjustment to the angle - in the range (0-360).
-	 * Y is inverted - thus direction is inverted
 	 *
 	 * @param from
 	 * @param to
@@ -163,7 +140,8 @@ public class JCMath
 	 */
 	public static float calculateAdjustedEuclideanVectorDirection(JCVector2f from, JCVector2f to, float adjustmentAngle)
 	{
-		float direction = (float) FastMath.toDegrees(FastMath.atan2(to.x - from.x, from.y - to.y));
+		// float direction = (float) FastMath.toDegrees(FastMath.atan2(to.x - from.x, from.y - to.y));
+		float direction = (float) FastMath.toDegrees(FastMath.atan2(to.y - from.y, to.x - from.x));
 		
 		direction = direction + adjustmentAngle;
 		
@@ -173,16 +151,6 @@ public class JCMath
 		}
 		
 		return direction % 360;
-	}
-	
-	/**
-	 * @param from
-	 * @param to
-	 * @return
-	 */
-	public static float calculateRadianDirection(float[] from, float[] to)
-	{
-		return (float) (FastMath.atan2(to[1] - from[1], to[0] - from[0]) + (Math.PI / 2.0));
 	}
 	
 	/**
