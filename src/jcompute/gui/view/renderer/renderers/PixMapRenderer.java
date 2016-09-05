@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -271,5 +272,12 @@ public class PixMapRenderer implements ViewRendererInf
 	public void worldToScreen(JCVector3f projected, JCVector2f destination)
 	{
 		// TODO
+	}
+
+	@Override
+	public PolygonSpriteBatch getPolygonSpriteBatch()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

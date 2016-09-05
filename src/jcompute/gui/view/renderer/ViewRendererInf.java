@@ -4,9 +4,9 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 import jcompute.gui.view.View;
 import jcompute.math.geom.JCVector2f;
@@ -18,6 +18,8 @@ public interface ViewRendererInf
 	public void glInit(View view);
 	
 	public SpriteBatch getSpriteBatch();
+	public PolygonSpriteBatch getPolygonSpriteBatch();
+	
 	public ShapeRenderer getShapeRenderer();
 	
 	public Texture getTexture(int id);

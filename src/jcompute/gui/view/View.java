@@ -29,12 +29,12 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.gui.view.renderer.util.Text;
@@ -610,5 +610,12 @@ public class View implements ApplicationListener, ViewRendererInf
 	public void worldToScreen(JCVector3f projected, JCVector2f destination)
 	{
 		// TODO
+	}
+
+	@Override
+	public PolygonSpriteBatch getPolygonSpriteBatch()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
