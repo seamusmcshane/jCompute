@@ -26,18 +26,23 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
-import jcompute.gui.view.renderer.util.Text;
 import jcompute.gui.view.renderer.util.VectorGraphic2d;
 import jcompute.math.geom.JCVector2f;
 import jcompute.math.geom.JCVector3f;
@@ -73,22 +78,25 @@ public class View implements ApplicationListener, ViewRendererInf
 	private Semaphore viewLock = new Semaphore(1);
 	
 	// Frame Rate
-	private int defaultFrameRate = 60;
+	private final int defaultFrameRate = 60;
 	
 	// Help overlay text
 	private boolean displayHelp = false;
+	private boolean debugView = false;
 	
 	// Input
 	private InputMultiplexer inputMultiplexer;
-	
-	// Renderer Keyboard input repeat delay calc
-	private long lastPressFrame = 0;
 	
 	private boolean viewportNeedsupdated = true;
 	
 	// View port width/height latched
 	private int viewWidth;
 	private int viewHeight;
+	
+	// Info Help Text
+	private Stage infoStage;
+	private Table infoTable;
+	private TextureRegionDrawable rowBK;
 	
 	public View()
 	{
@@ -146,8 +154,31 @@ public class View implements ApplicationListener, ViewRendererInf
 		if(target != null && target.getRenderer() != null)
 		{
 			target.getRenderer().setMultiplexer(inputMultiplexer);
+			
+			infoTable.clear();
+			
+			String scenarioTitle = target.getHelpTitleText();
+			String[] keyList = target.getHelpKeyList();
+			
+			AddHelpTitle(scenarioTitle);
+			
+			// Default Keys
+			AddDefaultHelpText();
+			
+			addHelpSubTitle("Scenario Keys");
+			for(int k = 0; k < keyList.length; k += 2)
+			{
+				addHelpText(keyList[k], keyList[k + 1]);
+			}
 		}
-		
+		else
+		{
+			infoTable.clear();
+			
+			// Default Help
+			AddDefaultHelpTitle();
+			AddDefaultHelpText();
+		}
 		viewportNeedsupdated = true;
 		
 		viewLock.release();
@@ -200,11 +231,11 @@ public class View implements ApplicationListener, ViewRendererInf
 		headingFont = generator.generateFont(parameter);
 		
 		parameter.borderWidth = 1;
-		parameter.size = 12;
+		parameter.size = 14;
 		subHeadingFont = generator.generateFont(parameter);
 		
 		parameter.borderWidth = 0;
-		parameter.size = 12;
+		parameter.size = 10;
 		textFont = generator.generateFont(parameter);
 		
 		// Free font generator
@@ -212,6 +243,77 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 		overlaySpriteBatch = new SpriteBatch();
 		overlayShapeRenderer = new ShapeRenderer();
+		
+		Pixmap bkpm = new Pixmap(1, 1, Format.RGBA8888);
+		bkpm.setColor(new Color(0, 0, 0, 0.85f));
+		bkpm.fill();
+		
+		rowBK = new TextureRegionDrawable(new TextureRegion(new Texture(bkpm)));
+		
+		infoStage = new Stage(new ScreenViewport());
+		infoTable = new Table();
+		infoTable.setFillParent(true);
+		infoTable.setBackground(rowBK);
+		infoStage.addActor(infoTable);
+		
+		// Table layout debug
+		infoTable.setDebug(debugView);
+		
+		// Default Help
+		AddDefaultHelpTitle();
+		AddDefaultHelpText();
+	}
+	
+	private void AddHelpTitle(String text)
+	{
+		infoTable.add(getTitleLabel(text)).colspan(2).center();
+		infoTable.row().pad(10f);
+	}
+	
+	private void AddDefaultHelpTitle()
+	{
+		AddHelpTitle("No Scenario Active");
+	}
+	
+	private void addHelpSubTitle(String text)
+	{
+		infoTable.add(getSubTitleLabel(text)).colspan(2).center();
+		infoTable.row().pad(5f);
+	}
+	
+	private void addHelpText(String key, String text)
+	{
+		infoTable.add(getHighlightTextLabel(key)).right();
+		infoTable.add(getTextLabel(text)).left();
+		infoTable.row().pad(5f);
+	}
+	
+	private void AddDefaultHelpText()
+	{
+		addHelpSubTitle("Standard Keys");
+		
+		addHelpText("H", "Display Help");
+		addHelpText("F", "Toggle view Fullscreen/Windowed");
+	}
+	
+	private Label getTitleLabel(String text)
+	{
+		return new Label(text, new Label.LabelStyle(headingFont, Color.YELLOW));
+	}
+	
+	private Label getSubTitleLabel(String text)
+	{
+		return new Label(text, new Label.LabelStyle(subHeadingFont, Color.WHITE));
+	}
+	
+	private Label getHighlightTextLabel(String text)
+	{
+		return new Label(text, new Label.LabelStyle(textFont, Color.WHITE));
+	}
+	
+	private Label getTextLabel(String text)
+	{
+		return new Label(text, new Label.LabelStyle(textFont, Color.LIGHT_GRAY));
 	}
 	
 	@Override
@@ -230,14 +332,36 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 	}
 	
-	private void globalInput()
+	private void doInput(ViewRendererInf r, long currentFrame)
 	{
-		// Display FullScreen Toggle
-		boolean fullscreen = Gdx.graphics.isFullscreen();
+		// if(inputDelay(currentFrame))
+		// {
+		// return;
+		// }
 		
+		r.doInput();
+	}
+	
+	// private boolean inputDelay(long currentFrame)
+	// {
+	// if((currentFrame - lastPressFrame) < 5)
+	// {
+	// return true;
+	// }
+	//
+	// lastPressFrame = currentFrame;
+	//
+	// return false;
+	// }
+	
+	private void globalInput(long currentFrame)
+	{
 		// Full Screen Toggle - Uses LWJGL fullscreen methods
-		if(Gdx.input.isKeyPressed(Input.Keys.F))
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F))
 		{
+			// Display FullScreen Toggle
+			boolean fullscreen = Gdx.graphics.isFullscreen();
+			
 			if(!fullscreen)
 			{
 				try
@@ -269,7 +393,7 @@ public class View implements ApplicationListener, ViewRendererInf
 			
 		}
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.H))
+		if(Gdx.input.isKeyJustPressed(Input.Keys.H))
 		{
 			if(displayHelp)
 			{
@@ -281,6 +405,19 @@ public class View implements ApplicationListener, ViewRendererInf
 			}
 		}
 		
+		if(Gdx.input.isKeyJustPressed(Input.Keys.D))
+		{
+			if(debugView)
+			{
+				debugView = false;
+			}
+			else
+			{
+				debugView = true;
+			}
+			
+			infoTable.setDebug(debugView);
+		}
 	}
 	
 	@Override
@@ -288,7 +425,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		Display.sync(defaultFrameRate);
 		
-		globalInput();
+		globalInput(Gdx.graphics.getFrameId());
 		
 		overlayCamera.update();
 		
@@ -335,10 +472,12 @@ public class View implements ApplicationListener, ViewRendererInf
 					
 					overlayViewport.update(viewWidth, viewHeight);
 					
+					infoStage.getViewport().update(viewWidth, viewHeight, true);
+					
 					viewportNeedsupdated = false;
 				}
 				
-				doInput(r);
+				doInput(r, Gdx.graphics.getFrameId());
 				
 				r.render();
 				
@@ -347,6 +486,10 @@ public class View implements ApplicationListener, ViewRendererInf
 				if(displayHelp)
 				{
 					// Draw Help Text
+					// infoStage.getCamera().position.set(viewWidth * 0.5f, viewHeight * 0.5f, 0);
+					infoStage.getViewport().apply();
+					infoStage.act(Gdx.graphics.getDeltaTime());
+					infoStage.draw();
 				}
 			}
 		}
@@ -366,7 +509,6 @@ public class View implements ApplicationListener, ViewRendererInf
 					
 					viewWidth = Gdx.graphics.getDisplayMode().width;
 					viewHeight = Gdx.graphics.getDisplayMode().height;
-					
 				}
 				else
 				{
@@ -378,7 +520,18 @@ public class View implements ApplicationListener, ViewRendererInf
 				
 				overlayViewport.update(viewWidth, viewHeight);
 				
+				infoStage.getViewport().update(viewWidth, viewHeight, true);
+				
 				viewportNeedsupdated = false;
+			}
+			
+			if(displayHelp)
+			{
+				// Draw Help Text
+				// infoStage.getCamera().position.set(viewWidth * 0.5f, viewHeight * 0.5f, 0);
+				infoStage.getViewport().apply();
+				infoStage.act(Gdx.graphics.getDeltaTime());
+				infoStage.draw();
 			}
 			
 			overlayTitle = "None";
@@ -399,29 +552,14 @@ public class View implements ApplicationListener, ViewRendererInf
 		
 		drawOverlayText(x + 10, y - 10, false, overlayTitle, headingFont);
 		
-		Text.String(this, headingFont, x + 50, y - 150, "HEADING");
-		Text.String(this, subHeadingFont, x + 50, y - 200, "SUBHEADING");
-		Text.String(this, textFont, x + 50, y - 250, "TEXT");
+//		Text.String(this, headingFont, x + 50, y - 150, "HEADING");
+//		Text.String(this, subHeadingFont, x + 50, y - 200, "SUBHEADING");
+//		Text.String(this, textFont, x + 50, y - 250, "TEXT");
 		
 		// End Blending
 		Gdx.gl.glDisable(GL20.GL_BLEND);
 		
 		viewLock.release();
-	}
-	
-	private void doInput(ViewRendererInf r)
-	{
-		long currentFrame = Gdx.app.getGraphics().getFrameId();
-		
-		if((currentFrame - lastPressFrame) < 5)
-		{
-			return;
-		}
-		
-		if(r.doInput())
-		{
-			lastPressFrame = currentFrame;
-		}
 	}
 	
 	@Override
@@ -611,7 +749,7 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		// TODO
 	}
-
+	
 	@Override
 	public PolygonSpriteBatch getPolygonSpriteBatch()
 	{

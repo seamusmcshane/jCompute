@@ -25,4 +25,7 @@ public interface SimulationScenarioManagerInf
 	public String getInfo();
 	
 	public ViewRendererInf getRenderer();
+
+	public String getHelpTitleText();
+	public String[] getHelpKeyList();
 }

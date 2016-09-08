@@ -429,6 +429,31 @@ public class Simulation implements stateChangedInf, ViewTarget
 		return simInfo;
 	}
 	
+	@Override
+	public String getHelpTitleText()
+	{
+		if(simulationScenarioManager != null)
+		{
+			return simulationScenarioManager.getHelpTitleText();
+		}
+		
+		return "None";
+	}
+	
+	@Override
+	public String[] getHelpKeyList()
+	{
+		if(simulationScenarioManager != null)
+		{
+			return simulationScenarioManager.getHelpKeyList();
+		}
+		
+		return new String[]
+		{
+			"None", "None"
+		};
+	}
+	
 	public StatManager getStatmanger()
 	{
 		return simulationScenarioManager.getStatmanger();
