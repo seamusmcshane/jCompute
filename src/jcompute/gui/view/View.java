@@ -35,17 +35,20 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.gui.view.renderer.util.VectorGraphic2d;
 import jcompute.math.geom.JCVector2f;
 import jcompute.math.geom.JCVector3f;
+import jcompute.util.JCText;
 
 public class View implements ApplicationListener, ViewRendererInf
 {
@@ -220,7 +223,9 @@ public class View implements ApplicationListener, ViewRendererInf
 		// Set the parameters
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		parameter.color = Color.WHITE;
+		parameter.color.a = 0.99f;
 		parameter.borderColor = Color.BLACK;
+		parameter.color.a = 0.99f;
 		parameter.borderStraight = false;
 		// parameter.genMipMaps = true;
 		// parameter.minFilter = TextureFilter.MipMapLinearLinear;
@@ -262,6 +267,47 @@ public class View implements ApplicationListener, ViewRendererInf
 		// Default Help
 		AddDefaultHelpTitle();
 		AddDefaultHelpText();
+	}
+	
+	/*
+	 * WIP
+	 */
+	private ShaderProgram createShaderProgram(String vertex, String fragment)
+	{
+		String uri = "/shaders/";
+		URL url = View.class.getResource(uri);
+		
+		if(url == null)
+		{
+			log.error("Not Found");
+			
+			return null;
+		}
+		
+		String path = null;
+		try
+		{
+			path = new File(url.toURI()).getAbsolutePath();
+		}
+		catch(URISyntaxException e1)
+		{
+			e1.printStackTrace();
+		}
+		
+		String vfile = path + File.separator + "test.glvs";
+		String ffile = path + File.separator + "default.glfs";
+		
+		final String VERTEX = JCText.textFileToString(vfile);
+		final String FRAG = JCText.textFileToString(ffile);
+		
+		ShaderProgram.pedantic = false;
+		
+		ShaderProgram shader = new ShaderProgram(VERTEX, FRAG);
+		
+		if(!shader.isCompiled())
+			throw new GdxRuntimeException("Couldn't compile shader: " + shader.getLog());
+		
+		return shader;
 	}
 	
 	private void AddHelpTitle(String text)
@@ -425,6 +471,9 @@ public class View implements ApplicationListener, ViewRendererInf
 	{
 		Display.sync(defaultFrameRate);
 		
+		Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
 		globalInput(Gdx.graphics.getFrameId());
 		
 		overlayCamera.update();
@@ -451,110 +500,49 @@ public class View implements ApplicationListener, ViewRendererInf
 					viewportNeedsupdated = true;
 				}
 				
-				if(viewportNeedsupdated)
-				{
-					// Display FullScreen Toggle
-					boolean fullscreen = Gdx.graphics.isFullscreen();
-					
-					if(fullscreen)
-					{
-						viewWidth = Gdx.graphics.getDisplayMode().width;
-						viewHeight = Gdx.graphics.getDisplayMode().height;
-						
-					}
-					else
-					{
-						viewWidth = Gdx.graphics.getWidth();
-						viewHeight = Gdx.graphics.getHeight();
-					}
-					
-					r.updateViewPort(viewWidth, viewHeight);
-					
-					overlayViewport.update(viewWidth, viewHeight);
-					
-					infoStage.getViewport().update(viewWidth, viewHeight, true);
-					
-					viewportNeedsupdated = false;
-				}
+				checkForResize(r);
 				
 				doInput(r, Gdx.graphics.getFrameId());
 				
 				r.render();
 				
 				overlayTitle = target.getInfo();
-				
-				if(displayHelp)
-				{
-					// Draw Help Text
-					// infoStage.getCamera().position.set(viewWidth * 0.5f, viewHeight * 0.5f, 0);
-					infoStage.getViewport().apply();
-					infoStage.act(Gdx.graphics.getDeltaTime());
-					infoStage.draw();
-				}
 			}
 		}
 		else
 		{
-			Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-			
-			if(viewportNeedsupdated)
-			{
-				// Display FullScreen Toggle
-				boolean fullscreen = Gdx.graphics.isFullscreen();
-				
-				if(fullscreen)
-				{
-					// resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
-					
-					viewWidth = Gdx.graphics.getDisplayMode().width;
-					viewHeight = Gdx.graphics.getDisplayMode().height;
-				}
-				else
-				{
-					// resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-					
-					viewWidth = Gdx.graphics.getWidth();
-					viewHeight = Gdx.graphics.getHeight();
-				}
-				
-				overlayViewport.update(viewWidth, viewHeight);
-				
-				infoStage.getViewport().update(viewWidth, viewHeight, true);
-				
-				viewportNeedsupdated = false;
-			}
-			
-			if(displayHelp)
-			{
-				// Draw Help Text
-				// infoStage.getCamera().position.set(viewWidth * 0.5f, viewHeight * 0.5f, 0);
-				infoStage.getViewport().apply();
-				infoStage.act(Gdx.graphics.getDeltaTime());
-				infoStage.draw();
-			}
+			checkForResize(null);
 			
 			overlayTitle = "None";
 		}
 		
-		overlayViewport.apply();
+		// Blending on
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
 		// View Title String (TopLeft)
 		float x = -(overlayCamera.viewportWidth * 0.5f);
 		float y = (overlayCamera.viewportHeight * 0.5f);
 		
-		// Blending on
-		Gdx.gl.glEnable(GL20.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		overlayViewport.apply();
 		
 		// View Overlay
 		VectorGraphic2d.RectangleFilled(this, x, y - 35, overlayCamera.viewportWidth, 35, 0f, 0f, 0f, 0.5f);
 		
 		drawOverlayText(x + 10, y - 10, false, overlayTitle, headingFont);
 		
-//		Text.String(this, headingFont, x + 50, y - 150, "HEADING");
-//		Text.String(this, subHeadingFont, x + 50, y - 200, "SUBHEADING");
-//		Text.String(this, textFont, x + 50, y - 250, "TEXT");
+		// Text.String(this, headingFont, x + 50, y - 150, "HEADING");
+		// Text.String(this, subHeadingFont, x + 50, y - 200, "SUBHEADING");
+		// Text.String(this, textFont, x + 50, y - 250, "TEXT");
+		
+		if(displayHelp)
+		{
+			// Draw Help Text
+			// infoStage.getCamera().position.set(viewWidth * 0.5f, viewHeight * 0.5f, 0);
+			infoStage.getViewport().apply();
+			infoStage.act(Gdx.graphics.getDeltaTime());
+			infoStage.draw();
+		}
 		
 		// End Blending
 		Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -562,18 +550,44 @@ public class View implements ApplicationListener, ViewRendererInf
 		viewLock.release();
 	}
 	
+	private void checkForResize(ViewRendererInf r)
+	{
+		if(viewportNeedsupdated)
+		{
+			// Display FullScreen Toggle
+			boolean fullscreen = Gdx.graphics.isFullscreen();
+			
+			if(fullscreen)
+			{
+				viewWidth = Gdx.graphics.getDisplayMode().width;
+				viewHeight = Gdx.graphics.getDisplayMode().height;
+			}
+			else
+			{
+				viewWidth = Gdx.graphics.getWidth();
+				viewHeight = Gdx.graphics.getHeight();
+			}
+			
+			if(r != null)
+			{
+				r.updateViewPort(viewWidth, viewHeight);
+			}
+			
+			overlayViewport.update(viewWidth, viewHeight);
+			
+			infoStage.getViewport().update(viewWidth, viewHeight, true);
+			
+			viewportNeedsupdated = false;
+		}
+	}
+	
 	@Override
 	public void resize(int width, int height)
 	{
-		// overlayCam.viewportWidth = width;
-		// overlayCam.viewportHeight = height;
-		
 		viewWidth = width;
 		viewHeight = height;
 		
 		viewportNeedsupdated = true;
-		
-		// resetCamera();
 	}
 	
 	@Override
@@ -584,8 +598,9 @@ public class View implements ApplicationListener, ViewRendererInf
 	
 	public void drawOverlayText(float x, float y, boolean centered, String text, BitmapFont font)
 	{
-		overlaySpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		overlaySpriteBatch.begin();
+		overlaySpriteBatch.enableBlending();
+		overlaySpriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
 		if(centered)
 		{
@@ -597,6 +612,7 @@ public class View implements ApplicationListener, ViewRendererInf
 			font.draw(overlaySpriteBatch, text, x, y);
 		}
 		
+		overlaySpriteBatch.disableBlending();
 		overlaySpriteBatch.end();
 	}
 	
@@ -632,6 +648,13 @@ public class View implements ApplicationListener, ViewRendererInf
 	public ShapeRenderer getShapeRenderer()
 	{
 		return overlayShapeRenderer;
+	}
+	
+	@Override
+	public PolygonSpriteBatch getPolygonSpriteBatch()
+	{
+		// NA
+		return null;
 	}
 	
 	@Override
@@ -748,12 +771,5 @@ public class View implements ApplicationListener, ViewRendererInf
 	public void worldToScreen(JCVector3f projected, JCVector2f destination)
 	{
 		// TODO
-	}
-	
-	@Override
-	public PolygonSpriteBatch getPolygonSpriteBatch()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
