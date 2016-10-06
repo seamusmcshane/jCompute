@@ -206,6 +206,22 @@ public class Palette
 		return palette;
 	}
 	
+	public static int[] SpectrumPaletteWrapped8(boolean rgba, int paletteSize, boolean applySRGB)
+	{
+		int wrapSize = paletteSize / 8;
+		
+		int[] tPalette = SpectrumPaletteWrapped(rgba, wrapSize, applySRGB);
+		
+		int[] palette = new int[paletteSize];
+		
+		for(int w = 0; w < paletteSize; w += wrapSize)
+		{
+			System.arraycopy(tPalette, 0, palette, w, wrapSize);
+		}
+		
+		return palette;
+	}
+	
 	/*
 	 * Adapted from FORTAN code available from.
 	 * http://www.physics.sfasu.edu/astro/color/spectra.html
