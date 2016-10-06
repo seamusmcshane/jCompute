@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -171,6 +172,130 @@ public class BatchTab extends JPanel implements Loadable, PropertyChangeListener
 		}, 0, 1000);
 	}
 	
+	// Add selected batch files.
+	private void AddBatchFiles()
+	{
+		JFileChooser filechooser = new JFileChooser(new File("./Batch"));
+		
+		filechooser.setFileFilter(FileUtil.batchFileFilter());
+		
+		filechooser.setPreferredSize(new Dimension(1000, 600));
+		filechooser.setMultiSelectionEnabled(true);
+		filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		
+		XMLPreviewPanel xmlPreview = new XMLPreviewPanel();
+		filechooser.setAccessory(xmlPreview);
+		filechooser.addPropertyChangeListener(xmlPreview);
+		Action details = filechooser.getActionMap().get("viewTypeDetails");
+		details.actionPerformed(null);
+		
+		log.info("Batch Open Dialog");
+		
+		int val = filechooser.showOpenDialog(self);
+		
+		if(val == JFileChooser.APPROVE_OPTION)
+		{
+			log.info("New Batch Choosen");
+			
+			// Get list of files choosen
+			File[] selectedFiles = filechooser.getSelectedFiles();
+			
+			// Sort Files Alpha Numerically by FileName
+			Arrays.sort(selectedFiles, new AlphanumFileNameComparator());
+			
+			// The total
+			int numBatchesToLoad = selectedFiles.length;
+			
+			/*
+			 * Loadable setup section
+			 */
+			
+			// Names and Index order
+			filePaths = new String[numBatchesToLoad];
+			indexes = new int[numBatchesToLoad];
+			
+			// Populate data structures for Loadable
+			for(int f = 0; f < numBatchesToLoad; f++)
+			{
+				// Add the path to the list
+				filePaths[f] = selectedFiles[f].getAbsolutePath();
+				
+				// Set the index order (as is)
+				indexes[f] = f;
+			}
+			
+			// BatchTab is the "Loadable" here to avoid swing worker(GUI) related code in the batch manager.
+			LoadableTask task = new LoadableTask(self);
+			
+			// Send progress to the GlobalProgressMonitor
+			task.addPropertyChangeListener(GlobalProgressMonitor.getInstance());
+			
+			// BatchTab needs to know if batches failed to be added
+			task.addPropertyChangeListener(self);
+			
+			task.execute();
+		}
+	}
+	
+	/*
+	 * Search for all and add all batches in the selected dir tree.
+	 */
+	private void SearchBatchFiles()
+	{
+		JFileChooser filechooser = new JFileChooser(new File("./Batch"));
+		
+		filechooser.setFileFilter(FileUtil.batchFileFilter());
+		
+		filechooser.setPreferredSize(new Dimension(1000, 600));
+		filechooser.setMultiSelectionEnabled(false);
+		filechooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
+		log.info("Batch Search Open Dialog");
+		
+		int val = filechooser.showOpenDialog(self);
+		
+		if(val == JFileChooser.APPROVE_OPTION)
+		{
+			log.info("New Batch Choosen");
+			
+			File searchDir = filechooser.getSelectedFile();
+			
+			File[] batchFiles = FileUtil.getAllFilesWithExt(searchDir.getAbsolutePath(), ".batch");
+			
+			// The total
+			int numBatchesToLoad = batchFiles.length;
+			
+			/*
+			 * Loadable setup section
+			 */
+			
+			// Names and Index order
+			filePaths = new String[numBatchesToLoad];
+			indexes = new int[numBatchesToLoad];
+			
+			// Populate data structures for Loadable
+			for(int f = 0; f < numBatchesToLoad; f++)
+			{
+				// Add the path to the list
+				filePaths[f] = batchFiles[f].getAbsolutePath();
+				
+				// Set the index order (as is)
+				indexes[f] = f;
+			}
+			
+			// BatchTab is the "Loadable" here to avoid swing worker(GUI) related code in the batch manager.
+			LoadableTask task = new LoadableTask(self);
+			
+			// Send progress to the GlobalProgressMonitor
+			task.addPropertyChangeListener(GlobalProgressMonitor.getInstance());
+			
+			// BatchTab needs to know if batches failed to be added
+			task.addPropertyChangeListener(self);
+			
+			task.execute();
+		}
+	}
+	
 	private void createToolbar(boolean buttonText)
 	{
 		toolBar = new JToolBar();
@@ -193,64 +318,13 @@ public class BatchTab extends JPanel implements Loadable, PropertyChangeListener
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				JFileChooser filechooser = new JFileChooser(new File("./Batch"));
-				
-				filechooser.setFileFilter(FileUtil.batchFileFilter());
-				
-				filechooser.setPreferredSize(new Dimension(1000, 600));
-				filechooser.setMultiSelectionEnabled(true);
-				
-				XMLPreviewPanel xmlPreview = new XMLPreviewPanel();
-				filechooser.setAccessory(xmlPreview);
-				filechooser.addPropertyChangeListener(xmlPreview);
-				Action details = filechooser.getActionMap().get("viewTypeDetails");
-				details.actionPerformed(null);
-				
-				log.info("Batch Open Dialog");
-				
-				int val = filechooser.showOpenDialog(self);
-				
-				if(val == JFileChooser.APPROVE_OPTION)
+				if((e.getModifiers() & InputEvent.SHIFT_MASK) == 0)
 				{
-					log.info("New Batch Choosen");
-					
-					// Get list of files choosen
-					File[] selectedFiles = filechooser.getSelectedFiles();
-					
-					// Sort Files Alpha Numerically by FileName
-					Arrays.sort(selectedFiles, new AlphanumFileNameComparator());
-					
-					// The total
-					int numBatchesToLoad = selectedFiles.length;
-					
-					/*
-					 * Loadable setup section
-					 */
-					
-					// Names and Index order
-					filePaths = new String[numBatchesToLoad];
-					indexes = new int[numBatchesToLoad];
-					
-					// Populate data structures for Loadable
-					for(int f = 0; f < numBatchesToLoad; f++)
-					{
-						// Add the path to the list
-						filePaths[f] = selectedFiles[f].getAbsolutePath();
-						
-						// Set the index order (as is)
-						indexes[f] = f;
-					}
-					
-					// BatchTab is the "Loadable" here to avoid swing worker(GUI) related code in the batch manager.
-					LoadableTask task = new LoadableTask(self);
-					
-					// Send progress to the GlobalProgressMonitor
-					task.addPropertyChangeListener(GlobalProgressMonitor.getInstance());
-					
-					// BatchTab needs to know if batches failed to be added
-					task.addPropertyChangeListener(self);
-					
-					task.execute();
+					AddBatchFiles();
+				}
+				else
+				{
+					SearchBatchFiles();
 				}
 			}
 		});
