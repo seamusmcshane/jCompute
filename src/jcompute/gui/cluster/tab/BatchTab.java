@@ -412,7 +412,7 @@ public class BatchTab extends JPanel implements Loadable, PropertyChangeListener
 		batchInfo.setColumWidth(0, 125);
 		batchInfo.setMinimumSize(new Dimension(rightPanelsMinWidth, 150));
 		batchInfo.setPreferredSize(new Dimension(rightPanelsMinWidth, 150));
-		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer());
+		batchInfo.setDefaultRenderer(Object.class, new EmptyCellColorRenderer(32));
 		
 		batchInfo.addColumRenderer(new HeaderRowRenderer(batchInfo.getJTable()), 0);
 		batchInfo.setVisible(false);
