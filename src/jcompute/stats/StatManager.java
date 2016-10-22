@@ -17,7 +17,6 @@ import jcompute.stats.trace.ImageStat;
 
 /**
  * Statistics manager - Not Thread Safe.
- *
  */
 public class StatManager
 {
@@ -41,32 +40,32 @@ public class StatManager
 	public void registerImageStat(ImageStatGroup stat)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			imageStatMap.put(stat.getName(), stat);
+		imageStatMap.put(stat.getName(), stat);
 		statsManagerLock.release();
 	}
 	
 	// Add a new stat to the stat manager
 	public void registerGroup(StatGroup group)
-	{		
+	{
 		statsManagerLock.acquireUninterruptibly();
-			groupMap.put(group.getName(), group);
+		groupMap.put(group.getName(), group);
 		statsManagerLock.release();
 	}
 	
 	// Add a list of group to the stat manager
 	public void registerGroups(List<StatGroup> groupList)
 	{
-		for (StatGroup group : groupList) 
+		for(StatGroup group : groupList)
 		{
 			registerGroup(group);
-		}			
+		}
 	}
 	
-	public void setGroupSettings(String groupName,StatGroupSetting setting)
+	public void setGroupSettings(String groupName, StatGroupSetting setting)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			StatGroup group = groupMap.get(groupName);
-			group.setGroupSettings(setting);
+		StatGroup group = groupMap.get(groupName);
+		group.setGroupSettings(setting);
 		statsManagerLock.release();
 	}
 	
@@ -74,7 +73,7 @@ public class StatManager
 	public StatGroup getStatGroup(String groupName)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			StatGroup group = groupMap.get(groupName);
+		StatGroup group = groupMap.get(groupName);
 		statsManagerLock.release();
 		
 		return group;
@@ -84,7 +83,7 @@ public class StatManager
 	public ImageStatGroup getImageStat(String statName)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			ImageStatGroup imageStat = imageStatMap.get(statName);
+		ImageStatGroup imageStat = imageStatMap.get(statName);
 		statsManagerLock.release();
 		
 		return imageStat;
@@ -106,11 +105,11 @@ public class StatManager
 	{
 		return managerName;
 	}
-		
+	
 	public boolean containsGroup(String name)
 	{
 		statsManagerLock.acquireUninterruptibly();
-			boolean status = groupMap.containsKey(name);
+		boolean status = groupMap.containsKey(name);
 		statsManagerLock.release();
 		
 		return status;
@@ -121,7 +120,7 @@ public class StatManager
 		if(statImageGroupList == null)
 		{
 			statImageGroupList = new ArrayList<ImageStatGroup>();
-		}		
+		}
 		
 		if(statImageGroupList.size() != imageStatMap.size())
 		{
@@ -132,7 +131,7 @@ public class StatManager
 			for(String group : imageGroupList)
 			{
 				statImageGroupList.add(imageStatMap.get(group));
-			}			
+			}
 		}
 		
 		return statImageGroupList;
@@ -143,7 +142,7 @@ public class StatManager
 		if(statGroupList == null)
 		{
 			statGroupList = new ArrayList<StatGroup>();
-		}		
+		}
 		
 		if(statGroupList.size() != groupMap.size())
 		{
@@ -154,7 +153,7 @@ public class StatManager
 			for(String group : groupList)
 			{
 				statGroupList.add(groupMap.get(group));
-			}			
+			}
 		}
 		
 		return statGroupList;
@@ -162,7 +161,7 @@ public class StatManager
 	
 	public void notifiyStatListeners()
 	{
-		for (StatGroup group : getStatGroupList()) 
+		for(StatGroup group : getStatGroupList())
 		{
 			group.notifyStatGroupListeners();
 		}
@@ -170,25 +169,24 @@ public class StatManager
 	
 	public void endEventNotifiyStatListeners()
 	{
-		for (StatGroup group : getStatGroupList()) 
+		for(StatGroup group : getStatGroupList())
 		{
 			group.endEventNotifyStatGroupListeners();
 		}
 	}
-
+	
 	public void exportImages(String path)
 	{
-
-		for (ImageStatGroup group : getImageStatGroupList()) 
+		for(ImageStatGroup group : getImageStatGroupList())
 		{
 			for(String stat : group.getStatList())
 			{
 				ImageStat imageStat = group.getStat(stat);
 				
-			    BufferedImage bi = imageStat.getImage();
-			    File outputfile = new File(path + File.pathSeparatorChar + imageStat.getName()+".png");
-			   
-			    try
+				BufferedImage bi = imageStat.getImage();
+				File outputfile = new File(path + File.pathSeparatorChar + imageStat.getName() + ".png");
+				
+				try
 				{
 					ImageIO.write(bi, "png", outputfile);
 				}
@@ -196,14 +194,7 @@ public class StatManager
 				{
 					e.printStackTrace();
 				}
-				
 			}
-			
-
 		}
-		
-
-		
 	}
-
 }
