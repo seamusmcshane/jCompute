@@ -23,13 +23,16 @@ public interface SimulationScenarioManagerInf
 	public void doSimulationUpdate();
 	
 	/**
+	 * Called at the end of every step.
+	 * 
 	 * @return true if one of the set end events has triggered.
+	 * In which case the event name should be stored.
 	 */
 	public boolean hasEndEventOccurred();
 	
 	/**
 	 * @return The end event that has triggered.
-	 * If multiple are expected to trigger at the same time - It will on your design which gets priority.
+	 * If multiple are expected to trigger at the same time - It will on your implementation of hasEndEventOccurred() which gets priority.
 	 */
 	public String getEndEvent();
 	
