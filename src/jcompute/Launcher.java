@@ -25,6 +25,12 @@ import jcompute.util.JVMInfo;
 import jcompute.util.LookAndFeel;
 import jcompute.util.OSInfo;
 
+/***
+ * jCompute common entry method.
+ * Use command line help command line switch [--help/-help,help,\\help,/help] for a listing of launch parameters;
+ * 
+ * @author Seamus McShane
+ */
 public class Launcher
 {
 	// Log4j2 Logger
@@ -42,6 +48,11 @@ public class Launcher
 		"Configure TcpNoDelay (0/1)"), new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)")
 	};
 	
+	/**
+	 * @param arguments
+	 * A comma delimited list of key/value pairs.
+	 * @throws IOException
+	 */
 	public static void main(String arguments[]) throws IOException
 	{
 		// Change the main threads name
