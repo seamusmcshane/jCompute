@@ -64,6 +64,21 @@ public class JCMath
 		return bd.floatValue();
 	}
 	
+	public static float ClampFloatValue(float value, float lower, float upper)
+	{
+		if(value > upper)
+		{
+			return upper;
+		}
+		
+		if(value < lower)
+		{
+			return lower;
+		}
+		
+		return value;
+	}
+	
 	public static int getNumberOfDecimalPlaces(float val)
 	{
 		// String constructor required for correct conversion
