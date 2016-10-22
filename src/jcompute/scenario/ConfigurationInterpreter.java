@@ -287,6 +287,11 @@ public class ConfigurationInterpreter
 		return configurationFile.getString(section + "." + value);
 	}
 	
+	public String getStringValue(String section, String value, String defaultValue)
+	{
+		return configurationFile.getString(section + "." + value, defaultValue);
+	}
+	
 	public boolean getBooleanValue(String section, String value)
 	{
 		return configurationFile.getBoolean(section + "." + value);
@@ -320,6 +325,11 @@ public class ConfigurationInterpreter
 	public double getDoubleValue(String section, String value)
 	{
 		return configurationFile.getDouble(section + "." + value);
+	}
+	
+	public double getDoubleValue(String section, String value, double defaultValue)
+	{
+		return configurationFile.getDouble(section + "." + value, defaultValue);
 	}
 	
 	public String getValueToString(String path, XmlSchemaType type)
