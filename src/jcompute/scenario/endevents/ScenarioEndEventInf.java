@@ -1,11 +1,17 @@
 package jcompute.scenario.endevents;
 
+/**
+ * Interface for defining events which the simulation can react to during processing and stop.
+ * This apparatus is for logical execution events not error handling.
+ * 
+ * @author Seamus McShane
+ */
 public interface ScenarioEndEventInf
 {
 	/**
-	 * Name of the end event.
+	 * Getter for the event name.
 	 * 
-	 * @return
+	 * @return Name of the end event.
 	 */
 	public String getName();
 	

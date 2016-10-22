@@ -8,65 +8,61 @@ import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.simulation.SimulationScenarioManagerInf;
 import jcompute.stats.StatGroupSetting;
 
+/**
+ * The scenario plugin-interface.
+ * Controls setup of values from configuration file.
+ * It also interfaces with the subsystems for
+ * Statistics, View, Simulation and Batch execution and Batch Item Generation by providing the correct support objects.
+ * 
+ * @author Seamus McShane
+ */
 public interface ScenarioInf
 {
 	/**
 	 * The logic to load and process a configuration file.
-	 * It should create all required simulation structures.
+	 * It must create all required simulation structures ready for processing.
 	 * 
 	 * @param interpreter
-	 * @return
+	 * @return true if the configuration was successful or false for any error.
 	 */
 	public boolean loadConfig(ConfigurationInterpreter interpreter);
 	
 	/**
-	 * A unique string indicating what scenario type this plugin is.
-	 * 
-	 * @return
+	 * @return String (Unique) identifier for this scenario plugin type.
 	 */
 	public String getScenarioType();
 	
 	/**
-	 * Plugin version value - its is up to you what this means and what you do with it.
-	 * 
-	 * @return
+	 * @return A double representing the scenario version.
 	 */
 	public double getScenarioVersion();
 	
 	/**
-	 * Get the object that manages the processing for this scenario type.
+	 * Gets the object that manages the processing for this scenario type.
 	 * 
-	 * @return
+	 * @return A fully configured simulation manager object for this scenario type.
 	 */
 	public SimulationScenarioManagerInf getSimulationScenarioManager();
 	
 	/**
-	 * The list of settings for all the stat groups.
-	 * 
-	 * @return
+	 * @return The list of settings for all the stat groups.
 	 */
 	public List<StatGroupSetting> getStatGroupSettingsList();
 	
 	/**
-	 * The configuration text used to create this scenario.
-	 * 
-	 * @return
+	 * @return The configuration text used to create this scenario.
 	 */
 	public String getScenarioText();
 	
 	/**
-	 * Checks if a particular end event is set.
-	 * 
 	 * @param eventName
-	 * @return true if the end event is set.
+	 * @return true if a particular end event is set
 	 */
 	public boolean endEventIsSet(String eventName);
 	
 	/**
-	 * Retrives the trigger value for a particular end event.
-	 * 
 	 * @param eventName
-	 * @return
+	 * @return The trigger value for a particular end event.
 	 */
 	public int getEndEventTriggerValue(String eventName);
 	
