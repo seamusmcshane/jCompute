@@ -245,14 +245,14 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 
 						for(int i = 0; i < len; i++)
 						{
-							array1[i] = histories[index1][i].getSample();
+							array1[i] = histories[index1][i].sample;
 						}
 
 						double[] array2 = new double[len];
 
 						for(int i = 0; i < len; i++)
 						{
-							array2[i] = histories[index2][i].getSample();
+							array2[i] = histories[index2][i].sample;
 						}
 
 						String arrayLabels[] = new String[]
@@ -296,7 +296,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 								for(int sam = 0; sam < samples; sam++)
 								{
 									// OpenGL uses floats
-									data[st][sam] = (float) histories[st][sam].getSample();
+									data[st][sam] = (float) histories[st][sam].sample;
 								}
 							}
 
@@ -792,7 +792,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 					for(int sam = 0; sam < samples; sam++)
 					{
 						// OpenGL uses floats
-						data[st][sam] = histories[st][sam].getSample();
+						data[st][sam] = histories[st][sam].sample;
 					}
 				}
 
@@ -1013,7 +1013,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		// Zero Imaginary Values + Populate Real
 		for(int i = 0; i < len; ++i)
 		{
-			array[2 * i] = histories[num][i].getSample();
+			array[2 * i] = histories[num][i].sample;
 			array[(2 * i) + 1] = 0;
 
 			if(array[2 * i] > inMax)
@@ -1144,9 +1144,9 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		// Scale Charts ignoring <5 freq
 		for(int i = 0; i < chartSamples.length; i++)
 		{
-			if((i > 5) && (chartSamples[i].getSample() > maxValue))
+			if((i > 5) && (chartSamples[i].sample > maxValue))
 			{
-				maxValue = chartSamples[i].getSample();
+				maxValue = chartSamples[i].sample;
 			}
 		}
 
@@ -1177,9 +1177,9 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		int fill = 0;
 		for(int i = 1; i < (array.length - 1); i++)
 		{
-			double avg = ((array[i - 1].getSample() * 0.25) + (array[i].getSample() * 0.5) + (array[i + 1].getSample() * 0.25));
+			double avg = ((array[i - 1].sample * 0.25) + (array[i].sample * 0.5) + (array[i + 1].sample * 0.25));
 
-			filtered[fill] = new StatSample(array[i].getTime(), avg);
+			filtered[fill] = new StatSample(array[i].time, avg);
 
 			fill++;
 		}
@@ -1351,7 +1351,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 				{
 					for(int sam = 0; sam < samples; sam++)
 					{
-						data[st][sam] = histories[st][sam].getSample();
+						data[st][sam] = histories[st][sam].sample;
 					}
 				}
 

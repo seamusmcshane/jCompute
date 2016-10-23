@@ -567,7 +567,7 @@ public class StatExporter
 		// line after each history
 		for(int statIndex = 0; statIndex < statCount; statIndex++)
 		{
-			data.append("\t\t<" + xmlString(statList.get(statIndex)) + ">" + statHistorys[statIndex][history].getSample() + "</" + xmlString(statList.get(
+			data.append("\t\t<" + xmlString(statList.get(statIndex)) + ">" + statHistorys[statIndex][history].sample + "</" + xmlString(statList.get(
 			statIndex)) + ">\n");
 		}
 		
@@ -644,13 +644,13 @@ public class StatExporter
 		int statCount = statList.size();
 		
 		// Append the sample from the first stat with a , appended
-		data.append(statHistorys[0][history].getSample() + ",");
+		data.append(statHistorys[0][history].sample + ",");
 		
 		// Do the same for every history, append , after each sample or a new
 		// line after each history
 		for(int statIndex = 1; statIndex < statCount; statIndex++)
 		{
-			data.append(statHistorys[statIndex][history].getSample());
+			data.append(statHistorys[statIndex][history].sample);
 			
 			if(statIndex < (statCount - 1))
 			{

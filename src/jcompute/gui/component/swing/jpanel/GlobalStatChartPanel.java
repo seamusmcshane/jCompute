@@ -224,8 +224,8 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(SingleStat stat : sampleList)
 		{
-			value = stat.getLastSample().getSample();
-			time = stat.getLastSample().getTime();
+			value = stat.getLastSample().sample;
+			time = stat.getLastSample().time;
 			name = stat.getStatName();
 			color = stat.getColor();
 			

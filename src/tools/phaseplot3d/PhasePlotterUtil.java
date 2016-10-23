@@ -381,7 +381,7 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 						for(int sam = 0; sam < samples; sam++)
 						{
 							// OpenGL uses floats
-							data[st][sam] = (float) histories[st][sam].getSample();
+							data[st][sam] = (float) histories[st][sam].sample;
 						}
 					}
 

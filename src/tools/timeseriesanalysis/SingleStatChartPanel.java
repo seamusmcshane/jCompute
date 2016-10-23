@@ -147,8 +147,8 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(SingleStat stat : sampleList)
 		{
-			value = stat.getLastSample().getSample();
-			time = stat.getLastSample().getTime();
+			value = stat.getLastSample().sample;
+			time = stat.getLastSample().time;
 			name = stat.getStatName();
 			color = stat.getColor();
 			
@@ -307,8 +307,8 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			
 			for(int s = 0; s < samples; s++)
 			{
-				double value = timeSeries[s].getSample();
-				double time = timeSeries[s].getTime();
+				double value = timeSeries[s].sample;
+				double time = timeSeries[s].time;
 				
 				if(value > maxValue)
 				{
@@ -375,7 +375,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(int i = 0; i < samples; i++)
 		{
-			double value = sampleList[i].getSample();
+			double value = sampleList[i].sample;
 			
 			if(value > maxValue)
 			{
@@ -389,7 +389,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			
 			// Add the values of the sample in the trace at the samples time
 			// index
-			tempS.add(sampleList[i].getTime(), value);
+			tempS.add(sampleList[i].time, value);
 		}
 		
 		tempS.setNotify(true);
@@ -440,9 +440,9 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		double maxV = Double.MIN_VALUE;
 		for(int s = 0; s < samples; s++)
 		{
-			if(sampleList[s].getSample() > maxV)
+			if(sampleList[s].sample > maxV)
 			{
-				maxV = sampleList[s].getSample();
+				maxV = sampleList[s].sample;
 			}
 		}
 		
@@ -450,7 +450,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(int s = samples / 2; s >= 0; s--)
 		{
-			double value = sampleList[s].getSample();
+			double value = sampleList[s].sample;
 			
 			value = 10 * Math.log10(value);
 			
@@ -458,7 +458,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			
 			// value = (Math.sqrt(2)/2) * value;
 			
-			double time = sampleList[s].getTime();
+			double time = sampleList[s].time;
 			
 			if(value > maxValue)
 			{
@@ -477,7 +477,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(int s = samples - 1; s > (samples / 2); s--)
 		{
-			double value = sampleList[s].getSample();
+			double value = sampleList[s].sample;
 			
 			value = 10 * Math.log10(value);
 			
@@ -485,7 +485,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 			
 			// value = (Math.sqrt(2)/2) * value;
 			
-			double time = sampleList[s].getTime();
+			double time = sampleList[s].time;
 			
 			if(value > maxValue)
 			{

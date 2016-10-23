@@ -21,7 +21,6 @@ public class ImageStatGroup
 		this.name = name;
 		
 		statList = new ArrayList<ImageStat>();
-
 	}
 
 	public String getName()
