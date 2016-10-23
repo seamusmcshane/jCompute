@@ -13,7 +13,7 @@ import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.SimulationState.stateChangedInf;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
-import jcompute.stats.StatManager;
+import jcompute.stats.StatisticsManager;
 
 /**
  * Simulation class This class handles the Simulation activity of the program. It contains the main loop in the form of the asynchronous Simulation Update
@@ -454,9 +454,9 @@ public class Simulation implements stateChangedInf, ViewTarget
 		};
 	}
 	
-	public StatManager getStatmanger()
+	public StatisticsManager getStatmanger()
 	{
-		return simulationScenarioManager.getStatmanger();
+		return simulationScenarioManager.getStatManager();
 	}
 	
 	@Override

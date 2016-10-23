@@ -2,7 +2,7 @@ package jcompute.simulation;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.scenario.ScenarioInf;
-import jcompute.stats.StatManager;
+import jcompute.stats.StatisticsManager;
 
 /**
  * Implementers of this class manage the processing of single simulation of their plugin-type.
@@ -70,7 +70,7 @@ public interface SimulationScenarioManagerInf
 	 * 
 	 * @return a stat manager object.
 	 */
-	public StatManager getStatmanger();
+	public StatisticsManager getStatManager();
 	
 	/**
 	 * Used for scheduling and control logic.

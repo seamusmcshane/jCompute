@@ -21,8 +21,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import jcompute.stats.groups.StatGroupListenerInf;
-import jcompute.stats.trace.SingleStat;
-import jcompute.stats.trace.StatSample;
+import jcompute.stats.trace.Trace;
+import jcompute.stats.trace.samples.DoubleTraceSample;
+import jcompute.stats.trace.samples.TraceSample;
 
 public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 {
@@ -135,7 +136,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	}
 	
 	@Override
-	public void groupStatsUpdated(ArrayList<SingleStat> sampleList)
+	public void groupStatsUpdated(ArrayList<Trace> traceList)
 	{
 		int totalstat = 0;
 		XYSeries tempS;
@@ -145,12 +146,13 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		double value = 0;
 		Color color;
 		
-		for(SingleStat stat : sampleList)
+		for(Trace trace : traceList)
 		{
-			value = stat.getLastSample().sample;
-			time = stat.getLastSample().time;
-			name = stat.getStatName();
-			color = stat.getColor();
+			// Note no check for datatype - must be double
+			value = ((DoubleTraceSample) trace.getLastSample()).value;
+			time = trace.getLastSample().time;
+			name = trace.name;
+			color = trace.color;
 			
 			tempS = seriesMap.get(name);
 			
@@ -268,7 +270,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		tempS.add(time, value);
 	}
 	
-	public void populate(int samples, String[] statNames, StatSample[][] sampleLists)
+	public void populate(int samples, String[] statNames, TraceSample[][] sampleLists)
 	{
 		int colorOffset = 0;
 		int sti = 0;
@@ -301,13 +303,13 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 				series++;
 			}
 			
-			StatSample[] timeSeries = sampleLists[sti];
+			DoubleTraceSample[] timeSeries = (DoubleTraceSample[]) sampleLists[sti];
 			
 			tempS.setNotify(false);
 			
 			for(int s = 0; s < samples; s++)
 			{
-				double value = timeSeries[s].sample;
+				double value = timeSeries[s].value;
 				double time = timeSeries[s].time;
 				
 				if(value > maxValue)
@@ -338,7 +340,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 	}
 	
 	// TIME INDEXED
-	public void populateFFT(String name, StatSample[] sampleList)
+	public void populateFFT(String name, DoubleTraceSample[] sampleList)
 	{
 		int samples = sampleList.length;
 		
@@ -375,7 +377,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(int i = 0; i < samples; i++)
 		{
-			double value = sampleList[i].sample;
+			double value = sampleList[i].value;
 			
 			if(value > maxValue)
 			{
@@ -398,7 +400,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 	}
 	
-	public void populateFFTShift(String name, StatSample[] sampleList, double maxT)
+	public void populateFFTShift(String name, DoubleTraceSample[] sampleList, double maxT)
 	{
 		int samples = sampleList.length;
 		
@@ -440,9 +442,9 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		double maxV = Double.MIN_VALUE;
 		for(int s = 0; s < samples; s++)
 		{
-			if(sampleList[s].sample > maxV)
+			if(sampleList[s].value > maxV)
 			{
-				maxV = sampleList[s].sample;
+				maxV = sampleList[s].value;
 			}
 		}
 		
@@ -450,7 +452,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(int s = samples / 2; s >= 0; s--)
 		{
-			double value = sampleList[s].sample;
+			double value = sampleList[s].value;
 			
 			value = 10 * Math.log10(value);
 			
@@ -477,7 +479,7 @@ public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
 		
 		for(int s = samples - 1; s > (samples / 2); s--)
 		{
-			double value = sampleList[s].sample;
+			double value = sampleList[s].value;
 			
 			value = 10 * Math.log10(value);
 			

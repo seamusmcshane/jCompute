@@ -2,9 +2,9 @@ package jcompute.stats.groups;
 
 import java.util.ArrayList;
 
-import jcompute.stats.trace.SingleStat;
+import jcompute.stats.trace.Trace;
 
 public interface StatGroupListenerInf
 {
-	void groupStatsUpdated(ArrayList<SingleStat> sampleList);
+	void groupStatsUpdated(ArrayList<Trace> sampleList);
 }

@@ -9,19 +9,20 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.stats.trace.SingleStat;
+import jcompute.stats.trace.Trace;
+import jcompute.stats.trace.Trace.TraceDataType;
 
 public class CSV
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(CSV.class);
-
-	private ArrayList<SingleStat> statGroup;
+	
+	private ArrayList<Trace> traceList;
 	private int lineNo;
 	
 	public CSV(String filePath) throws IOException
 	{
-		statGroup = new ArrayList<SingleStat>();
+		traceList = new ArrayList<Trace>();
 		
 		File file = new File(filePath);
 		
@@ -48,15 +49,15 @@ public class CSV
 			
 			log.debug(numColumns);
 			
-			SingleStat[] stats = new SingleStat[numColumns];
+			Trace[] stats = new Trace[numColumns];
 			
 			for(int c = 0; c < numColumns; c++)
 			{
-				stats[c] = new SingleStat(headings[c]);
-				statGroup.add(stats[c]);
+				stats[c] = new Trace(headings[c], TraceDataType.Decimal);
+				traceList.add(stats[c]);
 				
-				SingleStat stat = statGroup.get(c);
-				log.debug(c + " " + stat.getStatName());
+				// Trace stat = traceList.get(c);
+				// log.debug(c + " " + stat.name);
 			}
 			
 			lineNo = 0;
@@ -90,8 +91,8 @@ public class CSV
 		return lineNo;
 	}
 	
-	public ArrayList<SingleStat> getStats()
+	public ArrayList<Trace> getTraces()
 	{
-		return statGroup;
+		return traceList;
 	}
 }

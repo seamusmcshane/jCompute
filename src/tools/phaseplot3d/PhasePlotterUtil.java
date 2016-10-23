@@ -9,6 +9,7 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
@@ -25,8 +26,9 @@ import javax.swing.WindowConstants;
 import org.lwjgl.opengl.Display;
 
 import jcompute.stats.logparser.CSV;
-import jcompute.stats.trace.SingleStat;
-import jcompute.stats.trace.StatSample;
+import jcompute.stats.trace.Trace;
+import jcompute.stats.trace.samples.DoubleTraceSample;
+import jcompute.stats.trace.samples.TraceSample;
 import tools.common.LibGDXGLPanel;
 
 public class PhasePlotterUtil implements WindowListener, ActionListener
@@ -353,9 +355,9 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 					CSV parser = new CSV(file);
 
 					// Stats
-					ArrayList<SingleStat> stats = parser.getStats();
+					ArrayList<Trace> stats = parser.getTraces();
 
-					StatSample[][] histories = new StatSample[stats.size()][];
+					DoubleTraceSample[][] histories = new DoubleTraceSample[stats.size()][];
 
 					// Keep Stat Names
 					String[] names = new String[stats.size()];
@@ -363,9 +365,14 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 					// Convert stats link list to array (for interation)
 					for(int st = 0; st < stats.size(); st++)
 					{
-						SingleStat temp = stats.get(st);
-						histories[st] = temp.getHistoryAsArray();
-						names[st] = temp.getStatName();
+						Trace temp = stats.get(st);
+						
+						TraceSample[] temp2 =  temp.getHistoryAsArray();
+						
+						histories[st] = Arrays.copyOf(temp2, temp2.length, DoubleTraceSample[].class);
+						
+//						histories[st] = temp.getHistoryAsArray();
+						names[st] = temp.name;
 					}
 					System.out.println("Got SingleStat Arrays");
 
@@ -381,7 +388,7 @@ public class PhasePlotterUtil implements WindowListener, ActionListener
 						for(int sam = 0; sam < samples; sam++)
 						{
 							// OpenGL uses floats
-							data[st][sam] = (float) histories[st][sam].sample;
+							data[st][sam] = (float) histories[st][sam].value;
 						}
 					}
 

@@ -24,7 +24,11 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import jcompute.stats.groups.StatGroupListenerInf;
-import jcompute.stats.trace.SingleStat;
+import jcompute.stats.trace.Trace;
+import jcompute.stats.trace.Trace.TraceDataType;
+import jcompute.stats.trace.samples.DoubleTraceSample;
+import jcompute.stats.trace.samples.IntegerTraceSample;
+import jcompute.stats.trace.samples.TraceSample;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -209,7 +213,7 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 	}
 	
 	@Override
-	public void groupStatsUpdated(ArrayList<SingleStat> sampleList)
+	public void groupStatsUpdated(ArrayList<Trace> sampleList)
 	{
 		int totalstat = 0;
 		XYSeries tempS;
@@ -222,12 +226,21 @@ public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
 		dataset.setNotify(false);
 		statDataset.setNotify(false);
 		
-		for(SingleStat stat : sampleList)
+		for(Trace stat : sampleList)
 		{
-			value = stat.getLastSample().sample;
+			// Note no check for datatype - must be double or integer
+			if(stat.type == TraceDataType.Integer)
+			{
+				value = ((IntegerTraceSample) stat.getLastSample()).value;
+			}
+			else
+			{
+				value = ((DoubleTraceSample) stat.getLastSample()).value;
+			}
+			
 			time = stat.getLastSample().time;
-			name = stat.getStatName();
-			color = stat.getColor();
+			name = stat.name;
+			color = stat.color;
 			
 			tempS = seriesMap.get(name);
 			

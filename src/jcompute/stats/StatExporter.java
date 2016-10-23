@@ -20,8 +20,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xerces.util.XMLChar;
 
-import jcompute.stats.groups.StatGroup;
-import jcompute.stats.trace.StatSample;
+import jcompute.stats.groups.TraceGroup;
+import jcompute.stats.trace.Trace;
+import jcompute.stats.trace.samples.TraceSample;
 
 public class StatExporter
 {
@@ -50,7 +51,7 @@ public class StatExporter
 		this.fileNameSuffix = fileNameSuffix;
 	}
 	
-	public void populateFromStatManager(StatManager sm)
+	public void populateFromStatManager(StatisticsManager sm)
 	{
 		log.info("Populating StatManager from " + sm.getname());
 		
@@ -448,42 +449,47 @@ public class StatExporter
 	/*
 	 * Data formatter
 	 */
-	private String createStatExportString(StatGroup statGroup)
+	private String createStatExportString(TraceGroup traceGroup)
 	{
 		StringBuilder data = new StringBuilder();
 		
-		if(statGroup != null)
+		if(traceGroup != null)
 		{
-			String name = statGroup.getName();
+			String name = traceGroup.getName();
 			
-			List<String> statList = statGroup.getStatList();
+			List<String> traceList = traceGroup.getTraceList();
 			
 			if((format == ExportFormat.CSV) || (format == ExportFormat.ZCSV))
 			{
 				// Write File Header
-				addFileExportHeaderCSV(data, statList);
+				addFileExportHeaderCSV(data, traceList);
 			}
 			else if(format == ExportFormat.ARFF)
 			{
-				addFileExportHeaderARFF(data, name, statList);
+				addFileExportHeaderARFF(data, name, traceList);
 			}
 			else
 			{
-				addFileExportHeaderXML(data, name, statList);
+				addFileExportHeaderXML(data, name, traceList);
 			}
 			
 			// Get the history length of the stats (which are all the same
 			// length in steps)
-			int historyLength = statGroup.getStat(statList.get(0)).getHistoryLength();
+			int historyLength = traceGroup.getTrace(traceList.get(0)).getHistoryLength();
 			
-			int statCount = statList.size();
+			int traceCount = traceList.size();
 			
-			StatSample[][] statHistorys = new StatSample[statCount][historyLength];
+			TraceSample[][] traceHistorys = new TraceSample[traceCount][];
+			
 			// Convert each Linked list to arrays - so we can look up individual
 			// indexes quicker later.
-			for(int statIndex = 0; statIndex < statCount; statIndex++)
+			for(int traceIndex = 0; traceIndex < traceCount; traceIndex++)
 			{
-				statHistorys[statIndex] = statGroup.getStat(statList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
+				Trace trace = traceGroup.getTrace(traceList.get(traceIndex));
+				
+				traceHistorys[traceIndex] = trace.getHistoryAsArray();
+				
+				// traceHistorys[statIndex] = traceGroup.getTrace(traceList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
 			}
 			
 			int history = 0;
@@ -494,11 +500,11 @@ public class StatExporter
 				// Write Data Row
 				if((format == ExportFormat.CSV) || (format == ExportFormat.ARFF) || (format == ExportFormat.ZCSV))
 				{
-					appendCSVStyleRow(data, statHistorys, history, statList);
+					appendCSVStyleRow(data, traceHistorys, history, traceList);
 				}
 				else
 				{
-					appendXMLRow(data, statHistorys, history, statList);
+					appendXMLRow(data, traceHistorys, history, traceList);
 				}
 				
 				history++;
@@ -556,19 +562,19 @@ public class StatExporter
 		fileData.append("<" + xmlString(group) + ">\n");
 	}
 	
-	private void appendXMLRow(StringBuilder data, StatSample[][] statHistorys, int history, List<String> statList)
+	private void appendXMLRow(StringBuilder data, TraceSample[][] TraceHistorys, int history, List<String> traceList)
 	{
-		int statCount = statList.size();
+		int statCount = traceList.size();
 		
 		// Each Row is a Step
 		data.append("\t<Step id='" + history + "'>\n");
 		
 		// Do the same for every history, append , after each sample or a new
 		// line after each history
-		for(int statIndex = 0; statIndex < statCount; statIndex++)
+		for(int traceIndex = 0; traceIndex < statCount; traceIndex++)
 		{
-			data.append("\t\t<" + xmlString(statList.get(statIndex)) + ">" + statHistorys[statIndex][history].sample + "</" + xmlString(statList.get(
-			statIndex)) + ">\n");
+			data.append("\t\t<" + xmlString(traceList.get(traceIndex)) + ">" + TraceHistorys[traceIndex][history].toString() + "</" + xmlString(traceList.get(
+			traceIndex)) + ">\n");
 		}
 		
 		// End Step
@@ -639,18 +645,18 @@ public class StatExporter
 		log.info(logString.toString());
 	}
 	
-	private void appendCSVStyleRow(StringBuilder data, StatSample[][] statHistorys, int history, List<String> statList)
+	private void appendCSVStyleRow(StringBuilder data, TraceSample[][] traceHistorys, int history, List<String> traceList)
 	{
-		int statCount = statList.size();
+		int statCount = traceList.size();
 		
 		// Append the sample from the first stat with a , appended
-		data.append(statHistorys[0][history].sample + ",");
+		data.append(traceHistorys[0][history].toString() + ",");
 		
 		// Do the same for every history, append , after each sample or a new
 		// line after each history
 		for(int statIndex = 1; statIndex < statCount; statIndex++)
 		{
-			data.append(statHistorys[statIndex][history].sample);
+			data.append(traceHistorys[statIndex][history].toString());
 			
 			if(statIndex < (statCount - 1))
 			{
