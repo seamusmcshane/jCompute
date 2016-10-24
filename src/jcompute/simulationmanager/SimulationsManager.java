@@ -395,7 +395,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			statGroupNames = sim.getStatmanger().getGroupList();
+			statGroupNames = sim.getStatManager().getGroupList();
 		}
 		
 		simulationsManagerLock.release();
@@ -429,7 +429,7 @@ public class SimulationsManager
 			exporter = new StatExporter(format, fileNameSuffix);
 			
 			// populate from the stat manager as data source.
-			exporter.populateFromStatManager(sim.getStatmanger());
+			exporter.populateFromStatManager(sim.getStatManager());
 		}
 		
 		simulationsManagerLock.release();
@@ -448,7 +448,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			enabled = sim.getStatmanger().getStatGroup(group).getGroupSettings().graphEnabled();
+			enabled = sim.getStatManager().getStatGroup(group).getGroupSettings().graphEnabled();
 		}
 		
 		simulationsManagerLock.release();
@@ -467,7 +467,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			window = sim.getStatmanger().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
+			window = sim.getStatManager().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
 		}
 		
 		simulationsManagerLock.release();
@@ -486,7 +486,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			globalStat = sim.getStatmanger().getStatGroup(group).getGroupSettings().hasTotalStat();
+			globalStat = sim.getStatManager().getStatGroup(group).getGroupSettings().hasTotalStat();
 		}
 		
 		simulationsManagerLock.release();
@@ -503,7 +503,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			sim.getStatmanger().getStatGroup(group).addStatGroupListener(listener);
+			sim.getStatManager().getStatGroup(group).addStatGroupListener(listener);
 		}
 		
 		simulationsManagerLock.release();
@@ -518,7 +518,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			sim.getStatmanger().getStatGroup(group).removeStatGroupListener(listener);
+			sim.getStatManager().getStatGroup(group).removeStatGroupListener(listener);
 		}
 		
 		simulationsManagerLock.release();

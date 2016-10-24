@@ -454,7 +454,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 		};
 	}
 	
-	public StatisticsManager getStatmanger()
+	public StatisticsManager getStatManager()
 	{
 		return simulationScenarioManager.getStatManager();
 	}
