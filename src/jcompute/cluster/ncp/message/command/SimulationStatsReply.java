@@ -4,17 +4,17 @@ import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
 
 public class SimulationStatsReply extends NCPMessage
 {
 	private int simId;
 	
-	private StatExporter exporter;
+	private ResultExporter exporter;
 	private ByteBuffer unprocessedExporter;
 	
-	public SimulationStatsReply(int simId, StatExporter exporter)
+	public SimulationStatsReply(int simId, ResultExporter exporter)
 	{
 		this.simId = simId;
 		this.exporter = exporter;
@@ -34,10 +34,10 @@ public class SimulationStatsReply extends NCPMessage
 		return simId;
 	}
 	
-	public StatExporter getStatExporter(ExportFormat format, String fileNameSuffix)
+	public ResultExporter getStatExporter(ExportFormat format, String fileNameSuffix)
 	{
 		// Create the exporter
-		exporter = new StatExporter(format, fileNameSuffix);
+		exporter = new ResultExporter(format, fileNameSuffix);
 		exporter.populateFromByteBuffer(unprocessedExporter);
 		
 		return exporter;

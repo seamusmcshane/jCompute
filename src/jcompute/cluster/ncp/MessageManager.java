@@ -38,10 +38,10 @@ import jcompute.cluster.ncp.message.registration.ConfigurationRequest;
 import jcompute.cluster.ncp.message.registration.RegistrationReqAck;
 import jcompute.cluster.ncp.message.registration.RegistrationReqNack;
 import jcompute.cluster.ncp.message.registration.RegistrationRequest;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
 
 public class MessageManager
 {
@@ -314,7 +314,7 @@ public class MessageManager
 	}
 	
 	// Reply to a SimulationStatsRequest
-	public void sendSimulationStatsReply(SimulationStatsRequest req, StatExporter exporter)
+	public void sendSimulationStatsReply(SimulationStatsRequest req, ResultExporter exporter)
 	{
 		if((req == null) || (exporter == null))
 		{

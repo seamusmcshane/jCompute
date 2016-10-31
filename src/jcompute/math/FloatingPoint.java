@@ -18,4 +18,9 @@ public class FloatingPoint
 	{
 		return(Math.abs(a - b) < e);
 	}
+	
+	public static boolean AlmostEqualEpsilon(double a, double b, double e)
+	{
+		return(Math.abs(a - b) < e);
+	}
 }

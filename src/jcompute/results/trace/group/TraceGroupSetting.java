@@ -1,6 +1,6 @@
-package jcompute.stats;
+package jcompute.results.trace.group;
 
-public class StatGroupSetting
+public class TraceGroupSetting
 {
 	private String name;
 	private boolean enabled;
@@ -9,7 +9,7 @@ public class StatGroupSetting
 	private int statSampleRate;
 	private int graphSampleWindow;
 	
-	public StatGroupSetting(String name, boolean enabled,boolean totalStat, boolean graph, int statSampleRate, int graphSampleWindow)
+	public TraceGroupSetting(String name, boolean enabled,boolean totalStat, boolean graph, int statSampleRate, int graphSampleWindow)
 	{
 		super();
 		this.name = name;
@@ -37,7 +37,7 @@ public class StatGroupSetting
 	 * Requires a name, but statistic collection and graphing is disabled
 	 * @param name
 	 */
-	public StatGroupSetting(String name)
+	public TraceGroupSetting(String name)
 	{
 		super();
 		this.name = name;

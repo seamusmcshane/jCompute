@@ -55,10 +55,10 @@ import org.bytedeco.javacpp.fftw3;
 import org.bytedeco.javacpp.fftw3.fftw_plan;
 
 import jcompute.logging.Logging;
-import jcompute.stats.logparser.CSV;
-import jcompute.stats.trace.Trace;
-import jcompute.stats.trace.samples.DoubleTraceSample;
-import jcompute.stats.trace.samples.TraceSample;
+import jcompute.results.logparser.CSV;
+import jcompute.results.trace.Trace;
+import jcompute.results.trace.samples.DoubleTraceSample;
+import jcompute.results.trace.samples.TraceSample;
 import jcompute.util.LookAndFeel;
 import tools.phaseplot3d.PhasePlotterUtil;
 

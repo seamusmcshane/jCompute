@@ -23,18 +23,18 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import jcompute.stats.groups.StatGroupListenerInf;
-import jcompute.stats.trace.Trace;
-import jcompute.stats.trace.Trace.TraceDataType;
-import jcompute.stats.trace.samples.DoubleTraceSample;
-import jcompute.stats.trace.samples.IntegerTraceSample;
-import jcompute.stats.trace.samples.TraceSample;
+import jcompute.results.trace.Trace;
+import jcompute.results.trace.Trace.TraceDataType;
+import jcompute.results.trace.group.TraceGroupListenerInf;
+import jcompute.results.trace.samples.DoubleTraceSample;
+import jcompute.results.trace.samples.IntegerTraceSample;
+import jcompute.results.trace.samples.TraceSample;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-public class GlobalStatChartPanel extends JPanel implements StatGroupListenerInf
+public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerInf
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(GlobalStatChartPanel.class);

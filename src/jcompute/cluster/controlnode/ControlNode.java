@@ -34,9 +34,9 @@ import jcompute.cluster.controlnode.request.ControlNodeItemRequest;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jcompute.cluster.ncp.NCP;
+import jcompute.results.ResultExporter.ExportFormat;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
-import jcompute.stats.StatExporter.ExportFormat;
 
 public class ControlNode
 {

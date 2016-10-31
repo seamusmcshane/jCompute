@@ -8,12 +8,12 @@ import org.apache.logging.log4j.Logger;
 import jcompute.JComputeEventBus;
 import jcompute.gui.view.ViewTarget;
 import jcompute.gui.view.renderer.ViewRendererInf;
+import jcompute.results.ResultManager;
 import jcompute.scenario.ScenarioInf;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.SimulationState.stateChangedInf;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
-import jcompute.stats.StatisticsManager;
 
 /**
  * Simulation class This class handles the Simulation activity of the program. It contains the main loop in the form of the asynchronous Simulation Update
@@ -454,9 +454,9 @@ public class Simulation implements stateChangedInf, ViewTarget
 		};
 	}
 	
-	public StatisticsManager getStatManager()
+	public ResultManager getResultManager()
 	{
-		return simulationScenarioManager.getStatManager();
+		return simulationScenarioManager.getResultManager();
 	}
 	
 	@Override

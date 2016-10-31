@@ -20,12 +20,12 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import jcompute.stats.groups.StatGroupListenerInf;
-import jcompute.stats.trace.Trace;
-import jcompute.stats.trace.samples.DoubleTraceSample;
-import jcompute.stats.trace.samples.TraceSample;
+import jcompute.results.trace.Trace;
+import jcompute.results.trace.group.TraceGroupListenerInf;
+import jcompute.results.trace.samples.DoubleTraceSample;
+import jcompute.results.trace.samples.TraceSample;
 
-public class SingleStatChartPanel extends JPanel implements StatGroupListenerInf
+public class SingleStatChartPanel extends JPanel implements TraceGroupListenerInf
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(SingleStatChartPanel.class);

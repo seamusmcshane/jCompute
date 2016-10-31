@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
-import jcompute.stats.StatExporter.ExportFormat;
+import jcompute.results.ResultExporter.ExportFormat;
 
 public class SimulationStatsRequest extends NCPMessage
 {

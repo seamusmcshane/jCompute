@@ -14,15 +14,15 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.JComputeEventBus;
 import jcompute.gui.view.View;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
+import jcompute.results.trace.group.TraceGroupListenerInf;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;
 import jcompute.simulation.Simulation;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
-import jcompute.stats.groups.StatGroupListenerInf;
 
 public class SimulationsManager
 {
@@ -385,7 +385,7 @@ public class SimulationsManager
 	}
 	
 	
-	public Set<String> getStatGroupNames(int simId)
+	public Set<String> getTraceGroupNames(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -395,7 +395,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			statGroupNames = sim.getStatManager().getGroupList();
+			statGroupNames = sim.getResultManager().getTraceGroupNames();
 		}
 		
 		simulationsManagerLock.release();
@@ -404,15 +404,15 @@ public class SimulationsManager
 	}
 	
 	
-	public StatExporter getStatExporter(int simId, String fileNameSuffix, ExportFormat format)
+	public ResultExporter getResultExporter(int simId, String fileNameSuffix, ExportFormat format)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
 		Simulation sim = simulations.get(simId);
 		
-		log.info("Creating stat exporter for Simulation " + simId);
+		log.info("Creating result exporter for Simulation " + simId);
 		
-		StatExporter exporter = null;
+		ResultExporter exporter = null;
 		
 		if(sim != null)
 		{
@@ -426,10 +426,10 @@ public class SimulationsManager
 			}
 			
 			// Create a stat exporter with export format.
-			exporter = new StatExporter(format, fileNameSuffix);
+			exporter = new ResultExporter(format, fileNameSuffix);
 			
-			// populate from the stat manager as data source.
-			exporter.populateFromStatManager(sim.getStatManager());
+			// populate from the result manager as data source.
+			exporter.populateFromResultManager(sim.getResultManager());
 		}
 		
 		simulationsManagerLock.release();
@@ -438,7 +438,7 @@ public class SimulationsManager
 	}
 	
 	
-	public boolean isStatGroupGraphingEnabled(int simId, String group)
+	public boolean isTraceGroupGraphingEnabled(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -448,7 +448,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			enabled = sim.getStatManager().getStatGroup(group).getGroupSettings().graphEnabled();
+			enabled = sim.getResultManager().getTraceGroup(group).getGroupSettings().graphEnabled();
 		}
 		
 		simulationsManagerLock.release();
@@ -457,7 +457,7 @@ public class SimulationsManager
 	}
 	
 	
-	public int getStatGroupGraphSampleWindowSize(int simId, String group)
+	public int getTraceGroupGraphSampleWindowSize(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -467,7 +467,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			window = sim.getStatManager().getStatGroup(group).getGroupSettings().getGraphSampleWindow();
+			window = sim.getResultManager().getTraceGroup(group).getGroupSettings().getGraphSampleWindow();
 		}
 		
 		simulationsManagerLock.release();
@@ -476,7 +476,7 @@ public class SimulationsManager
 	}
 	
 	
-	public boolean hasStatGroupTotalStat(int simId, String group)
+	public boolean hasTraceGroupTotalStat(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -486,7 +486,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			globalStat = sim.getStatManager().getStatGroup(group).getGroupSettings().hasTotalStat();
+			globalStat = sim.getResultManager().getTraceGroup(group).getGroupSettings().hasTotalStat();
 		}
 		
 		simulationsManagerLock.release();
@@ -495,7 +495,7 @@ public class SimulationsManager
 	}
 	
 	
-	public void addStatGroupListener(int simId, String group, StatGroupListenerInf listener)
+	public void addTraceGroupListener(int simId, String group, TraceGroupListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -503,14 +503,14 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			sim.getStatManager().getStatGroup(group).addStatGroupListener(listener);
+			sim.getResultManager().getTraceGroup(group).addGroupListener(listener);
 		}
 		
 		simulationsManagerLock.release();
 	}
 	
 	
-	public void removeStatGroupListener(int simId, String group, StatGroupListenerInf listener)
+	public void removeStatGroupListener(int simId, String group, TraceGroupListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -518,7 +518,7 @@ public class SimulationsManager
 		
 		if(sim != null)
 		{
-			sim.getStatManager().getStatGroup(group).removeStatGroupListener(listener);
+			sim.getResultManager().getTraceGroup(group).removeGroupListener(listener);
 		}
 		
 		simulationsManagerLock.release();

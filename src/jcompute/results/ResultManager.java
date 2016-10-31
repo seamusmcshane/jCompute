@@ -1,4 +1,4 @@
-package jcompute.stats;
+package jcompute.results;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,27 +6,29 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import jcompute.stats.binary.BinaryDataFileCollection;
-import jcompute.stats.groups.TraceGroup;
+import jcompute.results.binary.BinaryDataFileCollection;
+import jcompute.results.trace.group.TraceGroupSetting;
+import jcompute.results.trace.group.TraceGroup;
 
 /**
  * Statistics manager - Not Thread Safe.
  */
-public class StatisticsManager
+public class ResultManager
 {
 	private String managerName;
 	
-	private HashMap<String, TraceGroup> groupMap;
+	private HashMap<String, TraceGroup> traceGroupMap;
 	private ArrayList<TraceGroup> traceGroupList;
 	
 	private ArrayList<BinaryDataFileCollection> binaryDataList;
 	
-	private Semaphore statsManagerLock = new Semaphore(1);
+	private Semaphore lock = new Semaphore(1);
 	
-	public StatisticsManager(String managerName)
+	public ResultManager(String managerName)
 	{
 		this.managerName = managerName;
-		groupMap = new HashMap<String, TraceGroup>();
+		
+		traceGroupMap = new HashMap<String, TraceGroup>();
 		
 		binaryDataList = new ArrayList<BinaryDataFileCollection>();
 	}
@@ -36,23 +38,23 @@ public class StatisticsManager
 	 * 
 	 * @param group
 	 */
-	public void registerGroup(TraceGroup group)
+	public void registerTraceGroup(TraceGroup group)
 	{
-		statsManagerLock.acquireUninterruptibly();
-		groupMap.put(group.getName(), group);
-		statsManagerLock.release();
+		lock.acquireUninterruptibly();
+		traceGroupMap.put(group.getName(), group);
+		lock.release();
 	}
 	
 	/**
-	 * Add a new BinaryDataFileCollection to to the statistics manager
+	 * Add a new BinaryDataFileCollection
 	 * 
 	 * @param group
 	 */
 	public void registerBDFCollection(BinaryDataFileCollection collection)
 	{
-		statsManagerLock.acquireUninterruptibly();
+		lock.acquireUninterruptibly();
 		binaryDataList.add(collection);
-		statsManagerLock.release();
+		lock.release();
 	}
 	
 	/**
@@ -60,31 +62,31 @@ public class StatisticsManager
 	 * 
 	 * @param groupList
 	 */
-	public void registerGroups(List<TraceGroup> groupList)
+	public void registerTraceGroups(List<TraceGroup> groupList)
 	{
 		for(TraceGroup group : groupList)
 		{
-			registerGroup(group);
+			registerTraceGroup(group);
 		}
 	}
 	
-	public void setGroupSettings(String groupName, StatGroupSetting setting)
+	public void setTraceGroupSettings(String groupName, TraceGroupSetting setting)
 	{
-		statsManagerLock.acquireUninterruptibly();
-		TraceGroup group = groupMap.get(groupName);
+		lock.acquireUninterruptibly();
+		TraceGroup group = traceGroupMap.get(groupName);
 		group.setGroupSettings(setting);
-		statsManagerLock.release();
+		lock.release();
 	}
 	
 	/**
 	 * @param groupName
 	 * @return A trace group matching the group name requested or null if none exists.
 	 */
-	public TraceGroup getStatGroup(String groupName)
+	public TraceGroup getTraceGroup(String name)
 	{
-		statsManagerLock.acquireUninterruptibly();
-		TraceGroup group = groupMap.get(groupName);
-		statsManagerLock.release();
+		lock.acquireUninterruptibly();
+		TraceGroup group = traceGroupMap.get(name);
+		lock.release();
 		
 		return group;
 	}
@@ -99,21 +101,21 @@ public class StatisticsManager
 	 * 
 	 * @return
 	 */
-	public Set<String> getGroupList()
+	public Set<String> getTraceGroupNames()
 	{
-		return groupMap.keySet();
+		return traceGroupMap.keySet();
 	}
 	
-	public String getname()
+	public String getName()
 	{
 		return managerName;
 	}
 	
-	public boolean containsGroup(String name)
+	public boolean containsTraceGroup(String name)
 	{
-		statsManagerLock.acquireUninterruptibly();
-		boolean status = groupMap.containsKey(name);
-		statsManagerLock.release();
+		lock.acquireUninterruptibly();
+		boolean status = traceGroupMap.containsKey(name);
+		lock.release();
 		
 		return status;
 	}
@@ -121,22 +123,22 @@ public class StatisticsManager
 	/**
 	 * @return A list of the groups in this manager.
 	 */
-	private List<TraceGroup> getStatGroupList()
+	private List<TraceGroup> getTraceGroupList()
 	{
 		if(traceGroupList == null)
 		{
 			traceGroupList = new ArrayList<TraceGroup>();
 		}
 		
-		if(traceGroupList.size() != groupMap.size())
+		if(traceGroupList.size() != traceGroupMap.size())
 		{
 			traceGroupList = new ArrayList<TraceGroup>();
 			
-			Set<String> groupList = getGroupList();
+			Set<String> groupList = getTraceGroupNames();
 			
 			for(String group : groupList)
 			{
-				traceGroupList.add(groupMap.get(group));
+				traceGroupList.add(traceGroupMap.get(group));
 			}
 		}
 		
@@ -148,7 +150,7 @@ public class StatisticsManager
 	 */
 	public void notifiyTraceListeners()
 	{
-		for(TraceGroup group : getStatGroupList())
+		for(TraceGroup group : getTraceGroupList())
 		{
 			group.notifyTraceGroupListeners();
 		}
@@ -159,7 +161,7 @@ public class StatisticsManager
 	 */
 	public void endEventNotifiyStatListeners()
 	{
-		for(TraceGroup group : getStatGroupList())
+		for(TraceGroup group : getTraceGroupList())
 		{
 			group.endEventNotifyTraceGroupListeners();
 		}

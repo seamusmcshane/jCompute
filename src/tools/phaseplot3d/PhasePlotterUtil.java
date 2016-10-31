@@ -25,10 +25,10 @@ import javax.swing.WindowConstants;
 
 import org.lwjgl.opengl.Display;
 
-import jcompute.stats.logparser.CSV;
-import jcompute.stats.trace.Trace;
-import jcompute.stats.trace.samples.DoubleTraceSample;
-import jcompute.stats.trace.samples.TraceSample;
+import jcompute.results.logparser.CSV;
+import jcompute.results.trace.Trace;
+import jcompute.results.trace.samples.DoubleTraceSample;
+import jcompute.results.trace.samples.TraceSample;
 import tools.common.LibGDXGLPanel;
 
 public class PhasePlotterUtil implements WindowListener, ActionListener

@@ -1,4 +1,4 @@
-package jcompute.stats.groups;
+package jcompute.results.trace.group;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,13 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import jcompute.stats.StatGroupSetting;
-import jcompute.stats.trace.Trace;
+import jcompute.results.trace.Trace;
 
 public class TraceGroup
 {
 	// Group Name
-	private String groupName;
+	private String name;
 	
 	// Traces in this group - we do not check for duplicates
 	private ArrayList<Trace> traceList;
@@ -22,20 +21,20 @@ public class TraceGroup
 	private Semaphore groupLock = new Semaphore(1);
 	
 	// Group Settings
-	private StatGroupSetting setting;
+	private TraceGroupSetting setting;
 	private int notifiyCalls = 0;
 	
 	// The Listeners for changes in this stat groups stats
-	private List<StatGroupListenerInf> statGroupListeners = new ArrayList<StatGroupListenerInf>();
+	private List<TraceGroupListenerInf> statGroupListeners = new ArrayList<TraceGroupListenerInf>();
 	
 	// Lock for the listeners
 	private Semaphore listenersLock = new Semaphore(1, false);
 	
-	public TraceGroup(String groupName)
+	public TraceGroup(String name)
 	{
-		this.groupName = groupName;
+		this.name = name;
 		
-		setting = new StatGroupSetting(groupName);
+		setting = new TraceGroupSetting(name);
 		
 		traceList = new ArrayList<Trace>();
 	}
@@ -148,29 +147,29 @@ public class TraceGroup
 		
 	}
 	
-	public void setGroupSettings(StatGroupSetting setting)
+	public void setGroupSettings(TraceGroupSetting setting)
 	{
 		this.setting = setting;
 	}
 	
-	public StatGroupSetting getGroupSettings()
+	public TraceGroupSetting getGroupSettings()
 	{
 		return setting;
 	}
 	
 	public String getName()
 	{
-		return groupName;
+		return name;
 	}
 	
-	public void addStatGroupListener(StatGroupListenerInf listener)
+	public void addGroupListener(TraceGroupListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
 		statGroupListeners.add(listener);
 		listenersLock.release();
 	}
 	
-	public void removeStatGroupListener(StatGroupListenerInf listener)
+	public void removeGroupListener(TraceGroupListenerInf listener)
 	{
 		listenersLock.acquireUninterruptibly();
 		statGroupListeners.remove(listener);
@@ -183,7 +182,7 @@ public class TraceGroup
 		
 		if(notifiyCalls % setting.getStatSampleRate() == 0)
 		{
-			for(StatGroupListenerInf listener : statGroupListeners)
+			for(TraceGroupListenerInf listener : statGroupListeners)
 			{
 				listener.groupStatsUpdated(traceList);
 			}
@@ -201,7 +200,7 @@ public class TraceGroup
 	{
 		listenersLock.acquireUninterruptibly();
 		
-		for(StatGroupListenerInf listener : statGroupListeners)
+		for(TraceGroupListenerInf listener : statGroupListeners)
 		{
 			listener.groupStatsUpdated(traceList);
 		}

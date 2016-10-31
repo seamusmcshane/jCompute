@@ -2,25 +2,25 @@ package jcompute.cluster.computenode;
 
 import java.util.HashMap;
 
-import jcompute.stats.StatExporter;
+import jcompute.results.ResultExporter;
 
 public class ProcessedItemStatCache
 {
-	private HashMap<Integer,StatExporter> statMap;
+	private HashMap<Integer,ResultExporter> statMap;
 	
 	public ProcessedItemStatCache()
 	{
-		statMap = new HashMap<Integer,StatExporter>();
+		statMap = new HashMap<Integer,ResultExporter>();
 	}
 
-	public synchronized void put(int simId,StatExporter exporter)
+	public synchronized void put(int simId,ResultExporter exporter)
 	{
 		statMap.put(simId, exporter);
 	}
 	
-	public synchronized StatExporter remove(int simId)
+	public synchronized ResultExporter remove(int simId)
 	{
-		StatExporter exporter = statMap.get(simId);
+		ResultExporter exporter = statMap.get(simId);
 		
 		statMap.remove(simId);
 		

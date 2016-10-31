@@ -1,8 +1,8 @@
 package jcompute.simulation;
 
 import jcompute.gui.view.renderer.ViewRendererInf;
+import jcompute.results.ResultManager;
 import jcompute.scenario.ScenarioInf;
-import jcompute.stats.StatisticsManager;
 
 /**
  * Implementers of this class manage the processing of single simulation of their plugin-type.
@@ -66,11 +66,11 @@ public interface SimulationScenarioManagerInf
 	 *****************************************************************************************************/
 	
 	/**
-	 * Retries a fully configured stat manager for this simulation.
+	 * Retries a fully configured result manager for this simulation.
 	 * 
-	 * @return a stat manager object.
+	 * @return a result manager object.
 	 */
-	public StatisticsManager getStatManager();
+	public ResultManager getResultManager();
 	
 	/**
 	 * Used for scheduling and control logic.

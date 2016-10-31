@@ -28,8 +28,8 @@ import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
-import jcompute.stats.StatGroupSetting;
-import jcompute.stats.binary.BDFCSettings;
+import jcompute.results.binary.BDFCSettings;
+import jcompute.results.trace.group.TraceGroupSetting;
 
 /**
  * XML Configuration File Interpreter.
@@ -48,7 +48,7 @@ public class ConfigurationInterpreter
 	private String latchedFileText;
 	
 	// Statistics
-	private List<StatGroupSetting> statSettingsList;
+	private List<TraceGroupSetting> statSettingsList;
 	private List<BDFCSettings> bdfcSettingsList;
 	
 	// End Events
@@ -57,7 +57,7 @@ public class ConfigurationInterpreter
 	public ConfigurationInterpreter()
 	{
 		// Statistics settings are managed at the top level.
-		statSettingsList = new ArrayList<StatGroupSetting>();
+		statSettingsList = new ArrayList<TraceGroupSetting>();
 		bdfcSettingsList = new ArrayList<BDFCSettings>();
 	}
 	
@@ -113,7 +113,7 @@ public class ConfigurationInterpreter
 				for(int i = 0; i < statisticsGroups; i++)
 				{
 					section = "Statistics.Stat(" + i + ")";
-					statSettingsList.add(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section,
+					statSettingsList.add(new TraceGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section,
 					"TotalStat"), getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
 				}
 			}
@@ -200,7 +200,7 @@ public class ConfigurationInterpreter
 		return endEvents.get(eventName);
 	}
 	
-	public List<StatGroupSetting> getStatGroupSettingsList()
+	public List<TraceGroupSetting> getStatGroupSettingsList()
 	{
 		return statSettingsList;
 	}

@@ -1,4 +1,4 @@
-package jcompute.stats.binary;
+package jcompute.results.binary;
 
 public class BDFCSettings
 {

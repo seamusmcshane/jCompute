@@ -22,11 +22,11 @@ import jcompute.batch.logfileprocessor.logformatprocessor.ItemLogTextv2Format;
 import jcompute.batch.logger.InfoLogger;
 import jcompute.datastruct.cache.DiskCache;
 import jcompute.datastruct.list.StoredQueuePosition;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
 import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
 import jcompute.timing.TimerObj;
 import jcompute.util.FileUtil;
 import jcompute.util.TimeString;
@@ -619,7 +619,7 @@ public class Batch implements StoredQueuePosition
 		batchLock.release();
 	}
 	
-	public void setItemComplete(BatchItem item, StatExporter exporter)
+	public void setItemComplete(BatchItem item, ResultExporter exporter)
 	{
 		batchLock.acquireUninterruptibly();
 		

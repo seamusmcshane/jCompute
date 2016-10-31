@@ -1,4 +1,4 @@
-package jcompute.stats.trace.samples;
+package jcompute.results.trace.samples;
 
 public abstract class TraceSample
 {

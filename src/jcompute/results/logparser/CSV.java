@@ -1,4 +1,4 @@
-package jcompute.stats.logparser;
+package jcompute.results.logparser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.stats.trace.Trace;
-import jcompute.stats.trace.Trace.TraceDataType;
+import jcompute.results.trace.Trace;
+import jcompute.results.trace.Trace.TraceDataType;
 
 public class CSV
 {

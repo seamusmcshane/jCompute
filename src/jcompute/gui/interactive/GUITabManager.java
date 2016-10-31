@@ -24,9 +24,9 @@ import jcompute.IconManager;
 import jcompute.IconManager.IconIndex;
 import jcompute.gui.interactive.tab.GUISimulationTab;
 import jcompute.gui.interactive.tab.SimulationListTabPanel;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
 import jcompute.simulationmanager.SimulationsManager;
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener
 {
@@ -431,8 +431,8 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			
 			log.info("Directory Choosen : " + exportDirectory);
 			
-			// Get the Stat Exporter containing the stats for simId
-			StatExporter exporter = simsManager.getStatExporter(simId, "", exportFormat);
+			// Get the Result Exporter for simId
+			ResultExporter exporter = simsManager.getResultExporter(simId, "", exportFormat);
 			
 			if(exporter != null)
 			{

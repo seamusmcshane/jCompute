@@ -1,4 +1,4 @@
-package jcompute.stats.trace.samples;
+package jcompute.results.trace.samples;
 
 public class DoubleTraceSample extends TraceSample
 {

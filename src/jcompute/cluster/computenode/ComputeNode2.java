@@ -19,12 +19,12 @@ import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReq;
 import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.SimulationsManager;
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
 import jcompute.util.JVMInfo;
 import jcompute.util.OSInfo;
 
@@ -453,7 +453,7 @@ public class ComputeNode2
 		{
 			int simId = e.getSimId();
 			
-			StatExporter exporter = simulationsManager.getStatExporter(simId, "", ExportFormat.CSV);
+			ResultExporter exporter = simulationsManager.getResultExporter(simId, "", ExportFormat.CSV);
 			
 			// Check for simulations with no statistics enabled
 			if(exporter.getSize() > 0)

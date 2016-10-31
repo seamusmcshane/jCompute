@@ -1,4 +1,4 @@
-package jcompute.stats;
+package jcompute.testing;
 
 import java.io.BufferedOutputStream;
 import java.io.FileDescriptor;

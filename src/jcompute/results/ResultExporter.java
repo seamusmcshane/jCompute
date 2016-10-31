@@ -1,4 +1,4 @@
-package jcompute.stats;
+package jcompute.results;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -21,17 +21,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xerces.util.XMLChar;
 
-import jcompute.stats.binary.BinaryDataFile;
-import jcompute.stats.binary.BinaryDataFileCollection;
-import jcompute.stats.groups.TraceGroup;
-import jcompute.stats.trace.Trace;
-import jcompute.stats.trace.samples.TraceSample;
+import jcompute.results.binary.BinaryDataFile;
+import jcompute.results.binary.BinaryDataFileCollection;
+import jcompute.results.trace.Trace;
+import jcompute.results.trace.group.TraceGroup;
+import jcompute.results.trace.samples.TraceSample;
 import jcompute.util.FileUtil;
 
-public class StatExporter
+public class ResultExporter
 {
 	// Log4j2 Logger
-	private static Logger log = LogManager.getLogger(StatExporter.class);
+	private static Logger log = LogManager.getLogger(ResultExporter.class);
 	
 	// File Format for export
 	private final ExportFormat format;
@@ -67,18 +67,18 @@ public class StatExporter
 	 * 
 	 * @param format
 	 */
-	public StatExporter(ExportFormat format, String fileNameSuffix)
+	public ResultExporter(ExportFormat format, String fileNameSuffix)
 	{
 		this.format = format;
 		this.traceFileNameSuffix = fileNameSuffix;
 	}
 	
-	public void populateFromStatManager(StatisticsManager sm)
+	public void populateFromResultManager(ResultManager rm)
 	{
-		log.info("Populating StatManager from " + sm.getname());
+		log.info("Populating from Result Manager - " + rm.getName());
 		
 		// Binary data files
-		ArrayList<BinaryDataFileCollection> binDataColList = sm.getBDFList();
+		ArrayList<BinaryDataFileCollection> binDataColList = rm.getBDFList();
 		
 		int numCollections = binDataColList.size();
 		
@@ -122,7 +122,7 @@ public class StatExporter
 			}
 		}
 		
-		Set<String> groupList = sm.getGroupList();
+		Set<String> groupList = rm.getTraceGroupNames();
 		int numFiles = groupList.size();
 		
 		// FileName
@@ -150,7 +150,7 @@ public class StatExporter
 			traceFileNames[file] = fileName;
 			
 			// File Data
-			traceTextData[file] = createStatExportString(sm.getStatGroup(group));
+			traceTextData[file] = createStatExportString(rm.getTraceGroup(group));
 			
 			file++;
 		}

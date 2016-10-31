@@ -2,15 +2,15 @@ package jcompute.cluster.controlnode.mapping;
 
 import java.util.concurrent.Semaphore;
 
-import jcompute.stats.StatExporter;
-import jcompute.stats.StatExporter.ExportFormat;
+import jcompute.results.ResultExporter;
+import jcompute.results.ResultExporter.ExportFormat;
 
 public class NodeManagerStatRequestMapping
 {
 	private Semaphore requestBlock;
 	private ExportFormat format; 
 	private String fileNameSuffix; 
-	public StatExporter exporter;
+	public ResultExporter exporter;
 
 	public NodeManagerStatRequestMapping(ExportFormat format, String fileNameSuffix)
 	{
@@ -26,12 +26,12 @@ public class NodeManagerStatRequestMapping
 		this.requestBlock.acquireUninterruptibly();
 	}
 	
-	public void setStatExporter(StatExporter exporter)
+	public void setStatExporter(ResultExporter exporter)
 	{
 		this.exporter = exporter;
 	}
 	
-	public StatExporter getExporter()
+	public ResultExporter getExporter()
 	{
 		return exporter;
 	}

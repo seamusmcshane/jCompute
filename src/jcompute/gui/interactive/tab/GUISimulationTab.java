@@ -746,7 +746,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	
 	private void addChartTabs()
 	{
-		Set<String> statGroups = simsManager.getStatGroupNames(simId);
+		Set<String> statGroups = simsManager.getTraceGroupNames(simId);
 		
 		LinkedList<GlobalStatChartPanel> charts = new LinkedList<GlobalStatChartPanel>();
 		
@@ -755,17 +755,16 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 			// Collect the enabled Charts
 			for(String group : statGroups)
 			{
-				// StatGroup statGroup = statManager.getStatGroup(group);
-				boolean enabled = simsManager.isStatGroupGraphingEnabled(simId, group);
+				boolean enabled = simsManager.isTraceGroupGraphingEnabled(simId, group);
 				
 				if(enabled)
 				{
-					boolean totalStatEnabled = simsManager.hasStatGroupTotalStat(simId, group);
-					int sampleWindow = simsManager.getStatGroupGraphSampleWindowSize(simId, group);
+					boolean totalStatEnabled = simsManager.hasTraceGroupTotalStat(simId, group);
+					int sampleWindow = simsManager.getTraceGroupGraphSampleWindowSize(simId, group);
 					
 					GlobalStatChartPanel chart = new GlobalStatChartPanel(group, group, totalStatEnabled, false, sampleWindow, false);
 					
-					simsManager.addStatGroupListener(simId, group, chart);
+					simsManager.addTraceGroupListener(simId, group, chart);
 					
 					charts.add(chart);
 				}

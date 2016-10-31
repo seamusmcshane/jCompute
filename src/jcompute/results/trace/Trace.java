@@ -1,13 +1,13 @@
-package jcompute.stats.trace;
+package jcompute.results.trace;
 
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import jcompute.stats.trace.samples.DoubleTraceSample;
-import jcompute.stats.trace.samples.IntegerTraceSample;
-import jcompute.stats.trace.samples.TraceSample;
+import jcompute.results.trace.samples.DoubleTraceSample;
+import jcompute.results.trace.samples.IntegerTraceSample;
+import jcompute.results.trace.samples.TraceSample;
 
 public class Trace
 {

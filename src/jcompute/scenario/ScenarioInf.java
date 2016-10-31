@@ -5,8 +5,8 @@ import java.util.List;
 
 import jcompute.batch.BatchItem;
 import jcompute.batch.itemgenerator.ItemGenerator;
+import jcompute.results.trace.group.TraceGroupSetting;
 import jcompute.simulation.SimulationScenarioManagerInf;
-import jcompute.stats.StatGroupSetting;
 
 /**
  * The scenario plugin-interface.
@@ -47,7 +47,7 @@ public interface ScenarioInf
 	/**
 	 * @return The list of settings for all the stat groups.
 	 */
-	public List<StatGroupSetting> getStatGroupSettingsList();
+	public List<TraceGroupSetting> getStatGroupSettingsList();
 	
 	/**
 	 * @return The configuration text used to create this scenario.

@@ -32,12 +32,12 @@ import jcompute.cluster.ncp.message.command.SimulationStatsReply;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
 import jcompute.cluster.ncp.message.notification.SimulationStatChanged;
 import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
+import jcompute.results.ResultExporter;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
-import jcompute.stats.StatExporter;
 
 public class ComputeNodeManager2
 {
@@ -572,7 +572,7 @@ public class ComputeNodeManager2
 	 * @param mapping
 	 * @param exporter
 	 */
-	private void processFinishedSimulation(RemoteSimulationMapping mapping, StatExporter exporter)
+	private void processFinishedSimulation(RemoteSimulationMapping mapping, ResultExporter exporter)
 	{
 		int simId = mapping.getRemoteSimId();
 		
