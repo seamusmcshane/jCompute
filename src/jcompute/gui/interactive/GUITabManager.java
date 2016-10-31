@@ -57,7 +57,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	private JPopupMenu tabPopUpMenu;
 	private JMenuItem menuCloseItem;
 	private JMenuItem menuRemoveItem;
-	private JMenuItem menuExportAllStats;
+	private JMenuItem menuExportResults;
 	
 	/** Current Selected Tab Index ID */
 	private int selectedTabIndex;
@@ -134,16 +134,16 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		
 		menuCloseItem = new JMenuItem("Close Tab ");
 		menuRemoveItem = new JMenuItem("Remove Tab");
-		menuExportAllStats = new JMenuItem("Export All Stats");
+		menuExportResults = new JMenuItem("Export Results");
 		
 		// Add a new menu item
 		menuCloseItem.addActionListener(this);
 		menuRemoveItem.addActionListener(this);
-		menuExportAllStats.addActionListener(this);
+		menuExportResults.addActionListener(this);
 		
 		tabPopUpMenu.add(menuCloseItem);
 		tabPopUpMenu.add(menuRemoveItem);
-		tabPopUpMenu.add(menuExportAllStats);
+		tabPopUpMenu.add(menuExportResults);
 		
 		addMouseListener(this);
 		
@@ -359,7 +359,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 		{
 			removeTab();
 		}
-		else if(e.getSource() == menuExportAllStats)
+		else if(e.getSource() == menuExportResults)
 		{
 			chooseExport();
 		}
