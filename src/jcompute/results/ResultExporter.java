@@ -38,7 +38,7 @@ public class ResultExporter
 	
 	/*
 	 * ***************************************************************************************************
-	 * Log Files
+	 * Trace Files
 	 *****************************************************************************************************/
 	
 	// File names
@@ -76,6 +76,91 @@ public class ResultExporter
 	public void populateFromResultManager(ResultManager rm)
 	{
 		log.info("Populating from Result Manager - " + rm.getName());
+		
+		/*
+		 * ***************************************************************************************************
+		 * Trace Files
+		 *****************************************************************************************************/
+		
+		Set<String> groupList = rm.getTraceGroupNames();
+		int numFiles = groupList.size();
+		
+		// FileName
+		traceFileNames = new String[numFiles];
+		
+		// FileData
+		traceTextData = new String[numFiles];
+		
+		int file = 0;
+		for(String group : groupList)
+		{
+			// Set the File Name
+			String fileName;
+			if(!traceFileNameSuffix.equals(""))
+			{
+				fileName = group + " " + traceFileNameSuffix;
+			}
+			else
+			{
+				fileName = group;
+			}
+			
+			log.info("Adding " + fileName);
+			
+			traceFileNames[file] = fileName;
+			
+			// File Data
+			traceTextData[file] = createStatExportString(rm.getTraceGroup(group));
+			
+			file++;
+		}
+		
+		// Compress the trace data if required
+		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
+		{
+			try
+			{
+				String fileExtension = format.getExtension();
+				
+				// Memory Buffer
+				ByteArrayOutputStream memoryBuffer = new ByteArrayOutputStream();
+				
+				// Create Archive
+				ZipOutputStream zipOutput = new ZipOutputStream(memoryBuffer);
+				
+				// Compression Method - DEFLATED == ZipEntry.DEFLATED
+				zipOutput.setMethod(ZipOutputStream.DEFLATED);
+				
+				// Compression level for DEFLATED
+				zipOutput.setLevel(Deflater.BEST_COMPRESSION);
+				
+				for(int f = 0; f < numFiles; f++)
+				{
+					// Entry start
+					zipOutput.putNextEntry(new ZipEntry(traceFileNames[f] + "." + fileExtension));
+					
+					// Data
+					zipOutput.write(traceTextData[f].getBytes());
+					
+					// Entry end
+					zipOutput.closeEntry();
+				}
+				
+				// Archive end
+				zipOutput.close();
+				
+				traceBinaryData = memoryBuffer.toByteArray();
+			}
+			catch(IOException e)
+			{
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Compress Data to Zip Failed!!?", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+		
+		/*
+		 * ***************************************************************************************************
+		 * Binary Files
+		 *****************************************************************************************************/
 		
 		// Binary data files
 		ArrayList<BinaryDataFileCollection> binDataColList = rm.getBDFList();
@@ -119,81 +204,6 @@ public class ResultExporter
 				
 				// File Data
 				binaryFileData[f] = filesList.get(f).bytes;
-			}
-		}
-		
-		Set<String> groupList = rm.getTraceGroupNames();
-		int numFiles = groupList.size();
-		
-		// FileName
-		traceFileNames = new String[numFiles];
-		
-		// FileData
-		traceTextData = new String[numFiles];
-		
-		int file = 0;
-		for(String group : groupList)
-		{
-			// Set the File Name
-			String fileName;
-			if(!traceFileNameSuffix.equals(""))
-			{
-				fileName = group + " " + traceFileNameSuffix;
-			}
-			else
-			{
-				fileName = group;
-			}
-			
-			log.info("Adding " + fileName);
-			
-			traceFileNames[file] = fileName;
-			
-			// File Data
-			traceTextData[file] = createStatExportString(rm.getTraceGroup(group));
-			
-			file++;
-		}
-		
-		// Compress the text if required
-		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
-		{
-			try
-			{
-				String fileExtension = format.getExtension();
-				
-				// Memory Buffer
-				ByteArrayOutputStream memoryBuffer = new ByteArrayOutputStream();
-				
-				// Create Archive
-				ZipOutputStream zipOutput = new ZipOutputStream(memoryBuffer);
-				
-				// Compression Method - DEFLATED == ZipEntry.DEFLATED
-				zipOutput.setMethod(ZipOutputStream.DEFLATED);
-				
-				// Compression level for DEFLATED
-				zipOutput.setLevel(Deflater.BEST_COMPRESSION);
-				
-				for(int f = 0; f < numFiles; f++)
-				{
-					// Entry start
-					zipOutput.putNextEntry(new ZipEntry(traceFileNames[f] + "." + fileExtension));
-					
-					// Data
-					zipOutput.write(traceTextData[f].getBytes());
-					
-					// Entry end
-					zipOutput.closeEntry();
-				}
-				
-				// Archive end
-				zipOutput.close();
-				
-				traceBinaryData = memoryBuffer.toByteArray();
-			}
-			catch(IOException e)
-			{
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Compress Data to Zip Failed!!?", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 	}
@@ -404,7 +414,6 @@ public class ResultExporter
 			// Bin Data
 			traceBinaryData = new byte[len];
 			source.get(traceBinaryData, 0, len);
-			
 		}
 		else
 		{
@@ -515,14 +524,6 @@ public class ResultExporter
 				
 				// FileName
 				binaryFileNames[b] = new String(bytes);
-				
-				/*
-				 * Remote filenames are sent with out a suffix Append one if required TODO fix bin files
-				 */
-				// if(!traceFileNameSuffix.equals(""))
-				// {
-				// traceFileNames[t] += " " + traceFileNameSuffix;
-				// }
 				
 				log.debug("File Name " + binaryFileNames[b]);
 				
