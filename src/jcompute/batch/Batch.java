@@ -650,7 +650,9 @@ public class Batch implements StoredQueuePosition
 				String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
 				
 				// Export the stats
-				exporter.exportStats(fullExportPath, batchStatsExportDir, item.getItemId());
+				exporter.exportTraceResults(fullExportPath);
+				
+				exporter.exportBinResults(fullExportPath, batchStatsExportDir, item.getItemId());
 			}
 			
 			// Only the first sample needs to save the item config (all

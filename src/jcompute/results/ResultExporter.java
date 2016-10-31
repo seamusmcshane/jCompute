@@ -592,7 +592,7 @@ public class ResultExporter
 	/*
 	 * File
 	 */
-	public void exportStats(String itemStatsExport, String collatedStatsDir, int itemid)
+	public void exportTraceResults(String itemExportPath)
 	{
 		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
 		{
@@ -600,7 +600,7 @@ public class ResultExporter
 			 * ***************************************************************************************************
 			 * Write Compressed Trace Files
 			 *****************************************************************************************************/
-			writeZipArchive(itemStatsExport, traceFileNameSuffix);
+			writeZipArchive(itemExportPath, traceFileNameSuffix);
 		}
 		else
 		{
@@ -612,10 +612,13 @@ public class ResultExporter
 			
 			for(int f = 0; f < numFiles; f++)
 			{
-				writeTextFile(itemStatsExport, traceFileNames[f], traceTextData[f]);
+				writeTextFile(itemExportPath, traceFileNames[f], traceTextData[f]);
 			}
 		}
-		
+	}
+	
+	public void exportBinResults(String itemExportPath, String collatedStatsDir, int itemid)
+	{
 		/*
 		 * ***************************************************************************************************
 		 * Write Bin Files
@@ -630,7 +633,7 @@ public class ResultExporter
 		if(binDir == null)
 		{
 			// If not collated then export to the item export dir
-			binDir = itemStatsExport;
+			binDir = itemExportPath;
 			
 			for(int f = 0; f < numBinFiles; f++)
 			{
