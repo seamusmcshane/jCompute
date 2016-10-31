@@ -53,7 +53,7 @@
 				<xs:element name="Config" type="BatchConfig"  minOccurs="1" maxOccurs="1"/>
 				<xs:element name="Log" type="BatchLog"  minOccurs="1" maxOccurs="1"/>
 				<xs:element name="Stats" type="BatchStats"  minOccurs="1" maxOccurs="1"/>
-				<xs:element name="Parameters" minOccurs="1" maxOccurs="1">
+				<xs:element name="Parameters" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="Parameter"  type="BatchParameter"  minOccurs="1" maxOccurs="unbounded"/>

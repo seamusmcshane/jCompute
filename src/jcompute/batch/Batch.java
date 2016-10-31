@@ -394,11 +394,21 @@ public class Batch implements StoredQueuePosition
 					}
 					else
 					{
+						status = false;
+						
 						// We have a statistics section but are there any stats and is one enabled!
-						if(!tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true))
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true))
 						{
-							status = false;
-							
+							status = true;
+						}
+						
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.BDFC", "Enabled", true))
+						{
+							status = true;
+						}
+						
+						if(!status)
+						{
 							log.error("The batch has statistics enabled but there are none enabled in the base scenario");
 						}
 					}
@@ -640,7 +650,7 @@ public class Batch implements StoredQueuePosition
 				String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
 				
 				// Export the stats
-				exporter.exportAllStatsToDir(fullExportPath);
+				exporter.exportStats(fullExportPath, batchStatsExportDir, item.getItemId());
 			}
 			
 			// Only the first sample needs to save the item config (all

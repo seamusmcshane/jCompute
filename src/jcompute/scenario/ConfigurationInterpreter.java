@@ -29,6 +29,7 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 import jcompute.stats.StatGroupSetting;
+import jcompute.stats.binary.BDFCSettings;
 
 /**
  * XML Configuration File Interpreter.
@@ -48,6 +49,7 @@ public class ConfigurationInterpreter
 	
 	// Statistics
 	private List<StatGroupSetting> statSettingsList;
+	private List<BDFCSettings> bdfcSettingsList;
 	
 	// End Events
 	private HashMap<String, Integer> endEvents;
@@ -56,6 +58,7 @@ public class ConfigurationInterpreter
 	{
 		// Statistics settings are managed at the top level.
 		statSettingsList = new ArrayList<StatGroupSetting>();
+		bdfcSettingsList = new ArrayList<BDFCSettings>();
 	}
 	
 	/*
@@ -112,6 +115,18 @@ public class ConfigurationInterpreter
 					section = "Statistics.Stat(" + i + ")";
 					statSettingsList.add(new StatGroupSetting(getStringValue(section, "Name"), getBooleanValue(section, "Enabled"), getBooleanValue(section,
 					"TotalStat"), getBooleanValue(section, "Graph"), getIntValue(section, "StatSampleRate"), getIntValue(section, "GraphSampleWindow")));
+				}
+			}
+			
+			int numBDFC = getSubListSize("Statistics", "BDFC");
+			
+			if(numBDFC > 0)
+			{
+				String section;
+				for(int i = 0; i < numBDFC; i++)
+				{
+					section = "Statistics.BDFC(" + i + ")";
+					bdfcSettingsList.add(new BDFCSettings(getStringValue(section, "Name"), getBooleanValue(section, "Enabled")));
 				}
 			}
 			
@@ -188,6 +203,11 @@ public class ConfigurationInterpreter
 	public List<StatGroupSetting> getStatGroupSettingsList()
 	{
 		return statSettingsList;
+	}
+	
+	public List<BDFCSettings> getBDFCSettingsList()
+	{
+		return bdfcSettingsList;
 	}
 	
 	/*

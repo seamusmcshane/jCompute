@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.Deflater;
@@ -20,9 +21,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xerces.util.XMLChar;
 
+import jcompute.stats.binary.BinaryDataFile;
+import jcompute.stats.binary.BinaryDataFileCollection;
 import jcompute.stats.groups.TraceGroup;
 import jcompute.stats.trace.Trace;
 import jcompute.stats.trace.samples.TraceSample;
+import jcompute.util.FileUtil;
 
 public class StatExporter
 {
@@ -32,13 +36,31 @@ public class StatExporter
 	// File Format for export
 	private final ExportFormat format;
 	
+	/*
+	 * ***************************************************************************************************
+	 * Log Files
+	 *****************************************************************************************************/
+	
 	// File names
-	private String fileNames[];
-	private String fileNameSuffix;
+	private String traceFileNames[];
+	private String traceFileNameSuffix;
 	
 	// Data
-	private String textData[];
-	private byte binData[];
+	private String traceTextData[];
+	private byte traceBinaryData[];
+	
+	/*
+	 * ***************************************************************************************************
+	 * Binary Files
+	 *****************************************************************************************************/
+	
+	// Collections
+	private String[] binaryCollectionNames;
+	
+	// Files
+	private int[] binaryFileToCollectionMapping;
+	private String[] binaryFileNames;
+	private byte[][] binaryFileData;
 	
 	/**
 	 * An object dedicated to exporting simulation stats Not-Thread safe.
@@ -48,30 +70,75 @@ public class StatExporter
 	public StatExporter(ExportFormat format, String fileNameSuffix)
 	{
 		this.format = format;
-		this.fileNameSuffix = fileNameSuffix;
+		this.traceFileNameSuffix = fileNameSuffix;
 	}
 	
 	public void populateFromStatManager(StatisticsManager sm)
 	{
 		log.info("Populating StatManager from " + sm.getname());
 		
+		// Binary data files
+		ArrayList<BinaryDataFileCollection> binDataColList = sm.getBDFList();
+		
+		int numCollections = binDataColList.size();
+		
+		binaryCollectionNames = new String[numCollections];
+		
+		int fileCount = 0;
+		
+		for(int c = 0; c < numCollections; c++)
+		{
+			// Record Collection Name
+			binaryCollectionNames[c] = binDataColList.get(c).getName();
+			
+			// All data files
+			ArrayList<BinaryDataFile> filesList = binDataColList.get(c).getDataFiles();
+			
+			// File count
+			fileCount += filesList.size();
+		}
+		
+		binaryFileToCollectionMapping = new int[fileCount];
+		binaryFileNames = new String[fileCount];
+		binaryFileData = new byte[fileCount][];
+		
+		for(int c = 0; c < numCollections; c++)
+		{
+			// File List
+			ArrayList<BinaryDataFile> filesList = binDataColList.get(c).getDataFiles();
+			
+			int flSize = filesList.size();
+			
+			for(int f = 0; f < flSize; f++)
+			{
+				// Collection mapping
+				binaryFileToCollectionMapping[f] = c;
+				
+				// FileName Name
+				binaryFileNames[f] = filesList.get(f).name;
+				
+				// File Data
+				binaryFileData[f] = filesList.get(f).bytes;
+			}
+		}
+		
 		Set<String> groupList = sm.getGroupList();
 		int numFiles = groupList.size();
 		
 		// FileName
-		fileNames = new String[numFiles];
+		traceFileNames = new String[numFiles];
 		
 		// FileData
-		textData = new String[numFiles];
+		traceTextData = new String[numFiles];
 		
 		int file = 0;
 		for(String group : groupList)
 		{
 			// Set the File Name
 			String fileName;
-			if(!fileNameSuffix.equals(""))
+			if(!traceFileNameSuffix.equals(""))
 			{
-				fileName = group + " " + fileNameSuffix;
+				fileName = group + " " + traceFileNameSuffix;
 			}
 			else
 			{
@@ -80,10 +147,10 @@ public class StatExporter
 			
 			log.info("Adding " + fileName);
 			
-			fileNames[file] = fileName;
+			traceFileNames[file] = fileName;
 			
 			// File Data
-			textData[file] = createStatExportString(sm.getStatGroup(group));
+			traceTextData[file] = createStatExportString(sm.getStatGroup(group));
 			
 			file++;
 		}
@@ -110,10 +177,10 @@ public class StatExporter
 				for(int f = 0; f < numFiles; f++)
 				{
 					// Entry start
-					zipOutput.putNextEntry(new ZipEntry(fileNames[f] + "." + fileExtension));
+					zipOutput.putNextEntry(new ZipEntry(traceFileNames[f] + "." + fileExtension));
 					
 					// Data
-					zipOutput.write(textData[f].getBytes());
+					zipOutput.write(traceTextData[f].getBytes());
 					
 					// Entry end
 					zipOutput.closeEntry();
@@ -122,7 +189,7 @@ public class StatExporter
 				// Archive end
 				zipOutput.close();
 				
-				binData = memoryBuffer.toByteArray();
+				traceBinaryData = memoryBuffer.toByteArray();
 			}
 			catch(IOException e)
 			{
@@ -142,11 +209,11 @@ public class StatExporter
 		
 		String archiveName = "stats";
 		
-		// Total files
-		size += 4;
-		
 		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
 		{
+			// Total files
+			size += 4;
+			
 			// File Num Field
 			size += 4;
 			
@@ -160,7 +227,7 @@ public class StatExporter
 			size += 4;
 			
 			// Data Len in bytes
-			size += binData.length;
+			size += traceBinaryData.length;
 			
 			// Buffer
 			tbuffer = ByteBuffer.allocate(size);
@@ -169,37 +236,129 @@ public class StatExporter
 			tbuffer.putInt(1);
 			
 			// Write the archive to the buffer
-			writeFileToByteBuffer(tbuffer, 0, archiveName, binData);
-			
+			writeBinFileToByteBuffer(tbuffer, -1, 0, archiveName, traceBinaryData);
 		}
 		else
 		{
-			int numFiles = fileNames.length;
+			/*
+			 * ***************************************************************************************************
+			 * Trace Files (Calc)
+			 *****************************************************************************************************/
+			int numTraceFiles = traceFileNames.length;
 			
-			// Calculate String Size
-			for(int f = 0; f < numFiles; f++)
+			// Total Trace files
+			size += 4;
+			
+			// Calculate Trace Size
+			for(int t = 0; t < numTraceFiles; t++)
 			{
 				// File Num Field
 				size += 4;
 				// File Name Len Field
 				size += 4;
 				// File Name Len in bytes
-				size += fileNames[f].getBytes().length;
+				size += traceFileNames[t].getBytes().length;
 				// Data Len Field
 				size += 4;
 				// Data Len in bytes
-				size += textData[f].getBytes().length;
+				size += traceTextData[t].getBytes().length;
 			}
 			
-			// Unicode 16=2bytes char
+			/*
+			 * ***************************************************************************************************
+			 * Bin Collections (Calc)
+			 *****************************************************************************************************/
+			
+			int numCollections = binaryCollectionNames.length;
+			
+			// Total Collections
+			size += 4;
+			
+			for(int c = 0; c < numCollections; c++)
+			{
+				// File Name Len Field
+				size += 4;
+				
+				// Collection Name
+				size += binaryCollectionNames[c].getBytes().length;
+			}
+			
+			/*
+			 * ***************************************************************************************************
+			 * Bin Collection Files (Calc)
+			 *****************************************************************************************************/
+			
+			int numBinFiles = binaryFileNames.length;
+			
+			// Total Bin files
+			size += 4;
+			
+			// Calculate Bin Size
+			for(int b = 0; b < numBinFiles; b++)
+			{
+				// Collection Mapping Field
+				size += 4;
+				// File Num Field
+				size += 4;
+				// File Name Len Field
+				size += 4;
+				// File Name Len in bytes
+				size += binaryFileNames[b].getBytes().length;
+				// Data Len Field
+				size += 4;
+				// Data Len in bytes
+				size += binaryFileData[b].length;
+			}
+			
+			/*
+			 * ***************************************************************************************************
+			 * Buffer
+			 *****************************************************************************************************/
+			
+			// Unicode strings are 16bit=2bytes char
 			tbuffer = ByteBuffer.allocate(size);
 			
-			// Total Stat Files
-			tbuffer.putInt(numFiles);
+			/*
+			 * ***************************************************************************************************
+			 * Put Traces
+			 *****************************************************************************************************/
 			
-			for(int f = 0; f < numFiles; f++)
+			// Total Trace Files
+			tbuffer.putInt(numTraceFiles);
+			
+			for(int t = 0; t < numTraceFiles; t++)
 			{
-				writeFileToByteBuffer(tbuffer, f, fileNames[f], textData[f]);
+				writeFileToByteBuffer(tbuffer, t, traceFileNames[t], traceTextData[t]);
+			}
+			
+			/*
+			 * ***************************************************************************************************
+			 * Put Collection
+			 *****************************************************************************************************/
+			
+			// Collections
+			tbuffer.putInt(numCollections);
+			
+			for(int c = 0; c < numCollections; c++)
+			{
+				// Collection Name Len Field
+				tbuffer.putInt(binaryCollectionNames[c].getBytes().length);
+				
+				// Collection Name Data
+				tbuffer.put(binaryCollectionNames[c].getBytes());
+			}
+			
+			/*
+			 * ***************************************************************************************************
+			 * Put Bin Files
+			 *****************************************************************************************************/
+			
+			// Total Bin Files
+			tbuffer.putInt(numBinFiles);
+			
+			for(int b = 0; b < numBinFiles; b++)
+			{
+				writeBinFileToByteBuffer(tbuffer, binaryFileToCollectionMapping[b], b, binaryFileNames[b], binaryFileData[b]);
 			}
 		}
 		
@@ -210,11 +369,11 @@ public class StatExporter
 	{
 		log.debug("StatExporter : populating from ByteBuffer");
 		
-		int numFiles = source.getInt();
-		log.debug("Num Files " + numFiles);
-		
 		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
 		{
+			int numFiles = source.getInt();
+			log.debug("Num Files " + numFiles);
+			
 			// Expects 1 file.
 			int fNum = source.getInt();
 			log.debug("File Num " + fNum);
@@ -243,25 +402,33 @@ public class StatExporter
 			log.debug("Data Len " + len);
 			
 			// Bin Data
-			binData = new byte[len];
-			source.get(binData, 0, len);
+			traceBinaryData = new byte[len];
+			source.get(traceBinaryData, 0, len);
 			
 		}
 		else
 		{
-			fileNames = new String[numFiles];
-			textData = new String[numFiles];
+			/*
+			 * ***************************************************************************************************
+			 * Get Trace Files
+			 *****************************************************************************************************/
 			
-			for(int f = 0; f < numFiles; f++)
+			int traceFiles = source.getInt();
+			log.debug("Num Files " + traceFiles);
+			
+			traceFileNames = new String[traceFiles];
+			traceTextData = new String[traceFiles];
+			
+			for(int t = 0; t < traceFiles; t++)
 			{
-				int fNum = source.getInt();
+				int tNum = source.getInt();
 				
-				if(fNum != f)
+				if(tNum != t)
 				{
 					log.error("File Numbers not correct");
 				}
 				
-				log.debug("File Number : " + fNum);
+				log.debug("Trace File Number : " + tNum);
 				
 				int len = source.getInt();
 				byte[] stringBytes = new byte[len];
@@ -271,17 +438,17 @@ public class StatExporter
 				source.get(stringBytes, 0, len);
 				
 				// FileName
-				fileNames[f] = new String(stringBytes);
+				traceFileNames[t] = new String(stringBytes);
 				
 				/*
 				 * Remote filenames are sent with out a suffix Append one if required
 				 */
-				if(!fileNameSuffix.equals(""))
+				if(!traceFileNameSuffix.equals(""))
 				{
-					fileNames[f] += " " + fileNameSuffix;
+					traceFileNames[t] += " " + traceFileNameSuffix;
 				}
 				
-				log.debug("File Name " + fileNames[f]);
+				log.debug("File Name " + traceFileNames[t]);
 				
 				// FileData
 				len = source.getInt();
@@ -289,8 +456,85 @@ public class StatExporter
 				log.debug("Data Len " + len);
 				
 				source.get(stringBytes, 0, len);
-				textData[f] = new String(stringBytes);
+				traceTextData[t] = new String(stringBytes);
 			}
+			
+			/*
+			 * ***************************************************************************************************
+			 * Get Collections
+			 *****************************************************************************************************/
+			
+			int numCollections = source.getInt();
+			
+			binaryCollectionNames = new String[numCollections];
+			
+			for(int c = 0; c < numCollections; c++)
+			{
+				// File Name Len Field
+				int len = source.getInt();
+				byte[] bytes = new byte[len];
+				
+				// Collection Name
+				source.get(bytes, 0, len);
+				binaryCollectionNames[c] = new String(bytes);
+			}
+			
+			/*
+			 * ***************************************************************************************************
+			 * Get Bin Files
+			 *****************************************************************************************************/
+			
+			// Total Bin Files
+			int numBinFiles = source.getInt();
+			
+			binaryFileToCollectionMapping = new int[numBinFiles];
+			binaryFileNames = new String[numBinFiles];
+			binaryFileData = new byte[numBinFiles][];
+			
+			for(int b = 0; b < numBinFiles; b++)
+			{
+				// Collection Number
+				binaryFileToCollectionMapping[b] = source.getInt();
+				
+				// File Number
+				int bNum = source.getInt();
+				
+				if(bNum != b)
+				{
+					log.error("File Numbers not correct");
+				}
+				
+				log.debug("Bin File Number : " + bNum);
+				
+				int len = source.getInt();
+				byte[] bytes = new byte[len];
+				
+				log.debug("File Name Len " + len);
+				
+				source.get(bytes, 0, len);
+				
+				// FileName
+				binaryFileNames[b] = new String(bytes);
+				
+				/*
+				 * Remote filenames are sent with out a suffix Append one if required TODO fix bin files
+				 */
+				// if(!traceFileNameSuffix.equals(""))
+				// {
+				// traceFileNames[t] += " " + traceFileNameSuffix;
+				// }
+				
+				log.debug("File Name " + binaryFileNames[b]);
+				
+				// FileData
+				len = source.getInt();
+				bytes = new byte[len];
+				log.debug("Data Len " + len);
+				
+				source.get(bytes, 0, len);
+				binaryFileData[b] = bytes;
+			}
+			
 		}
 		
 		int left = source.remaining();
@@ -319,8 +563,15 @@ public class StatExporter
 		tbuffer.put(fileData.getBytes());
 	}
 	
-	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, byte[] binData)
+	private void writeBinFileToByteBuffer(ByteBuffer tbuffer, int collection, int fileNum, String fileName, byte[] binData)
 	{
+		// Negative is a bypass meaning file is not part of a collection.
+		if(collection > -1)
+		{
+			// Number of file
+			tbuffer.putInt(collection);
+		}
+		
 		// Number of file
 		tbuffer.putInt(fileNum);
 		
@@ -340,24 +591,79 @@ public class StatExporter
 	/*
 	 * File
 	 */
-	
-	public void exportAllStatsToDir(String directory)
+	public void exportStats(String itemStatsExport, String collatedStatsDir, int itemid)
 	{
-		
 		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
 		{
-			writeZipArchive(directory, fileNameSuffix);
+			/*
+			 * ***************************************************************************************************
+			 * Write Compressed Trace Files
+			 *****************************************************************************************************/
+			writeZipArchive(itemStatsExport, traceFileNameSuffix);
 		}
 		else
 		{
-			int numFiles = fileNames.length;
+			/*
+			 * ***************************************************************************************************
+			 * Write Trace Files
+			 *****************************************************************************************************/
+			int numFiles = traceFileNames.length;
 			
 			for(int f = 0; f < numFiles; f++)
 			{
-				writeFiles(directory, fileNames[f], textData[f]);
+				writeTextFile(itemStatsExport, traceFileNames[f], traceTextData[f]);
 			}
 		}
 		
+		/*
+		 * ***************************************************************************************************
+		 * Write Bin Files
+		 *****************************************************************************************************/
+		
+		// Collate all bin stats to the top level
+		String binDir = collatedStatsDir;
+		
+		// Bin Files
+		int numBinFiles = binaryFileNames.length;
+		
+		if(binDir == null)
+		{
+			// If not collated then export to the item export dir
+			binDir = itemStatsExport;
+			
+			for(int f = 0; f < numBinFiles; f++)
+			{
+				// Get the collection from the mappeing
+				String collection = binaryCollectionNames[binaryFileToCollectionMapping[f]];
+				
+				// Write the bin file within the item dir in a collection dir
+				writeBinFile(binDir, collection + File.separator + binaryFileNames[f], binaryFileData[f]);
+			}
+		}
+		else
+		{
+			// Write each file to a collated collection dir
+			for(int c = 0; c < binaryCollectionNames.length; c++)
+			{
+				// Collection Specific Path
+				String exportPaths = collatedStatsDir + File.separator + binaryCollectionNames[c];
+				
+				FileUtil.createDirIfNotExist(exportPaths);
+			}
+			
+			// As these filenames may be identical we replace them with the item id padded with zeros to the filename
+			String itemNameZeroPadded = String.format("%06d", itemid);
+			
+			for(int f = 0; f < numBinFiles; f++)
+			{
+				String exportDir = binaryCollectionNames[binaryFileToCollectionMapping[f]];
+				
+				// Keep file ext
+				String ext = FileUtil.getFileNameExtension(binaryFileNames[f]);
+				
+				writeBinFile(binDir + File.separator + exportDir, itemNameZeroPadded + "." + ext, binaryFileData[f]);
+			}
+		}
 	}
 	
 	public void exportAllStatsToZipDir(ZipOutputStream zipOut, int itemId, int sampleId)
@@ -365,20 +671,46 @@ public class StatExporter
 		// Create Zip Directories
 		try
 		{
-			int numFiles = fileNames.length;
+			/*
+			 * ***************************************************************************************************
+			 * Write Trace Files
+			 *****************************************************************************************************/
+			
+			int numFiles = traceFileNames.length;
 			
 			for(int f = 0; f < numFiles; f++)
 			{
 				// FileName
-				zipOut.putNextEntry(new ZipEntry(itemId + "/" + sampleId + "/" + fileNames[f] + ".csv"));
+				zipOut.putNextEntry(new ZipEntry(itemId + "/" + sampleId + "/" + traceFileNames[f] + ".csv"));
 				
 				// Data
-				zipOut.write(textData[f].getBytes());
+				zipOut.write(traceTextData[f].getBytes());
 				
 				// Entry end
 				zipOut.closeEntry();
 			}
 			
+			/*
+			 * ***************************************************************************************************
+			 * Write Bin Files
+			 *****************************************************************************************************/
+			
+			int numBinFiles = binaryFileNames.length;
+			
+			for(int f = 0; f < numBinFiles; f++)
+			{
+				// Get the collection from the mappeing
+				String collection = binaryCollectionNames[binaryFileToCollectionMapping[f]];
+				
+				// Write the bin file within the item dir in a collection dir as binfilename
+				zipOut.putNextEntry(new ZipEntry(collection + File.separator + binaryFileNames[f]));
+				
+				// Data
+				zipOut.write(binaryFileData[f]);
+				
+				// Entry end
+				zipOut.closeEntry();
+			}
 		}
 		catch(IOException e)
 		{
@@ -402,7 +734,7 @@ public class StatExporter
 			String filePath = directory + File.separator + archiveName + "." + "zip";
 			// Write the memory buffer out as a file
 			BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(filePath));
-			fileOut.write(binData);
+			fileOut.write(traceBinaryData);
 			fileOut.flush();
 			fileOut.close();
 			
@@ -423,7 +755,7 @@ public class StatExporter
 	 * @param fileData
 	 * @param extension
 	 */
-	private void writeFiles(String directory, String fileName, String fileData)
+	private void writeTextFile(String directory, String fileName, String fileData)
 	{
 		String fileExtension = format.getExtension();
 		
@@ -444,6 +776,28 @@ public class StatExporter
 			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
 		}
 		
+	}
+	
+	private void writeBinFile(String directory, String fileName, byte[] fileData)
+	{
+		try
+		{
+			String filePath = directory + File.separator + fileName;
+			
+			File file = new File(filePath);
+			file.getParentFile().mkdirs();
+			
+			FileOutputStream stream = new FileOutputStream(new File(filePath));
+			
+			stream.write(fileData);
+			stream.close();
+			
+			log.info("Wrote File : " + fileName);
+		}
+		catch(IOException e)
+		{
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
+		}
 	}
 	
 	/*
@@ -701,7 +1055,11 @@ public class StatExporter
 	
 	public int getSize()
 	{
-		return(fileNames == null ? 0 : fileNames.length);
+		int traceFiles = (traceFileNames == null ? 0 : traceFileNames.length);
+		
+		int binFiles = (binaryFileNames == null ? 0 : binaryFileNames.length);
+		
+		return(traceFiles + binFiles);
 	}
 	
 	public enum ExportFormat

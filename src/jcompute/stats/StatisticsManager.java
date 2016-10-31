@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import jcompute.stats.binary.BinaryDataFileCollection;
 import jcompute.stats.groups.TraceGroup;
 
 /**
@@ -18,12 +19,16 @@ public class StatisticsManager
 	private HashMap<String, TraceGroup> groupMap;
 	private ArrayList<TraceGroup> traceGroupList;
 	
+	private ArrayList<BinaryDataFileCollection> binaryDataList;
+	
 	private Semaphore statsManagerLock = new Semaphore(1);
 	
 	public StatisticsManager(String managerName)
 	{
 		this.managerName = managerName;
 		groupMap = new HashMap<String, TraceGroup>();
+		
+		binaryDataList = new ArrayList<BinaryDataFileCollection>();
 	}
 	
 	/**
@@ -35,6 +40,18 @@ public class StatisticsManager
 	{
 		statsManagerLock.acquireUninterruptibly();
 		groupMap.put(group.getName(), group);
+		statsManagerLock.release();
+	}
+	
+	/**
+	 * Add a new BinaryDataFileCollection to to the statistics manager
+	 * 
+	 * @param group
+	 */
+	public void registerBDFCollection(BinaryDataFileCollection collection)
+	{
+		statsManagerLock.acquireUninterruptibly();
+		binaryDataList.add(collection);
 		statsManagerLock.release();
 	}
 	
@@ -70,6 +87,11 @@ public class StatisticsManager
 		statsManagerLock.release();
 		
 		return group;
+	}
+	
+	public ArrayList<BinaryDataFileCollection> getBDFList()
+	{
+		return binaryDataList;
 	}
 	
 	/**
