@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import jcompute.batch.BatchItem;
+import jcompute.batch.BatchSettings;
 import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.results.trace.group.TraceGroupSetting;
 import jcompute.simulation.SimulationScenarioManagerInf;
@@ -76,16 +77,11 @@ public interface ScenarioInf
 	 * @param batchName
 	 * @param batchConfigProcessor
 	 * @param destinationItemList
-	 * @param itemSamples
 	 * @param progress1dArray
 	 * @param baseScenarioText
-	 * @param storeStats
-	 * @param statsMethodSingleArchive
-	 * @param singleArchiveCompressionLevel
-	 * @param bosBufferSize
+	 * @param settings
 	 * @return the item generator which can generate batch items for this scenario type.
 	 */
 	public ItemGenerator getItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor,
-	LinkedList<BatchItem> destinationItemList, int itemSamples, double[] progress1dArray, String baseScenarioText, boolean storeStats,
-	boolean statsMethodSingleArchive, int singleArchiveCompressionLevel, int bosBufferSize);
+	LinkedList<BatchItem> destinationItemList, double[] progress1dArray, String baseScenarioText, BatchSettings settings);
 }
