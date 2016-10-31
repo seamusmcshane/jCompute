@@ -159,7 +159,7 @@ public class ResultManager
 	/**
 	 * Send a notification to end event listeners of this manager.
 	 */
-	public void endEventNotifiyStatListeners()
+	public void endEventNotifiyTraceListeners()
 	{
 		for(TraceGroup group : getTraceGroupList())
 		{
