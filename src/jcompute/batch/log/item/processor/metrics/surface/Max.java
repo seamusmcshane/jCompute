@@ -1,4 +1,4 @@
-package jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface;
+package jcompute.batch.log.item.processor.metrics.surface;
 
 import java.util.stream.IntStream;
 

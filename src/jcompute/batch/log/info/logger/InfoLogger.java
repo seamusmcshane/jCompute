@@ -1,4 +1,4 @@
-package jcompute.batch.logger;
+package jcompute.batch.log.info.logger;
 
 import java.io.BufferedWriter;
 import java.io.File;

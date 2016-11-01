@@ -454,7 +454,7 @@ public class BatchManager
 		
 		batchManagerLock.release();
 		
-		controlNode.addSimulation(nextItem, itemConfig, batch.getStatExportFormat());
+		controlNode.addSimulation(nextItem, itemConfig, batch.getTraceExportFormat());
 		
 		batchManagerLock.acquireUninterruptibly();
 		

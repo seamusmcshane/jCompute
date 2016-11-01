@@ -23,9 +23,9 @@ import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
-import jcompute.batch.logfileprocessor.ItemLogProcessor.ComputedMetric;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
+import jcompute.batch.log.item.processor.ItemLogProcessor.ComputedMetric;
+import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf.Type;
 import jcompute.gui.view.misc.Palette;
 import jcompute.math.JCMath;
 import jcompute.timing.TimerObj;

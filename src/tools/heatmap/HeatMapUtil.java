@@ -19,8 +19,8 @@ import javax.swing.SwingUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.logfileprocessor.InfoLogProcessor;
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
+import jcompute.batch.log.info.processor.InfoLogProcessor;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
 import jcompute.gui.component.swing.MessageBox;
 import jcompute.logging.Logging;
 import jcompute.util.LookAndFeel;

@@ -53,8 +53,8 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
-import jcompute.batch.logfileprocessor.InfoLogProcessor;
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
+import jcompute.batch.log.info.processor.InfoLogProcessor;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
 import jcompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
 import jcompute.gui.component.swing.jpanel.TablePanel;
 import jcompute.gui.component.tablecell.EmptyCellColorRenderer;

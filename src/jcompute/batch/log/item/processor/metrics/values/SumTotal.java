@@ -1,4 +1,4 @@
-package jcompute.batch.logfileprocessor.logformatprocessor.metrics.values;
+package jcompute.batch.log.item.processor.metrics.values;
 
 public class SumTotal implements ValueMetricInf
 {

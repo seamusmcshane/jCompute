@@ -2,8 +2,8 @@ package tools.surfaceplotgenerator.lib;
 
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ITickRenderer;
 
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
+import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf.Type;
 
 public class SurfaceChartHelper
 {

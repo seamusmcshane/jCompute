@@ -1,4 +1,4 @@
-package jcompute.batch.logfileprocessor.logformatprocessor;
+package jcompute.batch.log.item.processor.logformat;
 
 import java.io.IOException;
 import java.util.stream.IntStream;
@@ -6,12 +6,12 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.Average;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.Max;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.StandardDeviation;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.values.SumTotal;
+import jcompute.batch.log.item.processor.metrics.surface.Average;
+import jcompute.batch.log.item.processor.metrics.surface.Max;
+import jcompute.batch.log.item.processor.metrics.surface.StandardDeviation;
+import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf;
+import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf.Type;
+import jcompute.batch.log.item.processor.metrics.values.SumTotal;
 
 public class ItemLogFormatValuesContainer
 {

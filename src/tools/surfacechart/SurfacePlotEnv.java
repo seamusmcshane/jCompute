@@ -13,8 +13,8 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
-import jcompute.batch.logfileprocessor.logformatprocessor.metrics.surface.SurfaceMetricInf.Type;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
+import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf.Type;
 import jcompute.gui.view.inputcontroller.OrbitalCameraInputController;
 import jcompute.gui.view.misc.Palette;
 

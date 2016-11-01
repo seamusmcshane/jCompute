@@ -14,8 +14,8 @@ import javax.swing.SwingUtilities;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
-import jcompute.batch.logfileprocessor.InfoLogProcessor;
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
+import jcompute.batch.log.info.processor.InfoLogProcessor;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
 import jcompute.gui.component.swing.MessageBox;
 import jcompute.logging.Logging;
 import jcompute.util.FileUtil;

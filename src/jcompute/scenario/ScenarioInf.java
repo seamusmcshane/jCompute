@@ -6,6 +6,7 @@ import java.util.List;
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchSettings;
 import jcompute.batch.itemgenerator.ItemGenerator;
+import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.results.trace.group.TraceGroupSetting;
 import jcompute.simulation.SimulationScenarioManagerInf;
 
@@ -69,6 +70,11 @@ public interface ScenarioInf
 	
 	public static final String INVALID = "Invalid";
 	
+	/*
+	 * ***************************************************************************************************
+	 * Cluster Support
+	 *****************************************************************************************************/
+	
 	/**
 	 * Only required in cluster mode.
 	 * Note The standard item generator is available and recommended.
@@ -84,4 +90,9 @@ public interface ScenarioInf
 	 */
 	public ItemGenerator getItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor,
 	LinkedList<BatchItem> destinationItemList, double[] progress1dArray, String baseScenarioText, BatchSettings settings);
+	
+	/**
+	 * @return
+	 */
+	public BatchItemLogInf getItemLogWriter();
 }

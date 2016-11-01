@@ -45,9 +45,9 @@ import org.jzy3d.plot3d.rendering.view.modes.ViewPositionMode;
 
 import com.jogamp.opengl.util.texture.TextureData;
 
-import jcompute.batch.logfileprocessor.InfoLogProcessor;
-import jcompute.batch.logfileprocessor.ItemLogProcessor;
-import jcompute.batch.logfileprocessor.ItemLogProcessor.ComputedMetric;
+import jcompute.batch.log.info.processor.InfoLogProcessor;
+import jcompute.batch.log.item.processor.ItemLogProcessor;
+import jcompute.batch.log.item.processor.ItemLogProcessor.ComputedMetric;
 import jcompute.math.JCMath;
 import jcompute.util.FileUtil;
 import jcompute.util.JCText;

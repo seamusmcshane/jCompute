@@ -440,7 +440,7 @@ public class ControlNode
 	 * @param itemConfig
 	 * @param statExportFormat
 	 */
-	public void addSimulation(BatchItem item, String itemConfig, ExportFormat statExportFormat)
+	public void addSimulation(BatchItem item, String itemConfig, ExportFormat traceExportFormat)
 	{
 		controlNodeLock.acquireUninterruptibly();
 		
@@ -460,7 +460,7 @@ public class ControlNode
 		RemoteSimulationMapping mapping = new RemoteSimulationMapping(item, simulationNum);
 		
 		// Stat Export format for this sim
-		mapping.setExportFormat(statExportFormat);
+		mapping.setExportFormat(traceExportFormat);
 		
 		// suffix for exported stat files
 		mapping.setFileNameSuffix(fileNameSuffix);

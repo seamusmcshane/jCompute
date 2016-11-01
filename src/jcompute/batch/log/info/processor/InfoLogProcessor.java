@@ -1,4 +1,4 @@
-package jcompute.batch.logfileprocessor;
+package jcompute.batch.log.info.processor;
 
 import java.io.BufferedReader;
 import java.io.File;
