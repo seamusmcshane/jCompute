@@ -38,8 +38,8 @@ import jcompute.cluster.ncp.message.registration.ConfigurationRequest;
 import jcompute.cluster.ncp.message.registration.RegistrationReqAck;
 import jcompute.cluster.ncp.message.registration.RegistrationReqNack;
 import jcompute.cluster.ncp.message.registration.RegistrationRequest;
-import jcompute.results.ResultExporter;
-import jcompute.results.ResultExporter.ExportFormat;
+import jcompute.results.export.ExportFormat;
+import jcompute.results.export.ResultExporter;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 

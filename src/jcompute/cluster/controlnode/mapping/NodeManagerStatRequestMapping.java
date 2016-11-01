@@ -2,8 +2,8 @@ package jcompute.cluster.controlnode.mapping;
 
 import java.util.concurrent.Semaphore;
 
-import jcompute.results.ResultExporter;
-import jcompute.results.ResultExporter.ExportFormat;
+import jcompute.results.export.ExportFormat;
+import jcompute.results.export.ResultExporter;
 
 public class NodeManagerStatRequestMapping
 {

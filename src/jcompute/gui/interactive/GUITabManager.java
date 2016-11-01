@@ -24,8 +24,8 @@ import jcompute.IconManager;
 import jcompute.IconManager.IconIndex;
 import jcompute.gui.interactive.tab.GUISimulationTab;
 import jcompute.gui.interactive.tab.SimulationListTabPanel;
-import jcompute.results.ResultExporter;
-import jcompute.results.ResultExporter.ExportFormat;
+import jcompute.results.export.ExportFormat;
+import jcompute.results.export.ResultExporter;
 import jcompute.simulationmanager.SimulationsManager;
 
 public class GUITabManager extends JTabbedPane implements MouseListener, ActionListener

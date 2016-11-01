@@ -1,7 +1,7 @@
 package jcompute.cluster.batchmanager;
 
 import jcompute.batch.BatchItem;
-import jcompute.results.ResultExporter;
+import jcompute.results.export.ResultExporter;
 
 public class CompletedItemsNode
 {

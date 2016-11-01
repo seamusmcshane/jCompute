@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.JComputeEventBus;
 import jcompute.gui.view.View;
-import jcompute.results.ResultExporter;
-import jcompute.results.ResultExporter.ExportFormat;
+import jcompute.results.export.ExportFormat;
+import jcompute.results.export.ResultExporter;
 import jcompute.results.trace.group.TraceGroupListenerInf;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;

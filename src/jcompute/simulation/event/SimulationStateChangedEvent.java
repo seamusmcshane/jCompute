@@ -1,6 +1,6 @@
 package jcompute.simulation.event;
 
-import jcompute.results.ResultExporter;
+import jcompute.results.export.ResultExporter;
 import jcompute.simulation.SimulationState.SimState;
 
 public class SimulationStateChangedEvent

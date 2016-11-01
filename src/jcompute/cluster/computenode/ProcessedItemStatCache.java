@@ -2,7 +2,7 @@ package jcompute.cluster.computenode;
 
 import java.util.HashMap;
 
-import jcompute.results.ResultExporter;
+import jcompute.results.export.ResultExporter;
 
 public class ProcessedItemStatCache
 {

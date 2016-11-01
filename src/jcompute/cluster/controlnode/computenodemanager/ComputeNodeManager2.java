@@ -32,7 +32,7 @@ import jcompute.cluster.ncp.message.command.SimulationResultsReply;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
 import jcompute.cluster.ncp.message.notification.SimulationStatChanged;
 import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
-import jcompute.results.ResultExporter;
+import jcompute.results.export.ResultExporter;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;

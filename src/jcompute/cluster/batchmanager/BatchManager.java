@@ -28,7 +28,7 @@ import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeIt
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jcompute.datastruct.list.ManagedBypassableQueue;
 import jcompute.datastruct.list.StoredQueuePosition;
-import jcompute.results.ResultExporter;
+import jcompute.results.export.ResultExporter;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 
