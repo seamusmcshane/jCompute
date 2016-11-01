@@ -17,7 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchSettings;
+import jcompute.batch.BatchResultSettings;
 import jcompute.datastruct.cache.DiskCache;
 import jcompute.math.JCMath;
 import jcompute.scenario.ConfigurationInterpreter;
@@ -45,7 +45,7 @@ public class StandardItemGenerator extends ItemGenerator
 	private final double[] progress1dArray;
 	private final String baseScenarioText;
 	
-	private final BatchSettings batchSettings;
+	private final BatchResultSettings batchResultSettings;
 	
 	// Returnable
 	private String[] groupName;
@@ -59,7 +59,7 @@ public class StandardItemGenerator extends ItemGenerator
 	private boolean needGenerated;
 	
 	public StandardItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor, LinkedList<BatchItem> destinationItemList,
-	double[] progress1dArray, String baseScenarioText, BatchSettings settings)
+	double[] progress1dArray, String baseScenarioText, BatchResultSettings settings)
 	{
 		super.setBatchLazyInitStorageVariables(batchId, batchName, batchConfigProcessor);
 		
@@ -68,7 +68,7 @@ public class StandardItemGenerator extends ItemGenerator
 		this.progress1dArray = progress1dArray;
 		this.baseScenarioText = baseScenarioText;
 		
-		this.batchSettings = settings;
+		this.batchResultSettings = settings;
 		
 		needGenerated = true;
 	}
@@ -273,7 +273,7 @@ public class StandardItemGenerator extends ItemGenerator
 		
 		// Create if needed
 		String zipPath = null;
-		if(batchSettings.ResultsEnabled & batchSettings.TraceStoreSingleArchive)
+		if(batchResultSettings.ResultsEnabled & batchResultSettings.TraceStoreSingleArchive)
 		{
 			// Create and populate Results Zip archive with Directories
 			zipPath = batchStatsExportDir + File.separator + "results.zip";
@@ -282,12 +282,12 @@ public class StandardItemGenerator extends ItemGenerator
 			
 			try
 			{
-				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipPath), batchSettings.BufferSize);
+				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipPath), batchResultSettings.BufferSize);
 				
 				resultsZipOut = new ZipOutputStream(bos);
 				
 				resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
-				resultsZipOut.setLevel(batchSettings.TraceArchiveCompressionLevel);
+				resultsZipOut.setLevel(batchResultSettings.TraceArchiveCompressionLevel);
 			}
 			catch(FileNotFoundException e1)
 			{
@@ -306,13 +306,13 @@ public class StandardItemGenerator extends ItemGenerator
 		for(int comboNo = 0; comboNo < combinations; comboNo++)
 		{
 			// Are stats enabled
-			if(batchSettings.ResultsEnabled)
+			if(batchResultSettings.ResultsEnabled)
 			{
 				// Item Samples
-				int itemSamples = batchSettings.ItemSamples;
+				int itemSamples = batchResultSettings.ItemSamples;
 				
 				// Create Sub Directories Entry in Zip Archive or a disk Directory
-				if(batchSettings.TraceStoreSingleArchive)
+				if(batchResultSettings.TraceStoreSingleArchive)
 				{
 					try
 					{
@@ -519,7 +519,7 @@ public class StandardItemGenerator extends ItemGenerator
 				
 				// Add the item to the temp combo list (samples created later) 1==Sample one with samples starting from base of 1
 				tempComboItemList.add(new BatchItem(comboNo, 1, super.getBatchId(), itemName.toString(), cacheIndex, tempCoord, tempCoordValues,
-				batchSettings.ResultsEnabled));
+				batchResultSettings.ResultsEnabled));
 			}
 			catch(UnsupportedEncodingException e)
 			{
@@ -562,7 +562,7 @@ public class StandardItemGenerator extends ItemGenerator
 			destinationItemList.add(comboItem);
 			
 			// Number Item Samples
-			int itemSamples = batchSettings.ItemSamples;
+			int itemSamples = batchResultSettings.ItemSamples;
 			
 			// SID/SampleId is 1 base/ 1=first sample - each additional sample for the item will have the same item id and cacheIndex.
 			for(int sid = 2; sid < (itemSamples + 1); sid++)

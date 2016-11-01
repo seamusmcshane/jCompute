@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchSettings;
+import jcompute.batch.BatchResultSettings;
 import jcompute.util.JCText;
 
 public class CustomItemLogger
@@ -29,7 +29,7 @@ public class CustomItemLogger
 		
 	}
 	
-	public void init(CustomCSVItemLogFormatInf logformat, int BW_BUFFER_SIZE, String batchName, BatchSettings settings, String batchStatsExportDir)
+	public void init(CustomCSVItemLogFormatInf logformat, int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir)
 	throws IOException
 	{
 		try

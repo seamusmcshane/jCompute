@@ -1,6 +1,6 @@
 package jcompute.batch;
 
-public class BatchSettings
+public class BatchResultSettings
 {
 	public final boolean ResultsEnabled;
 	public final boolean TraceStoreSingleArchive;
@@ -20,7 +20,7 @@ public class BatchSettings
 	public final int ItemSamples;
 	public final boolean MultiSampleItems;
 	
-	public BatchSettings(boolean resultsEnabled, boolean traceStoreSingleArchive, int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled,
+	public BatchResultSettings(boolean resultsEnabled, boolean traceStoreSingleArchive, int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled,
 	boolean itemLogEnabled, boolean customItemLogEnabled, int itemSamples)
 	{
 		this.ResultsEnabled = resultsEnabled;

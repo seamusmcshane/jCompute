@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchSettings;
+import jcompute.batch.BatchResultSettings;
 import jcompute.batch.log.item.processor.logformat.ItemLogTextv2Format;
 
 public class TextBatchItemLogFormatV2 implements BatchItemLogInf
@@ -20,7 +20,7 @@ public class TextBatchItemLogFormatV2 implements BatchItemLogInf
 	}
 	
 	@Override
-	public void init(String[] parameterName, String[] groupName, int BW_BUFFER_SIZE, String batchName, BatchSettings settings, String batchStatsExportDir)
+	public void init(String[] parameterName, String[] groupName, int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir)
 	throws IOException
 	{
 		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true), BW_BUFFER_SIZE));

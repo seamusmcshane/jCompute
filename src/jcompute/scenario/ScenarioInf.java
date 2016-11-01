@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchSettings;
+import jcompute.batch.BatchResultSettings;
 import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.results.trace.group.TraceGroupSetting;
@@ -89,7 +89,7 @@ public interface ScenarioInf
 	 * @return the item generator which can generate batch items for this scenario type.
 	 */
 	public ItemGenerator getItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor,
-	LinkedList<BatchItem> destinationItemList, double[] progress1dArray, String baseScenarioText, BatchSettings settings);
+	LinkedList<BatchItem> destinationItemList, double[] progress1dArray, String baseScenarioText, BatchResultSettings settings);
 	
 	/**
 	 * @return

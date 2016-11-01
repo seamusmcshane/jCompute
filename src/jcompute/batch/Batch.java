@@ -86,7 +86,7 @@ public class Batch implements StoredQueuePosition
 	private long ioTotalTimes;
 	private long lastCompletedItemTimeMillis;
 	
-	private BatchSettings settings;
+	private BatchResultSettings settings;
 	
 	// Write stats to a single archive or directories with sub archives
 	private final int BOS_DEFAULT_BUFFER_SIZE = 8192;
@@ -101,10 +101,6 @@ public class Batch implements StoredQueuePosition
 	
 	// Item log version
 	private BatchItemLogInf itemLog;
-	
-	// Used for combination and for saving axis names
-	// private String parameterName[];
-	// private String groupName[];
 	
 	private ItemGenerator itemGenerator;
 	private long itemGenerationTime;
@@ -289,7 +285,7 @@ public class Batch implements StoredQueuePosition
 			// How many times to run each batchItem.
 			final int ItemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples", 1);
 			
-			settings = new BatchSettings(ResultsEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled,
+			settings = new BatchResultSettings(ResultsEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled,
 			CustomItemLogEnabled, ItemSamples);
 			
 			log.info("Store Stats " + settings.ResultsEnabled);
@@ -541,27 +537,6 @@ public class Batch implements StoredQueuePosition
 		{
 			try
 			{
-				
-				// switch(ITEM_LOG_VERSION)
-				// {
-				// case 1:
-				// {
-				// itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true),
-				// BW_BUFFER_SIZE));
-				// }
-				// break;
-				// case 2:
-				// {
-				// itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true),
-				// BW_BUFFER_SIZE));
-				// }
-				// break;
-				// }
-				//
-				// writeItemLogHeader(ITEM_LOG_VERSION, numCordinates);
-				
-				// itemLog = new TextBatchItemLogFormatV2(parameterName, groupName, numCordinates, BW_BUFFER_SIZE);
-				
 				System.out.println("itemLog" + itemLog);
 				System.out.println("itemGenerator" + itemGenerator);
 				System.out.println("batchName" + batchName);
