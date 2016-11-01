@@ -28,7 +28,7 @@ import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.NCPSocket;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReply;
-import jcompute.cluster.ncp.message.command.SimulationStatsReply;
+import jcompute.cluster.ncp.message.command.SimulationResultsReply;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
 import jcompute.cluster.ncp.message.notification.SimulationStatChanged;
 import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
@@ -311,11 +311,11 @@ public class ComputeNodeManager2
 								JComputeEventBus.post(new ComputeNodeStatsUpdate(nodeInfo.getUid(), reply.getSequenceNum(), reply.getNodeStats()));
 							}
 							break;
-							case NCP.SimStatsReply:
+							case NCP.SimResultsReq:
 							{
-								log.info("Received simulation statistics reply");
+								log.info("Received simulation results reply");
 								
-								SimulationStatsReply reply = (SimulationStatsReply) message;
+								SimulationResultsReply reply = (SimulationResultsReply) message;
 								
 								// Simulation Id
 								int simId = reply.getSimId();

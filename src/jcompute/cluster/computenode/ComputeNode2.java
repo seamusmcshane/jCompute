@@ -17,7 +17,7 @@ import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.NCPSocket;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReq;
-import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
+import jcompute.cluster.ncp.message.command.SimulationResultsRequest;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
 import jcompute.results.ResultExporter;
 import jcompute.results.ResultExporter.ExportFormat;
@@ -253,13 +253,13 @@ public class ComputeNode2
 										ncpSocket.sendNodeStatsReply(req, nodeStatsSample);
 									}
 									break;
-									case NCP.SimStatsReq:
+									case NCP.SimResultsReq:
 									{
-										SimulationStatsRequest req = (SimulationStatsRequest) message;
+										SimulationResultsRequest req = (SimulationResultsRequest) message;
 										
 										int simId = req.getSimId();
 										
-										log.info("SimStatsReq " + simId);
+										log.info("SimResultsReq " + simId);
 										
 										// Is this an active simulation we have got a statistics request for
 										if(simulationsManager.hasSimWithId(simId))
@@ -270,8 +270,8 @@ public class ComputeNode2
 											// We assume remote did not want the result.
 											statCache.remove(simId);
 											
-											log.warn("Got statistics request for active simulation " + simId
-											+ " - removing simulation/statistics - NOT sending SimStats!!!");
+											log.warn("Got results request for active simulation " + simId
+											+ " - removing simulation/results - NOT sending results!!!");
 										}
 										else
 										{

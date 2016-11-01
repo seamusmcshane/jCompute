@@ -73,7 +73,7 @@ public class NCP
 	}
 	
 	// Protocol version - prevent mismatched nodes
-	public static final int NCP_PROTOCOL_VERSION = 8;
+	public static final int NCP_PROTOCOL_VERSION = 9;
 	
 	// NCP Message Type Definitions
 	
@@ -99,9 +99,9 @@ public class NCP
 	public static final int AddSimReq = 31;			// ComputeNode Add Simulation Request - request from controller to add a sim (with config)
 	public static final int AddSimReply = 32;		// ComputeNode Add Simulation Acknowledgement - reply with a sim slot id or -1 denied
 	
-	// Simulation Statistics Retrieval
-	public static final int SimStatsReq = 41;		// ComputeNode Statistics request from controller to retrieve the finished simulation statistics
-	public static final int SimStatsReply = 42;		// ComputeNode Statistics - reply with statistics.
+	// Simulation Results Retrieval
+	public static final int SimResultsReq = 41;		// ComputeNode Results request from controller to retrieve the finished simulation results
+	public static final int SimResultsReply = 42;	// ComputeNode Results - reply with results.
 	
 	// Notifications
 	public static final int SimStateNoti = 51;		// Notification of a simulation state change

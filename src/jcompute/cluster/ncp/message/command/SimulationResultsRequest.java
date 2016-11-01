@@ -4,21 +4,21 @@ import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
-import jcompute.results.ResultExporter.ExportFormat;
+import jcompute.results.export.ExportFormat;
 
-public class SimulationStatsRequest extends NCPMessage
+public class SimulationResultsRequest extends NCPMessage
 {
 	private int simId;
 	private ExportFormat format;
 	
-	public SimulationStatsRequest(int simId, ExportFormat format)
+	public SimulationResultsRequest(int simId, ExportFormat format)
 	{
 		this.simId = simId;
 		this.format = format;
 	}
 	
 	// Construct from an input stream
-	public SimulationStatsRequest(ByteBuffer source)
+	public SimulationResultsRequest(ByteBuffer source)
 	{
 		simId = source.getInt();
 		format = ExportFormat.fromInt(source.getInt());
@@ -37,7 +37,7 @@ public class SimulationStatsRequest extends NCPMessage
 	@Override
 	public int getType()
 	{
-		return NCP.SimStatsReq;
+		return NCP.SimResultsReq;
 	}
 	
 	@Override
@@ -48,7 +48,7 @@ public class SimulationStatsRequest extends NCPMessage
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
 		// Header
-		tbuffer.putInt(NCP.SimStatsReq);
+		tbuffer.putInt(NCP.SimResultsReq);
 		tbuffer.putInt(dataLen);
 		
 		// Data

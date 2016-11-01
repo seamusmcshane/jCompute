@@ -23,8 +23,8 @@ import jcompute.cluster.ncp.NCP.Timeout;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReply;
 import jcompute.cluster.ncp.message.command.AddSimReq;
-import jcompute.cluster.ncp.message.command.SimulationStatsReply;
-import jcompute.cluster.ncp.message.command.SimulationStatsRequest;
+import jcompute.cluster.ncp.message.command.SimulationResultsReply;
+import jcompute.cluster.ncp.message.command.SimulationResultsRequest;
 import jcompute.cluster.ncp.message.control.NodeOrderlyShutdownReply;
 import jcompute.cluster.ncp.message.control.NodeOrderlyShutdownRequest;
 import jcompute.cluster.ncp.message.monitoring.ActivityTestReply;
@@ -314,14 +314,14 @@ public class MessageManager
 	}
 	
 	// Reply to a SimulationStatsRequest
-	public void sendSimulationStatsReply(SimulationStatsRequest req, ResultExporter exporter)
+	public void sendSimulationStatsReply(SimulationResultsRequest req, ResultExporter exporter)
 	{
 		if((req == null) || (exporter == null))
 		{
 			return;
 		}
 		
-		txDataEnqueue(new SimulationStatsReply(req.getSimId(), exporter).toBytes());
+		txDataEnqueue(new SimulationResultsReply(req.getSimId(), exporter).toBytes());
 	}
 	
 	/*
@@ -387,7 +387,7 @@ public class MessageManager
 			return;
 		}
 		
-		txDataEnqueue(new SimulationStatsRequest(simId, format).toBytes());
+		txDataEnqueue(new SimulationResultsRequest(simId, format).toBytes());
 	}
 	
 	public void sendNodeStatisticsRequest(int sequenceNum)
@@ -544,14 +544,14 @@ public class MessageManager
 						message = new AddSimReply(data);
 					}
 					break;
-					case NCP.SimStatsReq:
+					case NCP.SimResultsReq:
 					{
-						message = new SimulationStatsRequest(data);
+						message = new SimulationResultsRequest(data);
 					}
 					break;
-					case NCP.SimStatsReply:
+					case NCP.SimResultsReply:
 					{
-						message = new SimulationStatsReply(data);
+						message = new SimulationResultsReply(data);
 					}
 					break;
 					case NCP.SimStateNoti:
