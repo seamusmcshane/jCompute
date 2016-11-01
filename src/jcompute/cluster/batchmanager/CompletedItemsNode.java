@@ -1,20 +1,20 @@
 package jcompute.cluster.batchmanager;
 
 import jcompute.batch.BatchItem;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 
 public class CompletedItemsNode
 {
 	private BatchItem item;
-	private ResultExporter exporter;
+	private Result exporter;
 	
-	public CompletedItemsNode(BatchItem item, ResultExporter exporter)
+	public CompletedItemsNode(BatchItem item, Result exporter)
 	{
 		this.item = item;
 		this.exporter = exporter;
 	}
 	
-	public ResultExporter getExporter()
+	public Result getExporter()
 	{
 		return exporter;
 	}

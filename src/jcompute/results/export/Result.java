@@ -1,11 +1,9 @@
-package jcompute.results;
+package jcompute.results.export;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -19,19 +17,23 @@ import javax.swing.JOptionPane;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xerces.util.XMLChar;
 
+import jcompute.results.ResultManager;
 import jcompute.results.binary.BinaryDataFile;
 import jcompute.results.binary.BinaryDataFileCollection;
+import jcompute.results.export.file.ExportFileWriter;
+import jcompute.results.export.format.ARFFExporter;
+import jcompute.results.export.format.CSVExporter;
+import jcompute.results.export.format.XMLExporter;
 import jcompute.results.trace.Trace;
 import jcompute.results.trace.group.TraceGroup;
 import jcompute.results.trace.samples.TraceSample;
 import jcompute.util.FileUtil;
 
-public class ResultExporter
+public class Result
 {
 	// Log4j2 Logger
-	private static Logger log = LogManager.getLogger(ResultExporter.class);
+	private static Logger log = LogManager.getLogger(Result.class);
 	
 	// File Format for export
 	private final ExportFormat format;
@@ -67,7 +69,7 @@ public class ResultExporter
 	 * 
 	 * @param format
 	 */
-	public ResultExporter(ExportFormat format, String fileNameSuffix)
+	public Result(ExportFormat format, String fileNameSuffix)
 	{
 		this.format = format;
 		this.traceFileNameSuffix = fileNameSuffix;
@@ -612,7 +614,7 @@ public class ResultExporter
 			
 			for(int f = 0; f < numFiles; f++)
 			{
-				writeTextFile(itemExportPath, traceFileNames[f], traceTextData[f]);
+				ExportFileWriter.WriteTextFile(itemExportPath, traceFileNames[f], traceTextData[f], format);
 			}
 		}
 	}
@@ -641,7 +643,7 @@ public class ResultExporter
 				String collection = binaryCollectionNames[binaryFileToCollectionMapping[f]];
 				
 				// Write the bin file within the item dir in a collection dir
-				writeBinFile(binDir, collection + File.separator + binaryFileNames[f], binaryFileData[f]);
+				ExportFileWriter.WriteBinFile(binDir, collection + File.separator + binaryFileNames[f], binaryFileData[f]);
 			}
 		}
 		else
@@ -665,7 +667,7 @@ public class ResultExporter
 				// Keep file ext
 				String ext = FileUtil.getFileNameExtension(binaryFileNames[f]);
 				
-				writeBinFile(binDir + File.separator + exportDir, itemNameZeroPadded + "." + ext, binaryFileData[f]);
+				ExportFileWriter.WriteBinFile(binDir + File.separator + exportDir, itemNameZeroPadded + "." + ext, binaryFileData[f]);
 			}
 		}
 	}
@@ -751,59 +753,6 @@ public class ResultExporter
 		
 	}
 	
-	/**
-	 * Write a single file out.
-	 * 
-	 * @param directory
-	 * @param fileName
-	 * @param fileData
-	 * @param extension
-	 */
-	private void writeTextFile(String directory, String fileName, String fileData)
-	{
-		String fileExtension = format.getExtension();
-		
-		try
-		{
-			String filePath = directory + File.separator + fileName + "." + fileExtension;
-			
-			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filePath));
-			
-			bufferedWriter.write(fileData);
-			bufferedWriter.close();
-			
-			// Now send the strings to the output writer
-			log.info("Wrote File : " + fileName + "." + fileExtension);
-		}
-		catch(IOException e)
-		{
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
-		}
-		
-	}
-	
-	private void writeBinFile(String directory, String fileName, byte[] fileData)
-	{
-		try
-		{
-			String filePath = directory + File.separator + fileName;
-			
-			File file = new File(filePath);
-			file.getParentFile().mkdirs();
-			
-			FileOutputStream stream = new FileOutputStream(new File(filePath));
-			
-			stream.write(fileData);
-			stream.close();
-			
-			log.info("Wrote File : " + fileName);
-		}
-		catch(IOException e)
-		{
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
-		}
-	}
-	
 	/*
 	 * Data formatter
 	 */
@@ -820,15 +769,15 @@ public class ResultExporter
 			if((format == ExportFormat.CSV) || (format == ExportFormat.ZCSV))
 			{
 				// Write File Header
-				addFileExportHeaderCSV(data, traceList);
+				CSVExporter.AddFileExportHeaderCSV(data, traceList);
 			}
 			else if(format == ExportFormat.ARFF)
 			{
-				addFileExportHeaderARFF(data, name, traceList);
+				ARFFExporter.AddFileExportHeaderARFF(data, name, traceList);
 			}
 			else
 			{
-				addFileExportHeaderXML(data, name, traceList);
+				XMLExporter.AddFileExportHeaderXML(data, name, traceList);
 			}
 			
 			// Get the history length of the stats (which are all the same
@@ -858,11 +807,11 @@ public class ResultExporter
 				// Write Data Row
 				if((format == ExportFormat.CSV) || (format == ExportFormat.ARFF) || (format == ExportFormat.ZCSV))
 				{
-					appendCSVStyleRow(data, traceHistorys, history, traceList);
+					CSVExporter.AppendCSVRow(data, traceHistorys, history, traceList);
 				}
 				else
 				{
-					appendXMLRow(data, traceHistorys, history, traceList);
+					XMLExporter.AppendXMLRow(data, traceHistorys, history, traceList);
 				}
 				
 				history++;
@@ -871,190 +820,14 @@ public class ResultExporter
 			// File Footer
 			if((format == ExportFormat.XML) || (format == ExportFormat.ZXML))
 			{
-				data.append("</" + xmlString(name) + ">\n");
+//				data.append("</" + xmlString(name) + ">\n");
+				
+				XMLExporter.AppendCloseSection(data, name);
 			}
 			
 		}
 		
 		return data.toString();
-	}
-	
-	/*
-	 * XML
-	 */
-	private void addFileExportHeaderXML(StringBuilder fileData, String group, List<String> statList)
-	{
-		int statCount = statList.size();
-		
-		// DOCTYPE (DTD)
-		fileData.append("<!DOCTYPE " + xmlString(group) + "\n[\n");
-		
-		// Group contains Steps
-		fileData.append("<!ELEMENT " + xmlString(group) + " (Step)>\n");
-		
-		// Step Contains Stat Types
-		fileData.append("<!ELEMENT Step (");
-		for(int statIndex = 0; statIndex < statCount; statIndex++)
-		{
-			fileData.append(xmlString(statList.get(statIndex)));
-			if(statIndex < (statCount - 1))
-			{
-				fileData.append(",");
-			}
-		}
-		fileData.append(")>\n");
-		
-		// Each Step has an attribute which is a unique id
-		fileData.append("<!ATTLIST Step id ID #REQUIRED>\n");
-		
-		// Each Stat is an ELEMENT
-		for(int statIndex = 0; statIndex < statCount; statIndex++)
-		{
-			fileData.append("<!ELEMENT " + xmlString(statList.get(statIndex)) + " (#PCDATA)>\n");
-		}
-		
-		// End DOCTYPE
-		fileData.append("]>\n");
-		
-		// XML ROOT NODE OPEN
-		fileData.append("<" + xmlString(group) + ">\n");
-	}
-	
-	private void appendXMLRow(StringBuilder data, TraceSample[][] TraceHistorys, int history, List<String> traceList)
-	{
-		int statCount = traceList.size();
-		
-		// Each Row is a Step
-		data.append("\t<Step id='" + history + "'>\n");
-		
-		// Do the same for every history, append , after each sample or a new
-		// line after each history
-		for(int traceIndex = 0; traceIndex < statCount; traceIndex++)
-		{
-			data.append("\t\t<" + xmlString(traceList.get(traceIndex)) + ">" + TraceHistorys[traceIndex][history].toString() + "</" + xmlString(traceList.get(
-			traceIndex)) + ">\n");
-		}
-		
-		// End Step
-		data.append("\t</Step>\n");
-	}
-	
-	/**
-	 * Method checks a string according to XML entity naming rules and returns a corrected string if needed.
-	 * 
-	 * @param text
-	 * @return
-	 */
-	private String xmlString(String text)
-	{
-		StringBuilder validString = new StringBuilder();
-		
-		// XML cannot have numeric first chars or punctuation for names etc
-		if(!XMLChar.isNameStart(text.charAt(0)))
-		{
-			// Add a safe first char
-			validString.append("_");
-		}
-		
-		// Strip invalid chars
-		for(char c : text.toCharArray())
-		{
-			if(XMLChar.isName(c))
-			{
-				validString.append(c);
-			}
-		}
-		
-		// Return a valid string
-		return validString.toString();
-	}
-	
-	/*
-	 * CSV
-	 */
-	private void addFileExportHeaderCSV(StringBuilder fileData, List<String> statList)
-	{
-		// CSV Header Row
-		int statCount = statList.size();
-		int statIndex = 0;
-		fileData.append(statList.get(statIndex) + ",");
-		
-		StringBuilder logString = new StringBuilder();
-		
-		logString.append("Categories : " + statList.get(statIndex));
-		
-		for(statIndex = 1; statIndex < statCount; statIndex++)
-		{
-			logString.append(", " + statList.get(statIndex));
-			
-			fileData.append(statList.get(statIndex));
-			
-			if(statIndex < (statCount - 1))
-			{
-				fileData.append(",");
-			}
-			else
-			{
-				fileData.append("\n");
-			}
-			
-		}
-		
-		log.info(logString.toString());
-	}
-	
-	private void appendCSVStyleRow(StringBuilder data, TraceSample[][] traceHistorys, int history, List<String> traceList)
-	{
-		int statCount = traceList.size();
-		
-		// Append the sample from the first stat with a , appended
-		data.append(traceHistorys[0][history].toString() + ",");
-		
-		// Do the same for every history, append , after each sample or a new
-		// line after each history
-		for(int statIndex = 1; statIndex < statCount; statIndex++)
-		{
-			data.append(traceHistorys[statIndex][history].toString());
-			
-			if(statIndex < (statCount - 1))
-			{
-				data.append(",");
-			}
-			else
-			{
-				data.append("\n");
-			}
-			
-		}
-	}
-	
-	/*
-	 * ARFF
-	 */
-	private void addFileExportHeaderARFF(StringBuilder fileData, String group, List<String> statList)
-	{
-		// The ARFF HEADER
-		fileData.append("% 1. Title : " + group + " Database\n");
-		fileData.append("%\n");
-		fileData.append("% 2. Sources :\n");
-		fileData.append("%		(a) jcompute\n");
-		fileData.append("%\n");
-		
-		// Add Relation Field
-		fileData.append("@RELATION " + group + "\n");
-		
-		int statCount = statList.size();
-		
-		// The Attribute type rows
-		for(int statIndex = 0; statIndex < statCount; statIndex++)
-		{
-			// All Assumed Numeric (All stats currently numeric)
-			fileData.append("@ATTRIBUTE '" + statList.get(statIndex) + "' NUMERIC\n");
-		}
-		
-		// Begin Data Section
-		fileData.append("@DATA\n");
-		
 	}
 	
 	public int getSize()
@@ -1064,58 +837,5 @@ public class ResultExporter
 		int binFiles = (binaryFileNames == null ? 0 : binaryFileNames.length);
 		
 		return(traceFiles + binFiles);
-	}
-	
-	public enum ExportFormat
-	{
-		CSV("Comma Separated Values", "csv"), XML("Extensible Markup Language", "xml"), ARFF("Attribute-Relation File Format", "arff"),
-		ZXML("Extensible Markup Language in a Zip Archive", "xml"), ZCSV("Comma Separated Values in a Zip Archive", "csv");
-		
-		private final String description;
-		private final String extension;
-		
-		private ExportFormat(String description, String extension)
-		{
-			this.description = description;
-			this.extension = extension;
-		}
-		
-		public String getDescription()
-		{
-			return description;
-		}
-		
-		public String getExtension()
-		{
-			return extension;
-		}
-		
-		public static ExportFormat fromInt(int v)
-		{
-			ExportFormat format = null;
-			switch(v)
-			{
-				case 0:
-					format = ExportFormat.XML;
-				break;
-				case 1:
-					format = ExportFormat.CSV;
-				break;
-				case 2:
-					format = ExportFormat.ARFF;
-				break;
-				case 3:
-					format = ExportFormat.ZXML;
-				break;
-				case 4:
-					format = ExportFormat.ZCSV;
-				break;
-				default:
-					/* Invalid Usage */
-					format = null;
-			}
-			
-			return format;
-		}
 	}
 }

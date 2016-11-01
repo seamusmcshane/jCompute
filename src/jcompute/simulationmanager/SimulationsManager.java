@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 import jcompute.JComputeEventBus;
 import jcompute.gui.view.View;
 import jcompute.results.export.ExportFormat;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 import jcompute.results.trace.group.TraceGroupListenerInf;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;
@@ -404,7 +404,7 @@ public class SimulationsManager
 	}
 	
 	
-	public ResultExporter getResultExporter(int simId, String fileNameSuffix, ExportFormat format)
+	public Result getResultExporter(int simId, String fileNameSuffix, ExportFormat format)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -412,7 +412,7 @@ public class SimulationsManager
 		
 		log.info("Creating result exporter for Simulation " + simId);
 		
-		ResultExporter exporter = null;
+		Result exporter = null;
 		
 		if(sim != null)
 		{
@@ -426,7 +426,7 @@ public class SimulationsManager
 			}
 			
 			// Create a stat exporter with export format.
-			exporter = new ResultExporter(format, fileNameSuffix);
+			exporter = new Result(format, fileNameSuffix);
 			
 			// populate from the result manager as data source.
 			exporter.populateFromResultManager(sim.getResultManager());

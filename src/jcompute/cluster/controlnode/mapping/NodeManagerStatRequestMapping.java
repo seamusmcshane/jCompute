@@ -3,14 +3,14 @@ package jcompute.cluster.controlnode.mapping;
 import java.util.concurrent.Semaphore;
 
 import jcompute.results.export.ExportFormat;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 
 public class NodeManagerStatRequestMapping
 {
 	private Semaphore requestBlock;
 	private ExportFormat format; 
 	private String fileNameSuffix; 
-	public ResultExporter exporter;
+	public Result exporter;
 
 	public NodeManagerStatRequestMapping(ExportFormat format, String fileNameSuffix)
 	{
@@ -26,12 +26,12 @@ public class NodeManagerStatRequestMapping
 		this.requestBlock.acquireUninterruptibly();
 	}
 	
-	public void setStatExporter(ResultExporter exporter)
+	public void setStatExporter(Result exporter)
 	{
 		this.exporter = exporter;
 	}
 	
-	public ResultExporter getExporter()
+	public Result getExporter()
 	{
 		return exporter;
 	}

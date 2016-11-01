@@ -28,7 +28,7 @@ import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeIt
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestResult;
 import jcompute.datastruct.list.ManagedBypassableQueue;
 import jcompute.datastruct.list.StoredQueuePosition;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 
@@ -189,7 +189,7 @@ public class BatchManager
 			
 			Batch batch = null;
 			BatchItem item = node.getItem();
-			ResultExporter exporter = node.getExporter();
+			Result exporter = node.getExporter();
 			
 			log.debug("Item : " + item.getItemId());
 			batchManagerLock.acquireUninterruptibly();

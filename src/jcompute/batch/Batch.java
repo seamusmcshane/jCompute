@@ -23,7 +23,7 @@ import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.datastruct.cache.DiskCache;
 import jcompute.datastruct.list.StoredQueuePosition;
 import jcompute.results.export.ExportFormat;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;
@@ -612,7 +612,7 @@ public class Batch implements StoredQueuePosition
 		batchLock.release();
 	}
 	
-	public void setItemComplete(BatchItem item, ResultExporter exporter)
+	public void setItemComplete(BatchItem item, Result exporter)
 	{
 		batchLock.acquireUninterruptibly();
 		

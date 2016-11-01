@@ -5,16 +5,16 @@ import java.nio.ByteBuffer;
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.results.export.ExportFormat;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 
 public class SimulationResultsReply extends NCPMessage
 {
 	private int simId;
 	
-	private ResultExporter exporter;
+	private Result exporter;
 	private ByteBuffer unprocessedExporter;
 	
-	public SimulationResultsReply(int simId, ResultExporter exporter)
+	public SimulationResultsReply(int simId, Result exporter)
 	{
 		this.simId = simId;
 		this.exporter = exporter;
@@ -34,10 +34,10 @@ public class SimulationResultsReply extends NCPMessage
 		return simId;
 	}
 	
-	public ResultExporter getStatExporter(ExportFormat format, String fileNameSuffix)
+	public Result getStatExporter(ExportFormat format, String fileNameSuffix)
 	{
 		// Create the exporter
-		exporter = new ResultExporter(format, fileNameSuffix);
+		exporter = new Result(format, fileNameSuffix);
 		exporter.populateFromByteBuffer(unprocessedExporter);
 		
 		return exporter;

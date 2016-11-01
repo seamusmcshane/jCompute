@@ -25,7 +25,7 @@ import jcompute.cluster.ncp.message.registration.RegistrationReqAck;
 import jcompute.cluster.ncp.message.registration.RegistrationReqNack;
 import jcompute.cluster.ncp.message.registration.RegistrationRequest;
 import jcompute.results.export.ExportFormat;
-import jcompute.results.export.ResultExporter;
+import jcompute.results.export.Result;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.util.JCText;
@@ -912,7 +912,7 @@ public class NCPSocket implements Closeable
 	 * @param exporter
 	 * The exporter to use for the message.
 	 */
-	public void sendSimulationStatsReply(SimulationResultsRequest req, ResultExporter exporter)
+	public void sendSimulationStatsReply(SimulationResultsRequest req, Result exporter)
 	{
 		// Is the socket connected
 		if(ncpMM == null)
