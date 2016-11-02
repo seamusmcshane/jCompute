@@ -30,6 +30,8 @@ public class TraceResults implements TraceResultInf
 	
 	public TraceResults(ResultManager rm, ExportFormat format, String traceFileNameSuffix)
 	{
+		log.info("Creating TraceResults from Result Manager - " + rm.getName());
+
 		/*
 		 * ***************************************************************************************************
 		 * Trace Files

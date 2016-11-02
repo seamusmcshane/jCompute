@@ -28,6 +28,8 @@ public class TraceZipCompress implements TraceResultInf
 	
 	public TraceZipCompress(TraceResultInf traceResults, ExportFormat format)
 	{
+		log.info("Creating TraceZipCompress");
+		
 		String[] traceFileNames = traceResults.getTraceFileNames();
 		byte[][] traceTextData = traceResults.getTraceData();
 		
