@@ -53,6 +53,13 @@ public interface SimulationScenarioManagerInf
 	public void setScenarioStepCountEndEvent(Simulation simulation);
 	
 	/**
+	 * This method is called after an end event has triggered.
+	 * It is an opportunity to perform some light processing, such as generating a log line for custom item results.
+	 * It should not be used to perform an extra step update.
+	 */
+	public void finalProcessing();
+	
+	/**
 	 * This method is called when a simulation is being destroyed.
 	 * - You should assume this method can be called at anytime..
 	 * - If the simulation uses native memory or files they must be closed/freed now.

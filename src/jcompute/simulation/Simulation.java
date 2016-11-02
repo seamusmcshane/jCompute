@@ -224,6 +224,8 @@ public class Simulation implements stateChangedInf, ViewTarget
 						// Check for an End Event
 						if(simulationScenarioManager.hasEndEventOccurred())
 						{
+							simulationScenarioManager.finalProcessing();
+
 							simState.finishState(simulationScenarioManager.getEndEvent());
 							
 							// Effectively a dead lock under any other circumstance.
