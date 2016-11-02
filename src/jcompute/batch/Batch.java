@@ -265,6 +265,15 @@ public class Batch implements StoredQueuePosition
 			// Enable / Disable writing the generated result files to disk
 			final boolean ResultsEnabled = batchConfigProcessor.getBooleanValue("Stats", "Store", false);
 			
+			// Enable / Disable writing the generated result files to disk
+			final boolean TraceEnabled = batchConfigProcessor.getBooleanValue("TraceResult", "Store", false);
+			
+			// Enable / Disable writing the generated result files to disk
+			final boolean BDFCEnabled = batchConfigProcessor.getBooleanValue("BDFCResult", "Store", false);
+			
+			// Enable / Disable writing the generated result files to disk
+			final boolean CustomEnabled = batchConfigProcessor.getBooleanValue("CustomResult", "Store", false);
+			
 			// Store traces in a single archive
 			final boolean TraceStoreSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive", false);
 			
@@ -279,19 +288,19 @@ public class Batch implements StoredQueuePosition
 			
 			final int BufferSize = batchConfigProcessor.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
 			
-			// Custom Item Log / TODO
-			final boolean CustomItemLogEnabled = false;
-			
 			// How many times to run each batchItem.
 			final int ItemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples", 1);
 			
-			settings = new BatchResultSettings(ResultsEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled,
-			ItemLogEnabled, CustomItemLogEnabled, ItemSamples);
+			settings = new BatchResultSettings(ResultsEnabled, TraceEnabled, BDFCEnabled, CustomEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel,
+			BufferSize, InfoLogEnabled, ItemLogEnabled, ItemSamples);
 			
 			log.info("Store Stats " + settings.ResultsEnabled);
-			log.info("Single Archive " + settings.TraceStoreSingleArchive);
-			log.info("BufferSize " + settings.BufferSize);
-			log.info("Compression Level " + settings.TraceArchiveCompressionLevel);
+			log.info("TraceEnabled " + settings.TraceEnabled);
+			log.info("BDFCEnableds " + settings.BDFCEnabled);
+			log.info("CustomEnabled " + settings.CustomEnabled);
+			log.info("Trace SingleArchive " + settings.TraceStoreSingleArchive);
+			log.info("Archive BufferSize " + settings.BufferSize);
+			log.info("Archive Compression Level " + settings.TraceArchiveCompressionLevel);
 			log.info("InfoLog " + settings.InfoLogEnabled);
 			log.info("ItemLog " + settings.ItemLogEnabled);
 			log.info("ItemSamples " + settings.ItemSamples);

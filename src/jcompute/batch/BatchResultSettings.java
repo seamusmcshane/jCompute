@@ -3,6 +3,11 @@ package jcompute.batch;
 public class BatchResultSettings
 {
 	public final boolean ResultsEnabled;
+	
+	public final boolean TraceEnabled;
+	public final boolean BDFCEnabled;
+	public final boolean CustomEnabled;
+	
 	public final boolean TraceStoreSingleArchive;
 	public final int TraceArchiveCompressionLevel;
 	public final int BufferSize;
@@ -12,7 +17,6 @@ public class BatchResultSettings
 	 */
 	public final boolean InfoLogEnabled;
 	public final boolean ItemLogEnabled;
-	public final boolean CustomItemLogEnabled;
 	
 	/**
 	 * Number of repeats of each item.
@@ -20,10 +24,15 @@ public class BatchResultSettings
 	public final int ItemSamples;
 	public final boolean MultiSampleItems;
 	
-	public BatchResultSettings(boolean resultsEnabled, boolean traceStoreSingleArchive, int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled,
-	boolean itemLogEnabled, boolean customItemLogEnabled, int itemSamples)
+	public BatchResultSettings(boolean resultsEnabled, boolean traceEnabled, boolean bdfcEnabled, boolean customEnabled, boolean traceStoreSingleArchive,
+	int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled, boolean itemLogEnabled, int itemSamples)
 	{
 		this.ResultsEnabled = resultsEnabled;
+		
+		this.TraceEnabled = traceEnabled;
+		this.BDFCEnabled = bdfcEnabled;
+		this.CustomEnabled = customEnabled;
+		
 		this.TraceStoreSingleArchive = traceStoreSingleArchive;
 		
 		if(traceArchiveCompressionLevel > 9)
@@ -43,7 +52,6 @@ public class BatchResultSettings
 		
 		this.InfoLogEnabled = infoLogEnabled;
 		this.ItemLogEnabled = itemLogEnabled;
-		this.CustomItemLogEnabled = customItemLogEnabled;
 		
 		this.ItemSamples = itemSamples;
 		this.MultiSampleItems = (itemSamples > 1) ? true : false;
