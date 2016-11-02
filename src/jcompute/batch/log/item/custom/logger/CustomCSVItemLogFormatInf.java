@@ -6,9 +6,9 @@ public interface CustomCSVItemLogFormatInf
 	
 	public int numberOfFields();
 	
-	public String getFieldValue(int field);
-	
 	public String getFieldHeading(int field);
 	
-	public void bytesToRow(byte[] bytes);
+	public Object getFieldValue(int field);
+	
+	public void setFieldValue(int field, Object value);
 }

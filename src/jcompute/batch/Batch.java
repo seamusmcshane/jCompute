@@ -419,15 +419,14 @@ public class Batch implements StoredQueuePosition
 							status = true;
 						}
 						
-						// TODO
-						// if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & settings.CustomEnabled)
-						// {
-						// status = true;
-						// }
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & settings.CustomEnabled)
+						{
+							status = true;
+						}
 						
 						if(!status)
 						{
-							log.error("The batch has statistics enabled but there are none enabled in the base scenario");
+							log.error("Results mismatch - At least one must be enabled in Batch and in base scenario");
 						}
 					}
 				}

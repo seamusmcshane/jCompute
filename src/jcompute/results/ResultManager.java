@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
 import jcompute.results.binary.BinaryDataFileCollection;
 import jcompute.results.trace.group.TraceGroupSetting;
 import jcompute.results.trace.group.TraceGroup;
@@ -22,6 +23,8 @@ public class ResultManager
 	
 	private ArrayList<BinaryDataFileCollection> binaryDataList;
 	
+	private ArrayList<CustomCSVItemLogFormatInf> customItemResults;
+	
 	private Semaphore lock = new Semaphore(1);
 	
 	public ResultManager(String managerName)
@@ -31,6 +34,8 @@ public class ResultManager
 		traceGroupMap = new HashMap<String, TraceGroup>();
 		
 		binaryDataList = new ArrayList<BinaryDataFileCollection>();
+		
+		customItemResults = new ArrayList<CustomCSVItemLogFormatInf>();
 	}
 	
 	/**
@@ -165,5 +170,15 @@ public class ResultManager
 		{
 			group.endEventNotifyTraceGroupListeners();
 		}
+	}
+	
+	public void registerCustomItemResultFormat(CustomCSVItemLogFormatInf customItemResult)
+	{
+		customItemResults.add(customItemResult);
+	}
+	
+	public ArrayList<CustomCSVItemLogFormatInf> getCustomItemResultList()
+	{
+		return customItemResults;
 	}
 }

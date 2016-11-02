@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.results.ResultManager;
 import jcompute.results.export.bdfc.BDFCResult;
+import jcompute.results.export.custom.CustomItemResult;
 import jcompute.results.export.trace.TraceResultInf;
 import jcompute.results.export.trace.TraceResults;
 import jcompute.results.export.trace.TraceZipCompress;
@@ -36,6 +37,13 @@ public class Result
 	 *****************************************************************************************************/
 	
 	private BDFCResult bdfcResult;
+	
+	/*
+	 * ***************************************************************************************************
+	 * Custom Result
+	 *****************************************************************************************************/
+	
+	private CustomItemResult ciResult;
 	
 	/**
 	 * An object dedicated to exporting simulation stats Not-Thread safe.
@@ -71,6 +79,13 @@ public class Result
 		 *****************************************************************************************************/
 		
 		bdfcResult = new BDFCResult(rm);
+		
+		/*
+		 * ***************************************************************************************************
+		 * Custom Result
+		 *****************************************************************************************************/
+		
+		ciResult = new CustomItemResult(rm);
 	}
 	
 	/*
@@ -102,6 +117,15 @@ public class Result
 		
 		/*
 		 * ***************************************************************************************************
+		 * Custom Result
+		 *****************************************************************************************************/
+		
+		byte[] cir = ciResult.toBytes();
+		
+		size += cir.length;
+		
+		/*
+		 * ***************************************************************************************************
 		 * Buffer
 		 *****************************************************************************************************/
 		
@@ -121,6 +145,13 @@ public class Result
 		 *****************************************************************************************************/
 		
 		tbuffer.put(bdfc);
+		
+		/*
+		 * ***************************************************************************************************
+		 * Put Custom Result
+		 *****************************************************************************************************/
+		
+		tbuffer.put(cir);
 		
 		return tbuffer.array();
 	}
@@ -154,6 +185,12 @@ public class Result
 			
 			bdfcResult = new BDFCResult(source);
 			
+			/*
+			 * ***************************************************************************************************
+			 * Custom Result
+			 *****************************************************************************************************/
+			
+			ciResult = new CustomItemResult(source);
 		}
 		
 		int left = source.remaining();
@@ -223,6 +260,8 @@ public class Result
 		
 		int binFiles = (bdfcResult == null ? 0 : bdfcResult.getBinFileNames().length);
 		
-		return(traceFiles + binFiles);
+		int cirFiles = (ciResult == null ? 0 : ciResult.getCirFileNames().length);
+		
+		return(traceFiles + binFiles + cirFiles);
 	}
 }
