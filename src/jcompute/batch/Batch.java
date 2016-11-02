@@ -634,15 +634,18 @@ public class Batch implements StoredQueuePosition
 		// Only Save configs if stats are enabled
 		if(settings.ResultsEnabled)
 		{
+			String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
+			
 			if(settings.TraceStoreSingleArchive)
 			{
 				// Export the stats
-				exporter.exportAllPerItemResultsToZipArchive(resultsZipOut, item.getItemId(), item.getSampleId());
+				exporter.exportPerItemTraceResultsToZipArchive(resultsZipOut, item.getItemId(), item.getSampleId());
+				
+				// Export any bin results
+				exporter.exportBinResults(fullExportPath, batchStatsExportDir, item.getItemId());
 			}
 			else
 			{
-				String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
-				
 				// Export the per item traces
 				exporter.exportPerItemTraceResults(fullExportPath);
 				
