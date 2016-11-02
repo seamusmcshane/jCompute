@@ -8,7 +8,9 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
@@ -19,9 +21,12 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.batch.log.info.logger.InfoLogger;
+import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
+import jcompute.batch.log.item.custom.logger.CustomItemLogger;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.datastruct.cache.DiskCache;
 import jcompute.datastruct.list.StoredQueuePosition;
+import jcompute.results.custom.CustomItemResultParser;
 import jcompute.results.export.ExportFormat;
 import jcompute.results.export.Result;
 import jcompute.scenario.ConfigurationInterpreter;
@@ -101,6 +106,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Item log version
 	private BatchItemLogInf itemLog;
+	private HashMap<String, CustomItemLogger> customItemLoggers;
 	
 	private ItemGenerator itemGenerator;
 	private long itemGenerationTime;
@@ -331,6 +337,25 @@ public class Batch implements StoredQueuePosition
 					
 					// Create Item Log
 					itemLog = baseScenario.getItemLogWriter();
+					
+					if(settings.CustomEnabled)
+					{
+						customItemLoggers = new HashMap<String, CustomItemLogger>();
+						
+						// Locate the custom item results list
+						ArrayList<CustomCSVItemLogFormatInf> cirs = baseScenario.getSimulationScenarioManager().getResultManager().getCustomItemResultList();
+						
+						// Create a logger for each
+						for(CustomCSVItemLogFormatInf cir : cirs)
+						{
+							String fileName = cir.getLogFileName();
+							
+							CustomItemLogger logger = new CustomItemLogger(cir);
+							
+							// Index by file name
+							customItemLoggers.put(fileName, logger);
+						}
+					}
 				}
 				else
 				{
@@ -550,15 +575,33 @@ public class Batch implements StoredQueuePosition
 			try
 			{
 				itemLog.init(itemGenerator.getParameterNames(), itemGenerator.getGroupNames(), BW_BUFFER_SIZE, batchName, settings, batchStatsExportDir);
-				
-				// No longer needed
-				itemGenerator = null;
 			}
 			catch(IOException e)
 			{
 				log.error("Could not create item log file in " + batchStatsExportDir);
 			}
 		}
+		
+		if(settings.CustomEnabled)
+		{
+			Set<String> names = customItemLoggers.keySet();
+			
+			// Close all the custom log files
+			for(String name : names)
+			{
+				try
+				{
+					customItemLoggers.get(name).init(BW_BUFFER_SIZE, batchName, settings, batchStatsExportDir);
+				}
+				catch(IOException e)
+				{
+					log.error("Could not custom item log + " + name + " file in " + batchStatsExportDir);
+				}
+			}
+		}
+		
+		// No longer needed
+		itemGenerator = null;
 	}
 	
 	public String getBatchStatsExportDir()
@@ -635,6 +678,38 @@ public class Batch implements StoredQueuePosition
 			// writeItemLogItem(ITEM_LOG_VERSION, item);
 			
 			itemLog.logItem(item, null);
+		}
+		
+		if(settings.CustomEnabled)
+		{
+			String[] loggerNames = exporter.getCustomLoggerNames();
+			byte[][] data = exporter.getCustomLoggerData();
+			
+			int numLogLines = loggerNames.length;
+			
+			for(int l = 0; l < numLogLines; l++)
+			{
+				// Get the correct logger
+				CustomItemLogger logger = customItemLoggers.get(loggerNames[l]);
+				
+				try
+				{
+					// Create the correct container format
+					CustomCSVItemLogFormatInf rowFormat = logger.getLogformat().getInstance();
+					
+					// Fill the container
+					CustomItemResultParser.BytesToRow(data[l], rowFormat);
+					
+					// Write the log line
+					logger.logItem(item, rowFormat);
+				}
+				catch(InstantiationException | IllegalAccessException e)
+				{
+					log.error("Could not create LogFormat instance" + logger.getLogformat());
+					
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		// Only Save configs if stats are enabled
@@ -750,6 +825,17 @@ public class Batch implements StoredQueuePosition
 				// itemLog.close();
 				
 				itemLog.close();
+			}
+			
+			if(settings.CustomEnabled)
+			{
+				Set<String> names = customItemLoggers.keySet();
+				
+				// Close all the custom log files
+				for(String name : names)
+				{
+					customItemLoggers.get(name).close();
+				}
 			}
 			
 			endDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -1164,6 +1250,9 @@ public class Batch implements StoredQueuePosition
 		
 		// Item log writer
 		itemLog = null;
+		
+		// Custom Item logs
+		customItemLoggers = null;
 		
 		// Used for combination and for saving axis names
 		// parameterName = null;

@@ -24,90 +24,75 @@ public class CustomItemLogger
 	
 	private PrintWriter itemLog;
 	
-	public CustomItemLogger()
+	private final CustomCSVItemLogFormatInf logFormat;
+	
+	public CustomItemLogger(CustomCSVItemLogFormatInf logFormat)
 	{
+		this.logFormat = logFormat;
+	}
+	
+	public void init(int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir) throws IOException
+	{
+		// Create the log writer
+		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + logFormat.getLogFileName(), true), BW_BUFFER_SIZE));
 		
+		String header = getLogHeader();
+		
+		itemLog.println(header.toString());
 	}
 	
-	public void init(CustomCSVItemLogFormatInf logformat, int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir)
-	throws IOException
+	public CustomCSVItemLogFormatInf getLogformat()
 	{
-		try
-		{
-			String logFileName = logformat.getLogFileName();
-			
-			if(logFileName == null)
-			{
-				logFileName = "LogFieldNameIsNull";
-			}
-			
-			// Create the log writer
-			itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + logFileName, true), BW_BUFFER_SIZE));
-			
-			String header = getLogHeader(logformat);
-			
-			itemLog.println(header.toString());
-		}
-		catch(Throwable e)
-		{
-			log.error("CustomItemLogger Init had a problem. This is what we know caught thowable : " + e.getClass().getName() + " cause : " + e.getCause()
-			+ " message : " + e.getMessage());
-			
-			// Output the stack trace to the log so our message is before the trace. (preserve ordering)
-			log.error(JCText.stackTraceToString(e.getStackTrace(), false));
-			
-			return;
-		}
+		return logFormat;
 	}
 	
-	private String getLogHeader(CustomCSVItemLogFormatInf logformat)
+	private String getLogHeader()
 	{
 		StringBuilder header = new StringBuilder();
 		
-		int numberOfFields = logformat.numberOfFields();
+		int numberOfFields = logFormat.numberOfFields();
 		
 		for(int f = 0; f < numberOfFields - 1; f++)
 		{
-			header.append(logformat.getFieldHeading(f));
+			header.append(logFormat.getFieldHeading(f));
 			
 			header.append(DELIMITER);
-			
 		}
 		
 		// Append last field but not delimiter
-		header.append(logformat.getFieldHeading(numberOfFields));
+		header.append(logFormat.getFieldHeading(numberOfFields - 1));
 		
 		header.append(LINEFEED);
 		
 		return header.toString();
 	}
 	
-	private String getLogRow(CustomCSVItemLogFormatInf logformat)
+	private String getLogRow(CustomCSVItemLogFormatInf logRow)
 	{
 		StringBuilder rowItem = new StringBuilder();
 		
-		int numberOfFields = logformat.numberOfFields();
+		int numberOfFields = logRow.numberOfFields();
 		
 		for(int f = 0; f < numberOfFields - 1; f++)
 		{
-			rowItem.append(logformat.getFieldValue(f));
+			rowItem.append(logRow.getFieldValue(f));
 			
 			rowItem.append(DELIMITER);
 		}
 		
 		// Append last field but not delimiter
-		rowItem.append(logformat.getFieldValue(numberOfFields));
+		rowItem.append(logRow.getFieldValue(numberOfFields - 1));
 		
 		rowItem.append(LINEFEED);
 		
 		return rowItem.toString();
 	}
 	
-	public void logItem(BatchItem item, CustomCSVItemLogFormatInf logformat)
+	public void logItem(BatchItem item, CustomCSVItemLogFormatInf logRow)
 	{
 		try
 		{
-			String rowItem = getLogRow(logformat);
+			String rowItem = getLogRow(logRow);
 			
 			// No ending ,
 			itemLog.println(rowItem);

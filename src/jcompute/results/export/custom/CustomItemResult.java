@@ -139,4 +139,9 @@ public class CustomItemResult
 		// File size
 		tbuffer.put(binData);
 	}
+
+	public byte[][] getCirData()
+	{
+		return fileData;
+	}
 }

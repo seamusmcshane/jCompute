@@ -2,7 +2,7 @@ package jcompute.results.custom;
 
 public enum CustomResultFieldType
 {
-	Unsupported(0), Integer(1), Double(2), Long(3), Float(4), String(5);
+	Unsupported(0), Integer(1), Double(2), Long(3), Float(4), String(5), Boolean(6);
 	
 	public final int index;
 	
@@ -11,32 +11,36 @@ public enum CustomResultFieldType
 		this.index = index;
 	}
 	
-	public static CustomResultFieldType getFieldType(Object obj)
+	public static CustomResultFieldType fromInt(int index)
 	{
-		if(obj instanceof Integer)
+		switch(index)
 		{
-			return Integer;
+			case 1:
+			{
+				return Integer;
+			}
+			case 2:
+			{
+				return Double;
+			}
+			case 3:
+			{
+				return Long;
+			}
+			case 4:
+			{
+				return Float;
+			}
+			case 5:
+			{
+				return String;
+			}
+			case 6:
+			{
+				return Boolean;
+			}
 		}
-		else if(obj instanceof Long)
-		{
-			return Long;
-		}
-		else if(obj instanceof Float)
-		{
-			return Float;
-		}
-		else if(obj instanceof Double)
-		{
-			return Double;
-		}
-		else if(obj instanceof String)
-		{
-			return String;
-		}
-		else
-		{
-			// Do nothing we do not know how to handle this
-			return Unsupported;
-		}
+		
+		return Unsupported;
 	}
 }

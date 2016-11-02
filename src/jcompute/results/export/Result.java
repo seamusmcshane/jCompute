@@ -254,6 +254,16 @@ public class Result
 		bdfcResult.export(itemExportPath, collatedStatsDir, itemid);
 	}
 	
+	public String[] getCustomLoggerNames()
+	{
+		return ciResult.getCirFileNames();
+	}
+	
+	public byte[][] getCustomLoggerData()
+	{
+		return ciResult.getCirData();
+	}
+	
 	public int getSize()
 	{
 		int traceFiles = (traceResults == null ? 0 : traceResults.getTraceFileNames().length);

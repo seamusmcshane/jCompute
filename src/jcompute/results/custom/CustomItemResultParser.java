@@ -29,10 +29,12 @@ public class CustomItemResultParser
 		for(int f = 0; f < numberOfFields; f++)
 		{
 			// Field
+			CustomResultFieldType type = customItemResult.getFieldType(f);
+			
 			Object obj = customItemResult.getFieldValue(f);
 			
-			// Supported Type
-			CustomResultFieldType type = CustomResultFieldType.getFieldType(obj);
+			// Field Type
+			ByteBufferSize += 4;
 			
 			switch(type)
 			{
@@ -68,8 +70,14 @@ public class CustomItemResultParser
 					ByteBufferSize += (4 + objS.getBytes().length);
 				}
 				break;
+				case Boolean:
+				{
+					// Value
+					ByteBufferSize += 4;
+				}
+				break;
 				case Unsupported:
-					log.error("Field " + f + " Unsupported");
+					log.error("Field at index " + f + " Unsupported");
 				break;
 			}
 			
@@ -86,10 +94,12 @@ public class CustomItemResultParser
 		for(int f = 0; f < numberOfFields; f++)
 		{
 			// Field
+			CustomResultFieldType type = customItemResult.getFieldType(f);
+			
 			Object obj = customItemResult.getFieldValue(f);
 			
-			// Supported Type
-			CustomResultFieldType type = CustomResultFieldType.getFieldType(obj);
+			// Field Type
+			tbuffer.putInt(type.index);
 			
 			switch(type)
 			{
@@ -133,9 +143,18 @@ public class CustomItemResultParser
 					tbuffer.put(val);
 				}
 				break;
+				case Boolean:
+				{
+					boolean bval = (boolean) obj;
+					
+					int val = (bval ? 0 : 1);
+					
+					tbuffer.putInt(val);
+				}
+				break;
 				case Unsupported:
 					// Network will fail here - this is a bug - Unsupported is never sent.
-					log.error("Field " + f + " Unsupported");
+					log.error("Field at index " + f + " Unsupported");
 				break;
 			}
 		}
@@ -147,7 +166,7 @@ public class CustomItemResultParser
 	/**
 	 * Exact Reverse of Conversion from bytes to object (data read in field order).
 	 */
-	public void BytesToRow(byte[] bytes, CustomCSVItemLogFormatInf destination)
+	public static void BytesToRow(byte[] bytes, CustomCSVItemLogFormatInf destination)
 	{
 		ByteBuffer tbuffer = ByteBuffer.wrap(bytes);
 		
@@ -155,11 +174,15 @@ public class CustomItemResultParser
 		
 		for(int f = 0; f < numberOfFields; f++)
 		{
+			int fieldTypeIndex = tbuffer.getInt();
+			
 			// Field
 			Object obj = destination.getFieldValue(f);
 			
 			// Supported Type
-			CustomResultFieldType type = CustomResultFieldType.getFieldType(obj);
+			CustomResultFieldType type = CustomResultFieldType.fromInt(fieldTypeIndex);
+			
+			log.debug("f " + f + " " + String.valueOf(obj) + " type " + type.index + " fieldTypeIndex " + fieldTypeIndex);
 			
 			switch(type)
 			{
@@ -204,6 +227,14 @@ public class CustomItemResultParser
 					destination.setFieldValue(f, val);
 				}
 				break;
+				case Boolean:
+				{
+					int ival = tbuffer.getInt();
+					
+					boolean val = (ival == 0 ? true : false);
+					
+					destination.setFieldValue(f, val);
+				}
 				case Unsupported:
 				// Fallthough / Unsupported
 				break;
