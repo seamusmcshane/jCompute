@@ -331,13 +331,10 @@ public class Batch implements StoredQueuePosition
 					
 					// Create Item Log
 					itemLog = baseScenario.getItemLogWriter();
-					
-					// itemGenerator = new SAPPItemGenerator(batchId, batchName, batchConfigProcessor, queuedItems, itemSamples, generationProgress,
-					// baseScenarioText, storeStats, statsMethodSingleArchive, singleArchiveCompressionLevel, bosBufferSize);
 				}
 				else
 				{
-					log.error("ItemGenerator did not create any items");
+					log.error("Item Generation count not create valid items - ItemSamples " + ItemSamples + " MaxSteps " + maxSteps);
 					
 					status = false;
 				}
@@ -408,18 +405,25 @@ public class Batch implements StoredQueuePosition
 					}
 					else
 					{
+						// Default to fail
 						status = false;
 						
 						// We have a statistics section but are there any stats and is one enabled!
-						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true))
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true) & settings.TraceEnabled)
 						{
 							status = true;
 						}
 						
-						if(tempIntrp.atLeastOneElementEqualValue("Statistics.BDFC", "Enabled", true))
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.BDFC", "Enabled", true) & settings.BDFCEnabled)
 						{
 							status = true;
 						}
+						
+						// TODO
+						// if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & settings.CustomEnabled)
+						// {
+						// status = true;
+						// }
 						
 						if(!status)
 						{
@@ -546,12 +550,6 @@ public class Batch implements StoredQueuePosition
 		{
 			try
 			{
-				System.out.println("itemLog" + itemLog);
-				System.out.println("itemGenerator" + itemGenerator);
-				System.out.println("batchName" + batchName);
-				System.out.println("settings" + settings);
-				System.out.println("batchStatsExportDir" + batchStatsExportDir);
-				
 				itemLog.init(itemGenerator.getParameterNames(), itemGenerator.getGroupNames(), BW_BUFFER_SIZE, batchName, settings, batchStatsExportDir);
 				
 				// No longer needed
@@ -1266,145 +1264,4 @@ public class Batch implements StoredQueuePosition
 	{
 		return failed;
 	}
-	
-	// private void writeItemLogItem(int version, BatchItem item)
-	// {
-	// switch(version)
-	// {
-	// case 1:
-	// {
-	// itemLog.println("[+Item]");
-	// itemLog.println("IID=" + item.getItemId());
-	// itemLog.println("SID=" + item.getSampleId());
-	// ArrayList<Integer> coords = item.getCoordinates();
-	// ArrayList<Float> coordsValues = item.getCoordinatesValues();
-	// for(int c = 0; c < coords.size(); c++)
-	// {
-	// itemLog.println("[+Coordinate]");
-	// itemLog.println("Pos=" + coords.get(c));
-	// itemLog.println("Value=" + coordsValues.get(c));
-	// itemLog.println("[-Coordinate]");
-	// }
-	// itemLog.println("CacheIndex=" + item.getCacheIndex());
-	// itemLog.println("RunTime=" + item.getComputeTime());
-	// itemLog.println("EndEvent=" + item.getEndEvent());
-	// itemLog.println("StepCount=" + item.getStepCount());
-	// itemLog.println("[-Item]");
-	// }
-	// break;
-	// case 2:
-	// {
-	// StringBuilder itemLine = new StringBuilder();
-	//
-	// // Item Id
-	// itemLine.append("IID=");
-	// itemLine.append(item.getItemId());
-	// itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // Sample Id
-	// itemLine.append("SID=");
-	// itemLine.append(item.getSampleId());
-	// itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // Surface Coords and Values
-	// ArrayList<Integer> coords = item.getCoordinates();
-	// ArrayList<Float> coordsValues = item.getCoordinatesValues();
-	//
-	// itemLine.append("Coordinates=");
-	// itemLine.append("Num=" + coords.size());
-	// // ; done in loop - loop then exits skipping an ending ;
-	// for(int c = 0; c < coords.size(); c++)
-	// {
-	// itemLine.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
-	// itemLine.append("Pos=");
-	// itemLine.append(coords.get(c));
-	// itemLine.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
-	//
-	// itemLine.append("Value=");
-	// itemLine.append(coordsValues.get(c));
-	// }
-	// itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // Cache
-	// itemLine.append("CacheIndex=");
-	// itemLine.append(item.getCacheIndex());
-	// itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // Runtime
-	// itemLine.append("RunTime=");
-	// itemLine.append(item.getComputeTime());
-	// itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // Endevent
-	// itemLine.append("EndEvent=");
-	// itemLine.append(item.getEndEvent());
-	// itemLine.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // StepCount
-	// itemLine.append("StepCount=");
-	// itemLine.append(item.getStepCount());
-	//
-	// // No ending ,
-	// itemLog.println(itemLine);
-	// }
-	// break;
-	// }
-	// }
-	//
-	// private void writeItemLogHeader(int version, int numCordinates)
-	// {
-	// switch(version)
-	// {
-	// case 1:
-	// {
-	// itemLog.println("[+Header]");
-	// itemLog.println("Name=" + batchName);
-	// itemLog.println("LogType=BatchItems");
-	// itemLog.println("Samples=" + settings.ItemSamples);
-	// itemLog.println("[+AxisLabels]");
-	// for(int c = 1; c < (numCordinates + 1); c++)
-	// {
-	// itemLog.println("id=" + c);
-	// itemLog.println("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
-	// }
-	//
-	// itemLog.println("[-AxisLabels]");
-	// itemLog.println("[-Header]");
-	// itemLog.println("[+Items]");
-	// }
-	// break;
-	// case 2:
-	// StringBuilder header = new StringBuilder();
-	//
-	// // Name
-	// header.append("Name=");
-	// header.append(batchName);
-	// header.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // Type
-	// header.append("LogType=BatchItems");
-	// header.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// header.append("Samples=");
-	// header.append(settings.ItemSamples);
-	// header.append(ItemLogTextv2Format.OPTION_DELIMITER);
-	//
-	// // AxisLabels
-	// header.append("AxisLabels=");
-	// header.append("Num=" + numCordinates);
-	// // ; done in loop - loop then exits skipping an ending ;
-	// for(int c = 1; c < (numCordinates + 1); c++)
-	// {
-	// header.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
-	// header.append("id=" + c);
-	// header.append(ItemLogTextv2Format.SUBOPTION_DELIMITER);
-	// header.append("AxisName=" + groupName[c - 1] + parameterName[c - 1]);
-	// }
-	// // No ending ,
-	// itemLog.println(header.toString());
-	//
-	// break;
-	// }
-	//
-	// }
 }
