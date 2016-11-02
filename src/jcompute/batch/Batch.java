@@ -266,13 +266,13 @@ public class Batch implements StoredQueuePosition
 			final boolean ResultsEnabled = batchConfigProcessor.getBooleanValue("Stats", "Store", false);
 			
 			// Enable / Disable writing the generated result files to disk
-			final boolean TraceEnabled = batchConfigProcessor.getBooleanValue("TraceResult", "Store", false);
+			final boolean TraceEnabled = batchConfigProcessor.getBooleanValue("Stats", "TraceResult", false);
 			
 			// Enable / Disable writing the generated result files to disk
-			final boolean BDFCEnabled = batchConfigProcessor.getBooleanValue("BDFCResult", "Store", false);
+			final boolean BDFCEnabled = batchConfigProcessor.getBooleanValue("Stats", "BDFCResult", false);
 			
 			// Enable / Disable writing the generated result files to disk
-			final boolean CustomEnabled = batchConfigProcessor.getBooleanValue("CustomResult", "Store", false);
+			final boolean CustomEnabled = batchConfigProcessor.getBooleanValue("Stats", "CustomResult", false);
 			
 			// Store traces in a single archive
 			final boolean TraceStoreSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive", false);
