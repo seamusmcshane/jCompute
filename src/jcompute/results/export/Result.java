@@ -1,19 +1,11 @@
 package jcompute.results.export;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import javax.swing.JOptionPane;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,12 +14,9 @@ import jcompute.results.ResultManager;
 import jcompute.results.binary.BinaryDataFile;
 import jcompute.results.binary.BinaryDataFileCollection;
 import jcompute.results.export.file.ExportFileWriter;
-import jcompute.results.export.format.ARFFExporter;
-import jcompute.results.export.format.CSVExporter;
-import jcompute.results.export.format.XMLExporter;
-import jcompute.results.trace.Trace;
-import jcompute.results.trace.group.TraceGroup;
-import jcompute.results.trace.samples.TraceSample;
+import jcompute.results.export.trace.TraceResultInf;
+import jcompute.results.export.trace.TraceResults;
+import jcompute.results.export.trace.TraceZipCompress;
 import jcompute.util.FileUtil;
 
 public class Result
@@ -43,13 +32,8 @@ public class Result
 	 * Trace Files
 	 *****************************************************************************************************/
 	
-	// File names
-	private String traceFileNames[];
-	private String traceFileNameSuffix;
-	
-	// Data
-	private String traceTextData[];
-	private byte traceBinaryData[];
+	private final String traceFileNameSuffix;
+	private TraceResultInf traceResults;
 	
 	/*
 	 * ***************************************************************************************************
@@ -84,79 +68,12 @@ public class Result
 		 * Trace Files
 		 *****************************************************************************************************/
 		
-		Set<String> groupList = rm.getTraceGroupNames();
-		int numFiles = groupList.size();
-		
-		// FileName
-		traceFileNames = new String[numFiles];
-		
-		// FileData
-		traceTextData = new String[numFiles];
-		
-		int file = 0;
-		for(String group : groupList)
-		{
-			// Set the File Name
-			String fileName;
-			if(!traceFileNameSuffix.equals(""))
-			{
-				fileName = group + " " + traceFileNameSuffix;
-			}
-			else
-			{
-				fileName = group;
-			}
-			
-			log.info("Adding " + fileName);
-			
-			traceFileNames[file] = fileName;
-			
-			// File Data
-			traceTextData[file] = createStatExportString(rm.getTraceGroup(group));
-			
-			file++;
-		}
+		traceResults = new TraceResults(rm, format, traceFileNameSuffix);
 		
 		// Compress the trace data if required
 		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
 		{
-			try
-			{
-				String fileExtension = format.getExtension();
-				
-				// Memory Buffer
-				ByteArrayOutputStream memoryBuffer = new ByteArrayOutputStream();
-				
-				// Create Archive
-				ZipOutputStream zipOutput = new ZipOutputStream(memoryBuffer);
-				
-				// Compression Method - DEFLATED == ZipEntry.DEFLATED
-				zipOutput.setMethod(ZipOutputStream.DEFLATED);
-				
-				// Compression level for DEFLATED
-				zipOutput.setLevel(Deflater.BEST_COMPRESSION);
-				
-				for(int f = 0; f < numFiles; f++)
-				{
-					// Entry start
-					zipOutput.putNextEntry(new ZipEntry(traceFileNames[f] + "." + fileExtension));
-					
-					// Data
-					zipOutput.write(traceTextData[f].getBytes());
-					
-					// Entry end
-					zipOutput.closeEntry();
-				}
-				
-				// Archive end
-				zipOutput.close();
-				
-				traceBinaryData = memoryBuffer.toByteArray();
-			}
-			catch(IOException e)
-			{
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Compress Data to Zip Failed!!?", JOptionPane.INFORMATION_MESSAGE);
-			}
+			traceResults = new TraceZipCompress(traceResults, format);
 		}
 		
 		/*
@@ -219,159 +136,104 @@ public class Result
 		
 		int size = 0;
 		
-		String archiveName = "stats";
+		/*
+		 * ***************************************************************************************************
+		 * Trace Files + Calc
+		 *****************************************************************************************************/
 		
-		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
+		byte[] traces = traceResults.toBytes();
+		
+		size += traces.length;
+		
+		/*
+		 * ***************************************************************************************************
+		 * Bin Collections (Calc)
+		 *****************************************************************************************************/
+		
+		int numCollections = binaryCollectionNames.length;
+		
+		// Total Collections
+		size += 4;
+		
+		for(int c = 0; c < numCollections; c++)
 		{
-			// Total files
-			size += 4;
-			
-			// File Num Field
-			size += 4;
-			
 			// File Name Len Field
 			size += 4;
 			
+			// Collection Name
+			size += binaryCollectionNames[c].getBytes().length;
+		}
+		
+		/*
+		 * ***************************************************************************************************
+		 * Bin Collection Files (Calc)
+		 *****************************************************************************************************/
+		
+		int numBinFiles = binaryFileNames.length;
+		
+		// Total Bin files
+		size += 4;
+		
+		// Calculate Bin Size
+		for(int b = 0; b < numBinFiles; b++)
+		{
+			// Collection Mapping Field
+			size += 4;
+			// File Num Field
+			size += 4;
+			// File Name Len Field
+			size += 4;
 			// File Name Len in bytes
-			size += archiveName.getBytes().length;
-			
+			size += binaryFileNames[b].getBytes().length;
 			// Data Len Field
 			size += 4;
-			
 			// Data Len in bytes
-			size += traceBinaryData.length;
-			
-			// Buffer
-			tbuffer = ByteBuffer.allocate(size);
-			
-			// Total Files (Archive)
-			tbuffer.putInt(1);
-			
-			// Write the archive to the buffer
-			writeBinFileToByteBuffer(tbuffer, -1, 0, archiveName, traceBinaryData);
+			size += binaryFileData[b].length;
 		}
-		else
+		
+		/*
+		 * ***************************************************************************************************
+		 * Buffer
+		 *****************************************************************************************************/
+		
+		// Unicode strings are 16bit=2bytes char
+		tbuffer = ByteBuffer.allocate(size);
+		
+		/*
+		 * ***************************************************************************************************
+		 * Put Traces
+		 *****************************************************************************************************/
+		
+		tbuffer.put(traces);
+		
+		/*
+		 * ***************************************************************************************************
+		 * Put Collection
+		 *****************************************************************************************************/
+		
+		// Collections
+		tbuffer.putInt(numCollections);
+		
+		for(int c = 0; c < numCollections; c++)
 		{
-			/*
-			 * ***************************************************************************************************
-			 * Trace Files (Calc)
-			 *****************************************************************************************************/
-			int numTraceFiles = traceFileNames.length;
+			// Collection Name Len Field
+			tbuffer.putInt(binaryCollectionNames[c].getBytes().length);
 			
-			// Total Trace files
-			size += 4;
-			
-			// Calculate Trace Size
-			for(int t = 0; t < numTraceFiles; t++)
-			{
-				// File Num Field
-				size += 4;
-				// File Name Len Field
-				size += 4;
-				// File Name Len in bytes
-				size += traceFileNames[t].getBytes().length;
-				// Data Len Field
-				size += 4;
-				// Data Len in bytes
-				size += traceTextData[t].getBytes().length;
-			}
-			
-			/*
-			 * ***************************************************************************************************
-			 * Bin Collections (Calc)
-			 *****************************************************************************************************/
-			
-			int numCollections = binaryCollectionNames.length;
-			
-			// Total Collections
-			size += 4;
-			
-			for(int c = 0; c < numCollections; c++)
-			{
-				// File Name Len Field
-				size += 4;
-				
-				// Collection Name
-				size += binaryCollectionNames[c].getBytes().length;
-			}
-			
-			/*
-			 * ***************************************************************************************************
-			 * Bin Collection Files (Calc)
-			 *****************************************************************************************************/
-			
-			int numBinFiles = binaryFileNames.length;
-			
-			// Total Bin files
-			size += 4;
-			
-			// Calculate Bin Size
-			for(int b = 0; b < numBinFiles; b++)
-			{
-				// Collection Mapping Field
-				size += 4;
-				// File Num Field
-				size += 4;
-				// File Name Len Field
-				size += 4;
-				// File Name Len in bytes
-				size += binaryFileNames[b].getBytes().length;
-				// Data Len Field
-				size += 4;
-				// Data Len in bytes
-				size += binaryFileData[b].length;
-			}
-			
-			/*
-			 * ***************************************************************************************************
-			 * Buffer
-			 *****************************************************************************************************/
-			
-			// Unicode strings are 16bit=2bytes char
-			tbuffer = ByteBuffer.allocate(size);
-			
-			/*
-			 * ***************************************************************************************************
-			 * Put Traces
-			 *****************************************************************************************************/
-			
-			// Total Trace Files
-			tbuffer.putInt(numTraceFiles);
-			
-			for(int t = 0; t < numTraceFiles; t++)
-			{
-				writeFileToByteBuffer(tbuffer, t, traceFileNames[t], traceTextData[t]);
-			}
-			
-			/*
-			 * ***************************************************************************************************
-			 * Put Collection
-			 *****************************************************************************************************/
-			
-			// Collections
-			tbuffer.putInt(numCollections);
-			
-			for(int c = 0; c < numCollections; c++)
-			{
-				// Collection Name Len Field
-				tbuffer.putInt(binaryCollectionNames[c].getBytes().length);
-				
-				// Collection Name Data
-				tbuffer.put(binaryCollectionNames[c].getBytes());
-			}
-			
-			/*
-			 * ***************************************************************************************************
-			 * Put Bin Files
-			 *****************************************************************************************************/
-			
-			// Total Bin Files
-			tbuffer.putInt(numBinFiles);
-			
-			for(int b = 0; b < numBinFiles; b++)
-			{
-				writeBinFileToByteBuffer(tbuffer, binaryFileToCollectionMapping[b], b, binaryFileNames[b], binaryFileData[b]);
-			}
+			// Collection Name Data
+			tbuffer.put(binaryCollectionNames[c].getBytes());
+		}
+		
+		/*
+		 * ***************************************************************************************************
+		 * Put Bin Files
+		 *****************************************************************************************************/
+		
+		// Total Bin Files
+		tbuffer.putInt(numBinFiles);
+		
+		for(int b = 0; b < numBinFiles; b++)
+		{
+			writeBinFileToByteBuffer(tbuffer, binaryFileToCollectionMapping[b], b, binaryFileNames[b], binaryFileData[b]);
 		}
 		
 		return tbuffer.array();
@@ -383,39 +245,12 @@ public class Result
 		
 		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
 		{
-			int numFiles = source.getInt();
-			log.debug("Num Files " + numFiles);
+			/*
+			 * ***************************************************************************************************
+			 * Get (Compressed) Trace Files
+			 *****************************************************************************************************/
 			
-			// Expects 1 file.
-			int fNum = source.getInt();
-			log.debug("File Num " + fNum);
-			
-			if(numFiles != 1)
-			{
-				log.error("More than 1 file detected in archive operation");
-			}
-			
-			if(fNum != 0)
-			{
-				log.error("File Numbers not correct");
-			}
-			
-			// File Name Len
-			int len = source.getInt();
-			log.debug("File Name Len " + len);
-			
-			// Filename
-			byte[] fileName = new byte[len];
-			source.get(fileName, 0, len);
-			log.debug("File Name " + fileName[0]);
-			
-			// Bin Data Len
-			len = source.getInt();
-			log.debug("Data Len " + len);
-			
-			// Bin Data
-			traceBinaryData = new byte[len];
-			source.get(traceBinaryData, 0, len);
+			traceResults = new TraceZipCompress(source);
 		}
 		else
 		{
@@ -424,51 +259,7 @@ public class Result
 			 * Get Trace Files
 			 *****************************************************************************************************/
 			
-			int traceFiles = source.getInt();
-			log.debug("Num Files " + traceFiles);
-			
-			traceFileNames = new String[traceFiles];
-			traceTextData = new String[traceFiles];
-			
-			for(int t = 0; t < traceFiles; t++)
-			{
-				int tNum = source.getInt();
-				
-				if(tNum != t)
-				{
-					log.error("File Numbers not correct");
-				}
-				
-				log.debug("Trace File Number : " + tNum);
-				
-				int len = source.getInt();
-				byte[] stringBytes = new byte[len];
-				
-				log.debug("File Name Len " + len);
-				
-				source.get(stringBytes, 0, len);
-				
-				// FileName
-				traceFileNames[t] = new String(stringBytes);
-				
-				/*
-				 * Remote filenames are sent with out a suffix Append one if required
-				 */
-				if(!traceFileNameSuffix.equals(""))
-				{
-					traceFileNames[t] += " " + traceFileNameSuffix;
-				}
-				
-				log.debug("File Name " + traceFileNames[t]);
-				
-				// FileData
-				len = source.getInt();
-				stringBytes = new byte[len];
-				log.debug("Data Len " + len);
-				
-				source.get(stringBytes, 0, len);
-				traceTextData[t] = new String(stringBytes);
-			}
+			traceResults = new TraceResults(source, traceFileNameSuffix);
 			
 			/*
 			 * ***************************************************************************************************
@@ -548,24 +339,6 @@ public class Result
 		
 	}
 	
-	private void writeFileToByteBuffer(ByteBuffer tbuffer, int fileNum, String fileName, String fileData)
-	{
-		// FileNum
-		tbuffer.putInt(fileNum);
-		
-		// File Name Len
-		tbuffer.putInt(fileName.getBytes().length);
-		
-		// File Name
-		tbuffer.put(fileName.getBytes());
-		
-		// Data Lenth
-		tbuffer.putInt(fileData.getBytes().length);
-		
-		// FileData
-		tbuffer.put(fileData.getBytes());
-	}
-	
 	private void writeBinFileToByteBuffer(ByteBuffer tbuffer, int collection, int fileNum, String fileName, byte[] binData)
 	{
 		// Negative is a bypass meaning file is not part of a collection.
@@ -591,32 +364,12 @@ public class Result
 		tbuffer.put(binData);
 	}
 	
-	/*
-	 * File
+	/**
+	 * @param itemExportPath
 	 */
-	public void exportTraceResults(String itemExportPath)
+	public void exportPerItemTraceResults(String itemExportPath)
 	{
-		if((format == ExportFormat.ZXML) || (format == ExportFormat.ZCSV))
-		{
-			/*
-			 * ***************************************************************************************************
-			 * Write Compressed Trace Files
-			 *****************************************************************************************************/
-			writeZipArchive(itemExportPath, traceFileNameSuffix);
-		}
-		else
-		{
-			/*
-			 * ***************************************************************************************************
-			 * Write Trace Files
-			 *****************************************************************************************************/
-			int numFiles = traceFileNames.length;
-			
-			for(int f = 0; f < numFiles; f++)
-			{
-				ExportFileWriter.WriteTextFile(itemExportPath, traceFileNames[f], traceTextData[f], format);
-			}
-		}
+		traceResults.export(itemExportPath, format);
 	}
 	
 	public void exportBinResults(String itemExportPath, String collatedStatsDir, int itemid)
@@ -672,7 +425,7 @@ public class Result
 		}
 	}
 	
-	public void exportAllStatsToZipDir(ZipOutputStream zipOut, int itemId, int sampleId)
+	public void exportAllPerItemResultsToZipArchive(ZipOutputStream zipOut, int itemId, int sampleId)
 	{
 		// Create Zip Directories
 		try
@@ -682,6 +435,9 @@ public class Result
 			 * Write Trace Files
 			 *****************************************************************************************************/
 			
+			String[] traceFileNames = traceResults.getTraceFileNames();
+			byte[][] traceTextData = traceResults.getTraceData();
+			
 			int numFiles = traceFileNames.length;
 			
 			for(int f = 0; f < numFiles; f++)
@@ -690,7 +446,7 @@ public class Result
 				zipOut.putNextEntry(new ZipEntry(itemId + "/" + sampleId + "/" + traceFileNames[f] + ".csv"));
 				
 				// Data
-				zipOut.write(traceTextData[f].getBytes());
+				zipOut.write(traceTextData[f]);
 				
 				// Entry end
 				zipOut.closeEntry();
@@ -726,113 +482,9 @@ public class Result
 		}
 	}
 	
-	private void writeZipArchive(String directory, String name)
-	{
-		String archiveName = name;
-		
-		if(name.equals(""))
-		{
-			archiveName = "stats";
-		}
-		
-		try
-		{
-			String filePath = directory + File.separator + archiveName + "." + "zip";
-			// Write the memory buffer out as a file
-			BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(filePath));
-			fileOut.write(traceBinaryData);
-			fileOut.flush();
-			fileOut.close();
-			
-			log.info("Wrote Archive : " + archiveName + ".zip");
-		}
-		catch(IOException e)
-		{
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + archiveName + ".zip", JOptionPane.INFORMATION_MESSAGE);
-		}
-		
-	}
-	
-	/*
-	 * Data formatter
-	 */
-	private String createStatExportString(TraceGroup traceGroup)
-	{
-		StringBuilder data = new StringBuilder();
-		
-		if(traceGroup != null)
-		{
-			String name = traceGroup.getName();
-			
-			List<String> traceList = traceGroup.getTraceList();
-			
-			if((format == ExportFormat.CSV) || (format == ExportFormat.ZCSV))
-			{
-				// Write File Header
-				CSVExporter.AddFileExportHeaderCSV(data, traceList);
-			}
-			else if(format == ExportFormat.ARFF)
-			{
-				ARFFExporter.AddFileExportHeaderARFF(data, name, traceList);
-			}
-			else
-			{
-				XMLExporter.AddFileExportHeaderXML(data, name, traceList);
-			}
-			
-			// Get the history length of the stats (which are all the same
-			// length in steps)
-			int historyLength = traceGroup.getTrace(traceList.get(0)).getHistoryLength();
-			
-			int traceCount = traceList.size();
-			
-			TraceSample[][] traceHistorys = new TraceSample[traceCount][];
-			
-			// Convert each Linked list to arrays - so we can look up individual
-			// indexes quicker later.
-			for(int traceIndex = 0; traceIndex < traceCount; traceIndex++)
-			{
-				Trace trace = traceGroup.getTrace(traceList.get(traceIndex));
-				
-				traceHistorys[traceIndex] = trace.getHistoryAsArray();
-				
-				// traceHistorys[statIndex] = traceGroup.getTrace(traceList.get(statIndex)).getHistory().toArray(new StatSample[historyLength]);
-			}
-			
-			int history = 0;
-			
-			// Loop for the length of the stat history (sim run length)
-			while(history < historyLength)
-			{
-				// Write Data Row
-				if((format == ExportFormat.CSV) || (format == ExportFormat.ARFF) || (format == ExportFormat.ZCSV))
-				{
-					CSVExporter.AppendCSVRow(data, traceHistorys, history, traceList);
-				}
-				else
-				{
-					XMLExporter.AppendXMLRow(data, traceHistorys, history, traceList);
-				}
-				
-				history++;
-			}
-			
-			// File Footer
-			if((format == ExportFormat.XML) || (format == ExportFormat.ZXML))
-			{
-//				data.append("</" + xmlString(name) + ">\n");
-				
-				XMLExporter.AppendCloseSection(data, name);
-			}
-			
-		}
-		
-		return data.toString();
-	}
-	
 	public int getSize()
 	{
-		int traceFiles = (traceFileNames == null ? 0 : traceFileNames.length);
+		int traceFiles = (traceResults == null ? 0 : traceResults.getTraceFileNames().length);
 		
 		int binFiles = (binaryFileNames == null ? 0 : binaryFileNames.length);
 		

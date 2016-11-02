@@ -437,7 +437,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 			if(exporter != null)
 			{
 				// Export the stats
-				exporter.exportTraceResults(exportDirectory);
+				exporter.exportPerItemTraceResults(exportDirectory);
 				exporter.exportBinResults(exportDirectory, null, 0);
 			}
 			else

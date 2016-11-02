@@ -285,8 +285,8 @@ public class Batch implements StoredQueuePosition
 			// How many times to run each batchItem.
 			final int ItemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples", 1);
 			
-			settings = new BatchResultSettings(ResultsEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled,
-			CustomItemLogEnabled, ItemSamples);
+			settings = new BatchResultSettings(ResultsEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled,
+			ItemLogEnabled, CustomItemLogEnabled, ItemSamples);
 			
 			log.info("Store Stats " + settings.ResultsEnabled);
 			log.info("Single Archive " + settings.TraceStoreSingleArchive);
@@ -637,15 +637,16 @@ public class Batch implements StoredQueuePosition
 			if(settings.TraceStoreSingleArchive)
 			{
 				// Export the stats
-				exporter.exportAllStatsToZipDir(resultsZipOut, item.getItemId(), item.getSampleId());
+				exporter.exportAllPerItemResultsToZipArchive(resultsZipOut, item.getItemId(), item.getSampleId());
 			}
 			else
 			{
 				String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
 				
-				// Export the stats
-				exporter.exportTraceResults(fullExportPath);
+				// Export the per item traces
+				exporter.exportPerItemTraceResults(fullExportPath);
 				
+				// Export any bin results
 				exporter.exportBinResults(fullExportPath, batchStatsExportDir, item.getItemId());
 			}
 			

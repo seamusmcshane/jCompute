@@ -49,6 +49,30 @@ public class ExportFileWriter
 		
 	}
 	
+	public static void WriteBinFile(String directory, String fileName, byte[] fileData, ExportFormat format)
+	{
+		String fileExtension = format.getExtension();
+		
+		try
+		{
+			String filePath = directory + File.separator + fileName + "." + fileExtension;
+			
+			File file = new File(filePath);
+			file.getParentFile().mkdirs();
+			
+			FileOutputStream stream = new FileOutputStream(new File(filePath));
+			
+			stream.write(fileData);
+			stream.close();
+			
+			log.info("Wrote File : " + fileName);
+		}
+		catch(IOException e)
+		{
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Could not Write File - " + fileName, JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
 	public static void WriteBinFile(String directory, String fileName, byte[] fileData)
 	{
 		try
