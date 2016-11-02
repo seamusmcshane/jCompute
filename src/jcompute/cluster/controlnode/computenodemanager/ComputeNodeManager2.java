@@ -311,7 +311,7 @@ public class ComputeNodeManager2
 								JComputeEventBus.post(new ComputeNodeStatsUpdate(nodeInfo.getUid(), reply.getSequenceNum(), reply.getNodeStats()));
 							}
 							break;
-							case NCP.SimResultsReq:
+							case NCP.SimResultsReply:
 							{
 								log.info("Received simulation results reply");
 								
