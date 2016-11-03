@@ -235,8 +235,9 @@ public class CustomItemResultParser
 					
 					destination.setFieldValue(f, val);
 				}
+				break;
 				case Unsupported:
-				// Fallthough / Unsupported
+				// Unsupported
 				break;
 			}
 		}
