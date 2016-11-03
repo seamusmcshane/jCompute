@@ -156,14 +156,16 @@ public class Launcher
 		switch(mode)
 		{
 			case 0:
+			{
 				LookAndFeel.setLookandFeel(options.get("jLook").getValue());
 				log.info("Requested Standard GUI");
 				
 				// Standard GUI
-				createStandardGUI(Integer.parseInt(options.get("mcs").getValue()));
-				
+				createStandardGUI(new SimulationsManager(Integer.parseInt(options.get("mcs").getValue())));
+			}
 			break;
 			case 1:
+			{
 				LookAndFeel.setLookandFeel(options.get("jLook").getValue());
 				
 				String allowMultiValue = options.get("allowMulti").getValue();
@@ -176,7 +178,7 @@ public class Launcher
 				
 				// Cluster GUI + Batch Manager with ControlNode
 				createClusterGUI(buttonText, new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq)));
-				
+			}
 			break;
 			case 2:
 			{
@@ -203,10 +205,10 @@ public class Launcher
 	 *****************************************************************************************************/
 	
 	@SuppressWarnings("unused")
-	private static void createStandardGUI(int mcs)
+	private static void createStandardGUI(SimulationsManager simulationsManager)
 	{
-		/* Standard GUI with Local Simulation Manager */
-		new StandardGUI(new SimulationsManager(mcs));
+		/* Standard GUI */
+		new StandardGUI(simulationsManager);
 	}
 	
 	@SuppressWarnings("unused")
