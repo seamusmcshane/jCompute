@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.util.FileUtil;
 
-public class DiskCache implements Comparator<CacheItem>
+public class DiskCache implements Comparator<DiskCacheItem>
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(DiskCache.class);
@@ -43,7 +43,7 @@ public class DiskCache implements Comparator<CacheItem>
 	private int memCacheHits;
 	private int memCacheMisses;
 	
-	private CacheItem itemMemCache[];
+	private DiskCacheItem itemMemCache[];
 	private int itemsInMemCache;
 	
 	// Cache time in millisecond before cache will look at recently access time of the last item. (reduces cache thrashing when adding, but will mean a disk
@@ -135,7 +135,7 @@ public class DiskCache implements Comparator<CacheItem>
 	{
 		itemsInMemCache = 0;
 		
-		itemMemCache = new CacheItem[memCacheSize];
+		itemMemCache = new DiskCacheItem[memCacheSize];
 	}
 	
 	public void clear()
@@ -376,7 +376,7 @@ public class DiskCache implements Comparator<CacheItem>
 				log.info("Removing " + itemMemCache[itemsInMemCache - 1].getId());
 				
 				// Add this item to the mem cache.
-				itemMemCache[itemsInMemCache - 1] = new CacheItem(cacheNonUniqueIndex, data);
+				itemMemCache[itemsInMemCache - 1] = new DiskCacheItem(cacheNonUniqueIndex, data);
 				
 				log.info("purgeTimeWindow " + purgeTimeWindow + " accesssTimeWindow " + accesssTimeWindow);
 				log.info("Added " + itemMemCache[itemsInMemCache - 1].getId());
@@ -392,7 +392,7 @@ public class DiskCache implements Comparator<CacheItem>
 		{
 			boolean inCache = false;
 			
-			for(CacheItem item : itemMemCache)
+			for(DiskCacheItem item : itemMemCache)
 			{
 				// Reached end of cache that is not full.
 				if(item == null)
@@ -416,7 +416,7 @@ public class DiskCache implements Comparator<CacheItem>
 			if(!inCache)
 			{
 				// Add this item to the mem cache that is filling
-				itemMemCache[itemsInMemCache] = new CacheItem(cacheNonUniqueIndex, data);
+				itemMemCache[itemsInMemCache] = new DiskCacheItem(cacheNonUniqueIndex, data);
 				
 				itemsInMemCache++;
 				
@@ -472,7 +472,7 @@ public class DiskCache implements Comparator<CacheItem>
 	}
 	
 	@Override
-	public int compare(CacheItem item1, CacheItem item2)
+	public int compare(DiskCacheItem item1, DiskCacheItem item2)
 	{
 		long item1AddedTime = item1.getTimeAdded();
 		long item2AddedTime = item2.getTimeAdded();

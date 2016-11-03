@@ -1,6 +1,6 @@
 package jcompute.datastruct.cache;
 
-public final class CacheItem
+public final class DiskCacheItem
 {
 	private final int id;
 	private final byte[] data;
@@ -8,7 +8,7 @@ public final class CacheItem
 	private final long timeAdded;
 	private long lastAccessTime;
 
-	public CacheItem(int id, byte[] data)
+	public DiskCacheItem(int id, byte[] data)
 	{
 		this.id = id;
 		this.data = data;
