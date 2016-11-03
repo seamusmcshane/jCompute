@@ -28,6 +28,7 @@ import jcompute.results.export.ExportFormat;
 import jcompute.results.export.Result;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 import jcompute.util.JCText;
 
 /**
@@ -857,7 +858,7 @@ public class NCPSocket implements Closeable
 	 * @param simId
 	 * The added simulation id.
 	 */
-	public void sendAddSimReply(AddSimReq req, int simId)
+	public void sendAddSimReply(AddSimReq req, AddSimStatus addSimStatus)
 	{
 		// Is the socket connected
 		if(ncpMM == null)
@@ -865,7 +866,23 @@ public class NCPSocket implements Closeable
 			return;
 		}
 		
-		ncpMM.sendAddSimReply(req, simId);
+		ncpMM.sendAddSimReply(req, addSimStatus);
+	}
+	
+	/**
+	 * A response to an AddSimReply which has requested data 
+	 * @param simId
+	 * @param fileData
+	 */
+	public void sendSimulationData(int simId, byte[][] fileData)
+	{
+		// Is the socket connected
+		if(ncpMM == null)
+		{
+			return;
+		}
+		
+		ncpMM.sendSimulationData(simId, fileData);		
 	}
 	
 	/**

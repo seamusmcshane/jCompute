@@ -5,23 +5,44 @@ import java.nio.ByteBuffer;
 
 import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.message.NCPMessage;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 
 public class AddSimReply extends NCPMessage
 {
 	private long requestId;
-	private int simId;
+	private AddSimStatus addSimStatus;
 	
-	public AddSimReply(long requestId, int simId)
+	public AddSimReply(long requestId, AddSimStatus addSimStatus)
 	{
 		this.requestId = requestId;
-		this.simId = simId;
+		this.addSimStatus = addSimStatus;
 	}
 	
 	// Construct from an input stream
 	public AddSimReply(ByteBuffer source) throws IOException
 	{
 		requestId = source.getLong();
-		simId = source.getInt();
+		
+		int simId = source.getInt();
+		
+		boolean needData = (source.getInt() == 0) ? true : false;
+		
+		int numfileNames = source.getInt();
+		
+		String[] filenames = new String[numfileNames];
+		
+		for(int i = 0; i < numfileNames; i++)
+		{
+			int len = source.getInt();
+			
+			byte[] dst = new byte[len];
+			
+			source.get(dst, 0, len);
+			
+			filenames[i] = new String(dst);
+		}
+		
+		addSimStatus = new AddSimStatus(simId, needData, filenames);
 	}
 	
 	public long getRequestId()
@@ -29,11 +50,11 @@ public class AddSimReply extends NCPMessage
 		return requestId;
 	}
 	
-	public int getSimId()
+	public AddSimStatus getAddSimStatus()
 	{
-		return simId;
+		return addSimStatus;
 	}
-
+	
 	@Override
 	public int getType()
 	{
@@ -43,7 +64,33 @@ public class AddSimReply extends NCPMessage
 	@Override
 	public byte[] toBytes()
 	{
-		int dataLen = 12;
+		int dataLen = 0;
+		
+		// requestId
+		dataLen += 8;
+		
+		// simId
+		dataLen += 4;
+		int simId = addSimStatus.simId;
+		
+		// needData
+		dataLen += 4;
+		int ineedData = (addSimStatus.needData) ? 0 : 1;
+		
+		// numfileNames
+		dataLen += 4;
+		
+		int numfileNames = addSimStatus.fileNames.length;
+		String[] filenames = addSimStatus.fileNames;
+		
+		for(int f = 0; f < numfileNames; f++)
+		{
+			// Len Field
+			dataLen += 4;
+			
+			// Data Len
+			dataLen += filenames[f].getBytes().length;
+		}
 		
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
 		
@@ -54,6 +101,16 @@ public class AddSimReply extends NCPMessage
 		// Data
 		tbuffer.putLong(requestId);
 		tbuffer.putInt(simId);
+		tbuffer.putInt(ineedData);
+		tbuffer.putInt(numfileNames);
+		
+		for(int f = 0; f < numfileNames; f++)
+		{
+			byte[] bytes = filenames[f].getBytes();
+			
+			tbuffer.putInt(bytes.length);
+			tbuffer.put(bytes);
+		}
 		
 		return tbuffer.array();
 	}

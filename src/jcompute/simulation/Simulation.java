@@ -289,8 +289,10 @@ public class Simulation implements stateChangedInf, ViewTarget
 	/**
 	 * Called by the start button
 	 */
-	public void startSim()
+	public void startSim(byte[][] data)
 	{
+		simulationScenarioManager.setData(data);
+		
 		unPauseSim();
 	}
 	

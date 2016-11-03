@@ -21,6 +21,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -66,6 +69,7 @@ import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.SimulationsManager;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 import jcompute.util.FileUtil;
 import jcompute.util.TimeString;
 import jcompute.util.TimeString.TimeStringFormat;
@@ -120,6 +124,9 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 	private List<TabStatusChangedListenerInf> tabStatusListeners = new ArrayList<TabStatusChangedListenerInf>();
 	private Semaphore listenersLock = new Semaphore(1, false);
 	private TabButton title;
+	
+	// Data
+	private byte[][] data;
 	
 	public GUISimulationTab(GUITabManager tabManager, SimulationsManager simsManager, int simId)
 	{
@@ -582,7 +589,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		}
 		else if(e.getSource() == btnStartSim)
 		{
-			simsManager.startSim(simId);
+			simsManager.startSim(simId, data);
 		}
 		else if(e.getSource() == btnSave)
 		{
@@ -794,7 +801,67 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		
 		removeSimulation();
 		
-		simId = simsManager.addSimulation(scenario, getSPSfromSlider(sliderSimStepRate.getValue()));
+		AddSimStatus addSimStatus = simsManager.addSimulation(scenario, getSPSfromSlider(sliderSimStepRate.getValue()));
+		
+		simId = addSimStatus.simId;
+		
+		boolean dataOk = true;
+		
+		// Fetch Data
+		if(addSimStatus.needData)
+		{
+			log.info("Sim needs data");
+			
+			if(addSimStatus.fileNames != null)
+			{
+				String[] filenames = addSimStatus.fileNames;
+				
+				int numFiles = filenames.length;
+				
+				data = new byte[numFiles][];
+				
+				for(int d = 0; d < numFiles; d++)
+				{
+					if(filenames[d] != null)
+					{
+						String filePath = "data" + File.separator + filenames[d];
+						
+						Path path = Paths.get(filePath);
+						
+						try
+						{
+							data[d] = Files.readAllBytes(path);
+							
+							log.info("Loaded " + filenames[d]);
+							
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+							
+							dataOk = false;
+						}
+					}
+					else
+					{
+						dataOk = false;
+					}
+				}
+			}
+			else
+			{
+				dataOk = false;
+			}
+		}
+		
+		if(!dataOk)
+		{
+			simsManager.removeSimulation(simId);
+			
+			simId = -1;
+			
+			log.error("Scenario Data Error");
+		}
 		
 		if(simId != -1)
 		{
@@ -812,7 +879,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(this, "Failed to generate simulation.\nCheck XML Syntax.");
+			JOptionPane.showMessageDialog(this, "Failed to generate simulation.\nCheck XML syntax and/or data filenames.");
 			
 			log.error("Scenario Failed to Load");
 			

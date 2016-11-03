@@ -23,6 +23,7 @@ import jcompute.cluster.ncp.NCP.Timeout;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReply;
 import jcompute.cluster.ncp.message.command.AddSimReq;
+import jcompute.cluster.ncp.message.command.SimulationData;
 import jcompute.cluster.ncp.message.command.SimulationResultsReply;
 import jcompute.cluster.ncp.message.command.SimulationResultsRequest;
 import jcompute.cluster.ncp.message.control.NodeOrderlyShutdownReply;
@@ -42,6 +43,7 @@ import jcompute.results.export.ExportFormat;
 import jcompute.results.export.Result;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 
 public class MessageManager
 {
@@ -277,7 +279,7 @@ public class MessageManager
 	 *****************************************************************************************************/
 	
 	// Reply to an AddSimReq
-	public void sendAddSimReply(AddSimReq req, int simId)
+	public void sendAddSimReply(AddSimReq req, AddSimStatus addSimStatus)
 	{
 		if(req == null)
 		{
@@ -285,7 +287,12 @@ public class MessageManager
 			
 		}
 		
-		txDataEnqueue(new AddSimReply(req.getRequestId(), simId).toBytes());
+		txDataEnqueue(new AddSimReply(req.getRequestId(), addSimStatus).toBytes());
+	}
+	
+	public void sendSimulationData(int simId, byte[][] fileData)
+	{
+		txDataEnqueue(new SimulationData(simId, fileData).toBytes());
 	}
 	
 	// Reply to a NodeStatsRequest
@@ -542,6 +549,11 @@ public class MessageManager
 					case NCP.AddSimReply:
 					{
 						message = new AddSimReply(data);
+					}
+					break;
+					case NCP.SimData:
+					{
+						message = new SimulationData(data);
 					}
 					break;
 					case NCP.SimResultsReq:

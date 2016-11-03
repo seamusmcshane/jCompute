@@ -28,6 +28,13 @@ public interface SimulationScenarioManagerInf
 	public void doSimulationUpdate();
 	
 	/**
+	 * If the simulation needs data it will be retrieved and set buy this call back.
+	 * 
+	 * @param data
+	 */
+	public void setData(byte[][] data);
+	
+	/**
 	 * Called at the end of every step.
 	 * 
 	 * @return true if one of the set end events has triggered.

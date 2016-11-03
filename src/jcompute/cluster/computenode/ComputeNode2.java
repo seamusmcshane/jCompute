@@ -17,6 +17,7 @@ import jcompute.cluster.ncp.NCP;
 import jcompute.cluster.ncp.NCPSocket;
 import jcompute.cluster.ncp.message.NCPMessage;
 import jcompute.cluster.ncp.message.command.AddSimReq;
+import jcompute.cluster.ncp.message.command.SimulationData;
 import jcompute.cluster.ncp.message.command.SimulationResultsRequest;
 import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
 import jcompute.results.export.ExportFormat;
@@ -25,6 +26,7 @@ import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.SimulationsManager;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 import jcompute.util.JVMInfo;
 import jcompute.util.OSInfo;
 
@@ -224,14 +226,35 @@ public class ComputeNode2
 										
 										log.info("AddSimReq " + req.getRequestId());
 										
-										int simId = simulationsManager.addSimulation(req.getScenarioText(), -1);
+										AddSimStatus addSimStatus = simulationsManager.addSimulation(req.getScenarioText(), -1);
 										
-										ncpSocket.sendAddSimReply(req, simId);
+										int simId = addSimStatus.simId;
 										
-										// If the simulation was added successfully then start it
-										if(simId > 0)
+										if(!addSimStatus.needData & simId > 0)
 										{
-											simulationsManager.startSim(simId);
+											// If the simulation was added successfully and does not need data files then start it.
+											simulationsManager.startSim(simId, null);
+										}
+										
+										ncpSocket.sendAddSimReply(req, addSimStatus);
+									}
+									break;
+									case NCP.SimData:
+									{
+										SimulationData req = (SimulationData) message;
+										
+										int simId = req.getSimId();
+										byte[][] fileData = req.getFileData();
+										
+										if(fileData != null)
+										{
+											simulationsManager.startSim(simId, fileData);
+										}
+										else
+										{
+											log.error("Removed sim as received SimulationData was empty - " + simId);
+											
+											simulationsManager.removeSimulation(simId);
 										}
 									}
 									break;

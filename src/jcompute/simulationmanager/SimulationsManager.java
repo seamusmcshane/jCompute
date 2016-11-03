@@ -23,6 +23,7 @@ import jcompute.simulation.Simulation;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 
 public class SimulationsManager
 {
@@ -59,7 +60,7 @@ public class SimulationsManager
 		log.info("Max Active Sims : " + maxSims);
 	}
 	
-	public int addSimulation(String scenarioText, int intialStepRate)
+	public AddSimStatus addSimulation(String scenarioText, int intialStepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -92,14 +93,18 @@ public class SimulationsManager
 				
 				log.error("Add sim failed - unable to get scenario.");
 				
-				return -1;
+				// return -1;
+				// Add failed
+				return new AddSimStatus(-1, false, null);
 			}
 			
 			JComputeEventBus.post(new SimulationsManagerEvent(simulationNum, SimulationsManagerEventType.AddedSim));
 			
 			simulationsManagerLock.release();
 			
-			return simulationNum;
+			// return simulationNum;
+			
+			return new AddSimStatus(simulationNum, scenario.needsData(), scenario.dataFileNames());
 		}
 		else
 		{
@@ -107,10 +112,10 @@ public class SimulationsManager
 			
 			simulationsManagerLock.release();
 			
-			return -1;
+			// Add failed
+			return new AddSimStatus(-1, false, null);
 		}
 	}
-	
 	
 	public void removeSimulation(int simId)
 	{
@@ -149,8 +154,7 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	
-	public void startSim(int simId)
+	public void startSim(int simId, byte[][] data)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
 		
@@ -158,11 +162,10 @@ public class SimulationsManager
 		
 		Simulation sim = simulations.get(simId);
 		
-		sim.startSim();
+		sim.startSim(data);
 		
 		simulationsManagerLock.release();
 	}
-	
 	
 	public void pauseSim(int simId)
 	{
@@ -177,7 +180,6 @@ public class SimulationsManager
 		
 		simulationsManagerLock.release();
 	}
-	
 	
 	public String getScenarioText(int simId)
 	{
@@ -197,7 +199,6 @@ public class SimulationsManager
 		return scenarioText;
 	}
 	
-	
 	public void setReqSimStepRate(int simId, int stepRate)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -212,7 +213,6 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 		
 	}
-	
 	
 	public SimState togglePause(int simId)
 	{
@@ -232,7 +232,6 @@ public class SimulationsManager
 		return simState;
 	}
 	
-	
 	public void unPauseSim(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -246,7 +245,6 @@ public class SimulationsManager
 		
 		simulationsManagerLock.release();
 	}
-	
 	
 	public void setActiveSim(int simId)
 	{
@@ -267,7 +265,6 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	
 	public void setSimView(View simView)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -287,7 +284,6 @@ public class SimulationsManager
 		
 		simulationsManagerLock.release();
 	}
-	
 	
 	public void clearActiveSim()
 	{
@@ -321,7 +317,6 @@ public class SimulationsManager
 		return list;
 	}
 	
-	
 	public List<Integer> getSimIdList()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -339,7 +334,6 @@ public class SimulationsManager
 		
 		return list;
 	}
-	
 	
 	public boolean hasSimWithId(int simId)
 	{
@@ -359,12 +353,10 @@ public class SimulationsManager
 		return simIdExists;
 	}
 	
-	
 	public int getMaxSims()
 	{
 		return maxSims;
 	}
-	
 	
 	public SimState getState(int simId)
 	{
@@ -384,7 +376,6 @@ public class SimulationsManager
 		return simState;
 	}
 	
-	
 	public Set<String> getTraceGroupNames(int simId)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -402,7 +393,6 @@ public class SimulationsManager
 		
 		return statGroupNames;
 	}
-	
 	
 	public Result getResultExporter(int simId, String fileNameSuffix, ExportFormat format)
 	{
@@ -437,7 +427,6 @@ public class SimulationsManager
 		return exporter;
 	}
 	
-	
 	public boolean isTraceGroupGraphingEnabled(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -455,7 +444,6 @@ public class SimulationsManager
 		
 		return enabled;
 	}
-	
 	
 	public int getTraceGroupGraphSampleWindowSize(int simId, String group)
 	{
@@ -475,7 +463,6 @@ public class SimulationsManager
 		return window;
 	}
 	
-	
 	public boolean hasTraceGroupTotalStat(int simId, String group)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -494,7 +481,6 @@ public class SimulationsManager
 		return globalStat;
 	}
 	
-	
 	public void addTraceGroupListener(int simId, String group, TraceGroupListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -509,7 +495,6 @@ public class SimulationsManager
 		simulationsManagerLock.release();
 	}
 	
-	
 	public void removeStatGroupListener(int simId, String group, TraceGroupListenerInf listener)
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -523,7 +508,6 @@ public class SimulationsManager
 		
 		simulationsManagerLock.release();
 	}
-	
 	
 	public int getReqSps(int simId)
 	{
@@ -543,7 +527,6 @@ public class SimulationsManager
 		return reqSps;
 	}
 	
-	
 	public void removeAll()
 	{
 		simulationsManagerLock.acquireUninterruptibly();
@@ -561,7 +544,6 @@ public class SimulationsManager
 		
 		simulationsManagerLock.release();
 	}
-	
 	
 	public boolean hasFreeSlot()
 	{

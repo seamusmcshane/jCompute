@@ -1,7 +1,11 @@
 package jcompute.cluster.controlnode.computenodemanager;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -38,6 +42,7 @@ import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
+import jcompute.simulationmanager.returnables.AddSimStatus;
 
 public class ComputeNodeManager2
 {
@@ -203,23 +208,82 @@ public class ComputeNodeManager2
 								AddSimReply reply = (AddSimReply) message;
 								
 								long requestId = reply.getRequestId();
-								int simId = reply.getSimId();
+								AddSimStatus addSimStatus = reply.getAddSimStatus();
+								
+								int simId = addSimStatus.simId;
+								boolean needData = addSimStatus.needData;
 								
 								log.info("AddSimReply : " + simId + " Request " + requestId);
 								
 								NodeItemRequest req = remoteRequestMap.remove(requestId);
 								
-								if(simId > 0)
+								boolean dataok = true;
+								
+								if(needData)
 								{
-									req.setResult(NodeItemRequestResult.SUCESSFUL);
+									String[] filenames = addSimStatus.fileNames;
 									
-									RemoteSimulationMapping mapping = req.getMapping();
+									int numFiles = filenames.length;
 									
-									mapping.setRemoteSimId(simId);
+									byte[][] fileData = new byte[numFiles][];
 									
-									remoteSimulationMap.put(simId, mapping);
+									// Get Data
+									for(int f = 0; f < numFiles; f++)
+									{
+										String filename = filenames[f];
+										
+										if(filename != null)
+										{
+											String filePath = "data" + File.separator + filename;
+											
+											Path path = Paths.get(filePath);
+											try
+											{
+												fileData[f] = Files.readAllBytes(path);
+											}
+											catch(IOException e)
+											{
+												log.error("Failed to read " + filePath);
+												
+												dataok = false;
+												
+												break;
+											}
+										}
+										else
+										{
+											dataok = false;
+											
+											break;
+										}
+									}
 									
-									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
+									if(!dataok)
+									{
+										log.error("Failed to get data for remote sim " + simId);
+										
+										fileData = null;
+									}
+									
+									// Send the data or lack of
+									ncpSocket.sendSimulationData(simId, fileData);
+								}
+								
+								// Sim ok and dataok?
+								if(simId > 0 & dataok)
+								{
+									if(!needData | dataok)
+									{
+										req.setResult(NodeItemRequestResult.SUCESSFUL);
+										
+										RemoteSimulationMapping mapping = req.getMapping();
+										
+										mapping.setRemoteSimId(simId);
+										
+										remoteSimulationMap.put(simId, mapping);
+										
+										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
+									}
 								}
 								else
 								{

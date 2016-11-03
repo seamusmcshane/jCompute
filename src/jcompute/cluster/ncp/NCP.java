@@ -98,6 +98,7 @@ public class NCP
 	// Simulations
 	public static final int AddSimReq = 31;			// ComputeNode Add Simulation Request - request from controller to add a sim (with config)
 	public static final int AddSimReply = 32;		// ComputeNode Add Simulation Acknowledgement - reply with a sim slot id or -1 denied
+	public static final int SimData = 33;	// ControlNode Response to addSimReply which requested data files.
 	
 	// Simulation Results Retrieval
 	public static final int SimResultsReq = 41;		// ComputeNode Results request from controller to retrieve the finished simulation results

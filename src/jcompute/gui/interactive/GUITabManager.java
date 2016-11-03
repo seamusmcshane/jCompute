@@ -64,7 +64,7 @@ public class GUITabManager extends JTabbedPane implements MouseListener, ActionL
 	
 	/** A Reference to the Simulations Manager */
 	private SimulationsManager simsManager;
-	
+		
 	public GUITabManager(final SimulationsManager simsManager)
 	{
 		/* Tabs on the Left */
