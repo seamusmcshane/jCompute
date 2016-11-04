@@ -29,17 +29,22 @@ public class AddSimReply extends NCPMessage
 		
 		int numfileNames = source.getInt();
 		
-		String[] filenames = new String[numfileNames];
+		String[] filenames = null;
 		
-		for(int i = 0; i < numfileNames; i++)
+		if(numfileNames > 0)
 		{
-			int len = source.getInt();
+			filenames = new String[numfileNames];
 			
-			byte[] dst = new byte[len];
-			
-			source.get(dst, 0, len);
-			
-			filenames[i] = new String(dst);
+			for(int i = 0; i < numfileNames; i++)
+			{
+				int len = source.getInt();
+				
+				byte[] dst = new byte[len];
+				
+				source.get(dst, 0, len);
+				
+				filenames[i] = new String(dst);
+			}
 		}
 		
 		addSimStatus = new AddSimStatus(simId, needData, filenames);
@@ -80,16 +85,19 @@ public class AddSimReply extends NCPMessage
 		// numfileNames
 		dataLen += 4;
 		
-		int numfileNames = addSimStatus.fileNames.length;
+		int numfileNames = (addSimStatus.needData) ? addSimStatus.fileNames.length : 0;
 		String[] filenames = addSimStatus.fileNames;
 		
-		for(int f = 0; f < numfileNames; f++)
+		if(numfileNames > 0)
 		{
-			// Len Field
-			dataLen += 4;
-			
-			// Data Len
-			dataLen += filenames[f].getBytes().length;
+			for(int f = 0; f < numfileNames; f++)
+			{
+				// Len Field
+				dataLen += 4;
+				
+				// Data Len
+				dataLen += filenames[f].getBytes().length;
+			}
 		}
 		
 		ByteBuffer tbuffer = ByteBuffer.allocate(dataLen + NCP.HEADER_SIZE);
