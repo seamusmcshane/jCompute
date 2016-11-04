@@ -230,13 +230,14 @@ public class ComputeNode2
 										
 										int simId = addSimStatus.simId;
 										
+										// Send the add sim reply now - This avoids a race with the simulation finishing before we get past the if statement.
+										ncpSocket.sendAddSimReply(req, addSimStatus);
+										
 										if(!addSimStatus.needData & simId > 0)
 										{
 											// If the simulation was added successfully and does not need data files then start it.
 											simulationsManager.startSim(simId, null);
 										}
-										
-										ncpSocket.sendAddSimReply(req, addSimStatus);
 									}
 									break;
 									case NCP.SimData:
