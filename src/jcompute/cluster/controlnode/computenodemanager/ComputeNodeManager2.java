@@ -272,18 +272,15 @@ public class ComputeNodeManager2
 								// Sim ok and dataok?
 								if(simId > 0 & dataok)
 								{
-									if(!needData | dataok)
-									{
-										req.setResult(NodeItemRequestResult.SUCESSFUL);
-										
-										RemoteSimulationMapping mapping = req.getMapping();
-										
-										mapping.setRemoteSimId(simId);
-										
-										remoteSimulationMap.put(simId, mapping);
-										
-										JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
-									}
+									req.setResult(NodeItemRequestResult.SUCESSFUL);
+									
+									RemoteSimulationMapping mapping = req.getMapping();
+									
+									mapping.setRemoteSimId(simId);
+									
+									remoteSimulationMap.put(simId, mapping);
+									
+									JComputeEventBus.post(new SimulationsManagerEvent(mapping.getLocalSimId(), SimulationsManagerEventType.AddedSim));
 								}
 								else
 								{
