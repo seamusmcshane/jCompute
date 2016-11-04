@@ -73,7 +73,7 @@ public class NCP
 	}
 	
 	// Protocol version - prevent mismatched nodes
-	public static final int NCP_PROTOCOL_VERSION = 9;
+	public static final int NCP_PROTOCOL_VERSION = 10;
 	
 	// NCP Message Type Definitions
 	
