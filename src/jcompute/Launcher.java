@@ -389,7 +389,7 @@ public class Launcher
 	// Logger not used
 	private static void displayHelp()
 	{
-		System.out.println("Usage : java [javaopts] -jar app_name [option1=n,option2=n]\n");
+		System.out.println("Usage : java [javaopts] -cp \"classpath\" jcompute.Launcher [option1=n,option2=n]\n");
 		
 		System.out.println("Help");
 		
