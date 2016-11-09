@@ -32,7 +32,11 @@ public class CSVExporter
 			
 			fileData.append(statList.get(statIndex));
 			
-			if(statIndex < (statCount - 1))
+			if(statIndex == statCount)
+			{
+				fileData.append("\n");
+			}
+			else if(statIndex < (statCount - 1))
 			{
 				fileData.append(",");
 			}
@@ -40,7 +44,6 @@ public class CSVExporter
 			{
 				fileData.append("\n");
 			}
-			
 		}
 		
 		log.info(logString.toString());
@@ -65,7 +68,11 @@ public class CSVExporter
 		{
 			data.append(traceHistorys[statIndex][history].toString());
 			
-			if(statIndex < (statCount - 1))
+			if(statIndex == statCount)
+			{
+				data.append("\n");
+			}
+			else if(statIndex < (statCount - 1))
 			{
 				data.append(",");
 			}
@@ -73,7 +80,6 @@ public class CSVExporter
 			{
 				data.append("\n");
 			}
-			
 		}
 	}
 }
