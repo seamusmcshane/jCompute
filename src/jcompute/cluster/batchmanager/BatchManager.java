@@ -21,7 +21,7 @@ import jcompute.cluster.batchmanager.event.BatchAddedEvent;
 import jcompute.cluster.batchmanager.event.BatchFinishedEvent;
 import jcompute.cluster.batchmanager.event.BatchPositionEvent;
 import jcompute.cluster.batchmanager.event.BatchProgressEvent;
-import jcompute.cluster.controlnode.ControlNode;
+import jcompute.cluster.controlnode.ControlNodeServer;
 import jcompute.cluster.controlnode.event.ControlNodeItemStateEvent;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
@@ -43,8 +43,8 @@ public class BatchManager
 	// Batch id counter
 	private int batchId = 0;
 	
-	// ControlNode
-	private ControlNode controlNode;
+	// ControlNodeServer
+	private ControlNodeServer controlNodeServer;
 	
 	// The queues of batches
 	private ManagedBypassableQueue fifoQueue;
@@ -65,9 +65,9 @@ public class BatchManager
 	// Completed Items Processor
 	private Timer batchCompletedItemsProcessor;
 	
-	public BatchManager(ControlNode controlNode)
+	public BatchManager(ControlNodeServer controlNodeServer)
 	{
-		this.controlNode = controlNode;
+		this.controlNodeServer = controlNodeServer;
 		
 		fifoQueue = new ManagedBypassableQueue();
 		
@@ -112,7 +112,7 @@ public class BatchManager
 		}, 0, 10000);
 		
 		// BatchManager is ready, now start control node
-		controlNode.start();
+		controlNodeServer.start();
 	}
 	
 	public boolean addBatch(String filePath)
@@ -151,9 +151,9 @@ public class BatchManager
 	
 	private void recoverItemsFromInactiveNodes()
 	{
-		if(controlNode.hasRecoverableSimIds())
+		if(controlNodeServer.hasRecoverableSimIds())
 		{
-			ArrayList<Integer> recoveredSimIds = controlNode.getRecoverableSimIds();
+			ArrayList<Integer> recoveredSimIds = controlNodeServer.getRecoverableSimIds();
 			
 			Iterator<Integer> itr = recoveredSimIds.iterator();
 			while(itr.hasNext())
@@ -212,7 +212,7 @@ public class BatchManager
 			}
 			
 			// Remove the related simulation for this completed sim.
-			controlNode.removeCompletedSim(item.getSimId());
+			controlNodeServer.removeCompletedSim(item.getSimId());
 		}
 		
 		completeItems = new ArrayList<CompletedItemsNode>();
@@ -288,7 +288,7 @@ public class BatchManager
 		}
 		
 		// Is there a free slot
-		if(controlNode.hasFreeSlot())
+		if(controlNodeServer.hasFreeSlot())
 		{
 			// Check if batch needs init
 			if(batch.needsInit())
@@ -304,7 +304,7 @@ public class BatchManager
 			{
 				// While there are items to add and the control node can add
 				// them
-				while((batch.getRemaining() > 0) && controlNode.hasFreeSlot())
+				while((batch.getRemaining() > 0) && controlNodeServer.hasFreeSlot())
 				{
 					// Schedule and item from batch
 					scheduleNextBatchItem(batch);
@@ -324,7 +324,7 @@ public class BatchManager
 	 * {
 	 * // log.debug("Schedule Fair");
 	 * int size = fairQueue.size();
-	 * double maxActive = controlNode.getMaxSims() - fifoQueue.size();
+	 * double maxActive = controlNodeServer.getMaxSims() - fifoQueue.size();
 	 * int fairTotal, pos;
 	 * if(size > 0)
 	 * {
@@ -345,7 +345,7 @@ public class BatchManager
 	 * do
 	 * {
 	 * // Is there a free slot
-	 * if(controlNode.hasFreeSlot())
+	 * if(controlNodeServer.hasFreeSlot())
 	 * {
 	 * batch = (Batch) fairQueue.get(pos);
 	 * if(batch == null)
@@ -454,7 +454,7 @@ public class BatchManager
 		
 		batchManagerLock.release();
 		
-		controlNode.addSimulation(nextItem, itemConfig, batch.getTraceExportFormat());
+		controlNodeServer.addSimulation(nextItem, itemConfig, batch.getTraceExportFormat());
 		
 		batchManagerLock.acquireUninterruptibly();
 		

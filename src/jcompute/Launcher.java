@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.cluster.batchmanager.BatchManager;
 import jcompute.cluster.computenode.ComputeNode2;
-import jcompute.cluster.controlnode.ControlNode;
+import jcompute.cluster.controlnode.ControlNodeServer;
 import jcompute.gui.cluster.ClusterGUI;
 import jcompute.gui.interactive.StandardGUI;
 import jcompute.logging.Logging;
@@ -40,7 +40,7 @@ public class Launcher
 	private static final CommandLineArg defaultsList[] =
 	{
 		new CommandLineArg("mcs", Integer.toString(Runtime.getRuntime().availableProcessors()), "Max Concurrent Simulations (Int)"), new CommandLineArg("mode",
-		"0", "Standard/ControlNode/ComputeNode (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1",
+		"0", "Standard/ControlNodeServer/ComputeNode (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1",
 		"Button Text (0/1)"), new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0",
 		"Logging Level (int) Info/Error/Debug (0/1/2)"), new CommandLineArg("desc", null, "ComputeNode Description"), new CommandLineArg("jLook", "default",
 		"Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address"), new CommandLineArg("SocketTX",
@@ -176,8 +176,8 @@ public class Launcher
 					allowMulti = true;
 				}
 				
-				// Cluster GUI + Batch Manager with ControlNode
-				createClusterGUI(buttonText, new BatchManager(new ControlNode(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq)));
+				// Cluster GUI + Batch Manager with ControlNodeServer
+				createClusterGUI(buttonText, new BatchManager(new ControlNodeServer(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq)));
 			}
 			break;
 			case 2:

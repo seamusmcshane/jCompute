@@ -98,7 +98,7 @@ public class NCP
 	// Simulations
 	public static final int AddSimReq = 31;			// ComputeNode Add Simulation Request - request from controller to add a sim (with config)
 	public static final int AddSimReply = 32;		// ComputeNode Add Simulation Acknowledgement - reply with a sim slot id or -1 denied
-	public static final int SimData = 33;	// ControlNode Response to addSimReply which requested data files.
+	public static final int SimData = 33;	// ControlNodeServer Response to addSimReply which requested data files.
 	
 	// Simulation Results Retrieval
 	public static final int SimResultsReq = 41;		// ComputeNode Results request from controller to retrieve the finished simulation results
@@ -121,7 +121,7 @@ public class NCP
 	public static final int ActivityTestReply = 80797871;			// Connection Test Reply
 	
 	// The standard NCP port
-	public static final int StandardServerPort = 10000;			// ControlNode Listening Port
+	public static final int StandardServerPort = 10000;			// ControlNodeServer Listening Port
 	
 	private static final int ReadyStateTimeOut = 120000;			// Max time to wait for a node to enter ready state in seconds.
 	private static final int InactivityTimeOut = 15000;			// Max time milliseconds to wait for a node to reply before closing connection

@@ -38,10 +38,10 @@ import jcompute.results.export.ExportFormat;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
 
-public class ControlNode
+public class ControlNodeServer
 {
 	// Log4j2 Logger
-	private static Logger log = LogManager.getLogger(ControlNode.class);
+	private static Logger log = LogManager.getLogger(ControlNodeServer.class);
 	
 	// Dynamic based on total of active nodes max sims
 	private int maxSims = 0;
@@ -88,7 +88,7 @@ public class ControlNode
 	private int tickCount;
 	private long lastStatisticsTime;
 	
-	public ControlNode(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq)
+	public ControlNodeServer(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq)
 	{
 		this.allowMulti = allowMulti;
 		this.socketTX = socketTX;
@@ -136,7 +136,7 @@ public class ControlNode
 		catch(Exception e)
 		{
 			// Unrecoverable error
-			log.error("ControlNode Processing Exited : " + e.getMessage());
+			log.error("ControlNodeServer Processing Exited : " + e.getMessage());
 			
 			System.exit(-1);
 		}
@@ -229,7 +229,7 @@ public class ControlNode
 		});
 		
 		// Connection Processing
-		processing.setName("ControlNode Processing");
+		processing.setName("ControlNodeServer Processing");
 		processing.start();
 	}
 	
