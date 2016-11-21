@@ -71,6 +71,39 @@ public class Palette
 		return (end * percentage) + (start * (1 - percentage));
 	}
 	
+	public static float LinInterpolate(float start, float end, float mu)
+	{
+		return start + ((end - start) * mu);
+	}
+	
+	public static double LinInterpolate(double start, double end, double mu)
+	{
+		return start + ((end - start) * mu);
+	}
+	
+	final static double DOUBLE_ONE_OVER_LOG2 = 1.0 / Math.log(2);
+	
+	public static double[] MonoCubicValDis(double sqsize, double base)
+	{
+		// Monotone cubic interpolation
+		double size = Math.sqrt(sqsize);
+		
+		double mu = Math.log(Math.log(size) * DOUBLE_ONE_OVER_LOG2) * DOUBLE_ONE_OVER_LOG2;
+		
+		// Next + 1
+		double next = (base) + (1 - mu);
+		
+		double newBase = Math.floor(next);
+		
+		double distance = next - newBase;
+		
+		// MonoCubicValDis
+		return new double[]
+		{
+			newBase, distance
+		};
+	}
+	
 	public static int[] HUEPalette(boolean rgba, int paletteSize, boolean applySRGB)
 	{
 		int palette[] = new int[paletteSize];
