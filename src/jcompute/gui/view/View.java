@@ -232,11 +232,11 @@ public class View implements ApplicationListener, ViewRendererInf
 		// parameter.magFilter = TextureFilter.MipMapLinearLinear;
 		
 		parameter.borderWidth = 1;
-		parameter.size = 20;
+		parameter.size = 16;
 		headingFont = generator.generateFont(parameter);
 		
 		parameter.borderWidth = 1;
-		parameter.size = 14;
+		parameter.size = 12;
 		subHeadingFont = generator.generateFont(parameter);
 		
 		parameter.borderWidth = 0;
