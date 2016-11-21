@@ -104,6 +104,35 @@ public class Palette
 		};
 	}
 	
+	public static int[] Ultra()
+	{
+		int palette[] = new int[16];
+		
+		palette[0] = RGBtoRGBA(66, 30, 15);
+		palette[1] = RGBtoRGBA(25, 7, 26);
+		palette[2] = RGBtoRGBA(9, 1, 47);
+		palette[3] = RGBtoRGBA(4, 4, 73);
+		palette[4] = RGBtoRGBA(0, 7, 100);
+		palette[5] = RGBtoRGBA(12, 44, 138);
+		palette[6] = RGBtoRGBA(24, 82, 177);
+		palette[7] = RGBtoRGBA(57, 125, 209);
+		palette[8] = RGBtoRGBA(134, 181, 229);
+		palette[9] = RGBtoRGBA(211, 236, 248);
+		palette[10] = RGBtoRGBA(241, 233, 191);
+		palette[11] = RGBtoRGBA(248, 201, 95);
+		palette[12] = RGBtoRGBA(255, 170, 0);
+		palette[13] = RGBtoRGBA(204, 128, 0);
+		palette[14] = RGBtoRGBA(153, 87, 0);
+		palette[14] = RGBtoRGBA(106, 52, 3);
+		
+		return palette;
+	}
+	
+	public static int RGBtoRGBA(int red, int green, int blue)
+	{
+		return (red << 24) | (green << 16) | (blue << 8) | 0xff;
+	}
+	
 	public static int[] HUEPalette(boolean rgba, int paletteSize, boolean applySRGB)
 	{
 		int palette[] = new int[paletteSize];
