@@ -104,15 +104,15 @@ public abstract class ItemGenerator
 				baseExportDir = baseExportDir + File.separator + subgroupDirName;
 				
 				FileUtil.createDirIfNotExist(baseExportDir);
-				
-				// Format the export directory name
-				batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
-				
-				FileUtil.createDirIfNotExist(batchStatsExportDir);
-				
-				log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
 			}
 		}
+		
+		// Format the export directory name
+		batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
+		
+		FileUtil.createDirIfNotExist(batchStatsExportDir);
+		
+		log.debug("Batch Stats Export Dir : " + batchStatsExportDir);
 	}
 	
 	// Sub Classes can call this
