@@ -24,7 +24,7 @@ public class Palette
 		return paletteList;
 	}
 	
-	public static int[] paletteFromPaletteName(String name, boolean rgba, int paletteSize, boolean applySRGB)
+	public static int[] PaletteFromPaletteName(String name, boolean rgba, int paletteSize, boolean applySRGB)
 	{
 		switch(name)
 		{
@@ -52,9 +52,16 @@ public class Palette
 			{
 				return LabGreyScale(rgba, paletteSize, applySRGB);
 			}
+			case "BlueWhiteGold":
+			{
+				return Palette.InterpolatePaletteFromRGBColors(Palette.BlueWhiteGold(), rgba, paletteSize, applySRGB);
+			}
+			// No Match
+			default:
+			{
+				return SpectrumPaletteWrapped(rgba, paletteSize, applySRGB);
+			}
 		}
-		
-		return null;
 	}
 	
 	private static int floatArrtoPackedInt(float[] value)
@@ -126,6 +133,83 @@ public class Palette
 		palette[14] = RGBtoRGBA(106, 52, 3);
 		
 		return palette;
+	}
+	
+	public static int[] BlueWhiteGold()
+	{
+		int palette[] = new int[8];
+		
+		palette[0] = RGBtoRGBA(0, 0, 100);
+		palette[1] = RGBtoRGBA(0, 0, 192);
+		palette[2] = RGBtoRGBA(255, 255, 255);
+		palette[4] = RGBtoRGBA(255, 170, 0);
+		palette[5] = RGBtoRGBA(0, 0, 0);
+		palette[6] = RGBtoRGBA(0, 0, 64);
+		palette[7] = RGBtoRGBA(0, 0, 100);
+		
+		return palette;
+	}
+	
+	public static int[] InterpolatePaletteFromRGBColors(int[] basePalette, boolean rgba, int paletteSize, boolean applySRGB)
+	{
+		// Must be divisible
+		int indexs = paletteSize / basePalette.length;
+		
+		System.out.println("Palette Indexes " + indexs);
+		
+		int palette[] = new int[paletteSize];
+		
+		int baseI = 0;
+		for(int i = 0; i < paletteSize; i += indexs)
+		{
+			int color1 = basePalette[baseI];
+			int color2 = basePalette[(baseI + 1) % basePalette.length];
+			
+			InterpolatePalette(color1, color2, palette, rgba, i, indexs, applySRGB);
+			
+			baseI++;
+		}
+		
+		if(rgba)
+		{
+			for(int i = 0; i < paletteSize; i++)
+			{
+				int val = palette[i];
+				palette[i] = (val << 8) | ((val >> 24) & 0xFF);
+			}
+		}
+		
+		return palette;
+	}
+	
+	private static void InterpolatePalette(int color1, int color2, int[] destPalette, boolean rgba, int base, int range, boolean applySRGB)
+	{
+		// RGBA
+		int red1 = (color1 >> 24) & 0xFF;
+		int green1 = (color1 >> 16) & 0xFF;
+		int blue1 = (color1 >> 8) & 0xFF;
+		
+		int red2 = (color2 >> 24) & 0xFF;
+		int green2 = (color2 >> 16) & 0xFF;
+		int blue2 = (color2 >> 8) & 0xFF;
+		
+		double mu = 1.0 / range;
+		
+		for(int r = 0; r < range; r++)
+		{
+			int red3 = (int) (LinInterpolate(red1, red2, mu * r));
+			int green3 = (int) (LinInterpolate(green1, green2, mu * r));
+			int blue3 = (int) (LinInterpolate(blue1, blue2, mu * r));
+			
+			int color = (0xff << 24) | (red3 << 16) | (green3 << 8) | blue3;
+			
+			if(applySRGB)
+			{
+				color = CIERGB.addSRGB(color);
+			}
+			
+			destPalette[r + base] = color;
+		}
 	}
 	
 	public static int RGBtoRGBA(int red, int green, int blue)

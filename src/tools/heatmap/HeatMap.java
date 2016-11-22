@@ -79,7 +79,7 @@ public class HeatMap extends JPanel
 		this.setMinimumSize(new Dimension(heatMapWidth, heatMapHeight));
 		this.setSize(new Dimension(heatMapWidth, heatMapHeight));
 		
-		palette = Palette.paletteFromPaletteName("LabSpecturmPalette", false, PALETTE_SIZE, true);
+		palette = Palette.PaletteFromPaletteName("LabSpecturmPalette", false, PALETTE_SIZE, true);
 	}
 	
 	public void setLog(ItemLogProcessor logProcessor)
