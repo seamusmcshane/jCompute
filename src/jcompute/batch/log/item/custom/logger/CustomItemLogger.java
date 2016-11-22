@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
+import jcompute.results.export.format.CSVExporter;
 import jcompute.util.JCText;
 
 public class CustomItemLogger
@@ -19,7 +20,6 @@ public class CustomItemLogger
 	private static Logger log = LogManager.getLogger(CustomItemLogger.class);
 	
 	public static final char DELIMITER = ',';
-	
 	public static final char LINEFEED = '\n';
 	
 	private PrintWriter itemLog;
@@ -38,7 +38,8 @@ public class CustomItemLogger
 		
 		String header = getLogHeader();
 		
-		itemLog.println(header.toString());
+		// CSV has added \n so use print not println
+		itemLog.print(header.toString());
 	}
 	
 	public CustomCSVItemLogFormatInf getLogformat()
@@ -50,19 +51,16 @@ public class CustomItemLogger
 	{
 		StringBuilder header = new StringBuilder();
 		
+		// Get the headings in an array.
 		int numberOfFields = logFormat.numberOfFields();
-		
-		for(int f = 0; f < numberOfFields - 1; f++)
+		String[] headings = new String[numberOfFields];
+		for(int f=0;f<numberOfFields;f++)
 		{
-			header.append(logFormat.getFieldHeading(f));
-			
-			header.append(DELIMITER);
+			headings[f] = logFormat.getFieldHeading(f);
 		}
 		
-		// Append last field but not delimiter
-		header.append(logFormat.getFieldHeading(numberOfFields - 1));
-		
-		header.append(LINEFEED);
+		// Use the CSVExporter
+		CSVExporter.CreateCSVRow(header,headings,numberOfFields);
 		
 		return header.toString();
 	}
@@ -71,19 +69,17 @@ public class CustomItemLogger
 	{
 		StringBuilder rowItem = new StringBuilder();
 		
-		int numberOfFields = logRow.numberOfFields();
-		
-		for(int f = 0; f < numberOfFields - 1; f++)
+		// Get the values in an array.
+		int numberOfFields = logFormat.numberOfFields();
+		String[] values = new String[numberOfFields];
+		for(int f=0;f<numberOfFields;f++)
 		{
-			rowItem.append(logRow.getFieldValue(f));
-			
-			rowItem.append(DELIMITER);
+			// new String has no object initialiser
+			values[f] = new String(String.valueOf(logRow.getFieldValue(f)));
 		}
 		
-		// Append last field but not delimiter
-		rowItem.append(logRow.getFieldValue(numberOfFields - 1));
-		
-		rowItem.append(LINEFEED);
+		// Use the CSVExporter
+		CSVExporter.CreateCSVRow(rowItem,values,numberOfFields);
 		
 		return rowItem.toString();
 	}
@@ -94,8 +90,8 @@ public class CustomItemLogger
 		{
 			String rowItem = getLogRow(logRow);
 			
-			// No ending ,
-			itemLog.println(rowItem);
+			// CSV has added \n so use print not println
+			itemLog.print(rowItem);
 		}
 		catch(Throwable e)
 		{

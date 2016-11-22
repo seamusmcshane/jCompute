@@ -8,6 +8,9 @@ import jcompute.results.trace.samples.TraceSample;
 
 public class CSVExporter
 {
+	public static final char DELIMITER = ',';
+	public static final char LINEFEED = '\n';
+	
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(CSVExporter.class);
 	
@@ -20,30 +23,54 @@ public class CSVExporter
 		// CSV Header Row
 		int statCount = statList.size();
 		int statIndex = 0;
-		fileData.append(statList.get(statIndex) + ",");
 		
 		StringBuilder logString = new StringBuilder();
 		
-		logString.append("Categories : " + statList.get(statIndex));
+		logString.append("Categories : ");
 		
-		for(statIndex = 1; statIndex < statCount; statIndex++)
+		for(statIndex = 0; statIndex < statCount; statIndex++)
 		{
-			logString.append(", " + statList.get(statIndex));
-			
 			fileData.append(statList.get(statIndex));
+			logString.append(statList.get(statIndex));
 			
-			if(statIndex == statCount)
-			{
-				fileData.append("\n");
-			}
-			else if(statIndex < (statCount - 1))
-			{
-				fileData.append(",");
-			}
-			else
-			{
-				fileData.append("\n");
-			}
+			// Separator
+			char c = CalculateSeperatorChar(statIndex, statCount);
+			
+			fileData.append(c);
+			logString.append(c);
+		}
+		
+		log.info(logString.toString());
+	}
+	
+	/**
+	 * @param row
+	 * @param textValues
+	 * @param numColumns
+	 */
+	public static void CreateCSVRow(StringBuilder row, String[] textValues, int numColumns)
+	{
+		// CSV Header Row
+		StringBuilder logString = new StringBuilder();
+		
+		logString.append("Fields : ");
+		
+		for(int field = 0; field < numColumns; field++)
+		{
+			// Data
+			row.append(textValues[field]);
+			
+			// Logger
+			logString.append(textValues[field]);
+			
+			// Separator
+			char c = CalculateSeperatorChar(field, numColumns);
+			
+			// Data
+			row.append(c);
+			
+			// Logger
+			logString.append(c);
 		}
 		
 		log.info(logString.toString());
@@ -59,27 +86,34 @@ public class CSVExporter
 	{
 		int statCount = traceList.size();
 		
-		// Append the sample from the first stat with a , appended
-		data.append(traceHistorys[0][history].toString() + ",");
-		
 		// Do the same for every history, append , after each sample or a new
 		// line after each history
-		for(int statIndex = 1; statIndex < statCount; statIndex++)
+		for(int statIndex = 0; statIndex < statCount; statIndex++)
 		{
+			// Data
 			data.append(traceHistorys[statIndex][history].toString());
 			
-			if(statIndex == statCount)
-			{
-				data.append("\n");
-			}
-			else if(statIndex < (statCount - 1))
-			{
-				data.append(",");
-			}
-			else
-			{
-				data.append("\n");
-			}
+			// Separator
+			data.append(CalculateSeperatorChar(statIndex, statCount));
+		}
+	}
+	
+	public static char CalculateSeperatorChar(int currentIndex, int MaxIndex)
+	{
+		// Check this first - we may have only one column
+		if(currentIndex == MaxIndex)
+		{
+			return LINEFEED;
+		}
+		else if(currentIndex < (MaxIndex - 1))
+		{
+			// Multi-Column
+			return DELIMITER;
+		}
+		else
+		{
+			// Multi-Column-End
+			return LINEFEED;
 		}
 	}
 }
