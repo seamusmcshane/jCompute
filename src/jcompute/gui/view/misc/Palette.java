@@ -16,7 +16,8 @@ public class Palette
 	
 	private static final String[] paletteList = new String[]
 	{
-		"HUEPalette", "SpectrumPalette", "SpectrumPaletteWrapped", "RGBGreyScale", "LabSpecturmPalette", "LabGreyScale"
+		"HUEPalette", "SpectrumPalette", "SpectrumPaletteWrapped", "RGBGreyScale", "LabSpecturmPalette", "LabGreyScale", "BlueWhiteGold", "Fire",
+		"GreenWhiteRed"
 	};
 	
 	public String[] getPaletteList()
@@ -55,6 +56,14 @@ public class Palette
 			case "BlueWhiteGold":
 			{
 				return Palette.InterpolatePaletteFromRGBColors(Palette.BlueWhiteGold(), rgba, paletteSize, applySRGB);
+			}
+			case "Fire":
+			{
+				return Palette.InterpolatePaletteFromRGBColors(Palette.Fire(), rgba, paletteSize, applySRGB);
+			}
+			case "GreenWhiteRed":
+			{
+				return Palette.InterpolatePaletteFromRGBColors(Palette.GreenWhiteRed(), rgba, paletteSize, applySRGB);
 			}
 			// No Match
 			default:
@@ -139,13 +148,53 @@ public class Palette
 	{
 		int palette[] = new int[8];
 		
-		palette[0] = RGBtoRGBA(0, 0, 100);
-		palette[1] = RGBtoRGBA(0, 0, 192);
-		palette[2] = RGBtoRGBA(255, 255, 255);
-		palette[4] = RGBtoRGBA(255, 170, 0);
-		palette[5] = RGBtoRGBA(0, 0, 0);
-		palette[6] = RGBtoRGBA(0, 0, 64);
-		palette[7] = RGBtoRGBA(0, 0, 100);
+		palette[0] = RGBtoRGBA(0, 0, 16);
+		palette[1] = RGBtoRGBA(0, 8, 192);
+		palette[2] = RGBtoRGBA(0, 32, 255);
+		palette[3] = RGBtoRGBA(200, 255, 255);
+		
+		palette[4] = RGBtoRGBA(240, 200, 100);
+		palette[5] = RGBtoRGBA(255, 170, 0);
+		palette[6] = RGBtoRGBA(240, 64, 0);
+		palette[7] = RGBtoRGBA(120, 32, 0);
+		
+		return palette;
+	}
+	
+	public static int[] Fire()
+	{
+		int palette[] = new int[8];
+		
+		// Reds-Yellow
+		palette[0] = RGBtoRGBA(32, 0, 0);
+		palette[1] = RGBtoRGBA(224, 0, 0);
+		palette[2] = RGBtoRGBA(255, 64, 0);
+		palette[3] = RGBtoRGBA(255, 255, 200);
+		
+		// White-Green-Blue
+		palette[4] = RGBtoRGBA(240, 200, 240);
+		palette[5] = RGBtoRGBA(0, 170, 110);
+		palette[6] = RGBtoRGBA(0, 0, 255);
+		palette[7] = RGBtoRGBA(255, 255, 255);
+		
+		return palette;
+	}
+	
+	public static int[] GreenWhiteRed()
+	{
+		int palette[] = new int[8];
+		
+		// Green-White
+		palette[0] = RGBtoRGBA(0, 16, 0);
+		palette[1] = RGBtoRGBA(0, 192, 0);
+		palette[2] = RGBtoRGBA(32, 255, 16);
+		palette[3] = RGBtoRGBA(170, 255, 200);
+		
+		// White-Red
+		palette[4] = RGBtoRGBA(255, 224, 255);
+		palette[5] = RGBtoRGBA(255, 32, 0);
+		palette[6] = RGBtoRGBA(224, 16, 0);
+		palette[7] = RGBtoRGBA(255, 255, 255);
 		
 		return palette;
 	}
