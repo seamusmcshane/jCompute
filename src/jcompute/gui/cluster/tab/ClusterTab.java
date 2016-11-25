@@ -40,6 +40,7 @@ import jcompute.gui.component.tablecell.EmptyCellColorRenderer;
 import jcompute.gui.component.tablecell.HeaderRowRenderer;
 import jcompute.gui.component.tablecell.NodeControlButtonRenderer;
 import jcompute.gui.component.tablecell.ProgressBarTableCellRenderer;
+import jcompute.math.NumericConstants;
 import jcompute.math.NumericConstants.BinaryPrefix;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
@@ -440,9 +441,12 @@ public class ClusterTab extends JPanel
 				clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
 				clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
 				
-				// MegaBits sent since last update
-				clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / (double) BinaryPrefix.SI_MEGABIT.bitValue));
-				clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / (double) BinaryPrefix.SI_MEGABIT.bitValue));
+				// MegaBits sent since last update eg (bits / 1000000)
+				double txMBits = NumericConstants.BytesToBits(e.getStats().getBytesTX()) / 1000000.0;
+				double rxMBits = NumericConstants.BytesToBits(e.getStats().getBytesRX()) / 1000000.0;
+				
+				clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), txMBits);
+				clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), rxMBits);
 				
 				clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
 				clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
