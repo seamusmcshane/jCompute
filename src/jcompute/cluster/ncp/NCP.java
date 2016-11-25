@@ -124,7 +124,7 @@ public class NCP
 	public static final int StandardServerPort = 10000;			// ControlNodeServer Listening Port
 	
 	private static final int ReadyStateTimeOut = 120000;			// Max time to wait for a node to enter ready state in seconds.
-	private static final int InactivityTimeOut = 15000;			// Max time milliseconds to wait for a node to reply before closing connection
+	private static final int InactivityTimeOut = 60000;			// Max time milliseconds to wait for a node to reply before closing connection
 	
 	private static final int SafeReadTimeOut = 10;					// Max time milliseconds to wait for a message to rx enqueue.
 	
