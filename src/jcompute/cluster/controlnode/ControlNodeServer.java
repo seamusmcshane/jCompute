@@ -88,13 +88,16 @@ public class ControlNodeServer
 	private int tickCount;
 	private long lastStatisticsTime;
 	
-	public ControlNodeServer(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq)
+	private final boolean NODE_BENCHMARK_ENABLED;
+	
+	public ControlNodeServer(boolean allowMulti, int socketTX, int socketRX, boolean tcpNoDelay, int txFreq, boolean nodeBenchmarkEnabled)
 	{
 		this.allowMulti = allowMulti;
 		this.socketTX = socketTX;
 		this.socketRX = socketRX;
 		this.tcpNoDelay = tcpNoDelay;
 		this.txFreq = txFreq;
+		this.NODE_BENCHMARK_ENABLED = nodeBenchmarkEnabled;
 		
 		log.info("Allow multiple nodes to connect from same address : " + this.allowMulti);
 		log.info("TCP TX Buffer : " + this.socketTX);
@@ -176,7 +179,8 @@ public class ControlNodeServer
 						if(!existingActive)
 						{
 							// Add create a ComputeNodeManager for this ComputeNode and add to connecting lists.
-							ComputeNodeManager2 nm = new ComputeNodeManager2(++connectionNumber, nodeSocket, socketTX, tcpNoDelay, txFreq);
+							ComputeNodeManager2 nm = new ComputeNodeManager2(++connectionNumber, nodeSocket, socketTX, tcpNoDelay, txFreq,
+							NODE_BENCHMARK_ENABLED);
 							
 							connectingNodes.add(nm);
 							

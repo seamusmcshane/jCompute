@@ -75,15 +75,17 @@ public class ComputeNodeManager2
 	private long requestNum = 0;
 	
 	// Benchmark Configuration
-	private final int BENCHMARK = 1;
+	private final boolean NODE_BENCHMARK_ENABLED;
 	private final int NUM_OBJECTS = 1024;
 	private final int ITERATIONS = 10000;
 	private final int WARM_UP_ITERATIONS = 10000;
 	private final int NUM_RUNS = 6;
 	
-	public ComputeNodeManager2(int uid, Socket socket, int socketTXBuffer, boolean tcpNoDelay, int txFreq) throws IOException
+	public ComputeNodeManager2(int uid, Socket socket, int socketTXBuffer, boolean tcpNoDelay, int txFreq, boolean nodeBenchmarkEnabled) throws IOException
 	{
 		sm = new NodeManagerStateMachine(uid);
+		
+		NODE_BENCHMARK_ENABLED = nodeBenchmarkEnabled;
 		
 		nodeInfo = new NodeInfo();
 		
@@ -123,7 +125,8 @@ public class ComputeNodeManager2
 				log.info("Starting");
 				
 				// Node info with UID filled receive
-				boolean registered = ncpSocket.receiveRegistration(nodeInfo, BENCHMARK, NUM_OBJECTS, ITERATIONS, WARM_UP_ITERATIONS, NUM_RUNS);
+				boolean registered = ncpSocket.receiveRegistration(nodeInfo, (NODE_BENCHMARK_ENABLED) ? 1 : 0, NUM_OBJECTS, ITERATIONS, WARM_UP_ITERATIONS,
+				NUM_RUNS);
 				
 				// Have we registered
 				if(registered)

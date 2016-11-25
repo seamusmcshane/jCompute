@@ -40,12 +40,13 @@ public class Launcher
 	private static final CommandLineArg defaultsList[] =
 	{
 		new CommandLineArg("mcs", Integer.toString(Runtime.getRuntime().availableProcessors()), "Max Concurrent Simulations (Int)"), new CommandLineArg("mode",
-		"0", "Standard/ControlNodeServer/ComputeNode (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText", "1",
-		"Button Text (0/1)"), new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0",
+		"0", "Standard/ControlNodeServer/ComputeNode (0/1,2)"), new CommandLineArg("iTheme", "none", "Icon Theme Name (String)"), new CommandLineArg("bText",
+		"1", "Button Text (0/1)"), new CommandLineArg("addr", "127.0.0.1", "Listening Address (InetAddr)"), new CommandLineArg("loglevel", "0",
 		"Logging Level (int) Info/Error/Debug (0/1/2)"), new CommandLineArg("desc", null, "ComputeNode Description"), new CommandLineArg("jLook", "default",
 		"Set JavaUI Look and Feel"), new CommandLineArg("allowMulti", "false", "Allow multiple connections from same address"), new CommandLineArg("SocketTX",
 		"65536", "SocketTX Buffer Size (int)"), new CommandLineArg("SocketRX", "65536", "SocketRX Buffer Size (int)"), new CommandLineArg("TcpNoDelay", "1",
-		"Configure TcpNoDelay (0/1)"), new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)")
+		"Configure TcpNoDelay (0/1)"), new CommandLineArg("TxFreq", "10", "Frequency at which the pending tx message list is polled. (int)"),
+		new CommandLineArg("NodeBench", "1", "Enabled/Disable node weighting benchmark (int)")
 	};
 	
 	/**
@@ -176,8 +177,10 @@ public class Launcher
 					allowMulti = true;
 				}
 				
+				boolean nodeBench = (options.get("NodeBench").getValue().equals("1"));
+				
 				// Cluster GUI + Batch Manager with ControlNodeServer
-				createClusterGUI(buttonText, new BatchManager(new ControlNodeServer(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq)));
+				createClusterGUI(buttonText, new BatchManager(new ControlNodeServer(allowMulti, socketTX, socketRX, tcpNoDelay, txFreq, nodeBench)));
 			}
 			break;
 			case 2:
