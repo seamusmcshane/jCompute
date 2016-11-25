@@ -65,6 +65,7 @@ public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerIn
 	
 	// Axis Range Adjustment
 	private double maxValue = 0;
+	private double minValue = 0;
 	
 	private boolean dynamicLegend;
 	private int dynamicLegendLimit;
@@ -282,12 +283,7 @@ public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerIn
 			// A totals trace that can be enabled
 			totalstat += value;
 			
-			if(value > maxValue)
-			{
-				maxValue = value;
-				historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
-				statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
-			}
+			checkChartRange(value);
 			
 			statDataset.setValue(value, name, category);
 			
@@ -303,9 +299,7 @@ public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerIn
 		
 		if(totalStatEnabled)
 		{
-			maxValue = totalstat;
-			historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
-			statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
+			checkChartRange(totalstat);
 		}
 		
 		dataset.setNotify(true);
@@ -408,12 +402,7 @@ public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerIn
 		
 		XYSeries tempS = seriesMap.get(name);
 		
-		if(value > maxValue)
-		{
-			maxValue = value;
-			historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
-			statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
-		}
+		checkChartRange(value);
 		
 		// Add the values of the sample in the trace at the samples time index
 		tempS.add(time, value);
@@ -424,4 +413,24 @@ public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerIn
 		statDataset.setNotify(true);
 	}
 	
+	private void checkChartRange(double value)
+	{
+		if(value > maxValue)
+		{
+			maxValue = value;
+			historyChart.getXYPlot().getRangeAxis().setUpperBound(maxValue);
+			statBarChart.getCategoryPlot().getRangeAxis().setUpperBound(maxValue);
+			
+			return;
+		}
+		
+		if(value < minValue)
+		{
+			minValue = value;
+			historyChart.getXYPlot().getRangeAxis().setLowerBound(minValue);
+			statBarChart.getCategoryPlot().getRangeAxis().setLowerBound(minValue);
+			
+			return;
+		}
+	}
 }
