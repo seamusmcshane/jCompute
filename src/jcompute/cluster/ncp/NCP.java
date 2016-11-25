@@ -128,7 +128,7 @@ public class NCP
 	
 	private static final int SafeReadTimeOut = 10;					// Max time milliseconds to wait for a message to rx enqueue.
 	
-	public static final int ActivityTestFreq = 1000;				// Activity test frequency in milliseconds
+	public static final int ActivityTestFreq = 30000;				// Activity test frequency in milliseconds
 	
 	// Registration Nack Reasons
 	public static final int ProtocolVersionMismatch = 01;			// Protocol Versions do not match - value contains local node version.

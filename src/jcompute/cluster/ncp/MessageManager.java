@@ -92,7 +92,8 @@ public class MessageManager
 	private int sentConnectionTestSeqNum;
 	
 	// Last received test message time
-	private long lastTestMessageTime;
+	private long lastMessageTime;
+	private long lastActivityTestMessageTime;
 	
 	private Timeout timeout = Timeout.ReadyState;
 	private Semaphore timeoutLock = new Semaphore(1, false);
@@ -201,7 +202,7 @@ public class MessageManager
 						// The connection has no pending data, no we had no test replies and we are over the NCP.TimeOut window length.
 						if(isNCPTimeout())
 						{
-							shutdown(timeout.toString() + " : " + (System.currentTimeMillis() - lastTestMessageTime));
+							shutdown(timeout.toString() + " : " + (System.currentTimeMillis() - lastMessageTime));
 						}
 						
 						// Do a test if there is no data - initiate an activity test sequence if we have not performed a test recently
@@ -641,6 +642,9 @@ public class MessageManager
 					// The is a normal NCP message - enqueue.
 					rxMessages.add(message);
 					
+					// Reset NCP Timeout as we got a message.
+					resetNCPTimeout(false);
+					
 					rxLock.release();
 					
 					if(waitingRX.get())
@@ -655,8 +659,8 @@ public class MessageManager
 					// Was it ours
 					if(ourMessage)
 					{
-						// Reset NCP our Timeout as we got a reply.
-						resetNCPTimeout();
+						// Reset NCP Timeout as we got a reply to an activity test/
+						resetNCPTimeout(true);
 						
 						// Reset flag
 						ourMessage = false;
@@ -856,7 +860,7 @@ public class MessageManager
 		timeoutLock.acquireUninterruptibly();
 		
 		// If timer is not an ActivityTest timer then we do not need a test other wise check the age of the last message against the test freq min.
-		boolean needsTest = (timeout == NCP.Timeout.Inactivity) ? ((System.currentTimeMillis() - lastTestMessageTime) >= NCP.ActivityTestFreq) : false;
+		boolean needsTest = (timeout == NCP.Timeout.Inactivity) ? ((System.currentTimeMillis() - lastActivityTestMessageTime) >= NCP.ActivityTestFreq) : false;
 		
 		timeoutLock.release();
 		
@@ -867,7 +871,7 @@ public class MessageManager
 	{
 		timeoutLock.acquireUninterruptibly();
 		
-		boolean ncpTimedOut = timeout.hasTimeoutError((int) (System.currentTimeMillis() - lastTestMessageTime));
+		boolean ncpTimedOut = timeout.hasTimeoutError((int) (System.currentTimeMillis() - lastMessageTime));
 		
 		timeoutLock.release();
 		
@@ -875,9 +879,14 @@ public class MessageManager
 	}
 	
 	// Reset NCP Timeout
-	private void resetNCPTimeout()
+	private void resetNCPTimeout(boolean activityTestMessage)
 	{
-		lastTestMessageTime = System.currentTimeMillis();
+		lastMessageTime = System.currentTimeMillis();
+		
+		if(activityTestMessage)
+		{
+			lastActivityTestMessageTime = lastMessageTime;
+		}
 	}
 	
 	public void setTimeOut(Timeout timeout) throws SocketException
@@ -889,7 +898,7 @@ public class MessageManager
 		log.info("Activated " + timeout.toString());
 		
 		// Reset the timeout as we have changed timers.
-		resetNCPTimeout();
+		resetNCPTimeout(false);
 		
 		// Keep socket timeout in sync - default to error timeout.
 		socket.setSoTimeout(timeout.errorTimeout);
