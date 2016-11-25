@@ -4,6 +4,7 @@ public final class NumericConstants
 {
 	/**
 	 * Helper Method for working with the various representations of binary numbers
+	 * 
 	 * @author Seamus McShane
 	 */
 	public enum BinaryPrefix
@@ -60,5 +61,15 @@ public final class NumericConstants
 			this.prefix = prefix;
 			this.symbol = symbol;
 		}
+	}
+	
+	public static long BitsToBytes(long bits)
+	{
+		return bits / 8;
+	}
+	
+	public static long BytesToBits(long bytes)
+	{
+		return bytes * 8;
 	}
 }
