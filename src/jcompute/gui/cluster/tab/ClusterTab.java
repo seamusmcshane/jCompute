@@ -40,6 +40,7 @@ import jcompute.gui.component.tablecell.EmptyCellColorRenderer;
 import jcompute.gui.component.tablecell.HeaderRowRenderer;
 import jcompute.gui.component.tablecell.NodeControlButtonRenderer;
 import jcompute.gui.component.tablecell.ProgressBarTableCellRenderer;
+import jcompute.math.NumericConstants.BinaryPrefix;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
@@ -218,7 +219,7 @@ public class ClusterTab extends JPanel
 		clusterNodeMemUsedPerChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeMemUsedPerChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeBytesTXChar = new GlobalStatChartPanel("Network (Avg)kBytes Tx", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeBytesTXChar = new GlobalStatChartPanel("Network Mbits Tx", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeBytesTXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeBytesTXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
@@ -226,7 +227,7 @@ public class ClusterTab extends JPanel
 		clusterNodeTXSChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeTXSChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
-		clusterNodeBytesRXChar = new GlobalStatChartPanel("Network (Avg)kBytes Rx", "Nodes", true, false, 60, true, legendMaxNodes);
+		clusterNodeBytesRXChar = new GlobalStatChartPanel("Network Mbits Rx", "Nodes", true, false, 60, true, legendMaxNodes);
 		clusterNodeBytesRXChar.setMaximumSize(new Dimension(1920, CHART_HEIGHT));
 		clusterNodeBytesRXChar.setPreferredSize(new Dimension(600, CHART_HEIGHT));
 		
@@ -439,9 +440,9 @@ public class ClusterTab extends JPanel
 				clusterNodeUtilChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getCpuUsage());
 				clusterNodeMemUsedPerChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getJvmMemoryUsedPercentage());
 				
-				// To Avg KiloBytes per second from bytes per 60 seconds
-				clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / 1000L / 60L));
-				clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / 1000L / 60L));
+				// MegaBits sent since last update
+				clusterNodeBytesTXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesTX() / (double) BinaryPrefix.SI_MEGABIT.bitValue));
+				clusterNodeBytesRXChar.statUpdate(nodeId, e.getSequenceNum(), (e.getStats().getBytesRX() / (double) BinaryPrefix.SI_MEGABIT.bitValue));
 				
 				clusterNodeTXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getTXS());
 				clusterNodeRXSChar.statUpdate(nodeId, e.getSequenceNum(), e.getStats().getRXS());
