@@ -64,7 +64,7 @@ public class GlobalStatChartPanel extends JPanel implements TraceGroupListenerIn
 	private int sampleWindow;
 	
 	// Axis Range Adjustment
-	private double maxValue = 0;
+	private double maxValue = 1;
 	private double minValue = 0;
 	
 	private boolean dynamicLegend;
