@@ -20,7 +20,7 @@ public class Palette
 		"GreenWhiteRed"
 	};
 	
-	public String[] getPaletteList()
+	public static String[] getPaletteList()
 	{
 		return paletteList;
 	}
@@ -62,6 +62,102 @@ public class Palette
 				return Palette.InterpolatePaletteFromRGBColors(Palette.Fire(), rgba, paletteSize, applySRGB);
 			}
 			case "GreenWhiteRed":
+			{
+				return Palette.InterpolatePaletteFromRGBColors(Palette.GreenWhiteRed(), rgba, paletteSize, applySRGB);
+			}
+			// No Match
+			default:
+			{
+				return SpectrumPaletteWrapped(rgba, paletteSize, applySRGB);
+			}
+		}
+	}
+	
+	public static int PaletteNumFromPaletteName(String name)
+	{
+		switch(name)
+		{
+			case "HUEPalette":
+			{
+				return 0;
+			}
+			case "SpectrumPalette":
+			{
+				return 1;
+			}
+			case "SpectrumPaletteWrapped":
+			{
+				return 2;
+			}
+			case "RGBGreyScale":
+			{
+				return 3;
+			}
+			case "LabSpecturmPalette":
+			{
+				return 4;
+			}
+			case "LabGreyScale":
+			{
+				return 5;
+			}
+			case "BlueWhiteGold":
+			{
+				return 6;
+			}
+			case "Fire":
+			{
+				return 7;
+			}
+			case "GreenWhiteRed":
+			{
+				return 8;
+			}
+			// No Match
+			default:
+			{
+				return 2;
+			}
+		}
+	}
+	
+	public static int[] PaletteFromPaletteNum(int num, boolean rgba, int paletteSize, boolean applySRGB)
+	{
+		switch(num)
+		{
+			case 0:
+			{
+				return HUEPalette(rgba, paletteSize, applySRGB);
+			}
+			case 1:
+			{
+				return SpectrumPalette(rgba, paletteSize, applySRGB);
+			}
+			case 2:
+			{
+				return SpectrumPaletteWrapped(rgba, paletteSize, applySRGB);
+			}
+			case 3:
+			{
+				return RGBGreyScale(rgba, paletteSize, applySRGB);
+			}
+			case 4:
+			{
+				return LabSpecturmPalette(rgba, paletteSize, applySRGB);
+			}
+			case 5:
+			{
+				return LabGreyScale(rgba, paletteSize, applySRGB);
+			}
+			case 6:
+			{
+				return Palette.InterpolatePaletteFromRGBColors(Palette.BlueWhiteGold(), rgba, paletteSize, applySRGB);
+			}
+			case 7:
+			{
+				return Palette.InterpolatePaletteFromRGBColors(Palette.Fire(), rgba, paletteSize, applySRGB);
+			}
+			case 8:
 			{
 				return Palette.InterpolatePaletteFromRGBColors(Palette.GreenWhiteRed(), rgba, paletteSize, applySRGB);
 			}
