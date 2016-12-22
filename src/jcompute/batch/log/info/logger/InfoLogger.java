@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.datastruct.cache.DiskCache;
 import jcompute.util.TimeString;
 import jcompute.util.TimeString.TimeStringFormat;
 
@@ -25,7 +24,6 @@ public class InfoLogger
 	private boolean generalInfo;
 	private boolean itemInfo;
 	private boolean processedInfo;
-	private boolean cacheInfo;
 	private boolean itemComputeInfo;
 	private boolean scenarioParameters;
 	
@@ -39,7 +37,6 @@ public class InfoLogger
 			generalInfo = false;
 			itemInfo = false;
 			processedInfo = false;
-			cacheInfo = false;
 			itemComputeInfo = false;
 			scenarioParameters = false;
 			
@@ -90,21 +87,6 @@ public class InfoLogger
 		processedInfo = true;
 	}
 	
-	public void writeCacheInfo(DiskCache diskCache)
-	{
-		infoLog.print("CacheSize=" + diskCache.getCacheSize());
-		infoLog.print("UniqueRatio=" + diskCache.getUniqueRatio());
-		infoLog.print("MemCacheEnabled=" + diskCache.getMemCacheEnabled());
-		infoLog.print("MemCacheSize=" + diskCache.getMemCacheSize());
-		infoLog.print("MemCacheRequests=" + diskCache.getMemCacheRequests());
-		infoLog.print("MemCacheHits=" + diskCache.getMemCacheHits());
-		infoLog.print("MemCacheMisses=" + diskCache.getMemCacheMisses());
-		infoLog.print("MemCacheHitRatio=" + diskCache.getMemCacheHitRatio());
-		infoLog.print("MemCacheMissRatio=" + diskCache.getMemCacheMissRatio());
-		
-		cacheInfo = true;
-	}
-	
 	public void writeItemComputeInfo(long itemCompleted, long cpuTotalTimes, long ioTotalTimes)
 	{
 		infoLog.println("CpuTotalTime=" + cpuTotalTimes);
@@ -140,8 +122,7 @@ public class InfoLogger
 	
 	public void close()
 	{
-		if((generalInfo != false) && (itemInfo != false) && (processedInfo != false) && (cacheInfo != false) && (itemComputeInfo != false)
-		&& (scenarioParameters != false))
+		if((generalInfo != false) && (itemInfo != false) && (processedInfo != false) && (itemComputeInfo != false) && (scenarioParameters != false))
 		{
 			infoLog.flush();
 			infoLog.close();
@@ -151,7 +132,7 @@ public class InfoLogger
 		else
 		{
 			// Not a fatal error but not good either.
-			log.error("Item log imcomplete when it was requested to be closed");
+			log.error("Info log incomplete when it was requested to be closed");
 			
 			infoLog.flush();
 			infoLog.close();
