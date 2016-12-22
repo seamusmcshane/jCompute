@@ -9,7 +9,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.datastruct.cache.DiskCache;
+import jcompute.batch.itemstore.ItemStore;
 import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.util.FileUtil;
 
@@ -36,7 +36,7 @@ public abstract class ItemGenerator
 	public abstract ZipOutputStream getResultsZipOut();
 	
 	// where are the item configurations kept
-	public abstract DiskCache getItemDiskCache();
+	public abstract ItemStore getItemStore();
 	
 	public abstract int getGeneratedItemCount();
 	

@@ -20,11 +20,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.itemgenerator.ItemGenerator;
+import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.info.logger.InfoLogger;
 import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
 import jcompute.batch.log.item.custom.logger.CustomItemLogger;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
-import jcompute.datastruct.cache.DiskCache;
 import jcompute.datastruct.list.StoredQueuePosition;
 import jcompute.results.custom.CustomItemResultParser;
 import jcompute.results.export.ExportFormat;
@@ -134,8 +134,8 @@ public class Batch implements StoredQueuePosition
 	// Base scenario text
 	private String baseScenarioText;
 	
-	// Disk Cache for Items
-	private DiskCache itemDiskCache;
+	// ItemStore for Items
+	private ItemStore itemStore;
 	
 	// To protect our shared variables/data structures
 	private Semaphore batchLock = new Semaphore(1, false);
@@ -525,7 +525,7 @@ public class Batch implements StoredQueuePosition
 					log.info("Generated Items Batch " + batchId);
 					
 					// Super Class - Lazy Inits Storage
-					itemDiskCache = itemGenerator.getItemDiskCache();
+					itemStore = itemGenerator.getItemStore();
 					batchStatsExportDir = itemGenerator.getBatchStatsExportDir();
 					
 					// Sub Class Lazy Inits Items
@@ -747,7 +747,7 @@ public class Batch implements StoredQueuePosition
 						resultsZipOut.putNextEntry(new ZipEntry(item.getItemId() + "/" + "itemconfig-" + item.getCacheIndex() + ".xml"));
 						
 						// Data
-						resultsZipOut.write(itemDiskCache.getData(item.getCacheIndex()));
+						resultsZipOut.write(itemStore.getData(item.getCacheIndex()));
 						
 						// Entry end
 						resultsZipOut.closeEntry();
@@ -767,7 +767,7 @@ public class Batch implements StoredQueuePosition
 						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + item.getItemId()
 						+ File.separator + "itemconfig-" + item.getCacheIndex() + ".xml", true)));
 						
-						configFile.write(new String(itemDiskCache.getData(item.getCacheIndex()), "ISO-8859-1"));
+						configFile.write(new String(itemStore.getData(item.getCacheIndex()), "ISO-8859-1"));
 						configFile.flush();
 						configFile.close();
 					}
@@ -854,7 +854,7 @@ public class Batch implements StoredQueuePosition
 					
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
 					
-					infoLogger.writeCacheInfo(itemDiskCache);
+					//infoLogger.writeStoreInfo(itemStore);
 					
 					infoLogger.writeItemComputeInfo(itemsCompleted, cpuTotalTimes, ioTotalTimes);
 					
@@ -1043,32 +1043,32 @@ public class Batch implements StoredQueuePosition
 		targetList.add(String.valueOf(itemsReturned));
 	}
 	
-	private void addBatchDetailsDiskCacheInfoToList(boolean formated, ArrayList<String> targetList)
-	{
-		addBatchInfoSectionHeader(formated, true, "DiskCache", targetList);
-		
-		targetList.add("Cache Size");
-		targetList.add(String.valueOf(itemDiskCache.getCacheSize()));
-		targetList.add("Unique Ratio");
-		targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
-		targetList.add("MemCacheEnabled");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
-		
-		addBatchInfoSectionHeader(formated, false, "MemCache", targetList);
-		
-		targetList.add("Size");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheSize()));
-		targetList.add("Requests");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheRequests()));
-		targetList.add("Hits");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheHits()));
-		targetList.add("Misses");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheMisses()));
-		targetList.add("Hit Ratio");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheHitRatio()));
-		targetList.add("Miss Ratio");
-		targetList.add(String.valueOf(itemDiskCache.getMemCacheMissRatio()));
-	}
+//	private void addBatchDetailsItemStoreInfoToList(boolean formated, ArrayList<String> targetList)
+//	{
+//		addBatchInfoSectionHeader(formated, true, "DiskCache", targetList);
+//		
+//		targetList.add("Cache Size");
+//		targetList.add(String.valueOf(itemDiskCache.getCacheSize()));
+//		targetList.add("Unique Ratio");
+//		targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
+//		targetList.add("MemCacheEnabled");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
+//		
+//		addBatchInfoSectionHeader(formated, false, "MemCache", targetList);
+//		
+//		targetList.add("Size");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheSize()));
+//		targetList.add("Requests");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheRequests()));
+//		targetList.add("Hits");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheHits()));
+//		targetList.add("Misses");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheMisses()));
+//		targetList.add("Hit Ratio");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheHitRatio()));
+//		targetList.add("Miss Ratio");
+//		targetList.add(String.valueOf(itemDiskCache.getMemCacheMissRatio()));
+//	}
 	
 	private void addBatchDetailsComputeInfoToList(boolean formated, ArrayList<String> targetList)
 	{
@@ -1152,7 +1152,7 @@ public class Batch implements StoredQueuePosition
 			addBatchDetailsItemInfoToList(formated, targetList);
 			
 			// disk cache info.
-			addBatchDetailsDiskCacheInfoToList(formated, targetList);
+			//addBatchDetailsItemStoreInfoToList(formated, targetList);
 			
 			// compute stats
 			addBatchDetailsComputeInfoToList(formated, targetList);
@@ -1274,11 +1274,11 @@ public class Batch implements StoredQueuePosition
 		// Base scenario text
 		baseScenarioText = null;
 		
-		log.info("Clearing Batch " + batchId + " DiskCache");
-		itemDiskCache.clear();
+		log.info("Compact Batch " + batchId + " ItemStore");
+		itemStore.compact();
 		
 		// Disk Cache for Items
-		itemDiskCache = null;
+		itemStore = null;
 		
 		log.info("Batch was compacted information is now cached");
 		
@@ -1335,7 +1335,7 @@ public class Batch implements StoredQueuePosition
 	
 	public byte[] getItemConfig(int uniqueId) throws IOException
 	{
-		return itemDiskCache.getData(uniqueId);
+		return itemStore.getData(uniqueId);
 	}
 	
 	public ExportFormat getTraceExportFormat()

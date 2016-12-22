@@ -18,6 +18,8 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
+import jcompute.batch.itemstore.ItemDiskCache;
+import jcompute.batch.itemstore.ItemStore;
 import jcompute.datastruct.cache.DiskCache;
 import jcompute.math.JCMath;
 import jcompute.scenario.ConfigurationInterpreter;
@@ -53,7 +55,7 @@ public class StandardItemGenerator extends ItemGenerator
 	private ArrayList<String> parameters;
 	private ZipOutputStream resultsZipOut;
 	private int itemsCount;
-	private DiskCache itemDiskCache;
+	private ItemStore itemStore;
 	
 	// Generation Progress
 	private boolean needGenerated;
@@ -240,8 +242,8 @@ public class StandardItemGenerator extends ItemGenerator
 		// Temp list to store the combos
 		ArrayList<BatchItem> tempComboItemList = new ArrayList<BatchItem>(combinations);
 		
-		itemDiskCache = new DiskCache(true, cacheSize, uniqueRatio, super.getBatchStatsExportDir(), Deflater.BEST_SPEED);
-		log.info("Created an Item DiskCache for Batch " + super.getBatchId());
+		itemStore = new ItemDiskCache(true, cacheSize, uniqueRatio, super.getBatchStatsExportDir(), Deflater.BEST_SPEED);
+		log.info("Created an ItemDiskCache as ItemStore for Batch " + super.getBatchId());
 		
 		// When to increment values in the combos
 		int incrementMods[] = new int[parameterGroups];
@@ -515,7 +517,7 @@ public class StandardItemGenerator extends ItemGenerator
 				byte[] configBytes = temp.getText().getBytes("ISO-8859-1");
 				
 				// Add to disk cache and get an cache index for this itemId/config pair
-				int cacheIndex = itemDiskCache.addData(comboNo, configBytes);
+				int cacheIndex = itemStore.addData(configBytes);
 				
 				// Add the item to the temp combo list (samples created later) 1==Sample one with samples starting from base of 1
 				tempComboItemList.add(new BatchItem(comboNo, 1, super.getBatchId(), itemName.toString(), cacheIndex, tempCoord, tempCoordValues,
@@ -625,8 +627,8 @@ public class StandardItemGenerator extends ItemGenerator
 	}
 	
 	@Override
-	public DiskCache getItemDiskCache()
+	public ItemStore getItemStore()
 	{
-		return itemDiskCache;
+		return itemStore;
 	}
 }
