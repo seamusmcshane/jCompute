@@ -487,7 +487,7 @@ public class ComputeNode2
 			}
 			else
 			{
-				log.info("No statistics enabled for simulation " + simId);
+				log.info("No statistics created for simulation " + simId);
 			}
 			
 			simulationsManager.removeSimulation(simId);
