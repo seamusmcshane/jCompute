@@ -272,7 +272,7 @@ public class SingleStatChartPanel extends JPanel implements TraceGroupListenerIn
 	
 	public void populate(int samples, String[] statNames, TraceSample[][] sampleLists)
 	{
-		int colorOffset = 0;
+		int colorOffset = 5;
 		int sti = 0;
 		for(String name : statNames)
 		{
@@ -281,7 +281,7 @@ public class SingleStatChartPanel extends JPanel implements TraceGroupListenerIn
 			// This is a new stat being detected
 			if(tempS == null)
 			{
-				Color color = new Color(Color.HSBtoRGB(((0.13f * colorOffset) - 0.13f), 1f, 1f));
+				Color color = new Color(Color.HSBtoRGB(((0.13f * colorOffset) - 0.13f), 1f, 0.5f));
 				
 				// New Sample Trace for Chart
 				tempS = new XYSeries(name);
