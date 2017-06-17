@@ -33,6 +33,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JCheckBox;
 
 public class HeatMapUtil implements WindowListener
 {
@@ -49,6 +50,7 @@ public class HeatMapUtil implements WindowListener
 	private JButton btnSave;
 	
 	private static String openedLogName;
+	private JCheckBox chckbxZeroAsMin;
 	
 	public HeatMapUtil()
 	{
@@ -138,6 +140,10 @@ public class HeatMapUtil implements WindowListener
 		});
 		toolBar.add(btnSave);
 		
+		chckbxZeroAsMin = new JCheckBox("Zero as Min");
+		chckbxZeroAsMin.setSelected(true);
+		toolBar.add(chckbxZeroAsMin);
+		
 		hm = new HeatMap(iWidth, legend, scale);
 		sp = new JScrollPane(hm);
 		
@@ -184,7 +190,9 @@ public class HeatMapUtil implements WindowListener
 			
 			openCD = fullPath;
 			
-			hm.setLog(logProcessor);
+			boolean zeroAsMin = chckbxZeroAsMin.isSelected();
+			
+			hm.setLog(logProcessor, zeroAsMin);
 			
 			timeTaken += hm.getTimeTaken();
 			

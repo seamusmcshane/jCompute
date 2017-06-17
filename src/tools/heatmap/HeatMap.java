@@ -57,6 +57,8 @@ public class HeatMap extends JPanel
 	
 	private long totalTime;
 	
+	private boolean zeroAsMin = false;
+	
 	public HeatMap(int heatMapWidth, boolean legend, int scale)
 	{
 		this.heatMapWidth = heatMapWidth;
@@ -82,8 +84,11 @@ public class HeatMap extends JPanel
 		palette = Palette.PaletteFromPaletteName("LabSpecturmPalette", false, PALETTE_SIZE, true);
 	}
 	
-	public void setLog(ItemLogProcessor logProcessor)
+	public void setLog(ItemLogProcessor logProcessor, boolean zeroAsMin)
 	{
+		// Z min is set as zero and not the z axis value of the log file.
+		this.zeroAsMin = zeroAsMin;
+		
 		// Linear RGB ColorModel
 		linearRGB = new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000, false,
 		DataBuffer.TYPE_INT);
@@ -222,8 +227,19 @@ public class HeatMap extends JPanel
 		int fontHeight = metrics.getHeight() + 2;
 		double labelPad = (double) tickLength / 2;
 		
-		// zTicks
-		int zSteps = (int) logProcessor.getZValRangeMax();
+		// Vals - Account for min val in range calculation
+		double zValMin = zeroAsMin ? 0 : logProcessor.getZValRangeMin();
+		double zValMax = zeroAsMin ? logProcessor.getZValRangeMax() : logProcessor.getZValRange();
+		
+		//System.out.println("logProcessor.getZValRangeMax() " + logProcessor.getZValRangeMax());
+		//System.out.println("logProcessor.getZValRangeMin() " + logProcessor.getZValRangeMin());
+		//System.out.println("zValMax " + zValMax);
+		
+		// System.out.println("zValMin " + zValMin);
+		// System.out.println("zValMax " + zValMax);
+		
+		// zTicks - acount for min in step cal
+		int zSteps = (int) zValMax;
 		int tickZ = zSteps / 1000;
 		
 		int maxTicks = 10;
@@ -244,22 +260,16 @@ public class HeatMap extends JPanel
 		double yIncr = (double) heatMapPlotHeight / (double) tickZ;
 		// System.out.println("yIncr " + yIncr);
 		
-		// Vals
-		double zValMin = logProcessor.getZValRangeMin();
-		double zValMax = logProcessor.getZValRangeMax();
-		// System.out.println("zValMin " + zValMin);
-		// System.out.println("zValMax " + zValMax);
-		
-		double zTickStepInc = zSteps / tickZ;
+		//double zTickStepInc = zSteps / tickZ;
 		// System.out.println("zTickStepInc " + zTickStepInc);
 		
-		double zStepValInc = JCMath.round(((zValMax - zValMin) / (zSteps - 1)), 0);
+		//double zStepValInc = JCMath.round(((zValMax - zValMin) / (zSteps - 1)), 0);
 		// System.out.println("zStepValInc " + zStepValInc);
 		
-		double zValStep = zTickStepInc * zStepValInc;
+		//double zValStep = zTickStepInc * zStepValInc;
 		// System.out.println("zValStep " + zValStep);
 		
-		double zDval = zValMin;
+		double zDval = zValMin;// + zRange * 0;
 		
 		boolean intValues = false;
 		
@@ -271,6 +281,9 @@ public class HeatMap extends JPanel
 		
 		for(int y = 0; y < tickZ + 1; y++)
 		{
+			// zDval += zValStep;
+			zDval = ((zValMax / tickZ) * y) + zValMin;
+			
 			double lineX = x;
 			double lineY = (heatMapPlotHeight + heatMapPlotYOffset) - (yIncr * y);
 			double lineWidth = x + tickLength;
@@ -308,7 +321,7 @@ public class HeatMap extends JPanel
 			// Draw String
 			cg.drawString(sval, (float) sX, (float) sY);
 			
-			zDval += zValStep;
+
 		}
 		
 		// Value Label
@@ -611,8 +624,14 @@ public class HeatMap extends JPanel
 		
 		int xSteps = logProcessor.getXSteps();
 		int ySteps = logProcessor.getYSteps();
-		double range = logProcessor.getZValRange();
-		double rangeMin = logProcessor.getZValMin();
+		
+		// double range = logProcessor.getZValRange();
+		// double rangeMin = logProcessor.getZValMin();
+		
+		double rangeMin = zeroAsMin ? 0 : logProcessor.getZValRangeMin();
+		double range = zeroAsMin ? logProcessor.getZValRangeMax() : logProcessor.getZValRange();
+			
+		// System.out.println("Range " + range);
 		
 		// Note swap x/y depending on transpose
 		BufferedImage rawValues = new BufferedImage(linearRGB, linearRGB.createCompatibleWritableRaster(xSteps, ySteps), false, null);
