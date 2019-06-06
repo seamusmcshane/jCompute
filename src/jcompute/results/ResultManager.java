@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import org.jfree.util.Log;
+
 import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
 import jcompute.results.binary.BinaryDataFileCollection;
 import jcompute.results.trace.group.TraceGroupSetting;
@@ -58,6 +60,9 @@ public class ResultManager
 	public void registerBDFCollection(BinaryDataFileCollection collection)
 	{
 		lock.acquireUninterruptibly();
+		
+		System.out.println("Registered BDFCollection " + collection.getName());
+		
 		binaryDataList.add(collection);
 		lock.release();
 	}

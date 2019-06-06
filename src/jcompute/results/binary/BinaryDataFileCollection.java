@@ -25,6 +25,8 @@ public class BinaryDataFileCollection
 	
 	public void addDataFile(BinaryDataFile file)
 	{
+		System.out.println("Added file" + file.name);
+		
 		dataFiles.add(file);
 	}
 	
