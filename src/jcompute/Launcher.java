@@ -218,6 +218,8 @@ public class Launcher
 	private static void createClusterGUI(boolean buttonText, BatchManager batchManager)
 	{
 		new ClusterGUI(buttonText, batchManager);
+		
+		// new WebInterface(batchManager);
 	}
 	
 	/*
@@ -304,8 +306,8 @@ public class Launcher
 		}
 		
 		// Set the log level filenames using the logPrefix and append with the correct level suffix
-		String errorLog = logPrefix.toString() + "error.log";
-		String standardLog = logPrefix.toString() + "standard.log";
+		String errorLog = logPrefix.toString() + "error";
+		String standardLog = logPrefix.toString() + "standard";
 		
 		Level level;
 		

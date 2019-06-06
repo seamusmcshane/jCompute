@@ -919,4 +919,31 @@ public class BatchManager
 		}
 		
 	}
+	
+	/* *******/
+	public String[] getBatchList()
+	{
+		batchManagerLock.acquireUninterruptibly();
+		
+		StringBuilder sb = new StringBuilder();
+		
+		Iterator<StoredQueuePosition> litr = fifoQueue.iterator();
+		
+			while(litr.hasNext())
+			{
+				Batch tBatch = (Batch) litr.next();
+				
+				String tS = tBatch.getBatchId() + " " + tBatch.getFileName();
+				
+				System.out.println(tS);
+				
+				sb.append(tS);
+				
+				System.out.println();
+			}
+		
+		batchManagerLock.release();
+		
+		return sb.toString().split("TABTAB");
+	}
 }
