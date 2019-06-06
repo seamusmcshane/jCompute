@@ -49,5 +49,11 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-tools.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-freetype-natives.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-freetype.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/looknfeels/looks-2.2.2.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.0.v20161208/lib/jetty-server-9.4.0.v20161208.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.0.v20161208/lib/servlet-api-3.1.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.0.v20161208/lib/jetty-util-9.4.0.v20161208.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.0.v20161208/lib/jetty-http-9.4.0.v20161208.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.0.v20161208/lib/jetty-io-9.4.0.v20161208.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
