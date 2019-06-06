@@ -22,8 +22,13 @@ public class SurfaceChartHelper
 		return new SurfaceMapper(logProcessor.getDataMetric2dArray(Type.MAX));
 	}
 	
-	public static ITickRenderer getTickMapper(int coordMax, double valueMax)
+	/*public static ITickRenderer getTickMapper(int coordMax, double valueMax)
 	{
 		return new TickValueMapper(coordMax, valueMax);
+	}*/
+	
+	public static ITickRenderer getTickMapper(int stepSize)
+	{
+		return new TickValueMapper(stepSize);
 	}
 }

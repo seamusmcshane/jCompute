@@ -76,10 +76,10 @@ public class SurfacePlotImageExporter
 	// LogFile Name
 	private String itemLog;
 
-	// Auto detected and Set
-	private boolean zfixScale = false;
-	private boolean scaleSet = false;
-	private int maxScale = 0;
+	// Auto detected and Set (or explicitly set to correct values manually for old logs)
+	private boolean zfixScale = true;
+	private boolean scaleSet = true;
+	private int maxScale = 10000;
 
 	public SurfacePlotImageExporter(int imageWidth, int imageHeight, ArrayList<String> rowNames, ArrayList<String> colNames, Map<String, String> cells,
 	String fullPath, String itemLog)
@@ -421,8 +421,10 @@ public class SurfacePlotImageExporter
 			surface.setLegend(stdDevColorBar);
 
 			// Tick mapping
-			ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
-			ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
+//			ITickRenderer xTicks = SurfaceChartHelper.getTickMapper(logProcessor.getXMax(), logProcessor.getXValMax());
+//			ITickRenderer yTicks = SurfaceChartHelper.getTickMapper(logProcessor.getYMax(), logProcessor.getYValMax());
+			ITickRenderer xTicks = SurfaceChartHelper.getTickMapper((int)(logProcessor.getXValMax()/(logProcessor.getXSteps()-1)));
+			ITickRenderer yTicks = SurfaceChartHelper.getTickMapper((int)(logProcessor.getYValMax()/(logProcessor.getYSteps()-1)));
 
 			chart.getAxeLayout().setXTickRenderer(xTicks);
 			chart.getAxeLayout().setYTickRenderer(yTicks);
@@ -438,7 +440,7 @@ public class SurfacePlotImageExporter
 			frame.setFocusable(false);
 			frame.setExtendedState(Frame.ICONIFIED);
 			frame.setVisible(true);
-
+			
 			log.info("Creating Chart Image");
 
 			// Get the image on screen as a texture

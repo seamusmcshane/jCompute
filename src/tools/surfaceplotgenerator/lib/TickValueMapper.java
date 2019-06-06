@@ -13,6 +13,13 @@ public class TickValueMapper implements ITickRenderer
 		multi = valueMax / coordMax;
 	}
 	
+	public TickValueMapper(int stepSize)
+	{
+		super();
+		
+		multi = stepSize;
+	}
+	
 	@Override
 	public String format(double pos)
 	{

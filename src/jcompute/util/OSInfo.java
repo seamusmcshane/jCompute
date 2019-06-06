@@ -79,5 +79,4 @@ public final class OSInfo
 		// Converted to 100% and . removed
 		return (int) (mx.getSystemCpuLoad() * 100);
 	}
-	
 }

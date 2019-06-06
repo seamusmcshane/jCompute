@@ -132,11 +132,15 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		gui = new JFrame();
 		gui.getContentPane().setLayout(new BorderLayout());
 		gui.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		gui.setExtendedState(gui.getExtendedState() | Frame.MAXIMIZED_BOTH);
-		/*
-		 * gui.setPreferredSize(new Dimension(windowWidth, windowheight));
-		 * gui.setMinimumSize(new Dimension(windowWidth, windowheight));
-		 */
+		// gui.setExtendedState(gui.getExtendedState() | Frame.MAXIMIZED_BOTH);
+		
+		boolean tempWindowSize = true;
+		
+		if(tempWindowSize)
+		{
+			gui.setPreferredSize(new Dimension(2048, 1536));
+			gui.setMinimumSize(new Dimension(2048, 1536));
+		}
 		
 		// Base Panel
 		centerPanel = new JPanel();
@@ -735,7 +739,7 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 						// Populate list items
 						historyListModel.addElement(names[st]);
 						
-						TraceSample[] temp2 =  temp.getHistoryAsArray();
+						TraceSample[] temp2 = temp.getHistoryAsArray();
 						
 						histories[st] = Arrays.copyOf(temp2, temp2.length, DoubleTraceSample[].class);
 					}

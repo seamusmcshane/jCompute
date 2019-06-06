@@ -19,6 +19,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 import jcompute.results.trace.Trace;
 import jcompute.results.trace.group.TraceGroupListenerInf;
@@ -51,7 +52,7 @@ public class SingleStatChartPanel extends JPanel implements TraceGroupListenerIn
 	private double maxValue = Double.MIN_VALUE;
 	private double minValue = Double.MAX_VALUE;
 	
-	private float lineWidth = 0.3f;
+	private float lineWidth = 0.35f;
 	
 	public SingleStatChartPanel()
 	{
@@ -124,6 +125,10 @@ public class SingleStatChartPanel extends JPanel implements TraceGroupListenerIn
 		
 		timeSeriesChartPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Time Series", TitledBorder.CENTER, TitledBorder.TOP, null,
 		null));
+		
+		RectangleInsets rectangleInsets = new RectangleInsets(15F,15F,15F,15F);
+		
+		timeSeriesChart.setPadding(rectangleInsets);
 		
 		this.add(timeSeriesChartPanel);
 		
@@ -281,7 +286,8 @@ public class SingleStatChartPanel extends JPanel implements TraceGroupListenerIn
 			// This is a new stat being detected
 			if(tempS == null)
 			{
-				Color color = new Color(Color.HSBtoRGB(((0.13f * colorOffset) - 0.13f), 1f, 0.5f));
+				Color color = new Color(Color.HSBtoRGB(((0.66f * colorOffset)), 1f, 1f));
+				//Color color = new Color(Color.HSBtoRGB(((0.13f * colorOffset) - 0.13f), 1f, 1f));
 				
 				// New Sample Trace for Chart
 				tempS = new XYSeries(name);
