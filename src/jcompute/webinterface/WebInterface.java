@@ -1,28 +1,22 @@
 package jcompute.webinterface;
 
-import org.eclipse.jetty.server.Server;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jcompute.cluster.batchmanager.BatchManager;
+@RestController
+@EnableAutoConfiguration
+public class WebInterface {
 
-public class WebInterface
-{
-	private Server server;
-
-	public WebInterface(BatchManager bm)
-	{
-		server = new Server(8080);
-		server.setHandler(new TestHandler(bm));
-		
-		try
-		{
-			server.start();
-			server.join();
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
+	@RequestMapping("/")
+	String root() {
+		return "Hello World!";
 	}
 	
+	@RequestMapping("/test")
+	String test() {
+		return "Test";
+	}
+
 }

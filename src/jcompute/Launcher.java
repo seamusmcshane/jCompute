@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
 
 import jcompute.cluster.batchmanager.BatchManager;
 import jcompute.cluster.computenode.ComputeNode2;
@@ -24,6 +25,7 @@ import jcompute.util.JComputeInfo;
 import jcompute.util.JVMInfo;
 import jcompute.util.LookAndFeel;
 import jcompute.util.OSInfo;
+import jcompute.webinterface.WebInterface;
 
 /***
  * jCompute common entry method.
@@ -217,9 +219,9 @@ public class Launcher
 	@SuppressWarnings("unused")
 	private static void createClusterGUI(boolean buttonText, BatchManager batchManager)
 	{
-		new ClusterGUI(buttonText, batchManager);
+		//new ClusterGUI(buttonText, batchManager);
 		
-		// new WebInterface(batchManager);
+		SpringApplication.run(WebInterface.class);
 	}
 	
 	/*
