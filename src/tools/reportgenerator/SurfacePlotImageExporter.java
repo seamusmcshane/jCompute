@@ -51,7 +51,7 @@ import jcompute.batch.log.item.processor.ItemLogProcessor.ComputedMetric;
 import jcompute.math.JCMath;
 import jcompute.util.FileUtil;
 import jcompute.util.JCText;
-import sun.misc.Cleaner;
+import jdk.internal.ref.Cleaner;
 import tools.surfaceplotgenerator.lib.SurfaceChartHelper;
 
 public class SurfacePlotImageExporter
