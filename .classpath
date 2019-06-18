@@ -69,11 +69,11 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.18.v20190429/lib/jetty-security-9.4.18.v20190429.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.18.v20190429/lib/jetty-http-9.4.18.v20190429.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jetty/jetty-distribution-9.4.18.v20190429/lib/jetty-io-9.4.18.v20190429.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.15/spring-boot-2.1.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.15/spring-boot-starter-jetty-2.1.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.15/spring-boot-starter-log4j2-2.1.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.15/spring-boot-starter-web-2.1.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.15/spring-boot-autoconfigure-2.1.5.RELEASE.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.1.5/spring-boot-2.1.5.RELEASE.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.1.5/spring-boot-starter-jetty-2.1.5.RELEASE.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.1.5/spring-boot-starter-log4j2-2.1.5.RELEASE.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.1.5/spring-boot-starter-web-2.1.5.RELEASE.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/spring-boot/spring-boot-2.1.5/spring-boot-autoconfigure-2.1.5.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/reactive-streams/reactive-streams-1.0.1/reactive-streams-1.0.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-aspects-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-aop-5.1.7.RELEASE.jar"/>
