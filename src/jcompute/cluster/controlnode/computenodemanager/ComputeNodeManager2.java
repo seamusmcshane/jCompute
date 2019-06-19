@@ -28,14 +28,14 @@ import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest;
 import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest.NodeItemRequestOperation;
 import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest.NodeItemRequestResult;
 import jcompute.cluster.controlnode.mapping.RemoteSimulationMapping;
-import jcompute.cluster.ncp.NCP;
-import jcompute.cluster.ncp.NCPSocket;
-import jcompute.cluster.ncp.message.NCPMessage;
-import jcompute.cluster.ncp.message.command.AddSimReply;
-import jcompute.cluster.ncp.message.command.SimulationResultsReply;
-import jcompute.cluster.ncp.message.monitoring.NodeStatsReply;
-import jcompute.cluster.ncp.message.notification.SimulationStatChanged;
-import jcompute.cluster.ncp.message.notification.SimulationStateChanged;
+import jcompute.ncp.NCPDefinitions;
+import jcompute.ncp.NCPSocket;
+import jcompute.ncp.message.NCPMessage;
+import jcompute.ncp.message.command.AddSimReply;
+import jcompute.ncp.message.command.SimulationResultsReply;
+import jcompute.ncp.message.monitoring.NodeStatsReply;
+import jcompute.ncp.message.notification.SimulationStatChanged;
+import jcompute.ncp.message.notification.SimulationStateChanged;
 import jcompute.results.export.Result;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
@@ -206,7 +206,7 @@ public class ComputeNodeManager2
 						
 						switch(type)
 						{
-							case NCP.AddSimReply:
+							case NCPDefinitions.AddSimReply:
 							{
 								AddSimReply reply = (AddSimReply) message;
 								
@@ -299,7 +299,7 @@ public class ComputeNodeManager2
 								JComputeEventBus.post(req);
 							}
 							break;
-							case NCP.SimStateNoti:
+							case NCPDefinitions.SimStateNoti:
 							{
 								// Create the state object
 								SimulationStateChanged notification = (SimulationStateChanged) message;
@@ -337,7 +337,7 @@ public class ComputeNodeManager2
 								}
 							}
 							break;
-							case NCP.SimStatNoti:
+							case NCPDefinitions.SimStatNoti:
 							{
 								// Create the state object
 								SimulationStatChanged notification = (SimulationStatChanged) message;
@@ -366,7 +366,7 @@ public class ComputeNodeManager2
 								}
 							}
 							break;
-							case NCP.NodeStatsReply:
+							case NCPDefinitions.NodeStatsReply:
 							{
 								NodeStatsReply reply = (NodeStatsReply) message;
 								
@@ -375,7 +375,7 @@ public class ComputeNodeManager2
 								JComputeEventBus.post(new ComputeNodeStatsUpdate(nodeInfo.getUid(), reply.getSequenceNum(), reply.getNodeStats()));
 							}
 							break;
-							case NCP.SimResultsReply:
+							case NCPDefinitions.SimResultsReply:
 							{
 								log.info("Received simulation results reply");
 								
@@ -390,7 +390,7 @@ public class ComputeNodeManager2
 								processFinishedSimulation(mapping, reply.getStatExporter(mapping.getExportFormat(), mapping.getFileNameSuffix()));
 							}
 							break;
-							case NCP.NodeOrderlyShutdownReply:
+							case NCPDefinitions.NodeOrderlyShutdownReply:
 							{
 								// We have been informed the remote node is shutting down as requested and we can shutdown now
 								log.info("Node has sent us a NodeOrderlyShutdownReply");
@@ -399,7 +399,7 @@ public class ComputeNodeManager2
 							}
 							break;
 							// Test Frame or Garbage
-							case NCP.INVALID:
+							case NCPDefinitions.INVALID:
 							default:
 							{
 								log.error("Received invalid or unknown message by NCP");

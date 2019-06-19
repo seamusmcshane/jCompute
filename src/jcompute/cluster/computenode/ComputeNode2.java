@@ -13,13 +13,13 @@ import jcompute.JComputeEventBus;
 import jcompute.cluster.computenode.nodedetails.NodeAveragedStats;
 import jcompute.cluster.computenode.nodedetails.NodeInfo;
 import jcompute.cluster.computenode.nodedetails.NodeStatsSample;
-import jcompute.cluster.ncp.NCP;
-import jcompute.cluster.ncp.NCPSocket;
-import jcompute.cluster.ncp.message.NCPMessage;
-import jcompute.cluster.ncp.message.command.AddSimReq;
-import jcompute.cluster.ncp.message.command.SimulationData;
-import jcompute.cluster.ncp.message.command.SimulationResultsRequest;
-import jcompute.cluster.ncp.message.monitoring.NodeStatsRequest;
+import jcompute.ncp.NCPDefinitions;
+import jcompute.ncp.NCPSocket;
+import jcompute.ncp.message.NCPMessage;
+import jcompute.ncp.message.command.AddSimReq;
+import jcompute.ncp.message.command.SimulationData;
+import jcompute.ncp.message.command.SimulationResultsRequest;
+import jcompute.ncp.message.monitoring.NodeStatsRequest;
 import jcompute.results.export.ExportFormat;
 import jcompute.results.export.Result;
 import jcompute.simulation.SimulationState.SimState;
@@ -220,7 +220,7 @@ public class ComputeNode2
 								
 								switch(type)
 								{
-									case NCP.AddSimReq:
+									case NCPDefinitions.AddSimReq:
 									{
 										AddSimReq req = (AddSimReq) message;
 										
@@ -240,7 +240,7 @@ public class ComputeNode2
 										}
 									}
 									break;
-									case NCP.SimData:
+									case NCPDefinitions.SimData:
 									{
 										SimulationData req = (SimulationData) message;
 										
@@ -259,7 +259,7 @@ public class ComputeNode2
 										}
 									}
 									break;
-									case NCP.NodeStatsRequest:
+									case NCPDefinitions.NodeStatsRequest:
 									{
 										NodeStatsRequest req = (NodeStatsRequest) message;
 										
@@ -277,7 +277,7 @@ public class ComputeNode2
 										ncpSocket.sendNodeStatsReply(req, nodeStatsSample);
 									}
 									break;
-									case NCP.SimResultsReq:
+									case NCPDefinitions.SimResultsReq:
 									{
 										SimulationResultsRequest req = (SimulationResultsRequest) message;
 										
@@ -304,7 +304,7 @@ public class ComputeNode2
 										}
 									}
 									break;
-									case NCP.NodeOrderlyShutdownRequest:
+									case NCPDefinitions.NodeOrderlyShutdownRequest:
 									{
 										// No Data - comment here for consistency
 										// NodeOrderlyShutdownRequest req = (NodeOrderlyShutdownRequest) message;
@@ -343,7 +343,7 @@ public class ComputeNode2
 									}
 									break;
 									// Default / Invalid
-									case NCP.INVALID:
+									case NCPDefinitions.INVALID:
 									default:
 									{
 										log.error("Invalid NCP Message received - Type " + type);

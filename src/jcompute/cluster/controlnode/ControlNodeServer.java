@@ -33,7 +33,7 @@ import jcompute.cluster.controlnode.mapping.RemoteSimulationMapping;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestOperation;
 import jcompute.cluster.controlnode.request.ControlNodeItemRequest.ControlNodeItemRequestResult;
-import jcompute.cluster.ncp.NCP;
+import jcompute.ncp.NCPDefinitions;
 import jcompute.results.export.ExportFormat;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEventType;
@@ -134,7 +134,7 @@ public class ControlNodeServer
 			// This is fine as we dont expect 100k connections
 			listenSocket.setSoTimeout(TickFrequency);
 			
-			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCP.StandardServerPort), MAX_OUTSTANDING_CONNECTIONS);
+			listenSocket.bind(new InetSocketAddress("0.0.0.0", NCPDefinitions.StandardServerPort), MAX_OUTSTANDING_CONNECTIONS);
 		}
 		catch(Exception e)
 		{
