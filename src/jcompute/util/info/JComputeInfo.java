@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.util.info;
 
 import java.io.FileInputStream;
 import java.io.IOException;

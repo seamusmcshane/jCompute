@@ -20,9 +20,9 @@ import javax.swing.WindowConstants;
 
 import jcompute.gui.component.swing.MessageBox;
 import jcompute.gui.component.swing.jpanel.SimpleGridPanel;
-import jcompute.util.JComputeInfo;
-import jcompute.util.JVMInfo;
-import jcompute.util.OSInfo;
+import jcompute.util.info.JComputeInfo;
+import jcompute.util.info.JVMInfo;
+import jcompute.util.info.OSInfo;
 import jcompute.util.TimeString;
 import jcompute.util.TimeString.TimeStringFormat;
 

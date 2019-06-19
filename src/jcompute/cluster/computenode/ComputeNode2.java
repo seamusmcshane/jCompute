@@ -27,8 +27,8 @@ import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.SimulationsManager;
 import jcompute.simulationmanager.returnables.AddSimStatus;
-import jcompute.util.JVMInfo;
-import jcompute.util.OSInfo;
+import jcompute.util.info.JVMInfo;
+import jcompute.util.info.OSInfo;
 
 public class ComputeNode2
 {

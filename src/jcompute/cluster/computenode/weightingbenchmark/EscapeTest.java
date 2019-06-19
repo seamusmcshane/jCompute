@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 import jcompute.math.JCMath;
 import jcompute.timing.TimerObj;
-import jcompute.util.JVMInfo;
+import jcompute.util.info.JVMInfo;
 
 public class EscapeTest
 {

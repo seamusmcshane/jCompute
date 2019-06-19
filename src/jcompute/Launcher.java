@@ -21,10 +21,10 @@ import jcompute.logging.Logging;
 import jcompute.scenario.ScenarioPluginManager;
 import jcompute.simulationmanager.SimulationsManager;
 import jcompute.util.FileUtil;
-import jcompute.util.JComputeInfo;
-import jcompute.util.JVMInfo;
+import jcompute.util.info.JComputeInfo;
+import jcompute.util.info.JVMInfo;
 import jcompute.util.LookAndFeel;
-import jcompute.util.OSInfo;
+import jcompute.util.info.OSInfo;
 
 /***
  * jCompute common entry method.

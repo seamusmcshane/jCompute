@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.util.info;
 
 import jcompute.math.NumericConstants;
 

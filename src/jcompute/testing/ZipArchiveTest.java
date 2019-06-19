@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import jcompute.util.JVMInfo;
+import jcompute.util.info.JVMInfo;
 
 public class ZipArchiveTest
 {

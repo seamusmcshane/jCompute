@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.util.info;
 
 import java.lang.management.ManagementFactory;
 
