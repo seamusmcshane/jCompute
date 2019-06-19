@@ -80,5 +80,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-expression-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jCompute/jCompute-Simulation/jCompute-Simulation-1.0/jCompute-Simulation-1.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jCompute/jCompute-SimulationManager/jCompute-SimulationManager-1.0/jCompute-SimulationManager-1.0.jar"/>
+	<classpathentry kind="src" path="/jCompute-NCP"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
