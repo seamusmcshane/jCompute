@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import jcompute.cluster.batchmanager.BatchManager;
 import jcompute.cluster.computenode.ComputeNode2;
 import jcompute.cluster.controlnode.ControlNodeServer;
+import jcompute.gui.IconManager;
 import jcompute.gui.cluster.ClusterGUI;
 import jcompute.gui.interactive.StandardGUI;
 import jcompute.logging.Logging;

@@ -1,4 +1,4 @@
-package jcompute;
+package jcompute.gui;
 
 import java.awt.MediaTracker;
 import java.io.BufferedReader;
