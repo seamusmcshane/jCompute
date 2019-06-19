@@ -19,9 +19,9 @@ import javax.swing.WindowConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.IconManager;
-import jcompute.IconManager.IconIndex;
 import jcompute.cluster.batchmanager.BatchManager;
+import jcompute.gui.IconManager;
+import jcompute.gui.IconManager.IconIndex;
 import jcompute.gui.cluster.tab.BatchTab;
 import jcompute.gui.cluster.tab.BenchmarkTab;
 import jcompute.gui.cluster.tab.ClusterTab;

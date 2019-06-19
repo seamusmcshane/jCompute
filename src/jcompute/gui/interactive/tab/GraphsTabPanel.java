@@ -9,8 +9,8 @@ import javax.swing.JTabbedPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.IconManager;
-import jcompute.IconManager.IconIndex;
+import jcompute.gui.IconManager;
+import jcompute.gui.IconManager.IconIndex;
 import jcompute.gui.component.swing.jpanel.GlobalStatChartPanel;
 import jcompute.simulationmanager.SimulationsManager;
 

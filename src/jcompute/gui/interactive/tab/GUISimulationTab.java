@@ -57,9 +57,9 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
 
-import jcompute.IconManager;
-import jcompute.IconManager.IconIndex;
 import jcompute.JComputeEventBus;
+import jcompute.gui.IconManager;
+import jcompute.gui.IconManager.IconIndex;
 import jcompute.gui.component.swing.MessageBox;
 import jcompute.gui.component.swing.jpanel.GlobalStatChartPanel;
 import jcompute.gui.component.swing.jpanel.XMLPreviewPanel;

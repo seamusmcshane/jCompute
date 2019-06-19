@@ -20,8 +20,8 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.IconManager;
-import jcompute.IconManager.IconIndex;
+import jcompute.gui.IconManager;
+import jcompute.gui.IconManager.IconIndex;
 import jcompute.gui.interactive.tab.GUISimulationTab;
 import jcompute.gui.interactive.tab.SimulationListTabPanel;
 import jcompute.results.export.ExportFormat;

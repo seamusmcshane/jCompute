@@ -17,8 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.eventbus.Subscribe;
 
-import jcompute.IconManager;
-import jcompute.IconManager.IconIndex;
 import jcompute.JComputeEventBus;
 import jcompute.cluster.controlnode.NodeManagerStateMachine.NodeManagerState;
 import jcompute.cluster.controlnode.NodeManagerStateMachine.NodeManagerStateMachineEvent;
@@ -26,6 +24,8 @@ import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeStatsUpd
 import jcompute.cluster.controlnode.event.NodeEvent;
 import jcompute.cluster.controlnode.event.NodeEvent.NodeEventType;
 import jcompute.cluster.controlnode.event.StatusChanged;
+import jcompute.gui.IconManager;
+import jcompute.gui.IconManager.IconIndex;
 import jcompute.gui.cluster.tablerowitems.NodeConnectionLogRowItem;
 import jcompute.gui.cluster.tablerowitems.NodeInfoRowItem;
 import jcompute.gui.cluster.tablerowitems.SimpleInfoRowItem;

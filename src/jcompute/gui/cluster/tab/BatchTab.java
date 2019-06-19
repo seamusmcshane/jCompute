@@ -35,15 +35,15 @@ import org.apache.logging.log4j.Logger;
 import com.DaveKoelle.AlphanumFileNameComparator;
 import com.google.common.eventbus.Subscribe;
 
-import jcompute.IconManager;
 import jcompute.JComputeEventBus;
-import jcompute.IconManager.IconIndex;
 import jcompute.batch.Batch;
 import jcompute.cluster.batchmanager.BatchManager;
 import jcompute.cluster.batchmanager.event.BatchAddedEvent;
 import jcompute.cluster.batchmanager.event.BatchFinishedEvent;
 import jcompute.cluster.batchmanager.event.BatchPositionEvent;
 import jcompute.cluster.batchmanager.event.BatchProgressEvent;
+import jcompute.gui.IconManager;
+import jcompute.gui.IconManager.IconIndex;
 import jcompute.gui.cluster.tablerowitems.BatchCompletedRowItem;
 import jcompute.gui.cluster.tablerowitems.BatchQueueRowItem;
 import jcompute.gui.cluster.tablerowitems.SimpleInfoRowItem;
