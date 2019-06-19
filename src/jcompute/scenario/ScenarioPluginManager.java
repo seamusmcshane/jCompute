@@ -9,8 +9,8 @@ import java.util.ServiceLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.util.FileUtil;
-import jcompute.util.JCText;
+import jcompute.util.file.FileUtil;
+import jcompute.util.text.JCText;
 
 public class ScenarioPluginManager
 {

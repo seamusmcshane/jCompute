@@ -14,8 +14,8 @@ import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class ItemLogXMLFormat implements ItemLogFormatInf
 {

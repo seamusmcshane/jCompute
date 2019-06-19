@@ -23,7 +23,7 @@ import jcompute.batch.itemstore.ItemStore;
 import jcompute.datastruct.cache.DiskCache;
 import jcompute.math.JCMath;
 import jcompute.scenario.ConfigurationInterpreter;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 
 /**
  * An item generator for scenarios that use the standard scenario format for groups, parameters and values.

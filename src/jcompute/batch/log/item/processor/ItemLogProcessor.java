@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.JTextArea;
-
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.logging.log4j.LogManager;
@@ -19,10 +17,10 @@ import jcompute.batch.log.item.processor.logformat.ItemLogTextv2Format;
 import jcompute.batch.log.item.processor.logformat.ItemLogXMLFormat;
 import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf.Type;
 import jcompute.timing.TimerObj;
-import jcompute.util.FileUtil;
-import jcompute.util.JCText;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.file.FileUtil;
+import jcompute.util.text.JCText;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public final class ItemLogProcessor
 {
@@ -134,12 +132,12 @@ public final class ItemLogProcessor
 		samples = logFormatProcessor.getSamples();
 		logFormat = logFormatProcessor.getLogFormat();
 		logFormat = logFormatProcessor.getLogFormat();
-
+		
 		to.stopTimer();
-
+		
 		log.info("Time Processing " + logFormatProcessor.getLogFormat() + " : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(),
 		TimeStringFormat.SM));
-
+		
 		totalTime += to.getTimeTaken();
 		
 		return logFormatProcessor;
@@ -338,31 +336,31 @@ public final class ItemLogProcessor
 	{
 		SimpleRegression regression = new SimpleRegression();
 		regression.addData(getDataMetric2dArray(Type.AVERAGE));
-
+		
 		System.out.println(JCText.CharRepeatBounded('=', 80));
 		System.out.println("SimpleRegression");
 		System.out.println(JCText.CharRepeatBounded('-', 80));
-		System.out.println("Intercept : "+ regression.getIntercept());
-		System.out.println("InterceptStdErr : "+ regression.getInterceptStdErr());
-		System.out.println("MeanSquareError : "+ regression.getMeanSquareError());
-		System.out.println("N : "+ regression.getN());
-		System.out.println("R : "+ regression.getR());
-		System.out.println("RegressionSumSquares : "+ regression.getRegressionSumSquares());
-		System.out.println("RSquare : "+ regression.getRSquare());
-		System.out.println("Significance : "+ regression.getSignificance());
-		System.out.println("Slope : "+ regression.getSlope());
-		System.out.println("SlopeConfidenceInterval : "+ regression.getSlopeConfidenceInterval());
-		System.out.println("SlopeStdErr : "+ regression.getSlopeStdErr());
-		System.out.println("SumOfCrossProducts : "+ regression.getSumOfCrossProducts());
-		System.out.println("SumSquaredErrors : "+ regression.getSumSquaredErrors());
-		System.out.println("TotalSumSquares : "+ regression.getTotalSumSquares());
-		//System.out.println("Regress : "+ regression.regress());
+		System.out.println("Intercept : " + regression.getIntercept());
+		System.out.println("InterceptStdErr : " + regression.getInterceptStdErr());
+		System.out.println("MeanSquareError : " + regression.getMeanSquareError());
+		System.out.println("N : " + regression.getN());
+		System.out.println("R : " + regression.getR());
+		System.out.println("RegressionSumSquares : " + regression.getRegressionSumSquares());
+		System.out.println("RSquare : " + regression.getRSquare());
+		System.out.println("Significance : " + regression.getSignificance());
+		System.out.println("Slope : " + regression.getSlope());
+		System.out.println("SlopeConfidenceInterval : " + regression.getSlopeConfidenceInterval());
+		System.out.println("SlopeStdErr : " + regression.getSlopeStdErr());
+		System.out.println("SumOfCrossProducts : " + regression.getSumOfCrossProducts());
+		System.out.println("SumSquaredErrors : " + regression.getSumSquaredErrors());
+		System.out.println("TotalSumSquares : " + regression.getTotalSumSquares());
+		// System.out.println("Regress : "+ regression.regress());
 		System.out.println(JCText.CharRepeatBounded('=', 80));
 		PearsonsCorrelation correlation = new PearsonsCorrelation(getDataMetric2dArray(Type.AVERAGE));
 		System.out.println(JCText.CharRepeatBounded('-', 80));
-		System.out.println("CorrelationStandardErrors : "+ correlation.getCorrelationStandardErrors());
-		System.out.println("CorrelationPValues : "+ correlation.getCorrelationPValues());
-		System.out.println("CorrelationStandardErrors : "+ correlation.getCorrelationStandardErrors());
+		System.out.println("CorrelationStandardErrors : " + correlation.getCorrelationStandardErrors());
+		System.out.println("CorrelationPValues : " + correlation.getCorrelationPValues());
+		System.out.println("CorrelationStandardErrors : " + correlation.getCorrelationStandardErrors());
 	}
 	
 	public double[] getDataMetricArray(Type metricSource)
@@ -589,11 +587,11 @@ public final class ItemLogProcessor
 		log.debug("xMax" + values.getXMax());
 		log.debug("yMax" + values.getYMax());
 		log.debug("zMax" + values.getZMax());
-
+		
 		to.stopTimer();
-
+		
 		log.info("Processed Items : " + TimeString.timeInMillisAsFormattedString(to.getTimeTaken(), TimeStringFormat.SM));
-
+		
 		totalTime += to.getTimeTaken();
 	}
 	

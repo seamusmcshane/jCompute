@@ -2,7 +2,7 @@ package jcompute.math;
 
 import jcompute.math.geom.JCVector2f;
 import jcompute.math.trig.JCTrig;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 public class MathVector2fTest
 {

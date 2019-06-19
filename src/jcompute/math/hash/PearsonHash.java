@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.math.hash;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

@@ -2,8 +2,8 @@ package jcompute.gui.cluster.tablerowitems;
 
 import jcompute.gui.component.RowItem;
 import jcompute.simulation.SimulationState.SimState;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class SimulationListRowItem extends RowItem<SimulationListRowItem, Integer>
 {

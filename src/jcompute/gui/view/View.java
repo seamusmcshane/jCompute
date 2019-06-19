@@ -48,7 +48,7 @@ import jcompute.gui.view.renderer.ViewRendererInf;
 import jcompute.gui.view.renderer.util.VectorGraphic2d;
 import jcompute.math.geom.JCVector2f;
 import jcompute.math.geom.JCVector3f;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 public class View implements ApplicationListener, ViewRendererInf
 {

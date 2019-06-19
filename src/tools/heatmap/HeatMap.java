@@ -29,8 +29,8 @@ import jcompute.batch.log.item.processor.metrics.surface.SurfaceMetricInf.Type;
 import jcompute.gui.view.misc.Palette;
 import jcompute.math.JCMath;
 import jcompute.timing.TimerObj;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class HeatMap extends JPanel
 {

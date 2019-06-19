@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.util.PearsonHash;
+import jcompute.math.hash.PearsonHash;
 
 public final class IconManager
 {

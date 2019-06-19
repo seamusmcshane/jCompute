@@ -1,8 +1,10 @@
-package jcompute.util;
+package jcompute.util.text;
 
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import jcompute.util.file.FileUtil;
 
 public class TimeString
 {

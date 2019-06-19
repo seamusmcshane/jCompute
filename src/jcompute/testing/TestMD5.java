@@ -9,9 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import jcompute.timing.TimerObj;
-import jcompute.util.JCText;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class TestMD5
 {

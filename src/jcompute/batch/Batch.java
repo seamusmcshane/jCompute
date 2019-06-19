@@ -33,9 +33,10 @@ import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;
 import jcompute.timing.TimerObj;
-import jcompute.util.FileUtil;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.file.FileUtil;
+import jcompute.util.text.JCText;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class Batch implements StoredQueuePosition
 {
@@ -228,7 +229,7 @@ public class Batch implements StoredQueuePosition
 		log.info("Base Path : " + baseDirectoryPath);
 		
 		// The Batch Configuration Text
-		String batchConfigText = jcompute.util.JCText.textFileToString(filePath);
+		String batchConfigText = JCText.textFileToString(filePath);
 		
 		// Null if there was an error reading the batch file in
 		if(batchConfigText == null)
@@ -402,7 +403,7 @@ public class Batch implements StoredQueuePosition
 		log.debug("Base Scenario File : " + baseScenaroFilePath);
 		
 		// Attempt to load the text into a string
-		String tempText = jcompute.util.JCText.textFileToString(baseScenaroFilePath);
+		String tempText = JCText.textFileToString(baseScenaroFilePath);
 		
 		// No null if the text from the file has been loaded
 		if(tempText != null)

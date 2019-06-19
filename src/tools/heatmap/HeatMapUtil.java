@@ -24,9 +24,9 @@ import jcompute.batch.log.item.processor.ItemLogProcessor;
 import jcompute.gui.component.swing.MessageBox;
 import jcompute.logging.Logging;
 import jcompute.util.LookAndFeel;
-import jcompute.util.JCText;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.text.JCText;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;

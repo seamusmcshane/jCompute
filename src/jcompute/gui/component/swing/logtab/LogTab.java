@@ -25,7 +25,7 @@ import jcompute.gui.component.swing.jpanel.SimpleTabPanel;
 import jcompute.gui.component.swing.jpanel.TablePanel;
 import jcompute.gui.component.tablecell.TextHighLighterRenderer;
 import jcompute.logging.Logging;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 public class LogTab extends JPanel implements TailerListener
 {

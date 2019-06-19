@@ -23,8 +23,8 @@ import jcompute.gui.component.swing.jpanel.SimpleGridPanel;
 import jcompute.util.info.JComputeInfo;
 import jcompute.util.info.JVMInfo;
 import jcompute.util.info.OSInfo;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class AboutWindow extends JDialog
 {

@@ -29,7 +29,7 @@ import jcompute.results.export.Result;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.returnables.AddSimStatus;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 /**
  * NCP Socket Implementation

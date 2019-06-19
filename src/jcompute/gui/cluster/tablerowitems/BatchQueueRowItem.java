@@ -2,7 +2,7 @@ package jcompute.gui.cluster.tablerowitems;
 
 import jcompute.batch.Batch;
 import jcompute.gui.component.RowItem;
-import jcompute.util.TimeString;
+import jcompute.util.text.TimeString;
 
 public class BatchQueueRowItem extends RowItem<BatchQueueRowItem, Integer>
 {

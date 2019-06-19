@@ -49,8 +49,8 @@ import jcompute.batch.log.info.processor.InfoLogProcessor;
 import jcompute.batch.log.item.processor.ItemLogProcessor;
 import jcompute.batch.log.item.processor.ItemLogProcessor.ComputedMetric;
 import jcompute.math.JCMath;
-import jcompute.util.FileUtil;
-import jcompute.util.JCText;
+import jcompute.util.file.FileUtil;
+import jcompute.util.text.JCText;
 import jdk.internal.ref.Cleaner;
 import tools.surfaceplotgenerator.lib.SurfaceChartHelper;
 

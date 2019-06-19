@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.util.file;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

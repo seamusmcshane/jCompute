@@ -20,7 +20,7 @@ import jcompute.gui.interactive.StandardGUI;
 import jcompute.logging.Logging;
 import jcompute.scenario.ScenarioPluginManager;
 import jcompute.simulationmanager.SimulationsManager;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 import jcompute.util.info.JComputeInfo;
 import jcompute.util.info.JVMInfo;
 import jcompute.util.LookAndFeel;

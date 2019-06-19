@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import jcompute.timing.TimerObj;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 public class TrigTest
 {

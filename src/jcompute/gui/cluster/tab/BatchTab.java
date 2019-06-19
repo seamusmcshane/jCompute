@@ -57,9 +57,9 @@ import jcompute.gui.component.tablecell.BooleanIconRenderer;
 import jcompute.gui.component.tablecell.EmptyCellColorRenderer;
 import jcompute.gui.component.tablecell.HeaderRowRenderer;
 import jcompute.gui.component.tablecell.ProgressBarTableCellRenderer;
-import jcompute.util.FileUtil;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.file.FileUtil;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class BatchTab extends JPanel implements Loadable, PropertyChangeListener
 {

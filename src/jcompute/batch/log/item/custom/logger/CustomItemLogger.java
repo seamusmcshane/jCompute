@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
 import jcompute.results.export.format.CSVExporter;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 public class CustomItemLogger
 {

@@ -70,9 +70,9 @@ import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.SimulationsManager;
 import jcompute.simulationmanager.returnables.AddSimStatus;
-import jcompute.util.FileUtil;
-import jcompute.util.TimeString;
-import jcompute.util.TimeString.TimeStringFormat;
+import jcompute.util.file.FileUtil;
+import jcompute.util.text.TimeString;
+import jcompute.util.text.TimeString.TimeStringFormat;
 
 public class GUISimulationTab extends JPanel implements ActionListener, ChangeListener
 {

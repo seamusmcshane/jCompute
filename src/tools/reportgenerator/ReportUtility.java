@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 import com.DaveKoelle.AlphanumComparator;
 
 import jcompute.logging.Logging;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 import jcompute.util.LookAndFeel;
 
 public class ReportUtility

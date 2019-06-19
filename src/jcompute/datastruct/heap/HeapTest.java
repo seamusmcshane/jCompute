@@ -2,7 +2,7 @@ package jcompute.datastruct.heap;
 
 import jcompute.datastruct.heap.BinaryHeap.HeapType;
 import jcompute.timing.TimerObj;
-import jcompute.util.JCText;
+import jcompute.util.text.JCText;
 
 public class HeapTest
 {

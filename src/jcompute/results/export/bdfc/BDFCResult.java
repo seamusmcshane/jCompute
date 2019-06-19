@@ -11,7 +11,7 @@ import jcompute.results.ResultManager;
 import jcompute.results.binary.BinaryDataFile;
 import jcompute.results.binary.BinaryDataFileCollection;
 import jcompute.results.export.file.ExportFileWriter;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 
 public class BDFCResult
 {

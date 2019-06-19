@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.util.log;
 
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;

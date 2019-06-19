@@ -8,6 +8,8 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.util.text.TimeString;
+
 public final class JComputeInfo
 {
 	// Log4j2 Logger

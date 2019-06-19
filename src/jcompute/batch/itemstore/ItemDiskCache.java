@@ -14,7 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 
 public class ItemDiskCache implements ItemStore
 {

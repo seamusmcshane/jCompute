@@ -29,7 +29,7 @@ import jcompute.gui.component.swing.jpanel.GlobalProgressMonitor;
 import jcompute.gui.component.swing.jpanel.SimpleTabPanel;
 import jcompute.gui.component.swing.swingworker.Loadable;
 import jcompute.gui.component.swing.swingworker.LoadableTask;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 
 public class BenchmarkTab extends JPanel implements Loadable, PropertyChangeListener
 {

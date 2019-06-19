@@ -1,4 +1,4 @@
-package jcompute.util;
+package jcompute.util.opencl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.scenario.ConfigurationInterpreter;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 
 public abstract class ItemGenerator
 {

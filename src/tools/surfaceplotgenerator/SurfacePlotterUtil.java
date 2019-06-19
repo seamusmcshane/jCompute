@@ -65,7 +65,7 @@ import jcompute.gui.component.swing.jpanel.TablePanel;
 import jcompute.gui.component.tablecell.EmptyCellColorRenderer;
 import jcompute.gui.component.tablecell.HeaderRowRenderer;
 import jcompute.logging.Logging;
-import jcompute.util.FileUtil;
+import jcompute.util.file.FileUtil;
 import tools.surfaceplotgenerator.lib.SurfaceChartHelper;
 
 public class SurfacePlotterUtil implements ActionListener, WindowListener
