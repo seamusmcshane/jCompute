@@ -79,7 +79,5 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-aop-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-expression-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="src" path="/jCompute-NCP"/>
-	<classpathentry kind="src" path="/jCompute-SimulationManager"/>
-	<classpathentry kind="src" path="/jCompute-Simulation"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
