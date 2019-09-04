@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,10 +23,10 @@ import org.apache.logging.log4j.Logger;
 import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.info.logger.InfoLogger;
-import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
 import jcompute.batch.log.item.custom.logger.CustomItemLogger;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.datastruct.list.StoredQueuePosition;
+import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.custom.CustomItemResultParser;
 import jcompute.results.export.ExportFormat;
 import jcompute.results.export.Result;
@@ -344,10 +345,10 @@ public class Batch implements StoredQueuePosition
 						customItemLoggers = new HashMap<String, CustomItemLogger>();
 						
 						// Locate the custom item results list
-						ArrayList<CustomCSVItemLogFormatInf> cirs = baseScenario.getSimulationScenarioManager().getResultManager().getCustomItemResultList();
+						ArrayList<CustomItemResultInf> cirs = baseScenario.getSimulationScenarioManager().getResultManager().getCustomItemResultList();
 						
 						// Create a logger for each
-						for(CustomCSVItemLogFormatInf cir : cirs)
+						for(CustomItemResultInf cir : cirs)
 						{
 							String fileName = cir.getLogFileName();
 							
@@ -695,8 +696,12 @@ public class Batch implements StoredQueuePosition
 				
 				try
 				{
+					// Important
+					// This code calls the default constructor for the generic result class (creating the specific object) and returns it via the interface.
+					// It allows us using the generic interface (CustomItemResultInf) to create objects we do not know the type of at runtime.
+				
 					// Create the correct container format
-					CustomCSVItemLogFormatInf rowFormat = logger.getLogformat().getInstance();
+					CustomItemResultInf rowFormat = logger.getLogformat().getClass().getDeclaredConstructor().newInstance();
 					
 					// Fill the container
 					CustomItemResultParser.BytesToRow(data[l], rowFormat);
@@ -704,7 +709,7 @@ public class Batch implements StoredQueuePosition
 					// Write the log line
 					logger.logItem(item, rowFormat);
 				}
-				catch(InstantiationException | IllegalAccessException e)
+				catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
 				{
 					log.error("Could not create LogFormat instance" + logger.getLogformat());
 					

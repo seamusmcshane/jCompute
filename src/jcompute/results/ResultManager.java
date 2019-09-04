@@ -8,8 +8,8 @@ import java.util.concurrent.Semaphore;
 
 import org.jfree.util.Log;
 
-import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
 import jcompute.results.binary.BinaryDataFileCollection;
+import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.trace.group.TraceGroupSetting;
 import jcompute.results.trace.group.TraceGroup;
 
@@ -25,7 +25,7 @@ public class ResultManager
 	
 	private ArrayList<BinaryDataFileCollection> binaryDataList;
 	
-	private ArrayList<CustomCSVItemLogFormatInf> customItemResults;
+	private ArrayList<CustomItemResultInf> customItemResults;
 	
 	private Semaphore lock = new Semaphore(1);
 	
@@ -37,7 +37,7 @@ public class ResultManager
 		
 		binaryDataList = new ArrayList<BinaryDataFileCollection>();
 		
-		customItemResults = new ArrayList<CustomCSVItemLogFormatInf>();
+		customItemResults = new ArrayList<CustomItemResultInf>();
 	}
 	
 	/**
@@ -177,12 +177,12 @@ public class ResultManager
 		}
 	}
 	
-	public void registerCustomItemResultFormat(CustomCSVItemLogFormatInf customItemResult)
+	public void registerCustomItemResultFormat(CustomItemResultInf customItemResult)
 	{
 		customItemResults.add(customItemResult);
 	}
 	
-	public ArrayList<CustomCSVItemLogFormatInf> getCustomItemResultList()
+	public ArrayList<CustomItemResultInf> getCustomItemResultList()
 	{
 		return customItemResults;
 	}

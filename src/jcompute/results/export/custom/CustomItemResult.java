@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
 import jcompute.results.ResultManager;
+import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.custom.CustomItemResultParser;
 
 public class CustomItemResult
@@ -23,7 +23,7 @@ public class CustomItemResult
 	{
 		log.info("Creating CustomItemResult from Result Manager - " + rm.getName());
 		
-		ArrayList<CustomCSVItemLogFormatInf> test = rm.getCustomItemResultList();
+		ArrayList<CustomItemResultInf> test = rm.getCustomItemResultList();
 		
 		int cirNum = test.size();
 		
@@ -32,7 +32,7 @@ public class CustomItemResult
 		
 		for(int cir = 0; cir < cirNum; cir++)
 		{
-			CustomCSVItemLogFormatInf result = test.get(cir);
+			CustomItemResultInf result = test.get(cir);
 			
 			fileNames[cir] = result.getLogFileName();
 			

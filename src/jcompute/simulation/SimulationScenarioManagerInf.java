@@ -63,8 +63,11 @@ public interface SimulationScenarioManagerInf
 	 * This method is called after an end event has triggered.
 	 * It is an opportunity to perform some light processing, such as generating a log line for custom item results.
 	 * It should not be used to perform an extra step update.
+	 * @param simulationSteps 
+	 * @param averageStepRate 
+	 * @param totalStepsTime 
 	 */
-	public void finalProcessing();
+	public void finalProcessing(long runTime, int simulationSteps, int averageStepRate);
 	
 	/**
 	 * This method is called when a simulation is being destroyed.

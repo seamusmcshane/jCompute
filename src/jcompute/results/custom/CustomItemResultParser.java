@@ -5,8 +5,6 @@ import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.log.item.custom.logger.CustomCSVItemLogFormatInf;
-
 public class CustomItemResultParser
 {
 	// Log4j2 Logger
@@ -15,9 +13,9 @@ public class CustomItemResultParser
 	/**
 	 * Conversion from Object to bytes (data placed in field order).
 	 */
-	public static byte[] CustomItemResultToBytes(CustomCSVItemLogFormatInf customItemResult)
+	public static byte[] CustomItemResultToBytes(CustomItemResultInf customItemResult)
 	{
-		int numberOfFields = customItemResult.numberOfFields();
+		int numberOfFields = customItemResult.getTotalFields();
 		
 		/*
 		 * ***************************************************************************************************
@@ -166,11 +164,11 @@ public class CustomItemResultParser
 	/**
 	 * Exact Reverse of Conversion from bytes to object (data read in field order).
 	 */
-	public static void BytesToRow(byte[] bytes, CustomCSVItemLogFormatInf destination)
+	public static void BytesToRow(byte[] bytes, CustomItemResultInf destination)
 	{
 		ByteBuffer tbuffer = ByteBuffer.wrap(bytes);
 		
-		int numberOfFields = destination.numberOfFields();
+		int numberOfFields = destination.getTotalFields();
 		
 		for(int f = 0; f < numberOfFields; f++)
 		{

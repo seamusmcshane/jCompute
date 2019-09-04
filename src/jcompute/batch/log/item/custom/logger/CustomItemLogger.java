@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
+import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.export.format.CSVExporter;
 import jcompute.util.text.JCText;
 
@@ -24,9 +25,9 @@ public class CustomItemLogger
 	
 	private PrintWriter itemLog;
 	
-	private final CustomCSVItemLogFormatInf logFormat;
+	private final CustomItemResultInf logFormat;
 	
-	public CustomItemLogger(CustomCSVItemLogFormatInf logFormat)
+	public CustomItemLogger(CustomItemResultInf logFormat)
 	{
 		this.logFormat = logFormat;
 	}
@@ -42,7 +43,7 @@ public class CustomItemLogger
 		itemLog.print(header.toString());
 	}
 	
-	public CustomCSVItemLogFormatInf getLogformat()
+	public CustomItemResultInf getLogformat()
 	{
 		return logFormat;
 	}
@@ -52,7 +53,7 @@ public class CustomItemLogger
 		StringBuilder header = new StringBuilder();
 		
 		// Get the headings in an array.
-		int numberOfFields = logFormat.numberOfFields();
+		int numberOfFields = logFormat.getTotalFields();
 		String[] headings = new String[numberOfFields];
 		for(int f=0;f<numberOfFields;f++)
 		{
@@ -65,12 +66,12 @@ public class CustomItemLogger
 		return header.toString();
 	}
 	
-	private String getLogRow(CustomCSVItemLogFormatInf logRow)
+	private String getLogRow(CustomItemResultInf logRow)
 	{
 		StringBuilder rowItem = new StringBuilder();
 		
 		// Get the values in an array.
-		int numberOfFields = logFormat.numberOfFields();
+		int numberOfFields = logFormat.getTotalFields();
 		String[] values = new String[numberOfFields];
 		for(int f=0;f<numberOfFields;f++)
 		{
@@ -84,7 +85,7 @@ public class CustomItemLogger
 		return rowItem.toString();
 	}
 	
-	public void logItem(BatchItem item, CustomCSVItemLogFormatInf logRow)
+	public void logItem(BatchItem item, CustomItemResultInf logRow)
 	{
 		try
 		{
