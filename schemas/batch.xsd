@@ -32,7 +32,18 @@
 			<xs:element name="Store" type="xs:boolean" minOccurs="1" maxOccurs="1" />
 			<xs:element name="TraceResult" type="xs:boolean" minOccurs="0" maxOccurs="1" />
 			<xs:element name="BDFCResult" type="xs:boolean" minOccurs="0" maxOccurs="1" />
-			<xs:element name="CustomResult" type="xs:boolean" minOccurs="0" maxOccurs="1" />
+			<xs:element name="CustomResultFormat" minOccurs="0" maxOccurs="1">
+			  <xs:simpleType>
+				<xs:restriction base="xs:string">
+				  <xs:enumeration value="Disabled"/>
+				  <xs:enumeration value="CSV"/>
+				  <xs:enumeration value="TextV1"/>
+				  <xs:enumeration value="TextV2"/>
+				  <xs:enumeration value="xml"/>
+				</xs:restriction>
+			  </xs:simpleType>
+			</xs:element> 			
+			<xs:element name="BatchHeadersInCustomResult" type="xs:boolean" minOccurs="0" maxOccurs="1" />
 			<xs:element name="SingleArchive" type="xs:boolean" minOccurs="1" maxOccurs="1" />
 			<xs:element name="BufferSize" type="xs:integer" minOccurs="0" maxOccurs="1" />
 			<xs:element name="CompressionLevel" type="xs:integer" minOccurs="1" maxOccurs="1" />

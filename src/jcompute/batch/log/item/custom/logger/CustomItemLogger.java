@@ -20,22 +20,33 @@ public class CustomItemLogger
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(CustomItemLogger.class);
 	
-	public static final char DELIMITER = ',';
-	public static final char LINEFEED = '\n';
-	
 	private PrintWriter itemLog;
 	
-	private final CustomItemResultInf logFormat;
+	private final CustomItemResultInf itemResult;
 	
-	public CustomItemLogger(CustomItemResultInf logFormat)
+	private final ItemLogExportFormat format;
+	
+	public CustomItemLogger(CustomItemResultInf itemResult, ItemLogExportFormat format)
 	{
-		this.logFormat = logFormat;
+		this.itemResult = itemResult;
+		
+		this.format = format;
 	}
 	
+	/**
+	 * Initialises the logger ready for use.
+	 * This method exists to enable file creation to be put off until the batch has started processing.
+	 * 
+	 * @param BW_BUFFER_SIZE
+	 * @param batchName
+	 * @param settings
+	 * @param batchStatsExportDir
+	 * @throws IOException
+	 */
 	public void init(int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir) throws IOException
 	{
 		// Create the log writer
-		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + logFormat.getLogFileName(), true), BW_BUFFER_SIZE));
+		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + itemResult.getLogFileName(), true), BW_BUFFER_SIZE));
 		
 		String header = getLogHeader();
 		
@@ -43,9 +54,9 @@ public class CustomItemLogger
 		itemLog.print(header.toString());
 	}
 	
-	public CustomItemResultInf getLogformat()
+	public CustomItemResultInf getItemResult()
 	{
-		return logFormat;
+		return itemResult;
 	}
 	
 	private String getLogHeader()
@@ -53,15 +64,37 @@ public class CustomItemLogger
 		StringBuilder header = new StringBuilder();
 		
 		// Get the headings in an array.
-		int numberOfFields = logFormat.getTotalFields();
+		int numberOfFields = itemResult.getTotalFields();
 		String[] headings = new String[numberOfFields];
-		for(int f=0;f<numberOfFields;f++)
+		for(int f = 0; f < numberOfFields; f++)
 		{
-			headings[f] = logFormat.getFieldHeading(f);
+			headings[f] = itemResult.getFieldHeading(f);
 		}
 		
-		// Use the CSVExporter
-		CSVExporter.CreateCSVRow(header,headings,numberOfFields);
+		switch(format)
+		{
+			case CSV:
+			{
+				// Use the CSVExporter
+				CSVExporter.CreateCSVRow(header, headings, numberOfFields);
+			}
+			break;
+			case TextV1:
+			{
+				
+			}
+			break;
+			case TextV2:
+			{
+				
+			}
+			break;
+			case XML:
+			{
+				
+			}
+			break;
+		}
 		
 		return header.toString();
 	}
@@ -71,16 +104,38 @@ public class CustomItemLogger
 		StringBuilder rowItem = new StringBuilder();
 		
 		// Get the values in an array.
-		int numberOfFields = logFormat.getTotalFields();
+		int numberOfFields = itemResult.getTotalFields();
 		String[] values = new String[numberOfFields];
-		for(int f=0;f<numberOfFields;f++)
+		for(int f = 0; f < numberOfFields; f++)
 		{
 			// new String has no object initialiser
 			values[f] = new String(String.valueOf(logRow.getFieldValue(f)));
 		}
 		
-		// Use the CSVExporter
-		CSVExporter.CreateCSVRow(rowItem,values,numberOfFields);
+		switch(format)
+		{
+			case CSV:
+			{
+				// Use the CSVExporter
+				CSVExporter.CreateCSVRow(rowItem, values, numberOfFields);
+			}
+			break;
+			case TextV1:
+			{
+				
+			}
+			break;
+			case TextV2:
+			{
+				
+			}
+			break;
+			case XML:
+			{
+				
+			}
+			break;
+		}
 		
 		return rowItem.toString();
 	}

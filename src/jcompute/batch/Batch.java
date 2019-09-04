@@ -24,6 +24,7 @@ import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.info.logger.InfoLogger;
 import jcompute.batch.log.item.custom.logger.CustomItemLogger;
+import jcompute.batch.log.item.custom.logger.ItemLogExportFormat;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.datastruct.list.StoredQueuePosition;
 import jcompute.results.custom.CustomItemResultInf;
@@ -279,8 +280,11 @@ public class Batch implements StoredQueuePosition
 			// Enable / Disable writing the generated result files to disk
 			final boolean BDFCEnabled = batchConfigProcessor.getBooleanValue("Stats", "BDFCResult", false);
 			
-			// Enable / Disable writing the generated result files to disk
-			final boolean CustomEnabled = batchConfigProcessor.getBooleanValue("Stats", "CustomResult", false);
+			// Get the Custom Result Format
+			final String CustomResultsFormat = batchConfigProcessor.getStringValue("Stats", "CustomResultFormat");
+			
+			// Check if the format is disabled, mean custom results are not requested.
+			final boolean CustomResultsEnabled = !CustomResultsFormat.equals("Disabled") ? true : false;
 			
 			// Store traces in a single archive
 			final boolean TraceStoreSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive", false);
@@ -299,13 +303,14 @@ public class Batch implements StoredQueuePosition
 			// How many times to run each batchItem.
 			final int ItemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples", 1);
 			
-			settings = new BatchResultSettings(ResultsEnabled, TraceEnabled, BDFCEnabled, CustomEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel,
-			BufferSize, InfoLogEnabled, ItemLogEnabled, ItemSamples);
+			settings = new BatchResultSettings(ResultsEnabled, TraceEnabled, BDFCEnabled, CustomResultsEnabled, CustomResultsFormat, TraceStoreSingleArchive,
+			TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled, ItemSamples);
 			
 			log.info("Store Stats " + settings.ResultsEnabled);
 			log.info("TraceEnabled " + settings.TraceEnabled);
-			log.info("BDFCEnableds " + settings.BDFCEnabled);
-			log.info("CustomEnabled " + settings.CustomEnabled);
+			log.info("BDFCEnabled " + settings.BDFCEnabled);
+			log.info("CustomResultsEnabled " + settings.CustomResultsEnabled);
+			log.info("CustomResultsFormat " + settings.CustomItemResultsFormat);
 			log.info("Trace SingleArchive " + settings.TraceStoreSingleArchive);
 			log.info("Archive BufferSize " + settings.BufferSize);
 			log.info("Archive Compression Level " + settings.TraceArchiveCompressionLevel);
@@ -340,7 +345,7 @@ public class Batch implements StoredQueuePosition
 					// Create Item Log
 					itemLog = baseScenario.getItemLogWriter();
 					
-					if(settings.CustomEnabled)
+					if(settings.CustomResultsEnabled)
 					{
 						customItemLoggers = new HashMap<String, CustomItemLogger>();
 						
@@ -352,7 +357,7 @@ public class Batch implements StoredQueuePosition
 						{
 							String fileName = cir.getLogFileName();
 							
-							CustomItemLogger logger = new CustomItemLogger(cir);
+							CustomItemLogger logger = new CustomItemLogger(cir, settings.CustomItemResultsFormat);
 							
 							// Index by file name
 							customItemLoggers.put(fileName, logger);
@@ -446,7 +451,7 @@ public class Batch implements StoredQueuePosition
 							status = true;
 						}
 						
-						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & settings.CustomEnabled)
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & settings.CustomResultsEnabled)
 						{
 							status = true;
 						}
@@ -584,7 +589,7 @@ public class Batch implements StoredQueuePosition
 			}
 		}
 		
-		if(settings.CustomEnabled)
+		if(settings.CustomResultsEnabled)
 		{
 			Set<String> names = customItemLoggers.keySet();
 			
@@ -682,14 +687,14 @@ public class Batch implements StoredQueuePosition
 			itemLog.logItem(item, null);
 		}
 		
-		if(settings.CustomEnabled)
+		if(settings.CustomResultsEnabled)
 		{
 			String[] loggerNames = exporter.getCustomLoggerNames();
 			byte[][] data = exporter.getCustomLoggerData();
 			
-			int numLogLines = loggerNames.length;
+			int numLoggers = loggerNames.length;
 			
-			for(int l = 0; l < numLogLines; l++)
+			for(int l = 0; l < numLoggers; l++)
 			{
 				// Get the correct logger
 				CustomItemLogger logger = customItemLoggers.get(loggerNames[l]);
@@ -699,19 +704,21 @@ public class Batch implements StoredQueuePosition
 					// Important
 					// This code calls the default constructor for the generic result class (creating the specific object) and returns it via the interface.
 					// It allows us using the generic interface (CustomItemResultInf) to create objects we do not know the type of at runtime.
-				
+					
 					// Create the correct container format
-					CustomItemResultInf rowFormat = logger.getLogformat().getClass().getDeclaredConstructor().newInstance();
+					CustomItemResultInf rowFormat = logger.getItemResult().getClass().getDeclaredConstructor().newInstance();
 					
 					// Fill the container
 					CustomItemResultParser.BytesToRow(data[l], rowFormat);
 					
 					// Write the log line
+					// TODO Select the format
 					logger.logItem(item, rowFormat);
 				}
-				catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
+				catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException e)
 				{
-					log.error("Could not create LogFormat instance" + logger.getLogformat());
+					log.error("Could not create Item Result instance" + logger.getItemResult());
 					
 					e.printStackTrace();
 				}
@@ -833,7 +840,7 @@ public class Batch implements StoredQueuePosition
 				itemLog.close();
 			}
 			
-			if(settings.CustomEnabled)
+			if(settings.CustomResultsEnabled)
 			{
 				Set<String> names = customItemLoggers.keySet();
 				
@@ -860,7 +867,7 @@ public class Batch implements StoredQueuePosition
 					
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
 					
-					//infoLogger.writeStoreInfo(itemStore);
+					// infoLogger.writeStoreInfo(itemStore);
 					
 					infoLogger.writeItemComputeInfo(itemsCompleted, cpuTotalTimes, ioTotalTimes);
 					
@@ -1049,32 +1056,32 @@ public class Batch implements StoredQueuePosition
 		targetList.add(String.valueOf(itemsReturned));
 	}
 	
-//	private void addBatchDetailsItemStoreInfoToList(boolean formated, ArrayList<String> targetList)
-//	{
-//		addBatchInfoSectionHeader(formated, true, "DiskCache", targetList);
-//		
-//		targetList.add("Cache Size");
-//		targetList.add(String.valueOf(itemDiskCache.getCacheSize()));
-//		targetList.add("Unique Ratio");
-//		targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
-//		targetList.add("MemCacheEnabled");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
-//		
-//		addBatchInfoSectionHeader(formated, false, "MemCache", targetList);
-//		
-//		targetList.add("Size");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheSize()));
-//		targetList.add("Requests");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheRequests()));
-//		targetList.add("Hits");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheHits()));
-//		targetList.add("Misses");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheMisses()));
-//		targetList.add("Hit Ratio");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheHitRatio()));
-//		targetList.add("Miss Ratio");
-//		targetList.add(String.valueOf(itemDiskCache.getMemCacheMissRatio()));
-//	}
+	// private void addBatchDetailsItemStoreInfoToList(boolean formated, ArrayList<String> targetList)
+	// {
+	// addBatchInfoSectionHeader(formated, true, "DiskCache", targetList);
+	//
+	// targetList.add("Cache Size");
+	// targetList.add(String.valueOf(itemDiskCache.getCacheSize()));
+	// targetList.add("Unique Ratio");
+	// targetList.add(String.valueOf(itemDiskCache.getUniqueRatio()));
+	// targetList.add("MemCacheEnabled");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheEnabled()));
+	//
+	// addBatchInfoSectionHeader(formated, false, "MemCache", targetList);
+	//
+	// targetList.add("Size");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheSize()));
+	// targetList.add("Requests");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheRequests()));
+	// targetList.add("Hits");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheHits()));
+	// targetList.add("Misses");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheMisses()));
+	// targetList.add("Hit Ratio");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheHitRatio()));
+	// targetList.add("Miss Ratio");
+	// targetList.add(String.valueOf(itemDiskCache.getMemCacheMissRatio()));
+	// }
 	
 	private void addBatchDetailsComputeInfoToList(boolean formated, ArrayList<String> targetList)
 	{
@@ -1158,7 +1165,7 @@ public class Batch implements StoredQueuePosition
 			addBatchDetailsItemInfoToList(formated, targetList);
 			
 			// disk cache info.
-			//addBatchDetailsItemStoreInfoToList(formated, targetList);
+			// addBatchDetailsItemStoreInfoToList(formated, targetList);
 			
 			// compute stats
 			addBatchDetailsComputeInfoToList(formated, targetList);
