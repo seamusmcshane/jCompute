@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchResultSettings;
 import jcompute.batch.log.item.processor.logformat.ItemLogTextv2Format;
 
 public class TextBatchItemLogFormatV2 implements BatchItemLogInf
@@ -20,7 +19,7 @@ public class TextBatchItemLogFormatV2 implements BatchItemLogInf
 	}
 	
 	@Override
-	public void init(String[] parameterName, String[] groupName, int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir)
+	public void init(String[] parameterName, String[] groupName, int BW_BUFFER_SIZE, String batchName, int itemSamples, String batchStatsExportDir)
 	throws IOException
 	{
 		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.v2log", true), BW_BUFFER_SIZE));
@@ -37,7 +36,7 @@ public class TextBatchItemLogFormatV2 implements BatchItemLogInf
 		header.append(ItemLogTextv2Format.OPTION_DELIMITER);
 		
 		header.append("Samples=");
-		header.append(settings.ItemSamples);
+		header.append(itemSamples);
 		header.append(ItemLogTextv2Format.OPTION_DELIMITER);
 		
 		int numCordinates = groupName.length;

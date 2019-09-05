@@ -19,7 +19,7 @@ public class TextBatchItemLogFormatV1 implements BatchItemLogInf
 	}
 	
 	@Override
-	public void init(String[] parameterName, String[] groupName, int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir)
+	public void init(String[] parameterName, String[] groupName, int BW_BUFFER_SIZE, String batchName, int itemSamples, String batchStatsExportDir)
 	throws IOException
 	{
 		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + "ItemLog.log", true), BW_BUFFER_SIZE));
@@ -27,7 +27,7 @@ public class TextBatchItemLogFormatV1 implements BatchItemLogInf
 		itemLog.println("[+Header]");
 		itemLog.println("Name=" + batchName);
 		itemLog.println("LogType=BatchItems");
-		itemLog.println("Samples=" + settings.ItemSamples);
+		itemLog.println("Samples=" + itemSamples);
 		itemLog.println("[+AxisLabels]");
 		
 		int numCordinates = groupName.length;

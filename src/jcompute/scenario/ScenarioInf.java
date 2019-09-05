@@ -98,7 +98,7 @@ public interface ScenarioInf
 	 * @return the item generator which can generate batch items for this scenario type.
 	 */
 	public ItemGenerator getItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor,
-	LinkedList<BatchItem> destinationItemList, double[] progress1dArray, String baseScenarioText, BatchResultSettings settings);
+	LinkedList<BatchItem> destinationItemList, double[] progress1dArray, String baseScenarioText, int itemSamples, BatchResultSettings settings);
 	
 	/**
 	 * @return

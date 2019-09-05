@@ -24,7 +24,7 @@ import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.info.logger.InfoLogger;
 import jcompute.batch.log.item.custom.logger.CustomItemLogger;
-import jcompute.batch.log.item.custom.logger.ItemLogExportFormat;
+import jcompute.batch.log.item.custom.logger.CustomItemResultsSettings;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.datastruct.list.StoredQueuePosition;
 import jcompute.results.custom.CustomItemResultInf;
@@ -61,6 +61,8 @@ public class Batch implements StoredQueuePosition
 	private int batchId;
 	private String batchName;
 	private String baseScenarioFileName;
+	private int itemSamples;
+	
 	private String batchFileName;
 	private ArrayList<String> parameters;
 	
@@ -94,7 +96,8 @@ public class Batch implements StoredQueuePosition
 	private long ioTotalTimes;
 	private long lastCompletedItemTimeMillis;
 	
-	private BatchResultSettings settings;
+	private BatchResultSettings batchResultSettings;
+	private CustomItemResultsSettings customItemResultsSettings;
 	
 	// Write stats to a single archive or directories with sub archives
 	private final int BOS_DEFAULT_BUFFER_SIZE = 8192;
@@ -286,6 +289,10 @@ public class Batch implements StoredQueuePosition
 			// Check if the format is disabled, mean custom results are not requested.
 			final boolean CustomResultsEnabled = !CustomResultsFormat.equals("Disabled") ? true : false;
 			
+			final boolean BatchHeaderInCustomResult = batchConfigProcessor.getBooleanValue("Stats", "BatchHeaderInCustomResult", false);
+			
+			final boolean ItemInfoInCustomResult = batchConfigProcessor.getBooleanValue("Stats", "ItemInfoInCustomResult", false);
+			
 			// Store traces in a single archive
 			final boolean TraceStoreSingleArchive = batchConfigProcessor.getBooleanValue("Stats", "SingleArchive", false);
 			
@@ -302,21 +309,27 @@ public class Batch implements StoredQueuePosition
 			
 			// How many times to run each batchItem.
 			final int ItemSamples = batchConfigProcessor.getIntValue("Config", "ItemSamples", 1);
+			itemSamples = ItemSamples;
 			
-			settings = new BatchResultSettings(ResultsEnabled, TraceEnabled, BDFCEnabled, CustomResultsEnabled, CustomResultsFormat, TraceStoreSingleArchive,
-			TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled, ItemSamples);
+			customItemResultsSettings = new CustomItemResultsSettings(CustomResultsEnabled, CustomResultsFormat, BatchHeaderInCustomResult,
+			ItemInfoInCustomResult);
 			
-			log.info("Store Stats " + settings.ResultsEnabled);
-			log.info("TraceEnabled " + settings.TraceEnabled);
-			log.info("BDFCEnabled " + settings.BDFCEnabled);
-			log.info("CustomResultsEnabled " + settings.CustomResultsEnabled);
-			log.info("CustomResultsFormat " + settings.CustomItemResultsFormat);
-			log.info("Trace SingleArchive " + settings.TraceStoreSingleArchive);
-			log.info("Archive BufferSize " + settings.BufferSize);
-			log.info("Archive Compression Level " + settings.TraceArchiveCompressionLevel);
-			log.info("InfoLog " + settings.InfoLogEnabled);
-			log.info("ItemLog " + settings.ItemLogEnabled);
-			log.info("ItemSamples " + settings.ItemSamples);
+			batchResultSettings = new BatchResultSettings(ResultsEnabled, TraceEnabled, BDFCEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel,
+			BufferSize, InfoLogEnabled, ItemLogEnabled);
+			
+			log.info("Store Stats " + batchResultSettings.ResultsEnabled);
+			log.info("Trace Enabled " + batchResultSettings.TraceEnabled);
+			log.info("BDFC Enabled " + batchResultSettings.BDFCEnabled);
+			log.info("Custom Results Enabled " + customItemResultsSettings.Enabled);
+			log.info("Custom Results Format " + customItemResultsSettings.Format);
+			log.info("Batch Header in Custom Result " + customItemResultsSettings.BatchHeaderInResult);
+			log.info("Item Info in Custom Result " + customItemResultsSettings.ItemInfoInResult);
+			log.info("Trace Single Archive " + batchResultSettings.TraceStoreSingleArchive);
+			log.info("Archive Buffer Size " + batchResultSettings.BufferSize);
+			log.info("Archive Compression Level " + batchResultSettings.TraceArchiveCompressionLevel);
+			log.info("Info Log " + batchResultSettings.InfoLogEnabled);
+			log.info("Item Log " + batchResultSettings.ItemLogEnabled);
+			log.info("Item Samples " + itemSamples);
 			
 			ScenarioInf baseScenario = processAndCheckBaseScenarioFile(batchConfigProcessor);
 			
@@ -329,11 +342,11 @@ public class Batch implements StoredQueuePosition
 				log.info("Scenario Type " + type);
 				
 				// If samples requested and maxSteps is valid.
-				if((settings.ItemSamples > 0) & (maxSteps > 0))
+				if((itemSamples > 0) & (maxSteps > 0))
 				{
 					// Create a generator (type HC for now and too many vars)
 					itemGenerator = baseScenario.getItemGenerator(batchId, batchName, batchConfigProcessor, queuedItems, generationProgress, baseScenarioText,
-					settings);
+					itemSamples, batchResultSettings);
 					
 					if(itemGenerator == null)
 					{
@@ -345,7 +358,7 @@ public class Batch implements StoredQueuePosition
 					// Create Item Log
 					itemLog = baseScenario.getItemLogWriter();
 					
-					if(settings.CustomResultsEnabled)
+					if(customItemResultsSettings.Enabled)
 					{
 						customItemLoggers = new HashMap<String, CustomItemLogger>();
 						
@@ -357,7 +370,7 @@ public class Batch implements StoredQueuePosition
 						{
 							String fileName = cir.getLogFileName();
 							
-							CustomItemLogger logger = new CustomItemLogger(cir, settings.CustomItemResultsFormat);
+							CustomItemLogger logger = new CustomItemLogger(cir, customItemResultsSettings.Format);
 							
 							// Index by file name
 							customItemLoggers.put(fileName, logger);
@@ -421,7 +434,7 @@ public class Batch implements StoredQueuePosition
 			if(tempIntrp.loadConfig(tempText))
 			{
 				// Check if Batch stats are disabled globally
-				if(!settings.ResultsEnabled)
+				if(!batchResultSettings.ResultsEnabled)
 				{
 					// If so remove the Statistics section from XML config (disabling them on each item)
 					tempIntrp.removeSection("Statistics");
@@ -441,17 +454,17 @@ public class Batch implements StoredQueuePosition
 						status = false;
 						
 						// We have a statistics section but are there any stats and is one enabled!
-						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true) & settings.TraceEnabled)
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true) & batchResultSettings.TraceEnabled)
 						{
 							status = true;
 						}
 						
-						if(tempIntrp.atLeastOneElementEqualValue("Statistics.BDFC", "Enabled", true) & settings.BDFCEnabled)
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.BDFC", "Enabled", true) & batchResultSettings.BDFCEnabled)
 						{
 							status = true;
 						}
 						
-						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & settings.CustomResultsEnabled)
+						if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & customItemResultsSettings.Enabled)
 						{
 							status = true;
 						}
@@ -577,11 +590,11 @@ public class Batch implements StoredQueuePosition
 	
 	private void startBatchLog(int numCordinates)
 	{
-		if(settings.ItemLogEnabled)
+		if(batchResultSettings.ItemLogEnabled)
 		{
 			try
 			{
-				itemLog.init(itemGenerator.getParameterNames(), itemGenerator.getGroupNames(), BW_BUFFER_SIZE, batchName, settings, batchStatsExportDir);
+				itemLog.init(itemGenerator.getParameterNames(), itemGenerator.getGroupNames(), BW_BUFFER_SIZE, batchName, itemSamples, batchStatsExportDir);
 			}
 			catch(IOException e)
 			{
@@ -589,7 +602,7 @@ public class Batch implements StoredQueuePosition
 			}
 		}
 		
-		if(settings.CustomResultsEnabled)
+		if(customItemResultsSettings.Enabled)
 		{
 			Set<String> names = customItemLoggers.keySet();
 			
@@ -598,7 +611,7 @@ public class Batch implements StoredQueuePosition
 			{
 				try
 				{
-					customItemLoggers.get(name).init(BW_BUFFER_SIZE, batchName, settings, batchStatsExportDir);
+					customItemLoggers.get(name).init(BW_BUFFER_SIZE, batchName, batchStatsExportDir);
 				}
 				catch(IOException e)
 				{
@@ -680,14 +693,14 @@ public class Batch implements StoredQueuePosition
 		// For estimated complete time calculation
 		cpuTotalTimes += item.getComputeTime();
 		
-		if(settings.ItemLogEnabled)
+		if(batchResultSettings.ItemLogEnabled)
 		{
 			// writeItemLogItem(ITEM_LOG_VERSION, item);
 			
 			itemLog.logItem(item, null);
 		}
 		
-		if(settings.CustomResultsEnabled)
+		if(customItemResultsSettings.Enabled)
 		{
 			String[] loggerNames = exporter.getCustomLoggerNames();
 			byte[][] data = exporter.getCustomLoggerData();
@@ -726,11 +739,11 @@ public class Batch implements StoredQueuePosition
 		}
 		
 		// Only Save configs if stats are enabled
-		if(settings.ResultsEnabled)
+		if(batchResultSettings.ResultsEnabled)
 		{
 			String fullExportPath = batchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
 			
-			if(settings.TraceStoreSingleArchive)
+			if(batchResultSettings.TraceStoreSingleArchive)
 			{
 				// Export the stats
 				exporter.exportPerItemTraceResultsToZipArchive(resultsZipOut, item.getItemId(), item.getSampleId());
@@ -752,7 +765,7 @@ public class Batch implements StoredQueuePosition
 			// samples)
 			if(item.getSampleId() == 1)
 			{
-				if(settings.TraceStoreSingleArchive)
+				if(batchResultSettings.TraceStoreSingleArchive)
 				{
 					try
 					{
@@ -803,9 +816,9 @@ public class Batch implements StoredQueuePosition
 		
 		if(itemsCompleted == batchItems)
 		{
-			if(settings.ResultsEnabled)
+			if(batchResultSettings.ResultsEnabled)
 			{
-				if(settings.TraceStoreSingleArchive)
+				if(batchResultSettings.TraceStoreSingleArchive)
 				{
 					try
 					{
@@ -821,26 +834,12 @@ public class Batch implements StoredQueuePosition
 				}
 			}
 			
-			if(settings.ItemLogEnabled)
+			if(batchResultSettings.ItemLogEnabled)
 			{
-				// switch(ITEM_LOG_VERSION)
-				// {
-				// case 1:
-				// {
-				// // Close the Items Section in v1 log
-				// itemLog.println("[-Items]");
-				// }
-				// break;
-				// }
-				//
-				// // Close Batch Log
-				// itemLog.flush();
-				// itemLog.close();
-				
 				itemLog.close();
 			}
 			
-			if(settings.CustomResultsEnabled)
+			if(customItemResultsSettings.Enabled)
 			{
 				Set<String> names = customItemLoggers.keySet();
 				
@@ -854,7 +853,7 @@ public class Batch implements StoredQueuePosition
 			endDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 			
 			// Write the info log
-			if(settings.InfoLogEnabled)
+			if(batchResultSettings.InfoLogEnabled)
 			{
 				try
 				{
@@ -862,12 +861,10 @@ public class Batch implements StoredQueuePosition
 					
 					infoLogger.writeGeneralInfo(batchId, batchName, type, baseScenarioFileName);
 					
-					infoLogger.writeItemInfo(batchItems, settings.ItemSamples, maxSteps, TimeString.timeInMillisAsFormattedString(itemGenerationTime,
+					infoLogger.writeItemInfo(batchItems, itemSamples, maxSteps, TimeString.timeInMillisAsFormattedString(itemGenerationTime,
 					TimeStringFormat.DHMS));
 					
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
-					
-					// infoLogger.writeStoreInfo(itemStore);
 					
 					infoLogger.writeItemComputeInfo(itemsCompleted, cpuTotalTimes, ioTotalTimes);
 					
@@ -983,9 +980,9 @@ public class Batch implements StoredQueuePosition
 			// Values wont exist if not generated
 			addBatchInfoSectionHeader(formated, false, "Item", targetList);
 			targetList.add("Unique Items");
-			targetList.add(String.valueOf(batchItems / settings.ItemSamples));
+			targetList.add(String.valueOf(batchItems / itemSamples));
 			targetList.add("Sample per Item");
-			targetList.add(String.valueOf(settings.ItemSamples));
+			targetList.add(String.valueOf(itemSamples));
 			targetList.add("Total Items");
 			targetList.add(String.valueOf(batchItems));
 			targetList.add("Max Steps");
@@ -1007,17 +1004,17 @@ public class Batch implements StoredQueuePosition
 		
 		addBatchInfoSectionHeader(formated, false, "Statistics", targetList);
 		targetList.add("Stats Store");
-		targetList.add(settings.ResultsEnabled == true ? "Enabled" : "Disabled");
+		targetList.add(batchResultSettings.ResultsEnabled == true ? "Enabled" : "Disabled");
 		targetList.add("Single Archive");
-		targetList.add(settings.TraceStoreSingleArchive == true ? "Enabled" : "Disabled");
+		targetList.add(batchResultSettings.TraceStoreSingleArchive == true ? "Enabled" : "Disabled");
 		targetList.add("Buffer Size");
-		targetList.add(String.valueOf(settings.BufferSize));
+		targetList.add(String.valueOf(batchResultSettings.BufferSize));
 		targetList.add("Compression Level");
-		targetList.add(String.valueOf(settings.TraceArchiveCompressionLevel));
+		targetList.add(String.valueOf(batchResultSettings.TraceArchiveCompressionLevel));
 		targetList.add("Info Log");
-		targetList.add(settings.InfoLogEnabled == true ? "Enabled" : "Disabled");
+		targetList.add(batchResultSettings.InfoLogEnabled == true ? "Enabled" : "Disabled");
 		targetList.add("Item Log");
-		targetList.add(settings.ItemLogEnabled == true ? "Enabled" : "Disabled");
+		targetList.add(batchResultSettings.ItemLogEnabled == true ? "Enabled" : "Disabled");
 	}
 	
 	private void addBatchDetailsQueueInfoToList(boolean formated, ArrayList<String> targetList)

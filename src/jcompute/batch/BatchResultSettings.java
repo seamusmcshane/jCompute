@@ -3,6 +3,7 @@ package jcompute.batch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.batch.log.item.custom.logger.CustomItemResultsSettings;
 import jcompute.batch.log.item.custom.logger.ItemLogExportFormat;
 
 public class BatchResultSettings
@@ -10,15 +11,20 @@ public class BatchResultSettings
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(BatchResultSettings.class);
 	
+	// Master Switch
 	public final boolean ResultsEnabled;
 	
+	// Track Results
 	public final boolean TraceEnabled;
-	public final boolean BDFCEnabled;
-	public final boolean CustomResultsEnabled;
-	public final ItemLogExportFormat CustomItemResultsFormat;
 	
+	// Binary File Results
+	public final boolean BDFCEnabled;
+	
+	// Zip archive settings
 	public final boolean TraceStoreSingleArchive;
 	public final int TraceArchiveCompressionLevel;
+	
+	// Write Buffer Size
 	public final int BufferSize;
 	
 	/**
@@ -30,30 +36,15 @@ public class BatchResultSettings
 	/**
 	 * Number of repeats of each item.
 	 */
-	public final int ItemSamples;
-	public final boolean MultiSampleItems;
+	// public final boolean MultiSampleItems;
 	
-	public BatchResultSettings(boolean resultsEnabled, boolean traceEnabled, boolean bdfcEnabled, boolean customResultsEnabled, String customItemResultsFormat,
-	boolean traceStoreSingleArchive, int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled, boolean itemLogEnabled, int itemSamples)
+	public BatchResultSettings(boolean resultsEnabled, boolean traceEnabled, boolean bdfcEnabled, boolean traceStoreSingleArchive,
+	int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled, boolean itemLogEnabled)
 	{
 		this.ResultsEnabled = resultsEnabled;
 		
 		this.TraceEnabled = traceEnabled;
 		this.BDFCEnabled = bdfcEnabled;
-		
-		CustomItemResultsFormat = ItemLogExportFormat.fromString(customItemResultsFormat);
-		
-		if(CustomItemResultsFormat != null)
-		{
-			this.CustomResultsEnabled = customResultsEnabled;
-		}
-		else
-		{
-			// Sanity check - this is a bug somewhere else.
-			this.CustomResultsEnabled = false;
-			
-			log.error("Disabling Custom results, as no ItemLogExportFormat set.");
-		}
 		
 		this.TraceStoreSingleArchive = traceStoreSingleArchive;
 		
@@ -75,7 +66,7 @@ public class BatchResultSettings
 		this.InfoLogEnabled = infoLogEnabled;
 		this.ItemLogEnabled = itemLogEnabled;
 		
-		this.ItemSamples = itemSamples;
-		this.MultiSampleItems = (itemSamples > 1) ? true : false;
+		// this.ItemSamples = itemSamples;
+		// this.MultiSampleItems = (itemSamples > 1) ? true : false;
 	}
 }

@@ -20,7 +20,6 @@ import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
 import jcompute.batch.itemstore.ItemDiskCache;
 import jcompute.batch.itemstore.ItemStore;
-import jcompute.datastruct.cache.DiskCache;
 import jcompute.math.JCMath;
 import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.util.file.FileUtil;
@@ -46,6 +45,7 @@ public class StandardItemGenerator extends ItemGenerator
 	
 	private final double[] progress1dArray;
 	private final String baseScenarioText;
+	private final int itemSamples;
 	
 	private final BatchResultSettings batchResultSettings;
 	
@@ -61,7 +61,7 @@ public class StandardItemGenerator extends ItemGenerator
 	private boolean needGenerated;
 	
 	public StandardItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor, LinkedList<BatchItem> destinationItemList,
-	double[] progress1dArray, String baseScenarioText, BatchResultSettings settings)
+	double[] progress1dArray, String baseScenarioText, int itemSamples, BatchResultSettings settings)
 	{
 		super.setBatchLazyInitStorageVariables(batchId, batchName, batchConfigProcessor);
 		
@@ -69,6 +69,8 @@ public class StandardItemGenerator extends ItemGenerator
 		
 		this.progress1dArray = progress1dArray;
 		this.baseScenarioText = baseScenarioText;
+		
+		this.itemSamples = itemSamples;
 		
 		this.batchResultSettings = settings;
 		
@@ -311,7 +313,7 @@ public class StandardItemGenerator extends ItemGenerator
 			if(batchResultSettings.ResultsEnabled)
 			{
 				// Item Samples
-				int itemSamples = batchResultSettings.ItemSamples;
+				// int itemSamples = batchResultSettings.ItemSamples;
 				
 				// Create Sub Directories Entry in Zip Archive or a disk Directory
 				if(batchResultSettings.TraceStoreSingleArchive)
@@ -564,7 +566,7 @@ public class StandardItemGenerator extends ItemGenerator
 			destinationItemList.add(comboItem);
 			
 			// Number Item Samples
-			int itemSamples = batchResultSettings.ItemSamples;
+			// int itemSamples = batchResultSettings.ItemSamples;
 			
 			// SID/SampleId is 1 base/ 1=first sample - each additional sample for the item will have the same item id and cacheIndex.
 			for(int sid = 2; sid < (itemSamples + 1); sid++)

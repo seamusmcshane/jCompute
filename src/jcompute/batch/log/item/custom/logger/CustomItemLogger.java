@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchResultSettings;
 import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.export.format.CSVExporter;
 import jcompute.util.text.JCText;
@@ -43,7 +42,7 @@ public class CustomItemLogger
 	 * @param batchStatsExportDir
 	 * @throws IOException
 	 */
-	public void init(int BW_BUFFER_SIZE, String batchName, BatchResultSettings settings, String batchStatsExportDir) throws IOException
+	public void init(int BW_BUFFER_SIZE, String batchName, String batchStatsExportDir) throws IOException
 	{
 		// Create the log writer
 		itemLog = new PrintWriter(new BufferedWriter(new FileWriter(batchStatsExportDir + File.separator + itemResult.getLogFileName(), true), BW_BUFFER_SIZE));
