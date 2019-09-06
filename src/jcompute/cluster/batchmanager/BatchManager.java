@@ -835,7 +835,11 @@ public class BatchManager
 					{
 						batch.setItemNotActive(item);
 					}
-					
+					else
+					{
+						log.error("SimulationStateChangedEvent batch " + item.getBatchId() + " not found for item " + item.getItemId() + " with simId "
+						+ simId);
+					}
 				}
 				else
 				{
@@ -929,18 +933,18 @@ public class BatchManager
 		
 		Iterator<StoredQueuePosition> litr = fifoQueue.iterator();
 		
-			while(litr.hasNext())
-			{
-				Batch tBatch = (Batch) litr.next();
-				
-				String tS = tBatch.getBatchId() + " " + tBatch.getFileName();
-				
-				System.out.println(tS);
-				
-				sb.append(tS);
-				
-				System.out.println();
-			}
+		while(litr.hasNext())
+		{
+			Batch tBatch = (Batch) litr.next();
+			
+			String tS = tBatch.getBatchId() + " " + tBatch.getFileName();
+			
+			System.out.println(tS);
+			
+			sb.append(tS);
+			
+			System.out.println();
+		}
 		
 		batchManagerLock.release();
 		
