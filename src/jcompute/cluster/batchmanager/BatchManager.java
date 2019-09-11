@@ -124,9 +124,9 @@ public class BatchManager
 		
 		// Try generating a batch and adding it to the queue. - Default to High
 		// priority
-		tempBatch = new Batch(batchId);
+		tempBatch = new Batch(batchId, filePath);
 		
-		if(tempBatch.loadConfig(filePath))
+		if(!tempBatch.hasFailed())
 		{
 			fifoQueue.add(tempBatch);
 			

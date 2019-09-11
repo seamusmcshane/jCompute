@@ -1,28 +1,22 @@
 package jcompute.batch.itemgenerator;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
+import jcompute.batch.BatchSettings;
 import jcompute.batch.itemstore.ItemDiskCache;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.math.JCMath;
 import jcompute.scenario.ConfigurationInterpreter;
-import jcompute.util.file.FileUtil;
 
 /**
  * An item generator for scenarios that use the standard scenario format for groups, parameters and values.
@@ -41,201 +35,81 @@ public class StandardItemGenerator extends ItemGenerator
 	
 	private final String GeneratorName = "StandardItemGenerator";
 	
-	private final LinkedList<BatchItem> destinationItemList;
-	
-	private final double[] progress1dArray;
-	private final String baseScenarioText;
-	private final int itemSamples;
-	
-	private final BatchResultSettings batchResultSettings;
-	
-	// Returnable
-	private String[] groupName;
-	private String[] parameterName;
-	private ArrayList<String> parameters;
-	private ZipOutputStream resultsZipOut;
+	// Item Store
 	private int itemsCount;
-	private ItemStore itemStore;
 	
-	// Generation Progress
-	private boolean needGenerated;
+	private ArrayList<String> parameters;
 	
-	public StandardItemGenerator(int batchId, String batchName, ConfigurationInterpreter batchConfigProcessor, LinkedList<BatchItem> destinationItemList,
-	double[] progress1dArray, String baseScenarioText, int itemSamples, BatchResultSettings settings)
+	public StandardItemGenerator()
 	{
-		super.setBatchLazyInitStorageVariables(batchId, batchName, batchConfigProcessor);
-		
-		this.destinationItemList = destinationItemList;
-		
-		this.progress1dArray = progress1dArray;
-		this.baseScenarioText = baseScenarioText;
-		
-		this.itemSamples = itemSamples;
-		
-		this.batchResultSettings = settings;
-		
-		needGenerated = true;
+		super();
 	}
 	
 	@Override
-	public boolean subgenerator()
+	public String getName()
 	{
-		if(!needGenerated)
-		{
-			log.error(GeneratorName + " got call to generate items when items already generated");
-			
-			return false;
-		}
+		return GeneratorName;
+	}
+	
+	// progress1dArray[0] parms here? make method?
+	@Override
+	public boolean subgenerator(int batchId, double[] progress, LinkedList<BatchItem> destinationItemList, ItemStore itemStore, BatchSettings batchSettings)
+	{
+		// 0%
+		progress[0] = 0;
 		
-		progress1dArray[0] = 0;
+		log.info("Generating Items for Batch " + batchId);
 		
-		log.info("Generating Items for Batch " + super.getBatchId());
+		StandardItemGeneratorConfig config = (StandardItemGeneratorConfig) batchSettings.itemGeneratorConfig;
 		
-		// Get a ref the the processor
-		ConfigurationInterpreter processor = super.getBatchConfigProcessor();
+		// Base scenario to be used
+		String baseScenarioText = config.getBaseScenarioText();
+		
+		// Number of Item samples
+		int itemSamples = config.getItemSamples();
 		
 		// Get a count of the parameter groups.
-		int parameterGroups = processor.getSubListSize("Parameters", "Parameter");
+		int numParameterGroups = config.getNumParameterGroups();
 		
 		// Array to hold the parameter type (group/single)
-		String parameterType[] = new String[parameterGroups];
+		String[] parameterType = config.getParameterType();
 		
 		// Array to hold the path to group/parameter
-		String path[] = new String[parameterGroups];
+		String[] path = config.getPath();
 		
 		// Array to hold the unique identifier for the group.
-		groupName = new String[parameterGroups];
+		String[] groupName = config.getGroupName();
 		
 		// Array to hold the parameter name that will be changed.
-		parameterName = new String[parameterGroups];
+		String[] parameterName = config.getParameterName();
 		
 		// Base values of each parameter
-		double baseValue[] = new double[parameterGroups];
+		double[] baseValue = config.getBaseValue();
 		
 		// Increment values of each parameter
-		double increment[] = new double[parameterGroups];
+		double[] increment = config.getIncrement();
 		
 		// steps for each parameter
-		int step[] = new int[parameterGroups];
+		int[] step = config.getStep();
 		
 		// Floating point equality ranges
 		// Get the number of decimal places
 		// Get 10^places
 		// divide 1 by 10^places to get
 		// n places .1 above the the significant value to test for
-		double[] errormargin = new double[parameterGroups];
+		double[] errormargin = config.getErrormargin();
 		
 		// Batch Info Parameters list
-		parameters = new ArrayList<String>();
-		
-		// Iterate over the detected parameters and read values
-		String section = "";
-		for(int p = 0; p < parameterGroups; p++)
-		{
-			// Generate the parameter path in the xml array (0),(1) etc
-			log.debug("Parameter Group : " + p);
-			section = "Parameters.Parameter(" + p + ")";
-			
-			// Get the type (group/single)
-			parameterType[p] = processor.getStringValue(section, "Type");
-			
-			// Populate the path to this parameter.
-			path[p] = processor.getStringValue(section, "Path");
-			
-			// Store the group name if this parameter changes one in a
-			// group.
-			groupName[p] = "";
-			if(parameterType[p].equalsIgnoreCase("Group"))
-			{
-				groupName[p] = processor.getStringValue(section, "GroupName");
-			}
-			
-			// Store the name of the paramter to change
-			parameterName[p] = processor.getStringValue(section, "ParameterName");
-			
-			// Base value
-			baseValue[p] = processor.getDoubleValue(section, "Intial");
-			
-			// Increment value
-			increment[p] = processor.getDoubleValue(section, "Increment");
-			
-			// Steps for each values
-			step[p] = processor.getIntValue(section, "Combinations");
-			
-			// Find the number of decimal places
-			int places = JCMath.getNumberOfDecimalPlaces(increment[p]);
-			boolean incRounded = false;
-			
-			// if A decimal value - calculate the error margin to use
-			// for floating point equality tests
-			// else for integer values epsilon is 0
-			if(places > 0)
-			{
-				// We cannot represent error margins for values with
-				// more than 14 decimals
-				if(places > 14)
-				{
-					places = 14;
-					
-					double prev = increment[p];
-					
-					increment[p] = JCMath.round(increment[p], places);
-					
-					log.warn("increment " + p + " rounded " + prev + " to " + increment[p]);
-					incRounded = true;
-				}
-				
-				// + 1 places to set the range for the unit after the
-				// number of decimals places
-				errormargin[p] = 1.0 / (Math.pow(10, (places + 1)));
-			}
-			else
-			{
-				errormargin[p] = 0;
-			}
-			
-			// Creates the parameters string for batch info
-			// Optimise slightly the concatenations
-			String pNumString = "(" + p + ") ";
-			
-			// Used in batch info.
-			parameters.add(pNumString + "ParameterType");
-			parameters.add(parameterType[p]);
-			parameters.add(pNumString + "Path");
-			parameters.add(path[p]);
-			parameters.add(pNumString + "GroupName");
-			parameters.add(groupName[p]);
-			parameters.add(pNumString + "ParameterName");
-			parameters.add(parameterName[p]);
-			parameters.add(pNumString + "Intial");
-			parameters.add(String.valueOf(baseValue[p]));
-			parameters.add(pNumString + "Increment");
-			parameters.add(String.valueOf(increment[p]));
-			parameters.add(pNumString + "Steps");
-			parameters.add(String.valueOf(step[p]));
-			parameters.add(pNumString + "Error Margin");
-			parameters.add(String.valueOf(errormargin[p]));
-			parameters.add(pNumString + "Increment Rounded");
-			parameters.add(String.valueOf(incRounded));
-			
-			// Logging
-			log.info(pNumString + "ParameterType : " + parameterType[p]);
-			log.info(pNumString + "Path : " + path[p]);
-			log.info(pNumString + "GroupName : " + groupName[p]);
-			log.info(pNumString + "ParameterName : " + parameterName[p]);
-			log.info(pNumString + "Intial : " + baseValue[p]);
-			log.info(pNumString + "Increment : " + increment[p]);
-			log.info(pNumString + "Combinations : " + step[p]);
-			log.info(pNumString + "Error Margin : " + errormargin[p]);
-			log.info(pNumString + "Increment Rounded : " + String.valueOf(incRounded));
-		}
+		parameters = config.getParameters();
 		
 		// Calculate Total Combinations
-		int combinations = 1;
-		for(int s = 0; s < step.length; s++)
-		{
-			combinations *= step[s];
-		}
+		// int combinations = 1;
+		// for(int s = 0; s < step.length; s++)
+		// {
+		// combinations *= step[s];
+		// }
+		
+		int combinations = config.getTotalCombinations();
 		
 		// Calculate required cache size and unique ratio (1/1 - we give all duplicate samples the same itemId and configuration)
 		int cacheSize = combinations;
@@ -244,13 +118,15 @@ public class StandardItemGenerator extends ItemGenerator
 		// Temp list to store the combos
 		ArrayList<BatchItem> tempComboItemList = new ArrayList<BatchItem>(combinations);
 		
-		itemStore = new ItemDiskCache(true, cacheSize, uniqueRatio, super.getBatchStatsExportDir(), Deflater.BEST_SPEED);
-		log.info("Created an ItemDiskCache as ItemStore for Batch " + super.getBatchId());
+		// ItemDiskCache is bound to Standard Item Generator
+		((ItemDiskCache) itemStore).init(true, cacheSize, uniqueRatio, batchSettings.batchResultSettings.BatchStatsExportDir, Deflater.BEST_SPEED);
+		
+		log.info("Created an ItemDiskCache as ItemStore for Batch " + batchId);
 		
 		// When to increment values in the combos
-		int incrementMods[] = new int[parameterGroups];
+		int incrementMods[] = new int[numParameterGroups];
 		int div = combinations;
-		for(int p = 0; p < parameterGroups; p++)
+		for(int p = 0; p < numParameterGroups; p++)
 		{
 			div = div / step[p];
 			// Increment depending on the step div
@@ -259,100 +135,33 @@ public class StandardItemGenerator extends ItemGenerator
 		}
 		
 		// Roll over value of the max combination for each parameter
-		double maxValue[] = new double[parameterGroups];
-		for(int p = 0; p < parameterGroups; p++)
+		double maxValue[] = new double[numParameterGroups];
+		for(int p = 0; p < numParameterGroups; p++)
 		{
 			maxValue[p] = baseValue[p] + (increment[p] * (step[p] - 1));
 		}
 		
 		// Init combo initial starting bases
-		double value[] = new double[parameterGroups];
-		for(int p = 0; p < parameterGroups; p++)
+		double value[] = new double[numParameterGroups];
+		for(int p = 0; p < numParameterGroups; p++)
 		{
 			value[p] = baseValue[p];
 		}
 		
-		// Super class has this path
-		String batchStatsExportDir = super.getBatchStatsExportDir();
+		BatchResultSettings batchResultSettings = batchSettings.batchResultSettings;
 		
-		// Create if needed
-		String zipPath = null;
-		if(batchResultSettings.ResultsEnabled & batchResultSettings.TraceStoreSingleArchive)
-		{
-			// Create and populate Results Zip archive with Directories
-			zipPath = batchStatsExportDir + File.separator + "results.zip";
-			
-			log.info("Zip Archive : " + zipPath);
-			
-			try
-			{
-				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipPath), batchResultSettings.BufferSize);
-				
-				resultsZipOut = new ZipOutputStream(bos);
-				
-				resultsZipOut.setMethod(ZipOutputStream.DEFLATED);
-				resultsZipOut.setLevel(batchResultSettings.TraceArchiveCompressionLevel);
-			}
-			catch(FileNotFoundException e1)
-			{
-				log.error("Could not create create  " + zipPath);
-				
-				e1.printStackTrace();
-			}
-		}
+		// ZIPOUT
 		
 		// Combo x,y,z... parameter spatial grid position
-		int pos[] = new int[parameterGroups];
+		int pos[] = new int[numParameterGroups];
 		
 		// The temp scenario used to generate the xml.
 		ConfigurationInterpreter temp;
 		
 		for(int comboNo = 0; comboNo < combinations; comboNo++)
 		{
-			// Are stats enabled
-			if(batchResultSettings.ResultsEnabled)
-			{
-				// Item Samples
-				// int itemSamples = batchResultSettings.ItemSamples;
-				
-				// Create Sub Directories Entry in Zip Archive or a disk Directory
-				if(batchResultSettings.TraceStoreSingleArchive)
-				{
-					try
-					{
-						// Create Item Directories
-						resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(comboNo) + "/"));
-						resultsZipOut.closeEntry();
-						
-						for(int sid = 1; sid < (itemSamples + 1); sid++)
-						{
-							// Create Sample Directories
-							resultsZipOut.putNextEntry(new ZipEntry(Integer.toString(comboNo) + "/" + Integer.toString(sid) + "/"));
-							resultsZipOut.closeEntry();
-						}
-						
-					}
-					catch(IOException e)
-					{
-						log.error("Could not create create directory " + comboNo + " in " + zipPath);
-						
-						e.printStackTrace();
-					}
-				}
-				else
-				{
-					// Create the item export dir
-					FileUtil.createDirIfNotExist(batchStatsExportDir + File.separator + comboNo);
-					
-					for(int sid = 1; sid < (itemSamples + 1); sid++)
-					{
-						String fullExportPath = batchStatsExportDir + File.separator + comboNo + File.separator + sid;
-						
-						// Create the item sample full export path dir
-						FileUtil.createDirIfNotExist(fullExportPath);
-					}
-				}
-			}
+			// Directory Gen >> MOVED
+			
 			// Create a copy of the base scenario
 			temp = new ConfigurationInterpreter();
 			temp.loadConfig(baseScenarioText);
@@ -368,7 +177,7 @@ public class StandardItemGenerator extends ItemGenerator
 			ArrayList<Integer> tempCoord = new ArrayList<Integer>();
 			ArrayList<Float> tempCoordValues = new ArrayList<Float>();
 			
-			for(int p = 0; p < parameterGroups; p++)
+			for(int p = 0; p < numParameterGroups; p++)
 			{
 				// Increment this parameter? (avoid increment the first combo c>0)
 				if(((comboNo % incrementMods[p]) == 0) && (comboNo > 0))
@@ -398,7 +207,7 @@ public class StandardItemGenerator extends ItemGenerator
 					{
 						String groupSection = path[sg] + "(" + sg + ")";
 						
-						String searchGroupName = temp.getStringValue(groupSection, "GroupName");
+						String searchGroupName = temp.getStringValue(groupSection, "Name");
 						
 						// Found Group
 						if(searchGroupName.equalsIgnoreCase(groupName[p]))
@@ -502,7 +311,7 @@ public class StandardItemGenerator extends ItemGenerator
 				tempCoordValues.add((float) JCMath.round(value[p], 7));
 				
 				comboPosString.append(String.valueOf(pos[p]));
-				if(p < (parameterGroups - 1))
+				if(p < (numParameterGroups - 1))
 				{
 					comboPosString.append('x');
 				}
@@ -522,7 +331,7 @@ public class StandardItemGenerator extends ItemGenerator
 				int cacheIndex = itemStore.addData(configBytes);
 				
 				// Add the item to the temp combo list (samples created later) 1==Sample one with samples starting from base of 1
-				tempComboItemList.add(new BatchItem(comboNo, 1, super.getBatchId(), itemName.toString(), cacheIndex, tempCoord, tempCoordValues,
+				tempComboItemList.add(new BatchItem(comboNo, 1, batchId, itemName.toString(), cacheIndex, tempCoord, tempCoordValues,
 				batchResultSettings.ResultsEnabled));
 			}
 			catch(UnsupportedEncodingException e)
@@ -538,7 +347,7 @@ public class StandardItemGenerator extends ItemGenerator
 			}
 			
 			// Update the current progress
-			progress1dArray[0] = ((double) comboNo / (double) combinations) * 100.0;
+			progress[0] = ((double) comboNo / (double) combinations) * 100.0;
 			
 			// Avoid div by zero on <1 combinations
 			if(combinations > 1)
@@ -546,15 +355,15 @@ public class StandardItemGenerator extends ItemGenerator
 				// Every 1%
 				if((comboNo % (combinations / 1)) == 0)
 				{
-					log.info((int) progress1dArray[0] + "%");
+					log.info((int) progress[0] + "%");
 				}
 			}
 			
 			// END COMBO
 		}
 		
-		progress1dArray[0] = 100;
-		log.info((int) progress1dArray[0] + "%");
+		progress[0] = 100;
+		log.info((int) progress[0] + "%");
 		
 		// All the items need to get processed, but the estimated total time (see getETT()) can be influenced by their processing order.
 		// Randomise items in an attempt to reduce influence of item difficulty increasing/decreasing with combination order.
@@ -573,7 +382,7 @@ public class StandardItemGenerator extends ItemGenerator
 			{
 				// Item Id == combo Id
 				int comboNo = comboItem.getItemId();
-				int batchId = comboItem.getBatchId();
+				int cItemBatchId = comboItem.getBatchId();
 				String itemName = comboItem.getItemName();
 				
 				// Identical samples use the same cacheIndex to get the same config
@@ -585,9 +394,10 @@ public class StandardItemGenerator extends ItemGenerator
 				boolean storeStats = comboItem.hasStatsEnabled();
 				
 				// sid identifies the sample with in each combo.
-				destinationItemList.add(new BatchItem(comboNo, sid, batchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
+				destinationItemList.add(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
 			}
 		}
+		
 		tempComboItemList = null;
 		
 		itemsCount = destinationItemList.size();
@@ -599,38 +409,14 @@ public class StandardItemGenerator extends ItemGenerator
 	}
 	
 	@Override
-	public String[] getGroupNames()
-	{
-		return groupName;
-	}
-	
-	@Override
-	public String[] getParameterNames()
-	{
-		return parameterName;
-	}
-	
-	@Override
-	public ArrayList<String> getParameters()
-	{
-		return parameters;
-	}
-	
-	@Override
-	public ZipOutputStream getResultsZipOut()
-	{
-		return resultsZipOut;
-	}
-	
-	@Override
 	public int getGeneratedItemCount()
 	{
 		return itemsCount;
 	}
 	
 	@Override
-	public ItemStore getItemStore()
+	public ArrayList<String> getParameters()
 	{
-		return itemStore;
+		return parameters;
 	}
 }

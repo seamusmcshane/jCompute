@@ -37,10 +37,10 @@ public class ItemDiskCache implements ItemStore
 	private int uniqueRatio;
 	
 	// Mem Cache
-	private final boolean memCacheEnabled;
+	private boolean memCacheEnabled;
 	private final int MIN_MEM_CACHE_SIZE = 250;
 	private final int MAX_MEM_CACHE_SIZE = 10000;
-	private final int memCacheSize;
+	private int memCacheSize;
 	private int memCacheRequests;
 	private int memCacheHits;
 	private int memCacheMisses;
@@ -57,8 +57,13 @@ public class ItemDiskCache implements ItemStore
 	
 	private MessageDigest md5Hasher;
 	
+	public ItemDiskCache()
+	{
+		
+	}
+	
 	// We need to know the size and ratio to create a perfect mapping of duplicates
-	public ItemDiskCache(boolean useMemCache, int cacheSize, int uniqueRatio, String storageLocation, int compressionLevel)
+	public void init(boolean useMemCache, int cacheSize, int uniqueRatio, String storageLocation, int compressionLevel)
 	{
 		try
 		{
@@ -139,7 +144,7 @@ public class ItemDiskCache implements ItemStore
 		cacheNonUniqueTable = new byte[uniqueRatio][];
 		
 		// Mark all entries as free (-1)
-		//Arrays.fill(cacheNonUniqueTable, -1);
+		// Arrays.fill(cacheNonUniqueTable, -1);
 		
 		FileUtil.createDirIfNotExist(diskCacheLocation);
 	}
@@ -189,9 +194,8 @@ public class ItemDiskCache implements ItemStore
 		
 		int cacheNonUniqueIndex = lookForNonUniqueMappingOrSet(data);
 		
-		
 		// Look up the index in the non unique table or set it
-		//		int cacheNonUniqueIndex = lookForNonUniqueMappingOrSet(uniqueValue);
+		// int cacheNonUniqueIndex = lookForNonUniqueMappingOrSet(uniqueValue);
 		
 		// In unique table set lookup index
 		cacheUniqueMappingTable[itemsAddedToCache] = cacheNonUniqueIndex;
@@ -217,7 +221,7 @@ public class ItemDiskCache implements ItemStore
 	private int lookForNonUniqueMappingOrSet(byte[] data) throws IOException
 	{
 		byte[] dataHash = md5Hasher.digest(data);
-
+		
 		for(int i = 0; i < cacheNonUniqueTable.length; i++)
 		{
 			// look for first free location
@@ -251,41 +255,41 @@ public class ItemDiskCache implements ItemStore
 		throw new IOException("Mapping does not exist in cache");
 	}
 	
-//	// Look up the mapping
-//	private int lookForNonUniqueMappingOrSetOLD(int uniqueValue) throws IOException
-//	{
-//		for(int i = 0; i < cacheNonUniqueTable.length; i++)
-//		{
-//			// look for first free location
-//			if(cacheNonUniqueTable[i] == -1)
-//			{
-//				// New Mapping
-//				cacheNonUniqueTable[i] = uniqueValue;
-//				
-//				log.info("lookForMappingOrSet new mapping " + i);
-//				
-//				// Return the index of this mapping
-//				return i;
-//			}
-//			else
-//			{
-//				// Compare the values
-//				if(cacheNonUniqueTable[i] == uniqueValue)
-//				{
-//					log.info("lookForMappingOrSet existing mapping " + i);
-//					
-//					// Mapping exists
-//					return i;
-//				}
-//			}
-//		}
-//		
-//		// Fatal error we don't remove mappings so one should exist, but it doesn't
-//		log.error("Mapping index does not exist in cache");
-//		
-//		// Throw an IO exception that can be caught rather than allow set an index of -1 and guarantee an array out of bounds.
-//		throw new IOException("Mapping does not exist in cache");
-//	}
+	// // Look up the mapping
+	// private int lookForNonUniqueMappingOrSetOLD(int uniqueValue) throws IOException
+	// {
+	// for(int i = 0; i < cacheNonUniqueTable.length; i++)
+	// {
+	// // look for first free location
+	// if(cacheNonUniqueTable[i] == -1)
+	// {
+	// // New Mapping
+	// cacheNonUniqueTable[i] = uniqueValue;
+	//
+	// log.info("lookForMappingOrSet new mapping " + i);
+	//
+	// // Return the index of this mapping
+	// return i;
+	// }
+	// else
+	// {
+	// // Compare the values
+	// if(cacheNonUniqueTable[i] == uniqueValue)
+	// {
+	// log.info("lookForMappingOrSet existing mapping " + i);
+	//
+	// // Mapping exists
+	// return i;
+	// }
+	// }
+	// }
+	//
+	// // Fatal error we don't remove mappings so one should exist, but it doesn't
+	// log.error("Mapping index does not exist in cache");
+	//
+	// // Throw an IO exception that can be caught rather than allow set an index of -1 and guarantee an array out of bounds.
+	// throw new IOException("Mapping does not exist in cache");
+	// }
 	
 	private void writeDataToDiskCache(int nonUniqueId, byte[] data) throws IOException
 	{

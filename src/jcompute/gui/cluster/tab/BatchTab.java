@@ -728,7 +728,6 @@ public class BatchTab extends JPanel implements Loadable, PropertyChangeListener
 					batchInfo.updateRow(info[i], new SimpleInfoRowItem(info[i], info[i + 1]));
 				}
 			}
-			
 		}
 		else
 		{

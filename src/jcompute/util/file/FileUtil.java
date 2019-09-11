@@ -398,4 +398,37 @@ public class FileUtil
 	{
 		return getClassDirectory(FileUtil.class);
 	}
+	
+	/**
+	 * Removes the extention from a filename.
+	 * 
+	 * @param filenameWithExt
+	 * @return The filename without the extention or null of there was an error.
+	 */
+	public static String removeExtfromFilename(String filenameWithExt)
+	{
+		// Get the ext index.
+		int extStartIndex = filenameWithExt.lastIndexOf('.');
+		
+		// No ext? 0=first char,-1 = no .
+		if(extStartIndex <= 0)
+		{
+			return null;
+		}
+		
+		try
+		{
+			// Use the value before the ext as the filename
+			String filename = filenameWithExt.substring(0, extStartIndex);
+			
+			return filename;
+		}
+		catch(IndexOutOfBoundsException e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
+	}
+	
 }

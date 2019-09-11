@@ -23,5 +23,4 @@ public class CompletedItemsNode
 	{
 		return item;
 	}
-	
 }
