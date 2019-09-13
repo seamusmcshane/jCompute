@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
-import jcompute.batch.itemgenerator.StandardItemGeneratorConfig;
 import jcompute.batch.log.item.custom.logger.CustomItemResultsSettings;
 import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.scenario.ScenarioInf;
@@ -364,8 +363,8 @@ public class BatchConfigProcessor
 					return;
 				}
 				
-				// TODO move ItemGeneratorConfigInf to scenario
-				itemGeneratorConfig = new StandardItemGeneratorConfig(batchConfigInterpreter, baseScenarioText, itemSamples);
+				// Get ItemGeneratorConfig from base scenario
+				itemGeneratorConfig = baseScenario.getItemGeneratorConfig(batchConfigInterpreter, baseScenarioText, itemSamples);
 			}
 		}
 		else

@@ -1,11 +1,9 @@
 package jcompute.scenario;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import jcompute.batch.BatchItem;
-import jcompute.batch.BatchResultSettings;
 import jcompute.batch.itemgenerator.ItemGenerator;
+import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
 import jcompute.results.trace.group.TraceGroupSetting;
@@ -84,6 +82,14 @@ public interface ScenarioInf
 	 * ***************************************************************************************************
 	 * Cluster Support
 	 *****************************************************************************************************/
+	
+	/**
+	 * Only required in cluster mode.
+	 * Note The standard item generator is available and recommended.
+	 * 
+	 * @return A configuration for the Item generator type used.
+	 */
+	public ItemGeneratorConfigInf getItemGeneratorConfig(ConfigurationInterpreter interpreter, String baseScenarioText, int itemSamples);
 	
 	/**
 	 * Only required in cluster mode.
