@@ -157,7 +157,7 @@ public class BatchConfigProcessor
 			final boolean BDFCEnabled = batchConfigInterpreter.getBooleanValue("Stats", "BDFCResult", false);
 			
 			// Get the Custom Result Format
-			final String CustomResultsFormat = batchConfigInterpreter.getStringValue("Stats", "CustomResultFormat");
+			final String CustomResultsFormat = batchConfigInterpreter.getStringValue("Stats", "CustomResultFormat", "");
 			
 			// Check if the format is disabled, mean custom results are not requested.
 			final boolean CustomResultsEnabled = !CustomResultsFormat.equals("Disabled") ? true : false;
