@@ -22,7 +22,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/knn-benchmark.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi_2014_09_25/aparapi.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/PHD/ComputeOverlay/aparapi/aparapi_2014_09_25"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Programming/ComputeOverlay/aparapi/aparapi_2014_04_29"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
