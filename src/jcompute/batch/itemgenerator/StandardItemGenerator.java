@@ -35,7 +35,7 @@ public class StandardItemGenerator extends ItemGenerator
 	
 	private final String GeneratorName = "StandardItemGenerator";
 	
-	// Item Store
+	// Items Generated
 	private int itemsCount;
 	
 	private ArrayList<String> parameters;
