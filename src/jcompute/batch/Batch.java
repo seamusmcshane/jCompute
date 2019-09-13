@@ -138,8 +138,6 @@ public class Batch implements StoredQueuePosition
 		
 		// If the config is invalid the batch has failed immediately
 		failed = !bcpIsValid;
-		
-		log.info("Batch Failed : " + failed);
 	}
 	
 	public boolean isInit()
@@ -824,8 +822,6 @@ public class Batch implements StoredQueuePosition
 	
 	public boolean hasFailed()
 	{
-		log.info("has Failed " + failed);
-		
 		return failed;
 	}
 }

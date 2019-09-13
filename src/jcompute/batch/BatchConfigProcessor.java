@@ -174,10 +174,24 @@ public class BatchConfigProcessor
 			
 			final int BufferSize = batchConfigInterpreter.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
 			
-			final String batchStatsExportDir = createAndGetExportLocation(batchId, batchName, batchConfigInterpreter);
+			/*
+			 * ********************************************************************************
+			 * Export Paths
+			 ********************************************************************************/
 			
-			batchResultSettings = new BatchResultSettings(ResultsEnabled, batchStatsExportDir, TraceEnabled, BDFCEnabled, TraceStoreSingleArchive,
-			TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled);
+			// The base results path under which we place the rest - Normally stats/
+			final String BaseExportDir = batchConfigInterpreter.getStringValue("Stats", "BatchStatsExportDir");
+			
+			// Check for a Group dir for this Batch
+			final String GroupDirName = batchConfigInterpreter.getStringValue("Stats", "BatchGroupDir");
+			
+			final String SubgroupDirName = batchConfigInterpreter.getStringValue("Stats", "BatchSubGroupDirName");
+			
+			// The complete export dir for stats
+			final String BatchStatsExportDir = generateExportLocation(batchId, batchName, BaseExportDir, GroupDirName, SubgroupDirName);
+			
+			batchResultSettings = new BatchResultSettings(ResultsEnabled, BaseExportDir, GroupDirName, SubgroupDirName, BatchStatsExportDir, TraceEnabled,
+			BDFCEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled);
 			
 			customItemResultsSettings = new CustomItemResultsSettings(CustomResultsEnabled, CustomResultsFormat, BatchHeaderInCustomResult,
 			ItemInfoInCustomResult);
@@ -317,7 +331,7 @@ public class BatchConfigProcessor
 			log.info("Trace Single Archive " + batchResultSettings.TraceStoreSingleArchive);
 			log.info("Archive Buffer Size " + batchResultSettings.BufferSize);
 			log.info("Archive Compression Level " + batchResultSettings.TraceArchiveCompressionLevel);
-			log.info("Batch Stats Export Dir : " + batchStatsExportDir);
+			log.info("Batch Stats Export Dir : " + batchResultSettings.BatchStatsExportDir);
 			
 			/*
 			 * ********************************************************************************
@@ -373,51 +387,34 @@ public class BatchConfigProcessor
 	}
 	
 	/**
-	 * Creates directories used by the batch and the on disk item cache and returns the procedurally generated directory name.
+	 * Used by the batch and the on disk item cache and returns the procedurally generated directory name.
 	 * 
 	 * @param batchConfigProcessor
 	 * @return Directory name of the export location.
 	 */
-	private String createAndGetExportLocation(int batchId, String batchName, ConfigurationInterpreter batchConfigInterpreter)
+	private String generateExportLocation(int batchId, String batchName, String BaseExportDir, String GroupDirName, String SubgroupDirName)
 	{
 		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
 		
-		log.debug(date + "+" + time);
+		String fullExportDir = BaseExportDir;
 		
-		// Normally stats/
-		String baseExportDir = batchConfigInterpreter.getStringValue("Stats", "BatchStatsExportDir");
-		
-		// Create Stats Dir
-		FileUtil.createDirIfNotExist(baseExportDir);
-		
-		// Group Batches of Stats
-		String groupDirName = batchConfigInterpreter.getStringValue("Stats", "BatchGroupDir");
-		
-		String subgroupDirName = batchConfigInterpreter.getStringValue("Stats", "BatchSubGroupDirName");
-		
-		// Append Group name to export dir and create if needed
-		if(groupDirName != null)
+		// Append Group name to export dir
+		if(GroupDirName != null)
 		{
-			baseExportDir = baseExportDir + File.separator + groupDirName;
-			
-			FileUtil.createDirIfNotExist(baseExportDir);
+			fullExportDir = fullExportDir + File.separator + GroupDirName;
 			
 			// Sub Groups
-			if(subgroupDirName != null)
+			if(SubgroupDirName != null)
 			{
-				baseExportDir = baseExportDir + File.separator + subgroupDirName;
-				
-				FileUtil.createDirIfNotExist(baseExportDir);
+				fullExportDir = fullExportDir + File.separator + SubgroupDirName;
 			}
 		}
 		
 		// Format the export directory name
-		String batchStatsExportDir = baseExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
+		fullExportDir = fullExportDir + File.separator + date + "@" + time + "[" + batchId + "] " + batchName;
 		
-		FileUtil.createDirIfNotExist(batchStatsExportDir);
-		
-		return batchStatsExportDir;
+		return fullExportDir;
 	}
 	
 	public boolean isValid()

@@ -51,6 +51,8 @@ public class BatchResultsExporter
 	{
 		this.BatchResultSettings = batchSettings.batchResultSettings;
 		
+		createExportLocation(batchSettings.batchResultSettings);
+		
 		// Create Item Log
 		this.itemLog = itemLog;
 		
@@ -296,6 +298,42 @@ public class BatchResultsExporter
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Creates the export location used by the batch and the on disk item cache.
+	 * 
+	 * @param batchConfigProcessor
+	 * @return Directory name of the export location.
+	 */
+	private void createExportLocation(BatchResultSettings batchResultSettings)
+	{
+		String exportPath = batchResultSettings.BaseExportDir;
+		
+		final String GroupDirName = batchResultSettings.GroupDirName;
+		
+		final String SubgroupDirName = batchResultSettings.SubgroupDirName;
+		
+		// Create Export Path
+		FileUtil.createDirIfNotExist(exportPath);
+		
+		// Append Group name to export dir and create if needed
+		if(GroupDirName != null)
+		{
+			exportPath = exportPath + File.separator + GroupDirName;
+			
+			FileUtil.createDirIfNotExist(exportPath);
+			
+			// Do the same for the Sub Group
+			if(SubgroupDirName != null)
+			{
+				exportPath = exportPath + File.separator + SubgroupDirName;
+				
+				FileUtil.createDirIfNotExist(exportPath);
+			}
+		}
+		
+		FileUtil.createDirIfNotExist(batchResultSettings.BatchStatsExportDir);
 	}
 	
 	public void close()

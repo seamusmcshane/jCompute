@@ -10,11 +10,20 @@ public class BatchResultSettings
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(BatchResultSettings.class);
 	
-	// The export dir for stats
-	public final String BatchStatsExportDir;
-	
 	// Master Switch
 	public final boolean ResultsEnabled;
+	
+	// The base results path under which we place the rest
+	public final String BaseExportDir;
+	
+	// The complete export dir for stats
+	public final String BatchStatsExportDir;
+	
+	public final boolean ResultsPartofGroup;
+	public final String GroupDirName;
+	
+	public final boolean GroupsHaveSubGroups;
+	public final String SubgroupDirName;
 	
 	// Track Results
 	public final boolean TraceEnabled;
@@ -43,12 +52,21 @@ public class BatchResultSettings
 	 */
 	// public final boolean MultiSampleItems;
 	
-	public BatchResultSettings(boolean resultsEnabled, String batchStatsExportDir, boolean traceEnabled, boolean bdfcEnabled, boolean traceStoreSingleArchive,
-	int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled, boolean itemLogEnabled)
+	public BatchResultSettings(boolean resultsEnabled, String baseExportDir, String groupDirName, String subgroupDirName, String BatchStatsExportDir,
+	boolean traceEnabled, boolean bdfcEnabled, boolean traceStoreSingleArchive, int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled,
+	boolean itemLogEnabled)
 	{
 		this.ResultsEnabled = resultsEnabled;
 		
-		this.BatchStatsExportDir = batchStatsExportDir;
+		this.BaseExportDir = baseExportDir;
+		
+		this.GroupDirName = groupDirName;
+		ResultsPartofGroup = (this.GroupDirName != null);
+		
+		this.SubgroupDirName = subgroupDirName;
+		GroupsHaveSubGroups = (this.SubgroupDirName != null);
+		
+		this.BatchStatsExportDir = BatchStatsExportDir;
 		
 		this.TraceEnabled = traceEnabled;
 		this.BDFCEnabled = bdfcEnabled;
@@ -72,8 +90,5 @@ public class BatchResultSettings
 		
 		this.InfoLogEnabled = infoLogEnabled;
 		this.ItemLogEnabled = itemLogEnabled;
-		
-		// this.ItemSamples = itemSamples;
-		// this.MultiSampleItems = (itemSamples > 1) ? true : false;
 	}
 }
