@@ -7,7 +7,12 @@ public class InMemoryList implements ItemStore
 {
 	private ArrayList<byte[]> list;
 	
-	public InMemoryList(int size)
+	public InMemoryList()
+	{
+		
+	}
+	
+	public void init(int size)
 	{
 		list = new ArrayList<byte[]>();
 	}
