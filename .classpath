@@ -20,11 +20,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jcommon-1.0.23.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/knn-benchmark.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi_2014_09_25/aparapi.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Programming/ComputeOverlay/aparapi/aparapi_2014_04_29"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi-1.10.0/aparapi-1.10.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-depthpeeling-0.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/gluegen-rt.jar"/>
@@ -78,5 +74,7 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-aspects-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-aop-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-expression-5.1.7.RELEASE.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi-jni-1.4.1/aparapi-jni-1.4.1.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-bcel/bcel-6.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

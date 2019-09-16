@@ -3,8 +3,8 @@ package jcompute.util.opencl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.amd.aparapi.device.OpenCLDevice;
-import com.amd.aparapi.internal.opencl.OpenCLPlatform;
+import com.aparapi.device.OpenCLDevice;
+import com.aparapi.internal.opencl.OpenCLPlatform;
 
 public class AparapiUtil
 {
