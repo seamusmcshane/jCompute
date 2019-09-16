@@ -9,10 +9,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rsyntaxtextarea/rsyntaxtextarea-2.5.8/rsyntaxtextarea-2.5.8.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-backend-lwjgl.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-natives.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-backend-lwjgl-natives.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-backend-lwjgl.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-natives.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-backend-lwjgl-natives.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-xmlschema/commons-xmlschema-1.4.7/XmlSchema-1.4.7.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-configuration/commons-configuration-1.10/commons-configuration-1.10.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-collections/commons-collections-3.2.1/commons-collections-3.2.1.jar"/>
@@ -50,9 +50,9 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/disruptor/disruptor-3.4.2/disruptor-3.4.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/xerces/xerces-2_11_0/xercesImpl.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/xerces/xerces-2_11_0/xml-apis.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-tools.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-freetype-natives.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2016.06.25/gdx-freetype.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-tools.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-freetype-natives.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-freetype.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/looknfeels/looks-2.2.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-beans-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-context-5.1.7.RELEASE.jar"/>

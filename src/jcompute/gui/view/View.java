@@ -205,6 +205,7 @@ public class View implements ApplicationListener, ViewRendererInf
 		// TODO - font name hardcoded for now.
 		String fontPathString = "/fonts/" + "Open_Sans/" + "OpenSans-Regular.ttf";
 		URL fontUrl = View.class.getResource(fontPathString);
+		
 		String fontFile = null;
 		try
 		{
