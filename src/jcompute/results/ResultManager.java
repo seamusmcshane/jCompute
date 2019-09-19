@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import org.jfree.util.Log;
-
 import jcompute.results.binary.BinaryDataFileCollection;
 import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.trace.group.TraceGroupSetting;
