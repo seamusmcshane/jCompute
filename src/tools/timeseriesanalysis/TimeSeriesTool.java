@@ -1175,6 +1175,34 @@ public class TimeSeriesTool implements ActionListener, MouseListener
 		gui.revalidate();
 		
 		fftw3.fftw_destroy_plan(plan);
+		
+		try
+		{
+			signal.close();
+
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			result.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			plan.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private DoubleTraceSample[] avgFilter(DoubleTraceSample[] array)
