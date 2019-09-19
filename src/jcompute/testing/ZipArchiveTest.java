@@ -11,6 +11,7 @@ import jcompute.util.info.JVMInfo;
 
 public class ZipArchiveTest
 {
+	@SuppressWarnings("resource")
 	public static void main(String args[])
 	{
 		long bytes_wrote = 0;
