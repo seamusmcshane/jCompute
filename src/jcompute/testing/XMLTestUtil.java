@@ -19,18 +19,31 @@ public class XMLTestUtil
 		System.out.println("XML TESTER");
 		// File file = new File("scenarios/SAPP/batch/BatchRun-ViewRange.xml");
 		File file = new File("scenarios/HenonMap/default.scenario");
-
+		
 		XMLConfiguration scenario = new XMLConfiguration();
-
+		
 		scenario.setSchemaValidation(true);
 		ConfigurationInterpreter sc = new ConfigurationInterpreter();
 		// LotkaVolterraScenario lv = new LotkaVolterraScenario();
-
-		BufferedReader bufferedReader = null;
+		
+		StringBuilder editor = new StringBuilder();
+		String line = "";
+		
 		try
 		{
-			bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO_8859_1"));
-
+			BufferedReader bufferedReader  = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO_8859_1"));
+			
+			while(line != null)
+			{
+				line = bufferedReader.readLine();
+				editor.append(line);
+				
+				// scenarioEditor.insert(sCurrentLine,
+				// scenarioEditor.getLineCount());
+				// System.out.println(sCurrentLine);
+			}
+			
+			bufferedReader.close();
 		}
 		catch(FileNotFoundException e1)
 		{
@@ -40,33 +53,19 @@ public class XMLTestUtil
 		{
 			e.printStackTrace();
 		}
-
-		StringBuilder editor = new StringBuilder();
-		String line = "";
-		try
-		{
-			while(line != null)
-			{
-				line = bufferedReader.readLine();
-				editor.append(line);
-
-				// scenarioEditor.insert(sCurrentLine,
-				// scenarioEditor.getLineCount());
-				// System.out.println(sCurrentLine);
-			}
-		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
 		}
+		
 		System.out.println(editor.toString());
-
+		
 		sc.loadConfig(editor.toString());
-
+		
 		// sc.getScenarioXMLText();
 		sc.dumpXML();
-
+		
 		System.exit(0);
 	}
-
+	
 }
