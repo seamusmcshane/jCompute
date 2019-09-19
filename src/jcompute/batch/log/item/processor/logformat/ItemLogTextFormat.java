@@ -56,6 +56,8 @@ public class ItemLogTextFormat implements ItemLogFormatInf
 				
 				if(line == null)
 				{
+					inputFile.close();
+					
 					throw new IOException();
 				}
 				
@@ -75,6 +77,8 @@ public class ItemLogTextFormat implements ItemLogFormatInf
 				
 				if(line == null)
 				{
+					inputFile.close();
+					
 					throw new IOException();
 				}
 				
@@ -98,6 +102,8 @@ public class ItemLogTextFormat implements ItemLogFormatInf
 					Throwable throwable = new Throwable(message);
 					
 					throwable.setStackTrace(Thread.currentThread().getStackTrace());
+					
+					inputFile.close();
 					
 					throw new IOException(throwable);
 				}
