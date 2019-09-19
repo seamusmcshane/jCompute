@@ -75,6 +75,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-aop-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/spring/spring-framework-5.1.7.RELEASE/libs/spring-expression-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi-jni-1.4.1/aparapi-jni-1.4.1.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-bcel/bcel-6.3.1.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-bcel/commons-bcel-6.3.1/bcel-6.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
