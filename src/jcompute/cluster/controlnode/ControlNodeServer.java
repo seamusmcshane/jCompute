@@ -157,6 +157,7 @@ public class ControlNodeServer
 					try
 					{
 						// With TickFrequency Timeout enabled - see catch
+						@SuppressWarnings("resource")
 						Socket nodeSocket = listenSocket.accept();
 						
 						log.info("New Connection from : " + nodeSocket.getRemoteSocketAddress());
