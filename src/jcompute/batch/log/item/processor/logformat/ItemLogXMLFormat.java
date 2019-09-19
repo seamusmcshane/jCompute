@@ -56,6 +56,8 @@ public class ItemLogXMLFormat implements ItemLogFormatInf
 
 			throwable.setStackTrace(e.getStackTrace());
 
+			targetStream.close();
+			
 			throw new IOException(throwable);
 		}
 
