@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -111,7 +112,7 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 		{
 			// Cast the row class to a a RowItem and use the RowItem api for
 			// getting the field and their names
-			rowItem = rowClass.newInstance();
+			rowItem = rowClass.getConstructor().newInstance();
 			
 			// Create a new table format via reflection of the rowClass
 			TableFormat<RowType> tf = GlazedLists.tableFormat(rowClass, rowItem.getFieldList(), rowItem.getFieldNames(), rowItem.getEditableCells());
@@ -195,6 +196,26 @@ public class TablePanel<IndexType, RowType extends RowItem<RowType, IndexType>> 
 		catch(InstantiationException | IllegalAccessException e)
 		{
 			log.error("Row Item Reflection : " + rowClass.toString());
+			e.printStackTrace();
+		}
+		catch(IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(InvocationTargetException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(NoSuchMethodException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(SecurityException e)
+		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

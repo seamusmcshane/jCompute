@@ -5,8 +5,8 @@ public class VectorList
 	private static final int ID = 0;
 	
 	// KNN (Update)
-	private static final int KD_XPOS = 0;
-	private static final int KD_YPOS = 1;
+	//private static final int KD_XPOS = 0;
+	//private static final int KD_YPOS = 1;
 	
 	// Agent Variables
 	private static final int XPOS = 0;

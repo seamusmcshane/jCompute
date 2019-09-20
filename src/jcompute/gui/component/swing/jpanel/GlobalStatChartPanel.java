@@ -28,7 +28,6 @@ import jcompute.results.trace.Trace.TraceDataType;
 import jcompute.results.trace.group.TraceGroupListenerInf;
 import jcompute.results.trace.samples.DoubleTraceSample;
 import jcompute.results.trace.samples.IntegerTraceSample;
-import jcompute.results.trace.samples.TraceSample;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;

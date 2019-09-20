@@ -11,7 +11,7 @@ public class Palette
 	private static final int RGBCOLORBITS = 8;
 	private static final int RGBCOLORDEPTH = (int) Math.pow(2, RGBCOLORBITS) - 1;
 	
-	private static float SPECTURM_RANGE_MIN = 380;
+	//private static float SPECTURM_RANGE_MIN = 380;
 	private static float SPECTURM_RANGE_MAX = 779.999f;
 	
 	private static final String[] paletteList = new String[]

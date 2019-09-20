@@ -40,7 +40,7 @@ public class ImageViewerPanel extends JPanel
 	
 	// View Border
 	private final int PAD_SIZE = 40;
-	private final int PAD = PAD_SIZE / 2;
+	//private final int PAD = PAD_SIZE / 2;
 	private final int LINE = 3;
 	private Color BK_COLOR = Color.GRAY;
 	private Color BORDER_COLOR = Color.BLACK;

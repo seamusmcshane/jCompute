@@ -41,7 +41,6 @@ import jcompute.gui.component.tablecell.HeaderRowRenderer;
 import jcompute.gui.component.tablecell.NodeControlButtonRenderer;
 import jcompute.gui.component.tablecell.ProgressBarTableCellRenderer;
 import jcompute.math.NumericConstants;
-import jcompute.math.NumericConstants.BinaryPrefix;
 import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;

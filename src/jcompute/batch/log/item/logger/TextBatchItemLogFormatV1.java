@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import jcompute.batch.BatchItem;
-import jcompute.batch.BatchResultSettings;
 
 public class TextBatchItemLogFormatV1 implements BatchItemLogInf
 {

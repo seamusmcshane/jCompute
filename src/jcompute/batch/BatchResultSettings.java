@@ -1,14 +1,11 @@
 package jcompute.batch;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jcompute.results.export.ExportFormat;
 
 public class BatchResultSettings
 {
 	// Log4j2 Logger
-	private static Logger log = LogManager.getLogger(BatchResultSettings.class);
+	// private static Logger log = LogManager.getLogger(BatchResultSettings.class);
 	
 	// Master Switch
 	public final boolean ResultsEnabled;
