@@ -1,12 +1,10 @@
 package jcompute.batch.itemgenerator;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.BatchItem;
 import jcompute.batch.BatchSettings;
 import jcompute.batch.ItemManager;
 import jcompute.batch.itemstore.ItemStore;
@@ -40,7 +38,7 @@ public abstract class ItemGenerator
 	
 	public final boolean generate(int batchId, ProgressObj progress, ItemManager itemManager, ItemStore itemStore, BatchSettings batchSettings)
 	{
-		if((batchId < 0))// || (batchConfigProcessor == null) || (batchName == null))
+		if((batchId < 0))
 		{
 			log.error("Batch Id less than zero : " + batchId);
 			
