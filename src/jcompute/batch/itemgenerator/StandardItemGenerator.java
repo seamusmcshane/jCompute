@@ -236,7 +236,7 @@ public class StandardItemGenerator extends ItemGenerator
 							// supported.
 							if(dtype.equals("boolean"))
 							{
-								temp.changeValue(groupSection, parameterName[p], new Boolean(true));
+								temp.changeValue(groupSection, parameterName[p], String.valueOf(true));
 							}
 							else if(dtype.equals("string"))
 							{
@@ -280,7 +280,7 @@ public class StandardItemGenerator extends ItemGenerator
 					// Currently only decimal and integer are used.
 					if(dtype.equals("boolean"))
 					{
-						temp.changeValue(path[p], parameterName[p], new Boolean(true));
+						temp.changeValue(path[p], parameterName[p],  String.valueOf(true));
 					}
 					else if(dtype.equals("string"))
 					{
