@@ -81,10 +81,6 @@ public class Batch implements StoredQueuePosition
 	
 	private BatchResultsExporter batchResultsExporter;
 	
-	// The active Items currently being processed.
-	private ArrayList<BatchItem> activeItems;
-	private int active;
-	
 	// Completed items count
 	private int itemsCompleted = 0;
 	
@@ -113,11 +109,6 @@ public class Batch implements StoredQueuePosition
 		
 		// Item management data structures
 		itemManager = new ItemManager();
-		
-		activeItems = new ArrayList<BatchItem>();
-		
-		// Active Items
-		active = 0;
 		
 		// Not enabled
 		enabled = false;
@@ -187,10 +178,6 @@ public class Batch implements StoredQueuePosition
 			@Override
 			public void run()
 			{
-				// Queued Items
-				// Results Exporter
-				// CustomItemResults
-				
 				TimerObj to = new TimerObj();
 				
 				to.startTimer();
@@ -266,10 +253,6 @@ public class Batch implements StoredQueuePosition
 	{
 		batchLock.acquireUninterruptibly();
 		
-		activeItems.remove(item);
-		
-		active = activeItems.size();
-		
 		// Return the item
 		itemManager.returnItem(item);
 		
@@ -281,10 +264,6 @@ public class Batch implements StoredQueuePosition
 		batchLock.acquireUninterruptibly();
 		
 		BatchItem temp = itemManager.getNext();
-		
-		activeItems.add(temp);
-		
-		active = activeItems.size();
 		
 		// Is this the first Item && Sample
 		if(itemManager.getItemsRequested() == 1)
@@ -299,11 +278,12 @@ public class Batch implements StoredQueuePosition
 		return temp;
 	}
 	
+	// TODO Test removal / moving to setItemComplete
 	public void setItemNotActive(BatchItem item)
 	{
 		batchLock.acquireUninterruptibly();
 		
-		activeItems.remove(item);
+		itemManager.setNotActive(item);
 		
 		batchLock.release();
 	}
@@ -408,7 +388,7 @@ public class Batch implements StoredQueuePosition
 	
 	public int getActiveItemsCount()
 	{
-		return activeItems.size();
+		return itemManager.getTotalActiveItems();
 	}
 	
 	public long getRunTime()
@@ -418,6 +398,8 @@ public class Batch implements StoredQueuePosition
 	
 	public long getETT()
 	{
+		int active = itemManager.getTotalActiveItems();
+		
 		if((active > 0) && (itemsCompleted > 0))
 		{
 			return ((cpuTotalTimes + ioTotalTimes) / itemsCompleted) * ((itemManager.getTotalItems() - itemsCompleted) / active);
@@ -741,12 +723,8 @@ public class Batch implements StoredQueuePosition
 		startDateTime = null;
 		// endDateTime = null;
 		
-		// Our Queue of Items yet to be processed
-		// queuedItems = null;
+		// The item manager may have created a large datastructure
 		itemManager.compact();
-		
-		// The active Items currently being processed.
-		activeItems = null;
 		
 		// Info Cache can be cleared/nulled
 		infoCache.clear();

@@ -14,6 +14,11 @@ public class ItemManager
 	private int itemsRequested = 0;
 	private int itemsReturned = 0;
 	
+	// The active Items currently being processed.
+	private ArrayList<BatchItem> activeItems;
+	
+	private int active = 0;
+	
 	/**
 	 * This object is not thread safe.
 	 * It is expected to be used in the batch object, protected by the batch lock.
@@ -21,6 +26,8 @@ public class ItemManager
 	public ItemManager()
 	{
 		queuedItems = new LinkedList<BatchItem>();
+		
+		activeItems = new ArrayList<BatchItem>();
 	}
 	
 	public void addItem(BatchItem item)
@@ -50,9 +57,15 @@ public class ItemManager
 	
 	public BatchItem getNext()
 	{
+		BatchItem temp = queuedItems.remove();
+		
+		activeItems.add(temp);
+		
+		active = activeItems.size();
+		
 		itemsRequested++;
 		
-		return queuedItems.remove();
+		return temp;
 	}
 	
 	public int getItemsRequested()
@@ -62,6 +75,10 @@ public class ItemManager
 	
 	public void returnItem(BatchItem item)
 	{
+		activeItems.remove(item);
+		
+		active = activeItems.size();
+		
 		queuedItems.add(item);
 		
 		itemsReturned++;
@@ -75,5 +92,19 @@ public class ItemManager
 	public void compact()
 	{
 		queuedItems = null;
+		
+		activeItems = null;
+	}
+	
+	public void setNotActive(BatchItem item)
+	{
+		activeItems.remove(item);
+		
+		active = activeItems.size();
+	}
+	
+	public int getTotalActiveItems()
+	{
+		return active;
 	}
 }
