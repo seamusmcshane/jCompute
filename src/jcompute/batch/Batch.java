@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,10 +36,6 @@ public class Batch implements StoredQueuePosition
 	// Initialising is for thread safety of the method init() and avoiding calling init() when already initialising - get via isInit()
 	private AtomicBoolean initialising = new AtomicBoolean(false);
 	
-	// Does this batch need items generated.
-	private AtomicBoolean needGenerated = new AtomicBoolean(true);
-	private ProgressObj itemGenerationProgress;
-	
 	// Queue Positon
 	private int position;
 	
@@ -59,10 +54,14 @@ public class Batch implements StoredQueuePosition
 	// Or if it has failed
 	private boolean failed;
 	
+	// Does this batch need items generated.
+	private AtomicBoolean needGenerated = new AtomicBoolean(true);
+	
+	// Progress of item generation
+	private ProgressObj itemGenerationProgress;
+	
 	// Items Management
-	private int itemsRequested = 0;
-	private int itemsReturned = 0;
-	private int batchItems = 0;
+	private ItemManager itemManager;
 	
 	// For human readable date/time info
 	private String addedDateTime = "";
@@ -81,9 +80,6 @@ public class Batch implements StoredQueuePosition
 	private long itemGenerationTime;
 	
 	private BatchResultsExporter batchResultsExporter;
-	
-	// Our Queue of Items yet to be processed
-	private LinkedList<BatchItem> queuedItems;
 	
 	// The active Items currently being processed.
 	private ArrayList<BatchItem> activeItems;
@@ -116,7 +112,8 @@ public class Batch implements StoredQueuePosition
 		addedDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 		
 		// Item management data structures
-		queuedItems = new LinkedList<BatchItem>();
+		itemManager = new ItemManager();
+		
 		activeItems = new ArrayList<BatchItem>();
 		
 		// Active Items
@@ -206,8 +203,6 @@ public class Batch implements StoredQueuePosition
 				// Ref Stored in batch
 				itemStore = baseScenario.getItemStore();
 				
-				// queuedItems, generationProgress Moved to generate
-				
 				if(itemGenerator != null)
 				{
 					// TODO REMOVE
@@ -216,9 +211,9 @@ public class Batch implements StoredQueuePosition
 					ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager().getResultManager()
 					.getCustomItemResultList();
 					
-					// Create Results Exporter
 					try
 					{
+						// Create Results Exporter
 						batchResultsExporter = new BatchResultsExporter(itemLog, customItemResultList, settings);
 					}
 					catch(IOException e)
@@ -239,11 +234,10 @@ public class Batch implements StoredQueuePosition
 					log.error("Scenario does not support batch items");
 				}
 				
-				if(itemGenerator.generate(batchId, itemGenerationProgress, queuedItems, itemStore, settings))
+				if(itemGenerator.generate(batchId, itemGenerationProgress, itemManager, itemStore, settings))
 				{
 					log.info("Generated Items Batch " + batchId);
 					
-					batchItems = itemGenerator.getGeneratedItemCount();
 					parameters = itemGenerator.getParameters();
 					
 					needInitialized.set(false);
@@ -272,37 +266,33 @@ public class Batch implements StoredQueuePosition
 	{
 		batchLock.acquireUninterruptibly();
 		
-		queuedItems.add(item);
-		
-		itemsReturned++;
-		
 		activeItems.remove(item);
 		
 		active = activeItems.size();
 		
-		batchLock.release();
+		// Return the item
+		itemManager.returnItem(item);
 		
+		batchLock.release();
 	}
 	
 	public BatchItem getNext()
 	{
 		batchLock.acquireUninterruptibly();
 		
-		BatchItem temp = queuedItems.remove();
+		BatchItem temp = itemManager.getNext();
 		
 		activeItems.add(temp);
 		
 		active = activeItems.size();
 		
 		// Is this the first Item && Sample
-		if(itemsRequested == 0)
+		if(itemManager.getItemsRequested() == 1)
 		{
 			// For run time calc
 			startTimeMillis = System.currentTimeMillis();
 			startDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 		}
-		
-		itemsRequested++;
 		
 		batchLock.release();
 		
@@ -340,7 +330,7 @@ public class Batch implements StoredQueuePosition
 		
 		lastCompletedItemTimeMillis = System.currentTimeMillis();
 		
-		if(itemsCompleted == batchItems)
+		if(itemsCompleted == itemManager.getTotalItems())
 		{
 			batchResultsExporter.close();
 			
@@ -355,7 +345,7 @@ public class Batch implements StoredQueuePosition
 					
 					infoLogger.writeGeneralInfo(batchId, settings.batchName, settings.type, settings.baseScenarioFileName);
 					
-					infoLogger.writeItemInfo(batchItems, settings.itemGeneratorConfig.getItemSamples(), settings.maxSteps, TimeString
+					infoLogger.writeItemInfo(itemManager.getTotalItems(), settings.itemGeneratorConfig.getItemSamples(), settings.maxSteps, TimeString
 					.timeInMillisAsFormattedString(itemGenerationTime, TimeStringFormat.DHMS));
 					
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
@@ -380,7 +370,7 @@ public class Batch implements StoredQueuePosition
 	
 	public int getRemaining()
 	{
-		return queuedItems.size();
+		return itemManager.getCurrentItems();
 	}
 	
 	/*
@@ -401,14 +391,14 @@ public class Batch implements StoredQueuePosition
 		return settings.baseScenarioFileName;
 	}
 	
-	public int getBatchItems()
+	public int getBatchTotalItems()
 	{
-		return batchItems;
+		return itemManager.getTotalItems();
 	}
 	
 	public int getProgress()
 	{
-		return (int) (((double) itemsCompleted / (double) batchItems) * 100.0);
+		return (int) (((double) itemsCompleted / (double) itemManager.getTotalItems()) * 100.0);
 	}
 	
 	public int getCompleted()
@@ -430,7 +420,7 @@ public class Batch implements StoredQueuePosition
 	{
 		if((active > 0) && (itemsCompleted > 0))
 		{
-			return ((cpuTotalTimes + ioTotalTimes) / itemsCompleted) * ((batchItems - itemsCompleted) / active);
+			return ((cpuTotalTimes + ioTotalTimes) / itemsCompleted) * ((itemManager.getTotalItems() - itemsCompleted) / active);
 		}
 		
 		return 0;
@@ -477,11 +467,11 @@ public class Batch implements StoredQueuePosition
 			// Values wont exist/bevalid if not generated
 			addBatchInfoSectionHeader(formated, false, "Item", targetList);
 			targetList.add("Unique Items");
-			targetList.add(String.valueOf(batchItems / tItemSamples));
+			targetList.add(String.valueOf(itemManager.getTotalItems() / tItemSamples));
 			targetList.add("Sample per Item");
 			targetList.add(String.valueOf(tItemSamples));
 			targetList.add("Total Items");
-			targetList.add(String.valueOf(batchItems));
+			targetList.add(String.valueOf(itemManager.getTotalItems()));
 			targetList.add("Max Steps");
 			targetList.add(String.valueOf(tMaxSteps));
 			
@@ -554,9 +544,9 @@ public class Batch implements StoredQueuePosition
 		targetList.add("Completed");
 		targetList.add(String.valueOf(itemsCompleted));
 		targetList.add("Requested");
-		targetList.add(String.valueOf(itemsRequested));
+		targetList.add(String.valueOf(itemManager.getItemsRequested()));
 		targetList.add("Returned");
-		targetList.add(String.valueOf(itemsReturned));
+		targetList.add(String.valueOf(itemManager.getItemsReturned()));
 	}
 	
 	// private void addBatchDetailsItemStoreInfoToList(boolean formated, ArrayList<String> targetList)
@@ -752,7 +742,8 @@ public class Batch implements StoredQueuePosition
 		// endDateTime = null;
 		
 		// Our Queue of Items yet to be processed
-		queuedItems = null;
+		// queuedItems = null;
+		itemManager.compact();
 		
 		// The active Items currently being processed.
 		activeItems = null;
@@ -814,7 +805,7 @@ public class Batch implements StoredQueuePosition
 	{
 		if(!needGenerated.get())
 		{
-			return getCompleted() == getBatchItems();
+			return getCompleted() == getBatchTotalItems();
 		}
 		
 		return false;

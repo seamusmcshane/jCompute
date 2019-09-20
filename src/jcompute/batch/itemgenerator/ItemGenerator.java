@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchSettings;
+import jcompute.batch.ItemManager;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.timing.ProgressObj;
 
@@ -29,8 +30,7 @@ public abstract class ItemGenerator
 	public abstract String getName();
 	
 	// The Generators generation method
-	public abstract boolean subgenerator(int batchId, ProgressObj progress, LinkedList<BatchItem> destinationItemList, ItemStore itemStore,
-	BatchSettings batchSettings);
+	public abstract boolean subgenerator(int batchId, ProgressObj progress, ItemManager itemManager, ItemStore itemStore, BatchSettings batchSettings);
 	
 	// Call back from sub class.
 	public ItemGenerator()
@@ -38,8 +38,7 @@ public abstract class ItemGenerator
 		needGenerated = true;
 	}
 	
-	public final boolean generate(int batchId, ProgressObj progress, LinkedList<BatchItem> destinationItemList, ItemStore itemStore,
-	BatchSettings batchSettings)
+	public final boolean generate(int batchId, ProgressObj progress, ItemManager itemManager, ItemStore itemStore, BatchSettings batchSettings)
 	{
 		if((batchId < 0))// || (batchConfigProcessor == null) || (batchName == null))
 		{
@@ -55,6 +54,6 @@ public abstract class ItemGenerator
 			return false;
 		}
 		
-		return subgenerator(batchId, progress, destinationItemList, itemStore, batchSettings);
+		return subgenerator(batchId, progress, itemManager, itemStore, batchSettings);
 	}
 }

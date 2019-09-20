@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.zip.Deflater;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import jcompute.batch.BatchItem;
 import jcompute.batch.BatchResultSettings;
 import jcompute.batch.BatchSettings;
+import jcompute.batch.ItemManager;
 import jcompute.batch.itemstore.ItemDiskCache;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.math.JCMath;
@@ -54,7 +54,7 @@ public class StandardItemGenerator extends ItemGenerator
 	
 	// progress1dArray[0] parms here? make method?
 	@Override
-	public boolean subgenerator(int batchId, ProgressObj progress, LinkedList<BatchItem> destinationItemList, ItemStore itemStore, BatchSettings batchSettings)
+	public boolean subgenerator(int batchId, ProgressObj progress, ItemManager itemManager, ItemStore itemStore, BatchSettings batchSettings)
 	{
 		log.info("Generating Items for Batch " + batchId);
 		
@@ -369,7 +369,8 @@ public class StandardItemGenerator extends ItemGenerator
 		for(BatchItem comboItem : tempComboItemList)
 		{
 			// Add Sample 1
-			destinationItemList.add(comboItem);
+			// destinationItemList.add(comboItem);
+			itemManager.addItem(comboItem);
 			
 			// Number Item Samples
 			// int itemSamples = batchResultSettings.ItemSamples;
@@ -391,13 +392,17 @@ public class StandardItemGenerator extends ItemGenerator
 				boolean storeStats = comboItem.hasStatsEnabled();
 				
 				// sid identifies the sample with in each combo.
-				destinationItemList.add(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
+				// destinationItemList.add(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
+				
+				itemManager.addItem(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
+				
 			}
 		}
 		
 		tempComboItemList = null;
 		
-		itemsCount = destinationItemList.size();
+		// itemsCount = destinationItemList.size();
+		itemsCount = itemManager.getTotalItems();
 		
 		// TODO validate generation
 		needGenerated = false;
