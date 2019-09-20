@@ -17,6 +17,7 @@ import jcompute.batch.itemstore.ItemDiskCache;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.math.JCMath;
 import jcompute.scenario.ConfigurationInterpreter;
+import jcompute.timing.ProgressObj;
 
 /**
  * An item generator for scenarios that use the standard scenario format for groups, parameters and values.
@@ -53,11 +54,8 @@ public class StandardItemGenerator extends ItemGenerator
 	
 	// progress1dArray[0] parms here? make method?
 	@Override
-	public boolean subgenerator(int batchId, double[] progress, LinkedList<BatchItem> destinationItemList, ItemStore itemStore, BatchSettings batchSettings)
+	public boolean subgenerator(int batchId, ProgressObj progress, LinkedList<BatchItem> destinationItemList, ItemStore itemStore, BatchSettings batchSettings)
 	{
-		// 0%
-		progress[0] = 0;
-		
 		log.info("Generating Items for Batch " + batchId);
 		
 		StandardItemGeneratorConfig config = (StandardItemGeneratorConfig) batchSettings.itemGeneratorConfig;
@@ -347,7 +345,7 @@ public class StandardItemGenerator extends ItemGenerator
 			}
 			
 			// Update the current progress
-			progress[0] = ((double) comboNo / (double) combinations) * 100.0;
+			progress.tick();
 			
 			// Avoid div by zero on <1 combinations
 			if(combinations > 1)
@@ -355,15 +353,14 @@ public class StandardItemGenerator extends ItemGenerator
 				// Every 1%
 				if((comboNo % (combinations / 1)) == 0)
 				{
-					log.info((int) progress[0] + "%");
+					log.info((int) progress.progressAsPercentage() + "%");
 				}
 			}
 			
 			// END COMBO
 		}
 		
-		progress[0] = 100;
-		log.info((int) progress[0] + "%");
+		log.info((int) progress.progressAsPercentage() + "%");
 		
 		// All the items need to get processed, but the estimated total time (see getETT()) can be influenced by their processing order.
 		// Randomise items in an attempt to reduce influence of item difficulty increasing/decreasing with combination order.

@@ -20,6 +20,7 @@ import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.export.ExportFormat;
 import jcompute.results.export.Result;
 import jcompute.scenario.ScenarioInf;
+import jcompute.timing.ProgressObj;
 import jcompute.timing.TimerObj;
 import jcompute.util.text.TimeString;
 import jcompute.util.text.TimeString.TimeStringFormat;
@@ -38,7 +39,7 @@ public class Batch implements StoredQueuePosition
 	
 	// Does this batch need items generated.
 	private AtomicBoolean needGenerated = new AtomicBoolean(true);
-	private double[] generationProgress = new double[1];
+	private ProgressObj itemGenerationProgress;
 	
 	// Queue Positon
 	private int position;
@@ -133,6 +134,11 @@ public class Batch implements StoredQueuePosition
 		settings = bcp.getBatchSettings();
 		
 		boolean bcpIsValid = bcp.isValid();
+		
+		if(bcpIsValid)
+		{
+			itemGenerationProgress = new ProgressObj(settings.itemGeneratorConfig.getTotalCombinations());
+		}
 		
 		log.info("Batch config is Valid : " + bcpIsValid);
 		
@@ -233,7 +239,7 @@ public class Batch implements StoredQueuePosition
 					log.error("Scenario does not support batch items");
 				}
 				
-				if(itemGenerator.generate(batchId, generationProgress, queuedItems, itemStore, settings))
+				if(itemGenerator.generate(batchId, itemGenerationProgress, queuedItems, itemStore, settings))
 				{
 					log.info("Generated Items Batch " + batchId);
 					
@@ -524,8 +530,17 @@ public class Batch implements StoredQueuePosition
 		
 		targetList.add("Generated");
 		targetList.add(batchGenerated ? "Yes" : "No");
+		
 		targetList.add("Progress");
-		targetList.add(String.valueOf(generationProgress[0]));
+		if(itemGenerationProgress != null)
+		{
+			targetList.add(String.valueOf((int) itemGenerationProgress.progressAsPercentage()));
+		}
+		else
+		{
+			targetList.add("0");
+		}
+		
 		targetList.add("Time");
 		targetList.add(TimeString.timeInMillisAsFormattedString(itemGenerationTime, TimeStringFormat.DHMS));
 	}
