@@ -117,7 +117,14 @@ public class StandardItemGenerator extends ItemGenerator
 		ArrayList<BatchItem> tempComboItemList = new ArrayList<BatchItem>(combinations);
 		
 		// ItemDiskCache is bound to Standard Item Generator
-		((ItemDiskCache) itemStore).init(true, cacheSize, uniqueRatio, batchSettings.batchResultSettings.BatchStatsExportDir, Deflater.BEST_SPEED);
+		boolean intemStoreCreated = ((ItemDiskCache) itemStore).init(true, cacheSize, uniqueRatio, batchSettings.batchResultSettings.BatchStatsExportDir, Deflater.BEST_SPEED);
+		
+		if(!intemStoreCreated)
+		{
+			log.error("Could not initialise item store");
+			
+			return false;
+		}
 		
 		log.info("Created an ItemDiskCache as ItemStore for Batch " + batchId);
 		
