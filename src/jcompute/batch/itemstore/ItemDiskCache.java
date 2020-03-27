@@ -63,7 +63,7 @@ public class ItemDiskCache implements ItemStore
 	}
 	
 	// We need to know the size and ratio to create a perfect mapping of duplicates
-	public void init(boolean useMemCache, int cacheSize, int uniqueRatio, String storageLocation, int compressionLevel)
+	public boolean init(boolean useMemCache, int cacheSize, int uniqueRatio, String storageLocation, int compressionLevel)
 	{
 		try
 		{
@@ -133,10 +133,11 @@ public class ItemDiskCache implements ItemStore
 		this.compressionLevel = compressionLevel;
 		
 		log.info("Disk Cache c/r " + cacheSize + "/" + uniqueRatio);
-		initCache();
+		
+		return initCache();
 	}
 	
-	private void initCache()
+	private boolean initCache()
 	{
 		itemsAddedToCache = 0;
 		
@@ -146,7 +147,7 @@ public class ItemDiskCache implements ItemStore
 		// Mark all entries as free (-1)
 		// Arrays.fill(cacheNonUniqueTable, -1);
 		
-		FileUtil.createDirIfNotExist(diskCacheLocation);
+		return FileUtil.createDirIfNotExist(diskCacheLocation);
 	}
 	
 	private void initMemCache()
