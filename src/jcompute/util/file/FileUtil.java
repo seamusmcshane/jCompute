@@ -212,14 +212,38 @@ public class FileUtil
 		return null;
 	}
 	
-	public static void createDirIfNotExist(String dir)
+	/**
+	 * This method attempts to create a directory, if it does not exist.
+	 * If the directory already exist it does nothing.
+	 * 
+	 * @param dir
+	 * @return
+	 * True if the directory was created or already existed.
+	 * False if the directory could not be created.
+	 */
+	public static boolean createDirIfNotExist(String dir)
 	{
 		File directory = new File(dir);
 		
 		if(!directory.exists())
 		{
-			directory.mkdir();
+			if(!directory.mkdir())
+			{
+				log.error("Cannot Create dir - " + dir);
+				
+				return false;
+			}
+			else
+			{
+				log.info("Created : " + dir);
+			}
 		}
+		else
+		{
+			log.warn("Cannot create directory " + dir + " - it already exists.");
+		}
+		
+		return true;
 	}
 	
 	public static javax.swing.filechooser.FileFilter batchFileFilter()
