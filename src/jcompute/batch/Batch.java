@@ -178,48 +178,48 @@ public class Batch implements StoredQueuePosition
 			@Override
 			public void run()
 			{
+				ScenarioInf baseScenario = settings.baseScenario;
+				
+				BatchItemLogInf itemLog = baseScenario.getItemLogWriter();
+				
+				ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager().getResultManager().getCustomItemResultList();
+				
+				try
+				{
+					// Create Results Exporter
+					batchResultsExporter = new BatchResultsExporter(itemLog, customItemResultList, settings);
+				}
+				catch(IOException e)
+				{
+					log.error("Could not create batchResultsExporter for  Batch " + batchId);
+					
+					// status = false;
+					e.printStackTrace();
+					
+					failed = true;
+					
+					// Do not continuie
+					return;
+				}
+				
 				TimerObj to = new TimerObj();
 				
 				to.startTimer();
 				
-				ScenarioInf baseScenario = settings.baseScenario;
-				
 				// Create a generator (type HC for now and too many vars)
 				ItemGenerator itemGenerator = baseScenario.getItemGenerator();
 				
-				// Ref Stored in batch
-				itemStore = baseScenario.getItemStore();
-				
-				if(itemGenerator != null)
-				{
-					// TODO REMOVE
-					BatchItemLogInf itemLog = baseScenario.getItemLogWriter();
-					
-					ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager().getResultManager()
-					.getCustomItemResultList();
-					
-					try
-					{
-						// Create Results Exporter
-						batchResultsExporter = new BatchResultsExporter(itemLog, customItemResultList, settings);
-					}
-					catch(IOException e)
-					{
-						log.error("Could not create batchResultsExporter for  Batch " + batchId);
-						
-						// status = false;
-						e.printStackTrace();
-						
-						failed = true;
-						
-						// Do not continuie
-						return;
-					}
-				}
-				else
+				if(itemGenerator == null)
 				{
 					log.error("Scenario does not support batch items");
+					
+					failed = true;
+					
+					return;
 				}
+				
+				// Ref Stored in batch
+				itemStore = baseScenario.getItemStore();
 				
 				if(itemGenerator.generate(batchId, itemGenerationProgress, itemManager, itemStore, settings))
 				{
@@ -236,11 +236,18 @@ public class Batch implements StoredQueuePosition
 				else
 				{
 					log.error("Item Generation Failed");
+					
+					failed = true;
+					
+					// Do not continuie
+					return;
 				}
 				
 				to.stopTimer();
 				
 				itemGenerationTime = to.getTimeTaken();
+				
+
 			}
 		});
 		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
