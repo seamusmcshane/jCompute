@@ -21,25 +21,12 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/jfreechart/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/rednaxela-knn-benchmark/knn-benchmark.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi-1.10.0/aparapi-1.10.0.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-api-0.9.1.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jzy3d/jzy3d-api-0.9.1/jzy3d-depthpeeling-0.9.1.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/gluegen-rt.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/jogl-all-natives-windows-amd64.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/jogamp-all-platforms/jogamp-all-platforms-2.2.4/jar/jogl-all.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/guava/guava-19.0.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.1-javadoc.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/glazedlists/glazedlists_java15-1.9.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-logging/commons-logging-1.2/commons-logging-1.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.11.2-bin/log4j-api-2.11.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/log4j/apache-log4j-2.11.2-bin/log4j-core-2.11.2.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/fontbox-2.0.0.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/pdfbox-2.0.0.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/preflight-2.0.0.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/apache-pdfbox/PDFBox-2.0.0/xmpbox-2.0.0.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.1-bin/fftw-windows-x86_64.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.1-bin/fftw.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.1-bin/javacpp.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/javacpp-presets/javacpp-presets-1.1-bin/fftw-linux-x86_64.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-io/commons-io-2.4/commons-io-2.4.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/AlphanumComparator/AlphanumComparator.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-math/commons-math3-3.5/commons-math3-3.5.jar"/>
@@ -50,7 +37,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-freetype-natives.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/gdx/libgdx-2019.09.13/gdx-freetype.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/looknfeels/looks-2.2.2.jar"/>
-	<classpathentry kind="var" path="COMPUTE_LIBS/reactive-streams/reactive-streams-1.0.1/reactive-streams-1.0.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/aparapi/aparapi-jni-1.4.1/aparapi-jni-1.4.1.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/apache-commons/commons-bcel/commons-bcel-6.3.1/bcel-6.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
