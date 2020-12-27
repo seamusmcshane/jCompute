@@ -4,9 +4,9 @@ import java.util.List;
 
 import jcompute.batch.itemgenerator.ItemGenerator;
 import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
+import jcompute.batch.itemgenerator.Parameter;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
-import jcompute.results.trace.group.TraceGroupSetting;
 import jcompute.simulation.SimulationScenarioManagerInf;
 
 /**
@@ -19,14 +19,21 @@ import jcompute.simulation.SimulationScenarioManagerInf;
  */
 public interface ScenarioInf
 {
+	/** Allows detecting if there is an error loading a plugin */
+	public static final String INVALID = "Invalid";
+	
 	/**
-	 * The logic to load and process a configuration file.
-	 * It must create all required simulation structures ready for processing.
+	 * Method to provide the settings for a scenario.
 	 * 
-	 * @param interpreter
-	 * @return true if the configuration was successful or false for any error.
+	 * @param scenarioSettings
+	 * @return true if settings where applied successfully, false on any error.
 	 */
-	public boolean loadConfig(ConfigurationInterpreter interpreter);
+	public boolean loadConfig(String configText);
+	
+	/**
+	 * @return The configuration text used to create this scenario.
+	 */
+	public String getScenarioText();
 	
 	/**
 	 * @return String (Unique) identifier for this scenario plugin type.
@@ -44,30 +51,6 @@ public interface ScenarioInf
 	 * @return A fully configured simulation manager object for this scenario type.
 	 */
 	public SimulationScenarioManagerInf getSimulationScenarioManager();
-	
-	/**
-	 * @return The list of settings for all the stat groups.
-	 */
-	public List<TraceGroupSetting> getStatGroupSettingsList();
-	
-	/**
-	 * @return The configuration text used to create this scenario.
-	 */
-	public String getScenarioText();
-	
-	/**
-	 * @param eventName
-	 * @return true if a particular end event is set
-	 */
-	public boolean endEventIsSet(String eventName);
-	
-	/**
-	 * @param eventName
-	 * @return The trigger value for a particular end event.
-	 */
-	public int getEndEventTriggerValue(String eventName);
-	
-	public static final String INVALID = "Invalid";
 	
 	/*
 	 * ***************************************************************************************************
@@ -89,7 +72,7 @@ public interface ScenarioInf
 	 * 
 	 * @return A configuration for the Item generator type used.
 	 */
-	public ItemGeneratorConfigInf getItemGeneratorConfig(ConfigurationInterpreter interpreter, String baseScenarioText, int itemSamples);
+	public ItemGeneratorConfigInf getItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText, int itemSamples);
 	
 	/**
 	 * Only required in cluster mode.

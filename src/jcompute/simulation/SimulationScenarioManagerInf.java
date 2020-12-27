@@ -28,7 +28,7 @@ public interface SimulationScenarioManagerInf
 	public void doSimulationUpdate();
 	
 	/**
-	 * If the simulation needs data it will be retrieved and set buy this call back.
+	 * If the simulation needs data it will be retrieved and set by this call back.
 	 * 
 	 * @param data
 	 */
@@ -49,23 +49,13 @@ public interface SimulationScenarioManagerInf
 	public String getEndEvent();
 	
 	/**
-	 * This method is equivalent to call-back.
-	 * It allows a special end event to be set that all simulations must support.
-	 * It is the bare minimum end event required by cluster operation so that task completion can be implemented.
-	 * For interactive mode setting 0 as the trigger value will suppress this end event and allow continuous running requiring manual intervention to stop.
-	 * 
-	 * @param simulation
-	 * The simulation container.
-	 */
-	public void setScenarioStepCountEndEvent(Simulation simulation);
-	
-	/**
 	 * This method is called after an end event has triggered.
 	 * It is an opportunity to perform some light processing, such as generating a log line for custom item results.
 	 * It should not be used to perform an extra step update.
-	 * @param simulationSteps 
-	 * @param averageStepRate 
-	 * @param totalStepsTime 
+	 * 
+	 * @param simulationSteps
+	 * @param averageStepRate
+	 * @param totalStepsTime
 	 */
 	public void finalProcessing(long runTime, int simulationSteps, int averageStepRate);
 	
@@ -90,11 +80,11 @@ public interface SimulationScenarioManagerInf
 	public ResultManager getResultManager();
 	
 	/**
-	 * Used for scheduling and control logic.
+	 * Used by GUI Tabs to populate editor text from a running simulation.
 	 * 
 	 * @return
 	 */
-	public ScenarioInf getScenario();
+	public ScenarioInf getScenario();	
 	
 	/**
 	 * If the plugin has a visual representation, this value is used to scale to the screen.

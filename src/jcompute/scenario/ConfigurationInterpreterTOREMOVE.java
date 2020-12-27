@@ -34,7 +34,7 @@ import jcompute.results.trace.group.TraceGroupSetting;
 /**
  * XML Configuration File Interpreter.
  */
-public class ConfigurationInterpreter
+public class ConfigurationInterpreterTOREMOVE
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(ConfigurationInterpreter.class);
@@ -54,7 +54,7 @@ public class ConfigurationInterpreter
 	// End Events
 	private HashMap<String, Integer> endEvents;
 	
-	public ConfigurationInterpreter()
+	public ConfigurationInterpreterTOREMOVE()
 	{
 		// Statistics settings are managed at the top level.
 		statSettingsList = new ArrayList<TraceGroupSetting>();

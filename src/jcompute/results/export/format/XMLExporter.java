@@ -2,8 +2,6 @@ package jcompute.results.export.format;
 
 import java.util.List;
 
-import org.apache.xerces.util.XMLChar;
-
 import jcompute.results.trace.samples.TraceSample;
 
 public class XMLExporter

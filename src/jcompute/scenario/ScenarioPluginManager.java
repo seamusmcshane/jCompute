@@ -9,6 +9,8 @@ import java.util.ServiceLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.configuration.JComputeConfigurationUtility;
+import jcompute.configuration.support.ScenarioTestConfiguration;
 import jcompute.util.file.FileUtil;
 import jcompute.util.text.JCText;
 
@@ -92,23 +94,28 @@ public class ScenarioPluginManager
 	public static ScenarioInf getScenario(String configText)
 	{
 		// Load the configuration text
-		ConfigurationInterpreter parser = new ConfigurationInterpreter();
+		// ConfigurationInterpreter parser = new ConfigurationInterpreter();
+		
+		// OuterClass.InnerClass innerObject = outerObject.new InnerClass();
+		
+		ScenarioTestConfiguration stc = (ScenarioTestConfiguration) JComputeConfigurationUtility.XMLTexttoConfig(configText, ScenarioTestConfiguration.class);
 		
 		// Is the configuration valid
-		if(!parser.loadConfig(configText))
+		if(stc == null)
 		{
 			log.error("Invalid configuration text");
-			// Invalid configuration and thus no scenario
+			
+			// Problem encountered and thus no JComputeConfiguration
 			return null;
 		}
 		
-		// Get the requested scenario type
-		String type = parser.getScenarioType();
+		// Get the requested scenario type from the config header
+		String type = stc.getHeader().getType();
 		
 		// Invalid type returned
 		if(ScenarioInf.INVALID.equals(type))
 		{
-			log.error("No scenario type returned");
+			log.error("Invalid scenario type returned");
 			
 			// avoid searching scenario list for "Invalid" and return null - no scenario now
 			return null;
@@ -117,7 +124,7 @@ public class ScenarioPluginManager
 		// Our returned scenario or null
 		ScenarioInf scenario = null;
 		
-		// Look for scenario plugin based on type
+		// Look for scenario plugin that matches the header type
 		for(ScenarioInf currentScenario : loader)
 		{
 			if(type.equals(currentScenario.getScenarioType()))
@@ -128,12 +135,15 @@ public class ScenarioPluginManager
 		
 		log.info(("Looking for plugin supporting scenario type " + type + " Found " + scenario) != null ? scenario.getScenarioType() : null);
 		
-		// jcompute cannot know if the code about to is valid so we must catch problems here and not assume anything.
+		// jcompute cannot know if the code about to load is valid so we must catch problems here and not assume anything.
 		// It can only catch thrown errors that are sub classes of java.lang.Throwable (all errors and exceptions).
 		try
 		{
-			// TODO check for a plug-ins logical fail status
-			scenario.loadConfig(parser);
+			// No longer used
+			stc = null;
+			
+			// We give the config text to the scenario to process.
+			scenario.loadConfig(configText);
 			
 			return scenario;
 		}

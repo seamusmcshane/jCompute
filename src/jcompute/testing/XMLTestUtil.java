@@ -18,7 +18,7 @@ public class XMLTestUtil
 	{
 		System.out.println("XML TESTER");
 		// File file = new File("scenarios/SAPP/batch/BatchRun-ViewRange.xml");
-		File file = new File("scenarios/HenonMap/default.scenario");
+		File file = new File("batch/DemoBatch.batch");
 		
 		XMLConfiguration scenario = new XMLConfiguration();
 		

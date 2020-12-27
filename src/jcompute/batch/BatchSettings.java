@@ -14,7 +14,7 @@ public class BatchSettings
 	public final int maxSteps;
 	public final String type;
 	
-	// Process BatchConfig
+	// Process BatchJobConfig
 	public final CustomItemResultsSettings customItemResultsSettings;
 	public final BatchResultSettings batchResultSettings;
 	public final ItemGeneratorConfigInf itemGeneratorConfig;

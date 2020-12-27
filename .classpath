@@ -42,5 +42,6 @@
 	<classpathentry kind="var" path="COMPUTE_LIBS/org.glassfish.jaxb/jaxb-runtime/jaxb-xjc-2.3.2.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/com.sun.istack/istack-commons-runtime/istack-commons-runtime-3.0.11.jar"/>
 	<classpathentry kind="var" path="COMPUTE_LIBS/jakarta.activation/jakarta.activation-api/jakarta.activation-api-1.2.2.jar"/>
+	<classpathentry kind="var" path="COMPUTE_LIBS/sun.xml/jaxb-impl-2.3.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

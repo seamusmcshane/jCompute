@@ -122,8 +122,8 @@ public class Simulation implements stateChangedInf, ViewTarget
 			
 			simulationScenarioManager = scenario.getSimulationScenarioManager();
 			
-			// This is a special external end event based on the simulation step count.
-			simulationScenarioManager.setScenarioStepCountEndEvent(this);
+			// TODO Add to config CHECK - This is a special external end event based on the simulation step count.
+			// simulationScenarioManager.setScenarioStepCountEndEvent(this);
 			
 			log.info("Scenario Type : " + scenario.getScenarioType());
 		}

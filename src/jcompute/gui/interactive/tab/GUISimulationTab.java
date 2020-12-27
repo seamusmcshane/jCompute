@@ -178,6 +178,7 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		// We may be a tab for an active simulation
 		if(simId != -1)
 		{
+			// This is only used by the gui editor TODO move this to the gui
 			String scenarioText = simsManager.getScenarioText(simId);
 			
 			SimState state = simsManager.getState(simId);

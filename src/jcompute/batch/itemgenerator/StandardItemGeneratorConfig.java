@@ -1,12 +1,12 @@
 package jcompute.batch.itemgenerator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.math.JCMath;
-import jcompute.scenario.ConfigurationInterpreter;
 
 public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 {
@@ -32,7 +32,7 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	// Calculated total combinations
 	private final int totalCombinations;
 	
-	public StandardItemGeneratorConfig(ConfigurationInterpreter interpreter, String baseScenarioText, int itemSamples)
+	public StandardItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText, int itemSamples)
 	{
 		// The file to be used to generate configs
 		this.baseScenarioText = baseScenarioText;
@@ -41,7 +41,7 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 		this.itemSamples = itemSamples;
 		
 		// Get a count of the parameter groups.
-		numParameterGroups = interpreter.getSubListSize("Parameters", "Parameter");
+		numParameterGroups = parameterList.size();
 		
 		// Array to hold the parameter type (group/single)
 		parameterType = new String[numParameterGroups];
@@ -82,31 +82,33 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 			log.debug("Parameter Group : " + p);
 			section = "Parameters.Parameter(" + p + ")";
 			
+			Parameter param = parameterList.get(p);
+			
 			// Get the type (group/single)
-			parameterType[p] = interpreter.getStringValue(section, "Type");
+			parameterType[p] = param.TYPE;
 			
 			// Populate the path to this parameter.
-			path[p] = interpreter.getStringValue(section, "Path");
+			path[p] = param.PATH;
 			
 			// Store the group name if this parameter changes one in a
 			// group.
 			groupName[p] = "";
 			if(parameterType[p].equalsIgnoreCase("Group"))
 			{
-				groupName[p] = interpreter.getStringValue(section, "GroupName");
+				groupName[p] = param.GROUP_NAME;
 			}
 			
 			// Store the name of the paramter to change
-			parameterName[p] = interpreter.getStringValue(section, "ParameterName");
+			parameterName[p] = param.PARAMETER_NAME;
 			
 			// Base value
-			baseValue[p] = interpreter.getDoubleValue(section, "Intial");
+			baseValue[p] = param.VAL_INITIAL;
 			
 			// Increment value
-			increment[p] = interpreter.getDoubleValue(section, "Increment");
+			increment[p] = param.VAL_INCREMENT;
 			
 			// Steps for each values
-			step[p] = interpreter.getIntValue(section, "Combinations");
+			step[p] = param.VAL_COMBINATIONS;
 			
 			// Find the number of decimal places
 			int places = JCMath.getNumberOfDecimalPlaces(increment[p]);

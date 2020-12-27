@@ -16,7 +16,6 @@ import jcompute.batch.ItemManager;
 import jcompute.batch.itemstore.ItemDiskCache;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.math.JCMath;
-import jcompute.scenario.ConfigurationInterpreter;
 import jcompute.timing.ProgressObj;
 
 /**
