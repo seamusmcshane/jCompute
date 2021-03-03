@@ -75,12 +75,12 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 		parameters = new ArrayList<String>();
 		
 		// Iterate over the detected parameters and read values
-		String section = "";
+		//String section = "";
 		for(int p = 0; p < numParameterGroups; p++)
 		{
 			// Generate the parameter path in the xml array (0),(1) etc
 			log.debug("Parameter Group : " + p);
-			section = "Parameters.Parameter(" + p + ")";
+			//section = "Parameters.Parameter(" + p + ")";
 			
 			Parameter param = parameterList.get(p);
 			
