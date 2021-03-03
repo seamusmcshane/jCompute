@@ -35,10 +35,12 @@ public class JXMLTest
 		System.out.println(e.getStats().getGroupDir());
 		System.out.println(e.getStats().getSubGroupDir());*/
 		
-		BatchJobConfig config = (BatchJobConfig) JComputeConfigurationUtility.XMLtoConfig(filePath, new BatchJobConfig());
+		BatchJobConfig config = (BatchJobConfig) JComputeConfigurationUtility.XMLtoConfig(filePath, BatchJobConfig.class);
 		
 		System.out.println(config.getHeader().getVersion());
 		System.out.println(config.getHeader().getType());
+		
+		System.out.println(config.getConfig().getEndEventsList().get(0).getName());
 		
 		JComputeConfigurationUtility.ConfigToXML(config, "test");
 	}
