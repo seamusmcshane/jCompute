@@ -1,4 +1,4 @@
-package jcompute.batch;
+package jcompute.batch.batchresults;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -18,6 +18,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.batch.BatchSettings;
+import jcompute.batch.batchitem.BatchItem;
 import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.item.custom.logger.CustomItemLogger;
@@ -377,7 +379,7 @@ public class BatchResultsExporter
 		
 		try
 		{
-			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipPath), batchResultSettings.BufferSize);
+			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipPath)/*, batchResultSettings.BufferSize*/);
 			
 			resultsZipOut = new ZipOutputStream(bos);
 			

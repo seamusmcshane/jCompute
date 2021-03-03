@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.BatchSettings;
-import jcompute.batch.ItemManager;
+import jcompute.batch.itemmanager.ItemManager;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.timing.ProgressObj;
 

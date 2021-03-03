@@ -63,14 +63,14 @@ public class InfoLogger
 	}
 	
 	// Item Info
-	public void writeItemInfo(int totalItems, int samplesPerItem, int maxSteps, String generationTime)
+	public void writeItemInfo(int totalItems, int samplesPerItem, /*int maxSteps,*/ String generationTime)
 	{
 		// Calculate unique items
 		int uniqueItems = totalItems / samplesPerItem;
 		infoLog.println("Items=" + totalItems);
 		infoLog.println("ItemSamples=" + samplesPerItem);
 		infoLog.println("UniqueItems=" + uniqueItems);
-		infoLog.println("MaxSteps=" + maxSteps);
+		/*infoLog.println("MaxSteps=" + maxSteps);*/
 		infoLog.println("GenerationTime=" + generationTime);
 		
 		itemInfo = true;

@@ -16,7 +16,7 @@ import com.google.common.eventbus.Subscribe;
 
 import jcompute.JComputeEventBus;
 import jcompute.batch.Batch;
-import jcompute.batch.BatchItem;
+import jcompute.batch.batchitem.BatchItem;
 import jcompute.cluster.batchmanager.event.BatchAddedEvent;
 import jcompute.cluster.batchmanager.event.BatchFinishedEvent;
 import jcompute.cluster.batchmanager.event.BatchPositionEvent;

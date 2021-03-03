@@ -20,5 +20,4 @@ public class Parameter
 		this.VAL_INCREMENT = valIncrement;
 		this.VAL_COMBINATIONS = valCombinations;
 	}
-	
 }

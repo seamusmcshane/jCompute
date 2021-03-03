@@ -1,4 +1,4 @@
-package jcompute.batch;
+package jcompute.batch.batchitem;
 
 import java.util.ArrayList;
 

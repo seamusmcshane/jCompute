@@ -3,6 +3,8 @@ package jcompute.batch.log.item.custom.logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.configuration.batch.BatchJobConfig;
+
 public class CustomItemResultsSettings
 {
 	// Log4j2 Logger
@@ -14,8 +16,7 @@ public class CustomItemResultsSettings
 	public final boolean BatchHeaderInResult;
 	public final boolean ItemInfoInResult;
 	
-	public CustomItemResultsSettings(boolean customResultsEnabled, String customItemResultsFormat, boolean batchHeaderInCustomResult,
-	boolean itemInfoInCustomResult)
+	public CustomItemResultsSettings(BatchJobConfig bjc)
 	{
 		Format = ItemLogExportFormat.fromString(customItemResultsFormat);
 		

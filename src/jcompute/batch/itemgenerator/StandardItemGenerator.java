@@ -9,10 +9,10 @@ import java.util.zip.Deflater;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.BatchItem;
-import jcompute.batch.BatchResultSettings;
 import jcompute.batch.BatchSettings;
-import jcompute.batch.ItemManager;
+import jcompute.batch.batchitem.BatchItem;
+import jcompute.batch.batchresults.BatchResultSettings;
+import jcompute.batch.itemmanager.ItemManager;
 import jcompute.batch.itemstore.ItemDiskCache;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.math.JCMath;
@@ -53,7 +53,8 @@ public class StandardItemGenerator extends ItemGenerator
 	
 	// progress1dArray[0] parms here? make method?
 	@Override
-	public boolean subgenerator(int batchId, ProgressObj progress, ItemManager itemManager, ItemStore itemStore, BatchSettings batchSettings)
+	public boolean subgenerator(int batchId, ProgressObj progress, ItemManager itemManager, ItemStore itemStore,
+	BatchSettings batchSettings)
 	{
 		log.info("Generating Items for Batch " + batchId);
 		
@@ -116,7 +117,8 @@ public class StandardItemGenerator extends ItemGenerator
 		ArrayList<BatchItem> tempComboItemList = new ArrayList<BatchItem>(combinations);
 		
 		// ItemDiskCache is bound to Standard Item Generator
-		boolean intemStoreCreated = ((ItemDiskCache) itemStore).init(true, cacheSize, uniqueRatio, batchSettings.batchResultSettings.BatchStatsExportDir, Deflater.BEST_SPEED);
+		boolean intemStoreCreated = ((ItemDiskCache) itemStore).init(true, cacheSize, uniqueRatio,
+		batchSettings.batchResultSettings.FullBatchStatsExportPath, Deflater.BEST_SPEED);
 		
 		if(!intemStoreCreated)
 		{
@@ -286,7 +288,7 @@ public class StandardItemGenerator extends ItemGenerator
 					// Currently only decimal and integer are used.
 					if(dtype.equals("boolean"))
 					{
-						temp.changeValue(path[p], parameterName[p],  String.valueOf(true));
+						temp.changeValue(path[p], parameterName[p], String.valueOf(true));
 					}
 					else if(dtype.equals("string"))
 					{
@@ -335,8 +337,8 @@ public class StandardItemGenerator extends ItemGenerator
 				int cacheIndex = itemStore.addData(configBytes);
 				
 				// Add the item to the temp combo list (samples created later) 1==Sample one with samples starting from base of 1
-				tempComboItemList.add(new BatchItem(comboNo, 1, batchId, itemName.toString(), cacheIndex, tempCoord, tempCoordValues,
-				batchResultSettings.ResultsEnabled));
+				tempComboItemList.add(new BatchItem(comboNo, 1, batchId, itemName.toString(), cacheIndex, tempCoord,
+				tempCoordValues, batchResultSettings.ResultsEnabled));
 			}
 			catch(UnsupportedEncodingException e)
 			{
@@ -400,7 +402,8 @@ public class StandardItemGenerator extends ItemGenerator
 				// sid identifies the sample with in each combo.
 				// destinationItemList.add(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
 				
-				itemManager.addItem(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord, tempCoordValues, storeStats));
+				itemManager.addItem(new BatchItem(comboNo, sid, cItemBatchId, itemName, cacheIndex, tempCoord,
+				tempCoordValues, storeStats));
 				
 			}
 		}

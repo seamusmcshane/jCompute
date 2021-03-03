@@ -1,5 +1,6 @@
 package jcompute.batch;
 
+import jcompute.batch.batchresults.BatchResultSettings;
 import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
 import jcompute.batch.log.item.custom.logger.CustomItemResultsSettings;
 import jcompute.scenario.ScenarioInf;
@@ -11,7 +12,7 @@ public class BatchSettings
 	public final String baseScenarioFileName;
 	public final String baseDirectoryPath;
 	
-	public final int maxSteps;
+	//public final int maxSteps;
 	public final String type;
 	
 	// Process BatchJobConfig
@@ -22,7 +23,7 @@ public class BatchSettings
 	// Base Scenario
 	public final ScenarioInf baseScenario;
 	
-	public BatchSettings(String batchFileName, String batchName, String baseScenarioFileName, String baseDirectoryPath, int maxSteps, String type,
+	public BatchSettings(String batchFileName, String batchName, String baseScenarioFileName, String baseDirectoryPath/*, int maxSteps*/, String type,
 	CustomItemResultsSettings customItemResultsSettings, BatchResultSettings batchResultSettings, ItemGeneratorConfigInf itemGeneratorConfig,
 	ScenarioInf baseScenario)
 	{
@@ -31,7 +32,7 @@ public class BatchSettings
 		this.baseScenarioFileName = baseScenarioFileName;
 		this.baseDirectoryPath = baseDirectoryPath;
 		
-		this.maxSteps = maxSteps;
+		//this.maxSteps = maxSteps;
 		this.type = type;
 		
 		this.customItemResultsSettings = customItemResultsSettings;

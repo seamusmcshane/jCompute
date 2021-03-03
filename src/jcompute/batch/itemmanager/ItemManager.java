@@ -1,7 +1,9 @@
-package jcompute.batch;
+package jcompute.batch.itemmanager;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import jcompute.batch.batchitem.BatchItem;
 
 public class ItemManager
 {

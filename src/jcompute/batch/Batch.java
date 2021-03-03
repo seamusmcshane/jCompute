@@ -10,7 +10,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.batch.batchitem.BatchItem;
+import jcompute.batch.batchresults.BatchResultsExporter;
 import jcompute.batch.itemgenerator.ItemGenerator;
+import jcompute.batch.itemmanager.ItemManager;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.info.logger.InfoLogger;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
@@ -182,7 +185,8 @@ public class Batch implements StoredQueuePosition
 				
 				BatchItemLogInf itemLog = baseScenario.getItemLogWriter();
 				
-				ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager().getResultManager().getCustomItemResultList();
+				ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager()
+				.getResultManager().getCustomItemResultList();
 				
 				try
 				{
@@ -247,7 +251,6 @@ public class Batch implements StoredQueuePosition
 				
 				itemGenerationTime = to.getTimeTaken();
 				
-
 			}
 		});
 		backgroundGenerate.setName("Item Generation Background Thread Batch " + batchId);
@@ -328,12 +331,14 @@ public class Batch implements StoredQueuePosition
 			{
 				try
 				{
-					InfoLogger infoLogger = new InfoLogger(settings.batchResultSettings.BatchStatsExportDir);
+					InfoLogger infoLogger = new InfoLogger(settings.batchResultSettings.FullBatchStatsExportPath);
 					
-					infoLogger.writeGeneralInfo(batchId, settings.batchName, settings.type, settings.baseScenarioFileName);
+					infoLogger.writeGeneralInfo(batchId, settings.batchName, settings.type,
+					settings.baseScenarioFileName);
 					
-					infoLogger.writeItemInfo(itemManager.getTotalItems(), settings.itemGeneratorConfig.getItemSamples(), settings.maxSteps, TimeString
-					.timeInMillisAsFormattedString(itemGenerationTime, TimeStringFormat.DHMS));
+					infoLogger.writeItemInfo(itemManager.getTotalItems(), settings.itemGeneratorConfig.getItemSamples(),
+					/*settings.maxSteps,*/ TimeString.timeInMillisAsFormattedString(itemGenerationTime,
+					TimeStringFormat.DHMS));
 					
 					infoLogger.writeProcessedInfo(addedDateTime, startDateTime, endDateTime, startTimeMillis);
 					
@@ -409,7 +414,8 @@ public class Batch implements StoredQueuePosition
 		
 		if((active > 0) && (itemsCompleted > 0))
 		{
-			return ((cpuTotalTimes + ioTotalTimes) / itemsCompleted) * ((itemManager.getTotalItems() - itemsCompleted) / active);
+			return ((cpuTotalTimes + ioTotalTimes) / itemsCompleted) * ((itemManager.getTotalItems() - itemsCompleted)
+			/ active);
 		}
 		
 		return 0;
@@ -450,7 +456,7 @@ public class Batch implements StoredQueuePosition
 		
 		if(batchGenerated)
 		{
-			int tMaxSteps = settings.maxSteps;
+			/*int tMaxSteps = settings.maxSteps;*/
 			int tItemSamples = settings.itemGeneratorConfig.getItemSamples();
 			
 			// Values wont exist/bevalid if not generated
@@ -461,8 +467,8 @@ public class Batch implements StoredQueuePosition
 			targetList.add(String.valueOf(tItemSamples));
 			targetList.add("Total Items");
 			targetList.add(String.valueOf(itemManager.getTotalItems()));
-			targetList.add("Max Steps");
-			targetList.add(String.valueOf(tMaxSteps));
+			/*targetList.add("Max Steps");
+			targetList.add(String.valueOf(tMaxSteps));*/
 			
 			addBatchInfoSectionHeader(formated, false, "Parameters", targetList);
 			targetList.addAll(parameters);
@@ -475,16 +481,16 @@ public class Batch implements StoredQueuePosition
 		targetList.add(settings.baseScenarioFileName);
 		targetList.add("Base");
 		targetList.add(settings.baseDirectoryPath);
-		targetList.add("Export");
-		targetList.add(settings.batchResultSettings.BatchStatsExportDir);
+		targetList.add("Export Path");
+		targetList.add(settings.batchResultSettings.FullBatchStatsExportPath);
 		
 		addBatchInfoSectionHeader(formated, false, "Statistics", targetList);
 		targetList.add("Stats Store");
 		targetList.add(settings.batchResultSettings.ResultsEnabled == true ? "Enabled" : "Disabled");
 		targetList.add("Single Archive");
 		targetList.add(settings.batchResultSettings.TraceStoreSingleArchive == true ? "Enabled" : "Disabled");
-		targetList.add("Buffer Size");
-		targetList.add(String.valueOf(settings.batchResultSettings.BufferSize));
+		// targetList.add("Buffer Size");
+		// targetList.add(String.valueOf(settings.batchResultSettings.BufferSize));
 		targetList.add("Compression Level");
 		targetList.add(String.valueOf(settings.batchResultSettings.TraceArchiveCompressionLevel));
 		targetList.add("Info Log");
@@ -503,7 +509,8 @@ public class Batch implements StoredQueuePosition
 		targetList.add(enabled == true ? "Enabled" : "Disabled");
 	}
 	
-	private void addBatchDetailsGenerationProgressInfoToList(boolean formated, boolean batchGenerated, ArrayList<String> targetList)
+	private void addBatchDetailsGenerationProgressInfoToList(boolean formated, boolean batchGenerated,
+	ArrayList<String> targetList)
 	{
 		addBatchInfoSectionHeader(formated, true, "Generation", targetList);
 		
@@ -588,7 +595,8 @@ public class Batch implements StoredQueuePosition
 		targetList.add("Items Total");
 		targetList.add(TimeString.timeInMillisAsFormattedString((cpuTotalTimes + ioTotalTimes), TimeStringFormat.DHMS));
 		targetList.add("Items Avg");
-		targetList.add(TimeString.timeInMillisAsFormattedString(((cpuTotalTimes + ioTotalTimes) / div), TimeStringFormat.DHMS));
+		targetList.add(TimeString.timeInMillisAsFormattedString(((cpuTotalTimes + ioTotalTimes) / div),
+		TimeStringFormat.DHMS));
 	}
 	
 	private void addBatchDetailsTimeInfoToList(boolean formated, boolean batchGenerated, ArrayList<String> targetList)

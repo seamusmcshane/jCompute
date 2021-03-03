@@ -1,5 +1,6 @@
-package jcompute.batch;
+package jcompute.batch.batchresults;
 
+import jcompute.configuration.batch.BatchJobConfig;
 import jcompute.results.export.ExportFormat;
 
 public class BatchResultSettings
@@ -13,8 +14,8 @@ public class BatchResultSettings
 	// The base results path under which we place the rest
 	public final String BaseExportDir;
 	
-	// The complete export dir for stats
-	public final String BatchStatsExportDir;
+	// The complete export path for stats
+	public final String FullBatchStatsExportPath;
 	
 	public final boolean ResultsPartofGroup;
 	public final String GroupDirName;
@@ -36,7 +37,7 @@ public class BatchResultSettings
 	public final int TraceArchiveCompressionLevel;
 	
 	// Write Buffer Size
-	public final int BufferSize;
+	// public final int BufferSize;
 	
 	/**
 	 * Simple Batch Log
@@ -49,26 +50,26 @@ public class BatchResultSettings
 	 */
 	// public final boolean MultiSampleItems;
 	
-	public BatchResultSettings(boolean resultsEnabled, String baseExportDir, String groupDirName, String subgroupDirName, String BatchStatsExportDir,
-	boolean traceEnabled, boolean bdfcEnabled, boolean traceStoreSingleArchive, int traceArchiveCompressionLevel, int bufferSize, boolean infoLogEnabled,
-	boolean itemLogEnabled)
+	public BatchResultSettings(BatchJobConfig bjc, String fullBatchStatsExportPath)
 	{
-		this.ResultsEnabled = resultsEnabled;
+		this.ResultsEnabled = bjc.getStats().getStoreEnabled();
 		
-		this.BaseExportDir = baseExportDir;
+		this.BaseExportDir = bjc.getStats().getStatsExportDir();
 		
-		this.GroupDirName = groupDirName;
+		this.GroupDirName = bjc.getStats().getGroupDir();
 		ResultsPartofGroup = (this.GroupDirName != null);
 		
-		this.SubgroupDirName = subgroupDirName;
+		this.SubgroupDirName = bjc.getStats().getSubGroupDir();
 		GroupsHaveSubGroups = (this.SubgroupDirName != null);
 		
-		this.BatchStatsExportDir = BatchStatsExportDir;
+		this.FullBatchStatsExportPath = fullBatchStatsExportPath;
 		
-		this.TraceEnabled = traceEnabled;
-		this.BDFCEnabled = bdfcEnabled;
+		this.TraceEnabled = bjc.getStats().getTraceResultsEnabled();
+		this.BDFCEnabled = bjc.getStats().getBDFCResultEnabled();
 		
-		this.TraceStoreSingleArchive = traceStoreSingleArchive;
+		this.TraceStoreSingleArchive = bjc.getStats().isSingleArchiveEnabled();
+		
+		int traceArchiveCompressionLevel = bjc.getStats().getCompressionLevel();
 		
 		if(traceArchiveCompressionLevel > 9)
 		{
@@ -83,9 +84,10 @@ public class BatchResultSettings
 			this.TraceArchiveCompressionLevel = traceArchiveCompressionLevel;
 		}
 		
-		this.BufferSize = bufferSize;
+		// TODO remove
+		// this.BufferSize = bufferSize;
 		
-		this.InfoLogEnabled = infoLogEnabled;
-		this.ItemLogEnabled = itemLogEnabled;
+		this.InfoLogEnabled = bjc.getLog().getInfoLog();
+		this.ItemLogEnabled = bjc.getLog().getItemLog();
 	}
 }

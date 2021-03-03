@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import jcompute.batch.BatchItem;
+import jcompute.batch.batchitem.BatchItem;
 import jcompute.batch.log.item.processor.logformat.ItemLogTextv2Format;
 
 public class TextBatchItemLogFormatV2 implements BatchItemLogInf

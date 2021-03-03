@@ -2,7 +2,7 @@ package jcompute.batch.log.item.logger;
 
 import java.io.IOException;
 
-import jcompute.batch.BatchItem;
+import jcompute.batch.batchitem.BatchItem;
 
 public interface BatchItemLogInf
 {

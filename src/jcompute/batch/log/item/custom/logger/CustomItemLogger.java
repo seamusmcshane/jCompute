@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jcompute.batch.BatchItem;
+import jcompute.batch.batchitem.BatchItem;
 import jcompute.results.custom.CustomItemResultInf;
 import jcompute.results.export.format.CSVExporter;
 import jcompute.util.text.JCText;

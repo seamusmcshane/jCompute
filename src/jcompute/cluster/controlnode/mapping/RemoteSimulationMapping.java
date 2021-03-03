@@ -1,6 +1,6 @@
 package jcompute.cluster.controlnode.mapping;
 
-import jcompute.batch.BatchItem;
+import jcompute.batch.batchitem.BatchItem;
 import jcompute.ncp.message.notification.SimulationStateChanged;
 import jcompute.results.export.ExportFormat;
 

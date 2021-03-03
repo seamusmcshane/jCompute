@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.eventbus.Subscribe;
 
 import jcompute.JComputeEventBus;
-import jcompute.batch.BatchItem;
+import jcompute.batch.batchitem.BatchItem;
 import jcompute.cluster.controlnode.computenodemanager.ComputeNodeManager2;
 import jcompute.cluster.controlnode.computenodemanager.event.ComputeNodeManagerItemStateEvent;
 import jcompute.cluster.controlnode.computenodemanager.request.NodeItemRequest;
