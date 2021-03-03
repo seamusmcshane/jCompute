@@ -7,9 +7,11 @@ import java.util.Calendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jcompute.batch.batchresults.BatchResultSettings;
 import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
 import jcompute.batch.log.item.custom.logger.CustomItemResultsSettings;
-import jcompute.scenario.ConfigurationInterpreter;
+import jcompute.configuration.JComputeConfigurationUtility;
+import jcompute.configuration.batch.BatchJobConfig;
 import jcompute.scenario.ScenarioInf;
 import jcompute.scenario.ScenarioPluginManager;
 import jcompute.util.file.FileUtil;
@@ -25,9 +27,6 @@ public class BatchConfigProcessor
 	
 	// Resultant settings object if valid is true
 	private BatchSettings batchSettings;
-	
-	// Write stats to a single archive or directories with sub archives
-	private final int BOS_DEFAULT_BUFFER_SIZE = 8192;
 	
 	public BatchConfigProcessor(int batchId, String filePath)
 	{
@@ -45,7 +44,7 @@ public class BatchConfigProcessor
 		ScenarioInf baseScenario = null;
 		
 		// Scenario max steps and type
-		int maxSteps;
+		// int maxSteps;
 		String type;
 		
 		/*
@@ -120,80 +119,22 @@ public class BatchConfigProcessor
 		// Set later then stored in settings
 		String baseScenarioFileName = null;
 		
-		// The Configuration Interpreter
-		ConfigurationInterpreter batchConfigInterpreter = new ConfigurationInterpreter();
+		// Convert the XML text to a jobconfig
+		BatchJobConfig bjc = (BatchJobConfig) JComputeConfigurationUtility.XMLtoConfig(batchConfigText,
+		BatchJobConfig.class);
 		
-		batchConfigInterpreter.loadConfig(batchConfigText);
-		
-		// We have loaded a file but is it a batch file?
-		if(batchConfigInterpreter.getScenarioType().equalsIgnoreCase("Batch"))
+		// Was the Batch Job Config created
+		if(bjc != null)
 		{
 			log.info("Processing BatchFile");
 			
-			/*
-			 * ********************************************************************************
-			 * Log Section
-			 ********************************************************************************/
-			
-			// Batch Info Log
-			final boolean InfoLogEnabled = batchConfigInterpreter.getBooleanValue("Log", "InfoLog");
-			
-			// Item Log
-			final boolean ItemLogEnabled = batchConfigInterpreter.getBooleanValue("Log", "ItemLog");
-			
-			/*
-			 * ********************************************************************************
-			 * Stat Section
-			 ********************************************************************************/
-			
-			// Enable / Disable writing the generated result files to disk
-			final boolean ResultsEnabled = batchConfigInterpreter.getBooleanValue("Stats", "Store", false);
-			
-			// Enable / Disable writing the generated result files to disk
-			final boolean TraceEnabled = batchConfigInterpreter.getBooleanValue("Stats", "TraceResult", false);
-			
-			// Enable / Disable writing the generated result files to disk
-			final boolean BDFCEnabled = batchConfigInterpreter.getBooleanValue("Stats", "BDFCResult", false);
-			
-			// Get the Custom Result Format
-			final String CustomResultsFormat = batchConfigInterpreter.getStringValue("Stats", "CustomResultFormat", "");
-			
-			// Check if the format is disabled, mean custom results are not requested.
-			final boolean CustomResultsEnabled = !CustomResultsFormat.equals("Disabled") ? true : false;
-			
-			final boolean BatchHeaderInCustomResult = batchConfigInterpreter.getBooleanValue("Stats", "BatchHeaderInCustomResult", false);
-			
-			final boolean ItemInfoInCustomResult = batchConfigInterpreter.getBooleanValue("Stats", "ItemInfoInCustomResult", false);
-			
-			// Store traces in a single archive
-			final boolean TraceStoreSingleArchive = batchConfigInterpreter.getBooleanValue("Stats", "SingleArchive", false);
-			
-			// Compression Level for above
-			final int TraceArchiveCompressionLevel = batchConfigInterpreter.getIntValue("Stats", "CompressionLevel", 9);
-			
-			final int BufferSize = batchConfigInterpreter.getIntValue("Stats", "BufferSize", BOS_DEFAULT_BUFFER_SIZE);
-			
-			/*
-			 * ********************************************************************************
-			 * Export Paths
-			 ********************************************************************************/
-			
-			// The base results path under which we place the rest - Normally stats/
-			final String BaseExportDir = batchConfigInterpreter.getStringValue("Stats", "BatchStatsExportDir");
-			
-			// Check for a Group dir for this Batch
-			final String GroupDirName = batchConfigInterpreter.getStringValue("Stats", "BatchGroupDir");
-			
-			final String SubgroupDirName = batchConfigInterpreter.getStringValue("Stats", "BatchSubGroupDirName");
-			
 			// The complete export dir for stats
-			final String BatchStatsExportDir = generateExportLocation(batchId, batchName, BaseExportDir, GroupDirName, SubgroupDirName);
+			final String CompleteBatchStatsExportDir = generateExportLocation(batchId, batchName, baseDirectoryPath,
+			bjc);
 			
-			batchResultSettings = new BatchResultSettings(ResultsEnabled, BaseExportDir, GroupDirName, SubgroupDirName, BatchStatsExportDir, TraceEnabled,
-			BDFCEnabled, TraceStoreSingleArchive, TraceArchiveCompressionLevel, BufferSize, InfoLogEnabled, ItemLogEnabled);
+			batchResultSettings = new BatchResultSettings(bjc, CompleteBatchStatsExportDir);
 			
-			customItemResultsSettings = new CustomItemResultsSettings(CustomResultsEnabled, CustomResultsFormat, BatchHeaderInCustomResult,
-			ItemInfoInCustomResult);
+			customItemResultsSettings = new CustomItemResultsSettings(bjc);
 			
 			/*
 			 * ********************************************************************************
@@ -205,7 +146,7 @@ public class BatchConfigProcessor
 			log.info("Processing BaseScenarioFile");
 			
 			// Store the base fileName
-			baseScenarioFileName = batchConfigInterpreter.getStringValue("Config", "BaseScenarioFileName");
+			baseScenarioFileName = bjc.getConfig().getBaseScenarioFileName();
 			
 			// Assumes the file is in the same dir as the batch file
 			String baseScenaroFilePath = baseDirectoryPath + File.separator + baseScenarioFileName;
@@ -219,78 +160,14 @@ public class BatchConfigProcessor
 			// No null if the text from the file has been loaded
 			if(tempText != null)
 			{
-				// Use a ConfigurationInterpreter to prevent a BatchStats/ItemStats mismatch which could cause a stats req for stats that do not exist
-				ConfigurationInterpreter tempIntrp = new ConfigurationInterpreter();
+				// Scenario Text
+				baseScenarioText = tempText;
 				
-				// Is the base scenario currently a valid scenario file
-				if(tempIntrp.loadConfig(tempText))
+				// Finally create a real Scenario // TODO pass on the batch config so the scenario its self can handle stat enabled/missmatches.
+				baseScenario = ScenarioPluginManager.getScenario(baseScenarioText);
+				
+				if(baseScenario == null)
 				{
-					// Check if Batch stats are disabled globally
-					if(!batchResultSettings.ResultsEnabled)
-					{
-						// If so remove the Statistics section from XML config (disabling them on each item)
-						tempIntrp.removeSection("Statistics");
-						
-						log.warn("Removing base scenario statistics section as batch has results disabled globally.");
-					}
-					else
-					{
-						// Check if the base scenario has a statistics section
-						if(!tempIntrp.hasSection("Statistics"))
-						{
-							log.error("The batch has statistics enabled but the base scenario does not.");
-							
-							VALID = false;
-							
-							return;
-						}
-						else
-						{
-							boolean statStatus = false;
-							
-							// We have a statistics section but are there any stats and is one enabled!
-							if(tempIntrp.atLeastOneElementEqualValue("Statistics.Stat", "Enabled", true) & batchResultSettings.TraceEnabled)
-							{
-								statStatus = true;
-							}
-							
-							if(tempIntrp.atLeastOneElementEqualValue("Statistics.BDFC", "Enabled", true) & batchResultSettings.BDFCEnabled)
-							{
-								statStatus = true;
-							}
-							
-							if(tempIntrp.atLeastOneElementEqualValue("Statistics.Custom", "Enabled", true) & customItemResultsSettings.Enabled)
-							{
-								statStatus = true;
-							}
-							
-							// If the batch stats and scenario stats have a valid combination then create a scenario object.
-							if(statStatus)
-							{
-								log.info("Batch and Scenario have valid stats combination, proceeding.");
-								
-								baseScenarioText = tempIntrp.getText();
-								
-								// Finally create a real Scenariot
-								baseScenario = ScenarioPluginManager.getScenario(baseScenarioText);
-							}
-							else
-							{
-								// If we got here there is an issue, batch has stats but base scenario is not set to record them
-								
-								log.error("Results mismatch - At least one must be enabled in Batch and in base scenario");
-								
-								VALID = false;
-								
-								return;
-							}
-						}
-					}
-				}
-				else
-				{
-					log.error("Base scenario failed sanity checks.");
-					
 					VALID = false;
 					
 					return;
@@ -308,7 +185,7 @@ public class BatchConfigProcessor
 			/* ItemSamples */
 			
 			// How many times to run each batchItem.
-			final int itemSamples = batchConfigInterpreter.getIntValue("Config", "ItemSamples", 1);
+			final int itemSamples = bjc.getConfig().getItemSamples();
 			
 			log.info("Item Samples " + itemSamples);
 			
@@ -328,9 +205,9 @@ public class BatchConfigProcessor
 			log.info("Batch Header in Custom Result " + customItemResultsSettings.BatchHeaderInResult);
 			log.info("Item Info in Custom Result " + customItemResultsSettings.ItemInfoInResult);
 			log.info("Trace Single Archive " + batchResultSettings.TraceStoreSingleArchive);
-			log.info("Archive Buffer Size " + batchResultSettings.BufferSize);
+			// log.info("Archive Buffer Size " + batchResultSettings.BufferSize);
 			log.info("Archive Compression Level " + batchResultSettings.TraceArchiveCompressionLevel);
-			log.info("Batch Stats Export Dir : " + batchResultSettings.BatchStatsExportDir);
+			log.info("Batch Stats Export Path : " + batchResultSettings.FullBatchStatsExportPath);
 			
 			/*
 			 * ********************************************************************************
@@ -347,16 +224,17 @@ public class BatchConfigProcessor
 			}
 			else
 			{
-				maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
+				// maxSteps = baseScenario.getEndEventTriggerValue("StepCount");
 				type = baseScenario.getScenarioType();
 				
-				log.info("Scenario StepCount " + maxSteps);
+				// log.info("Scenario StepCount " + maxSteps);
 				log.info("Scenario Type " + type);
 				
 				// If samples requested and maxSteps is valid.
-				if(!((itemSamples > 0) & (maxSteps > 0)))
+				// if(!((itemSamples > 0) & (maxSteps > 0)))
+				if(itemSamples >= 1)
 				{
-					log.error("ItemSamples : " + itemSamples + " MaxSteps : " + maxSteps);
+					log.error("ItemSamples : " + itemSamples);// + " MaxSteps : " + maxSteps);
 					
 					VALID = false;
 					
@@ -364,7 +242,8 @@ public class BatchConfigProcessor
 				}
 				
 				// Get ItemGeneratorConfig from base scenario
-				itemGeneratorConfig = baseScenario.getItemGeneratorConfig(batchConfigInterpreter, baseScenarioText, itemSamples);
+				itemGeneratorConfig = baseScenario.getItemGeneratorConfig(bjc.getParameterList(), baseScenarioText,
+				itemSamples);
 			}
 		}
 		else
@@ -378,8 +257,9 @@ public class BatchConfigProcessor
 		}
 		
 		// All Settings created
-		batchSettings = new BatchSettings(batchName, batchFileName, baseScenarioFileName, baseDirectoryPath, maxSteps, type, customItemResultsSettings,
-		batchResultSettings, itemGeneratorConfig, baseScenario);
+		batchSettings = new BatchSettings(batchName, batchFileName, baseScenarioFileName,
+		baseDirectoryPath/*, maxSteps*/, type, customItemResultsSettings, batchResultSettings, itemGeneratorConfig,
+		baseScenario);
 		
 		// Validation and setup is complete.
 		VALID = true;
@@ -391,22 +271,25 @@ public class BatchConfigProcessor
 	 * @param batchConfigProcessor
 	 * @return Directory name of the export location.
 	 */
-	private String generateExportLocation(int batchId, String batchName, String BaseExportDir, String GroupDirName, String SubgroupDirName)
+	private String generateExportLocation(int batchId, String batchName, String baseDirectoryPath,
+	BatchJobConfig config)
 	{
 		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
 		
-		String fullExportDir = BaseExportDir;
+		String fullExportDir = config.getStats().getStatsExportDir();
+		String groupDirName = config.getStats().getGroupDir();
+		String subgroupDirName = config.getStats().getSubGroupDir();
 		
 		// Append Group name to export dir
-		if(GroupDirName != null)
+		if(groupDirName != null)
 		{
-			fullExportDir = fullExportDir + File.separator + GroupDirName;
+			fullExportDir = fullExportDir + File.separator + groupDirName;
 			
 			// Sub Groups
-			if(SubgroupDirName != null)
+			if(subgroupDirName != null)
 			{
-				fullExportDir = fullExportDir + File.separator + SubgroupDirName;
+				fullExportDir = fullExportDir + File.separator + subgroupDirName;
 			}
 		}
 		
