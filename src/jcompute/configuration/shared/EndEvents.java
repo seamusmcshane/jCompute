@@ -1,4 +1,4 @@
-package jcompute.configuration.xml;
+package jcompute.configuration.shared;
 
 import java.util.List;
 
