@@ -1,14 +1,17 @@
 package jcompute.configuration.batch;
 
+import javax.xml.bind.annotation.XmlAccessorOrder;
+import javax.xml.bind.annotation.XmlAccessOrder;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Stats")
+@XmlAccessorOrder(XmlAccessOrder.UNDEFINED)
 public class StatsConfig
 {
 	private boolean store;
 	private boolean traceResultsEnabled;
-	private boolean hasBDFCResult;
+	private boolean BDFCResultEnabled;
 	// Not Implemented customResultFormat;
 	// private boolean batchHeaderInCustomResult; //
 	// private boolean itemInfoInCustomResult; //
@@ -24,11 +27,11 @@ public class StatsConfig
 		
 	}
 	
-	public StatsConfig(boolean store, boolean hasBDFCResult, boolean singleArchive, int compressionLevel, String statsExportDir, String groupDir,
-	String subGroupDir)
+	public StatsConfig(boolean store, boolean BDFCResultEnabled, boolean singleArchive, int compressionLevel,
+	String statsExportDir, String groupDir, String subGroupDir)
 	{
 		this.store = store;
-		this.hasBDFCResult = hasBDFCResult;
+		this.BDFCResultEnabled = BDFCResultEnabled;
 		this.singleArchive = singleArchive;
 		this.compressionLevel = compressionLevel;
 		this.statsExportDir = statsExportDir;
@@ -59,14 +62,14 @@ public class StatsConfig
 	}
 	
 	@XmlElement(name = "BDFCResult")
-	public void setHasBDFCResult(boolean hasBDFCResult)
+	public void setBDFCResultEnabled(boolean BDFCResultEnabled)
 	{
-		this.hasBDFCResult = hasBDFCResult;
+		this.BDFCResultEnabled = BDFCResultEnabled;
 	}
 	
-	public boolean isHasBDFCResult()
+	public boolean getBDFCResultEnabled()
 	{
-		return hasBDFCResult;
+		return BDFCResultEnabled;
 	}
 	
 	@XmlElement(name = "SingleArchive")
