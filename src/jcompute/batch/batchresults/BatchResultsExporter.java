@@ -69,14 +69,14 @@ public class BatchResultsExporter
 				log.info("Buffer Size " + BW_BUFFER_SIZE);
 				log.info("Batch Name " + batchSettings.batchName);
 				log.info("Item Samples " + itemGeneratorConfig.getItemSamples());
-				log.info("Export dir" + BatchResultSettings.BatchStatsExportDir);
+				log.info("Export dir" + BatchResultSettings.FullBatchStatsExportPath);
 				
 				itemLog.init(itemGeneratorConfig.getParameterName(), itemGeneratorConfig.getGroupName(), BW_BUFFER_SIZE, batchSettings.batchName,
-				itemGeneratorConfig.getItemSamples(), BatchResultSettings.BatchStatsExportDir);
+				itemGeneratorConfig.getItemSamples(), BatchResultSettings.FullBatchStatsExportPath);
 			}
 			catch(IOException e)
 			{
-				log.error("Could not create item log file in " + BatchResultSettings.BatchStatsExportDir);
+				log.error("Could not create item log file in " + BatchResultSettings.FullBatchStatsExportPath);
 				
 				throw e;
 			}
@@ -112,11 +112,11 @@ public class BatchResultsExporter
 			{
 				try
 				{
-					customItemLoggers.get(name).init(BW_BUFFER_SIZE, batchSettings.batchName, BatchResultSettings.BatchStatsExportDir);
+					customItemLoggers.get(name).init(BW_BUFFER_SIZE, batchSettings.batchName, BatchResultSettings.FullBatchStatsExportPath);
 				}
 				catch(IOException e)
 				{
-					log.error("Could not custom item log + " + name + " file in " + BatchResultSettings.BatchStatsExportDir);
+					log.error("Could not custom item log + " + name + " file in " + BatchResultSettings.FullBatchStatsExportPath);
 					
 					throw e;
 				}
@@ -141,7 +141,7 @@ public class BatchResultsExporter
 				{
 					
 					// Create if needed
-					String zipPath = BatchResultSettings.BatchStatsExportDir + File.separator + "results.zip";
+					String zipPath = BatchResultSettings.FullBatchStatsExportPath + File.separator + "results.zip";
 					
 					// Create and populate Results Zip archive with Directories
 					resultsZipOut = createZipExport(BatchResultSettings, zipPath);
@@ -171,11 +171,11 @@ public class BatchResultsExporter
 				else
 				{
 					// Create the item export dir
-					FileUtil.createDirIfNotExist(BatchResultSettings.BatchStatsExportDir + File.separator + comboNo);
+					FileUtil.createDirIfNotExist(BatchResultSettings.FullBatchStatsExportPath + File.separator + comboNo);
 					
 					for(int sid = 1; sid < (itemSamples + 1); sid++)
 					{
-						String fullExportPath = BatchResultSettings.BatchStatsExportDir + File.separator + comboNo + File.separator + sid;
+						String fullExportPath = BatchResultSettings.FullBatchStatsExportPath + File.separator + comboNo + File.separator + sid;
 						
 						// Create the item sample full export path dir
 						FileUtil.createDirIfNotExist(fullExportPath);
@@ -237,7 +237,7 @@ public class BatchResultsExporter
 		// Only Save configs if stats are enabled
 		if(BatchResultSettings.ResultsEnabled)
 		{
-			String fullExportPath = BatchResultSettings.BatchStatsExportDir + File.separator + item.getItemId() + File.separator + item.getSampleId();
+			String fullExportPath = BatchResultSettings.FullBatchStatsExportPath + File.separator + item.getItemId() + File.separator + item.getSampleId();
 			
 			if(BatchResultSettings.TraceStoreSingleArchive)
 			{
@@ -245,7 +245,7 @@ public class BatchResultsExporter
 				exporter.exportPerItemTraceResultsToZipArchive(resultsZipOut, item.getItemId(), item.getSampleId());
 				
 				// Export any bin results
-				exporter.exportBinResults(fullExportPath, BatchResultSettings.BatchStatsExportDir, item.getItemId());
+				exporter.exportBinResults(fullExportPath, BatchResultSettings.FullBatchStatsExportPath, item.getItemId());
 			}
 			else
 			{
@@ -253,7 +253,7 @@ public class BatchResultsExporter
 				exporter.exportPerItemTraceResults(fullExportPath);
 				
 				// Export any bin results
-				exporter.exportBinResults(fullExportPath, BatchResultSettings.BatchStatsExportDir, item.getItemId());
+				exporter.exportBinResults(fullExportPath, BatchResultSettings.FullBatchStatsExportPath, item.getItemId());
 			}
 			
 			// Only the first sample needs to save the item config (all
@@ -286,7 +286,7 @@ public class BatchResultsExporter
 					try
 					{
 						// All Item samples use same config so overwrite.
-						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(BatchResultSettings.BatchStatsExportDir + File.separator
+						PrintWriter configFile = new PrintWriter(new BufferedWriter(new FileWriter(BatchResultSettings.FullBatchStatsExportPath + File.separator
 						+ item.getItemId() + File.separator + "itemconfig-" + item.getCacheIndex() + ".xml", true)));
 						
 						configFile.write(new String(itemStore.getData(item.getCacheIndex()), "ISO-8859-1"));
@@ -335,7 +335,7 @@ public class BatchResultsExporter
 			}
 		}
 		
-		FileUtil.createDirIfNotExist(batchResultSettings.BatchStatsExportDir);
+		FileUtil.createDirIfNotExist(batchResultSettings.FullBatchStatsExportPath);
 	}
 	
 	public void close()
