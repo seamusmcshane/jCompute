@@ -3,11 +3,11 @@ package jcompute.testing.xml;
 import jcompute.configuration.JComputeConfigurationUtility;
 import jcompute.configuration.batch.BatchJobConfig;
 
-public class JXMLTest
+public class JBatchXMLTest
 {
 	public static void main(String args[])
 	{
-		String filePath = "batch/DemoBatch.batch";
+		String filePath = "batch/SAPP_v1_Test.batch.xml";
 		
 		/*File file = new File(filePath);
 		
