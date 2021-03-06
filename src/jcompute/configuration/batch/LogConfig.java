@@ -3,7 +3,7 @@ package jcompute.configuration.batch;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "Log")
+@XmlRootElement(name = "Logging")
 public class LogConfig
 {
 	private boolean itemLog;

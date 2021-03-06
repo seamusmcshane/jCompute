@@ -1,41 +1,34 @@
 package jcompute.configuration.batch;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.*;
 
-import jcompute.batch.itemgenerator.Parameter;
 import jcompute.configuration.JComputeConfiguration;
-import jcompute.configuration.shared.Event;
 import jcompute.configuration.xml.Header;
 
 @XmlRootElement(name = "Batch")
 @XmlType(propOrder =
 {
-	"header", "config", "log", "stats", "parameters"
+	"header", "config", "logging", "statistics"
 })
 public class BatchJobConfig extends JComputeConfiguration
 {
-	private ScenarioFileConfig config;
+	private ItemGenerationConfig config;
 	
-	private LogConfig log;
+	private LogConfig logging;
 	
-	private StatsConfig stats;
+	private StatsConfig statistics;
 	
-	private ParametersConfig parameters;
-		
 	public BatchJobConfig()
 	{
 		
 	}
 	
-	public BatchJobConfig(Header header, ScenarioFileConfig config, LogConfig log, StatsConfig stats)
+	public BatchJobConfig(Header header, ItemGenerationConfig config, LogConfig logging, StatsConfig statistics)
 	{
 		super(header);
 		this.config = config;
-		this.log = log;
-		this.stats = stats;
+		this.logging = logging;
+		this.statistics = statistics;
 	}
 	
 	/*@Override
@@ -51,66 +44,36 @@ public class BatchJobConfig extends JComputeConfiguration
 		return super.getHeader();
 	}*/
 	
-	@XmlElement(name = "Config")
-	public void setConfig(ScenarioFileConfig config)
+	@XmlElement(name = "ItemGeneration")
+	public void setConfig(ItemGenerationConfig config)
 	{
 		this.config = config;
 	}
 	
-	public ScenarioFileConfig getConfig()
+	public ItemGenerationConfig getConfig()
 	{
 		return config;
 	}
 	
-	@XmlElement(name = "Log")
-	public void setLog(LogConfig log)
+	@XmlElement(name = "Logging")
+	public void setLogging(LogConfig logging)
 	{
-		this.log = log;
+		this.logging = logging;
 	}
 	
-	public LogConfig getLog()
+	public LogConfig getLogging()
 	{
-		return log;
-	}
-	@XmlElement(name = "Stats")
-	
-	public void setStats(StatsConfig stats)
-	{
-		this.stats = stats;
+		return logging;
 	}
 	
-	public StatsConfig getStats()
+	@XmlElement(name = "Statistics")	
+	public void setStatistics(StatsConfig statistics)
 	{
-		return stats;
+		this.statistics = statistics;
 	}
 	
-	@XmlElement(name = "Parameters")
-	public void setParameters(ParametersConfig parameters)
+	public StatsConfig getStatistics()
 	{
-		this.parameters = parameters;
-	}
-	
-	public ParametersConfig getParameters()
-	{
-		return parameters;
-	}
-	
-	public List<Parameter> getParameterList()
-	{
-		List<Parameter> parametersList = new ArrayList<Parameter>();
-		
-		// The config list
-		List<ParameterConfig> parametersConfigList = parameters.getParameterList();
-		
-		for(ParameterConfig parameterConfig : parametersConfigList)
-		{
-			Parameter p = new Parameter(parameterConfig.getType(), parameterConfig.getPath(), parameterConfig
-			.getGroupName(), parameterConfig.getParameterName(), parameterConfig.getInitialVal(), parameterConfig
-			.getValIncrement(), parameterConfig.getValCombinations());
-			
-			parametersList.add(p);
-		}
-		
-		return parametersList;
+		return statistics;
 	}
 }

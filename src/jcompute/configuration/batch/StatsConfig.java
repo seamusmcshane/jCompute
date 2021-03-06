@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlAccessOrder;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "Stats")
+@XmlRootElement(name = "Statistics")
 @XmlAccessorOrder(XmlAccessOrder.UNDEFINED)
 public class StatsConfig
 {
