@@ -52,24 +52,24 @@ public class BatchResultSettings
 	
 	public BatchResultSettings(BatchJobConfig bjc, String fullBatchStatsExportPath)
 	{
-		this.ResultsEnabled = bjc.getStats().getStoreEnabled();
+		this.ResultsEnabled = bjc.getStatistics().getStoreEnabled();
 		
-		this.BaseExportDir = bjc.getStats().getStatsExportDir();
+		this.BaseExportDir = bjc.getStatistics().getStatsExportDir();
 		
-		this.GroupDirName = bjc.getStats().getGroupDir();
+		this.GroupDirName = bjc.getStatistics().getGroupDir();
 		ResultsPartofGroup = (this.GroupDirName != null);
 		
-		this.SubgroupDirName = bjc.getStats().getSubGroupDir();
+		this.SubgroupDirName = bjc.getStatistics().getSubGroupDir();
 		GroupsHaveSubGroups = (this.SubgroupDirName != null);
 		
 		this.FullBatchStatsExportPath = fullBatchStatsExportPath;
 		
-		this.TraceEnabled = bjc.getStats().getTraceResultsEnabled();
-		this.BDFCEnabled = bjc.getStats().getBDFCResultEnabled();
+		this.TraceEnabled = bjc.getStatistics().getTraceResultsEnabled();
+		this.BDFCEnabled = bjc.getStatistics().getBDFCResultEnabled();
 		
-		this.TraceStoreSingleArchive = bjc.getStats().isSingleArchiveEnabled();
+		this.TraceStoreSingleArchive = bjc.getStatistics().isSingleArchiveEnabled();
 		
-		int traceArchiveCompressionLevel = bjc.getStats().getCompressionLevel();
+		int traceArchiveCompressionLevel = bjc.getStatistics().getCompressionLevel();
 		
 		if(traceArchiveCompressionLevel > 9)
 		{
@@ -87,7 +87,7 @@ public class BatchResultSettings
 		// TODO remove
 		// this.BufferSize = bufferSize;
 		
-		this.InfoLogEnabled = bjc.getLog().getInfoLog();
-		this.ItemLogEnabled = bjc.getLog().getItemLog();
+		this.InfoLogEnabled = bjc.getLogging().getInfoLog();
+		this.ItemLogEnabled = bjc.getLogging().getItemLog();
 	}
 }
