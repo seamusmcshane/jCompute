@@ -128,10 +128,10 @@ public class Batch implements StoredQueuePosition
 		
 		if(bcpIsValid)
 		{
+			log.info("Batch config is Valid : " + bcpIsValid);
+			
 			itemGenerationProgress = new ProgressObj(settings.itemGeneratorConfig.getTotalCombinations());
 		}
-		
-		log.info("Batch config is Valid : " + bcpIsValid);
 		
 		// If the config is invalid the batch has failed immediately
 		failed = !bcpIsValid;
