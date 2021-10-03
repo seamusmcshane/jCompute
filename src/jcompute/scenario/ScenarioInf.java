@@ -7,6 +7,7 @@ import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
 import jcompute.batch.itemgenerator.Parameter;
 import jcompute.batch.itemstore.ItemStore;
 import jcompute.batch.log.item.logger.BatchItemLogInf;
+import jcompute.simulation.Simulation;
 import jcompute.simulation.SimulationScenarioManagerInf;
 
 /**
@@ -50,7 +51,7 @@ public interface ScenarioInf
 	 * 
 	 * @return A fully configured simulation manager object for this scenario type.
 	 */
-	public SimulationScenarioManagerInf getSimulationScenarioManager();
+	public SimulationScenarioManagerInf getSimulationScenarioManager(Simulation simulation);
 	
 	/*
 	 * ***************************************************************************************************

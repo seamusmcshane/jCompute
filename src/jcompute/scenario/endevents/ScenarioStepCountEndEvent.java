@@ -4,22 +4,20 @@ import jcompute.simulation.Simulation;
 
 public class ScenarioStepCountEndEvent implements ScenarioEndEventInf
 {
-	private String name = "StepCountEndEvent";
-	private Simulation simulation;
+	private String name = "StepCount";
 	private int triggerValue;
 	
-	public ScenarioStepCountEndEvent(Simulation simulation, int triggerValue)
+	private Simulation simulation;
+	
+	public ScenarioStepCountEndEvent(int triggerValue)
 	{
-		this.simulation = simulation;
 		this.triggerValue = triggerValue;
-		
-		simulation.setEndStep(triggerValue);
 	}
 	
 	@Override
 	public boolean checkEvent()
 	{
-		return(simulation.getSimulationSteps() == triggerValue);
+		return(simulation.getTotalSteps() == triggerValue);
 	}
 	
 	@Override
@@ -32,5 +30,17 @@ public class ScenarioStepCountEndEvent implements ScenarioEndEventInf
 	public int getValue()
 	{
 		return triggerValue;
+	}
+	
+	public void setSimulationReference(Simulation simulation)
+	{
+		/**
+		 * Step count is no longer to be hardcoded as an endevent in every simulation.
+		 * As such is is a generic optional end event that can be used or not.
+		 * How ever end events are created in the plugin before simualtion managers are created thus this event needs
+		 * a way to get the reference after its own creation.
+		 */
+		this.simulation = simulation;
+		
 	}
 }

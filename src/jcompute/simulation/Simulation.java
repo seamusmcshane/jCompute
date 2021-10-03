@@ -120,7 +120,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 		{
 			log.info("Assigning Sim Manager");
 			
-			simulationScenarioManager = scenario.getSimulationScenarioManager();
+			simulationScenarioManager = scenario.getSimulationScenarioManager(this);
 			
 			// TODO Add to config CHECK - This is a special external end event based on the simulation step count.
 			// simulationScenarioManager.setScenarioStepCountEndEvent(this);
