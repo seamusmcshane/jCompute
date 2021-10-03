@@ -237,7 +237,7 @@ public class BatchConfigProcessor
 				
 				// If samples requested and maxSteps is valid.
 				// if(!((itemSamples > 0) & (maxSteps > 0)))
-				if(itemSamples >= 1)
+				if(itemSamples < 1)
 				{
 					log.error("ItemSamples : " + itemSamples);// + " MaxSteps : " + maxSteps);
 					
