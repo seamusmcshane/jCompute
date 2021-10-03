@@ -223,6 +223,8 @@ public class Simulation implements stateChangedInf, ViewTarget
 						// Check for an End Event
 						if(simulationScenarioManager.hasEndEventOccurred())
 						{
+							log.info("End Event " + simulationScenarioManager.getEndEvent());
+							
 							simulationScenarioManager.finalProcessing(totalStepsTime, simulationSteps, getAverageStepRate());
 							
 							simState.finishState(simulationScenarioManager.getEndEvent());
@@ -301,7 +303,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 	}
 	
 	/**
-	 * Toggle Pause/UnPause If Simulation is paused, this will unpause it. If Simulation is running this will pause it. If Simulation is CON this method does
+	 * Toggle Pause/UnPause If Simulation is paused, this will unpause it. If Simulation is running this will pause it. If Simulation is New this method does
 	 * nothing. This method
 	 * will log an error if called when a Simulation is finished.
 	 */
@@ -309,7 +311,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 	{
 		SimState state = simState.getState();
 		
-		// Only toggle in the running or paused states (not CON or Finished)
+		// Only toggle in the running or paused states (not New or Finished)
 		switch(state)
 		{
 			case RUNNING:
@@ -319,7 +321,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 				unPauseSim();
 			break;
 			case NEW:
-			// This is OK, some methods can call this method during all states, we don't change the pause state during CON.
+			// This is OK, some methods can call this method during all states, we don't change the pause state during New.
 			break;
 			case FINISHED:
 				// This is a usage error - cannot toggle pause when finished.
@@ -330,7 +332,7 @@ public class Simulation implements stateChangedInf, ViewTarget
 				log.error("Attempt to toggle pause in unknown state " + state.toString());
 		}
 		
-		// Return the CON sim state
+		// Return the sim state
 		return simState.getState();
 	}
 	
