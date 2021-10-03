@@ -47,7 +47,7 @@ public class BatchResultsExporter
 	private ZipOutputStream resultsZipOut;
 	
 	private final BatchResultSettings BatchResultSettings;
-	private final CustomItemResultsSettings CustomItemResultsSettings;
+	// private final CustomItemResultsSettings CustomItemResultsSettings;
 	
 	public BatchResultsExporter(BatchItemLogInf itemLog, ArrayList<CustomItemResultInf> customItemResultList, BatchSettings batchSettings) throws IOException
 	{
@@ -82,7 +82,7 @@ public class BatchResultsExporter
 			}
 		}
 		
-		this.CustomItemResultsSettings = batchSettings.customItemResultsSettings;
+		/*this.CustomItemResultsSettings = batchSettings.customItemResultsSettings;
 		
 		if(CustomItemResultsSettings.Enabled)
 		{
@@ -101,9 +101,9 @@ public class BatchResultsExporter
 				// Index by file name
 				customItemLoggers.put(fileName, logger);
 			}
-		}
+		}*/
 		
-		if(CustomItemResultsSettings.Enabled)
+		/*if(CustomItemResultsSettings.Enabled)
 		{
 			Set<String> names = customItemLoggers.keySet();
 			
@@ -121,7 +121,7 @@ public class BatchResultsExporter
 					throw e;
 				}
 			}
-		}
+		}*/
 		
 		// Due to items being processed in any order, the zip archive is pre-populated with the directories needed.
 		// This avoids having to check for pre-existance of the directory on every write.
@@ -196,7 +196,7 @@ public class BatchResultsExporter
 			itemLog.logItem(item, null);
 		}
 		
-		if(CustomItemResultsSettings.Enabled)
+		/*if(CustomItemResultsSettings.Enabled)
 		{
 			String[] loggerNames = exporter.getCustomLoggerNames();
 			byte[][] data = exporter.getCustomLoggerData();
@@ -232,7 +232,7 @@ public class BatchResultsExporter
 					e.printStackTrace();
 				}
 			}
-		}
+		}*/
 		
 		// Only Save configs if stats are enabled
 		if(BatchResultSettings.ResultsEnabled)
@@ -361,7 +361,7 @@ public class BatchResultsExporter
 			itemLog.close();
 		}
 		
-		if(CustomItemResultsSettings.Enabled)
+		/*if(CustomItemResultsSettings.Enabled)
 		{
 			Set<String> names = customItemLoggers.keySet();
 			
@@ -370,7 +370,7 @@ public class BatchResultsExporter
 			{
 				customItemLoggers.get(name).close();
 			}
-		}
+		}*/
 	}
 	
 	private ZipOutputStream createZipExport(BatchResultSettings batchResultSettings, String zipPath)

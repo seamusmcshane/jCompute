@@ -36,7 +36,7 @@ public class BatchConfigProcessor
 		final String baseDirectoryPath;
 		
 		// Settings objects to be created
-		CustomItemResultsSettings customItemResultsSettings;
+		// CustomItemResultsSettings customItemResultsSettings;
 		BatchResultSettings batchResultSettings;
 		ItemGeneratorConfigInf itemGeneratorConfig;
 		
@@ -104,24 +104,28 @@ public class BatchConfigProcessor
 		log.info("Base Path : " + baseDirectoryPath);
 		
 		// The Batch Configuration Text
-		String batchConfigText = JCText.textFileToString(filePath);
+		// String batchConfigText = JCText.textFileToString(filePath);
 		
 		// Null if there was an error reading the batch file in
-		if(batchConfigText == null)
-		{
-			log.error("Failed to read batch config file into memory");
-			
-			VALID = false;
-			
-			return;
-		}
+		// if(batchConfigText == null)
+		// {
+		// log.error("Failed to read batch config file into memory");
+		
+		// VALID = false;
+		
+		// return;
+		// }
 		
 		// Set later then stored in settings
 		String baseScenarioFileName = null;
 		
+		log.info("Converting XML to Job");
+		
 		// Convert the XML text to a jobconfig
-		BatchJobConfig bjc = (BatchJobConfig) JComputeConfigurationUtility.XMLtoConfig(batchConfigText,
-		BatchJobConfig.class);
+		// BatchJobConfig bjc = (BatchJobConfig) JComputeConfigurationUtility.XMLtoConfig(batchConfigText,
+		// BatchJobConfig.class);
+		
+		BatchJobConfig bjc = (BatchJobConfig) JComputeConfigurationUtility.XMLtoConfig(filePath, BatchJobConfig.class);
 		
 		// Was the Batch Job Config created
 		if(bjc != null)
@@ -134,7 +138,8 @@ public class BatchConfigProcessor
 			
 			batchResultSettings = new BatchResultSettings(bjc, CompleteBatchStatsExportDir);
 			
-			customItemResultsSettings = new CustomItemResultsSettings(bjc);
+			// System.out.println("----- CustomItemResultsSettings");
+			// customItemResultsSettings = new CustomItemResultsSettings(bjc);
 			
 			/*
 			 * ********************************************************************************
@@ -185,7 +190,7 @@ public class BatchConfigProcessor
 			/* ItemSamples */
 			
 			// How many times to run each batchItem.
-			final int itemSamples = bjc.getConfig().getItemSamples();
+			final int itemSamples = bjc.getConfig().getSamples();
 			
 			log.info("Item Samples " + itemSamples);
 			
@@ -200,10 +205,10 @@ public class BatchConfigProcessor
 			log.info("Store Stats " + batchResultSettings.ResultsEnabled);
 			log.info("Trace Enabled " + batchResultSettings.TraceEnabled);
 			log.info("BDFC Enabled " + batchResultSettings.BDFCEnabled);
-			log.info("Custom Results Enabled " + customItemResultsSettings.Enabled);
-			log.info("Custom Results Format " + customItemResultsSettings.Format);
-			log.info("Batch Header in Custom Result " + customItemResultsSettings.BatchHeaderInResult);
-			log.info("Item Info in Custom Result " + customItemResultsSettings.ItemInfoInResult);
+			// log.info("Custom Results Enabled " + customItemResultsSettings.Enabled);
+			// log.info("Custom Results Format " + customItemResultsSettings.Format);
+			// log.info("Batch Header in Custom Result " + customItemResultsSettings.BatchHeaderInResult);
+			// log.info("Item Info in Custom Result " + customItemResultsSettings.ItemInfoInResult);
 			log.info("Trace Single Archive " + batchResultSettings.TraceStoreSingleArchive);
 			// log.info("Archive Buffer Size " + batchResultSettings.BufferSize);
 			log.info("Archive Compression Level " + batchResultSettings.TraceArchiveCompressionLevel);
@@ -242,8 +247,8 @@ public class BatchConfigProcessor
 				}
 				
 				// Get ItemGeneratorConfig from base scenario
-				itemGeneratorConfig = baseScenario.getItemGeneratorConfig(bjc.getParameterList(), baseScenarioText,
-				itemSamples);
+				itemGeneratorConfig = baseScenario.getItemGeneratorConfig(bjc.getConfig().getParameterList(),
+				baseScenarioText, itemSamples);
 			}
 		}
 		else
@@ -258,7 +263,7 @@ public class BatchConfigProcessor
 		
 		// All Settings created
 		batchSettings = new BatchSettings(batchName, batchFileName, baseScenarioFileName,
-		baseDirectoryPath/*, maxSteps*/, type, customItemResultsSettings, batchResultSettings, itemGeneratorConfig,
+		baseDirectoryPath/*, maxSteps*/, type, /*customItemResultsSettings,*/ batchResultSettings, itemGeneratorConfig,
 		baseScenario);
 		
 		// Validation and setup is complete.
@@ -277,9 +282,9 @@ public class BatchConfigProcessor
 		String date = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		String time = new SimpleDateFormat("HHmm").format(Calendar.getInstance().getTime());
 		
-		String fullExportDir = config.getStats().getStatsExportDir();
-		String groupDirName = config.getStats().getGroupDir();
-		String subgroupDirName = config.getStats().getSubGroupDir();
+		String fullExportDir = config.getStatistics().getStatsExportDir();
+		String groupDirName = config.getStatistics().getGroupDir();
+		String subgroupDirName = config.getStatistics().getSubGroupDir();
 		
 		// Append Group name to export dir
 		if(groupDirName != null)

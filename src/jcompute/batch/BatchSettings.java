@@ -16,7 +16,7 @@ public class BatchSettings
 	public final String type;
 	
 	// Process BatchJobConfig
-	public final CustomItemResultsSettings customItemResultsSettings;
+	// public final CustomItemResultsSettings customItemResultsSettings;
 	public final BatchResultSettings batchResultSettings;
 	public final ItemGeneratorConfigInf itemGeneratorConfig;
 	
@@ -24,7 +24,7 @@ public class BatchSettings
 	public final ScenarioInf baseScenario;
 	
 	public BatchSettings(String batchFileName, String batchName, String baseScenarioFileName, String baseDirectoryPath/*, int maxSteps*/, String type,
-	CustomItemResultsSettings customItemResultsSettings, BatchResultSettings batchResultSettings, ItemGeneratorConfigInf itemGeneratorConfig,
+	/*CustomItemResultsSettings customItemResultsSettings,*/ BatchResultSettings batchResultSettings, ItemGeneratorConfigInf itemGeneratorConfig,
 	ScenarioInf baseScenario)
 	{
 		this.batchFileName = batchFileName;
@@ -35,7 +35,7 @@ public class BatchSettings
 		//this.maxSteps = maxSteps;
 		this.type = type;
 		
-		this.customItemResultsSettings = customItemResultsSettings;
+		//this.customItemResultsSettings = customItemResultsSettings;
 		this.batchResultSettings = batchResultSettings;
 		this.itemGeneratorConfig = itemGeneratorConfig;
 		this.baseScenario = baseScenario;
