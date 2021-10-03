@@ -185,7 +185,7 @@ public class Batch implements StoredQueuePosition
 				
 				BatchItemLogInf itemLog = baseScenario.getItemLogWriter();
 				
-				ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager()
+				ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager(null)
 				.getResultManager().getCustomItemResultList();
 				
 				try
