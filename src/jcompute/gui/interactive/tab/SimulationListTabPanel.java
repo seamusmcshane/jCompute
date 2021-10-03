@@ -18,6 +18,7 @@ import jcompute.gui.cluster.tablerowitems.SimulationListRowItem;
 import jcompute.gui.component.swing.jpanel.TablePanel;
 import jcompute.gui.component.tablecell.ProgressBarTableCellRenderer;
 import jcompute.gui.interactive.GUITabManager;
+import jcompute.simulation.SimulationState.SimState;
 import jcompute.simulation.event.SimulationStatChangedEvent;
 import jcompute.simulation.event.SimulationStateChangedEvent;
 import jcompute.simulationmanager.event.SimulationsManagerEvent;
@@ -168,6 +169,18 @@ public class SimulationListTabPanel extends JPanel
 	public void SimulationStateChangedEvent(SimulationStateChangedEvent e)
 	{
 		table.updateCell(e.getSimId(), 1, e.getState());
+		
+		if(e.getState() == SimState.FINISHED)
+		{
+			// So the GUI shows the correct values at the end of processing
+			table.updateCells(e.getSimId(), new int[]
+			{
+				2, 3, 5
+			}, new Object[]
+			{
+				(int)e.getStepCount(), 100, e.getRunTime()
+			});
+		}
 	}
 
 }

@@ -1158,6 +1158,10 @@ public class GUISimulationTab extends JPanel implements ActionListener, ChangeLi
 		if(e.getSimId() == simId)
 		{
 			setGuiState(e.getState());
+			
+			// So the GUI shows the correct values at the end of processing
+			setStepNo((int) e.getStepCount());
+			setTime(e.getRunTime());
 		}
 	}
 	
