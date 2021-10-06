@@ -37,6 +37,13 @@ public interface ScenarioInf
 	public String getScenarioText();
 	
 	/**
+	 * Returns the class type of the scenario config object
+	 * 
+	 * @return
+	 */
+	public Class<?> getScenarioConfigClass();
+	
+	/**
 	 * @return String (Unique) identifier for this scenario plugin type.
 	 */
 	public String getScenarioType();
@@ -73,7 +80,8 @@ public interface ScenarioInf
 	 * 
 	 * @return A configuration for the Item generator type used.
 	 */
-	public ItemGeneratorConfigInf getItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText, int itemSamples);
+	public ItemGeneratorConfigInf getItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText,
+	int itemSamples);
 	
 	/**
 	 * Only required in cluster mode.
