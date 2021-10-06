@@ -29,19 +29,19 @@ import jcompute.timing.ProgressObj;
  * 
  * @author Seamus McShane
  */
-public class StandardItemGenerator extends ItemGenerator
+public class ProceduralItemGenerator extends ItemGenerator
 {
 	// Log4j2 Logger
-	private static Logger log = LogManager.getLogger(StandardItemGenerator.class);
+	private static Logger log = LogManager.getLogger(ProceduralItemGenerator.class);
 	
-	private final String GeneratorName = "StandardItemGenerator";
+	private final String GeneratorName = "ProceduralItemGenerator";
 	
 	// Items Generated
 	private int itemsCount;
 	
 	private ArrayList<String> parameters;
 	
-	public StandardItemGenerator()
+	public ProceduralItemGenerator()
 	{
 		super();
 	}

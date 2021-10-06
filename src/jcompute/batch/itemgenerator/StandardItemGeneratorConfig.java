@@ -13,7 +13,10 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(StandardItemGeneratorConfig.class);
 	
+	private final String scenarioConfigSchema;
+	
 	private final String baseScenarioText;
+	
 	private final int itemSamples;
 	
 	private final int numParameterGroups;
@@ -32,10 +35,13 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	// Calculated total combinations
 	private final int totalCombinations;
 	
-	public StandardItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText, int itemSamples)
+	public StandardItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText,
+	String scenarioConfigSchema, int itemSamples)
 	{
 		// The file to be used to generate configs
 		this.baseScenarioText = baseScenarioText;
+		
+		this.scenarioConfigSchema = scenarioConfigSchema;
 		
 		// Number of item samples
 		this.itemSamples = itemSamples;
@@ -75,12 +81,12 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 		parameters = new ArrayList<String>();
 		
 		// Iterate over the detected parameters and read values
-		//String section = "";
+		// String section = "";
 		for(int p = 0; p < numParameterGroups; p++)
 		{
 			// Generate the parameter path in the xml array (0),(1) etc
 			log.debug("Parameter Group : " + p);
-			//section = "Parameters.Parameter(" + p + ")";
+			// section = "Parameters.Parameter(" + p + ")";
 			
 			Parameter param = parameterList.get(p);
 			
@@ -193,6 +199,12 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	public int getItemSamples()
 	{
 		return itemSamples;
+	}
+	
+	@Override
+	public String getConfigSchema()
+	{
+		return scenarioConfigSchema;
 	}
 	
 	@Override
