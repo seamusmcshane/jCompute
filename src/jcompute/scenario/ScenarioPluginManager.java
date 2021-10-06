@@ -98,7 +98,10 @@ public class ScenarioPluginManager
 		
 		// OuterClass.InnerClass innerObject = outerObject.new InnerClass();
 		
-		ScenarioTestConfiguration stc = (ScenarioTestConfiguration) JComputeConfigurationUtility.XMLTexttoConfig(configText, ScenarioTestConfiguration.class);
+		log.info(configText);
+		
+		ScenarioTestConfiguration stc = (ScenarioTestConfiguration) JComputeConfigurationUtility.XMLTexttoConfig(
+		configText, ScenarioTestConfiguration.class);
 		
 		// Is the configuration valid
 		if(stc == null)
@@ -133,7 +136,9 @@ public class ScenarioPluginManager
 			}
 		}
 		
-		log.info(("Looking for plugin supporting scenario type " + type + " Found " + scenario) != null ? scenario.getScenarioType() : null);
+		log.info(("Looking for plugin supporting scenario type " + type + " Found " + scenario) != null
+		? scenario.getScenarioType()
+		: null);
 		
 		// jcompute cannot know if the code about to load is valid so we must catch problems here and not assume anything.
 		// It can only catch thrown errors that are sub classes of java.lang.Throwable (all errors and exceptions).
@@ -149,8 +154,8 @@ public class ScenarioPluginManager
 		}
 		catch(Throwable e)
 		{
-			log.error("Scenario type " + type + " had a problem. This is what we know caught thowable : " + e.getClass().getName() + " cause : " + e.getCause()
-			+ " message : " + e.getMessage());
+			log.error("Scenario type " + type + " had a problem. This is what we know caught thowable : " + e.getClass()
+			.getName() + " cause : " + e.getCause() + " message : " + e.getMessage());
 			
 			// Output the stack trace to the log so our message is before the trace. (preserve ordering)
 			log.error(JCText.stackTraceToString(e.getStackTrace(), false));
