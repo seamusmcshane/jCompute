@@ -21,6 +21,11 @@ import jcompute.configuration.support.StringSchemaOutputResolver;
 
 public class JComputeConfigurationUtility
 {
+	public static String getClassSchema(Class<?> c)
+	{
+		return JComputeConfigurationUtility.GenerateSchemaFromClass(c);
+	}
+	
 	public static JComputeConfiguration XMLtoConfig(String configFile, Class<?> c)
 	{
 		JAXBContext jaxbContext;
@@ -28,8 +33,8 @@ public class JComputeConfigurationUtility
 		
 		String schemaText = JComputeConfigurationUtility.GenerateSchemaFromClass(c);
 		
-		System.out.println("Schema");
-		System.out.println(schemaText);
+		// System.out.println("Schema");
+		// System.out.println(schemaText);
 		
 		try
 		{
