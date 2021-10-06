@@ -12,7 +12,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,7 +124,6 @@ public class XMLModifier
 	}
 	
 	public boolean changeSingleVariableValue(String itemName, String variable, String newValue)
-	throws XPathExpressionException
 	{
 		NodeList itemList = document.getElementsByTagName(itemName);
 		
@@ -152,7 +150,7 @@ public class XMLModifier
 	}
 	
 	public boolean changeGroupVariableValue(String groupPath, String nameElement, String nameValue, String variable,
-	String newValue) throws XPathExpressionException
+	String newValue)
 	{
 		String[] splitPath = groupPath.split("\\.");
 		
