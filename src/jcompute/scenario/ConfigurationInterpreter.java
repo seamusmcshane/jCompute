@@ -34,7 +34,8 @@ import jcompute.results.trace.group.TraceGroupSetting;
 /**
  * XML Configuration File Interpreter.
  */
-public class ConfigurationInterpreterTOREMOVE
+@Deprecated
+public class ConfigurationInterpreter
 {
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(ConfigurationInterpreter.class);
@@ -54,7 +55,7 @@ public class ConfigurationInterpreterTOREMOVE
 	// End Events
 	private HashMap<String, Integer> endEvents;
 	
-	public ConfigurationInterpreterTOREMOVE()
+	public ConfigurationInterpreter()
 	{
 		// Statistics settings are managed at the top level.
 		statSettingsList = new ArrayList<TraceGroupSetting>();
@@ -66,7 +67,7 @@ public class ConfigurationInterpreterTOREMOVE
 	 * Loader
 	 *****************************************************************************************************/
 	
-	public boolean loadConfig(String text)
+	public boolean loadConfig(String text, String schemaText)
 	{
 		boolean status = true;
 		
@@ -79,11 +80,13 @@ public class ConfigurationInterpreterTOREMOVE
 			configurationFile.load(configurationTextInputStream);
 			
 			// Read the noNamespaceSchemaLocation attribute (expected to be 1) containing the relative schema path.
-			FileInputStream schemaFileInputStream = new FileInputStream((String) configurationFile.getRoot().getAttribute(1).getValue());
+			//FileInputStream schemaFileInputStream = new FileInputStream((String) configurationFile.getRoot().getAttribute(1).getValue());
+			
+			ByteArrayInputStream schemaTextInputStream = new ByteArrayInputStream(schemaText.getBytes());
 			
 			// Load the schema file and create an XmlSchema object.
 			XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-			schema = schemaCol.read(new StreamSource(schemaFileInputStream), null);
+			schema = schemaCol.read(new StreamSource(schemaTextInputStream), null);
 			
 			// The are end events types which are supported globally and some that are specific per scenario.
 			// They are read and populated here if they exist - it is up to the schema to allow the element to exist.
@@ -130,7 +133,7 @@ public class ConfigurationInterpreterTOREMOVE
 				}
 			}
 			
-			schemaFileInputStream.close();
+			schemaTextInputStream.close();
 			configurationTextInputStream.close();
 			
 			// Store the text as is
@@ -500,7 +503,7 @@ public class ConfigurationInterpreterTOREMOVE
 		String rootName = rootNode.getName();
 		
 		log.debug("Root Element :" + rootName);
-		log.debug("Schema : " + rootNode.getAttribute(1).getValue());
+		//log.debug("Schema : " + rootNode.getAttribute(1).getValue());
 		
 		Iterator<String> itr = configurationFile.getKeys();
 		
