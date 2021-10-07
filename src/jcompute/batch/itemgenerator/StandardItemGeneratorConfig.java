@@ -161,7 +161,7 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 			parameters.add(groupName[p]);
 			parameters.add(pNumString + "ParameterName");
 			parameters.add(parameterName[p]);
-			parameters.add(pNumString + "Intial");
+			parameters.add(pNumString + "Initial");
 			parameters.add(String.valueOf(baseValue[p]));
 			parameters.add(pNumString + "Increment");
 			parameters.add(String.valueOf(increment[p]));
@@ -177,7 +177,7 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 			log.info(pNumString + "Path : " + path[p]);
 			log.info(pNumString + "GroupName : " + groupName[p]);
 			log.info(pNumString + "ParameterName : " + parameterName[p]);
-			log.info(pNumString + "Intial : " + baseValue[p]);
+			log.info(pNumString + "Initial : " + baseValue[p]);
 			log.info(pNumString + "Increment : " + increment[p]);
 			log.info(pNumString + "Combinations : " + step[p]);
 			log.info(pNumString + "Error Margin : " + errormargin[p]);
