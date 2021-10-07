@@ -1,43 +1,58 @@
 <Batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemas/batch.xsd">
 	<Header>
-		<Version>0.01</Version>
 		<Type>Batch</Type>
+		<Version>0.02</Version>
 	</Header>
-	<Config>
+	<ItemGeneration>
 		<BaseScenarioFileName>scenarios/1000-item.scenario</BaseScenarioFileName>
-		<ItemSamples>1000</ItemSamples>
-	</Config>
-	<Log>
+		<Samples>1000</Samples>
+		<EndEvents>
+			<Event>
+				<Name>StepCount</Name>
+				<Value>10000</Value>
+			</Event>
+			<Event>
+				<Name>AllPreyLTE</Name>
+				<Value>0</Value>
+			</Event>
+			<Event>
+				<Name>AllPredatorsLTE</Name>
+				<Value>0</Value>
+			</Event>
+		</EndEvents>
+		<Parameters>
+			<Parameter>
+				<Type>Group</Type>
+				<Path>Agents.SimpleAgent</Path>
+				<GroupName>Predator</GroupName>
+				<ParameterName>InitialNumbers</ParameterName>
+				<InitialVal>200</InitialVal>
+				<ValIncrement>0</ValIncrement>
+				<ValCombinations>1</ValCombinations>
+			</Parameter>
+			<Parameter>
+				<Type>Group</Type>
+				<Path>Agents.SimpleAgent</Path>
+				<GroupName>Prey</GroupName>
+				<ParameterName>InitialNumbers</ParameterName>
+				<InitialVal>600</InitialVal>
+				<ValIncrement>0</ValIncrement>
+				<ValCombinations>1</ValCombinations>
+			</Parameter>
+		</Parameters>
+	</ItemGeneration>
+	<Logging>
 		<InfoLog>true</InfoLog>
 		<ItemLog>true</ItemLog>
-	</Log>
-	<Stats>
+	</Logging>
+	<Statistics>
 		<Store>true</Store>
-		<TraceResult>true</TraceResult>
+		<TraceResults>true</TraceResults>
 		<SingleArchive>true</SingleArchive>
 		<CompressionLevel>2</CompressionLevel>
+		<BDFCResult>false</BDFCResult>
 		<BatchStatsExportDir>stats</BatchStatsExportDir>
 		<BatchGroupDir>Benchmark</BatchGroupDir>
 		<BatchSubGroupDirName>1000_Item</BatchSubGroupDirName>
-	</Stats>	
-	<Parameters>
-		<Parameter>
-			<Type>Group</Type>
-			<Path>Agents.SimpleAgent</Path>
-			<GroupName>Predator</GroupName>
-			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>200</Intial>
-			<Increment>0</Increment>
-			<Combinations>1</Combinations>
-		</Parameter>
-		<Parameter>
-			<Type>Group</Type>
-			<Path>Agents.SimpleAgent</Path>
-			<GroupName>Prey</GroupName>
-			<ParameterName>InitialNumbers</ParameterName>
-			<Intial>600</Intial>
-			<Increment>0</Increment>
-			<Combinations>1</Combinations>
-		</Parameter>
-	</Parameters>
+	</Statistics>
 </Batch>
