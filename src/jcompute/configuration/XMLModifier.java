@@ -227,10 +227,31 @@ public class XMLModifier
 				String nn = svn.getNodeName();
 				String tc = svn.getTextContent();
 				
+				String tempNewValue = newValue;
+				
+				try
+				{
+					// The generator creates values using double no matter the orignal value, to this will always be a double.
+					double nvd = Double.valueOf(tempNewValue);
+					
+					if(nvd % 1 == 0)
+					{
+						tempNewValue = String.valueOf((int) nvd);
+					}
+					
+				}
+				catch(NumberFormatException e)
+				{
+					e.printStackTrace();
+					
+					// Something is very wrong - we do not have a number
+					return false;
+				}
+				
 				if(nn.equals(variable))
 				{
-					System.out.println(nn + " : " + tc + " > " + newValue);
-					svn.setTextContent(newValue);
+					System.out.println(nn + " : " + tc + " > " + tempNewValue);
+					svn.setTextContent(tempNewValue);
 					
 					// Everything fine
 					return true;
