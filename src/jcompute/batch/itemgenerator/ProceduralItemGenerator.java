@@ -216,10 +216,22 @@ public class ProceduralItemGenerator extends ItemGenerator
 					// REF xmlmod.changeGroupVariableValue("Agents.SimpleAgent", "Name", "Predator", "InitialNumbers","50");
 					
 					// TODO break if return invalid
-					boolean status = temp.changeGroupVariableValue(path[p], "Name", groupName[p], parameterName[p],
+					boolean completed = temp.changeGroupVariableValue(path[p], "Name", groupName[p], parameterName[p],
 					String.valueOf(value[p]));
 					
+					log.debug("XML Group Variable : " + path[p] + " Name " + groupName[p] + " " + parameterName[p] + " "
+					+ String.valueOf(value[p]));
+					
 					// OLD temp.changeValue(groupSection, parameterName[p], (int) value[p]);
+					
+					if(!completed)
+					{
+						log.error("Cound not change XML Variable : " + path[p] + " Name " + groupName[p] + " "
+						+ parameterName[p] + " " + String.valueOf(value[p]));
+						
+						return false;
+					}
+					
 				}
 				else
 				{
@@ -229,6 +241,17 @@ public class ProceduralItemGenerator extends ItemGenerator
 					// TODO break if return invalid
 					boolean completed = temp.changeSingleVariableValue(path[p], parameterName[p], String.valueOf(
 					value[p]));
+					
+					log.debug("XML Single Variable : " + path[p] + " " + parameterName[p] + " " + String.valueOf(
+					value[p]));
+					
+					if(!completed)
+					{
+						log.error("Cound not change XML Variable : " + path[p] + " " + parameterName[p] + " " + String
+						.valueOf(value[p]));
+						
+						return false;
+					}
 					
 				}
 				
@@ -251,6 +274,8 @@ public class ProceduralItemGenerator extends ItemGenerator
 			// Add the generated item combo.
 			try
 			{
+				log.debug("Config Text : " + temp.getConfigXML());
+				
 				byte[] configBytes = temp.getConfigXML().getBytes("ISO-8859-1");
 				
 				// Add to disk cache and get an cache index for this itemId/config pair
