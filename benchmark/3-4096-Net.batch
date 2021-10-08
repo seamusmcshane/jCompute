@@ -9,7 +9,7 @@
 		<EndEvents>
 			<Event>
 				<Name>StepCount</Name>
-				<Value>10000</Value>
+				<Value>250</Value>
 			</Event>
 			<Event>
 				<Name>AllPreyLTE</Name>
