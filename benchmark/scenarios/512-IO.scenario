@@ -7,15 +7,15 @@
 	<EndEvents>
 		<Event>
 			<Name>StepCount</Name>
-			<Value>1000.0</Value>
+			<Value>1000</Value>
 		</Event>
 		<Event>
 			<Name>AllPreyLTE</Name>
-			<Value>0.0</Value>
+			<Value>0</Value>
 		</Event>
 		<Event>
 			<Name>AllPredatorsLTE</Name>
-			<Value>0.0</Value>
+			<Value>0</Value>
 		</Event>
 	</EndEvents>
 	<Statistics>
