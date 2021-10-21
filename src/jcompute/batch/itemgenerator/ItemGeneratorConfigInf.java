@@ -11,6 +11,4 @@ public interface ItemGeneratorConfigInf
 	public String[] getGroupName();
 	
 	public String[] getParameterName();
-	
-	public String getConfigSchema();
 }

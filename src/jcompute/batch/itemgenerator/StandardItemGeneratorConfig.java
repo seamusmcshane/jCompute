@@ -13,8 +13,6 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	// Log4j2 Logger
 	private static Logger log = LogManager.getLogger(StandardItemGeneratorConfig.class);
 	
-	private final String scenarioConfigSchema;
-	
 	private final String baseScenarioText;
 	
 	private final int itemSamples;
@@ -40,8 +38,6 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	{
 		// The file to be used to generate configs
 		this.baseScenarioText = baseScenarioText;
-		
-		this.scenarioConfigSchema = scenarioConfigSchema;
 		
 		// Number of item samples
 		this.itemSamples = itemSamples;
@@ -199,12 +195,6 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	public int getItemSamples()
 	{
 		return itemSamples;
-	}
-	
-	@Override
-	public String getConfigSchema()
-	{
-		return scenarioConfigSchema;
 	}
 	
 	@Override

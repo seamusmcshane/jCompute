@@ -172,7 +172,7 @@ public class ProceduralItemGenerator extends ItemGenerator
 			// Create a copy of the base scenario
 			temp = new XMLModifier();
 			
-			String schemaText = config.getConfigSchema();
+			// String schemaText = config.getConfigSchema();
 			
 			// System.out.println(baseScenarioText);
 			// System.out.println(schemaText);
