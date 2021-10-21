@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import jcompute.batch.batchresults.BatchResultSettings;
 import jcompute.batch.itemgenerator.ItemGeneratorConfigInf;
-import jcompute.batch.log.item.custom.logger.CustomItemResultsSettings;
 import jcompute.configuration.JComputeConfigurationUtility;
 import jcompute.configuration.batch.BatchJobConfig;
 import jcompute.scenario.ScenarioInf;
@@ -168,6 +167,8 @@ public class BatchConfigProcessor
 				// Scenario Text
 				baseScenarioText = tempText;
 				
+				log.debug("File text : " + baseScenarioText);
+				
 				// Finally create a real Scenario // TODO pass on the batch config so the scenario its self can handle stat enabled/missmatches.
 				baseScenario = ScenarioPluginManager.getScenario(baseScenarioText);
 				
@@ -247,8 +248,8 @@ public class BatchConfigProcessor
 				}
 				
 				// Get ItemGeneratorConfig from base scenario
-				itemGeneratorConfig = baseScenario.getItemGeneratorConfig(bjc.getConfig().getParameterList(),
-				baseScenarioText, itemSamples);
+				itemGeneratorConfig = baseScenario.ClusterSupport().getItemGeneratorConfig(bjc.getConfig()
+				.getParameterList(), baseScenarioText, itemSamples);
 			}
 		}
 		else

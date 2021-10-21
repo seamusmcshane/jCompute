@@ -183,7 +183,7 @@ public class Batch implements StoredQueuePosition
 			{
 				ScenarioInf baseScenario = settings.baseScenario;
 				
-				BatchItemLogInf itemLog = baseScenario.getItemLogWriter();
+				BatchItemLogInf itemLog = baseScenario.ClusterSupport().getItemLogWriter();
 				
 				ArrayList<CustomItemResultInf> customItemResultList = baseScenario.getSimulationScenarioManager(null)
 				.getResultManager().getCustomItemResultList();
@@ -211,7 +211,7 @@ public class Batch implements StoredQueuePosition
 				to.startTimer();
 				
 				// Create a generator (type HC for now and too many vars)
-				ItemGenerator itemGenerator = baseScenario.getItemGenerator();
+				ItemGenerator itemGenerator = baseScenario.ClusterSupport().getItemGenerator();
 				
 				if(itemGenerator == null)
 				{
@@ -223,7 +223,7 @@ public class Batch implements StoredQueuePosition
 				}
 				
 				// Ref Stored in batch
-				itemStore = baseScenario.getItemStore();
+				itemStore = baseScenario.ClusterSupport().getItemStore();
 				
 				if(itemGenerator.generate(batchId, itemGenerationProgress, itemManager, itemStore, settings))
 				{

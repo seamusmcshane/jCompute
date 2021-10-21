@@ -33,8 +33,7 @@ public class StandardItemGeneratorConfig implements ItemGeneratorConfigInf
 	// Calculated total combinations
 	private final int totalCombinations;
 	
-	public StandardItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText,
-	String scenarioConfigSchema, int itemSamples)
+	public StandardItemGeneratorConfig(List<Parameter> parameterList, String baseScenarioText, int itemSamples)
 	{
 		// The file to be used to generate configs
 		this.baseScenarioText = baseScenarioText;
